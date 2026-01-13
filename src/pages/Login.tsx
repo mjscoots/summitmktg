@@ -27,10 +27,8 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
-      </div>
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-primary/30" />
 
       <div className="relative z-10 w-full max-w-md animate-fade-in">
         <button
@@ -42,8 +40,8 @@ const Login = () => {
         </button>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Welcome back</h1>
+          <p className="text-muted-foreground text-sm">
             Sign in to continue your training
           </p>
         </div>
