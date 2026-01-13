@@ -90,11 +90,11 @@ const VetApplication = () => {
             Back
           </button>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">
+            <span className="text-xs font-semibold text-primary uppercase tracking-widest">
               Veteran Application
             </span>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground">
             {steps[currentStep - 1].title}
           </h1>
         </div>
@@ -107,7 +107,7 @@ const VetApplication = () => {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
                     step.id < currentStep
-                      ? "bg-gradient-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground"
                       : step.id === currentStep
                       ? "bg-primary/20 text-primary border border-primary"
                       : "bg-muted text-muted-foreground"

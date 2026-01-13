@@ -116,8 +116,8 @@ const ManagerDashboard = () => {
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold">
-              Sales<span className="text-gradient">School</span>
+            <h1 className="text-lg font-black tracking-tight">
+              SUMMIT <span className="text-primary">MKTG</span>
             </h1>
             <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
               Manager

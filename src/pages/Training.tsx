@@ -118,12 +118,12 @@ const Training = () => {
                   key={lesson.id}
                   onClick={() => handleLessonClick(lesson)}
                   disabled={!lesson.completed && !lesson.current}
-                  className={`w-full p-4 rounded-lg text-left transition-all ${
+                  className={`w-full p-4 rounded text-left transition-all ${
                     activeLesson?.id === lesson.id
-                      ? "bg-primary/10 border border-primary/30"
+                      ? "bg-primary/10 border border-primary"
                       : lesson.completed || lesson.current
-                      ? "bg-card hover:bg-muted border border-border/50"
-                      : "bg-card/50 opacity-50 cursor-not-allowed border border-border/30"
+                      ? "bg-card hover:bg-muted border border-border"
+                      : "bg-card/50 opacity-50 cursor-not-allowed border border-border"
                   }`}
                 >
                   <div className="flex items-center gap-3">
