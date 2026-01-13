@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import summitLogo from "@/assets/summit-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -11,10 +12,12 @@ const Index = () => {
 
       <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
         {/* Logo */}
-        <div className="mb-16">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
-            SUMMIT <span className="text-primary">MKTG</span>
-          </h1>
+        <div className="mb-12">
+          <img 
+            src={summitLogo} 
+            alt="Summit Marketing" 
+            className="w-64 md:w-80 mx-auto"
+          />
         </div>
 
         {/* Main Question */}
