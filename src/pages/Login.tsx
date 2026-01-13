@@ -16,11 +16,11 @@ const Login = () => {
     // Simulate login - replace with actual auth
     setTimeout(() => {
       // Demo: route based on email pattern
-      if (email.includes("manager")) {
-        navigate("/manager");
-      } else {
-        navigate("/dashboard");
-      }
+      // vet/manager emails contain "vet", "manager", or "lead"
+      const isVet = email.includes("vet") || email.includes("manager") || email.includes("lead");
+      const role = isVet ? "vet" : "rookie";
+      localStorage.setItem("userRole", role);
+      navigate("/app");
       setIsLoading(false);
     }, 1000);
   };

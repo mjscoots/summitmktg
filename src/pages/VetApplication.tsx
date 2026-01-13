@@ -44,7 +44,7 @@ const VetApplication = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      setIsSubmitted(true);
+      navigate("/apply/success");
     }
   };
 
