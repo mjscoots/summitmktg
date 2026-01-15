@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import summitLogo from "@/assets/summit-logo-clean.png";
+import summitLogo from "@/assets/summit-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
