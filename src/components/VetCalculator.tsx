@@ -83,7 +83,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
   // Veteran Reps
   const [numVeteranRepsStr, setNumVeteranRepsStr] = useState("");
-  const [avgVeteranRevenueStr, setAvgVeteranRevenueStr] = useState("337,000");
+  const [avgVeteranRevenueStr, setAvgVeteranRevenueStr] = useState("");
 
   // Personal Production
   const [includePersonal, setIncludePersonal] = useState(true);
@@ -218,10 +218,10 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               value={avgRepRevenueStr}
               onChange={(e) => handleNumericChange(e.target.value, setAvgRepRevenueStr)}
               className="input-field"
-              placeholder="Example: Summit rookie average last year — $220,000"
+              placeholder="Summit AVG $220,000"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Accounts cancel over time. Earnings are calculated on revenue that lasts the full summer.
+              Calculated with 20% cancels.
             </p>
           </div>
         </div>
@@ -260,7 +260,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               value={avgVeteranRevenueStr}
               onChange={(e) => handleNumericChange(e.target.value, setAvgVeteranRevenueStr)}
               className="input-field"
-              placeholder="0"
+              placeholder="Summit VET AVG $337,000"
             />
           </div>
         </div>
