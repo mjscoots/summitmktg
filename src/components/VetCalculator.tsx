@@ -112,16 +112,28 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
     }
   };
 
-  // Calculations
-  const managedRepsRevenue = numManagers * repsPerManager * avgRepRevenue;
-  const veteranRepsRevenue = numVeteranReps * avgVeteranRevenue;
+  // Calculations with retention and cancellation adjustments
+  // Managers: 100% retention (no attrition)
+  // Rookie reps per manager: 75% retention (25% attrition)
+  const retainedRepsPerManager = repsPerManager * 0.75;
+  // Rookie serviced revenue: 20% cancellation adjustment
+  const rookieActiveRevenue = avgRepRevenue * 0.80;
+  const managedRepsRevenue = numManagers * retainedRepsPerManager * rookieActiveRevenue;
+  
+  // Veteran reps: 100% retention (no attrition)
+  // Veteran serviced revenue: 15% cancellation adjustment
+  const veteranActiveRevenue = avgVeteranRevenue * 0.85;
+  const veteranRepsRevenue = numVeteranReps * veteranActiveRevenue;
+  
   const totalTeamActiveRevenue = managedRepsRevenue + veteranRepsRevenue;
 
   const marketingDealRate = getMarketingDealRate(totalTeamActiveRevenue);
   const leadershipEarnings = totalTeamActiveRevenue * marketingDealRate;
 
-  const personalRate = getPersonalRate(personalRevenue);
-  const personalEarnings = includePersonal ? personalRevenue * personalRate : 0;
+  // Personal production: 15% cancellation adjustment
+  const personalActiveRevenue = personalRevenue * 0.85;
+  const personalRate = getPersonalRate(personalActiveRevenue);
+  const personalEarnings = includePersonal ? personalActiveRevenue * personalRate : 0;
 
   const totalEarnings = leadershipEarnings + personalEarnings;
 
@@ -181,9 +193,12 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Avg Reps per Manager
             </label>
+            <p className="text-xs text-muted-foreground mb-2">
+              75% rookie rep retention — Summit-exclusive and industry-leading.
+            </p>
             <input
               type="text"
               inputMode="numeric"
@@ -194,8 +209,8 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Avg Active Revenue per Rep
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Avg Serviced Revenue per Rep
             </label>
             <input
               type="text"
@@ -205,6 +220,9 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               className="input-field"
               placeholder="0"
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Accounts cancel over time. Earnings are calculated on revenue that lasts the full summer.
+            </p>
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
@@ -234,7 +252,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Avg Active Revenue per Vet Rep
+              Avg Serviced Revenue per Vet Rep
             </label>
             <input
               type="text"
@@ -272,9 +290,12 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
         {includePersonal && (
           <div className="p-4 rounded-lg border border-border">
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Your Personal Active Revenue
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Your Goal Active Revenue
             </label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Returning reps nearly double their previous year's active revenue.
+            </p>
             <input
               type="text"
               inputMode="numeric"
