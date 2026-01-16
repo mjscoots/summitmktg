@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, Play } from "lucide-react";
-import VetCalculator from "@/components/VetCalculator";
+import VetCalculator, { VetCalculatorValues } from "@/components/VetCalculator";
 
 interface FormData {
   fullName: string;
@@ -144,7 +144,63 @@ const VetApplication = () => {
   };
 
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [calcValues, setCalcValues] = useState<VetCalculatorValues | null>(null);
 
+  const handleCalcValuesChange = useCallback((values: VetCalculatorValues) => {
+    setCalcValues(values);
+  }, []);
+
+  // Competitor calculator logic - 30% retention, 10% direct override
+  const COMPETITOR_RETENTION_RATE = 0.30;
+  const COMPETITOR_OVERRIDE_RATE = 0.10;
+
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  // Calculate competitor earnings based on Summit calculator inputs
+  const getCompetitorEarnings = () => {
+    if (!calcValues) return { teamRevenue: 0, overrideEarnings: 0, personalEarnings: 0, totalEarnings: 0 };
+    
+    // Calculate total rookie reps (managers × reps per manager)
+    const totalRookieReps = calcValues.numManagers * calcValues.repsPerManager;
+    // Apply 30% retention for competitor structure
+    const finishedRookieReps = Math.floor(totalRookieReps * COMPETITOR_RETENTION_RATE);
+    // Revenue from finished rookie reps at competitor
+    const rookieTeamRevenue = finishedRookieReps * calcValues.avgRepRevenue;
+    
+    // Veteran reps (no retention adjustment - they're vets)
+    const vetTeamRevenue = calcValues.numVeteranReps * calcValues.avgVeteranRevenue;
+    
+    // Total team revenue after retention
+    const teamRevenue = rookieTeamRevenue + vetTeamRevenue;
+    
+    // 10% direct override
+    const overrideEarnings = teamRevenue * COMPETITOR_OVERRIDE_RATE;
+    
+    // Personal production (same rate logic for comparison)
+    const personalEarnings = calcValues.includePersonal ? calcValues.personalEarnings : 0;
+    
+    const totalEarnings = overrideEarnings + personalEarnings;
+    
+    return { 
+      totalRookieReps,
+      finishedRookieReps,
+      rookieTeamRevenue,
+      vetTeamRevenue,
+      teamRevenue, 
+      overrideEarnings, 
+      personalEarnings, 
+      totalEarnings 
+    };
+  };
+
+  const competitorEarnings = getCompetitorEarnings();
   const leadershipUpside = [
     { icon: Users, text: "Build a squad" },
     { icon: Target, text: "Training system + accountability" },
@@ -187,11 +243,118 @@ const VetApplication = () => {
 
         {/* Calculator with Apply CTA */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <VetCalculator onApplyClick={scrollToForm} />
+          <VetCalculator onApplyClick={scrollToForm} onValuesChange={handleCalcValuesChange} />
+        </div>
+
+        {/* Competitor Earnings Calculator - Auto-filled from Summit inputs */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          <div className="card-elevated p-6 md:p-8 bg-secondary/20">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-foreground uppercase tracking-wide mb-2">
+                Estimated Earnings on a Direct Override Structure
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Auto-calculated using your inputs above
+              </p>
+            </div>
+
+            {calcValues && (calcValues.numManagers > 0 || calcValues.numVeteranReps > 0) ? (
+              <>
+                {/* Your Inputs */}
+                <div className="space-y-3 mb-6">
+                  <h5 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Your Inputs (from Summit Calculator)</h5>
+                  <ul className="space-y-2 text-sm text-foreground">
+                    <li className="flex justify-between">
+                      <span>Managers:</span>
+                      <span className="font-medium">{calcValues.numManagers}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Reps per manager:</span>
+                      <span className="font-medium">{calcValues.repsPerManager}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Total rookie reps:</span>
+                      <span className="font-medium">{competitorEarnings.totalRookieReps}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Avg revenue per rep:</span>
+                      <span className="font-medium">{formatCurrency(calcValues.avgRepRevenue)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Veteran reps:</span>
+                      <span className="font-medium">{calcValues.numVeteranReps}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Avg veteran revenue:</span>
+                      <span className="font-medium">{formatCurrency(calcValues.avgVeteranRevenue)}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Competitor Adjustments */}
+                <div className="space-y-3 mb-6 p-4 rounded-lg bg-secondary/30 border border-border">
+                  <h5 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Competitor Structure Adjustments</h5>
+                  <ul className="space-y-2 text-sm text-foreground">
+                    <li className="flex justify-between">
+                      <span>Rookie retention rate:</span>
+                      <span className="font-medium">30%</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Finished rookie reps:</span>
+                      <span className="font-medium">{competitorEarnings.finishedRookieReps}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Override structure:</span>
+                      <span className="font-medium">10% direct only</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Calculated Outputs */}
+                <div className="border-t border-border pt-4 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Rookie team revenue (after 30% retention):</span>
+                    <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.rookieTeamRevenue)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Veteran team revenue:</span>
+                    <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.vetTeamRevenue)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Total active team revenue:</span>
+                    <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.teamRevenue)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Direct override earnings (10%):</span>
+                    <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.overrideEarnings)}</span>
+                  </div>
+                  {calcValues.includePersonal && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Personal production earnings:</span>
+                      <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.personalEarnings)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-3 border-t border-border">
+                    <span className="font-semibold text-foreground">Total Estimated Competitor Earnings:</span>
+                    <span className="text-2xl font-black text-foreground">{formatCurrency(competitorEarnings.totalEarnings)}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-sm">Enter values in the Summit Veteran Calculator above to see your estimated competitor earnings.</p>
+              </div>
+            )}
+
+            {/* Disclaimer */}
+            <p className="text-xs text-muted-foreground text-center mt-6 pt-4 border-t border-border">
+              Competitor pay scale shown for structural comparison only. This comparison uses your own inputs to illustrate how different compensation structures affect earnings. Competitor assumptions are simplified and shown for structural comparison only.
+            </p>
+          </div>
         </div>
 
         {/* Leadership Upside Section */}
-        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <h2 className="text-2xl font-bold text-foreground mb-6 text-center uppercase tracking-wide">
             Leadership Upside
           </h2>
@@ -206,7 +369,7 @@ const VetApplication = () => {
         </div>
 
         {/* Veteran Results - Video Section */}
-        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Mountain className="w-5 h-5 text-primary" />
@@ -239,127 +402,6 @@ const VetApplication = () => {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Earnings Comparison Section */}
-        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <div className="text-center mb-8">
-            <h3 className="text-xl font-bold text-foreground uppercase tracking-wide mb-2">
-              See the Difference
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              Compare your earning potential side by side.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Competitor Side */}
-            <div className="card-elevated p-6">
-              <div className="text-center mb-6">
-                <h4 className="text-lg font-bold text-foreground mb-1">
-                  Estimated Earnings on a Direct Override Structure
-                </h4>
-                <p className="text-xs text-muted-foreground">Assumptions based on a 10% direct override</p>
-              </div>
-              
-              <div className="space-y-3 mb-6">
-                <h5 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Assumptions</h5>
-                <ul className="space-y-2 text-sm text-foreground">
-                  <li className="flex justify-between">
-                    <span>Team size:</span>
-                    <span className="font-medium">10 reps showed up</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Rep retention:</span>
-                    <span className="font-medium">35% finish rate</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Finished reps:</span>
-                    <span className="font-medium">3–4 reps</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Rookie rep average:</span>
-                    <span className="font-medium">$150,000</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Override structure:</span>
-                    <span className="font-medium">10% direct only</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border-t border-border pt-4 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total active team revenue:</span>
-                  <span className="font-medium text-foreground">$525,000</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Override earnings (10%):</span>
-                  <span className="font-medium text-foreground">$52,500</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t border-border">
-                  <span className="font-semibold text-foreground">Estimated Earnings:</span>
-                  <span className="text-2xl font-black text-foreground">$52,500</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Summit Side */}
-            <div className="card-elevated p-6 border-2 border-primary bg-primary/5">
-              <div className="text-center mb-6">
-                <h4 className="text-lg font-bold text-primary mb-1">
-                  Estimated Earnings at Summit Marketing
-                </h4>
-                <p className="text-xs text-muted-foreground">Marketing deal structure with scale upside</p>
-              </div>
-              
-              <div className="space-y-3 mb-6">
-                <h5 className="text-sm font-semibold text-primary uppercase tracking-wide">Assumptions</h5>
-                <ul className="space-y-2 text-sm text-foreground">
-                  <li className="flex justify-between">
-                    <span>Team size:</span>
-                    <span className="font-medium">10 reps showed up</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Rookie rep retention:</span>
-                    <span className="font-medium text-primary">75% finish rate</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Finished reps:</span>
-                    <span className="font-medium text-primary">7–8 reps</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Rookie rep average:</span>
-                    <span className="font-medium text-primary">$220,000</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Compensation structure:</span>
-                    <span className="font-medium">Marketing deal</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border-t border-primary/30 pt-4 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total active team revenue:</span>
-                  <span className="font-medium text-foreground">$1,650,000</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Marketing deal earnings:</span>
-                  <span className="font-medium text-primary">$165,000+</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t border-primary/30">
-                  <span className="font-semibold text-foreground">Estimated Earnings:</span>
-                  <span className="text-2xl font-black text-primary">$165,000+</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Disclaimer */}
-          <p className="text-xs text-muted-foreground text-center mt-6">
-            These examples are illustrative and based on stated assumptions. Actual results vary by market, execution, and retention.
-          </p>
         </div>
 
         {/* Application Form */}
