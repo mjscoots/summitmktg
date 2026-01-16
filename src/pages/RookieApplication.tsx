@@ -9,8 +9,6 @@ interface FormData {
   email: string;
   phone: string;
   cityState: string;
-  salesExperience: string;
-  referralSource: string;
   referralName: string;
 }
 
@@ -19,8 +17,6 @@ interface FormErrors {
   email?: string;
   phone?: string;
   cityState?: string;
-  salesExperience?: string;
-  referralSource?: string;
   referralName?: string;
 }
 
@@ -32,8 +28,6 @@ const RookieApplication = () => {
     email: "",
     phone: "",
     cityState: "",
-    salesExperience: "",
-    referralSource: "",
     referralName: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -42,8 +36,6 @@ const RookieApplication = () => {
     email: false,
     phone: false,
     cityState: false,
-    salesExperience: false,
-    referralSource: false,
     referralName: false,
   });
 
@@ -67,8 +59,6 @@ const RookieApplication = () => {
         email: "Email Address",
         phone: "Phone Number",
         cityState: "City, State",
-        salesExperience: "Sales Experience",
-        referralSource: "How Did You Hear About Us",
         referralName: "Who did you hear about us from",
       };
       const error = `${fieldLabels[field]} is required`;
@@ -90,8 +80,6 @@ const RookieApplication = () => {
       "email",
       "phone",
       "cityState",
-      "salesExperience",
-      "referralSource",
       "referralName",
     ];
     
@@ -108,8 +96,6 @@ const RookieApplication = () => {
           email: "Email Address",
           phone: "Phone Number",
           cityState: "City, State",
-          salesExperience: "Sales Experience",
-          referralSource: "How Did You Hear About Us",
           referralName: "Who did you hear about us from",
         };
         newErrors[field] = `${fieldLabels[field]} is required`;
@@ -131,8 +117,6 @@ const RookieApplication = () => {
       formData.email.trim() !== "" &&
       formData.phone.trim() !== "" &&
       formData.cityState.trim() !== "" &&
-      formData.salesExperience !== "" &&
-      formData.referralSource !== "" &&
       formData.referralName.trim() !== ""
     );
   };
@@ -310,44 +294,6 @@ const RookieApplication = () => {
                 />
                 {touched.cityState && errors.cityState && (
                   <p className="text-destructive text-sm mt-1">{errors.cityState}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Any Sales Experience?<RequiredAsterisk />
-                </label>
-                <select
-                  value={formData.salesExperience}
-                  onChange={(e) => updateField("salesExperience", e.target.value)}
-                  onBlur={() => handleBlur("salesExperience")}
-                  className={`input-field ${touched.salesExperience && errors.salesExperience ? 'border-destructive' : ''}`}
-                  required
-                >
-                  <option value="">Select an option</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-                {touched.salesExperience && errors.salesExperience && (
-                  <p className="text-destructive text-sm mt-1">{errors.salesExperience}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  How Did You Hear About Us?<RequiredAsterisk />
-                </label>
-                <select
-                  value={formData.referralSource}
-                  onChange={(e) => updateField("referralSource", e.target.value)}
-                  onBlur={() => handleBlur("referralSource")}
-                  className={`input-field ${touched.referralSource && errors.referralSource ? 'border-destructive' : ''}`}
-                  required
-                >
-                  <option value="">Select an option</option>
-                  <option value="social">Social Media</option>
-                  <option value="friend">Friend or Colleague</option>
-                </select>
-                {touched.referralSource && errors.referralSource && (
-                  <p className="text-destructive text-sm mt-1">{errors.referralSource}</p>
                 )}
               </div>
             </div>
