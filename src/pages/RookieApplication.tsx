@@ -205,9 +205,15 @@ const RookieApplication = () => {
           </form>
         </div>
 
-        {/* Testimonials */}
+        {/* Testimonials with Video */}
         <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <Testimonials title="Rookie Results" testimonials={rookieTestimonials} />
+          <Testimonials 
+            title="Rookie Results" 
+            testimonials={rookieTestimonials} 
+            showVideo={true}
+            videoTitle="WATCH WHAT A SUMMER AT SUMMIT LOOKS LIKE"
+            videoSubtext="Real reps. Real results. Four months of door-to-door."
+          />
         </div>
       </main>
     </div>
