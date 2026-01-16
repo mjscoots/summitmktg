@@ -188,7 +188,7 @@ const RookieCalculator = ({ onApplyClick }: RookieCalculatorProps) => {
 
         {/* Attrition disclaimer */}
         <p className="text-xs text-muted-foreground mb-8 text-center">
-          Estimates include a conservative 20% attrition. Commission tier is based on serviced revenue.
+          Sales reps are paid on revenue that lasts the full summer, not what cancels. Your commission rate is not affected—only your earnings. Earnings estimates include a HIGH 20% attrition.
         </p>
 
         {/* Rookie Pay Scale */}
