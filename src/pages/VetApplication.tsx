@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, Play } from "lucide-react";
 import VetCalculator from "@/components/VetCalculator";
-import Testimonials, { vetTestimonials } from "@/components/Testimonials";
 
 interface FormData {
   fullName: string;
@@ -63,7 +62,7 @@ const VetApplication = () => {
         phone: "Phone Number",
         cityState: "City, State",
         lastSeasonRevenue: "Last Season Revenue",
-        intendedMarket: "Favorite or Previously Knocked Markets",
+        intendedMarket: "Previously Knocked Markets",
         referralName: "Who did you hear about us from",
       };
       return `${fieldLabels[field]} is required`;
@@ -144,6 +143,8 @@ const VetApplication = () => {
     formRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+
   const leadershipUpside = [
     { icon: Users, text: "Build a squad" },
     { icon: Target, text: "Training system + accountability" },
@@ -204,8 +205,84 @@ const VetApplication = () => {
           </div>
         </div>
 
+        {/* Veteran Results - Video Section */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Mountain className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-wide">
+                Hear From Vets Who've Done This Before
+              </h2>
+              <Mountain className="w-5 h-5 text-primary" />
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Experienced reps explaining why they switched and scaled at Summit.
+            </p>
+          </div>
+          
+          <div className="card-elevated p-6 md:p-8">
+            <div className="relative aspect-video bg-secondary/50 rounded-lg overflow-hidden border border-border">
+              {!isVideoPlaying ? (
+                <button 
+                  onClick={() => setIsVideoPlaying(true)}
+                  className="absolute inset-0 flex items-center justify-center group"
+                >
+                  <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center group-hover:bg-primary transition-colors">
+                    <Play className="w-6 h-6 text-primary-foreground ml-1" />
+                  </div>
+                </button>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  {/* Replace with actual video embed */}
+                  <p className="text-sm">Video player placeholder</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Earnings Comparison Section */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.25s" }}>
+          <div className="text-center mb-8">
+            <h3 className="text-xl font-bold text-foreground uppercase tracking-wide mb-2">
+              See the Difference
+            </h3>
+            <p className="text-muted-foreground text-sm">
+              Compare your earning potential side by side.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Competitor Side */}
+            <div className="card-elevated p-6">
+              <div className="text-center mb-4">
+                <h4 className="text-lg font-bold text-foreground mb-1">
+                  Estimated Earnings at Leading Competitor
+                </h4>
+                <p className="text-xs text-muted-foreground">Standard corporate structure</p>
+              </div>
+              <div className="aspect-[4/3] bg-secondary/30 rounded-lg border border-border flex items-center justify-center">
+                <p className="text-sm text-muted-foreground">Competitor earnings image placeholder</p>
+              </div>
+            </div>
+
+            {/* Summit Side */}
+            <div className="card-elevated p-6 border-2 border-primary bg-primary/5">
+              <div className="text-center mb-4">
+                <h4 className="text-lg font-bold text-primary mb-1">
+                  Estimated Earnings at Summit Marketing
+                </h4>
+                <p className="text-xs text-muted-foreground">Marketing deal + scale upside</p>
+              </div>
+              <div className="aspect-[4/3] bg-primary/10 rounded-lg border-2 border-primary/30 flex items-center justify-center">
+                <p className="text-sm text-primary">Summit earnings image placeholder</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Application Form */}
-        <div ref={formRef} className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div ref={formRef} className="mb-16 animate-fade-in" style={{ animationDelay: "0.3s" }}>
           {/* Electric Header - matching Rookie styling */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
@@ -313,7 +390,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Favorite or Previously Knocked Markets<RequiredAsterisk />
+                  Previously Knocked Markets<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
@@ -357,11 +434,6 @@ const VetApplication = () => {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Testimonials */}
-        <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <Testimonials title="Veteran Results" testimonials={vetTestimonials} />
         </div>
       </main>
     </div>
