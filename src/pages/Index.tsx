@@ -72,7 +72,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-bold text-foreground mb-2 uppercase">I'm a Vet</h3>
             <p className="text-muted-foreground text-sm uppercase tracking-wide">
-              Ready to Lead
+              Completed a Summer of Door-to-Door Sales
             </p>
           </button>
         </div>
