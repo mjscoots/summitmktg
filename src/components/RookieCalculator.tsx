@@ -86,7 +86,6 @@ const RookieCalculator = () => {
         />
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>$70,000</span>
-          <span className="font-medium text-foreground">{formatCurrency(revenue)}</span>
           <span>$350,000</span>
         </div>
       </div>
