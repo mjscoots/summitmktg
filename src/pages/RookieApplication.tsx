@@ -99,7 +99,7 @@ const RookieApplication = () => {
         </div>
 
         {/* Testimonials with Video */}
-        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div className="mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <Testimonials 
             title="Rookie Results" 
             testimonials={rookieTestimonials} 
@@ -111,12 +111,19 @@ const RookieApplication = () => {
 
         {/* Application Form */}
         <div ref={formRef} className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Mountain className="w-4 h-4 text-primary/40" />
-            <h2 className="text-2xl font-bold text-foreground text-center uppercase tracking-wide">
-              Apply as a Rookie
-            </h2>
-            <Mountain className="w-4 h-4 text-primary/40" />
+          {/* Electric Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Mountain className="w-6 h-6 text-primary" />
+              <h2 className="text-3xl md:text-4xl font-black text-primary uppercase tracking-wide">
+                Ready to Run Your First Summer?
+              </h2>
+              <Mountain className="w-6 h-6 text-primary" />
+            </div>
+            <div className="w-24 h-1 bg-primary mx-auto mb-3 rounded-full" />
+            <p className="text-muted-foreground text-sm uppercase tracking-wide">
+              Apply below to lock in your spot.
+            </p>
           </div>
           
           <form onSubmit={handleSubmit} className="card-elevated p-6 md:p-8">
