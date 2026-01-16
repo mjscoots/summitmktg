@@ -255,30 +255,111 @@ const VetApplication = () => {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Competitor Side */}
             <div className="card-elevated p-6">
-              <div className="text-center mb-4">
+              <div className="text-center mb-6">
                 <h4 className="text-lg font-bold text-foreground mb-1">
-                  Estimated Earnings at Leading Competitor
+                  Estimated Earnings on a Direct Override Structure
                 </h4>
-                <p className="text-xs text-muted-foreground">Standard corporate structure</p>
+                <p className="text-xs text-muted-foreground">Assumptions based on a 10% direct override</p>
               </div>
-              <div className="aspect-[4/3] bg-secondary/30 rounded-lg border border-border flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Competitor earnings image placeholder</p>
+              
+              <div className="space-y-3 mb-6">
+                <h5 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Assumptions</h5>
+                <ul className="space-y-2 text-sm text-foreground">
+                  <li className="flex justify-between">
+                    <span>Team size:</span>
+                    <span className="font-medium">10 reps showed up</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Rep retention:</span>
+                    <span className="font-medium">35% finish rate</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Finished reps:</span>
+                    <span className="font-medium">3–4 reps</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Rookie rep average:</span>
+                    <span className="font-medium">$150,000</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Override structure:</span>
+                    <span className="font-medium">10% direct only</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border-t border-border pt-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total active team revenue:</span>
+                  <span className="font-medium text-foreground">$525,000</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Override earnings (10%):</span>
+                  <span className="font-medium text-foreground">$52,500</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-border">
+                  <span className="font-semibold text-foreground">Estimated Earnings:</span>
+                  <span className="text-2xl font-black text-foreground">$52,500</span>
+                </div>
               </div>
             </div>
 
             {/* Summit Side */}
             <div className="card-elevated p-6 border-2 border-primary bg-primary/5">
-              <div className="text-center mb-4">
+              <div className="text-center mb-6">
                 <h4 className="text-lg font-bold text-primary mb-1">
                   Estimated Earnings at Summit Marketing
                 </h4>
-                <p className="text-xs text-muted-foreground">Marketing deal + scale upside</p>
+                <p className="text-xs text-muted-foreground">Marketing deal structure with scale upside</p>
               </div>
-              <div className="aspect-[4/3] bg-primary/10 rounded-lg border-2 border-primary/30 flex items-center justify-center">
-                <p className="text-sm text-primary">Summit earnings image placeholder</p>
+              
+              <div className="space-y-3 mb-6">
+                <h5 className="text-sm font-semibold text-primary uppercase tracking-wide">Assumptions</h5>
+                <ul className="space-y-2 text-sm text-foreground">
+                  <li className="flex justify-between">
+                    <span>Team size:</span>
+                    <span className="font-medium">10 reps showed up</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Rookie rep retention:</span>
+                    <span className="font-medium text-primary">75% finish rate</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Finished reps:</span>
+                    <span className="font-medium text-primary">7–8 reps</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Rookie rep average:</span>
+                    <span className="font-medium text-primary">$220,000</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Compensation structure:</span>
+                    <span className="font-medium">Marketing deal</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border-t border-primary/30 pt-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total active team revenue:</span>
+                  <span className="font-medium text-foreground">$1,650,000</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Marketing deal earnings:</span>
+                  <span className="font-medium text-primary">$165,000+</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-primary/30">
+                  <span className="font-semibold text-foreground">Estimated Earnings:</span>
+                  <span className="text-2xl font-black text-primary">$165,000+</span>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Disclaimer */}
+          <p className="text-xs text-muted-foreground text-center mt-6">
+            These examples are illustrative and based on stated assumptions. Actual results vary by market, execution, and retention.
+          </p>
         </div>
 
         {/* Application Form */}
