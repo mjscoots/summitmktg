@@ -122,7 +122,7 @@ const RookieApplication = () => {
             </div>
             <div className="w-24 h-1 bg-primary mx-auto mb-3 rounded-full" />
             <p className="text-muted-foreground text-sm uppercase tracking-wide">
-              Apply below to lock in your spot.
+              Apply below to get the process started.
             </p>
           </div>
           
