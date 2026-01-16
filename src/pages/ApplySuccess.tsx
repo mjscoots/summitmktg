@@ -20,7 +20,7 @@ const ApplySuccess = () => {
             Back to Home
           </button>
           <a 
-            href="https://instagram.com/summitmktgsales" 
+            href="https://www.instagram.com/summitmktgsales/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn-primary"
