@@ -1,6 +1,12 @@
-import { useState } from "react";
-import { DollarSign, TrendingUp, Home } from "lucide-react";
+import { useState, useRef } from "react";
+import { DollarSign, TrendingUp, Home, Play } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ROOKIE_BRACKETS = [
   { min: 0, max: 69999, rate: 0.18 },
@@ -27,113 +33,217 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-const RookieCalculator = () => {
-  const [revenue, setRevenue] = useState(170000);
+interface RookieCalculatorProps {
+  onApplyClick?: () => void;
+}
 
+const RookieCalculator = ({ onApplyClick }: RookieCalculatorProps) => {
+  // Start in the middle ($250,000)
+  const [revenue, setRevenue] = useState(250000);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+
+  // Commission tier is based on ORIGINAL revenue goal
   const rate = getCommissionRate(revenue);
-  const earnings = revenue * rate;
+  
+  // Apply 20% attrition for earnings calculation only
+  const attritionRate = 0.20;
+  const adjustedRevenue = revenue * (1 - attritionRate);
+  const earnings = adjustedRevenue * rate;
 
-  const presetValues = [
-    { label: "Low: $70k", value: 70000 },
-    { label: "Average: $170k", value: 170000 },
-    { label: "High: $350k", value: 350000 },
+  // Tier markers for the slider
+  const tierMarkers = [
+    { value: 70000, label: "LOW", description: "Entry-level goal. Good for testing the waters." },
+    { value: 170000, label: "AVERAGE", description: "Average rookie finishes around $170k in serviced revenue." },
+    { value: 350000, label: "HIGH", description: "Top performers hit $350k+. Takes serious effort." },
   ];
 
+  const getSliderPosition = (value: number) => {
+    return ((value - 0) / (500000 - 0)) * 100;
+  };
+
   return (
-    <div className="card-elevated p-6 md:p-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-          <TrendingUp className="w-5 h-5 text-primary" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-foreground">Earnings Calculator</h3>
-          <p className="text-sm text-muted-foreground">Estimate your summer earnings</p>
-        </div>
-      </div>
-
-      {/* Disclaimer at top */}
-      <p className="text-xs text-muted-foreground mb-6">
-        This is a four-month summer opportunity. Your exact results depend on performance and cancellations; this is an estimate tool.
-      </p>
-
-      {/* Revenue Input */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-3">
-          Serviced Revenue Goal
-        </label>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {presetValues.map((preset) => (
-            <button
-              key={preset.value}
-              onClick={() => setRevenue(preset.value)}
-              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                revenue === preset.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
+    <div className="space-y-8">
+      {/* Video Section */}
+      <div className="card-elevated p-6 md:p-8">
+        <h3 className="text-xl font-bold text-foreground mb-2 uppercase tracking-wide">
+          What a Summer at Summit Looks Like
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          See what your summer could look like — real reps, real results.
+        </p>
+        <div className="relative aspect-video bg-secondary/50 rounded-lg overflow-hidden border border-border">
+          {!isVideoPlaying ? (
+            <button 
+              onClick={() => setIsVideoPlaying(true)}
+              className="absolute inset-0 flex items-center justify-center group"
             >
-              {preset.label}
+              <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center group-hover:bg-primary transition-colors">
+                <Play className="w-6 h-6 text-primary-foreground ml-1" />
+              </div>
             </button>
-          ))}
-        </div>
-        <Slider
-          value={[revenue]}
-          onValueChange={(value) => setRevenue(value[0])}
-          min={70000}
-          max={350000}
-          step={5000}
-          className="mb-2"
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>$70,000</span>
-          <span>$350,000</span>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              {/* Replace with actual video embed */}
+              <p className="text-sm">Video player placeholder</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Results */}
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-lg bg-secondary/50">
-          <p className="text-xs text-muted-foreground mb-1">Revenue Goal</p>
-          <p className="text-2xl font-extrabold text-foreground">{formatCurrency(revenue)}</p>
-        </div>
-        <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-          <p className="text-xs text-muted-foreground mb-1">Commission Rate</p>
-          <p className="text-xl font-bold text-primary">{(rate * 100).toFixed(0)}%</p>
-        </div>
-        <div className="p-4 rounded-lg bg-success/10 border border-success/20">
-          <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="w-4 h-4 text-success" />
-            <p className="text-xs text-muted-foreground">Estimated Earnings</p>
+      {/* Calculator */}
+      <div className="card-elevated p-6 md:p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-primary" />
           </div>
-          <p className="text-xl font-bold text-success">{formatCurrency(earnings)}</p>
+          <div>
+            <h3 className="text-lg font-bold text-foreground">Earnings Calculator</h3>
+            <p className="text-sm text-muted-foreground">Estimate your summer earnings</p>
+          </div>
         </div>
-      </div>
 
-      {/* Disclaimer */}
-      <p className="text-xs text-muted-foreground mb-6">
-        Estimates shown are for simple planning and do not account for cancellations, taxes, chargebacks, bonuses, or local market differences.
-      </p>
+        {/* Revenue Slider */}
+        <div className="mb-8">
+          <label className="block text-sm font-bold text-foreground mb-4 text-center uppercase tracking-wide">
+            Your Revenue Goal
+          </label>
+          
+          {/* Current Value Display */}
+          <div className="text-center mb-6">
+            <span className="text-3xl font-extrabold text-foreground">{formatCurrency(revenue)}</span>
+          </div>
 
-      {/* Housing Notes */}
-      <div className="p-4 rounded-lg bg-secondary/30 border border-border">
-        <div className="flex items-center gap-2 mb-3">
-          <Home className="w-4 h-4 text-primary" />
-          <p className="text-sm font-medium text-foreground">Housing Notes</p>
+          {/* Slider with tier markers */}
+          <div className="relative mb-8">
+            <Slider
+              value={[revenue]}
+              onValueChange={(value) => setRevenue(value[0])}
+              min={0}
+              max={500000}
+              step={5000}
+              className="mb-4"
+            />
+            
+            {/* Tier Markers */}
+            <TooltipProvider>
+              <div className="absolute top-0 left-0 right-0 pointer-events-none" style={{ height: '20px' }}>
+                {tierMarkers.map((marker) => (
+                  <Tooltip key={marker.value}>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className="absolute -translate-x-1/2 pointer-events-auto cursor-pointer"
+                        style={{ left: `${getSliderPosition(marker.value)}%`, top: '-8px' }}
+                      >
+                        <div className="w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[200px]">
+                      <p className="font-bold">{marker.label}</p>
+                      <p className="text-xs">{marker.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </TooltipProvider>
+
+            {/* Labels below slider */}
+            <div className="flex justify-between text-xs text-muted-foreground mt-6">
+              <span>$0</span>
+              <TooltipProvider>
+                {tierMarkers.map((marker) => (
+                  <Tooltip key={marker.value}>
+                    <TooltipTrigger asChild>
+                      <span 
+                        className="absolute -translate-x-1/2 text-primary font-semibold cursor-pointer hover:text-primary/80"
+                        style={{ left: `${getSliderPosition(marker.value)}%` }}
+                      >
+                        {marker.label}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{marker.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </TooltipProvider>
+              <span>$500,000</span>
+            </div>
+          </div>
         </div>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li className="flex items-start gap-2">
-            <span className="text-primary mt-1">•</span>
-            At $100,000 serviced revenue, summer housing rent is waived.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-primary mt-1">•</span>
-            If $100,000 is not serviced, rent may be deducted from January backend.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-primary mt-1">•</span>
-            If a rep does not complete a minimum of 3 weeks of work, $2,500 is owed in housing cost.
-          </li>
-        </ul>
+
+        {/* Results - Commission Rate and Estimated Earnings */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-sm text-muted-foreground mb-1 uppercase tracking-wide">Commission Rate</p>
+            <p className="text-2xl font-bold text-primary">{(rate * 100).toFixed(0)}%</p>
+          </div>
+          <div className="p-6 rounded-lg bg-success/20 border-2 border-success">
+            <div className="flex items-center gap-2 mb-1">
+              <DollarSign className="w-5 h-5 text-success" />
+              <p className="text-sm text-muted-foreground uppercase tracking-wide">Estimated Earnings</p>
+            </div>
+            <p className="text-4xl font-black text-success">{formatCurrency(earnings)}</p>
+          </div>
+        </div>
+
+        {/* Attrition disclaimer */}
+        <p className="text-xs text-muted-foreground mb-8 text-center">
+          Estimates include a conservative 20% attrition. Commission tier is based on serviced revenue.
+        </p>
+
+        {/* Rookie Pay Scale */}
+        <div className="mb-8">
+          <h4 className="text-lg font-bold text-foreground mb-4 uppercase tracking-wide">
+            Rookie Commission Pay Scale
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {ROOKIE_BRACKETS.map((bracket, index) => (
+              <div 
+                key={index} 
+                className={`p-3 rounded-lg text-center ${
+                  revenue >= bracket.min && revenue <= bracket.max 
+                    ? 'bg-primary/20 border-2 border-primary' 
+                    : 'bg-secondary/30 border border-border'
+                }`}
+              >
+                <p className="text-xs text-muted-foreground mb-1">
+                  {bracket.max === Infinity 
+                    ? `$${(bracket.min / 1000).toFixed(0)}k+` 
+                    : `$${(bracket.min / 1000).toFixed(0)}k–$${(bracket.max / 1000).toFixed(0)}k`
+                  }
+                </p>
+                <p className={`text-lg font-bold ${
+                  revenue >= bracket.min && revenue <= bracket.max 
+                    ? 'text-primary' 
+                    : 'text-foreground'
+                }`}>
+                  {(bracket.rate * 100).toFixed(0)}%
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Housing Note */}
+        <div className="p-4 rounded-lg bg-secondary/30 border border-border mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Home className="w-5 h-5 text-primary" />
+            <p className="text-sm font-bold text-foreground uppercase tracking-wide">Housing Note</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            At $100,000 in serviced revenue, summer housing is <span className="text-success font-bold">FREE</span>.
+          </p>
+        </div>
+
+        {/* Apply Now CTA */}
+        {onApplyClick && (
+          <button 
+            onClick={onApplyClick}
+            className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide"
+          >
+            Apply Now
+          </button>
+        )}
       </div>
     </div>
   );

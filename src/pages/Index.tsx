@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Mountain } from "lucide-react";
+import { ArrowRight, Mountain, User } from "lucide-react";
 import summitLogo from "@/assets/summit-logo.png";
 
 const Index = () => {
@@ -13,17 +13,18 @@ const Index = () => {
       {/* Mountain accent in left corner */}
       <Mountain className="absolute top-6 left-6 w-5 h-5 text-primary/20" />
       
-      {/* Login button top right */}
+      {/* Login button top right - larger and bolder with user icon */}
       <button
         onClick={() => navigate("/login")}
-        className="absolute top-6 right-6 text-sm text-muted-foreground hover:text-primary transition-colors"
+        className="absolute top-6 right-6 flex items-center gap-2 px-4 py-2 text-sm font-bold text-foreground hover:text-primary border-2 border-primary rounded transition-colors uppercase tracking-wide"
       >
-        Login
+        <User className="w-4 h-4" />
+        Log In
       </button>
 
       <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
         {/* Logo */}
-        <div className="mb-8">
+        <div className="mb-4">
           <img 
             src={summitLogo} 
             alt="Summit Marketing" 
@@ -31,9 +32,9 @@ const Index = () => {
           />
         </div>
 
-        {/* Main Question */}
-        <div className="mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        {/* Main Question - moved closer to logo */}
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-wide">
             Choose Your Path
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -41,43 +42,43 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Selection Cards */}
+        {/* Selection Cards - Bold styling with thicker borders */}
         <div className="grid md:grid-cols-2 gap-4 max-w-xl mx-auto">
           <button
             onClick={() => navigate("/apply/rookie")}
-            className="group card-elevated p-8 text-left transition-all duration-150 hover:border-primary"
+            className="group bg-card p-8 text-left transition-all duration-150 border-[3px] border-primary rounded-lg hover:bg-primary/5"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-                New to D2D Pest
+              <span className="text-xs font-bold text-primary uppercase tracking-widest">
+                New to Door-to-Door
               </span>
-              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">I'm a Rookie</h3>
-            <p className="text-muted-foreground text-sm">
-              Starting fresh.
+            <h3 className="text-xl font-bold text-foreground mb-2 uppercase">I'm a Rookie</h3>
+            <p className="text-muted-foreground text-sm uppercase tracking-wide">
+              Interested in Sales
             </p>
           </button>
 
           <button
             onClick={() => navigate("/apply/vet")}
-            className="group card-elevated p-8 text-left transition-all duration-150 hover:border-primary"
+            className="group bg-card p-8 text-left transition-all duration-150 border-[3px] border-primary rounded-lg hover:bg-primary/5"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-                Experienced Rep/Leader
+              <span className="text-xs font-bold text-primary uppercase tracking-widest">
+                Experienced Rep
               </span>
-              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">I'm a Vet</h3>
-            <p className="text-muted-foreground text-sm">
-              Ready to lead. Build your team.
+            <h3 className="text-xl font-bold text-foreground mb-2 uppercase">I'm a Vet</h3>
+            <p className="text-muted-foreground text-sm uppercase tracking-wide">
+              Ready to Lead
             </p>
           </button>
         </div>
 
         {/* Login Link */}
-        <div className="mt-20 mb-12">
+        <div className="mt-16 mb-12">
           <button
             onClick={() => navigate("/login")}
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
