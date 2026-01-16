@@ -98,8 +98,19 @@ const RookieApplication = () => {
           </div>
         </div>
 
+        {/* Testimonials with Video */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <Testimonials 
+            title="Rookie Results" 
+            testimonials={rookieTestimonials} 
+            showVideo={true}
+            videoTitle="HEAR FROM REPS WHO JUST COMPLETED THEIR FIRST SUMMER"
+            videoSubtext="Real reps. Real results. Real first-summer experiences."
+          />
+        </div>
+
         {/* Application Form */}
-        <div ref={formRef} className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div ref={formRef} className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <div className="flex items-center justify-center gap-2 mb-6">
             <Mountain className="w-4 h-4 text-primary/40" />
             <h2 className="text-2xl font-bold text-foreground text-center uppercase tracking-wide">
@@ -203,17 +214,6 @@ const RookieApplication = () => {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Testimonials with Video */}
-        <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <Testimonials 
-            title="Rookie Results" 
-            testimonials={rookieTestimonials} 
-            showVideo={true}
-            videoTitle="HEAR FROM REPS WHO JUST COMPLETED THEIR FIRST SUMMER"
-            videoSubtext="Real reps. Real results. Real first-summer experiences."
-          />
         </div>
       </main>
     </div>
