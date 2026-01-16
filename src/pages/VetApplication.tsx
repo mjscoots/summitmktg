@@ -63,7 +63,7 @@ const VetApplication = () => {
         phone: "Phone Number",
         cityState: "City, State",
         lastSeasonRevenue: "Last Season Revenue",
-        intendedMarket: "Intended Market",
+        intendedMarket: "Favorite or Previously Knocked Markets",
         referralName: "Who did you hear about us from",
       };
       return `${fieldLabels[field]} is required`;
@@ -313,14 +313,14 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Intended Market<RequiredAsterisk />
+                  Favorite or Previously Knocked Markets<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
                   value={formData.intendedMarket}
                   onChange={(e) => updateField("intendedMarket", e.target.value)}
                   onBlur={() => handleBlur("intendedMarket")}
-                  placeholder="Phoenix, AZ"
+                  placeholder="List the markets you've knocked before (city/state)"
                   className={`input-field ${touched.intendedMarket && errors.intendedMarket ? 'border-destructive' : ''}`}
                   required
                 />
