@@ -211,8 +211,8 @@ const RookieApplication = () => {
             title="Rookie Results" 
             testimonials={rookieTestimonials} 
             showVideo={true}
-            videoTitle="WATCH WHAT A SUMMER AT SUMMIT LOOKS LIKE"
-            videoSubtext="Real reps. Real results. Four months of door-to-door."
+            videoTitle="HEAR FROM REPS WHO JUST COMPLETED THEIR FIRST SUMMER"
+            videoSubtext="Real reps. Real results. Real first-summer experiences."
           />
         </div>
       </main>
