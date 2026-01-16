@@ -16,7 +16,7 @@ const Index = () => {
 
       <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
         {/* Logo */}
-        <div className="mb-12">
+        <div className="mb-8">
           <img 
             src={summitLogo} 
             alt="Summit Marketing" 
