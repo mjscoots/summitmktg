@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mountain } from "lucide-react";
 import summitLogo from "@/assets/summit-logo.png";
 
 const Index = () => {
@@ -7,8 +7,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      {/* Subtle accent line */}
+      {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-primary/30" />
+
+      {/* Mountain accents in corners */}
+      <Mountain className="absolute top-6 left-6 w-5 h-5 text-primary/20" />
+      <Mountain className="absolute top-6 right-6 w-5 h-5 text-primary/20" />
 
       <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
         {/* Logo */}
@@ -22,11 +26,11 @@ const Index = () => {
 
         {/* Main Question */}
         <div className="mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-            Are you a Rookie or a Vet?
-          </h2>
-          <p className="text-muted-foreground">
-            Select your path to get started
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Choose Your Path
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Four months. High upside. Clear training. Real leadership.
           </p>
         </div>
 
@@ -38,13 +42,13 @@ const Index = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-                New to Sales
+                New to D2D Pest
               </span>
               <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">Rookie</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">I'm a Rookie</h3>
             <p className="text-muted-foreground text-sm">
-              Starting fresh. Ready to learn the fundamentals.
+              Starting fresh. Ready to learn and earn.
             </p>
           </button>
 
@@ -54,13 +58,13 @@ const Index = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-                Experienced
+                Experienced Rep/Leader
               </span>
               <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">Vet</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">I'm a Vet</h3>
             <p className="text-muted-foreground text-sm">
-              Years in the game. Looking to level up.
+              Ready to lead. Build your team.
             </p>
           </button>
         </div>
@@ -76,7 +80,11 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Bottom accent */}
+      {/* Bottom mountain accents */}
+      <Mountain className="absolute bottom-6 left-6 w-5 h-5 text-primary/20" />
+      <Mountain className="absolute bottom-6 right-6 w-5 h-5 text-primary/20" />
+      
+      {/* Bottom accent line */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-primary/20" />
     </div>
   );
