@@ -82,7 +82,7 @@ const Index = () => {
             onClick={() => navigate("/login")}
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
-            Already have an account? <span className="text-primary font-medium">Sign in</span>
+            Already a member? <span className="text-primary font-medium">Sign in</span>
           </button>
         </div>
       </div>
