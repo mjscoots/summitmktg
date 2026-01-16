@@ -14,6 +14,16 @@ interface FormData {
   referralName: string;
 }
 
+interface FormErrors {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  cityState?: string;
+  salesExperience?: string;
+  referralSource?: string;
+  referralName?: string;
+}
+
 const RookieApplication = () => {
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
@@ -26,14 +36,112 @@ const RookieApplication = () => {
     referralSource: "",
     referralName: "",
   });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<keyof FormData, boolean>>({
+    fullName: false,
+    email: false,
+    phone: false,
+    cityState: false,
+    salesExperience: false,
+    referralSource: false,
+    referralName: false,
+  });
 
   const updateField = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleBlur = (field: keyof FormData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    validateField(field, formData[field]);
+  };
+
+  const validateField = (field: keyof FormData, value: string): string | undefined => {
+    if (!value.trim()) {
+      const fieldLabels: Record<keyof FormData, string> = {
+        fullName: "Full Name",
+        email: "Email Address",
+        phone: "Phone Number",
+        cityState: "City, State",
+        salesExperience: "Sales Experience",
+        referralSource: "How Did You Hear About Us",
+        referralName: "Who did you hear about us from",
+      };
+      const error = `${fieldLabels[field]} is required`;
+      setErrors((prev) => ({ ...prev, [field]: error }));
+      return error;
+    }
+    if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      const error = "Please enter a valid email address";
+      setErrors((prev) => ({ ...prev, [field]: error }));
+      return error;
+    }
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    return undefined;
+  };
+
+  const validateForm = (): boolean => {
+    const fields: (keyof FormData)[] = [
+      "fullName",
+      "email",
+      "phone",
+      "cityState",
+      "salesExperience",
+      "referralSource",
+      "referralName",
+    ];
+    
+    let isValid = true;
+    const newErrors: FormErrors = {};
+    const newTouched: Record<keyof FormData, boolean> = { ...touched };
+    
+    fields.forEach((field) => {
+      newTouched[field] = true;
+      const value = formData[field];
+      if (!value.trim()) {
+        const fieldLabels: Record<keyof FormData, string> = {
+          fullName: "Full Name",
+          email: "Email Address",
+          phone: "Phone Number",
+          cityState: "City, State",
+          salesExperience: "Sales Experience",
+          referralSource: "How Did You Hear About Us",
+          referralName: "Who did you hear about us from",
+        };
+        newErrors[field] = `${fieldLabels[field]} is required`;
+        isValid = false;
+      } else if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        newErrors[field] = "Please enter a valid email address";
+        isValid = false;
+      }
+    });
+    
+    setTouched(newTouched);
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const isFormComplete = (): boolean => {
+    return (
+      formData.fullName.trim() !== "" &&
+      formData.email.trim() !== "" &&
+      formData.phone.trim() !== "" &&
+      formData.cityState.trim() !== "" &&
+      formData.salesExperience !== "" &&
+      formData.referralSource !== "" &&
+      formData.referralName.trim() !== ""
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/apply/success");
+    if (validateForm()) {
+      navigate("/apply/success");
+    }
   };
 
   const scrollToForm = () => {
@@ -48,6 +156,8 @@ const RookieApplication = () => {
     { icon: Zap, text: "Simple schedule, repeatable scripts" },
     { icon: Target, text: "You're paid on performance, not the clock." },
   ];
+
+  const RequiredAsterisk = () => <span className="text-destructive ml-1">*</span>;
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,104 +240,140 @@ const RookieApplication = () => {
           </div>
           
           <form onSubmit={handleSubmit} className="card-elevated p-6 md:p-8">
+            <p className="text-sm text-muted-foreground mb-6">
+              <span className="text-destructive">*</span> All fields are required
+            </p>
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Full Name
+                  Full Name<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => updateField("fullName", e.target.value)}
+                  onBlur={() => handleBlur("fullName")}
                   placeholder="John Smith"
-                  className="input-field"
+                  className={`input-field ${touched.fullName && errors.fullName ? 'border-destructive' : ''}`}
                   required
                 />
+                {touched.fullName && errors.fullName && (
+                  <p className="text-destructive text-sm mt-1">{errors.fullName}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number
+                  Phone Number<RequiredAsterisk />
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => updateField("phone", e.target.value)}
+                  onBlur={() => handleBlur("phone")}
                   placeholder="(555) 123-4567"
-                  className="input-field"
+                  className={`input-field ${touched.phone && errors.phone ? 'border-destructive' : ''}`}
                   required
                 />
+                {touched.phone && errors.phone && (
+                  <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Email Address
+                  Email Address<RequiredAsterisk />
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => updateField("email", e.target.value)}
+                  onBlur={() => handleBlur("email")}
                   placeholder="john@example.com"
-                  className="input-field"
+                  className={`input-field ${touched.email && errors.email ? 'border-destructive' : ''}`}
                   required
                 />
+                {touched.email && errors.email && (
+                  <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  City, State
+                  City, State<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
                   value={formData.cityState}
                   onChange={(e) => updateField("cityState", e.target.value)}
+                  onBlur={() => handleBlur("cityState")}
                   placeholder="Phoenix, AZ"
-                  className="input-field"
+                  className={`input-field ${touched.cityState && errors.cityState ? 'border-destructive' : ''}`}
                   required
                 />
+                {touched.cityState && errors.cityState && (
+                  <p className="text-destructive text-sm mt-1">{errors.cityState}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Any Sales Experience?
+                  Any Sales Experience?<RequiredAsterisk />
                 </label>
                 <select
                   value={formData.salesExperience}
                   onChange={(e) => updateField("salesExperience", e.target.value)}
-                  className="input-field"
+                  onBlur={() => handleBlur("salesExperience")}
+                  className={`input-field ${touched.salesExperience && errors.salesExperience ? 'border-destructive' : ''}`}
                   required
                 >
                   <option value="">Select an option</option>
                   <option value="yes">Yes</option>
                   <option value="no">No</option>
                 </select>
+                {touched.salesExperience && errors.salesExperience && (
+                  <p className="text-destructive text-sm mt-1">{errors.salesExperience}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  How Did You Hear About Us?
+                  How Did You Hear About Us?<RequiredAsterisk />
                 </label>
                 <select
                   value={formData.referralSource}
                   onChange={(e) => updateField("referralSource", e.target.value)}
-                  className="input-field"
+                  onBlur={() => handleBlur("referralSource")}
+                  className={`input-field ${touched.referralSource && errors.referralSource ? 'border-destructive' : ''}`}
                   required
                 >
                   <option value="">Select an option</option>
                   <option value="social">Social Media</option>
                   <option value="friend">Friend or Colleague</option>
                 </select>
+                {touched.referralSource && errors.referralSource && (
+                  <p className="text-destructive text-sm mt-1">{errors.referralSource}</p>
+                )}
               </div>
             </div>
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-2">
-                Who did you hear about us from?
+                Who did you hear about us from?<RequiredAsterisk />
               </label>
               <input
                 type="text"
                 value={formData.referralName}
                 onChange={(e) => updateField("referralName", e.target.value)}
+                onBlur={() => handleBlur("referralName")}
                 placeholder="Enter the name of the person who referred you or the account you saw"
-                className="input-field"
+                className={`input-field ${touched.referralName && errors.referralName ? 'border-destructive' : ''}`}
+                required
               />
+              {touched.referralName && errors.referralName && (
+                <p className="text-destructive text-sm mt-1">{errors.referralName}</p>
+              )}
             </div>
             <div className="flex justify-end">
-              <button type="submit" className="btn-primary uppercase tracking-wide">
+              <button 
+                type="submit" 
+                className="btn-primary uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!isFormComplete()}
+              >
                 Apply as a Rookie
                 <ArrowRight className="w-4 h-4 ml-2" />
               </button>
