@@ -424,13 +424,13 @@ const VetApplication = () => {
             <div className="flex items-center justify-center gap-3 mb-3">
               <Mountain className="w-6 h-6 text-primary" />
               <h2 className="text-3xl md:text-4xl font-black text-primary uppercase tracking-wide">
-                Ready to Run It Back?
+                Ready to Find the Summit?
               </h2>
               <Mountain className="w-6 h-6 text-primary" />
             </div>
             <div className="w-24 h-1 bg-primary mx-auto mb-3 rounded-full" />
             <p className="text-muted-foreground text-sm uppercase tracking-wide">
-              Apply below to get the process started.
+              Submit info below to meet the guys.
             </p>
           </div>
           
