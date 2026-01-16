@@ -10,9 +10,16 @@ const Index = () => {
       {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-primary/30" />
 
-      {/* Mountain accents in corners */}
+      {/* Mountain accent in left corner */}
       <Mountain className="absolute top-6 left-6 w-5 h-5 text-primary/20" />
-      <Mountain className="absolute top-6 right-6 w-5 h-5 text-primary/20" />
+      
+      {/* Login button top right */}
+      <button
+        onClick={() => navigate("/login")}
+        className="absolute top-6 right-6 text-sm text-muted-foreground hover:text-primary transition-colors"
+      >
+        Login
+      </button>
 
       <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
         {/* Logo */}
