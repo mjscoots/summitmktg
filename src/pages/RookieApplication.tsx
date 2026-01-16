@@ -1,138 +1,110 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Zap, Target, Users, Calendar, FileText, Mountain } from "lucide-react";
+import RookieCalculator from "@/components/RookieCalculator";
+import Testimonials, { rookieTestimonials } from "@/components/Testimonials";
 
 interface FormData {
   fullName: string;
   email: string;
   phone: string;
-  location: string;
-  experience: string;
-  motivation: string;
-  availability: string;
-  referral: string;
+  cityState: string;
+  salesExperience: string;
+  referralSource: string;
 }
-
-const steps = [
-  { id: 1, title: "Personal Info" },
-  { id: 2, title: "Background" },
-  { id: 3, title: "Commitment" },
-];
 
 const RookieApplication = () => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
     phone: "",
-    location: "",
-    experience: "",
-    motivation: "",
-    availability: "",
-    referral: "",
+    cityState: "",
+    salesExperience: "",
+    referralSource: "",
   });
 
   const updateField = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      navigate("/apply/success");
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate("/apply/success");
   };
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      navigate("/");
-    }
-  };
-
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <div className="max-w-md mx-auto text-center animate-scale-in">
-          <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
-            <Check className="w-8 h-8 text-success" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-4">
-            Application Submitted
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Your rookie application is under review. You'll receive login credentials via email once approved.
-          </p>
-          <button onClick={() => navigate("/")} className="btn-secondary">
-            Back to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const whyDifferent = [
+    { icon: Calendar, text: "Four-month sprint" },
+    { icon: Target, text: "High-income upside" },
+    { icon: FileText, text: "Clear training roadmap" },
+    { icon: Users, text: "Team culture + competition" },
+    { icon: Zap, text: "Simple schedule, repeatable scripts" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background px-6 py-12">
-      <div className="max-w-xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 animate-fade-in">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 py-4">
           <button
-            onClick={handleBack}
-            className="flex items-center text-muted-foreground hover:text-foreground transition-colors mb-6"
+            onClick={() => navigate("/")}
+            className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </button>
-          <div className="flex items-center gap-2 mb-2">
+        </div>
+      </div>
+
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        {/* Hero */}
+        <div className="text-center mb-12 animate-fade-in">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Mountain className="w-5 h-5 text-primary" />
             <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-              Rookie Application
+              Rookie Path
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {steps[currentStep - 1].title}
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Estimate Your Earnings
           </h1>
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            See what's possible before you apply. Your results depend on your effort.
+          </p>
         </div>
 
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
-                    step.id < currentStep
-                      ? "bg-primary text-primary-foreground"
-                      : step.id === currentStep
-                      ? "bg-primary/20 text-primary border border-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {step.id < currentStep ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    step.id
-                  )}
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`w-12 h-0.5 mx-2 ${
-                      step.id < currentStep ? "bg-primary" : "bg-muted"
-                    }`}
-                  />
-                )}
+        {/* Calculator */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <RookieCalculator />
+        </div>
+
+        {/* Why Different Section */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+            Why This Is Different
+          </h2>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {whyDifferent.map((item, index) => (
+              <div key={index} className="flex items-center gap-3 p-4 rounded-lg bg-secondary/50">
+                <item.icon className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="text-foreground font-medium">{item.text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Form */}
-        <div className="card-elevated p-8 animate-fade-in">
-          {currentStep === 1 && (
-            <div className="space-y-6">
+        {/* Application Form */}
+        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Mountain className="w-4 h-4 text-primary/40" />
+            <h2 className="text-2xl font-bold text-foreground text-center">
+              Apply as a Rookie
+            </h2>
+            <Mountain className="w-4 h-4 text-primary/40" />
+          </div>
+          
+          <form onSubmit={handleSubmit} className="card-elevated p-6 md:p-8">
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Full Name
@@ -143,18 +115,7 @@ const RookieApplication = () => {
                   onChange={(e) => updateField("fullName", e.target.value)}
                   placeholder="John Smith"
                   className="input-field"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => updateField("email", e.target.value)}
-                  placeholder="john@example.com"
-                  className="input-field"
+                  required
                 />
               </div>
               <div>
@@ -167,82 +128,59 @@ const RookieApplication = () => {
                   onChange={(e) => updateField("phone", e.target.value)}
                   placeholder="(555) 123-4567"
                   className="input-field"
+                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Location
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  placeholder="john@example.com"
+                  className="input-field"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  City, State
                 </label>
                 <input
                   type="text"
-                  value={formData.location}
-                  onChange={(e) => updateField("location", e.target.value)}
-                  placeholder="City, State"
+                  value={formData.cityState}
+                  onChange={(e) => updateField("cityState", e.target.value)}
+                  placeholder="Phoenix, AZ"
                   className="input-field"
+                  required
                 />
               </div>
-            </div>
-          )}
-
-          {currentStep === 2 && (
-            <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Any sales experience?
+                  Any Sales Experience?
                 </label>
                 <select
-                  value={formData.experience}
-                  onChange={(e) => updateField("experience", e.target.value)}
+                  value={formData.salesExperience}
+                  onChange={(e) => updateField("salesExperience", e.target.value)}
                   className="input-field"
+                  required
                 >
                   <option value="">Select an option</option>
-                  <option value="none">No experience</option>
-                  <option value="retail">Retail/Customer Service</option>
-                  <option value="some">Some sales (less than 1 year)</option>
-                  <option value="other">Other relevant experience</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Why do you want to get into sales?
-                </label>
-                <textarea
-                  value={formData.motivation}
-                  onChange={(e) => updateField("motivation", e.target.value)}
-                  placeholder="Tell us what drives you..."
-                  rows={4}
-                  className="input-field resize-none"
-                />
-              </div>
-            </div>
-          )}
-
-          {currentStep === 3 && (
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  When can you start?
+                  How Did You Hear About Us?
                 </label>
                 <select
-                  value={formData.availability}
-                  onChange={(e) => updateField("availability", e.target.value)}
+                  value={formData.referralSource}
+                  onChange={(e) => updateField("referralSource", e.target.value)}
                   className="input-field"
-                >
-                  <option value="">Select availability</option>
-                  <option value="immediate">Immediately</option>
-                  <option value="1week">Within 1 week</option>
-                  <option value="2weeks">Within 2 weeks</option>
-                  <option value="1month">Within 1 month</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  How did you hear about us?
-                </label>
-                <select
-                  value={formData.referral}
-                  onChange={(e) => updateField("referral", e.target.value)}
-                  className="input-field"
+                  required
                 >
                   <option value="">Select an option</option>
                   <option value="social">Social Media</option>
@@ -253,17 +191,20 @@ const RookieApplication = () => {
                 </select>
               </div>
             </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex justify-end mt-8">
-            <button onClick={handleNext} className="btn-primary">
-              {currentStep === 3 ? "Submit Application" : "Continue"}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </button>
-          </div>
+            <div className="flex justify-end">
+              <button type="submit" className="btn-primary">
+                Apply as a Rookie
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
+
+        {/* Testimonials */}
+        <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
+          <Testimonials title="Rookie Results" testimonials={rookieTestimonials} />
+        </div>
+      </main>
     </div>
   );
 };

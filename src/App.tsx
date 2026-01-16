@@ -20,6 +20,7 @@ import LessonView from "./pages/app/LessonView";
 import MyProgress from "./pages/app/MyProgress";
 import RepProgress from "./pages/app/RepProgress";
 import Announcements from "./pages/app/Announcements";
+import Leaderboard from "./pages/app/Leaderboard";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,9 @@ const App = () => (
           
           {/* Announcements */}
           <Route path="/app/announcements" element={<Announcements />} />
+          
+          {/* Leaderboard */}
+          <Route path="/app/leaderboard" element={<Leaderboard />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

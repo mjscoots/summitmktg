@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, BookOpen, Target, Bell } from "lucide-react";
+import { ChevronRight, BookOpen, Target, Bell, Mountain, Play } from "lucide-react";
 import Header from "@/components/Header";
 import { 
   getFoldersForRole, 
@@ -45,130 +45,16 @@ const RookieDashboard = () => {
       <Header role="rookie" />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
-        {/* Continue Training Card */}
-        {currentTraining && (
-          <div className="card-elevated p-6 mb-6 animate-fade-in">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-                  Continue Training
-                </span>
-                <h2 className="text-xl font-bold text-foreground mt-1">
-                  {currentTraining.folder.title}
-                </h2>
-                {currentTraining.lesson && (
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Next: {currentTraining.lesson.title}
-                  </p>
-                )}
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">
-                  {currentTraining.progress.completed}/{currentTraining.progress.total} lessons
-                </p>
-              </div>
-            </div>
-            <div className="progress-track mb-4">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${currentTraining.progress.percentage}%` }} 
-              />
-            </div>
-            <button
-              onClick={() => navigate(`/app/training/${currentTraining.folder.id}`)}
-              className="btn-primary"
-            >
-              Continue
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </button>
-          </div>
-        )}
-
-        {/* Training Path */}
-        <div className="card-elevated p-6 mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Rookie Training Path</h2>
-              <p className="text-sm text-muted-foreground">Your assigned modules</p>
-            </div>
-          </div>
-          <div className="space-y-3">
-            {folders.slice(0, 4).map((folder) => {
-              const progress = calculateFolderProgress(folder, userProgress);
-              const isComplete = progress.percentage === 100;
-              
-              return (
-                <button
-                  key={folder.id}
-                  onClick={() => navigate(`/app/training/${folder.id}`)}
-                  className="w-full flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left"
-                >
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">{folder.title}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                      <div className="w-24 progress-track">
-                        <div className="progress-fill" style={{ width: `${progress.percentage}%` }} />
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {progress.completed}/{progress.total}
-                      </span>
-                    </div>
-                  </div>
-                  {isComplete ? (
-                    <span className="text-xs font-medium text-success bg-success/10 px-2 py-1 rounded">
-                      Complete
-                    </span>
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            onClick={() => navigate("/app/training")}
-            className="mt-4 text-sm text-primary hover:underline"
-          >
-            View all training
-          </button>
-        </div>
-
-        {/* Progress Overview */}
-        <div className="card-elevated p-6 mb-6 animate-fade-in" style={{ animationDelay: "0.15s" }}>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-              <Target className="w-5 h-5 text-success" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Progress Overview</h2>
-              <p className="text-sm text-muted-foreground">{overallProgress}% complete</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <p className="text-2xl font-bold text-foreground">{completedLessons}</p>
-              <p className="text-sm text-muted-foreground">Lessons completed</p>
-            </div>
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <p className="text-2xl font-bold text-foreground">{totalLessons - completedLessons}</p>
-              <p className="text-sm text-muted-foreground">Lessons remaining</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Announcements */}
+        {/* Announcements - Top of Page */}
         {announcements.length > 0 && (
-          <div className="card-elevated p-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div className="card-elevated p-6 mb-6 animate-fade-in">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Bell className="w-5 h-5 text-primary" />
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <Mountain className="w-4 h-4 text-primary/40" />
                 <h2 className="text-lg font-bold text-foreground">Announcements</h2>
-                <p className="text-sm text-muted-foreground">Latest updates</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -190,6 +76,102 @@ const RookieDashboard = () => {
             </button>
           </div>
         )}
+
+        {/* Training Progress */}
+        <div className="card-elevated p-6 mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+              <Target className="w-5 h-5 text-success" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Your Training Progress</h2>
+              <p className="text-sm text-muted-foreground">{overallProgress}% complete</p>
+            </div>
+          </div>
+          
+          <div className="progress-track h-3 mb-4">
+            <div 
+              className="progress-fill h-3" 
+              style={{ width: `${overallProgress}%` }} 
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="p-4 rounded-lg bg-secondary/50">
+              <p className="text-2xl font-bold text-foreground">{completedLessons}</p>
+              <p className="text-sm text-muted-foreground">Lessons completed</p>
+            </div>
+            <div className="p-4 rounded-lg bg-secondary/50">
+              <p className="text-2xl font-bold text-foreground">{totalLessons - completedLessons}</p>
+              <p className="text-sm text-muted-foreground">Lessons remaining</p>
+            </div>
+          </div>
+
+          {/* GET TO TRAINING Button */}
+          <button
+            onClick={() => currentTraining 
+              ? navigate(`/app/training/${currentTraining.folder.id}`) 
+              : navigate("/app/training")
+            }
+            className="w-full py-4 rounded-lg bg-success hover:bg-success/90 text-success-foreground font-bold text-lg flex items-center justify-center gap-3 transition-colors"
+          >
+            <Play className="w-5 h-5" />
+            GET TO TRAINING
+          </button>
+        </div>
+
+        {/* Modules Grid */}
+        <div className="card-elevated p-6 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Training Modules</h2>
+              <p className="text-sm text-muted-foreground">Your assigned content</p>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {folders.map((folder) => {
+              const progress = calculateFolderProgress(folder, userProgress);
+              const isComplete = progress.percentage === 100;
+              
+              return (
+                <button
+                  key={folder.id}
+                  onClick={() => navigate(`/app/training/${folder.id}`)}
+                  className="p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-medium text-foreground">{folder.title}</p>
+                    {isComplete && (
+                      <span className="text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded">
+                        Done
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                    {folder.description}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 progress-track">
+                      <div className="progress-fill" style={{ width: `${progress.percentage}%` }} />
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {progress.completed}/{progress.total}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-end mt-3">
+                    <span className="text-xs text-primary font-medium flex items-center gap-1">
+                      {isComplete ? "Review" : "Continue"}
+                      <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </main>
     </div>
   );
