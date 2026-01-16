@@ -44,6 +44,19 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
+const formatWithCommas = (value: string): string => {
+  if (value === "") return "";
+  const num = parseInt(value.replace(/,/g, ""), 10);
+  if (isNaN(num)) return "";
+  return num.toLocaleString('en-US');
+};
+
+const parseFormattedNumber = (value: string): number => {
+  if (value === "") return 0;
+  const num = parseInt(value.replace(/,/g, ""), 10);
+  return isNaN(num) ? 0 : num;
+};
+
 interface VetCalculatorProps {
   onApplyClick?: () => void;
 }
@@ -63,24 +76,25 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
   const [personalRevenueStr, setPersonalRevenueStr] = useState("");
 
   // Parse string values to numbers (empty string = 0 for calculations)
-  const numManagers = numManagersStr === "" ? 0 : parseInt(numManagersStr, 10) || 0;
-  const repsPerManager = repsPerManagerStr === "" ? 0 : parseInt(repsPerManagerStr, 10) || 0;
-  const avgRepRevenue = avgRepRevenueStr === "" ? 0 : parseInt(avgRepRevenueStr, 10) || 0;
-  const numVeteranReps = numVeteranRepsStr === "" ? 0 : parseInt(numVeteranRepsStr, 10) || 0;
-  const avgVeteranRevenue = avgVeteranRevenueStr === "" ? 0 : parseInt(avgVeteranRevenueStr, 10) || 0;
-  const personalRevenue = personalRevenueStr === "" ? 0 : parseInt(personalRevenueStr, 10) || 0;
+  const numManagers = parseFormattedNumber(numManagersStr);
+  const repsPerManager = parseFormattedNumber(repsPerManagerStr);
+  const avgRepRevenue = parseFormattedNumber(avgRepRevenueStr);
+  const numVeteranReps = parseFormattedNumber(numVeteranRepsStr);
+  const avgVeteranRevenue = parseFormattedNumber(avgVeteranRevenueStr);
+  const personalRevenue = parseFormattedNumber(personalRevenueStr);
 
-  // Handle numeric input change - removes leading zeros
+  // Handle numeric input change - removes leading zeros and formats with commas
   const handleNumericChange = (value: string, setter: (val: string) => void) => {
-    // Allow empty string
-    if (value === "") {
+    // Remove any non-numeric characters except commas
+    const cleanValue = value.replace(/[^0-9]/g, "");
+    if (cleanValue === "") {
       setter("");
       return;
     }
-    // Parse and re-stringify to remove leading zeros
-    const parsed = parseInt(value, 10);
+    // Parse and format with commas
+    const parsed = parseInt(cleanValue, 10);
     if (!isNaN(parsed) && parsed >= 0) {
-      setter(String(parsed));
+      setter(parsed.toLocaleString('en-US'));
     }
   };
 
@@ -126,11 +140,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
               Number of Managers
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={numManagersStr}
               onChange={(e) => handleNumericChange(e.target.value, setNumManagersStr)}
               className="input-field"
-              min="0"
               placeholder="0"
             />
           </div>
@@ -139,11 +153,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
               Avg Reps per Manager
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={repsPerManagerStr}
               onChange={(e) => handleNumericChange(e.target.value, setRepsPerManagerStr)}
               className="input-field"
-              min="0"
               placeholder="0"
             />
           </div>
@@ -152,12 +166,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
               Avg Active Revenue per Rep
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={avgRepRevenueStr}
               onChange={(e) => handleNumericChange(e.target.value, setAvgRepRevenueStr)}
               className="input-field"
-              min="0"
-              step="10000"
               placeholder="0"
             />
           </div>
@@ -179,11 +192,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
               Number of Veteran Reps
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={numVeteranRepsStr}
               onChange={(e) => handleNumericChange(e.target.value, setNumVeteranRepsStr)}
               className="input-field"
-              min="0"
               placeholder="0"
             />
           </div>
@@ -192,12 +205,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
               Avg Active Revenue per Vet Rep
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={avgVeteranRevenueStr}
               onChange={(e) => handleNumericChange(e.target.value, setAvgVeteranRevenueStr)}
               className="input-field"
-              min="0"
-              step="10000"
               placeholder="0"
             />
           </div>
@@ -232,12 +244,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
               Your Personal Active Revenue
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={personalRevenueStr}
               onChange={(e) => handleNumericChange(e.target.value, setPersonalRevenueStr)}
               className="input-field mb-3"
-              min="0"
-              step="10000"
               placeholder="0"
             />
             <div className="flex justify-between items-center">
