@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { DollarSign, Users, TrendingUp, User, UserPlus, AlertTriangle } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 const MARKETING_DEAL_TIERS = [
   { min: 0, max: 249999, rate: 0.45 },
@@ -74,8 +72,8 @@ interface VetCalculatorProps {
 }
 
 const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
-  // Personal Production
-  const [includePersonal, setIncludePersonal] = useState(true);
+  // Personal Production (always included)
+  const includePersonal = true;
   const [personalRevenueStr, setPersonalRevenueStr] = useState("");
 
   // Direct Rookies
@@ -201,7 +199,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>Calculations include a 20% cancellation rate on rookie contracts, 15% on veteran contracts, and an industry-low 25% rookie falloff (veterans and managers do not fall off).</p>
+            <p>Calculations include a 20% cancellation rate on rookie contracts, 15% on veteran contracts, and an industry-low 25% rookie falloff (veterans do not fall off).</p>
             <p>Includes a 5% expense assumption on direct rookies only.</p>
             <p>Personal sales do not count toward your marketing deal.</p>
             <p>Veteran personal pay = Marketing Deal rate minus veteran commission rate.</p>
@@ -212,49 +210,34 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
       {/* 1) PERSONAL PRODUCTION (FIRST) */}
       <div className="mb-8">
-        <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 mb-4">
-          <div className="flex items-center gap-3">
-            <User className="w-5 h-5 text-primary" />
-            <div>
-              <Label htmlFor="personal-toggle" className="text-sm font-medium">
-                Personal Production
-              </Label>
-              <p className="text-xs text-muted-foreground">Add your own sales to the estimate</p>
-            </div>
-          </div>
-          <Switch
-            id="personal-toggle"
-            checked={includePersonal}
-            onCheckedChange={setIncludePersonal}
-          />
+        <div className="flex items-center gap-2 mb-4">
+          <User className="w-4 h-4 text-primary" />
+          <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Production</h4>
         </div>
-
-        {includePersonal && (
-          <div className="p-4 rounded-lg border border-border">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Your Goal Active Revenue
-            </label>
-            <p className="text-xs text-muted-foreground mb-2">
-              Returning reps nearly double their previous year's active revenue.
-            </p>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={personalRevenueStr}
-              onChange={(e) => handleNumericChange(e.target.value, setPersonalRevenueStr)}
-              className="input-field mb-3"
-              placeholder="0"
-            />
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                Personal Rate: <span className="font-medium text-primary">{(personalRate * 100).toFixed(0)}%</span>
-              </span>
-              <span className="text-sm font-medium text-success">
-                +{formatCurrency(personalEarnings)}
-              </span>
-            </div>
+        <div className="p-4 rounded-lg border border-border">
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Your Goal Active Revenue
+          </label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Returning reps nearly double their previous year's active revenue.
+          </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={personalRevenueStr}
+            onChange={(e) => handleNumericChange(e.target.value, setPersonalRevenueStr)}
+            className="input-field mb-3"
+            placeholder="0"
+          />
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">
+              Personal Rate: <span className="font-medium text-primary">{(personalRate * 100).toFixed(0)}%</span>
+            </span>
+            <span className="text-sm font-medium text-success">
+              +{formatCurrency(personalEarnings)}
+            </span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* 2) DIRECT ROOKIES */}
@@ -346,14 +329,12 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
             <p className="text-xl font-bold text-success">{formatCurrency(leadershipEarnings)}</p>
           </div>
         </div>
-        {includePersonal && (
-          <div className="pt-4 border-t border-border">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Personal Earnings</span>
-              <span className="text-lg font-bold text-success">{formatCurrency(personalEarnings)}</span>
-            </div>
+        <div className="pt-4 border-t border-border">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Personal Earnings</span>
+            <span className="text-lg font-bold text-success">{formatCurrency(personalEarnings)}</span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Total Estimate */}
@@ -365,7 +346,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
         <p className="text-4xl font-black text-success">{formatCurrency(totalEarnings)}</p>
         <div className="mt-3 text-xs text-muted-foreground space-y-1">
           <p>Leadership: {formatCurrency(leadershipEarnings)}</p>
-          {includePersonal && <p>Personal: {formatCurrency(personalEarnings)}</p>}
+          <p>Personal: {formatCurrency(personalEarnings)}</p>
         </div>
       </div>
 
