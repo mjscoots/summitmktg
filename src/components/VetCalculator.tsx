@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DollarSign, Users, TrendingUp, User, UserPlus } from "lucide-react";
+import { DollarSign, Users, TrendingUp, User, UserPlus, AlertTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -114,24 +114,39 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
   // Calculations with retention and cancellation adjustments
   // Managers: 100% retention (no attrition)
-  // Rookie reps per manager: 75% retention (25% attrition)
+  // Rookie reps per manager: 75% retention (25% attrition/falloff)
   const retainedRepsPerManager = repsPerManager * 0.75;
   // Rookie serviced revenue: 20% cancellation adjustment
   const rookieActiveRevenue = avgRepRevenue * 0.80;
-  const managedRepsRevenue = numManagers * retainedRepsPerManager * rookieActiveRevenue;
+  // Rookie revenue with 5% expense assumption on direct rookies only
+  const rookieRevenueAfterExpense = rookieActiveRevenue * 0.95;
+  const managedRepsRevenue = numManagers * retainedRepsPerManager * rookieRevenueAfterExpense;
   
-  // Veteran reps: 100% retention (no attrition)
-  // Veteran serviced revenue: 15% cancellation adjustment
-  const veteranActiveRevenue = avgVeteranRevenue * 0.85;
+  // Veteran reps: 100% retention (no attrition/falloff)
+  // Veteran serviced revenue: 20% cancellation adjustment (aligned with warning)
+  const veteranActiveRevenue = avgVeteranRevenue * 0.80;
   const veteranRepsRevenue = numVeteranReps * veteranActiveRevenue;
   
+  // Total team revenue for marketing deal (personal NOT included per warning)
   const totalTeamActiveRevenue = managedRepsRevenue + veteranRepsRevenue;
 
   const marketingDealRate = getMarketingDealRate(totalTeamActiveRevenue);
-  const leadershipEarnings = totalTeamActiveRevenue * marketingDealRate;
+  
+  // Leadership earnings breakdown per warning:
+  // Direct rookie override = Marketing Deal % - Rookie commission % (assume 40% rookie rate)
+  const rookieCommissionRate = 0.40;
+  const rookieOverrideRate = marketingDealRate - rookieCommissionRate;
+  const rookieOverrideEarnings = managedRepsRevenue * rookieOverrideRate;
+  
+  // Veteran personal pay = Marketing Deal % - Veteran commission % (use their personal rate)
+  const vetCommissionRate = 0.40; // Base veteran rate
+  const veteranOverrideRate = marketingDealRate - vetCommissionRate;
+  const veteranOverrideEarnings = veteranRepsRevenue * veteranOverrideRate;
+  
+  const leadershipEarnings = rookieOverrideEarnings + veteranOverrideEarnings;
 
-  // Personal production: 15% cancellation adjustment
-  const personalActiveRevenue = personalRevenue * 0.85;
+  // Personal production: 20% cancellation adjustment, NOT counted in marketing deal
+  const personalActiveRevenue = personalRevenue * 0.80;
   const personalRate = getPersonalRate(personalActiveRevenue);
   const personalEarnings = includePersonal ? personalActiveRevenue * personalRate : 0;
 
@@ -157,20 +172,30 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
   return (
     <div className="card-elevated p-6 md:p-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Users className="w-5 h-5 text-primary" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-foreground uppercase tracking-wide">Veteran Earnings Calculator</h3>
-          <p className="text-sm text-muted-foreground">Estimate your marketing deal + personal earnings</p>
-        </div>
+      {/* Primary Header */}
+      <div className="mb-6 text-center">
+        <h3 className="text-2xl md:text-3xl font-black tracking-wider">
+          CALCULATE YOUR <span className="text-primary">EARNINGS</span>
+        </h3>
+        <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary/50 mx-auto mt-3 rounded-full" />
+        <p className="text-sm text-muted-foreground mt-4">
+          Input your goals and see your estimated earnings based on Summit Marketing's veteran pay scale and marketing deal structure.
+        </p>
       </div>
 
-      {/* Disclaimer at top */}
-      <p className="text-xs text-muted-foreground mb-6">
-        Veterans expect complexity and scale. This calculator reflects your full earning potential.
-      </p>
+      {/* Warning/Disclaimer Box */}
+      <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p>Calculations include a 20% cancellation rate on contracts and an industry-low 25% rookie falloff (veterans and managers do not fall off).</p>
+            <p>Includes a 5% expense assumption on direct rookies only.</p>
+            <p>Personal sales do not count toward your marketing deal.</p>
+            <p>Veteran personal pay = Marketing Deal rate minus veteran commission rate.</p>
+            <p>Direct rookie override = Marketing Deal rate minus rookie commission rate.</p>
+          </div>
+        </div>
+      </div>
 
       {/* Team Structure Section */}
       <div className="mb-8">
