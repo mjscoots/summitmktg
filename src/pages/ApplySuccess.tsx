@@ -11,21 +11,22 @@ const ApplySuccess = () => {
           <Check className="w-8 h-8 text-success" />
         </div>
         
-        <h1 className="text-3xl font-bold text-foreground mb-4">
+        <h1 className="text-3xl font-bold text-foreground mb-8">
           Application Submitted
         </h1>
-        
-        <p className="text-muted-foreground mb-8">
-          If approved, you'll receive login instructions via email.
-        </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button onClick={() => navigate("/")} className="btn-secondary">
             Back to Home
           </button>
-          <button onClick={() => navigate("/login")} className="btn-primary">
-            Sign In
-          </button>
+          <a 
+            href="https://instagram.com/summitmktgsales" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="btn-primary"
+          >
+            Follow us on Instagram
+          </a>
         </div>
       </div>
     </div>
