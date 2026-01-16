@@ -70,7 +70,7 @@ const Index = () => {
         </div>
 
         {/* Login Link */}
-        <div className="mt-12">
+        <div className="mt-20">
           <button
             onClick={() => navigate("/login")}
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
