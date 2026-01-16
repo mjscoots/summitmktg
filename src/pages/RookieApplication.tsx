@@ -46,6 +46,7 @@ const RookieApplication = () => {
     { icon: FileText, text: "Clear training roadmap" },
     { icon: Users, text: "Team culture + competition" },
     { icon: Zap, text: "Simple schedule, repeatable scripts" },
+    { icon: Target, text: "You're paid on performance, not the clock." },
   ];
 
   return (
