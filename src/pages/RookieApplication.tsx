@@ -11,6 +11,7 @@ interface FormData {
   cityState: string;
   salesExperience: string;
   referralSource: string;
+  referralName: string;
 }
 
 const RookieApplication = () => {
@@ -23,6 +24,7 @@ const RookieApplication = () => {
     cityState: "",
     salesExperience: "",
     referralSource: "",
+    referralName: "",
   });
 
   const updateField = (field: keyof FormData, value: string) => {
@@ -207,12 +209,21 @@ const RookieApplication = () => {
                 >
                   <option value="">Select an option</option>
                   <option value="social">Social Media</option>
-                  <option value="friend">Friend/Colleague</option>
-                  <option value="search">Google Search</option>
-                  <option value="ad">Advertisement</option>
-                  <option value="other">Other</option>
+                  <option value="friend">Friend or Colleague</option>
                 </select>
               </div>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Who did you hear about us from?
+              </label>
+              <input
+                type="text"
+                value={formData.referralName}
+                onChange={(e) => updateField("referralName", e.target.value)}
+                placeholder="Enter the name of the person who referred you or the account you saw"
+                className="input-field"
+              />
             </div>
             <div className="flex justify-end">
               <button type="submit" className="btn-primary uppercase tracking-wide">
