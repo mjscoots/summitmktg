@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DollarSign, Users, TrendingUp, User, UserPlus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -57,11 +57,25 @@ const parseFormattedNumber = (value: string): number => {
   return isNaN(num) ? 0 : num;
 };
 
-interface VetCalculatorProps {
-  onApplyClick?: () => void;
+export interface VetCalculatorValues {
+  numManagers: number;
+  repsPerManager: number;
+  avgRepRevenue: number;
+  numVeteranReps: number;
+  avgVeteranRevenue: number;
+  includePersonal: boolean;
+  personalRevenue: number;
+  totalTeamActiveRevenue: number;
+  personalRate: number;
+  personalEarnings: number;
 }
 
-const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
+interface VetCalculatorProps {
+  onApplyClick?: () => void;
+  onValuesChange?: (values: VetCalculatorValues) => void;
+}
+
+const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
   // Team Structure - use string state to handle empty inputs properly
   const [numManagersStr, setNumManagersStr] = useState("");
   const [repsPerManagerStr, setRepsPerManagerStr] = useState("");
@@ -110,6 +124,24 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
   const personalEarnings = includePersonal ? personalRevenue * personalRate : 0;
 
   const totalEarnings = leadershipEarnings + personalEarnings;
+
+  // Pass values up to parent
+  useEffect(() => {
+    if (onValuesChange) {
+      onValuesChange({
+        numManagers,
+        repsPerManager,
+        avgRepRevenue,
+        numVeteranReps,
+        avgVeteranRevenue,
+        includePersonal,
+        personalRevenue,
+        totalTeamActiveRevenue,
+        personalRate,
+        personalEarnings,
+      });
+    }
+  }, [numManagers, repsPerManager, avgRepRevenue, numVeteranReps, avgVeteranRevenue, includePersonal, personalRevenue, totalTeamActiveRevenue, personalRate, personalEarnings, onValuesChange]);
 
   return (
     <div className="card-elevated p-6 md:p-8">
