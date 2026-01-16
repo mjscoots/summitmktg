@@ -48,7 +48,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-bold text-foreground mb-2">I'm a Rookie</h3>
             <p className="text-muted-foreground text-sm">
-              Starting fresh. Ready to learn and earn.
+              Starting fresh.
             </p>
           </button>
 
