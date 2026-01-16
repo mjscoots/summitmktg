@@ -49,18 +49,40 @@ interface VetCalculatorProps {
 }
 
 const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
-  // Team Structure
-  const [numManagers, setNumManagers] = useState(2);
-  const [repsPerManager, setRepsPerManager] = useState(5);
-  const [avgRepRevenue, setAvgRepRevenue] = useState(150000);
+  // Team Structure - use string state to handle empty inputs properly
+  const [numManagersStr, setNumManagersStr] = useState("");
+  const [repsPerManagerStr, setRepsPerManagerStr] = useState("");
+  const [avgRepRevenueStr, setAvgRepRevenueStr] = useState("");
 
   // Veteran Reps
-  const [numVeteranReps, setNumVeteranReps] = useState(3);
-  const [avgVeteranRevenue, setAvgVeteranRevenue] = useState(200000);
+  const [numVeteranRepsStr, setNumVeteranRepsStr] = useState("");
+  const [avgVeteranRevenueStr, setAvgVeteranRevenueStr] = useState("");
 
   // Personal Production
   const [includePersonal, setIncludePersonal] = useState(true);
-  const [personalRevenue, setPersonalRevenue] = useState(250000);
+  const [personalRevenueStr, setPersonalRevenueStr] = useState("");
+
+  // Parse string values to numbers (empty string = 0 for calculations)
+  const numManagers = numManagersStr === "" ? 0 : parseInt(numManagersStr, 10) || 0;
+  const repsPerManager = repsPerManagerStr === "" ? 0 : parseInt(repsPerManagerStr, 10) || 0;
+  const avgRepRevenue = avgRepRevenueStr === "" ? 0 : parseInt(avgRepRevenueStr, 10) || 0;
+  const numVeteranReps = numVeteranRepsStr === "" ? 0 : parseInt(numVeteranRepsStr, 10) || 0;
+  const avgVeteranRevenue = avgVeteranRevenueStr === "" ? 0 : parseInt(avgVeteranRevenueStr, 10) || 0;
+  const personalRevenue = personalRevenueStr === "" ? 0 : parseInt(personalRevenueStr, 10) || 0;
+
+  // Handle numeric input change - removes leading zeros
+  const handleNumericChange = (value: string, setter: (val: string) => void) => {
+    // Allow empty string
+    if (value === "") {
+      setter("");
+      return;
+    }
+    // Parse and re-stringify to remove leading zeros
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      setter(String(parsed));
+    }
+  };
 
   // Calculations
   const managedRepsRevenue = numManagers * repsPerManager * avgRepRevenue;
@@ -105,10 +127,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
             </label>
             <input
               type="number"
-              value={numManagers}
-              onChange={(e) => setNumManagers(Math.max(0, parseInt(e.target.value) || 0))}
+              value={numManagersStr}
+              onChange={(e) => handleNumericChange(e.target.value, setNumManagersStr)}
               className="input-field"
               min="0"
+              placeholder="0"
             />
           </div>
           <div>
@@ -117,10 +140,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
             </label>
             <input
               type="number"
-              value={repsPerManager}
-              onChange={(e) => setRepsPerManager(Math.max(0, parseInt(e.target.value) || 0))}
+              value={repsPerManagerStr}
+              onChange={(e) => handleNumericChange(e.target.value, setRepsPerManagerStr)}
               className="input-field"
               min="0"
+              placeholder="0"
             />
           </div>
           <div>
@@ -129,11 +153,12 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
             </label>
             <input
               type="number"
-              value={avgRepRevenue}
-              onChange={(e) => setAvgRepRevenue(Math.max(0, parseInt(e.target.value) || 0))}
+              value={avgRepRevenueStr}
+              onChange={(e) => handleNumericChange(e.target.value, setAvgRepRevenueStr)}
               className="input-field"
               min="0"
               step="10000"
+              placeholder="0"
             />
           </div>
         </div>
@@ -155,10 +180,11 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
             </label>
             <input
               type="number"
-              value={numVeteranReps}
-              onChange={(e) => setNumVeteranReps(Math.max(0, parseInt(e.target.value) || 0))}
+              value={numVeteranRepsStr}
+              onChange={(e) => handleNumericChange(e.target.value, setNumVeteranRepsStr)}
               className="input-field"
               min="0"
+              placeholder="0"
             />
           </div>
           <div>
@@ -167,11 +193,12 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
             </label>
             <input
               type="number"
-              value={avgVeteranRevenue}
-              onChange={(e) => setAvgVeteranRevenue(Math.max(0, parseInt(e.target.value) || 0))}
+              value={avgVeteranRevenueStr}
+              onChange={(e) => handleNumericChange(e.target.value, setAvgVeteranRevenueStr)}
               className="input-field"
               min="0"
               step="10000"
+              placeholder="0"
             />
           </div>
         </div>
@@ -206,11 +233,12 @@ const VetCalculator = ({ onApplyClick }: VetCalculatorProps) => {
             </label>
             <input
               type="number"
-              value={personalRevenue}
-              onChange={(e) => setPersonalRevenue(Math.max(0, parseInt(e.target.value) || 0))}
+              value={personalRevenueStr}
+              onChange={(e) => handleNumericChange(e.target.value, setPersonalRevenueStr)}
               className="input-field mb-3"
               min="0"
               step="10000"
+              placeholder="0"
             />
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
