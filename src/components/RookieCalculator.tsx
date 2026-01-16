@@ -94,7 +94,7 @@ const RookieCalculator = () => {
       <div className="grid md:grid-cols-3 gap-4 mb-6">
         <div className="p-4 rounded-lg bg-secondary/50">
           <p className="text-xs text-muted-foreground mb-1">Revenue Goal</p>
-          <p className="text-xl font-bold text-foreground">{formatCurrency(revenue)}</p>
+          <p className="text-2xl font-extrabold text-foreground">{formatCurrency(revenue)}</p>
         </div>
         <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
           <p className="text-xs text-muted-foreground mb-1">Commission Rate</p>
