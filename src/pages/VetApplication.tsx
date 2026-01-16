@@ -209,13 +209,13 @@ const VetApplication = () => {
   };
 
   const competitorEarnings = getCompetitorEarnings();
-  const leadershipUpside = [
-    { icon: Users, text: "Build a squad" },
-    { icon: Target, text: "Training system + accountability" },
-    { icon: Trophy, text: "Leaderboards + competition" },
-    { icon: TrendingUp, text: "Scale through recruitment" },
-    { icon: Settings, text: "Simple operating system" },
-    { icon: DollarSign, text: "Top-tier pay structure" },
+  const summitUpside = [
+    { icon: Users, title: "Instant Marketing Deal", description: "Plug directly into a marketing deal structure designed for scale, not capped overrides." },
+    { icon: Target, title: "Elite Training", description: "Direct training from a Golden Door record holder and recruiting record holder." },
+    { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts — not reduced overrides." },
+    { icon: TrendingUp, title: "Scale through recruitment", description: "Build your team and earn overrides on every rep you bring in." },
+    { icon: Settings, title: "Elite Systems for Vets", description: "Proven systems built specifically for experienced reps and veteran leaders." },
+    { icon: DollarSign, title: "Top-tier pay structure", description: "Higher commissions, scalable overrides, and a marketing deal structure designed for long-term upside." },
   ];
 
   return (
@@ -363,16 +363,19 @@ const VetApplication = () => {
           </div>
         </div>
 
-        {/* Leadership Upside Section */}
+        {/* Summit Upside Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <h2 className="text-2xl font-bold text-foreground mb-6 text-center uppercase tracking-wide">
-            Leadership Upside
+            Summit Upside
           </h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {leadershipUpside.map((item, index) => (
-              <div key={index} className="flex items-center gap-3 p-4 rounded-lg bg-secondary/50">
-                <item.icon className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="text-foreground font-medium">{item.text}</span>
+            {summitUpside.map((item, index) => (
+              <div key={index} className="flex flex-col gap-2 p-4 rounded-lg bg-secondary/50">
+                <div className="flex items-center gap-3">
+                  <item.icon className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">{item.title}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
