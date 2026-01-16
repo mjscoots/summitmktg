@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Zap, Target, Users, Calendar, FileText, Mountain } from "lucide-react";
+import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain } from "lucide-react";
 import RookieCalculator from "@/components/RookieCalculator";
 import Testimonials, { rookieTestimonials } from "@/components/Testimonials";
 
@@ -15,6 +15,7 @@ interface FormData {
 
 const RookieApplication = () => {
   const navigate = useNavigate();
+  const formRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -31,6 +32,10 @@ const RookieApplication = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     navigate("/apply/success");
+  };
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const whyDifferent = [
@@ -73,14 +78,14 @@ const RookieApplication = () => {
           </p>
         </div>
 
-        {/* Calculator */}
+        {/* Calculator with Apply CTA */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <RookieCalculator />
+          <RookieCalculator onApplyClick={scrollToForm} />
         </div>
 
         {/* Why Different Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.15s" }}>
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center uppercase tracking-wide">
             Why This Is Different
           </h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -94,10 +99,10 @@ const RookieApplication = () => {
         </div>
 
         {/* Application Form */}
-        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div ref={formRef} className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center justify-center gap-2 mb-6">
             <Mountain className="w-4 h-4 text-primary/40" />
-            <h2 className="text-2xl font-bold text-foreground text-center">
+            <h2 className="text-2xl font-bold text-foreground text-center uppercase tracking-wide">
               Apply as a Rookie
             </h2>
             <Mountain className="w-4 h-4 text-primary/40" />
@@ -192,7 +197,7 @@ const RookieApplication = () => {
               </div>
             </div>
             <div className="flex justify-end">
-              <button type="submit" className="btn-primary">
+              <button type="submit" className="btn-primary uppercase tracking-wide">
                 Apply as a Rookie
                 <ArrowRight className="w-4 h-4 ml-2" />
               </button>

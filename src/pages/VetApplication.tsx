@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain } from "lucide-react";
 import VetCalculator from "@/components/VetCalculator";
@@ -10,23 +10,20 @@ interface FormData {
   phone: string;
   cityState: string;
   lastSeasonRevenue: string;
-  leadershipExperience: string;
   intendedMarket: string;
-  numRepsCanBring: string;
   referralSource: string;
 }
 
 const VetApplication = () => {
   const navigate = useNavigate();
+  const formRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
     phone: "",
     cityState: "",
     lastSeasonRevenue: "",
-    leadershipExperience: "",
     intendedMarket: "",
-    numRepsCanBring: "",
     referralSource: "",
   });
 
@@ -37,6 +34,10 @@ const VetApplication = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     navigate("/apply/success");
+  };
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const leadershipUpside = [
@@ -68,7 +69,7 @@ const VetApplication = () => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Mountain className="w-5 h-5 text-primary" />
             <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-              Vet Path
+              Veteran Path
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -79,14 +80,14 @@ const VetApplication = () => {
           </p>
         </div>
 
-        {/* Calculator */}
+        {/* Calculator with Apply CTA */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <VetCalculator />
+          <VetCalculator onApplyClick={scrollToForm} />
         </div>
 
         {/* Leadership Upside Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.15s" }}>
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center uppercase tracking-wide">
             Leadership Upside
           </h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -100,11 +101,11 @@ const VetApplication = () => {
         </div>
 
         {/* Application Form */}
-        <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div ref={formRef} className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center justify-center gap-2 mb-6">
             <Mountain className="w-4 h-4 text-primary/40" />
-            <h2 className="text-2xl font-bold text-foreground text-center">
-              Apply as a Vet
+            <h2 className="text-2xl font-bold text-foreground text-center uppercase tracking-wide">
+              Apply as a Veteran
             </h2>
             <Mountain className="w-4 h-4 text-primary/40" />
           </div>
@@ -178,23 +179,6 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Leadership Experience
-                </label>
-                <select
-                  value={formData.leadershipExperience}
-                  onChange={(e) => updateField("leadershipExperience", e.target.value)}
-                  className="input-field"
-                  required
-                >
-                  <option value="">Select experience level</option>
-                  <option value="none">No leadership experience</option>
-                  <option value="some">Managed 1-5 reps</option>
-                  <option value="moderate">Managed 6-15 reps</option>
-                  <option value="extensive">Managed 15+ reps</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
                   Intended Market
                 </label>
                 <input
@@ -203,20 +187,6 @@ const VetApplication = () => {
                   onChange={(e) => updateField("intendedMarket", e.target.value)}
                   placeholder="Phoenix, AZ"
                   className="input-field"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Number of Reps You Can Bring
-                </label>
-                <input
-                  type="number"
-                  value={formData.numRepsCanBring}
-                  onChange={(e) => updateField("numRepsCanBring", e.target.value)}
-                  placeholder="5"
-                  className="input-field"
-                  min="0"
                   required
                 />
               </div>
@@ -240,8 +210,8 @@ const VetApplication = () => {
               </div>
             </div>
             <div className="flex justify-end">
-              <button type="submit" className="btn-primary">
-                Apply as a Vet
+              <button type="submit" className="btn-primary uppercase tracking-wide">
+                Apply as a Veteran
                 <ArrowRight className="w-4 h-4 ml-2" />
               </button>
             </div>
@@ -250,7 +220,7 @@ const VetApplication = () => {
 
         {/* Testimonials */}
         <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <Testimonials title="Leader Results" testimonials={vetTestimonials} />
+          <Testimonials title="Veteran Results" testimonials={vetTestimonials} />
         </div>
       </main>
     </div>
