@@ -211,10 +211,10 @@ const VetApplication = () => {
   const competitorEarnings = getCompetitorEarnings();
   const summitUpside = [
     { icon: Users, title: "Instant Marketing Deal", description: "Plug directly into a marketing deal structure designed for scale, not capped overrides." },
-    { icon: Target, title: "Elite Training", description: "Direct training from a Golden Door record holder and recruiting record holder." },
-    { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts — not reduced overrides." },
-    { icon: TrendingUp, title: "Scale through recruitment", description: "Build your team and earn overrides on every rep you bring in." },
-    { icon: Settings, title: "Elite Systems for Vets", description: "Proven systems built specifically for experienced reps and veteran leaders." },
+    { icon: Target, title: "Elite Training", description: "Direct training from a Golden Door record holder (56 days) and a recruiting record holder (1,000 reps in one off-season)." },
+    { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts." },
+    { icon: TrendingUp, title: "Uncapped Recruiting", description: "You will never be capped on how many people you want to bring out." },
+    { icon: Settings, title: "Elite Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and recruiting software — all provided free to veterans on day one." },
     { icon: DollarSign, title: "Top-tier pay structure", description: "Higher commissions, scalable overrides, and a marketing deal structure designed for long-term upside." },
   ];
 
