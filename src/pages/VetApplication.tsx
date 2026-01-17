@@ -168,7 +168,7 @@ const VetApplication = () => {
   const DIRECT_VETERAN_AVG_REVENUE = 337000;
   
   const getCompetitorEarnings = () => {
-    if (!calcValues) return { teamRevenue: 0, overrideEarnings: 0, personalEarnings: 0, totalEarnings: 0 };
+    if (!calcValues) return { teamRevenue: 0, overrideEarnings: 0, totalEarnings: 0 };
     
     // Direct rookies (apply 30% retention for competitor structure)
     const finishedDirectRookies = Math.floor(calcValues.numDirectRookies * COMPETITOR_RETENTION_RATE);
@@ -177,33 +177,29 @@ const VetApplication = () => {
     // Direct veterans (no retention adjustment - they're vets)
     const directVetTeamRevenue = calcValues.numDirectVeterans * DIRECT_VETERAN_AVG_REVENUE;
     
-    // Veteran-led rookies (apply 30% retention for competitor structure)
-    const totalVeteranRookies = calcValues.numDirectVeterans * calcValues.rookiesPerVeteran;
-    const finishedVeteranRookies = Math.floor(totalVeteranRookies * COMPETITOR_RETENTION_RATE);
-    const veteranRookieTeamRevenue = finishedVeteranRookies * DIRECT_ROOKIE_AVG_REVENUE;
+    // Downline reps via managers (apply 30% retention for competitor structure)
+    const totalDownlineReps = calcValues.numDirectManagers * calcValues.repsPerManager;
+    const finishedDownlineReps = Math.floor(totalDownlineReps * COMPETITOR_RETENTION_RATE);
+    const downlineRepsTeamRevenue = finishedDownlineReps * DIRECT_ROOKIE_AVG_REVENUE;
     
     // Total team revenue after retention
-    const teamRevenue = directRookieTeamRevenue + directVetTeamRevenue + veteranRookieTeamRevenue;
+    const teamRevenue = directRookieTeamRevenue + directVetTeamRevenue + downlineRepsTeamRevenue;
     
     // 10% direct override
     const overrideEarnings = teamRevenue * COMPETITOR_OVERRIDE_RATE;
     
-    // Personal production (same rate logic for comparison)
-    const personalEarnings = calcValues.includePersonal ? calcValues.personalEarnings : 0;
-    
-    const totalEarnings = overrideEarnings + personalEarnings;
+    const totalEarnings = overrideEarnings;
     
     return { 
       directRookies: calcValues.numDirectRookies,
       finishedDirectRookies,
       directRookieTeamRevenue,
       directVetTeamRevenue,
-      totalVeteranRookies,
-      finishedVeteranRookies,
-      veteranRookieTeamRevenue,
+      totalDownlineReps,
+      finishedDownlineReps,
+      downlineRepsTeamRevenue,
       teamRevenue, 
       overrideEarnings, 
-      personalEarnings, 
       totalEarnings 
     };
   };
@@ -283,12 +279,16 @@ const VetApplication = () => {
                       <span className="font-medium">{calcValues.numDirectVeterans}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Rookies per Veteran:</span>
-                      <span className="font-medium">{calcValues.rookiesPerVeteran}</span>
+                      <span>Direct Managers:</span>
+                      <span className="font-medium">{calcValues.numDirectManagers}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Total Veteran-led Rookies:</span>
-                      <span className="font-medium">{competitorEarnings.totalVeteranRookies}</span>
+                      <span>Reps per Manager:</span>
+                      <span className="font-medium">{calcValues.repsPerManager}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Total Downline Reps:</span>
+                      <span className="font-medium">{competitorEarnings.totalDownlineReps}</span>
                     </li>
                   </ul>
                 </div>
@@ -306,8 +306,8 @@ const VetApplication = () => {
                       <span className="font-medium">{competitorEarnings.finishedDirectRookies}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Finished veteran-led rookies:</span>
-                      <span className="font-medium">{competitorEarnings.finishedVeteranRookies}</span>
+                      <span>Finished downline reps:</span>
+                      <span className="font-medium">{competitorEarnings.finishedDownlineReps}</span>
                     </li>
                     <li className="flex justify-between">
                       <span>Override structure:</span>
@@ -327,8 +327,8 @@ const VetApplication = () => {
                     <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.directVetTeamRevenue)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Veteran-led rookie revenue (after 30% retention):</span>
-                    <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.veteranRookieTeamRevenue)}</span>
+                    <span className="text-muted-foreground">Downline rep revenue (after 30% retention):</span>
+                    <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.downlineRepsTeamRevenue)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total active team revenue:</span>
@@ -338,12 +338,6 @@ const VetApplication = () => {
                     <span className="text-muted-foreground">Direct override earnings (10%):</span>
                     <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.overrideEarnings)}</span>
                   </div>
-                  {calcValues.includePersonal && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Personal production earnings:</span>
-                      <span className="font-medium text-foreground">{formatCurrency(competitorEarnings.personalEarnings)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between items-center pt-3 border-t border-border">
                     <span className="font-semibold text-foreground">Total Estimated Competitor Earnings:</span>
                     <span className="text-2xl font-black text-foreground">{formatCurrency(competitorEarnings.totalEarnings)}</span>

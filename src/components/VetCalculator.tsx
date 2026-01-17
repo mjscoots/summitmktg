@@ -1,150 +1,83 @@
 import { useState, useEffect } from "react";
-import { DollarSign, Users, TrendingUp, User, UserPlus, AlertTriangle } from "lucide-react";
-const MARKETING_DEAL_TIERS = [{
-  min: 0,
-  max: 249999,
-  rate: 0.45
-}, {
-  min: 250000,
-  max: 499999,
-  rate: 0.50
-}, {
-  min: 500000,
-  max: 1249999,
-  rate: 0.55
-}, {
-  min: 1250000,
-  max: 2499999,
-  rate: 0.60
-}, {
-  min: 2500000,
-  max: 3749999,
-  rate: 0.65
-}, {
-  min: 3750000,
-  max: 4999999,
-  rate: 0.675
-}, {
-  min: 5000000,
-  max: 7499999,
-  rate: 0.70
-}, {
-  min: 7500000,
-  max: 9999999,
-  rate: 0.72
-}, {
-  min: 10000000,
-  max: 12499999,
-  rate: 0.74
-}, {
-  min: 12500000,
-  max: Infinity,
-  rate: 0.76
-}];
-const VETERAN_PERSONAL_TIERS = [{
-  min: 0,
-  max: 199999,
-  rate: 0.40
-}, {
-  min: 200000,
-  max: 249999,
-  rate: 0.50
-}, {
-  min: 250000,
-  max: 299999,
-  rate: 0.55
-}, {
-  min: 300000,
-  max: 399999,
-  rate: 0.60
-}, {
-  min: 400000,
-  max: 499999,
-  rate: 0.65
-}, {
-  min: 500000,
-  max: Infinity,
-  rate: 0.70
-}];
+import { DollarSign, Users, TrendingUp, UserPlus, Calculator } from "lucide-react";
+
+const MARKETING_DEAL_TIERS = [
+  { min: 0, max: 249999, rate: 0.45 },
+  { min: 250000, max: 499999, rate: 0.50 },
+  { min: 500000, max: 1249999, rate: 0.55 },
+  { min: 1250000, max: 2499999, rate: 0.60 },
+  { min: 2500000, max: 3749999, rate: 0.65 },
+  { min: 3750000, max: 4999999, rate: 0.675 },
+  { min: 5000000, max: 7499999, rate: 0.70 },
+  { min: 7500000, max: 9999999, rate: 0.72 },
+  { min: 10000000, max: 12499999, rate: 0.74 },
+  { min: 12500000, max: Infinity, rate: 0.76 },
+];
+
 const getMarketingDealRate = (teamRevenue: number): number => {
   const tier = MARKETING_DEAL_TIERS.find(t => teamRevenue >= t.min && teamRevenue <= t.max);
   return tier ? tier.rate : 0.45;
 };
-const getPersonalRate = (revenue: number): number => {
-  const tier = VETERAN_PERSONAL_TIERS.find(t => revenue >= t.min && revenue <= t.max);
-  return tier ? tier.rate : VETERAN_PERSONAL_TIERS[0].rate;
-};
+
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(value);
 };
-const formatWithCommas = (value: string): string => {
-  if (value === "") return "";
-  const num = parseInt(value.replace(/,/g, ""), 10);
-  if (isNaN(num)) return "";
-  return num.toLocaleString('en-US');
-};
+
 const parseFormattedNumber = (value: string): number => {
   if (value === "") return 0;
   const num = parseInt(value.replace(/,/g, ""), 10);
   return isNaN(num) ? 0 : num;
 };
+
 export interface VetCalculatorValues {
   numDirectRookies: number;
   numDirectVeterans: number;
-  rookiesPerVeteran: number;
-  includePersonal: boolean;
-  personalRevenue: number;
+  numDirectManagers: number;
+  repsPerManager: number;
   totalTeamActiveRevenue: number;
-  personalRate: number;
-  personalEarnings: number;
 }
+
 interface VetCalculatorProps {
   onApplyClick?: () => void;
   onValuesChange?: (values: VetCalculatorValues) => void;
 }
-const VetCalculator = ({
-  onApplyClick,
-  onValuesChange
-}: VetCalculatorProps) => {
-  // Personal Production (always included)
-  const includePersonal = true;
-  const [personalRevenueStr, setPersonalRevenueStr] = useState("");
 
+const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
   // Direct Rookies
   const [numDirectRookiesStr, setNumDirectRookiesStr] = useState("");
-
   // Direct Veterans
   const [numDirectVeteransStr, setNumDirectVeteransStr] = useState("");
+  // Direct Managers
+  const [numDirectManagersStr, setNumDirectManagersStr] = useState("");
+  // Reps per Manager
+  const [repsPerManagerStr, setRepsPerManagerStr] = useState("");
 
-  // Rookies Per Veteran
-  const [rookiesPerVeteranStr, setRookiesPerVeteranStr] = useState("");
-
-  // Parse string values to numbers (empty string = 0 for calculations)
-  const personalRevenue = parseFormattedNumber(personalRevenueStr);
+  // Parse string values to numbers
   const numDirectRookies = parseFormattedNumber(numDirectRookiesStr);
   const numDirectVeterans = parseFormattedNumber(numDirectVeteransStr);
-  const rookiesPerVeteran = parseFormattedNumber(rookiesPerVeteranStr);
+  const numDirectManagers = parseFormattedNumber(numDirectManagersStr);
+  const repsPerManager = parseFormattedNumber(repsPerManagerStr);
 
-  // Constants
-  const DIRECT_ROOKIE_AVG_REVENUE = 220000;
-  const DIRECT_VETERAN_AVG_REVENUE = 337000;
-  const ROOKIE_COMMISSION_RATE = 0.40;
-  const VETERAN_COMMISSION_RATE = 0.40;
+  // Constants - Updated averages
+  const DIRECT_ROOKIE_AVG_REVENUE = 170000;
+  const DIRECT_VETERAN_AVG_REVENUE = 275000;
+  const ROOKIE_ATTRITION = 0.25; // 25% falloff
+  const ROOKIE_CANCEL_RATE = 0.20; // 20% cancels
+  const VETERAN_CANCEL_RATE = 0.15; // 15% cancels
+  const INCENTIVE_RATE = 0.05; // 5% incentives
 
-  // Handle numeric input change - removes leading zeros and formats with commas
+  // Handle numeric input change
   const handleNumericChange = (value: string, setter: (val: string) => void) => {
-    // Remove any non-numeric characters except commas
     const cleanValue = value.replace(/[^0-9]/g, "");
     if (cleanValue === "") {
       setter("");
       return;
     }
-    // Parse and format with commas
     const parsed = parseInt(cleanValue, 10);
     if (!isNaN(parsed) && parsed >= 0) {
       setter(parsed.toLocaleString('en-US'));
@@ -153,64 +86,56 @@ const VetCalculator = ({
 
   // ============= CALCULATIONS =============
 
-  // 1) PERSONAL PRODUCTION
-  // - 15% cancels (85% retained)
-  // - Does NOT count toward marketing deal
-  // - Earnings = (Marketing Deal % - Veteran commission %)
-  const personalActiveRevenue = personalRevenue * 0.85;
-  const personalRate = getPersonalRate(personalActiveRevenue);
+  // Direct Rookies: raw revenue before attrition
+  const directRookiesGrossRevenue = numDirectRookies * DIRECT_ROOKIE_AVG_REVENUE;
+  
+  // Direct Veterans: raw revenue before attrition
+  const directVeteransGrossRevenue = numDirectVeterans * DIRECT_VETERAN_AVG_REVENUE;
+  
+  // Downline Reps (via managers): each manager has repsPerManager rookies
+  const totalDownlineReps = numDirectManagers * repsPerManager;
+  const downlineRepsGrossRevenue = totalDownlineReps * DIRECT_ROOKIE_AVG_REVENUE;
 
-  // 2) DIRECT ROOKIES
-  // - 25% falloff (75% retention)
-  // - 20% cancels on serviced revenue
-  // - 5% expense on direct rookies ONLY
-  // - Counts toward marketing deal
-  const retainedDirectRookies = numDirectRookies * 0.75;
-  const directRookieActiveRevenue = DIRECT_ROOKIE_AVG_REVENUE * 0.80; // 20% cancels
-  const directRookieRevenueAfterExpense = directRookieActiveRevenue * 0.95; // 5% expense
-  const directRookiesRevenue = retainedDirectRookies * directRookieRevenueAfterExpense;
+  // Total Team Revenue (before attrition)
+  const totalGrossRevenue = directRookiesGrossRevenue + directVeteransGrossRevenue + downlineRepsGrossRevenue;
 
-  // 3) DIRECT VETERANS
-  // - 0% falloff (100% retention)
-  // - 15% cancels on serviced revenue
-  // - NO expenses
-  // - Counts toward marketing deal
-  const directVeteranActiveRevenue = DIRECT_VETERAN_AVG_REVENUE * 0.85; // 15% cancels
-  const directVeteransRevenue = numDirectVeterans * directVeteranActiveRevenue;
+  // Attrition Adjustments
+  const directRookiesRetained = numDirectRookies * (1 - ROOKIE_ATTRITION);
+  const directRookiesActiveRevenue = directRookiesRetained * DIRECT_ROOKIE_AVG_REVENUE * (1 - ROOKIE_CANCEL_RATE);
+  
+  const directVeteransActiveRevenue = numDirectVeterans * DIRECT_VETERAN_AVG_REVENUE * (1 - VETERAN_CANCEL_RATE);
+  
+  const downlineRepsRetained = totalDownlineReps * (1 - ROOKIE_ATTRITION);
+  const downlineRepsActiveRevenue = downlineRepsRetained * DIRECT_ROOKIE_AVG_REVENUE * (1 - ROOKIE_CANCEL_RATE);
 
-  // 4) ROOKIES PER VETERAN (veteran-led rookies)
-  // - 25% falloff (75% retention)
-  // - 20% cancels on serviced revenue
-  // - NO expenses on veteran rookies
-  // - Counts toward marketing deal
-  // - Override calculated at veteran level only
-  const totalVeteranRookies = numDirectVeterans * rookiesPerVeteran;
-  const retainedVeteranRookies = totalVeteranRookies * 0.75;
-  const veteranRookieActiveRevenue = DIRECT_ROOKIE_AVG_REVENUE * 0.80; // 20% cancels, no expense
-  const veteranRookiesRevenue = retainedVeteranRookies * veteranRookieActiveRevenue;
+  // Gross Team Revenue After Attrition
+  const totalTeamActiveRevenue = directRookiesActiveRevenue + directVeteransActiveRevenue + downlineRepsActiveRevenue;
 
-  // Total team revenue for marketing deal (personal NOT included)
-  const totalTeamActiveRevenue = directRookiesRevenue + directVeteransRevenue + veteranRookiesRevenue;
+  // Marketing Deal Rate based on team revenue
   const marketingDealRate = getMarketingDealRate(totalTeamActiveRevenue);
 
-  // EARNINGS BREAKDOWN
+  // Cost Deductions
+  const incentivesCost = directRookiesActiveRevenue * INCENTIVE_RATE; // 5% on direct rookies only
+  const housingCost = 0; // Placeholder - can be adjusted
+  const otherCosts = 0; // Placeholder
+  const totalDeductions = incentivesCost + housingCost + otherCosts;
 
-  // Direct rookie override = Marketing Deal % - Rookie commission %
-  const directRookieOverrideRate = marketingDealRate - ROOKIE_COMMISSION_RATE;
-  const directRookieOverrideEarnings = directRookiesRevenue * directRookieOverrideRate;
+  // Net Revenue Calculation
+  const netRevenue = totalTeamActiveRevenue - totalDeductions;
 
-  // Direct veteran override = Marketing Deal % - Veteran commission %
-  const directVeteranOverrideRate = marketingDealRate - VETERAN_COMMISSION_RATE;
-  const directVeteranOverrideEarnings = directVeteransRevenue * directVeteranOverrideRate;
-
-  // Veteran-led rookies: override at veteran level (Marketing Deal % - Veteran commission %)
-  const veteranRookiesOverrideEarnings = veteranRookiesRevenue * directVeteranOverrideRate;
-  const leadershipEarnings = directRookieOverrideEarnings + directVeteranOverrideEarnings + veteranRookiesOverrideEarnings;
-
-  // Personal earnings = (Marketing Deal % - Veteran commission %) on personal active revenue
-  const personalEarningsRate = marketingDealRate - VETERAN_COMMISSION_RATE;
-  const personalEarnings = includePersonal ? personalActiveRevenue * personalEarningsRate : 0;
-  const totalEarnings = leadershipEarnings + personalEarnings;
+  // Final Estimated Earnings
+  // Override = Marketing Deal % - Rep Commission %
+  const ROOKIE_COMMISSION = 0.40;
+  const VETERAN_COMMISSION = 0.40;
+  
+  const directRookieOverride = marketingDealRate - ROOKIE_COMMISSION;
+  const directVeteranOverride = marketingDealRate - VETERAN_COMMISSION;
+  
+  const directRookieEarnings = (directRookiesActiveRevenue * 0.95) * directRookieOverride; // After 5% expense
+  const directVeteranEarnings = directVeteransActiveRevenue * directVeteranOverride;
+  const downlineEarnings = downlineRepsActiveRevenue * directVeteranOverride;
+  
+  const finalEarnings = directRookieEarnings + directVeteranEarnings + downlineEarnings;
 
   // Pass values up to parent
   useEffect(() => {
@@ -218,142 +143,228 @@ const VetCalculator = ({
       onValuesChange({
         numDirectRookies,
         numDirectVeterans,
-        rookiesPerVeteran,
-        includePersonal,
-        personalRevenue,
+        numDirectManagers,
+        repsPerManager,
         totalTeamActiveRevenue,
-        personalRate,
-        personalEarnings
       });
     }
-  }, [numDirectRookies, numDirectVeterans, rookiesPerVeteran, includePersonal, personalRevenue, totalTeamActiveRevenue, personalRate, personalEarnings, onValuesChange]);
-  return <div className="card-elevated p-6 md:p-8">
-      {/* Warning/Disclaimer Box */}
-      
+  }, [numDirectRookies, numDirectVeterans, numDirectManagers, repsPerManager, totalTeamActiveRevenue, onValuesChange]);
 
-      {/* 1) PERSONAL PRODUCTION (FIRST) */}
+  return (
+    <div className="card-elevated p-6 md:p-8">
+      {/* INPUT SECTION */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <User className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Production</h4>
+        <div className="flex items-center gap-2 mb-6">
+          <Calculator className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-bold text-foreground uppercase tracking-wide">Team Inputs</h3>
         </div>
-        <div className="p-4 rounded-lg border border-border">
-          <label className="block text-sm font-medium text-foreground mb-1">
-            Your Goal Active Revenue
-          </label>
+
+        {/* Direct Rookies */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="w-4 h-4 text-primary" />
+            <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Rookies</h4>
+          </div>
           <p className="text-xs text-muted-foreground mb-2">
-            Returning reps nearly double their previous year's active revenue.
+            Summit average per direct rookie: $170,000
           </p>
-          <input type="text" inputMode="numeric" value={personalRevenueStr} onChange={e => handleNumericChange(e.target.value, setPersonalRevenueStr)} className="input-field mb-3" placeholder="0" />
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">
-              Personal Rate: <span className="font-medium text-primary">{(personalRate * 100).toFixed(0)}%</span>
-            </span>
-            <span className="text-sm font-medium text-success">
-              +{formatCurrency(personalEarnings)}
-            </span>
-          </div>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={numDirectRookiesStr}
+            onChange={e => handleNumericChange(e.target.value, setNumDirectRookiesStr)}
+            className="input-field"
+            placeholder="0"
+          />
         </div>
-      </div>
 
-      {/* 2) DIRECT ROOKIES */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Rookies</h4>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Number of Direct Rookies (Summit AVG $220,000 each)
-          </label>
-          <input type="text" inputMode="numeric" value={numDirectRookiesStr} onChange={e => handleNumericChange(e.target.value, setNumDirectRookiesStr)} className="input-field" placeholder="0" />
-          <p className="text-xs text-muted-foreground mt-2">
-            Direct rookies revenue: {formatCurrency(directRookiesRevenue)}
+        {/* Direct Veterans */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <UserPlus className="w-4 h-4 text-primary" />
+            <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Veterans</h4>
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Summit Vet average: $275,000
           </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={numDirectVeteransStr}
+            onChange={e => handleNumericChange(e.target.value, setNumDirectVeteransStr)}
+            className="input-field"
+            placeholder="0"
+          />
         </div>
-      </div>
 
-      {/* 3) DIRECT VETERANS */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <UserPlus className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Veterans</h4>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Number of Direct Veterans (Summit VET AVG $337,000 each)
-          </label>
-          <input type="text" inputMode="numeric" value={numDirectVeteransStr} onChange={e => handleNumericChange(e.target.value, setNumDirectVeteransStr)} className="input-field" placeholder="0" />
-          <p className="text-xs text-muted-foreground mt-2">
-            Direct veterans revenue: {formatCurrency(directVeteransRevenue)}
+        {/* Direct Managers */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Managers</h4>
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Veterans with their own reps.
           </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={numDirectManagersStr}
+            onChange={e => handleNumericChange(e.target.value, setNumDirectManagersStr)}
+            className="input-field"
+            placeholder="0"
+          />
         </div>
-      </div>
 
-      {/* 4) ROOKIES PER VETERAN */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Rookies Per Veteran</h4>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Rookies Per Veteran
-          </label>
-          <input type="text" inputMode="numeric" value={rookiesPerVeteranStr} onChange={e => handleNumericChange(e.target.value, setRookiesPerVeteranStr)} className="input-field" placeholder="0" />
-          <p className="text-xs text-muted-foreground mt-2">
-            Veteran-led rookies revenue: {formatCurrency(veteranRookiesRevenue)}
+        {/* Reps per Manager */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="w-4 h-4 text-primary" />
+            <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Reps per Manager</h4>
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            The number of reps each direct manager has in their downline.
           </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={repsPerManagerStr}
+            onChange={e => handleNumericChange(e.target.value, setRepsPerManagerStr)}
+            className="input-field"
+            placeholder="0"
+          />
         </div>
       </div>
 
-      {/* Results Summary */}
-      <div className="p-6 rounded-lg bg-secondary/30 border border-border mb-6">
-        <h4 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wide">Earnings Breakdown</h4>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Team Active Revenue</p>
-            <p className="text-xl font-bold text-foreground">{formatCurrency(totalTeamActiveRevenue)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Marketing Deal %</p>
-            <p className="text-xl font-bold text-primary">{(marketingDealRate * 100).toFixed(1)}%</p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Leadership Earnings</p>
-            <p className="text-xl font-bold text-success">{formatCurrency(leadershipEarnings)}</p>
-          </div>
+      {/* SHOW THE MATH SECTION */}
+      <div className="border-t border-border pt-8">
+        <div className="flex items-center gap-2 mb-6">
+          <DollarSign className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-bold text-foreground uppercase tracking-wide">Show the Math</h3>
         </div>
-        <div className="pt-4 border-t border-border">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Personal Earnings</span>
-            <span className="text-lg font-bold text-success">{formatCurrency(personalEarnings)}</span>
-          </div>
-        </div>
-      </div>
 
-      {/* Total Estimate */}
-      <div className="p-6 rounded-lg bg-success/20 border-2 border-success mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <DollarSign className="w-5 h-5 text-success" />
-          <p className="text-sm text-muted-foreground uppercase tracking-wide">Total Estimated Earnings</p>
-        </div>
-        <p className="text-4xl font-black text-success">{formatCurrency(totalEarnings)}</p>
-        <div className="mt-3 text-xs text-muted-foreground space-y-1">
-          <p>Leadership: {formatCurrency(leadershipEarnings)}</p>
-          <p>Personal: {formatCurrency(personalEarnings)}</p>
+        {/* Math Stack */}
+        <div className="space-y-4">
+          {/* Marketing Deal Percentage */}
+          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+            <p className="text-xs text-primary uppercase tracking-wide font-bold mb-1">Marketing Deal Percentage</p>
+            <p className="text-2xl font-black text-foreground">{(marketingDealRate * 100).toFixed(1)}%</p>
+            <p className="text-xs text-muted-foreground mt-1">Based on total team revenue tier</p>
+          </div>
+
+          {/* Total Team Revenue */}
+          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+            <p className="text-xs text-primary uppercase tracking-wide font-bold mb-2">Total Team Revenue (Gross)</p>
+            <div className="space-y-1 text-sm text-muted-foreground mb-2">
+              <div className="flex justify-between">
+                <span>Direct Rookies ({numDirectRookies} × $170,000)</span>
+                <span className="text-foreground">{formatCurrency(directRookiesGrossRevenue)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Direct Veterans ({numDirectVeterans} × $275,000)</span>
+                <span className="text-foreground">{formatCurrency(directVeteransGrossRevenue)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Downline Reps ({totalDownlineReps} × $170,000)</span>
+                <span className="text-foreground">{formatCurrency(downlineRepsGrossRevenue)}</span>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-border">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-foreground">Total</span>
+                <span className="text-lg font-bold text-foreground">{formatCurrency(totalGrossRevenue)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Attrition Adjustment */}
+          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+            <p className="text-xs text-primary uppercase tracking-wide font-bold mb-2">Attrition Adjustment</p>
+            <div className="space-y-1 text-sm text-muted-foreground mb-2">
+              <div className="flex justify-between">
+                <span>Rookies: 25% falloff + 20% cancels</span>
+                <span className="text-foreground">{formatCurrency(directRookiesActiveRevenue)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Veterans: 15% cancels</span>
+                <span className="text-foreground">{formatCurrency(directVeteransActiveRevenue)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Downline: 25% falloff + 20% cancels</span>
+                <span className="text-foreground">{formatCurrency(downlineRepsActiveRevenue)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Gross Team Revenue After Attrition */}
+          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+            <p className="text-xs text-primary uppercase tracking-wide font-bold mb-1">Gross Team Revenue After Attrition</p>
+            <p className="text-2xl font-black text-foreground">{formatCurrency(totalTeamActiveRevenue)}</p>
+          </div>
+
+          {/* Cost Deductions */}
+          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+            <p className="text-xs text-primary uppercase tracking-wide font-bold mb-2">Cost Deductions</p>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <div className="flex justify-between">
+                <span>Incentives (5% on direct rookies)</span>
+                <span className="text-foreground">-{formatCurrency(incentivesCost)}</span>
+              </div>
+              {housingCost > 0 && (
+                <div className="flex justify-between">
+                  <span>Housing</span>
+                  <span className="text-foreground">-{formatCurrency(housingCost)}</span>
+                </div>
+              )}
+              {otherCosts > 0 && (
+                <div className="flex justify-between">
+                  <span>Other fixed costs</span>
+                  <span className="text-foreground">-{formatCurrency(otherCosts)}</span>
+                </div>
+              )}
+            </div>
+            <div className="pt-2 mt-2 border-t border-border">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-foreground">Total Deductions</span>
+                <span className="text-lg font-bold text-foreground">-{formatCurrency(totalDeductions)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Net Revenue */}
+          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+            <p className="text-xs text-primary uppercase tracking-wide font-bold mb-1">Net Revenue Calculation</p>
+            <p className="text-2xl font-black text-foreground">{formatCurrency(netRevenue)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Active revenue minus deductions</p>
+          </div>
+
+          {/* Final Estimated Earnings */}
+          <div className="p-6 rounded-lg bg-success/20 border-2 border-success">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="w-5 h-5 text-success" />
+              <p className="text-sm text-success uppercase tracking-wide font-bold">Final Estimated Earnings</p>
+            </div>
+            <p className="text-4xl font-black text-success">{formatCurrency(finalEarnings)}</p>
+          </div>
         </div>
       </div>
 
       {/* Disclaimer */}
-      <p className="text-xs text-muted-foreground mb-6">
-        Estimates are simplified planning numbers and do not include cancellations, taxes, chargebacks, backend timing, or company-specific deductions.
+      <p className="text-xs text-muted-foreground mt-6 mb-6">
+        Estimates are simplified planning numbers and do not include taxes, chargebacks, backend timing, or company-specific deductions.
       </p>
 
       {/* Apply Now CTA */}
-      {onApplyClick && <button onClick={onApplyClick} className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide">
+      {onApplyClick && (
+        <button
+          onClick={onApplyClick}
+          className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide"
+        >
           Apply Now
-        </button>}
-    </div>;
+        </button>
+      )}
+    </div>
+  );
 };
+
 export default VetCalculator;
