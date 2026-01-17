@@ -1,60 +1,98 @@
 import { useState, useEffect } from "react";
 import { DollarSign, Users, TrendingUp, User, UserPlus, AlertTriangle } from "lucide-react";
-
-const MARKETING_DEAL_TIERS = [
-  { min: 0, max: 249999, rate: 0.45 },
-  { min: 250000, max: 499999, rate: 0.50 },
-  { min: 500000, max: 1249999, rate: 0.55 },
-  { min: 1250000, max: 2499999, rate: 0.60 },
-  { min: 2500000, max: 3749999, rate: 0.65 },
-  { min: 3750000, max: 4999999, rate: 0.675 },
-  { min: 5000000, max: 7499999, rate: 0.70 },
-  { min: 7500000, max: 9999999, rate: 0.72 },
-  { min: 10000000, max: 12499999, rate: 0.74 },
-  { min: 12500000, max: Infinity, rate: 0.76 },
-];
-
-const VETERAN_PERSONAL_TIERS = [
-  { min: 0, max: 199999, rate: 0.40 },
-  { min: 200000, max: 249999, rate: 0.50 },
-  { min: 250000, max: 299999, rate: 0.55 },
-  { min: 300000, max: 399999, rate: 0.60 },
-  { min: 400000, max: 499999, rate: 0.65 },
-  { min: 500000, max: Infinity, rate: 0.70 },
-];
-
+const MARKETING_DEAL_TIERS = [{
+  min: 0,
+  max: 249999,
+  rate: 0.45
+}, {
+  min: 250000,
+  max: 499999,
+  rate: 0.50
+}, {
+  min: 500000,
+  max: 1249999,
+  rate: 0.55
+}, {
+  min: 1250000,
+  max: 2499999,
+  rate: 0.60
+}, {
+  min: 2500000,
+  max: 3749999,
+  rate: 0.65
+}, {
+  min: 3750000,
+  max: 4999999,
+  rate: 0.675
+}, {
+  min: 5000000,
+  max: 7499999,
+  rate: 0.70
+}, {
+  min: 7500000,
+  max: 9999999,
+  rate: 0.72
+}, {
+  min: 10000000,
+  max: 12499999,
+  rate: 0.74
+}, {
+  min: 12500000,
+  max: Infinity,
+  rate: 0.76
+}];
+const VETERAN_PERSONAL_TIERS = [{
+  min: 0,
+  max: 199999,
+  rate: 0.40
+}, {
+  min: 200000,
+  max: 249999,
+  rate: 0.50
+}, {
+  min: 250000,
+  max: 299999,
+  rate: 0.55
+}, {
+  min: 300000,
+  max: 399999,
+  rate: 0.60
+}, {
+  min: 400000,
+  max: 499999,
+  rate: 0.65
+}, {
+  min: 500000,
+  max: Infinity,
+  rate: 0.70
+}];
 const getMarketingDealRate = (teamRevenue: number): number => {
   const tier = MARKETING_DEAL_TIERS.find(t => teamRevenue >= t.min && teamRevenue <= t.max);
   return tier ? tier.rate : 0.45;
 };
-
 const getPersonalRate = (revenue: number): number => {
   const tier = VETERAN_PERSONAL_TIERS.find(t => revenue >= t.min && revenue <= t.max);
   return tier ? tier.rate : VETERAN_PERSONAL_TIERS[0].rate;
 };
-
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(value);
 };
-
 const formatWithCommas = (value: string): string => {
   if (value === "") return "";
   const num = parseInt(value.replace(/,/g, ""), 10);
   if (isNaN(num)) return "";
   return num.toLocaleString('en-US');
 };
-
 const parseFormattedNumber = (value: string): number => {
   if (value === "") return 0;
   const num = parseInt(value.replace(/,/g, ""), 10);
   return isNaN(num) ? 0 : num;
 };
-
 export interface VetCalculatorValues {
   numDirectRookies: number;
   numDirectVeterans: number;
@@ -65,13 +103,14 @@ export interface VetCalculatorValues {
   personalRate: number;
   personalEarnings: number;
 }
-
 interface VetCalculatorProps {
   onApplyClick?: () => void;
   onValuesChange?: (values: VetCalculatorValues) => void;
 }
-
-const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
+const VetCalculator = ({
+  onApplyClick,
+  onValuesChange
+}: VetCalculatorProps) => {
   // Personal Production (always included)
   const includePersonal = true;
   const [personalRevenueStr, setPersonalRevenueStr] = useState("");
@@ -152,7 +191,6 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
   // Total team revenue for marketing deal (personal NOT included)
   const totalTeamActiveRevenue = directRookiesRevenue + directVeteransRevenue + veteranRookiesRevenue;
-
   const marketingDealRate = getMarketingDealRate(totalTeamActiveRevenue);
 
   // EARNINGS BREAKDOWN
@@ -167,13 +205,11 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
   // Veteran-led rookies: override at veteran level (Marketing Deal % - Veteran commission %)
   const veteranRookiesOverrideEarnings = veteranRookiesRevenue * directVeteranOverrideRate;
-
   const leadershipEarnings = directRookieOverrideEarnings + directVeteranOverrideEarnings + veteranRookiesOverrideEarnings;
 
   // Personal earnings = (Marketing Deal % - Veteran commission %) on personal active revenue
   const personalEarningsRate = marketingDealRate - VETERAN_COMMISSION_RATE;
   const personalEarnings = includePersonal ? personalActiveRevenue * personalEarningsRate : 0;
-
   const totalEarnings = leadershipEarnings + personalEarnings;
 
   // Pass values up to parent
@@ -187,26 +223,13 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
         personalRevenue,
         totalTeamActiveRevenue,
         personalRate,
-        personalEarnings,
+        personalEarnings
       });
     }
   }, [numDirectRookies, numDirectVeterans, rookiesPerVeteran, includePersonal, personalRevenue, totalTeamActiveRevenue, personalRate, personalEarnings, onValuesChange]);
-
-  return (
-    <div className="card-elevated p-6 md:p-8">
+  return <div className="card-elevated p-6 md:p-8">
       {/* Warning/Disclaimer Box */}
-      <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p>Calculations include a 20% cancellation rate on rookie contracts, 15% on veteran contracts, and an industry-low 25% rookie falloff (veterans do not fall off).</p>
-            <p>Includes a 5% expense assumption on direct rookies only.</p>
-            <p>Personal sales do not count toward your marketing deal.</p>
-            <p>Veteran personal pay = Marketing Deal rate minus veteran commission rate.</p>
-            <p>Direct rookie override = Marketing Deal rate minus rookie commission rate.</p>
-          </div>
-        </div>
-      </div>
+      
 
       {/* 1) PERSONAL PRODUCTION (FIRST) */}
       <div className="mb-8">
@@ -221,14 +244,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <p className="text-xs text-muted-foreground mb-2">
             Returning reps nearly double their previous year's active revenue.
           </p>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={personalRevenueStr}
-            onChange={(e) => handleNumericChange(e.target.value, setPersonalRevenueStr)}
-            className="input-field mb-3"
-            placeholder="0"
-          />
+          <input type="text" inputMode="numeric" value={personalRevenueStr} onChange={e => handleNumericChange(e.target.value, setPersonalRevenueStr)} className="input-field mb-3" placeholder="0" />
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">
               Personal Rate: <span className="font-medium text-primary">{(personalRate * 100).toFixed(0)}%</span>
@@ -250,14 +266,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <label className="block text-sm font-medium text-foreground mb-2">
             Number of Direct Rookies (Summit AVG $220,000 each)
           </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={numDirectRookiesStr}
-            onChange={(e) => handleNumericChange(e.target.value, setNumDirectRookiesStr)}
-            className="input-field"
-            placeholder="0"
-          />
+          <input type="text" inputMode="numeric" value={numDirectRookiesStr} onChange={e => handleNumericChange(e.target.value, setNumDirectRookiesStr)} className="input-field" placeholder="0" />
           <p className="text-xs text-muted-foreground mt-2">
             Direct rookies revenue: {formatCurrency(directRookiesRevenue)}
           </p>
@@ -274,14 +283,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <label className="block text-sm font-medium text-foreground mb-2">
             Number of Direct Veterans (Summit VET AVG $337,000 each)
           </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={numDirectVeteransStr}
-            onChange={(e) => handleNumericChange(e.target.value, setNumDirectVeteransStr)}
-            className="input-field"
-            placeholder="0"
-          />
+          <input type="text" inputMode="numeric" value={numDirectVeteransStr} onChange={e => handleNumericChange(e.target.value, setNumDirectVeteransStr)} className="input-field" placeholder="0" />
           <p className="text-xs text-muted-foreground mt-2">
             Direct veterans revenue: {formatCurrency(directVeteransRevenue)}
           </p>
@@ -298,14 +300,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <label className="block text-sm font-medium text-foreground mb-2">
             Rookies Per Veteran
           </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={rookiesPerVeteranStr}
-            onChange={(e) => handleNumericChange(e.target.value, setRookiesPerVeteranStr)}
-            className="input-field"
-            placeholder="0"
-          />
+          <input type="text" inputMode="numeric" value={rookiesPerVeteranStr} onChange={e => handleNumericChange(e.target.value, setRookiesPerVeteranStr)} className="input-field" placeholder="0" />
           <p className="text-xs text-muted-foreground mt-2">
             Veteran-led rookies revenue: {formatCurrency(veteranRookiesRevenue)}
           </p>
@@ -356,16 +351,9 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
       </p>
 
       {/* Apply Now CTA */}
-      {onApplyClick && (
-        <button 
-          onClick={onApplyClick}
-          className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide"
-        >
+      {onApplyClick && <button onClick={onApplyClick} className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide">
           Apply Now
-        </button>
-      )}
-    </div>
-  );
+        </button>}
+    </div>;
 };
-
 export default VetCalculator;
