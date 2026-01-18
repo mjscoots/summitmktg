@@ -16,7 +16,7 @@ const Index = () => {
       {/* Mountain accent in left corner */}
       <Mountain className="absolute top-6 left-6 w-5 h-5 text-primary/20" />
       
-      {/* Login button top right - larger and bolder with user icon */}
+      {/* Login button top right */}
       <button
         onClick={() => navigate("/login")}
         className="absolute top-6 right-6 flex items-center gap-2 px-4 py-2 text-sm font-bold text-foreground hover:text-primary border-2 border-primary rounded transition-colors uppercase tracking-wide"
@@ -28,7 +28,6 @@ const Index = () => {
       <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
         {/* Logo with glow effect */}
         <div className="mb-4 relative">
-          {/* Blue glow behind logo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-48 md:w-64 h-24 md:h-32 bg-primary/30 blur-3xl rounded-full" />
           </div>
@@ -39,7 +38,7 @@ const Index = () => {
           />
         </div>
 
-        {/* Main Question - moved closer to logo */}
+        {/* Main Question */}
         <div className="mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-wide drop-shadow-[0_0_10px_hsl(216,80%,45%,0.3)]">
             Choose Your Path
@@ -49,35 +48,30 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Selection Cards - Bold styling with enhanced hover */}
-        <div className="grid md:grid-cols-2 gap-4 max-w-xl mx-auto">
+        {/* Selection Cards - Smaller, rounder, perfectly symmetrical */}
+        <div className="grid grid-cols-2 gap-5 max-w-md mx-auto">
           {/* Rookie Card */}
           <button
             onClick={() => navigate("/apply/rookie")}
             onMouseEnter={() => setRookieHovered(true)}
             onMouseLeave={() => setRookieHovered(false)}
-            className="group bg-card p-8 text-center transition-all duration-300 border-[3px] border-primary rounded-lg hover:bg-primary/5 hover:scale-[1.04] hover:shadow-[0_10px_40px_-10px_hsl(216,80%,45%,0.5)] hover:border-primary/80 cursor-pointer"
+            className="group bg-card p-6 text-center transition-all duration-300 border-2 border-primary rounded-2xl hover:bg-primary/5 hover:scale-[1.05] hover:shadow-[0_8px_32px_-8px_hsl(216,80%,45%,0.6)] hover:border-primary/90 cursor-pointer"
           >
-            <div className="flex items-center justify-center mb-4">
-              <span className="text-xs font-bold text-primary uppercase tracking-widest">
-                New to Door-to-Door
-              </span>
-            </div>
+            <span className="block text-[10px] font-bold text-primary uppercase tracking-widest mb-4 h-4">
+              New to Door-to-Door
+            </span>
             
-            {/* Center text with glow and stroke effect */}
-            <div className="relative my-6">
-              <h3 
-                className="text-3xl font-black text-foreground uppercase tracking-wider transition-all duration-300"
-                style={{
-                  textShadow: '0 0 20px hsl(216, 80%, 45%, 0.5), 0 0 40px hsl(216, 80%, 45%, 0.3)',
-                  WebkitTextStroke: '1px hsl(0, 0%, 0%)',
-                }}
-              >
-                {rookieHovered ? "GO!" : "ROOKIE"}
-              </h3>
-            </div>
+            <h3 
+              className="text-2xl font-black text-foreground uppercase tracking-wider transition-all duration-300 my-4"
+              style={{
+                textShadow: '0 0 20px hsl(216, 80%, 45%, 0.5), 0 0 40px hsl(216, 80%, 45%, 0.3)',
+                WebkitTextStroke: '1px hsl(0, 0%, 0%)',
+              }}
+            >
+              {rookieHovered ? "GO!" : "ROOKIE"}
+            </h3>
             
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs h-8 flex items-center justify-center">
               Interested in Sales
             </p>
           </button>
@@ -87,28 +81,23 @@ const Index = () => {
             onClick={() => navigate("/apply/vet")}
             onMouseEnter={() => setVetHovered(true)}
             onMouseLeave={() => setVetHovered(false)}
-            className="group bg-card p-8 text-center transition-all duration-300 border-[3px] border-primary rounded-lg hover:bg-primary/5 hover:scale-[1.04] hover:shadow-[0_10px_40px_-10px_hsl(216,80%,45%,0.5)] hover:border-primary/80 cursor-pointer"
+            className="group bg-card p-6 text-center transition-all duration-300 border-2 border-primary rounded-2xl hover:bg-primary/5 hover:scale-[1.05] hover:shadow-[0_8px_32px_-8px_hsl(216,80%,45%,0.6)] hover:border-primary/90 cursor-pointer"
           >
-            <div className="flex items-center justify-center mb-4">
-              <span className="text-xs font-bold text-primary uppercase tracking-widest">
-                Experienced Rep
-              </span>
-            </div>
+            <span className="block text-[10px] font-bold text-primary uppercase tracking-widest mb-4 h-4">
+              Experienced Rep
+            </span>
             
-            {/* Center text with glow and stroke effect */}
-            <div className="relative my-6">
-              <h3 
-                className="text-3xl font-black text-foreground uppercase tracking-wider transition-all duration-300"
-                style={{
-                  textShadow: '0 0 20px hsl(216, 80%, 45%, 0.5), 0 0 40px hsl(216, 80%, 45%, 0.3)',
-                  WebkitTextStroke: '1px hsl(0, 0%, 0%)',
-                }}
-              >
-                {vetHovered ? "GO!" : "VET"}
-              </h3>
-            </div>
+            <h3 
+              className="text-2xl font-black text-foreground uppercase tracking-wider transition-all duration-300 my-4"
+              style={{
+                textShadow: '0 0 20px hsl(216, 80%, 45%, 0.5), 0 0 40px hsl(216, 80%, 45%, 0.3)',
+                WebkitTextStroke: '1px hsl(0, 0%, 0%)',
+              }}
+            >
+              {vetHovered ? "GO!" : "VET"}
+            </h3>
             
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs h-8 flex items-center justify-center">
               Completed Summer Door-to-Door Sales
             </p>
           </button>
