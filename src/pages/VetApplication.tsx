@@ -144,7 +144,8 @@ const VetApplication = () => {
   };
 
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [, setCalcValues] = useState<VetCalculatorValues | null>(null);
+  const [calcValues, setCalcValues] = useState<VetCalculatorValues | null>(null);
+  void calcValues; // Used for future features
 
   const handleCalcValuesChange = useCallback((values: VetCalculatorValues) => {
     setCalcValues(values);
