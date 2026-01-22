@@ -14,16 +14,480 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      announcements: {
+        Row: {
+          author_id: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      leaderboard_points: {
+        Row: {
+          call_attendance_points: number | null
+          id: string
+          quiz_points: number | null
+          roleplay_points: number | null
+          total_points: number | null
+          training_points: number | null
+          updated_at: string | null
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          call_attendance_points?: number | null
+          id?: string
+          quiz_points?: number | null
+          roleplay_points?: number | null
+          total_points?: number | null
+          training_points?: number | null
+          updated_at?: string | null
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          call_attendance_points?: number | null
+          id?: string
+          quiz_points?: number | null
+          roleplay_points?: number | null
+          total_points?: number | null
+          training_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      lesson_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          last_attempt_at: string | null
+          lesson_id: string
+          quiz_attempts: number | null
+          quiz_passed: boolean | null
+          quiz_score: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          lesson_id: string
+          quiz_attempts?: number | null
+          quiz_passed?: boolean | null
+          quiz_score?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          lesson_id?: string
+          quiz_attempts?: number | null
+          quiz_passed?: boolean | null
+          quiz_score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "training_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          experience: Database["public"]["Enums"]["experience_level"] | null
+          full_name: string
+          id: string
+          organization: string | null
+          phone: string | null
+          recruiter: string | null
+          region: string | null
+          status: Database["public"]["Enums"]["user_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          experience?: Database["public"]["Enums"]["experience_level"] | null
+          full_name: string
+          id?: string
+          organization?: string | null
+          phone?: string | null
+          recruiter?: string | null
+          region?: string | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          experience?: Database["public"]["Enums"]["experience_level"] | null
+          full_name?: string
+          id?: string
+          organization?: string | null
+          phone?: string | null
+          recruiter?: string | null
+          region?: string | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quiz_questions: {
+        Row: {
+          correct_answer: string | null
+          created_at: string | null
+          display_order: number | null
+          explanation: string | null
+          id: string
+          lesson_id: string
+          options: Json | null
+          question_text: string
+          question_type: string
+        }
+        Insert: {
+          correct_answer?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          explanation?: string | null
+          id?: string
+          lesson_id: string
+          options?: Json | null
+          question_text: string
+          question_type: string
+        }
+        Update: {
+          correct_answer?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          explanation?: string | null
+          id?: string
+          lesson_id?: string
+          options?: Json | null
+          question_text?: string
+          question_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "training_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_items: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          description: string | null
+          id: string
+          is_active: boolean | null
+          target_role: Database["public"]["Enums"]["app_role"]
+          time_pst: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_role: Database["public"]["Enums"]["app_role"]
+          time_pst?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_role?: Database["public"]["Enums"]["app_role"]
+          time_pst?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      training_courses: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          slug: string
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          slug: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          slug?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      training_lessons: {
+        Row: {
+          content: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          key_takeaways: string[] | null
+          module_id: string
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          key_takeaways?: string[] | null
+          module_id: string
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          key_takeaways?: string[] | null
+          module_id?: string
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_modules: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "training_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_videos: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          duration_minutes: number | null
+          id: string
+          is_active: boolean | null
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      video_progress: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+          video_id: string
+          watched: boolean | null
+          watched_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+          video_id: string
+          watched?: boolean | null
+          watched_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          video_id?: string
+          watched?: boolean | null
+          watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_progress_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "training_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "rookie" | "manager" | "admin"
+      experience_level: "rookie" | "veteran"
+      user_status:
+        | "active"
+        | "contract_signed"
+        | "onboarded"
+        | "info_added"
+        | "nlc"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +614,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["rookie", "manager", "admin"],
+      experience_level: ["rookie", "veteran"],
+      user_status: [
+        "active",
+        "contract_signed",
+        "onboarded",
+        "info_added",
+        "nlc",
+      ],
+    },
   },
 } as const
