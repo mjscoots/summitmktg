@@ -12,6 +12,7 @@ export interface TrainingFolder {
   roleVisibility: RoleVisibility;
   orderIndex: number;
   lessons: Lesson[];
+  required: boolean; // Required for rookies, optional for vets
 }
 
 export interface Lesson {
@@ -48,108 +49,162 @@ export interface Announcement {
   createdAt: string;
 }
 
-// Training Folders - Rookie Content
-export const rookieFolders: TrainingFolder[] = [
-  {
-    id: "rookie-1",
-    title: "Sales Fundamentals",
-    description: "Master the core principles of D2D sales",
-    roleVisibility: "both",
-    orderIndex: 1,
-    lessons: [
-      { id: "r1-l1", folderId: "rookie-1", title: "Introduction to D2D Sales", content: "Welcome to Summit. This lesson covers the fundamentals of door-to-door sales and what it takes to succeed in this industry.", contentType: "text", duration: "12 min", orderIndex: 1 },
-      { id: "r1-l2", folderId: "rookie-1", title: "The Sales Mindset", content: "Your mindset determines your success. Learn how to develop mental toughness and resilience.", contentType: "text", duration: "15 min", orderIndex: 2 },
-      { id: "r1-l3", folderId: "rookie-1", title: "Understanding Your Customer", content: "Learn to identify customer needs and pain points before making your pitch.", contentType: "text", duration: "18 min", orderIndex: 3 },
-      { id: "r1-l4", folderId: "rookie-1", title: "First Impressions", content: "You have 7 seconds to make a first impression. Make them count.", contentType: "text", duration: "10 min", orderIndex: 4 },
-      { id: "r1-l5", folderId: "rookie-1", title: "Module Recap", content: "Review key concepts from Sales Fundamentals.", contentType: "text", duration: "8 min", orderIndex: 5 },
-    ],
-  },
-  {
-    id: "rookie-2",
-    title: "The Pitch",
-    description: "Craft and deliver a compelling sales pitch",
-    roleVisibility: "both",
-    orderIndex: 2,
-    lessons: [
-      { id: "r2-l1", folderId: "rookie-2", title: "Anatomy of a Pitch", content: "Break down the structure of an effective sales pitch.", contentType: "text", duration: "20 min", orderIndex: 1 },
-      { id: "r2-l2", folderId: "rookie-2", title: "Opening Strong", content: "Your opening line sets the tone. Learn proven openers that work.", contentType: "text", duration: "15 min", orderIndex: 2 },
-      { id: "r2-l3", folderId: "rookie-2", title: "Building Value", content: "Show customers why they need what you're offering.", contentType: "text", duration: "18 min", orderIndex: 3 },
-      { id: "r2-l4", folderId: "rookie-2", title: "Practice Session", content: "Practice your pitch with these exercises.", contentType: "text", duration: "25 min", orderIndex: 4 },
-    ],
-  },
-  {
-    id: "rookie-3",
-    title: "Objection Handling",
-    description: "Turn pushback into opportunity",
-    roleVisibility: "both",
-    orderIndex: 3,
-    lessons: [
-      { id: "r3-l1", folderId: "rookie-3", title: "Why Objections Are Good", content: "Objections mean engagement. Learn to see them as opportunities.", contentType: "text", duration: "12 min", orderIndex: 1 },
-      { id: "r3-l2", folderId: "rookie-3", title: "Common Objections", content: "The top 10 objections you'll hear and how to handle each one.", contentType: "text", duration: "22 min", orderIndex: 2 },
-      { id: "r3-l3", folderId: "rookie-3", title: "The Feel-Felt-Found Method", content: "A proven framework for addressing concerns.", contentType: "text", duration: "15 min", orderIndex: 3 },
-      { id: "r3-l4", folderId: "rookie-3", title: "Price Objections", content: "When they say it's too expensive, here's what to do.", contentType: "text", duration: "18 min", orderIndex: 4 },
-      { id: "r3-l5", folderId: "rookie-3", title: "Timing Objections", content: "Handling 'not right now' and 'let me think about it'.", contentType: "text", duration: "15 min", orderIndex: 5 },
-    ],
-  },
-  {
-    id: "rookie-4",
-    title: "Closing",
-    description: "Seal the deal with confidence",
-    roleVisibility: "both",
-    orderIndex: 4,
-    lessons: [
-      { id: "r4-l1", folderId: "rookie-4", title: "When to Close", content: "Recognize buying signals and know when to ask for the sale.", contentType: "text", duration: "14 min", orderIndex: 1 },
-      { id: "r4-l2", folderId: "rookie-4", title: "Closing Techniques", content: "Five closing techniques every rep should master.", contentType: "text", duration: "20 min", orderIndex: 2 },
-      { id: "r4-l3", folderId: "rookie-4", title: "The Assumptive Close", content: "Act as if the sale is already made.", contentType: "text", duration: "12 min", orderIndex: 3 },
-      { id: "r4-l4", folderId: "rookie-4", title: "Paperwork & Next Steps", content: "Make the transaction smooth and professional.", contentType: "text", duration: "15 min", orderIndex: 4 },
-    ],
-  },
-];
+// ============================================================================
+// TRAINING MODULES - Based on Summit Training Structure
+// ============================================================================
 
-// Training Folders - Vet Only Content
-export const vetFolders: TrainingFolder[] = [
-  {
-    id: "vet-1",
-    title: "Advanced Techniques",
-    description: "Level up your sales game with advanced strategies",
-    roleVisibility: "vet",
-    orderIndex: 5,
-    lessons: [
-      { id: "v1-l1", folderId: "vet-1", title: "Reading Body Language", content: "Advanced techniques for understanding non-verbal cues.", contentType: "text", duration: "20 min", orderIndex: 1 },
-      { id: "v1-l2", folderId: "vet-1", title: "Mirroring & Rapport", content: "Build deep connection quickly using psychological techniques.", contentType: "text", duration: "18 min", orderIndex: 2 },
-      { id: "v1-l3", folderId: "vet-1", title: "High-Ticket Selling", content: "Strategies for closing larger deals.", contentType: "text", duration: "25 min", orderIndex: 3 },
-      { id: "v1-l4", folderId: "vet-1", title: "Referral Systems", content: "Turn every sale into multiple sales.", contentType: "text", duration: "22 min", orderIndex: 4 },
-    ],
-  },
-  {
-    id: "vet-2",
-    title: "Team Leadership",
-    description: "Lead and develop your team to peak performance",
-    roleVisibility: "vet",
-    orderIndex: 6,
-    lessons: [
-      { id: "v2-l1", folderId: "vet-2", title: "Leadership Fundamentals", content: "What makes an effective sales leader.", contentType: "text", duration: "20 min", orderIndex: 1 },
-      { id: "v2-l2", folderId: "vet-2", title: "Coaching Reps", content: "How to train and develop new reps.", contentType: "text", duration: "25 min", orderIndex: 2 },
-      { id: "v2-l3", folderId: "vet-2", title: "Running Effective Meetings", content: "Make your team meetings productive.", contentType: "text", duration: "15 min", orderIndex: 3 },
-      { id: "v2-l4", folderId: "vet-2", title: "Performance Management", content: "Track metrics and drive accountability.", contentType: "text", duration: "22 min", orderIndex: 4 },
-    ],
-  },
-  {
-    id: "vet-3",
-    title: "Territory Management",
-    description: "Maximize results across your territory",
-    roleVisibility: "vet",
-    orderIndex: 7,
-    lessons: [
-      { id: "v3-l1", folderId: "vet-3", title: "Mapping Your Territory", content: "Strategic approaches to territory coverage.", contentType: "text", duration: "18 min", orderIndex: 1 },
-      { id: "v3-l2", folderId: "vet-3", title: "Route Optimization", content: "Maximize doors knocked per day.", contentType: "text", duration: "15 min", orderIndex: 2 },
-      { id: "v3-l3", folderId: "vet-3", title: "Time Management", content: "Structure your day for peak performance.", contentType: "text", duration: "20 min", orderIndex: 3 },
-    ],
-  },
-];
+// MODULE 1: Script Foundations (Required for all)
+const module1ScriptFoundations: TrainingFolder = {
+  id: "module-1-script",
+  title: "Module 1: Script Foundations",
+  description: "Master the spine of every pitch. Universal door intro, pivot question, flow control, tonality.",
+  roleVisibility: "both",
+  orderIndex: 1,
+  required: true,
+  lessons: [
+    { id: "m1-l1", folderId: "module-1-script", title: "Universal Door Intro", content: "The first 7 seconds set the tone. Learn the exact words that open doors.", contentType: "text", duration: "10 min", orderIndex: 1 },
+    { id: "m1-l2", folderId: "module-1-script", title: "The Pivot Question", content: "'Do you guys have someone, or not yet?' – why this question changes everything.", contentType: "text", duration: "12 min", orderIndex: 2 },
+    { id: "m1-l3", folderId: "module-1-script", title: "Flow Control", content: "How to control the conversation without being pushy. Guide, don't push.", contentType: "text", duration: "15 min", orderIndex: 3 },
+    { id: "m1-l4", folderId: "module-1-script", title: "Tonality & Pace", content: "Speed, pitch, pauses. Sound like a friend, not a salesman.", contentType: "text", duration: "12 min", orderIndex: 4 },
+    { id: "m1-l5", folderId: "module-1-script", title: "Script Foundation Quiz", content: "Test your knowledge before moving on.", contentType: "text", duration: "10 min", orderIndex: 5 },
+  ],
+};
+
+// MODULE 2: Basic Pitch (Fresh Accounts)
+const module2BasicPitch: TrainingFolder = {
+  id: "module-2-basic",
+  title: "Module 2: Basic Pitch",
+  description: "The fresh account pitch. Intro, bridge, price sheet, soft close. Memorize this.",
+  roleVisibility: "both",
+  orderIndex: 2,
+  required: true,
+  lessons: [
+    { id: "m2-l1", folderId: "module-2-basic", title: "The Full Basic Pitch", content: "Start to finish. The complete fresh account script.", contentType: "text", duration: "20 min", orderIndex: 1 },
+    { id: "m2-l2", folderId: "module-2-basic", title: "Intro & Bridge", content: "Get them nodding before you pitch. Build agreement momentum.", contentType: "text", duration: "12 min", orderIndex: 2 },
+    { id: "m2-l3", folderId: "module-2-basic", title: "Price Sheet Presentation", content: "How to present price without triggering price resistance.", contentType: "text", duration: "15 min", orderIndex: 3 },
+    { id: "m2-l4", folderId: "module-2-basic", title: "Soft Close Techniques", content: "Low-pressure closes that feel natural and convert.", contentType: "text", duration: "12 min", orderIndex: 4 },
+    { id: "m2-l5", folderId: "module-2-basic", title: "Basic Pitch Quiz", content: "Rookies must pass. Vets can skip.", contentType: "text", duration: "15 min", orderIndex: 5 },
+  ],
+};
+
+// MODULE 3: Switchover & DIY
+const module3Switchover: TrainingFolder = {
+  id: "module-3-switchover",
+  title: "Module 3: Switchover & DIY",
+  description: "Handle preempted homes and DIY objections. Competitor positioning and value stacking.",
+  roleVisibility: "both",
+  orderIndex: 3,
+  required: true,
+  lessons: [
+    { id: "m3-l1", folderId: "module-3-switchover", title: "Preempted vs Non-Preempted", content: "Know the difference and adjust your approach instantly.", contentType: "text", duration: "12 min", orderIndex: 1 },
+    { id: "m3-l2", folderId: "module-3-switchover", title: "Competitor Positioning", content: "How to handle 'I already have someone' without bashing the competition.", contentType: "text", duration: "15 min", orderIndex: 2 },
+    { id: "m3-l3", folderId: "module-3-switchover", title: "Value Stacking", content: "Stack value until price becomes irrelevant. The pyramid approach.", contentType: "text", duration: "15 min", orderIndex: 3 },
+    { id: "m3-l4", folderId: "module-3-switchover", title: "'Rather Than' Comparisons", content: "Reframe competitor weaknesses as your strengths.", contentType: "text", duration: "12 min", orderIndex: 4 },
+    { id: "m3-l5", folderId: "module-3-switchover", title: "DIY Reframes", content: "When they say 'I do it myself' – here's your response.", contentType: "text", duration: "12 min", orderIndex: 5 },
+  ],
+};
+
+// MODULE 4: Objection Handling (Unlocks progressively)
+const module4Objections: TrainingFolder = {
+  id: "module-4-objections",
+  title: "Module 4: Objection Handling",
+  description: "Every objection you'll hear and exactly how to handle it. Unlocks progressively.",
+  roleVisibility: "both",
+  orderIndex: 4,
+  required: true,
+  lessons: [
+    { id: "m4-l1", folderId: "module-4-objections", title: "Money Objections", content: "'It's too expensive' – turn price into value.", contentType: "text", duration: "15 min", orderIndex: 1 },
+    { id: "m4-l2", folderId: "module-4-objections", title: "Spouse Objection", content: "'I need to talk to my spouse' – keep the deal alive.", contentType: "text", duration: "12 min", orderIndex: 2 },
+    { id: "m4-l3", folderId: "module-4-objections", title: "Renting Objection", content: "'I'm just renting' – why that doesn't matter.", contentType: "text", duration: "10 min", orderIndex: 3 },
+    { id: "m4-l4", folderId: "module-4-objections", title: "DIY Objection", content: "'I do it myself' – detailed breakdown.", contentType: "text", duration: "12 min", orderIndex: 4 },
+    { id: "m4-l5", folderId: "module-4-objections", title: "'Leave Me a Card'", content: "Don't leave. Here's how to stay in the conversation.", contentType: "text", duration: "10 min", orderIndex: 5 },
+    { id: "m4-l6", folderId: "module-4-objections", title: "One-Time Spray", content: "Handle 'I just want one treatment' with confidence.", contentType: "text", duration: "10 min", orderIndex: 6 },
+    { id: "m4-l7", folderId: "module-4-objections", title: "Contract Objection", content: "'I don't like contracts' – reframe the commitment.", contentType: "text", duration: "12 min", orderIndex: 7 },
+    { id: "m4-l8", folderId: "module-4-objections", title: "'No Bugs / Not a Big Deal'", content: "Create urgency when they don't see the problem.", contentType: "text", duration: "12 min", orderIndex: 8 },
+  ],
+};
+
+// MODULE 5: Closing Systems
+const module5Closing: TrainingFolder = {
+  id: "module-5-closing",
+  title: "Module 5: Closing Systems",
+  description: "Soft vs hard, option closes, assumptive closes, the sincere close. Flashcard-style.",
+  roleVisibility: "both",
+  orderIndex: 5,
+  required: true,
+  lessons: [
+    { id: "m5-l1", folderId: "module-5-closing", title: "Soft vs Hard Closes", content: "Know when to use each. Read the situation.", contentType: "text", duration: "12 min", orderIndex: 1 },
+    { id: "m5-l2", folderId: "module-5-closing", title: "Option Closes", content: "Give them choices that all lead to yes.", contentType: "text", duration: "12 min", orderIndex: 2 },
+    { id: "m5-l3", folderId: "module-5-closing", title: "Assignment Closes", content: "Assign them the outcome. Lead with certainty.", contentType: "text", duration: "10 min", orderIndex: 3 },
+    { id: "m5-l4", folderId: "module-5-closing", title: "Assumptive Closes", content: "Act as if. The psychology of presumption.", contentType: "text", duration: "12 min", orderIndex: 4 },
+    { id: "m5-l5", folderId: "module-5-closing", title: "Statement Closes", content: "Close with a statement, not a question.", contentType: "text", duration: "10 min", orderIndex: 5 },
+    { id: "m5-l6", folderId: "module-5-closing", title: "The Sincere Close", content: "Last resort. When nothing else works, be real.", contentType: "text", duration: "12 min", orderIndex: 6 },
+  ],
+};
+
+// MODULE 6: Environmental Close (Backyard Pitch)
+const module6Environmental: TrainingFolder = {
+  id: "module-6-environmental",
+  title: "Module 6: Environmental Close",
+  description: "The backyard pitch. A pitch, a close, a momentum reset. A conversion weapon.",
+  roleVisibility: "both",
+  orderIndex: 6,
+  required: true,
+  lessons: [
+    { id: "m6-l1", folderId: "module-6-environmental", title: "Environmental Close Overview", content: "Why this is your secret weapon. When and why it works.", contentType: "text", duration: "12 min", orderIndex: 1 },
+    { id: "m6-l2", folderId: "module-6-environmental", title: "Step-by-Step Flow", content: "The exact sequence from door to backyard to close.", contentType: "text", duration: "15 min", orderIndex: 2 },
+    { id: "m6-l3", folderId: "module-6-environmental", title: "Value-Building Examples", content: "Show, don't tell. Real examples that close.", contentType: "text", duration: "15 min", orderIndex: 3 },
+    { id: "m6-l4", folderId: "module-6-environmental", title: "Movement Philosophy", content: "Movement creates momentum. The psychology of walking.", contentType: "text", duration: "12 min", orderIndex: 4 },
+    { id: "m6-l5", folderId: "module-6-environmental", title: "Price-Drop Justification", content: "When and how to drop price. The logic behind discounts.", contentType: "text", duration: "12 min", orderIndex: 5 },
+  ],
+};
+
+// Vet-Only Advanced Modules
+const vetModule1Advanced: TrainingFolder = {
+  id: "vet-advanced",
+  title: "Advanced Techniques",
+  description: "Body language, mirroring, high-ticket strategies, referral systems.",
+  roleVisibility: "vet",
+  orderIndex: 7,
+  required: false,
+  lessons: [
+    { id: "v1-l1", folderId: "vet-advanced", title: "Reading Body Language", content: "Advanced techniques for understanding non-verbal cues.", contentType: "text", duration: "20 min", orderIndex: 1 },
+    { id: "v1-l2", folderId: "vet-advanced", title: "Mirroring & Rapport", content: "Build deep connection quickly using psychological techniques.", contentType: "text", duration: "18 min", orderIndex: 2 },
+    { id: "v1-l3", folderId: "vet-advanced", title: "High-Ticket Selling", content: "Strategies for closing larger deals.", contentType: "text", duration: "25 min", orderIndex: 3 },
+    { id: "v1-l4", folderId: "vet-advanced", title: "Referral Systems", content: "Turn every sale into multiple sales.", contentType: "text", duration: "22 min", orderIndex: 4 },
+  ],
+};
+
+const vetModule2Leadership: TrainingFolder = {
+  id: "vet-leadership",
+  title: "Team Leadership",
+  description: "Lead and develop your team to peak performance.",
+  roleVisibility: "vet",
+  orderIndex: 8,
+  required: false,
+  lessons: [
+    { id: "v2-l1", folderId: "vet-leadership", title: "Leadership Fundamentals", content: "What makes an effective sales leader.", contentType: "text", duration: "20 min", orderIndex: 1 },
+    { id: "v2-l2", folderId: "vet-leadership", title: "Coaching Reps", content: "How to train and develop new reps.", contentType: "text", duration: "25 min", orderIndex: 2 },
+    { id: "v2-l3", folderId: "vet-leadership", title: "Running Effective Meetings", content: "Make your team meetings productive.", contentType: "text", duration: "15 min", orderIndex: 3 },
+    { id: "v2-l4", folderId: "vet-leadership", title: "Performance Management", content: "Track metrics and drive accountability.", contentType: "text", duration: "22 min", orderIndex: 4 },
+  ],
+};
 
 // Combined folders for easy access
-export const allFolders: TrainingFolder[] = [...rookieFolders, ...vetFolders];
+export const allFolders: TrainingFolder[] = [
+  module1ScriptFoundations,
+  module2BasicPitch,
+  module3Switchover,
+  module4Objections,
+  module5Closing,
+  module6Environmental,
+  vetModule1Advanced,
+  vetModule2Leadership,
+];
+
+// For backwards compatibility
+export const rookieFolders = allFolders.filter(f => f.roleVisibility === "both" || f.roleVisibility === "rookie");
+export const vetFolders = allFolders.filter(f => f.roleVisibility === "vet");
 
 // Mock Users (Reps)
 export const mockUsers: User[] = [
@@ -160,10 +215,10 @@ export const mockUsers: User[] = [
     role: "rookie",
     lastActive: "2 hours ago",
     progress: [
-      { lessonId: "r1-l1", status: "completed", completedAt: "2024-01-10" },
-      { lessonId: "r1-l2", status: "completed", completedAt: "2024-01-11" },
-      { lessonId: "r1-l3", status: "completed", completedAt: "2024-01-12" },
-      { lessonId: "r1-l4", status: "in_progress", lastViewedAt: "2024-01-13" },
+      { lessonId: "m1-l1", status: "completed", completedAt: "2024-01-10" },
+      { lessonId: "m1-l2", status: "completed", completedAt: "2024-01-11" },
+      { lessonId: "m1-l3", status: "completed", completedAt: "2024-01-12" },
+      { lessonId: "m1-l4", status: "in_progress", lastViewedAt: "2024-01-13" },
     ],
   },
   {
@@ -173,17 +228,17 @@ export const mockUsers: User[] = [
     role: "vet",
     lastActive: "1 day ago",
     progress: [
-      { lessonId: "r1-l1", status: "completed", completedAt: "2024-01-05" },
-      { lessonId: "r1-l2", status: "completed", completedAt: "2024-01-05" },
-      { lessonId: "r1-l3", status: "completed", completedAt: "2024-01-06" },
-      { lessonId: "r1-l4", status: "completed", completedAt: "2024-01-06" },
-      { lessonId: "r1-l5", status: "completed", completedAt: "2024-01-07" },
-      { lessonId: "r2-l1", status: "completed", completedAt: "2024-01-08" },
-      { lessonId: "r2-l2", status: "completed", completedAt: "2024-01-08" },
-      { lessonId: "r2-l3", status: "completed", completedAt: "2024-01-09" },
-      { lessonId: "r2-l4", status: "completed", completedAt: "2024-01-09" },
-      { lessonId: "r3-l1", status: "completed", completedAt: "2024-01-10" },
-      { lessonId: "r3-l2", status: "in_progress", lastViewedAt: "2024-01-11" },
+      { lessonId: "m1-l1", status: "completed", completedAt: "2024-01-05" },
+      { lessonId: "m1-l2", status: "completed", completedAt: "2024-01-05" },
+      { lessonId: "m1-l3", status: "completed", completedAt: "2024-01-06" },
+      { lessonId: "m1-l4", status: "completed", completedAt: "2024-01-06" },
+      { lessonId: "m1-l5", status: "completed", completedAt: "2024-01-07" },
+      { lessonId: "m2-l1", status: "completed", completedAt: "2024-01-08" },
+      { lessonId: "m2-l2", status: "completed", completedAt: "2024-01-08" },
+      { lessonId: "m2-l3", status: "completed", completedAt: "2024-01-09" },
+      { lessonId: "m2-l4", status: "completed", completedAt: "2024-01-09" },
+      { lessonId: "m3-l1", status: "completed", completedAt: "2024-01-10" },
+      { lessonId: "m3-l2", status: "in_progress", lastViewedAt: "2024-01-11" },
     ],
   },
   {
@@ -193,8 +248,8 @@ export const mockUsers: User[] = [
     role: "rookie",
     lastActive: "5 days ago",
     progress: [
-      { lessonId: "r1-l1", status: "completed", completedAt: "2024-01-05" },
-      { lessonId: "r1-l2", status: "in_progress", lastViewedAt: "2024-01-08" },
+      { lessonId: "m1-l1", status: "completed", completedAt: "2024-01-05" },
+      { lessonId: "m1-l2", status: "in_progress", lastViewedAt: "2024-01-08" },
     ],
   },
   {
@@ -204,23 +259,24 @@ export const mockUsers: User[] = [
     role: "vet",
     lastActive: "3 hours ago",
     progress: [
-      { lessonId: "r1-l1", status: "completed" },
-      { lessonId: "r1-l2", status: "completed" },
-      { lessonId: "r1-l3", status: "completed" },
-      { lessonId: "r1-l4", status: "completed" },
-      { lessonId: "r1-l5", status: "completed" },
-      { lessonId: "r2-l1", status: "completed" },
-      { lessonId: "r2-l2", status: "completed" },
-      { lessonId: "r2-l3", status: "completed" },
-      { lessonId: "r2-l4", status: "completed" },
-      { lessonId: "r3-l1", status: "completed" },
-      { lessonId: "r3-l2", status: "completed" },
-      { lessonId: "r3-l3", status: "completed" },
-      { lessonId: "r3-l4", status: "completed" },
-      { lessonId: "r3-l5", status: "completed" },
-      { lessonId: "r4-l1", status: "completed" },
-      { lessonId: "r4-l2", status: "completed" },
-      { lessonId: "r4-l3", status: "in_progress" },
+      { lessonId: "m1-l1", status: "completed" },
+      { lessonId: "m1-l2", status: "completed" },
+      { lessonId: "m1-l3", status: "completed" },
+      { lessonId: "m1-l4", status: "completed" },
+      { lessonId: "m1-l5", status: "completed" },
+      { lessonId: "m2-l1", status: "completed" },
+      { lessonId: "m2-l2", status: "completed" },
+      { lessonId: "m2-l3", status: "completed" },
+      { lessonId: "m2-l4", status: "completed" },
+      { lessonId: "m2-l5", status: "completed" },
+      { lessonId: "m3-l1", status: "completed" },
+      { lessonId: "m3-l2", status: "completed" },
+      { lessonId: "m3-l3", status: "completed" },
+      { lessonId: "m3-l4", status: "completed" },
+      { lessonId: "m3-l5", status: "completed" },
+      { lessonId: "m4-l1", status: "completed" },
+      { lessonId: "m4-l2", status: "completed" },
+      { lessonId: "m4-l3", status: "in_progress" },
     ],
   },
   {
@@ -230,9 +286,9 @@ export const mockUsers: User[] = [
     role: "rookie",
     lastActive: "4 days ago",
     progress: [
-      { lessonId: "r1-l1", status: "completed", completedAt: "2024-01-06" },
-      { lessonId: "r1-l2", status: "completed", completedAt: "2024-01-07" },
-      { lessonId: "r1-l3", status: "completed", completedAt: "2024-01-08" },
+      { lessonId: "m1-l1", status: "completed", completedAt: "2024-01-06" },
+      { lessonId: "m1-l2", status: "completed", completedAt: "2024-01-07" },
+      { lessonId: "m1-l3", status: "completed", completedAt: "2024-01-08" },
     ],
   },
   {
@@ -242,13 +298,13 @@ export const mockUsers: User[] = [
     role: "rookie",
     lastActive: "1 hour ago",
     progress: [
-      { lessonId: "r1-l1", status: "completed" },
-      { lessonId: "r1-l2", status: "completed" },
-      { lessonId: "r1-l3", status: "completed" },
-      { lessonId: "r1-l4", status: "completed" },
-      { lessonId: "r1-l5", status: "completed" },
-      { lessonId: "r2-l1", status: "completed" },
-      { lessonId: "r2-l2", status: "in_progress" },
+      { lessonId: "m1-l1", status: "completed" },
+      { lessonId: "m1-l2", status: "completed" },
+      { lessonId: "m1-l3", status: "completed" },
+      { lessonId: "m1-l4", status: "completed" },
+      { lessonId: "m1-l5", status: "completed" },
+      { lessonId: "m2-l1", status: "completed" },
+      { lessonId: "m2-l2", status: "in_progress" },
     ],
   },
 ];
