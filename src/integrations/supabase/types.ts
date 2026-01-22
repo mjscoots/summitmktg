@@ -464,7 +464,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      quiz_questions_safe: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string | null
+          lesson_id: string | null
+          options: Json | null
+          question_text: string | null
+          question_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          lesson_id?: string | null
+          options?: Json | null
+          question_text?: string | null
+          question_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          lesson_id?: string | null
+          options?: Json | null
+          question_text?: string | null
+          question_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "training_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_user_role: {

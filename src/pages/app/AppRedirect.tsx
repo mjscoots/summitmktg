@@ -1,26 +1,34 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 const AppRedirect = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading, role } = useAuth();
 
   useEffect(() => {
-    // Get role from localStorage (set during login)
-    const role = localStorage.getItem("userRole");
-    
-    if (role === "vet") {
-      navigate("/app/vet", { replace: true });
-    } else if (role === "rookie") {
-      navigate("/app/rookie", { replace: true });
-    } else {
-      // If no role, redirect to login
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
       navigate("/login", { replace: true });
+      return;
     }
-  }, [navigate]);
+
+    // Route based on role
+    if (role === "manager" || role === "admin") {
+      navigate("/app/manager", { replace: true });
+    } else {
+      navigate("/app/rookie", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, role, navigate]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <p className="text-muted-foreground">Redirecting...</p>
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Redirecting...</p>
+      </div>
     </div>
   );
 };
