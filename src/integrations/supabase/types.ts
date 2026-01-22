@@ -504,6 +504,10 @@ export type Database = {
       }
     }
     Functions: {
+      award_training_points: {
+        Args: { _points: number; _user_id: string }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
