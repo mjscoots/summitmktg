@@ -515,6 +515,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_and_record_quiz: {
+        Args: { _answers: Json; _lesson_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "rookie" | "manager" | "admin"
