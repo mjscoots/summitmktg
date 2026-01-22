@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -16,14 +16,13 @@ import ApplySuccess from "./pages/ApplySuccess";
 import NotFound from "./pages/NotFound";
 
 // App pages
-import AppRedirect from "./pages/app/AppRedirect";
-import RookieDashboardPage from "./pages/app/RookieDashboardPage";
-import ManagerDashboardPage from "./pages/app/ManagerDashboardPage";
+import DashboardPage from "./pages/app/DashboardPage";
 import TrainingCoursePage from "./pages/app/TrainingCoursePage";
 import LessonPage from "./pages/app/LessonPage";
 import ProgressPage from "./pages/app/ProgressPage";
 import AnnouncementsPage from "./pages/app/AnnouncementsPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
+import TeamPage from "./pages/app/TeamPage";
 
 const queryClient = new QueryClient();
 
@@ -39,28 +38,28 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            
+            {/* Application routes - consolidated */}
+            <Route path="/apply" element={<RookieApplication />} />
             <Route path="/apply/rookie" element={<RookieApplication />} />
             <Route path="/apply/vet" element={<VetApplication />} />
             <Route path="/apply/success" element={<ApplySuccess />} />
 
-            {/* App - Protected Routes */}
+            {/* ========== APP - PROTECTED ROUTES ========== */}
+            
+            {/* Main Dashboard - role-aware (replaces /app/rookie and /app/manager) */}
             <Route path="/app" element={
               <ProtectedRoute>
-                <AppRedirect />
+                <DashboardPage />
               </ProtectedRoute>
             } />
-            
-            <Route path="/app/rookie" element={
-              <ProtectedRoute>
-                <RookieDashboardPage />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/app/manager" element={
-              <ProtectedRoute requiredRole="manager">
-                <ManagerDashboardPage />
-              </ProtectedRoute>
-            } />
+
+            {/* Legacy routes - redirect to unified /app */}
+            <Route path="/app/rookie" element={<Navigate to="/app" replace />} />
+            <Route path="/app/manager" element={<Navigate to="/app" replace />} />
+            <Route path="/rookie" element={<Navigate to="/app" replace />} />
+            <Route path="/manager" element={<Navigate to="/app" replace />} />
+            <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
             
             {/* Training */}
             <Route path="/app/training" element={
@@ -89,7 +88,7 @@ const App = () => (
             {/* Team (Manager only) */}
             <Route path="/app/team" element={
               <ProtectedRoute requiredRole="manager">
-                <ProgressPage />
+                <TeamPage />
               </ProtectedRoute>
             } />
             
@@ -107,6 +106,7 @@ const App = () => (
               </ProtectedRoute>
             } />
 
+            {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
