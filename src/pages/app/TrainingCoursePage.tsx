@@ -175,7 +175,7 @@ export default function TrainingCoursePage() {
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
           {/* Back button */}
           <button
-            onClick={() => navigate(isManager ? '/app/manager' : '/app/rookie')}
+            onClick={() => navigate('/app')}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -256,7 +256,7 @@ export default function TrainingCoursePage() {
                         >
                           <div className="flex items-center gap-3">
                             {lesson.quiz_passed ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                              <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
                             ) : isLessonLocked ? (
                               <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                             ) : (
