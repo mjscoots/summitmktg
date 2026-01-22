@@ -139,47 +139,73 @@ export function TrainingTiles() {
     );
   }
 
+  const isManager = role === 'manager' || role === 'admin';
+  const glowClass = isManager ? 'manager-glow' : 'rookie-glow';
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       {courses.map((course) => (
         <div
           key={course.id}
           onClick={() => handleCourseClick(course.slug)}
-          className="group relative p-5 bg-card rounded-lg border border-border cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
+          className={`group relative p-6 bg-card rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] training-tile-glow ${
+            course.progress === 100 
+              ? 'border-success/40' 
+              : 'border-border hover:border-primary/50'
+          } ${course.progress > 0 && course.progress < 100 ? glowClass : ''}`}
         >
-          {/* Glow effect on hover */}
-          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          {/* Status indicator */}
+          {course.progress === 100 && (
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center">
+              <span className="text-xs text-white">✓</span>
+            </div>
+          )}
           
           <div className="relative">
-            <div className="flex items-start justify-between mb-3">
-              <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                {COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />}
+            <div className="flex items-start justify-between mb-4">
+              <div className={`p-3 rounded-xl ${
+                course.progress === 100 
+                  ? 'bg-success/20 text-success' 
+                  : 'bg-primary/15 text-primary'
+              }`}>
+                {COURSE_ICONS[course.slug] || <BookOpen className="w-7 h-7" />}
               </div>
               {course.target_role === 'manager' && (
-                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                <span className="text-xs font-bold text-primary bg-primary/15 px-2.5 py-1 rounded-full uppercase tracking-wide">
                   MANAGER
                 </span>
               )}
             </div>
 
-            <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+            <h3 className="font-bold text-lg text-foreground mb-2 group-hover:text-primary transition-colors">
               {course.title}
             </h3>
             
             {course.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+              <p className="text-sm text-muted-foreground line-clamp-2 mb-5">
                 {course.description}
               </p>
             )}
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground font-medium">
                   {course.completedLessons} / {course.totalLessons} lessons
                 </span>
-                <span className="font-medium text-primary">{course.progress}%</span>
+                <span className={`font-bold ${
+                  course.progress === 100 ? 'text-success' : 'text-primary'
+                }`}>
+                  {course.progress}%
+                </span>
               </div>
-              <Progress value={course.progress} className="h-1.5" />
+              <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    course.progress === 100 ? 'bg-success' : 'bg-primary'
+                  }`}
+                  style={{ width: `${course.progress}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
