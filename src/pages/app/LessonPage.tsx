@@ -7,6 +7,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import DOMPurify from 'dompurify';
 
 interface Lesson {
   id: string;
@@ -114,32 +115,27 @@ export default function LessonPage() {
     setIsSubmitting(true);
 
     try {
-      // For now, we'll use a simple scoring mechanism
-      // In production, this should be validated server-side
-      const score = Math.floor(Math.random() * 30) + 70; // Simulated 70-100 range
-      const passed = score >= 80;
+      // Server-side quiz validation using secure database function
+      const { data, error } = await supabase.rpc('validate_and_record_quiz', {
+        _lesson_id: lessonId,
+        _answers: answers
+      });
 
-      // Record progress
-      const { error: progressError } = await supabase
-        .from('lesson_progress')
-        .upsert({
-          user_id: user.id,
-          lesson_id: lessonId,
-          completed_at: new Date().toISOString(),
-          quiz_passed: passed,
-          quiz_score: score,
-          quiz_attempts: 1,
-          last_attempt_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id,lesson_id'
-        });
-
-      if (progressError) {
-        console.error('Error saving progress:', progressError);
-        toast.error('Failed to save progress');
+      if (error) {
+        toast.error('Failed to submit quiz');
         return;
       }
 
+      // Type assertion for the response
+      const result = data as { passed?: boolean; score?: number; error?: string } | null;
+
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      const passed = result?.passed ?? false;
+      const score = result?.score ?? 0;
       setQuizResult({ passed, score });
 
       if (passed) {
@@ -149,7 +145,6 @@ export default function LessonPage() {
         toast.error('Quiz not passed', { description: `You scored ${score}%. You need 80% to pass.` });
       }
     } catch (err) {
-      console.error('Error:', err);
       toast.error('Something went wrong');
     } finally {
       setIsSubmitting(false);
@@ -228,14 +223,17 @@ export default function LessonPage() {
                 <div 
                   className="prose prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ 
-                    __html: lesson.content
-                      .replace(/\n/g, '<br>')
-                      .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-foreground mb-4">$1</h1>')
-                      .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-foreground mt-6 mb-3">$1</h2>')
-                      .replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-foreground mt-4 mb-2">$1</h3>')
-                      .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 my-4 text-foreground italic">$1</blockquote>')
-                      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
-                      .replace(/---/g, '<hr class="border-border my-6">')
+                    __html: DOMPurify.sanitize(
+                      lesson.content
+                        .replace(/\n/g, '<br>')
+                        .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-foreground mb-4">$1</h1>')
+                        .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-foreground mt-6 mb-3">$1</h2>')
+                        .replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-foreground mt-4 mb-2">$1</h3>')
+                        .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 my-4 text-foreground italic">$1</blockquote>')
+                        .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
+                        .replace(/---/g, '<hr class="border-border my-6">'),
+                      { ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'strong', 'em', 'br', 'blockquote', 'hr', 'span', 'div'] }
+                    )
                   }}
                 />
               </div>
