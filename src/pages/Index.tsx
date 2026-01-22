@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User } from "lucide-react";
-import summitLogo from "@/assets/summit-logo-clean.png";
+import summitLogo from "@/assets/summit-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
