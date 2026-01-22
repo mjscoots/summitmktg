@@ -1,38 +1,48 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-const Login = () => {
+const SignUp = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { signIn, role } = useAuth();
+  const { signUp } = useAuth();
   
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const from = (location.state as { from?: Location })?.from?.pathname || "/app";
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
     
-    const { error } = await signIn(email, password);
+    const { error } = await signUp(email, password, fullName);
     
     if (error) {
       setError(error.message);
-      toast.error("Login failed", { description: error.message });
+      toast.error("Sign up failed", { description: error.message });
       setIsLoading(false);
       return;
     }
 
-    toast.success("Welcome back!");
-    navigate(from, { replace: true });
+    toast.success("Account created!", { description: "Welcome to Summit" });
+    navigate("/app", { replace: true });
   };
 
   return (
@@ -50,9 +60,9 @@ const Login = () => {
         </button>
 
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Welcome to Summit</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Join Summit</h1>
           <p className="text-muted-foreground text-sm">
-            Sign in to access your training dashboard
+            Create your account to start training
           </p>
         </div>
 
@@ -62,7 +72,22 @@ const Login = () => {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleSignUp} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="John Smith"
+              className="input-field"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
               Email Address
@@ -91,6 +116,7 @@ const Login = () => {
                 className="input-field pr-12"
                 required
                 disabled={isLoading}
+                minLength={6}
               />
               <button
                 type="button"
@@ -107,6 +133,22 @@ const Login = () => {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              className="input-field"
+              required
+              disabled={isLoading}
+              minLength={6}
+            />
+          </div>
+
           <button
             type="submit"
             disabled={isLoading}
@@ -115,21 +157,21 @@ const Login = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Signing in...
+                Creating account...
               </>
             ) : (
-              "Sign In"
+              "Create Account"
             )}
           </button>
         </form>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/login")}
             className="text-primary hover:underline"
           >
-            Sign up
+            Sign in
           </button>
         </p>
       </div>
@@ -137,4 +179,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
