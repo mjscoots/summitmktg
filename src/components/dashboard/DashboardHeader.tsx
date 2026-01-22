@@ -20,16 +20,16 @@ export function DashboardHeader() {
 
   const navItems = isManager
     ? [
-        { label: 'Dashboard', path: '/app/manager' },
+        { label: 'Dashboard', path: '/app' },
         { label: 'Training', path: '/app/training' },
-        { label: 'Progress', path: '/app/progress' },
+        { label: 'Leaderboard', path: '/app/leaderboard' },
         { label: 'Team', path: '/app/team' },
         { label: 'Announcements', path: '/app/announcements' },
       ]
     : [
-        { label: 'Dashboard', path: '/app/rookie' },
+        { label: 'Dashboard', path: '/app' },
         { label: 'Training', path: '/app/training' },
-        { label: 'Progress', path: '/app/progress' },
+        { label: 'Leaderboard', path: '/app/leaderboard' },
         { label: 'Announcements', path: '/app/announcements' },
       ];
 

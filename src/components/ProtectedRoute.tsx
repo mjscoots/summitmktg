@@ -40,7 +40,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   // Check required role (managers can access rookie content, but not vice versa)
   if (requiredRole === 'manager' && role === 'rookie') {
-    return <Navigate to="/app/rookie" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   if (requiredRole === 'admin' && role !== 'admin') {
