@@ -80,7 +80,7 @@ const Index = () => {
             alt="Summit Marketing" 
             className="w-72 md:w-96 mx-auto relative z-10"
             style={{
-              filter: 'drop-shadow(0 0 25px hsl(216, 80%, 45%, 0.5)) drop-shadow(0 0 50px hsl(216, 80%, 45%, 0.25)) drop-shadow(0 2px 1px hsl(0, 0%, 100%, 0.15))',
+              filter: 'drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 0 2px white) drop-shadow(0 0 25px hsl(216, 80%, 45%, 0.5)) drop-shadow(0 0 50px hsl(216, 80%, 45%, 0.25))',
             }}
             loading="eager"
             fetchPriority="high"
