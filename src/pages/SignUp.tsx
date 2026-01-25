@@ -1,15 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
   
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [directManager, setDirectManager] = useState("");
+  const [role, setRole] = useState<"rookie" | "manager" | "">("");
+  const [accessCode, setAccessCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +30,12 @@ const SignUp = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Validate all required fields
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim() || !directManager.trim() || !role || !accessCode.trim()) {
+      setError("All fields are required");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -32,21 +49,57 @@ const SignUp = () => {
 
     setIsLoading(true);
     
-    const { error } = await signUp(email, password, fullName);
-    
-    if (error) {
-      setError(error.message);
-      toast.error("Sign up failed", { description: error.message });
-      setIsLoading(false);
-      return;
-    }
+    try {
+      // Call the edge function to validate access code and create account
+      const { data, error: fnError } = await supabase.functions.invoke("validate-signup", {
+        body: {
+          accessCode: accessCode.trim(),
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim(),
+          password,
+          phone: phone.trim(),
+          directManager: directManager.trim(),
+          role,
+        },
+      });
 
-    toast.success("Account created!", { description: "Welcome to Summit" });
-    navigate("/app", { replace: true });
+      if (fnError) {
+        throw new Error(fnError.message || "Signup failed");
+      }
+
+      if (data?.error) {
+        setError(data.error);
+        toast.error("Sign up failed", { description: data.error });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.requiresLogin) {
+        toast.success("Account created!", { description: "Please log in to continue." });
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      // If we got a session back, set it
+      if (data?.session) {
+        await supabase.auth.setSession(data.session);
+      }
+
+      toast.success("Account created!", { description: "Welcome to Summit" });
+      navigate("/app", { replace: true });
+      
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(message);
+      toast.error("Sign up failed", { description: message });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-primary/30" />
 
@@ -72,25 +125,41 @@ const SignUp = () => {
           </div>
         )}
 
-        <form onSubmit={handleSignUp} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="John Smith"
-              className="input-field"
-              required
-              disabled={isLoading}
-            />
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                First Name *
+              </label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="John"
+                className="input-field"
+                required
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Last Name *
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Smith"
+                className="input-field"
+                required
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Email Address
+              Email Address *
             </label>
             <input
               type="email"
@@ -105,7 +174,74 @@ const SignUp = () => {
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Password
+              Phone Number *
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="(555) 123-4567"
+              className="input-field"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Direct Manager *
+            </label>
+            <input
+              type="text"
+              value={directManager}
+              onChange={(e) => setDirectManager(e.target.value)}
+              placeholder="Manager's name"
+              className="input-field"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Role *
+            </label>
+            <Select
+              value={role}
+              onValueChange={(value: "rookie" | "manager") => setRole(value)}
+              disabled={isLoading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="rookie">Rookie</SelectItem>
+                <SelectItem value="manager">Manager</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Access Code *
+            </label>
+            <input
+              type="text"
+              value={accessCode}
+              onChange={(e) => setAccessCode(e.target.value)}
+              placeholder="Enter your access code"
+              className="input-field"
+              required
+              disabled={isLoading}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Contact your manager if you don't have an access code
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Password *
             </label>
             <div className="relative">
               <input
@@ -135,7 +271,7 @@ const SignUp = () => {
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Confirm Password
+              Confirm Password *
             </label>
             <input
               type="password"
@@ -152,7 +288,7 @@ const SignUp = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="btn-primary w-full disabled:opacity-50 flex items-center justify-center gap-2"
+            className="btn-primary w-full disabled:opacity-50 flex items-center justify-center gap-2 mt-6"
           >
             {isLoading ? (
               <>

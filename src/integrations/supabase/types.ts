@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_codes: {
+        Row: {
+          code_hash: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           author_id: string | null
@@ -131,6 +158,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          direct_manager: string | null
           email: string
           experience: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
@@ -146,6 +174,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          direct_manager?: string | null
           email: string
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
@@ -161,6 +190,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          direct_manager?: string | null
           email?: string
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name?: string
@@ -249,6 +279,42 @@ export type Database = {
           target_role?: Database["public"]["Enums"]["app_role"]
           time_pst?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      signup_logs: {
+        Row: {
+          direct_manager: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          role: string
+          signed_up_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          direct_manager: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone: string
+          role: string
+          signed_up_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          direct_manager?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          role?: string
+          signed_up_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -519,6 +585,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_access_code: {
+        Args: { code_description?: string; new_code: string }
+        Returns: string
+      }
+      validate_access_code: { Args: { input_code: string }; Returns: boolean }
       validate_and_record_quiz: {
         Args: { _answers: Json; _lesson_id: string }
         Returns: Json
