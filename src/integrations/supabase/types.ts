@@ -300,6 +300,33 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          count: number
+          created_at: string | null
+          expires_at: string
+          id: string
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          key: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       schedule_items: {
         Row: {
           created_at: string | null
@@ -624,6 +651,14 @@ export type Database = {
       award_training_points: {
         Args: { _points: number; _user_id: string }
         Returns: undefined
+      }
+      check_rate_limit: {
+        Args: {
+          p_key: string
+          p_max_attempts: number
+          p_window_seconds: number
+        }
+        Returns: boolean
       }
       get_user_role: {
         Args: { _user_id: string }
