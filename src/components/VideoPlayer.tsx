@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface VideoPlayerProps {
   src: string;
@@ -16,11 +17,18 @@ export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Check if it's an external URL (YouTube/Vimeo)
   const isYouTube = src.includes('youtube.com') || src.includes('youtu.be');
   const isVimeo = src.includes('vimeo.com');
   const isExternal = isYouTube || isVimeo;
+  
+  // Check if it's already a full URL (http/https) or a storage path
+  const isFullUrl = src.startsWith('http://') || src.startsWith('https://');
+  const isStoragePath = !isFullUrl && !isExternal;
 
   // Extract YouTube video ID
   const getYouTubeId = (url: string) => {
@@ -33,6 +41,34 @@ export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps
     const match = url.match(/vimeo\.com\/(\d+)/);
     return match ? match[1] : null;
   };
+
+  // Fetch signed URL for private bucket videos
+  useEffect(() => {
+    const fetchSignedUrl = async () => {
+      if (isStoragePath && !isExternal) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const { data, error: urlError } = await supabase.storage
+            .from('training-videos')
+            .createSignedUrl(src, 3600); // 1 hour expiry
+
+          if (urlError) throw urlError;
+          setSignedUrl(data.signedUrl);
+        } catch (err: any) {
+          console.error('Failed to get signed URL:', err);
+          setError('Failed to load video');
+        } finally {
+          setIsLoading(false);
+        }
+      } else if (isFullUrl && !isExternal) {
+        // Already a full URL (legacy data), use as-is
+        setSignedUrl(src);
+      }
+    };
+
+    fetchSignedUrl();
+  }, [src, isStoragePath, isExternal, isFullUrl]);
 
   if (isYouTube) {
     const videoId = getYouTubeId(src);
@@ -132,6 +168,35 @@ export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className={cn("aspect-video w-full rounded-lg overflow-hidden bg-black flex items-center justify-center", className)}>
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={cn("aspect-video w-full rounded-lg overflow-hidden bg-black flex items-center justify-center", className)}>
+        <p className="text-destructive">{error}</p>
+      </div>
+    );
+  }
+
+  // Waiting for signed URL
+  if (!signedUrl && isStoragePath) {
+    return (
+      <div className={cn("aspect-video w-full rounded-lg overflow-hidden bg-black flex items-center justify-center", className)}>
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  const videoSrc = signedUrl || src;
+
   return (
     <div 
       className={cn("relative aspect-video w-full rounded-lg overflow-hidden bg-black group", className)}
@@ -140,7 +205,7 @@ export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps
     >
       <video
         ref={videoRef}
-        src={src}
+        src={videoSrc}
         className="w-full h-full object-contain"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}

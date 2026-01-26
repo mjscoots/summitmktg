@@ -97,14 +97,14 @@ export function VideoUploader({ onUploadComplete, onError, className }: VideoUpl
 
       if (error) throw error;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('training-videos')
-        .getPublicUrl(fileName);
+      // Store the file path (not full URL) - we'll generate signed URLs on demand
+      // Format: training-videos/filename for database storage
+      const storagePath = fileName;
 
       setProgress(100);
       setUploadState('success');
-      onUploadComplete(urlData.publicUrl, fileName);
+      // Pass the storage path - VideoPlayer will create signed URLs as needed
+      onUploadComplete(storagePath, fileName);
     } catch (error: any) {
       console.error('Upload error:', error);
       const message = error.message || 'Upload failed. Please try again.';
