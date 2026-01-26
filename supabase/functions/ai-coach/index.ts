@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// Define allowed origins for CORS
+const allowedOrigins = [
+  "https://summitmktg.lovable.app",
+  "https://id-preview--1257bd97-61e1-4ead-9de9-5dad7ab016d6.lovable.app",
+];
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const isAllowed = origin && allowedOrigins.some(allowed => 
+    origin === allowed || origin.endsWith('.lovable.app')
+  );
+  
+  return {
+    "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 const ROOKIE_SYSTEM_PROMPT = `You are Summit's AI Sales Coach - a confident, direct, American male voice that sounds like the founder. You're not corporate or robotic. You're a coach who's been in the field, closed deals, and knows what it takes.
 
@@ -67,6 +79,9 @@ interface Message {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get("Origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -100,6 +115,31 @@ serve(async (req) => {
 
     const userId = claimsData.claims.sub;
 
+    // Create admin client for rate limiting
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Check rate limit: 30 requests per minute per user
+    const rateLimitKey = `ai-coach:${userId}`;
+    const { data: isAllowed, error: rateLimitError } = await supabaseAdmin
+      .rpc("check_rate_limit", { 
+        p_key: rateLimitKey, 
+        p_max_attempts: 30, 
+        p_window_seconds: 60 // 1 minute
+      });
+
+    if (rateLimitError) {
+      console.error("Rate limit check error:", rateLimitError);
+      // Continue anyway - don't block if rate limiting fails
+    } else if (!isAllowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please wait a moment before sending another message." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Fetch actual user role from database (don't trust client)
     const { data: roleData, error: roleError } = await supabaseClient
       .from("user_roles")
@@ -116,6 +156,31 @@ serve(async (req) => {
     const verifiedRole = roleData?.role || "rookie";
 
     const { messages } = await req.json() as { messages: Message[] };
+
+    // Validate messages input
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid messages format" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate each message structure
+    for (const msg of messages) {
+      if (!msg.role || !msg.content || typeof msg.content !== 'string') {
+        return new Response(
+          JSON.stringify({ error: "Invalid message structure" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      // Limit message content length to prevent abuse
+      if (msg.content.length > 10000) {
+        return new Response(
+          JSON.stringify({ error: "Message too long (max 10,000 characters)" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -169,7 +234,7 @@ serve(async (req) => {
     console.error("AI coach error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(null), "Content-Type": "application/json" } }
     );
   }
 });

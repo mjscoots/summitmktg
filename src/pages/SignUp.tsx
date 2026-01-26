@@ -42,8 +42,8 @@ const SignUp = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -252,7 +252,7 @@ const SignUp = () => {
                 className="input-field pr-12"
                 required
                 disabled={isLoading}
-                minLength={6}
+                minLength={8}
               />
               <button
                 type="button"
@@ -281,7 +281,7 @@ const SignUp = () => {
               className="input-field"
               required
               disabled={isLoading}
-              minLength={6}
+              minLength={8}
             />
           </div>
 
