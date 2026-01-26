@@ -1,4 +1,5 @@
-import { Quote, Play } from "lucide-react";
+import { Quote } from "lucide-react";
+import { VideoPlayer } from "./VideoPlayer";
 
 export interface Testimonial {
   id: string;
@@ -14,6 +15,7 @@ interface TestimonialsProps {
   showVideo?: boolean;
   videoTitle?: string;
   videoSubtext?: string;
+  videoUrl?: string;
 }
 
 // Placeholder testimonials - replace with real data later
@@ -59,32 +61,19 @@ export const vetTestimonials: Testimonial[] = [
   },
 ];
 
-const Testimonials = ({ title, testimonials, showVideo = false, videoTitle, videoSubtext }: TestimonialsProps) => {
+const Testimonials = ({ title, testimonials, showVideo = false, videoTitle, videoUrl }: TestimonialsProps) => {
   return (
     <div className="py-12">
       <h2 className="text-2xl font-bold text-foreground mb-8 text-center uppercase tracking-wide">{title}</h2>
       
       {/* Video Section - Only shown when showVideo is true */}
-      {showVideo && (
+      {showVideo && videoUrl && (
         <div className="mb-10">
           <div className="card-elevated p-6 md:p-8">
-            <h3 className="text-xl font-bold text-foreground mb-2 uppercase tracking-wide text-center">
+            <h3 className="text-xl font-bold text-foreground mb-4 uppercase tracking-wide text-center">
               {videoTitle || "WATCH WHAT A SUMMER AT SUMMIT LOOKS LIKE"}
             </h3>
-            {videoSubtext && (
-              <p className="text-sm text-muted-foreground mb-4 text-center">
-                {videoSubtext}
-              </p>
-            )}
-            <div className="relative aspect-video bg-secondary/50 rounded-lg overflow-hidden border border-border">
-              <button 
-                className="absolute inset-0 flex items-center justify-center group"
-              >
-                <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center group-hover:bg-primary transition-colors">
-                  <Play className="w-6 h-6 text-primary-foreground ml-1" />
-                </div>
-              </button>
-            </div>
+            <VideoPlayer src={videoUrl} title={videoTitle} />
           </div>
         </div>
       )}
