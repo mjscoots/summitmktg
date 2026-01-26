@@ -23,6 +23,7 @@ import ProgressPage from "./pages/app/ProgressPage";
 import AnnouncementsPage from "./pages/app/AnnouncementsPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
 import TeamPage from "./pages/app/TeamPage";
+import AdminVideos from "./pages/app/AdminVideos";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +104,13 @@ const App = () => (
             <Route path="/app/leaderboard" element={
               <ProtectedRoute>
                 <LeaderboardPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin: Manage Videos */}
+            <Route path="/app/admin/videos" element={
+              <ProtectedRoute requiredRole="manager">
+                <AdminVideos />
               </ProtectedRoute>
             } />
 

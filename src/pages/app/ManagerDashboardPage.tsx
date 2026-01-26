@@ -8,7 +8,8 @@ import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
-import { Bell, Calendar, GraduationCap, Trophy, Users } from 'lucide-react';
+import { Bell, Calendar, GraduationCap, Trophy, Users, Video } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function ManagerDashboardPage() {
   const { role, isLoading } = useAuth();
@@ -47,14 +48,23 @@ export default function ManagerDashboardPage() {
 
           {/* TRAINING FIRST - Most Important Section */}
           <div className="mb-10">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="p-2 bg-primary/15 rounded-lg">
-                <GraduationCap className="w-6 h-6 text-primary" />
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/15 rounded-lg">
+                  <GraduationCap className="w-6 h-6 text-primary" />
+                </div>
+                <h2 className="font-bold text-xl text-foreground">Training</h2>
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  INCLUDES MANAGER CONTENT
+                </span>
               </div>
-              <h2 className="font-bold text-xl text-foreground">Training</h2>
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                INCLUDES MANAGER CONTENT
-              </span>
+              <Link
+                to="/app/admin/videos"
+                className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg hover:border-primary/50 transition-colors text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                <Video className="w-4 h-4" />
+                Manage Videos
+              </Link>
             </div>
             <TrainingTiles />
           </div>
