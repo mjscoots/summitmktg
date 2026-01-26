@@ -5,11 +5,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const allowedOrigins = [
   "https://summitmktg.lovable.app",
   "https://id-preview--1257bd97-61e1-4ead-9de9-5dad7ab016d6.lovable.app",
+  "https://summitmktgsales.com",
+  "https://www.summitmktgsales.com",
 ];
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const isAllowed = origin && allowedOrigins.some(allowed => 
-    origin === allowed || origin.endsWith('.lovable.app')
+    origin === allowed || origin.endsWith('.lovable.app') || origin.endsWith('summitmktgsales.com')
   );
   
   return {
