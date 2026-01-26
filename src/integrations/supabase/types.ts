@@ -74,6 +74,57 @@ export type Database = {
         }
         Relationships: []
       }
+      applications: {
+        Row: {
+          application_type: string
+          city_state: string
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          previous_company: string | null
+          referral_source: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          years_experience: number | null
+        }
+        Insert: {
+          application_type: string
+          city_state: string
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          previous_company?: string | null
+          referral_source: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          years_experience?: number | null
+        }
+        Update: {
+          application_type?: string
+          city_state?: string
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          previous_company?: string | null
+          referral_source?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       leaderboard_points: {
         Row: {
           call_attendance_points: number | null
