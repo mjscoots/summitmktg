@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, Play, DollarSign } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, Play, DollarSign, Loader2 } from "lucide-react";
 import VetCalculator, { VetCalculatorValues } from "@/components/VetCalculator";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   fullName: string;
@@ -25,7 +27,9 @@ interface FormErrors {
 
 const VetApplication = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -132,10 +136,34 @@ const VetApplication = () => {
     setErrors((prev) => ({ ...prev, [field]: error }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("applications").insert({
+        application_type: "vet",
+        full_name: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        city_state: formData.cityState.trim(),
+        referral_source: formData.referralName.trim(),
+        previous_company: formData.intendedMarket.trim(), // Previously knocked markets
+        years_experience: parseInt(formData.lastSeasonRevenue.replace(/[^0-9]/g, '')) || null, // Store as revenue number
+      });
+
+      if (error) throw error;
       navigate("/apply/success");
+    } catch (error) {
+      console.error("Application submission error:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your application. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -398,10 +426,19 @@ const VetApplication = () => {
               <button 
                 type="submit" 
                 className="btn-primary uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!isFormComplete()}
+                disabled={!isFormComplete() || isSubmitting}
               >
-                Apply Now
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Apply Now
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
               </button>
             </div>
           </form>

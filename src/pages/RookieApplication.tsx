@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain } from "lucide-react";
+import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain, Loader2 } from "lucide-react";
 import RookieCalculator from "@/components/RookieCalculator";
 import Testimonials, { rookieTestimonials } from "@/components/Testimonials";
-
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 interface FormData {
   fullName: string;
   email: string;
@@ -22,7 +23,9 @@ interface FormErrors {
 
 const RookieApplication = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -121,10 +124,32 @@ const RookieApplication = () => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("applications").insert({
+        application_type: "rookie",
+        full_name: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        city_state: formData.cityState.trim(),
+        referral_source: formData.referralName.trim(),
+      });
+
+      if (error) throw error;
       navigate("/apply/success");
+    } catch (error) {
+      console.error("Application submission error:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your application. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -318,10 +343,19 @@ const RookieApplication = () => {
               <button 
                 type="submit" 
                 className="btn-primary uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!isFormComplete()}
+                disabled={!isFormComplete() || isSubmitting}
               >
-                Apply as a Rookie
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Apply as a Rookie
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
               </button>
             </div>
           </form>
