@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, Play, DollarSign, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, DollarSign, Loader2 } from "lucide-react";
+import { VideoPlayer } from "@/components/VideoPlayer";
 import VetCalculator, { VetCalculatorValues } from "@/components/VetCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -171,7 +172,6 @@ const VetApplication = () => {
     formRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [calcValues, setCalcValues] = useState<VetCalculatorValues | null>(null);
   void calcValues; // Used for future features
 
@@ -260,23 +260,10 @@ const VetApplication = () => {
           </div>
           
           <div className="card-elevated p-6 md:p-8">
-            <div className="relative aspect-video bg-secondary/50 rounded-lg overflow-hidden border border-border">
-              {!isVideoPlaying ? (
-                <button 
-                  onClick={() => setIsVideoPlaying(true)}
-                  className="absolute inset-0 flex items-center justify-center group"
-                >
-                  <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center group-hover:bg-primary transition-colors">
-                    <Play className="w-6 h-6 text-primary-foreground ml-1" />
-                  </div>
-                </button>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  {/* Replace with actual video embed */}
-                  <p className="text-sm">Video player placeholder</p>
-                </div>
-              )}
-            </div>
+            <VideoPlayer 
+              src="https://youtu.be/TTQe2NKXHYQ" 
+              title="Hear From One Of Our Founders" 
+            />
           </div>
         </div>
 
