@@ -1,117 +1,43 @@
 
-# Video Upload System for Summit Training Platform
+# Fix Signup - Add Access Code
 
-## Overview
-This plan implements a complete video upload system that allows admins to upload training videos directly through the app, with proper storage, playback, and management capabilities.
+## Problem
+The signup edge function is failing because there's no active access code in the database. Every signup attempt gets rejected with "Invalid access code" which shows as "Edge Function returned a non-2xx status code".
 
-## What You'll Get
-- A dedicated "training-videos" storage bucket for video files
-- An admin upload interface accessible from the Manager Dashboard
-- Video player integration in lessons that plays your uploaded videos
-- Progress tracking when users watch videos
+## Solution
+Add the default access code to the database so users can sign up.
 
 ---
 
-## Implementation Steps
+## Implementation
 
-### Step 1: Create Storage Bucket
-Create a secure storage bucket for training videos with proper access controls:
-- Public read access (so videos can stream to all users)
-- Authenticated upload access (only logged-in admins/managers can upload)
-- Support for common video formats (MP4, MOV, WebM)
+### Step 1: Add Default Access Code
+Run a database migration to insert the default access code "summit2025" into the `access_codes` table using the secure `set_access_code` function.
 
-### Step 2: Build Admin Video Upload Page
-Create a new page at `/app/admin/videos` with:
-- Drag-and-drop file upload area
-- Video title, description, and category fields
-- Target role selection (Rookie, Manager, or All)
-- Upload progress indicator
-- List of existing videos with edit/delete options
+```sql
+-- Add the default access code (stores as hash, not plain text)
+SELECT public.set_access_code('summit2025', 'Default Summit access code');
+```
 
-### Step 3: Update Video Player Integration
-Modify the lesson pages to:
-- Display uploaded videos using a proper HTML5 video player
-- Support both uploaded videos (from storage) and external URLs (YouTube/Vimeo)
-- Track when users complete watching a video
-
-### Step 4: Add Navigation Link
-Add a "Manage Videos" link in the Manager Dashboard for easy access to the upload interface.
+This uses the existing `set_access_code` database function which:
+- Deactivates any existing codes
+- Stores the new code as a SHA-256 hash (secure)
+- Makes it the active code
 
 ---
 
-## Technical Details
+## After Implementation
 
-### Database Changes
-```text
-No new tables needed - using existing training_videos table
-Update video_url field to store either:
-  - Storage URL: /training-videos/filename.mp4
-  - External URL: https://youtube.com/...
-```
+Once the access code is added, users can sign up by entering **"summit2025"** (case-insensitive) in the Access Code field.
 
-### Storage Bucket Configuration
-```text
-Bucket: training-videos
-Public: Yes (for streaming)
-File size limit: 500MB
-Allowed types: video/mp4, video/quicktime, video/webm
-```
-
-### RLS Policies for Storage
-```text
-SELECT (read): Allow all authenticated users
-INSERT (upload): Allow admins and managers only
-DELETE: Allow admins only
-```
-
-### New Files
-```text
-src/pages/app/AdminVideos.tsx     - Video management page
-src/components/VideoPlayer.tsx    - Reusable video player component
-src/components/VideoUploader.tsx  - Upload component with progress
-```
-
-### Modified Files
-```text
-src/App.tsx                       - Add route for /app/admin/videos
-src/pages/app/LessonPage.tsx      - Integrate VideoPlayer component
-src/pages/app/ManagerDashboardPage.tsx - Add navigation link
+To change the access code in the future, you can run:
+```sql
+SELECT public.set_access_code('your-new-code', 'Description');
 ```
 
 ---
 
-## File Size Considerations
+## Files Changed
+- New migration file to insert the access code
 
-Video files can be large. Here's what to expect:
-
-| Video Length | Approximate Size |
-|--------------|------------------|
-| 1 minute     | 10-50 MB         |
-| 5 minutes    | 50-250 MB        |
-| 10 minutes   | 100-500 MB       |
-
-The storage bucket will have a 500MB per-file limit. For longer videos, you may want to:
-- Compress videos before uploading
-- Split into multiple parts
-- Use YouTube/Vimeo for very long content
-
----
-
-## User Flow
-
-```text
-Manager/Admin Flow:
-1. Login as Manager/Admin
-2. Navigate to Dashboard -> Manage Videos
-3. Click "Upload Video"
-4. Fill in title, description, category
-5. Drag-and-drop or select video file
-6. Wait for upload (progress bar shown)
-7. Video appears in list and is available in training
-
-Trainee Flow:
-1. Navigate to training lesson
-2. Video player loads automatically
-3. Watch video
-4. Click "Mark as Watched" (tracked for progress)
-```
+No code changes needed - the signup form and edge function are working correctly; they just need an access code to validate against.
