@@ -47,6 +47,7 @@ const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-vid
 const OPTIONAL_QUIZ_MODULES = ['introduction', 'scripts', 'body language'];
 
 // Micro-checkpoints for specific lessons (by title pattern)
+// Note: Tonality, Objections, Closing, and Environmental Close use database quiz questions as retention checks
 const LESSON_CHECKPOINTS: Record<string, { question: string; options?: string[] }> = {
   'welcome': { question: 'Are you ready to commit fully to this journey?' },
   'fresh accounts explained': { question: 'What type of homeowner is a fresh account?', options: ['No current pest control', 'Switching from another company'] },
