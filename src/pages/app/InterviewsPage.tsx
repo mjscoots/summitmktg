@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/layout/AppSidebar';
-import { Pencil, ExternalLink } from 'lucide-react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Pencil, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 
@@ -18,7 +16,7 @@ const interviewCards = [
   {
     number: 2,
     title: 'Interview 2',
-    subtitle: 'Commitment, schedule, and work ethic',
+    subtitle: 'Commitment and understanding',
     path: '/app/interviews/2',
   },
   {
@@ -49,100 +47,120 @@ export default function InterviewsPage() {
   }
 
   return (
-    <ThemeProvider initialRole="manager">
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
-          <AppSidebar />
+    <AppLayout>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Interview Resources
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Complete interview forms for your recruiting process
+            </p>
+          </div>
           
-          <main className="flex-1 p-6 lg:p-8 overflow-auto">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  Interview Resources
-                </h1>
-                <p className="text-muted-foreground text-sm mt-1">
-                  Complete interview forms for recruiting and onboarding
-                </p>
-              </div>
-              
-              {/* Hawx Admin Link */}
-              <a
-                href="https://www.gethawx.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg hover:border-primary/50 transition-colors"
-              >
-                <span>Hawx Admin</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
+          {/* Hawx Admin Link */}
+          <a
+            href="https://www.gethawx.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border/60 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
+          >
+            <span>Hawx Admin</span>
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
 
-            {/* Tab Toggle */}
-            <div className="flex gap-2 mb-8">
-              <button
-                onClick={() => setActiveTab('forms')}
-                className={cn(
-                  'px-5 py-2.5 rounded-lg font-medium text-sm transition-all',
-                  activeTab === 'forms'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:text-foreground'
-                )}
-              >
-                Interview Forms
-              </button>
-              <button
-                onClick={() => setActiveTab('responses')}
-                className={cn(
-                  'px-5 py-2.5 rounded-lg font-medium text-sm transition-all',
-                  activeTab === 'responses'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:text-foreground'
-                )}
-              >
-                Responses
-              </button>
-            </div>
+        {/* Tab Toggle - Pill Style */}
+        <div className="flex gap-2 mb-8">
+          <button
+            onClick={() => setActiveTab('forms')}
+            className={cn(
+              'tab-pill',
+              activeTab === 'forms' ? 'tab-pill-active' : 'tab-pill-inactive'
+            )}
+          >
+            Interview Forms
+          </button>
+          <button
+            onClick={() => setActiveTab('responses')}
+            className={cn(
+              'tab-pill',
+              activeTab === 'responses' ? 'tab-pill-active' : 'tab-pill-inactive'
+            )}
+          >
+            Responses
+          </button>
+        </div>
 
-            {/* Content */}
-            {activeTab === 'forms' ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {interviewCards.map((card) => (
-                  <div
-                    key={card.number}
-                    className="flex flex-col bg-card border border-border rounded-xl p-5 hover:border-primary/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-                  >
-                    {/* Number Badge */}
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-yellow-500 flex items-center justify-center">
-                        <span className="text-black font-bold text-lg">{card.number}</span>
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground">{card.title}</h3>
-                        <p className="text-sm text-muted-foreground mt-0.5">{card.subtitle}</p>
-                      </div>
+        {/* Content */}
+        {activeTab === 'forms' ? (
+          <>
+            {/* Interview Cards - Equal height grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+              {interviewCards.map((card) => (
+                <div
+                  key={card.number}
+                  className="flex flex-col bg-card border border-border/50 rounded-xl p-5 card-hover cursor-pointer group"
+                  onClick={() => navigate(card.path)}
+                >
+                  {/* Number Badge + Title */}
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-black font-bold text-lg">{card.number}</span>
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">{card.subtitle}</p>
+                    </div>
+                  </div>
 
-                    {/* Spacer */}
-                    <div className="flex-1" />
+                  {/* Spacer for equal height */}
+                  <div className="flex-1" />
 
-                    {/* Button */}
-                    <button
-                      onClick={() => navigate(card.path)}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-lg transition-colors"
-                    >
-                      <Pencil className="w-4 h-4" />
-                      <span>Fill Out Form</span>
-                    </button>
+                  {/* Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(card.path);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    <span>Fill Out Form</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Interview Process Panel */}
+            <div className="bg-card border border-border/50 rounded-xl p-5">
+              <h3 className="font-semibold text-foreground mb-3">Interview Process</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Complete each interview form in sequence during your recruiting process. Responses are saved automatically and can be reviewed by managers.
+              </p>
+              <div className="space-y-2">
+                {[
+                  { num: 1, text: 'Initial screening and background' },
+                  { num: 2, text: 'Commitment and understanding' },
+                  { num: 3, text: 'Final decision and onboarding' },
+                ].map((item) => (
+                  <div key={item.num} className="flex items-center gap-3 text-sm">
+                    <div className="w-6 h-6 rounded bg-primary/15 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary font-semibold text-xs">{item.num}</span>
+                    </div>
+                    <span className="text-foreground">Interview {item.num}</span>
+                    <span className="text-muted-foreground">— {item.text}</span>
                   </div>
                 ))}
               </div>
-            ) : (
-              <InterviewResponsesTable />
-            )}
-          </main>
-        </div>
-      </SidebarProvider>
-    </ThemeProvider>
+            </div>
+          </>
+        ) : (
+          <InterviewResponsesTable />
+        )}
+      </main>
+    </AppLayout>
   );
 }

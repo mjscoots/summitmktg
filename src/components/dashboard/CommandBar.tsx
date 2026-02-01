@@ -15,7 +15,7 @@ export function CommandBar({
 }: CommandBarProps) {
   const navigate = useNavigate();
   const { role } = useAuth();
-  const { streakData, getStreakMessage } = useStreak();
+  const { streakData } = useStreak();
   const isManager = role === 'manager' || role === 'admin';
 
   return (
@@ -23,23 +23,18 @@ export function CommandBar({
       {/* Primary: Resume Training */}
       <Button
         onClick={() => navigate('/app/training')}
-        className={cn(
-          "font-bold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
-          isManager
-            ? "bg-blue-500 hover:bg-blue-600 shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.7)]"
-            : "bg-green-500 hover:bg-green-600 shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] hover:shadow-[0_0_30px_-5px_rgba(34,197,94,0.7)]"
-        )}
+        className="btn-primary font-bold gap-2"
       >
         <Play className="w-4 h-4" />
         Resume Training
       </Button>
 
-      {/* Manager: Sign a Rep */}
+      {/* Manager: Sign a Rep - Routes to Interview Resources */}
       {isManager && (
         <Button
           variant="outline"
-          onClick={() => navigate('/app/interviews/1')}
-          className="font-semibold gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 hover:translate-y-[-2px]"
+          onClick={() => navigate('/app/interviews')}
+          className="btn-secondary font-semibold gap-2"
         >
           <UserPlus className="w-4 h-4" />
           Sign a Rep
@@ -48,27 +43,21 @@ export function CommandBar({
 
       {/* Metrics */}
       <div className="flex items-center gap-3 ml-auto">
-        {/* Daily Streak - Now with real data */}
+        {/* Daily Streak */}
         <div className={cn(
-          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 cursor-default group",
+          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200",
           streakData.currentStreak > 0
-            ? isManager
-              ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_-5px_rgba(59,130,246,0.3)]"
-              : "bg-green-500/10 border-green-500/50 shadow-[0_0_15px_-5px_rgba(34,197,94,0.3)]"
-            : isManager
-              ? "bg-blue-500/5 border-blue-500/30"
-              : "bg-green-500/5 border-green-500/30"
+            ? "bg-primary/10 border-primary/40"
+            : "bg-secondary border-border/50"
         )}>
           <Flame className={cn(
-            "w-5 h-5 transition-transform group-hover:scale-110",
+            "w-5 h-5",
             streakData.currentStreak > 0 ? "text-orange-400" : "text-muted-foreground"
           )} />
           <div className="text-sm">
             <span className={cn(
-              "font-black text-lg",
-              streakData.currentStreak > 0 
-                ? "text-foreground" 
-                : "text-muted-foreground"
+              "font-bold text-lg",
+              streakData.currentStreak > 0 ? "text-foreground" : "text-muted-foreground"
             )}>
               {streakData.currentStreak}
             </span>
@@ -79,16 +68,8 @@ export function CommandBar({
         </div>
 
         {/* Signed This Week */}
-        <div className={cn(
-          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 cursor-default",
-          isManager
-            ? "bg-blue-500/5 border-blue-500/30"
-            : "bg-green-500/5 border-green-500/30"
-        )}>
-          <Users className={cn(
-            "w-4 h-4",
-            isManager ? "text-blue-400" : "text-green-400"
-          )} />
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border/50 bg-secondary">
+          <Users className="w-4 h-4 text-primary" />
           <div className="text-sm">
             <span className="font-bold text-foreground">{signedThisWeek}</span>
             <span className="text-muted-foreground ml-1">Signed This Week</span>

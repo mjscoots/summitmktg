@@ -70,13 +70,8 @@ export function InterviewResponsesTable() {
     return matchesSearch && matchesInterviewer && matchesInterview;
   });
 
-  const getInterviewPillColor = (interview: number) => {
-    switch (interview) {
-      case 1: return 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30';
-      case 2: return 'bg-orange-500/15 text-orange-400 border-orange-500/30';
-      case 3: return 'bg-red-500/15 text-red-400 border-red-500/30';
-      default: return 'bg-muted text-muted-foreground';
-    }
+  const getInterviewPillColor = () => {
+    return 'bg-primary/15 text-primary border-primary/30';
   };
 
   return (
@@ -153,7 +148,7 @@ export function InterviewResponsesTable() {
                   <TableCell>
                     <span className={cn(
                       'inline-flex px-2.5 py-1 rounded-full text-xs font-medium border',
-                      getInterviewPillColor(response.interview)
+                      getInterviewPillColor()
                     )}>
                       Interview {response.interview}
                     </span>
@@ -169,7 +164,7 @@ export function InterviewResponsesTable() {
                   <TableCell className="text-right">
                     <button
                       onClick={() => setSelectedResponse(response)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-medium rounded-lg transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/85 text-primary-foreground text-xs font-medium rounded-lg transition-colors"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       View
