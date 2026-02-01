@@ -62,29 +62,27 @@ export function AppSidebar() {
     >
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div 
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex flex-col items-center gap-2 cursor-pointer"
           onClick={() => navigate('/app')}
         >
           {/* Summit Logo */}
           <img 
             src={summitLogo} 
             alt="Summit Marketing" 
-            className="h-10 w-auto object-contain"
+            className={cn(
+              "object-contain transition-all duration-200",
+              collapsed ? "h-10 w-auto" : "h-16 w-auto"
+            )}
           />
           {!collapsed && (
-            <div>
-              <h1 className="text-base font-black tracking-tight text-foreground">
-                SUMMIT <span className="text-primary">MKTG</span>
-              </h1>
-              <span className={cn(
-                "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
-                isManager 
-                  ? "bg-blue-500/15 text-blue-400" 
-                  : "bg-green-500/15 text-green-400"
-              )}>
-                {roleLabel}
-              </span>
-            </div>
+            <span className={cn(
+              "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
+              isManager 
+                ? "bg-primary/15 text-primary" 
+                : "bg-green-500/15 text-green-400"
+            )}>
+              {roleLabel}
+            </span>
           )}
         </div>
       </SidebarHeader>
