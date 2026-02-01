@@ -74,18 +74,7 @@ export function ModuleCompletionCelebration({
         "relative z-10 text-center px-6 max-w-md transition-all duration-700",
         showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}>
-        {/* Celebration Icon */}
-
-        {/* Celebration Icon */}
-        <div className={cn(
-          "inline-flex items-center justify-center w-16 h-16 rounded-full mb-6",
-          isRookieCourse ? "bg-green-500/20" : "bg-blue-500/20"
-        )}>
-          <Star className={cn(
-            "w-8 h-8",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
-          )} />
-        </div>
+        {/* Module Complete */}
 
         {/* Module Complete */}
         <h1 className="text-3xl font-black text-foreground mb-2">
