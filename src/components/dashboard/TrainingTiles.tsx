@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { BookOpen, Video, Users, FileText, GraduationCap, Play } from 'lucide-react';
+import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -43,6 +43,16 @@ const LESSON_COUNT_OVERRIDES: Record<string, number> = {
   'summer-sales-manual': 43,
 };
 
+// Course priority order (Learn Your Pitch first)
+const COURSE_PRIORITY: Record<string, number> = {
+  'learn-your-pitch': 1,
+  'summer-sales-manual': 2,
+  'training-videos': 3,
+  'learn-the-basics': 1,
+  'manager-manual': 2,
+  'manager-videos': 3,
+};
+
 export function TrainingTiles({ filterRole }: TrainingTilesProps) {
   const { role, user } = useAuth();
   const navigate = useNavigate();
@@ -69,12 +79,10 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
         let filteredCourses = coursesData || [];
         
         if (filterRole === 'rookie') {
-          // Show only rookie courses (those in ROOKIE_COURSES or with null target_role)
           filteredCourses = filteredCourses.filter(
             course => ROOKIE_COURSES.includes(course.slug) || course.target_role === null
           );
         } else if (filterRole === 'manager') {
-          // Show only manager courses (those NOT in ROOKIE_COURSES and have manager target_role)
           filteredCourses = filteredCourses.filter(
             course => !ROOKIE_COURSES.includes(course.slug) && course.target_role !== null
           );
@@ -138,6 +146,11 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
           })
         );
 
+        // Sort by priority
+        coursesWithProgress.sort((a, b) => 
+          (COURSE_PRIORITY[a.slug] || 99) - (COURSE_PRIORITY[b.slug] || 99)
+        );
+
         setCourses(coursesWithProgress);
       } catch (err) {
         console.error('Error:', err);
@@ -153,11 +166,17 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
     navigate(`/app/training/${slug}`);
   };
 
+  const getButtonState = (progress: number) => {
+    if (progress === 0) return { text: 'Start Training', icon: Play };
+    if (progress === 100) return { text: 'Review', icon: RotateCcw };
+    return { text: 'Continue', icon: ArrowRight };
+  };
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-48 bg-card rounded-xl border border-border animate-pulse" />
+          <div key={i} className="h-64 bg-card rounded-xl border border-border animate-pulse" />
         ))}
       </div>
     );
@@ -168,8 +187,10 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
     return ROOKIE_COURSES.includes(slug);
   };
 
-  // Find featured course (first incomplete course)
-  const featuredCourse = courses.find(c => c.progress < 100) || courses[0];
+  // Find featured course (first incomplete course, prioritizing Learn Your Pitch)
+  const featuredCourse = courses.find(c => c.progress > 0 && c.progress < 100) 
+    || courses.find(c => c.progress === 0) 
+    || courses[0];
 
   if (!featuredCourse && courses.length === 0) {
     return (
@@ -246,22 +267,27 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
               </p>
 
               <div className="flex items-center gap-4">
-                <Button
-                  size="sm"
-                  className={cn(
-                    "font-bold gap-2",
-                    isRookieCourse(featuredCourse.slug)
-                      ? "bg-green-500 hover:bg-green-600 text-white"
-                      : "bg-blue-500 hover:bg-blue-600 text-white"
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCourseClick(featuredCourse.slug);
-                  }}
-                >
-                  <Play className="w-4 h-4" />
-                  Continue
-                </Button>
+                {(() => {
+                  const { text, icon: Icon } = getButtonState(featuredCourse.progress);
+                  return (
+                    <Button
+                      size="sm"
+                      className={cn(
+                        "font-bold gap-2 transition-all duration-300",
+                        isRookieCourse(featuredCourse.slug)
+                          ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] hover:shadow-[0_0_30px_-5px_rgba(34,197,94,0.7)]"
+                          : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.7)]"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCourseClick(featuredCourse.slug);
+                      }}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {text}
+                    </Button>
+                  );
+                })()}
                 
                 <span className="text-sm text-muted-foreground">
                   {featuredCourse.completedLessons} / {featuredCourse.totalLessons} lessons
@@ -289,13 +315,14 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {courses.filter(c => c.id !== featuredCourse?.id).map((course) => {
           const isRookie = isRookieCourse(course.slug);
+          const { text, icon: Icon } = getButtonState(course.progress);
           
           return (
             <div
               key={course.id}
               onClick={() => handleCourseClick(course.slug)}
               className={cn(
-                "group relative p-5 bg-card rounded-xl border cursor-pointer transition-all duration-300 hover:scale-[1.02]",
+                "group relative bg-card rounded-xl border cursor-pointer transition-all duration-300 hover:scale-[1.02] flex flex-col h-[280px]",
                 course.progress === 100 
                   ? 'border-success/40' 
                   : isRookie
@@ -308,65 +335,61 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                 )
               )}
             >
-              {/* Role Pill */}
-              <div className="absolute top-3 right-3">
-                {isRookie ? (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
-                    ROOKIE
-                  </span>
-                ) : (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                    MANAGER
-                  </span>
+              {/* Card Content */}
+              <div className="p-5 flex-1 flex flex-col">
+                {/* Role Pill - Top Right */}
+                <div className="absolute top-3 right-3">
+                  {isRookie ? (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
+                      ROOKIE
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                      MANAGER
+                    </span>
+                  )}
+                </div>
+
+                {/* Completion check */}
+                {course.progress === 100 && (
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
+                    <span className="text-xs text-white">✓</span>
+                  </div>
                 )}
-              </div>
-
-              {/* Completion check */}
-              {course.progress === 100 && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
-                  <span className="text-xs text-white">✓</span>
-                </div>
-              )}
-              
-              <div className="relative">
-                <div className={cn(
-                  "p-3 rounded-xl w-fit mb-4",
-                  course.progress === 100 
-                    ? 'bg-success/20 text-success' 
-                    : isRookie
-                      ? 'bg-green-500/15 text-green-400'
-                      : 'bg-blue-500/15 text-blue-400'
-                )}>
-                  {COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />}
-                </div>
-
-                <h3 className={cn(
-                  "font-bold text-base text-foreground mb-2 group-hover:transition-colors pr-16",
-                  isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
-                )}>
-                  {course.title
-                    .replace(' (Management Edition)', '')
-                    .replace('Management Edition - ', '')}
-                </h3>
                 
-                {course.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                    {course.description}
-                  </p>
-                )}
+                <div className="relative flex-1">
+                  <div className={cn(
+                    "p-3 rounded-xl w-fit mb-4",
+                    course.progress === 100 
+                      ? 'bg-success/20 text-success' 
+                      : isRookie
+                        ? 'bg-green-500/15 text-green-400'
+                        : 'bg-blue-500/15 text-blue-400'
+                  )}>
+                    {COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />}
+                  </div>
 
-                <div className="space-y-2">
+                  <h3 className={cn(
+                    "font-bold text-base text-foreground mb-2 group-hover:transition-colors pr-16",
+                    isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
+                  )}>
+                    {course.title
+                      .replace(' (Management Edition)', '')
+                      .replace('Management Edition - ', '')}
+                  </h3>
+                  
+                  {course.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                      {course.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Progress Section - Fixed at bottom */}
+                <div className="space-y-3 mt-auto">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground font-medium">
                       {course.completedLessons} / {course.totalLessons} lessons
-                    </span>
-                    <span className={cn(
-                      "font-bold",
-                      course.progress === 100 
-                        ? 'text-success' 
-                        : isRookie ? 'text-green-400' : 'text-blue-400'
-                    )}>
-                      {course.progress}%
                     </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -380,6 +403,38 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                       style={{ width: `${course.progress}%` }}
                     />
                   </div>
+                  
+                  {/* Action Button */}
+                  <Button
+                    size="sm"
+                    className={cn(
+                      "w-full font-semibold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
+                      course.progress === 100
+                        ? "bg-muted text-foreground hover:bg-muted/80"
+                        : isRookie
+                          ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.6)]"
+                          : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.6)]"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCourseClick(course.slug);
+                    }}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {text}
+                  </Button>
+                </div>
+
+                {/* Progress percentage - Bottom Right */}
+                <div className="absolute bottom-4 right-4">
+                  <span className={cn(
+                    "text-xs font-bold",
+                    course.progress === 100 
+                      ? 'text-success' 
+                      : isRookie ? 'text-green-400' : 'text-blue-400'
+                  )}>
+                    {course.progress}%
+                  </span>
                 </div>
               </div>
             </div>

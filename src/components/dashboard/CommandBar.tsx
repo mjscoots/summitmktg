@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Play, Flame, Users, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
 
 interface CommandBarProps {
   streak?: number;
@@ -17,46 +18,64 @@ export function CommandBar({
   const isManager = role === 'manager' || role === 'admin';
 
   return (
-    <div className="flex flex-wrap items-center gap-4 mb-8">
-      {/* Primary Actions - Left Aligned */}
-      <div className="flex items-center gap-3">
-        <Button 
-          onClick={() => navigate('/app/training')}
-          className={`font-bold px-5 py-2.5 ${
-            isManager 
-              ? 'bg-blue-500 hover:bg-blue-600' 
-              : 'bg-green-500 hover:bg-green-600'
-          }`}
-        >
-          <Play className="w-4 h-4 mr-2" />
-          Resume Training
-        </Button>
-        
-        {isManager && (
-          <Button 
-            onClick={() => {}}
-            className="font-bold bg-blue-600 hover:bg-blue-700"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Sign a Rep
-          </Button>
+    <div className="flex flex-wrap items-center gap-3 mb-8">
+      {/* Primary: Resume Training */}
+      <Button
+        onClick={() => navigate('/app/training')}
+        className={cn(
+          "font-bold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
+          isManager
+            ? "bg-blue-500 hover:bg-blue-600 shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.7)]"
+            : "bg-green-500 hover:bg-green-600 shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] hover:shadow-[0_0_30px_-5px_rgba(34,197,94,0.7)]"
         )}
-      </div>
+      >
+        <Play className="w-4 h-4" />
+        Resume Training
+      </Button>
 
-      {/* Stat Chips - Left Aligned */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border">
+      {/* Manager: Sign a Rep */}
+      {isManager && (
+        <Button
+          variant="outline"
+          onClick={() => {/* TODO: Sign a rep modal */}}
+          className="font-semibold gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 hover:translate-y-[-2px]"
+        >
+          <UserPlus className="w-4 h-4" />
+          Sign a Rep
+        </Button>
+      )}
+
+      {/* Metrics */}
+      <div className="flex items-center gap-3 ml-auto">
+        {/* Daily Streak */}
+        <div className={cn(
+          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 cursor-default",
+          isManager
+            ? "bg-blue-500/5 border-blue-500/30"
+            : "bg-green-500/5 border-green-500/30"
+        )}>
           <Flame className="w-4 h-4 text-orange-400" />
-          <span className="text-sm font-medium text-muted-foreground">
-            Daily Streak: <span className="text-foreground font-bold">{streak}</span>
-          </span>
+          <div className="text-sm">
+            <span className="font-bold text-foreground">{streak}</span>
+            <span className="text-muted-foreground ml-1">Day Streak</span>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border">
-          <Users className={`w-4 h-4 ${isManager ? 'text-blue-400' : 'text-green-400'}`} />
-          <span className="text-sm font-medium text-muted-foreground">
-            Signed This Week: <span className="text-foreground font-bold">{signedThisWeek} reps</span>
-          </span>
+
+        {/* Signed This Week */}
+        <div className={cn(
+          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 cursor-default",
+          isManager
+            ? "bg-blue-500/5 border-blue-500/30"
+            : "bg-green-500/5 border-green-500/30"
+        )}>
+          <Users className={cn(
+            "w-4 h-4",
+            isManager ? "text-blue-400" : "text-green-400"
+          )} />
+          <div className="text-sm">
+            <span className="font-bold text-foreground">{signedThisWeek}</span>
+            <span className="text-muted-foreground ml-1">Signed This Week</span>
+          </div>
         </div>
       </div>
     </div>

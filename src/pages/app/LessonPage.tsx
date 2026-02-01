@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
+import { LessonNavigation } from '@/components/training/LessonNavigation';
+import { MicroCheckpoint } from '@/components/training/MicroCheckpoint';
+import { ModuleCompletionCelebration } from '@/components/training/ModuleCompletionCelebration';
 
 interface Lesson {
   id: string;
@@ -16,6 +19,14 @@ interface Lesson {
   key_takeaways: string[] | null;
   video_url: string | null;
   module_id: string;
+  display_order: number;
+}
+
+interface ModuleInfo {
+  id: string;
+  title: string;
+  course_id: string;
+  display_order: number;
 }
 
 interface QuizQuestion {
@@ -29,12 +40,26 @@ interface QuizQuestion {
 // Rookie courses always use green
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
+// Micro-checkpoints for specific lessons (by title pattern)
+const LESSON_CHECKPOINTS: Record<string, { question: string; options?: string[] }> = {
+  'welcome': { question: 'Are you ready to commit fully to this journey?' },
+  'fresh accounts explained': { question: 'What type of homeowner is a fresh account?', options: ['No current pest control', 'Switching from another company'] },
+  'switchover accounts explained': { question: 'What\'s the key mindset for switchovers?', options: ['Compete with their current service', 'Upgrade their experience'] },
+  'universal door intro': { question: 'What does the pivot question determine?', options: ['Fresh vs Switchover path', 'Whether to close'] },
+  'fresh & diy pitch': { question: 'With fresh accounts, you\'re educating, not competing. Got it?' },
+  'switchover script': { question: 'Should you ever bash competitors?' },
+  'body language training': { question: 'How many seconds do you have to create trust at the door?', options: ['10 seconds', '3 seconds', '30 seconds'] },
+};
+
 export default function LessonPage() {
   const { courseSlug, lessonId } = useParams();
   const navigate = useNavigate();
   const { role, user } = useAuth();
+  const contentRef = useRef<HTMLDivElement>(null);
   
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [moduleInfo, setModuleInfo] = useState<ModuleInfo | null>(null);
+  const [siblingLessons, setSiblingLessons] = useState<{ id: string; title: string; display_order: number }[]>([]);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -42,8 +67,23 @@ export default function LessonPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizResult, setQuizResult] = useState<{ passed: boolean; score: number } | null>(null);
   const [lessonCompleted, setLessonCompleted] = useState(false);
+  
+  // Checkpoint states
+  const [checkpointCompleted, setCheckpointCompleted] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [nextModuleName, setNextModuleName] = useState<string | null>(null);
 
   const isRookieCourse = ROOKIE_COURSES.includes(courseSlug || '');
+
+  // Find checkpoint for this lesson
+  const getCheckpoint = () => {
+    if (!lesson) return null;
+    const titleLower = lesson.title.toLowerCase().replace(/[⭐🆕🔁📝🧍]/g, '').trim();
+    return LESSON_CHECKPOINTS[titleLower] || null;
+  };
+
+  const checkpoint = lesson ? getCheckpoint() : null;
+  const canProceed = checkpointCompleted || !checkpoint || lessonCompleted;
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -68,6 +108,29 @@ export default function LessonPage() {
 
         setLesson(lessonData);
 
+        // Fetch module info
+        const { data: moduleData } = await supabase
+          .from('training_modules')
+          .select('id, title, course_id, display_order')
+          .eq('id', lessonData.module_id)
+          .maybeSingle();
+
+        if (moduleData) {
+          setModuleInfo(moduleData);
+        }
+
+        // Fetch sibling lessons in the same module
+        const { data: siblingsData } = await supabase
+          .from('training_lessons')
+          .select('id, title, display_order')
+          .eq('module_id', lessonData.module_id)
+          .eq('is_active', true)
+          .order('display_order');
+
+        if (siblingsData) {
+          setSiblingLessons(siblingsData);
+        }
+
         const { data: questionsData, error: questionsError } = await supabase
           .rpc('get_quiz_questions', { _lesson_id: lessonId });
 
@@ -84,6 +147,7 @@ export default function LessonPage() {
 
         if (progressData?.quiz_passed) {
           setLessonCompleted(true);
+          setCheckpointCompleted(true);
         }
       } catch (err) {
         console.error('Error:', err);
@@ -151,6 +215,89 @@ export default function LessonPage() {
     setShowQuiz(true);
   };
 
+  const handleBack = () => {
+    if (showQuiz) {
+      setShowQuiz(false);
+    } else {
+      navigate(`/app/training/${courseSlug}`);
+    }
+  };
+
+  const handleNext = async () => {
+    if (!lesson || !moduleInfo) return;
+
+    const currentIndex = siblingLessons.findIndex(l => l.id === lesson.id);
+    const isLastInModule = currentIndex === siblingLessons.length - 1;
+
+    if (isLastInModule) {
+      // Check if this completes the module
+      const { data: modules } = await supabase
+        .from('training_modules')
+        .select('id, title, display_order')
+        .eq('course_id', moduleInfo.course_id)
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (modules) {
+        const currentModuleIndex = modules.findIndex(m => m.id === moduleInfo.id);
+        const nextModule = modules[currentModuleIndex + 1];
+        
+        if (nextModule) {
+          setNextModuleName(nextModule.title);
+        }
+        
+        setShowCelebration(true);
+      }
+    } else {
+      // Go to next lesson
+      const nextLesson = siblingLessons[currentIndex + 1];
+      if (nextLesson) {
+        navigate(`/app/training/${courseSlug}/${nextLesson.id}`);
+      }
+    }
+  };
+
+  const handleCelebrationContinue = async () => {
+    if (!moduleInfo) return;
+
+    // Find next module and its first lesson
+    const { data: modules } = await supabase
+      .from('training_modules')
+      .select('id, display_order')
+      .eq('course_id', moduleInfo.course_id)
+      .eq('is_active', true)
+      .order('display_order');
+
+    if (!modules) {
+      navigate(`/app/training/${courseSlug}`);
+      return;
+    }
+
+    const currentModuleIndex = modules.findIndex(m => m.id === moduleInfo.id);
+    const nextModule = modules[currentModuleIndex + 1];
+
+    if (nextModule) {
+      const { data: firstLesson } = await supabase
+        .from('training_lessons')
+        .select('id')
+        .eq('module_id', nextModule.id)
+        .eq('is_active', true)
+        .order('display_order')
+        .limit(1)
+        .maybeSingle();
+
+      if (firstLesson) {
+        navigate(`/app/training/${courseSlug}/${firstLesson.id}`);
+        return;
+      }
+    }
+
+    navigate(`/app/training/${courseSlug}`);
+  };
+
+  const currentLessonIndex = lesson ? siblingLessons.findIndex(l => l.id === lesson.id) : 0;
+  const isLastLesson = currentLessonIndex === siblingLessons.length - 1;
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -183,9 +330,21 @@ export default function LessonPage() {
     );
   }
 
+  // Show celebration screen
+  if (showCelebration && moduleInfo) {
+    return (
+      <ModuleCompletionCelebration
+        moduleName={moduleInfo.title}
+        nextModuleName={nextModuleName || undefined}
+        onContinue={handleCelebrationContinue}
+        isRookieCourse={isRookieCourse}
+      />
+    );
+  }
+
   return (
     <AppLayout>
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 pb-28">
         {/* Back button */}
         <button
           onClick={() => navigate(`/app/training/${courseSlug}`)}
@@ -224,7 +383,7 @@ export default function LessonPage() {
         {!showQuiz ? (
           <>
             {/* Lesson Content */}
-            <div className="bg-card rounded-lg border border-border p-6 mb-6">
+            <div ref={contentRef} className="bg-card rounded-lg border border-border p-6 mb-6">
               <div 
                 className="prose prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ 
@@ -246,7 +405,7 @@ export default function LessonPage() {
             {/* Key Takeaways */}
             {lesson.key_takeaways && lesson.key_takeaways.length > 0 && (
               <div className={cn(
-                "border rounded-lg p-6 mb-8",
+                "border rounded-lg p-6 mb-6",
                 isRookieCourse 
                   ? "bg-green-500/5 border-green-500/20"
                   : "bg-blue-500/5 border-blue-500/20"
@@ -266,6 +425,18 @@ export default function LessonPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Micro Checkpoint */}
+            {checkpoint && !checkpointCompleted && !lessonCompleted && (
+              <div className="mb-6">
+                <MicroCheckpoint
+                  question={checkpoint.question}
+                  options={checkpoint.options}
+                  onComplete={() => setCheckpointCompleted(true)}
+                  isRookieCourse={isRookieCourse}
+                />
               </div>
             )}
 
@@ -318,7 +489,7 @@ export default function LessonPage() {
                   </p>
                   {quizResult.passed ? (
                     <Button 
-                      onClick={() => navigate(`/app/training/${courseSlug}`)}
+                      onClick={handleNext}
                       className={cn(
                         "font-bold",
                         isRookieCourse 
@@ -434,6 +605,19 @@ export default function LessonPage() {
           </>
         )}
       </main>
+
+      {/* Sticky Bottom Navigation */}
+      {!showQuiz && (
+        <LessonNavigation
+          currentStep={currentLessonIndex}
+          totalSteps={siblingLessons.length}
+          onBack={handleBack}
+          onNext={handleNext}
+          canProceed={canProceed}
+          isRookieCourse={isRookieCourse}
+          isLastLesson={isLastLesson}
+        />
+      )}
     </AppLayout>
   );
 }
