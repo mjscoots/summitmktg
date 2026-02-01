@@ -121,6 +121,36 @@
   .manager-glow {
     box-shadow: 0 0 30px -5px hsl(216 80% 50% / 0.2);
   }
+
+  /* Confetti animation */
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-10px) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  .animate-confetti-fall {
+    animation: confetti-fall 1.5s ease-out forwards;
+  }
+
+  /* Progress pulse */
+  @keyframes progress-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-progress-pulse {
+    animation: progress-pulse 1s ease-in-out infinite;
+  }
 }
 
 @layer components {

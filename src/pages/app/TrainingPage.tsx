@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
+import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { BookOpen, Users, ArrowLeft, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 type TrainingView = 'selection' | 'rookie' | 'manager';
 
@@ -24,11 +26,30 @@ const generateStars = (count: number) => {
 const STARS = generateStars(60);
 
 export default function TrainingPage() {
-  const { role, isLoading } = useAuth();
+  const { role, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState<TrainingView>('selection');
+  const [lessonsCompleted, setLessonsCompleted] = useState(0);
+  const [showWelcome, setShowWelcome] = useState(true);
   
   const isManager = role === 'manager' || role === 'admin';
+
+  // Fetch user's lesson completion count
+  useEffect(() => {
+    const fetchProgress = async () => {
+      if (!user) return;
+
+      const { count } = await supabase
+        .from('lesson_progress')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('quiz_passed', true);
+
+      setLessonsCompleted(count || 0);
+    };
+
+    fetchProgress();
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -63,6 +84,15 @@ export default function TrainingPage() {
           </div>
           
           <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8">
+            {/* Welcome Banner for new users */}
+            {showWelcome && lessonsCompleted < 15 && (
+              <WelcomeBanner
+                userName={user?.user_metadata?.full_name}
+                lessonsCompleted={lessonsCompleted}
+                onDismiss={() => setShowWelcome(false)}
+              />
+            )}
+
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <Sparkles className="w-6 h-6 text-green-400" />
@@ -225,6 +255,15 @@ export default function TrainingPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          {/* Welcome Banner for rookie view */}
+          {isRookieView && showWelcome && lessonsCompleted < 15 && (
+            <WelcomeBanner
+              userName={user?.user_metadata?.full_name}
+              lessonsCompleted={lessonsCompleted}
+              onDismiss={() => setShowWelcome(false)}
+            />
+          )}
+
           {/* Back button for managers */}
           {isManager && (
             <Button

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
@@ -11,6 +11,9 @@ import { cn } from '@/lib/utils';
 import { LessonNavigation } from '@/components/training/LessonNavigation';
 import { MicroCheckpoint } from '@/components/training/MicroCheckpoint';
 import { ModuleCompletionCelebration } from '@/components/training/ModuleCompletionCelebration';
+import { LessonCompletionFeedback } from '@/components/training/LessonCompletionFeedback';
+import { StreakCelebration } from '@/components/training/StreakCelebration';
+import { useStreak } from '@/hooks/useStreak';
 
 interface Lesson {
   id: string;
@@ -40,6 +43,9 @@ interface QuizQuestion {
 // Rookie courses always use green
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
+// Modules where quizzes are OPTIONAL (delay pressure)
+const OPTIONAL_QUIZ_MODULES = ['introduction', 'scripts', 'body language'];
+
 // Micro-checkpoints for specific lessons (by title pattern)
 const LESSON_CHECKPOINTS: Record<string, { question: string; options?: string[] }> = {
   'welcome': { question: 'Are you ready to commit fully to this journey?' },
@@ -56,6 +62,7 @@ export default function LessonPage() {
   const navigate = useNavigate();
   const { role, user } = useAuth();
   const contentRef = useRef<HTMLDivElement>(null);
+  const { recordActivity, streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [moduleInfo, setModuleInfo] = useState<ModuleInfo | null>(null);
@@ -68,12 +75,20 @@ export default function LessonPage() {
   const [quizResult, setQuizResult] = useState<{ passed: boolean; score: number } | null>(null);
   const [lessonCompleted, setLessonCompleted] = useState(false);
   
-  // Checkpoint states
+  // Dopamine states
   const [checkpointCompleted, setCheckpointCompleted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [nextModuleName, setNextModuleName] = useState<string | null>(null);
+  const [showCompletionFeedback, setShowCompletionFeedback] = useState(false);
+  const [progressBefore, setProgressBefore] = useState(0);
+  const [progressAfter, setProgressAfter] = useState(0);
 
   const isRookieCourse = ROOKIE_COURSES.includes(courseSlug || '');
+  
+  // Check if quizzes are optional for this module
+  const isQuizOptional = moduleInfo 
+    ? OPTIONAL_QUIZ_MODULES.some(m => moduleInfo.title.toLowerCase().includes(m))
+    : false;
 
   // Find checkpoint for this lesson
   const getCheckpoint = () => {
@@ -149,6 +164,9 @@ export default function LessonPage() {
           setLessonCompleted(true);
           setCheckpointCompleted(true);
         }
+        
+        // Record activity for streak
+        recordActivity();
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -157,7 +175,7 @@ export default function LessonPage() {
     };
 
     fetchLesson();
-  }, [lessonId, user, courseSlug, navigate]);
+  }, [lessonId, user, courseSlug, navigate, recordActivity]);
 
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
@@ -209,6 +227,46 @@ export default function LessonPage() {
     }
   };
 
+  // Mark lesson complete without quiz (for optional quiz modules)
+  const handleMarkComplete = async () => {
+    if (!user || !lessonId) return;
+
+    try {
+      // Upsert progress record
+      const { error } = await supabase
+        .from('lesson_progress')
+        .upsert({
+          user_id: user.id,
+          lesson_id: lessonId,
+          completed_at: new Date().toISOString(),
+          quiz_passed: true, // Mark as passed for progress tracking
+        }, {
+          onConflict: 'user_id,lesson_id',
+        });
+
+      if (error) {
+        console.error('Error marking complete:', error);
+        return;
+      }
+
+      // Calculate progress change for feedback
+      const totalLessons = siblingLessons.length;
+      const currentIndex = siblingLessons.findIndex(l => l.id === lessonId);
+      const prevProgress = Math.round((currentIndex / totalLessons) * 100);
+      const newProgress = Math.round(((currentIndex + 1) / totalLessons) * 100);
+      
+      setProgressBefore(prevProgress);
+      setProgressAfter(newProgress);
+      setLessonCompleted(true);
+      setShowCompletionFeedback(true);
+      
+      // Record streak activity
+      recordActivity();
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
   const handleRetakeQuiz = () => {
     setAnswers({});
     setQuizResult(null);
@@ -228,6 +286,12 @@ export default function LessonPage() {
 
     const currentIndex = siblingLessons.findIndex(l => l.id === lesson.id);
     const isLastInModule = currentIndex === siblingLessons.length - 1;
+
+    // If lesson not completed yet and quizzes are optional, mark it complete
+    if (!lessonCompleted && isQuizOptional) {
+      await handleMarkComplete();
+      return;
+    }
 
     if (isLastInModule) {
       // Check if this completes the module
@@ -330,6 +394,22 @@ export default function LessonPage() {
     );
   }
 
+  // Show lesson completion feedback
+  if (showCompletionFeedback) {
+    return (
+      <LessonCompletionFeedback
+        lessonTitle={lesson.title}
+        progressBefore={progressBefore}
+        progressAfter={progressAfter}
+        onComplete={() => {
+          setShowCompletionFeedback(false);
+          handleNext();
+        }}
+        isRookieCourse={isRookieCourse}
+      />
+    );
+  }
+
   // Show celebration screen
   if (showCelebration && moduleInfo) {
     return (
@@ -345,6 +425,20 @@ export default function LessonPage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 pb-28">
+        {/* Streak Celebration Toast */}
+        {showStreakCelebration && (
+          <StreakCelebration
+            streak={streakData.currentStreak}
+            milestone={newMilestone}
+            message={getStreakMessage()}
+            onComplete={() => {
+              clearStreakCelebration();
+              clearMilestone();
+            }}
+            isRookieCourse={isRookieCourse}
+          />
+        )}
+
         {/* Back button */}
         <button
           onClick={() => navigate(`/app/training/${courseSlug}`)}
@@ -377,6 +471,17 @@ export default function LessonPage() {
           </div>
           {lessonCompleted && (
             <p className="text-sm text-green-500">✓ Lesson completed</p>
+          )}
+          
+          {/* Encouraging message for quiz-optional modules */}
+          {isQuizOptional && !lessonCompleted && (
+            <div className={cn(
+              "mt-3 flex items-center gap-2 text-sm",
+              isRookieCourse ? "text-green-400" : "text-blue-400"
+            )}>
+              <Sparkles className="w-4 h-4" />
+              <span>Focus on learning — no quiz pressure yet!</span>
+            </div>
           )}
         </div>
 
@@ -440,21 +545,47 @@ export default function LessonPage() {
               </div>
             )}
 
-            {/* Take Quiz Button */}
+            {/* Quiz Section - Show differently based on optional vs required */}
             {questions.length > 0 && (
-              <Button
-                onClick={() => setShowQuiz(true)}
-                className={cn(
-                  "w-full font-bold",
-                  isRookieCourse 
-                    ? "bg-green-500 hover:bg-green-600" 
-                    : "bg-blue-500 hover:bg-blue-600"
+              <div className="space-y-3">
+                {isQuizOptional ? (
+                  // Optional quiz - encouraging, not pressuring
+                  <div className={cn(
+                    "p-4 rounded-lg border text-center",
+                    isRookieCourse ? "border-green-500/20 bg-green-500/5" : "border-blue-500/20 bg-blue-500/5"
+                  )}>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Want to test yourself? (Optional)
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowQuiz(true)}
+                      className={cn(
+                        "font-semibold",
+                        isRookieCourse ? "border-green-500/50 text-green-400" : "border-blue-500/50 text-blue-400"
+                      )}
+                    >
+                      Take Optional Quiz
+                      <HelpCircle className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                ) : (
+                  // Required quiz
+                  <Button
+                    onClick={() => setShowQuiz(true)}
+                    className={cn(
+                      "w-full font-bold",
+                      isRookieCourse 
+                        ? "bg-green-500 hover:bg-green-600" 
+                        : "bg-blue-500 hover:bg-blue-600"
+                    )}
+                    size="lg"
+                  >
+                    {lessonCompleted ? 'Retake Quiz' : 'Take Quiz'}
+                    <HelpCircle className="w-4 h-4 ml-2" />
+                  </Button>
                 )}
-                size="lg"
-              >
-                {lessonCompleted ? 'Retake Quiz' : 'Take Quiz'}
-                <HelpCircle className="w-4 h-4 ml-2" />
-              </Button>
+              </div>
             )}
           </>
         ) : (
@@ -466,7 +597,7 @@ export default function LessonPage() {
                   "w-5 h-5",
                   isRookieCourse ? "text-green-400" : "text-blue-400"
                 )} />
-                Lesson Quiz
+                {isQuizOptional ? 'Optional Quiz' : 'Lesson Quiz'}
               </h2>
 
               {quizResult ? (
@@ -613,7 +744,7 @@ export default function LessonPage() {
           totalSteps={siblingLessons.length}
           onBack={handleBack}
           onNext={handleNext}
-          canProceed={canProceed}
+          canProceed={canProceed || isQuizOptional}
           isRookieCourse={isRookieCourse}
           isLastLesson={isLastLesson}
         />
