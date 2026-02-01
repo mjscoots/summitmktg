@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,9 +15,16 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+];
+
+const managerNavItems = [
+  { label: 'Home', path: '/app', icon: Home },
+  { label: 'Training', path: '/app/training', icon: GraduationCap },
+  { label: 'Interviews', path: '/app/interviews', icon: ClipboardList, managerOnly: true },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
 ];
 
@@ -84,7 +91,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {navItems.map((item) => {
+              {(isManager ? managerNavItems : baseNavItems).map((item) => {
                 const active = isActive(item.path);
                 return (
                   <SidebarMenuItem key={item.path}>

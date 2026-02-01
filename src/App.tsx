@@ -25,6 +25,10 @@ import AnnouncementsPage from "./pages/app/AnnouncementsPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
 import TeamPage from "./pages/app/TeamPage";
 import AdminVideos from "./pages/app/AdminVideos";
+import InterviewsPage from "./pages/app/InterviewsPage";
+import Interview1Page from "./pages/app/Interview1Page";
+import Interview2Page from "./pages/app/Interview2Page";
+import Interview3Page from "./pages/app/Interview3Page";
 
 const queryClient = new QueryClient();
 
@@ -112,6 +116,28 @@ const App = () => (
             <Route path="/app/admin/videos" element={
               <ProtectedRoute requiredRole="manager">
                 <AdminVideos />
+              </ProtectedRoute>
+            } />
+
+            {/* Interviews (Manager Only) */}
+            <Route path="/app/interviews" element={
+              <ProtectedRoute requiredRole="manager">
+                <InterviewsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/interviews/1" element={
+              <ProtectedRoute requiredRole="manager">
+                <Interview1Page />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/interviews/2" element={
+              <ProtectedRoute requiredRole="manager">
+                <Interview2Page />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/interviews/3" element={
+              <ProtectedRoute requiredRole="manager">
+                <Interview3Page />
               </ProtectedRoute>
             } />
 
