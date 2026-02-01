@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import summitLogo from '@/assets/summit-logo-clean.png';
+import summitLogo from '@/assets/summit-marketing-logo.png';
 
 const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
@@ -68,8 +68,8 @@ export function AppSidebar() {
           {/* Summit Logo */}
           <img 
             src={summitLogo} 
-            alt="Summit" 
-            className="w-10 h-10 object-contain"
+            alt="Summit Marketing" 
+            className="h-10 w-auto object-contain"
           />
           {!collapsed && (
             <div>
