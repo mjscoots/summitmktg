@@ -1,33 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { InterviewCard } from '@/components/interviews/InterviewCard';
-import { InterviewPhilosophy } from '@/components/interviews/InterviewPhilosophy';
-import { DopamineCurve } from '@/components/interviews/DopamineCurve';
-import { ClipboardList, UserCheck, Award } from 'lucide-react';
+import { Pencil, ExternalLink } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
+
+const interviewCards = [
+  {
+    number: 1,
+    title: 'Interview 1',
+    subtitle: 'Initial screening and background',
+    path: '/app/interviews/1',
+  },
+  {
+    number: 2,
+    title: 'Interview 2',
+    subtitle: 'Commitment, schedule, and work ethic',
+    path: '/app/interviews/2',
+  },
+  {
+    number: 3,
+    title: 'Interview 3',
+    subtitle: 'Final decision and onboarding',
+    path: '/app/interviews/3',
+  },
+];
 
 export default function InterviewsPage() {
   const { role, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [completedInterviews, setCompletedInterviews] = useState<number[]>([]);
-
-  // Load completed interviews from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('summit_completed_interviews');
-    if (stored) {
-      setCompletedInterviews(JSON.parse(stored));
-    }
-  }, []);
-
-  // Redirect non-managers
-  useEffect(() => {
-    if (!isLoading && role !== 'manager' && role !== 'admin') {
-      navigate('/app', { replace: true });
-    }
-  }, [role, isLoading, navigate]);
+  const [activeTab, setActiveTab] = useState<'forms' | 'responses'>('forms');
 
   if (isLoading) {
     return (
@@ -37,8 +42,11 @@ export default function InterviewsPage() {
     );
   }
 
-  const isInterview1Complete = completedInterviews.includes(1);
-  const isInterview2Complete = completedInterviews.includes(2);
+  // Redirect non-managers
+  if (role !== 'manager' && role !== 'admin') {
+    navigate('/app', { replace: true });
+    return null;
+  }
 
   return (
     <ThemeProvider initialRole="manager">
@@ -48,64 +56,90 @@ export default function InterviewsPage() {
           
           <main className="flex-1 p-6 lg:p-8 overflow-auto">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-black text-foreground tracking-tight">
-                Interview <span className="text-blue-400">Resources</span>
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Structured interviews to identify commitment, coachability, and work ethic
-              </p>
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <ClipboardList className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-blue-400">Interview Forms</span>
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  Interview Resources
+                </h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Complete interview forms for recruiting and onboarding
+                </p>
               </div>
+              
+              {/* Hawx Admin Link */}
+              <a
+                href="https://www.gethawx.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg hover:border-primary/50 transition-colors"
+              >
+                <span>Hawx Admin</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
             </div>
 
-            {/* Philosophy Section */}
-            <InterviewPhilosophy />
+            {/* Tab Toggle */}
+            <div className="flex gap-2 mb-8">
+              <button
+                onClick={() => setActiveTab('forms')}
+                className={cn(
+                  'px-5 py-2.5 rounded-lg font-medium text-sm transition-all',
+                  activeTab === 'forms'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Interview Forms
+              </button>
+              <button
+                onClick={() => setActiveTab('responses')}
+                className={cn(
+                  'px-5 py-2.5 rounded-lg font-medium text-sm transition-all',
+                  activeTab === 'responses'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Responses
+              </button>
+            </div>
 
-            {/* Interview Cards */}
-            <div className="mb-10">
-              <h2 className="text-lg font-bold text-foreground mb-5">Interview Sequence</h2>
+            {/* Content */}
+            {activeTab === 'forms' ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <InterviewCard
-                  number={1}
-                  title="Screening & Mindset"
-                  color="yellow"
-                  purpose="Filter interest, self-awareness, coachability, and basic sales thinking."
-                  dopamineGoal="Curiosity + belief + low pressure"
-                  icon={ClipboardList}
-                  isLocked={false}
-                  isComplete={isInterview1Complete}
-                  onClick={() => navigate('/app/interviews/1')}
-                />
-                <InterviewCard
-                  number={2}
-                  title="Commitment & Understanding"
-                  color="orange"
-                  purpose="Test understanding of pay, schedule, effort, and long-term thinking."
-                  dopamineGoal="Investment + seriousness + identity shift"
-                  icon={UserCheck}
-                  isLocked={!isInterview1Complete}
-                  isComplete={isInterview2Complete}
-                  onClick={() => navigate('/app/interviews/2')}
-                />
-                <InterviewCard
-                  number={3}
-                  title="Offer & Decision"
-                  color="red"
-                  purpose="Test decisiveness, objection handling, and final commitment."
-                  dopamineGoal="Pressure + clarity + win-or-walk moment"
-                  icon={Award}
-                  isLocked={!isInterview2Complete}
-                  isComplete={completedInterviews.includes(3)}
-                  onClick={() => navigate('/app/interviews/3')}
-                />
-              </div>
-            </div>
+                {interviewCards.map((card) => (
+                  <div
+                    key={card.number}
+                    className="flex flex-col bg-card border border-border rounded-xl p-5 hover:border-primary/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                  >
+                    {/* Number Badge */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-lg bg-yellow-500 flex items-center justify-center">
+                        <span className="text-black font-bold text-lg">{card.number}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground">{card.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-0.5">{card.subtitle}</p>
+                      </div>
+                    </div>
 
-            {/* Dopamine Curve */}
-            <DopamineCurve />
+                    {/* Spacer */}
+                    <div className="flex-1" />
+
+                    {/* Button */}
+                    <button
+                      onClick={() => navigate(card.path)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-lg transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span>Fill Out Form</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <InterviewResponsesTable />
+            )}
           </main>
         </div>
       </SidebarProvider>
