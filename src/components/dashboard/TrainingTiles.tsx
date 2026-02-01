@@ -312,7 +312,7 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
       )}
 
       {/* Other Training Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
         {courses.filter(c => c.id !== featuredCourse?.id).map((course) => {
           const isRookie = isRookieCourse(course.slug);
           const { text, icon: Icon } = getButtonState(course.progress);
@@ -322,7 +322,7 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
               key={course.id}
               onClick={() => handleCourseClick(course.slug)}
               className={cn(
-                "group relative bg-card rounded-xl border cursor-pointer transition-all duration-300 hover:scale-[1.02] flex flex-col h-[280px]",
+                "group relative bg-card rounded-xl border cursor-pointer transition-all duration-300 hover:scale-[1.02] flex flex-col min-h-[320px]",
                 course.progress === 100 
                   ? 'border-success/40' 
                   : isRookie
@@ -335,31 +335,14 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                 )
               )}
             >
-              {/* Card Content */}
-              <div className="p-5 flex-1 flex flex-col">
-                {/* Role Pill - Top Right */}
-                <div className="absolute top-3 right-3">
-                  {isRookie ? (
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
-                      ROOKIE
-                    </span>
-                  ) : (
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                      MANAGER
-                    </span>
-                  )}
-                </div>
-
-                {/* Completion check */}
-                {course.progress === 100 && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
-                    <span className="text-xs text-white">✓</span>
-                  </div>
-                )}
+              {/* Card Content - Flex container for perfect alignment */}
+              <div className="p-5 flex flex-col h-full">
                 
-                <div className="relative flex-1">
+                {/* === HEADER REGION (fixed height) === */}
+                <div className="flex items-start justify-between mb-4 h-12">
+                  {/* Icon */}
                   <div className={cn(
-                    "p-3 rounded-xl w-fit mb-4",
+                    "p-3 rounded-xl flex-shrink-0",
                     course.progress === 100 
                       ? 'bg-success/20 text-success' 
                       : isRookie
@@ -369,8 +352,31 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                     {COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />}
                   </div>
 
+                  {/* Role Pill */}
+                  <div className="flex-shrink-0">
+                    {isRookie ? (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
+                        ROOKIE
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                        MANAGER
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Completion check */}
+                  {course.progress === 100 && (
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
+                      <span className="text-xs text-white">✓</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* === BODY REGION (flex-grow) === */}
+                <div className="flex-1 min-h-[80px]">
                   <h3 className={cn(
-                    "font-bold text-base text-foreground mb-2 group-hover:transition-colors pr-16",
+                    "font-bold text-base text-foreground mb-2 group-hover:transition-colors",
                     isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
                   )}>
                     {course.title
@@ -379,19 +385,30 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                   </h3>
                   
                   {course.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {course.description}
                     </p>
                   )}
                 </div>
 
-                {/* Progress Section - Fixed at bottom */}
-                <div className="space-y-3 mt-auto">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground font-medium">
+                {/* === PROGRESS REGION (fixed height, ~72px) === */}
+                <div className="h-[72px] flex flex-col justify-between pt-3 border-t border-border/50">
+                  {/* Progress info row */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground font-medium">
                       {course.completedLessons} / {course.totalLessons} lessons
                     </span>
+                    <span className={cn(
+                      "text-sm font-bold",
+                      course.progress === 100 
+                        ? 'text-success' 
+                        : isRookie ? 'text-green-400' : 'text-blue-400'
+                    )}>
+                      {course.progress}%
+                    </span>
                   </div>
+                  
+                  {/* Progress bar */}
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div 
                       className={cn(
@@ -403,12 +420,14 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                       style={{ width: `${course.progress}%` }}
                     />
                   </div>
-                  
-                  {/* Action Button */}
+                </div>
+
+                {/* === FOOTER REGION (fixed height, ~48px) === */}
+                <div className="h-12 pt-3">
                   <Button
                     size="sm"
                     className={cn(
-                      "w-full font-semibold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
+                      "w-full h-9 font-semibold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
                       course.progress === 100
                         ? "bg-muted text-foreground hover:bg-muted/80"
                         : isRookie
@@ -423,18 +442,6 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                     <Icon className="w-4 h-4" />
                     {text}
                   </Button>
-                </div>
-
-                {/* Progress percentage - Bottom Right */}
-                <div className="absolute bottom-4 right-4">
-                  <span className={cn(
-                    "text-xs font-bold",
-                    course.progress === 100 
-                      ? 'text-success' 
-                      : isRookie ? 'text-green-400' : 'text-blue-400'
-                  )}>
-                    {course.progress}%
-                  </span>
                 </div>
               </div>
             </div>
