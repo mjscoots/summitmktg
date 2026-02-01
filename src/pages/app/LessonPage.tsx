@@ -6,13 +6,13 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
 import { LessonNavigation } from '@/components/training/LessonNavigation';
 import { MicroCheckpoint } from '@/components/training/MicroCheckpoint';
 import { ModuleCompletionCelebration } from '@/components/training/ModuleCompletionCelebration';
 import { LessonCompletionFeedback } from '@/components/training/LessonCompletionFeedback';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
+import { LessonContent } from '@/components/training/LessonContent';
 import { useStreak } from '@/hooks/useStreak';
 
 interface Lesson {
@@ -489,22 +489,10 @@ export default function LessonPage() {
         {!showQuiz ? (
           <>
             {/* Lesson Content */}
-            <div ref={contentRef} className="bg-card rounded-lg border border-border p-6 mb-6">
-              <div 
-                className="prose prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(
-                    lesson.content
-                      .replace(/\n/g, '<br>')
-                      .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-foreground mb-4">$1</h1>')
-                      .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-foreground mt-6 mb-3">$1</h2>')
-                      .replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-foreground mt-4 mb-2">$1</h3>')
-                      .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 my-4 text-foreground italic">$1</blockquote>')
-                      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
-                      .replace(/---/g, '<hr class="border-border my-6">'),
-                    { ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'strong', 'em', 'br', 'blockquote', 'hr', 'span', 'div'] }
-                  )
-                }}
+            <div ref={contentRef} className="bg-card rounded-xl border border-border p-6 sm:p-8 mb-6 transition-all duration-300 hover:border-border/60">
+              <LessonContent 
+                content={lesson.content} 
+                isRookieCourse={isRookieCourse} 
               />
             </div>
 

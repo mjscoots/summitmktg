@@ -74,18 +74,26 @@ export function ModuleCompletionCelebration({
         "relative z-10 text-center px-6 max-w-md transition-all duration-700",
         showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}>
-        {/* Module Complete */}
+        {/* Module Complete Badge */}
+        <div className={cn(
+          "inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-sm font-semibold",
+          isRookieCourse 
+            ? "bg-green-500/20 text-green-400 border border-green-500/30"
+            : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+        )}>
+          <Star className={cn("w-4 h-4", isRookieCourse ? "text-green-400" : "text-blue-400")} />
+          Module Complete
+        </div>
 
-        {/* Module Complete */}
-        <h1 className="text-3xl font-black text-foreground mb-2">
+        {/* Module Name */}
+        <h1 className="text-3xl font-black text-foreground mb-3 tracking-tight">
           {moduleName}
         </h1>
 
-
         {/* Next module preview */}
         {nextModuleName && (
-          <p className="text-sm text-muted-foreground mb-4">
-            Next up: <span className="text-foreground font-medium">{nextModuleName}</span>
+          <p className="text-sm text-muted-foreground mb-6">
+            Next up: <span className={cn("font-semibold", isRookieCourse ? "text-green-400" : "text-blue-400")}>{nextModuleName}</span>
           </p>
         )}
 
