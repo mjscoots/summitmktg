@@ -38,7 +38,7 @@ export function CommandBar({
       {isManager && (
         <Button
           variant="outline"
-          onClick={() => {/* TODO: Sign a rep modal */}}
+          onClick={() => navigate('/app/interviews/1')}
           className="font-semibold gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 hover:translate-y-[-2px]"
         >
           <UserPlus className="w-4 h-4" />
