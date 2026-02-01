@@ -80,12 +80,6 @@ export function ModuleCompletionCelebration({
         <h1 className="text-3xl font-black text-foreground mb-2">
           {moduleName}
         </h1>
-        <p className={cn(
-          "text-xl font-bold mb-4",
-          isRookieCourse ? "text-green-400" : "text-blue-400"
-        )}>
-          Complete ✓
-        </p>
 
         {/* Motivational message */}
         <p className="text-muted-foreground mb-8">
