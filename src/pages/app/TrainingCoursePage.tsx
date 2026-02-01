@@ -172,11 +172,11 @@ export default function TrainingCoursePage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Back button */}
         <button
-          onClick={() => navigate('/app')}
+          onClick={() => navigate('/app/training')}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          Back to Training
         </button>
 
         {/* Course Header */}

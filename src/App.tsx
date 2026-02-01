@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 
 // App pages
 import DashboardPage from "./pages/app/DashboardPage";
+import TrainingPage from "./pages/app/TrainingPage";
 import TrainingCoursePage from "./pages/app/TrainingCoursePage";
 import LessonPage from "./pages/app/LessonPage";
 import ProgressPage from "./pages/app/ProgressPage";
@@ -65,7 +66,7 @@ const App = () => (
             {/* Training */}
             <Route path="/app/training" element={
               <ProtectedRoute>
-                <TrainingCoursePage />
+                <TrainingPage />
               </ProtectedRoute>
             } />
             <Route path="/app/training/:courseSlug" element={

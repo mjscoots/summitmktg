@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight } from 'lucide-react';
+import { BookOpen, Video, Users, FileText, GraduationCap, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -21,11 +21,16 @@ interface CourseWithProgress extends Course {
   completedLessons: number;
 }
 
+interface TrainingTilesProps {
+  filterRole?: 'rookie' | 'manager';
+}
+
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'learn-your-pitch': <BookOpen className="w-6 h-6" />,
   'summer-sales-manual': <FileText className="w-6 h-6" />,
   'training-videos': <Video className="w-6 h-6" />,
   'management-basics': <Users className="w-6 h-6" />,
+  'learn-the-basics': <Users className="w-6 h-6" />,
   'manager-manual': <GraduationCap className="w-6 h-6" />,
   'manager-videos': <Video className="w-6 h-6" />,
 };
@@ -38,38 +43,45 @@ const LESSON_COUNT_OVERRIDES: Record<string, number> = {
   'summer-sales-manual': 43,
 };
 
-export function TrainingTiles() {
+export function TrainingTiles({ filterRole }: TrainingTilesProps) {
   const { role, user } = useAuth();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const isManager = role === 'manager' || role === 'admin';
 
   useEffect(() => {
     const fetchCourses = async () => {
       if (!user) return;
 
       try {
-        let query = supabase
+        const { data: coursesData, error: coursesError } = await supabase
           .from('training_courses')
           .select('*')
           .eq('is_active', true)
           .order('display_order');
-
-        if (role === 'rookie') {
-          query = query.is('target_role', null);
-        }
-
-        const { data: coursesData, error: coursesError } = await query;
 
         if (coursesError) {
           console.error('Error fetching courses:', coursesError);
           return;
         }
 
+        // Filter courses based on filterRole prop
+        let filteredCourses = coursesData || [];
+        
+        if (filterRole === 'rookie') {
+          // Show only rookie courses (those in ROOKIE_COURSES or with null target_role)
+          filteredCourses = filteredCourses.filter(
+            course => ROOKIE_COURSES.includes(course.slug) || course.target_role === null
+          );
+        } else if (filterRole === 'manager') {
+          // Show only manager courses (those NOT in ROOKIE_COURSES and have manager target_role)
+          filteredCourses = filteredCourses.filter(
+            course => !ROOKIE_COURSES.includes(course.slug) && course.target_role !== null
+          );
+        }
+
         const coursesWithProgress = await Promise.all(
-          (coursesData || []).map(async (course) => {
+          filteredCourses.map(async (course) => {
             const { data: modules } = await supabase
               .from('training_modules')
               .select('id')
@@ -135,7 +147,7 @@ export function TrainingTiles() {
     };
 
     fetchCourses();
-  }, [role, user]);
+  }, [user, filterRole]);
 
   const handleCourseClick = (slug: string) => {
     navigate(`/app/training/${slug}`);
@@ -152,12 +164,20 @@ export function TrainingTiles() {
   }
 
   // Determine if a course is rookie content (always green) or manager content (blue)
-  const isRookieCourse = (slug: string, targetRole: string | null) => {
-    return ROOKIE_COURSES.includes(slug) || targetRole === null;
+  const isRookieCourse = (slug: string) => {
+    return ROOKIE_COURSES.includes(slug);
   };
 
   // Find featured course (first incomplete course)
   const featuredCourse = courses.find(c => c.progress < 100) || courses[0];
+
+  if (!featuredCourse && courses.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <p>No training courses available.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -167,14 +187,14 @@ export function TrainingTiles() {
           onClick={() => handleCourseClick(featuredCourse.slug)}
           className={cn(
             "relative p-6 rounded-xl border-2 bg-card cursor-pointer transition-all duration-300 hover:scale-[1.01]",
-            isRookieCourse(featuredCourse.slug, featuredCourse.target_role)
+            isRookieCourse(featuredCourse.slug)
               ? "border-green-500/40 shadow-[0_0_30px_-5px_rgba(34,197,94,0.2)]"
               : "border-blue-500/40 shadow-[0_0_30px_-5px_rgba(59,130,246,0.2)]"
           )}
         >
           {/* Role Pill */}
           <div className="absolute top-4 right-4">
-            {isRookieCourse(featuredCourse.slug, featuredCourse.target_role) ? (
+            {isRookieCourse(featuredCourse.slug) ? (
               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
                 ROOKIE
               </span>
@@ -188,7 +208,7 @@ export function TrainingTiles() {
           {/* Gradient overlay */}
           <div className={cn(
             "absolute inset-0 opacity-5 rounded-xl",
-            isRookieCourse(featuredCourse.slug, featuredCourse.target_role)
+            isRookieCourse(featuredCourse.slug)
               ? "bg-gradient-to-br from-green-500 to-transparent"
               : "bg-gradient-to-br from-blue-500 to-transparent"
           )} />
@@ -196,7 +216,7 @@ export function TrainingTiles() {
           <div className="relative flex items-start gap-5">
             <div className={cn(
               "p-4 rounded-xl flex-shrink-0",
-              isRookieCourse(featuredCourse.slug, featuredCourse.target_role)
+              isRookieCourse(featuredCourse.slug)
                 ? "bg-green-500/15 text-green-400"
                 : "bg-blue-500/15 text-blue-400"
             )}>
@@ -207,7 +227,7 @@ export function TrainingTiles() {
               <div className="flex items-center gap-2 mb-1">
                 <span className={cn(
                   "text-xs font-bold uppercase tracking-wider",
-                  isRookieCourse(featuredCourse.slug, featuredCourse.target_role)
+                  isRookieCourse(featuredCourse.slug)
                     ? "text-green-400"
                     : "text-blue-400"
                 )}>
@@ -216,7 +236,9 @@ export function TrainingTiles() {
               </div>
               
               <h3 className="text-xl font-bold text-foreground mb-1">
-                {featuredCourse.title.replace(' (Management Edition)', '')}
+                {featuredCourse.title
+                  .replace(' (Management Edition)', '')
+                  .replace('Management Edition - ', '')}
               </h3>
               
               <p className="text-sm text-muted-foreground mb-3">
@@ -228,7 +250,7 @@ export function TrainingTiles() {
                   size="sm"
                   className={cn(
                     "font-bold gap-2",
-                    isRookieCourse(featuredCourse.slug, featuredCourse.target_role)
+                    isRookieCourse(featuredCourse.slug)
                       ? "bg-green-500 hover:bg-green-600 text-white"
                       : "bg-blue-500 hover:bg-blue-600 text-white"
                   )}
@@ -251,7 +273,7 @@ export function TrainingTiles() {
             <div className="hidden sm:flex flex-col items-center justify-center">
               <div className={cn(
                 "text-2xl font-black",
-                isRookieCourse(featuredCourse.slug, featuredCourse.target_role)
+                isRookieCourse(featuredCourse.slug)
                   ? "text-green-400"
                   : "text-blue-400"
               )}>
@@ -266,8 +288,7 @@ export function TrainingTiles() {
       {/* Other Training Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {courses.filter(c => c.id !== featuredCourse?.id).map((course) => {
-          const isRookie = isRookieCourse(course.slug, course.target_role);
-          const colorClass = isRookie ? 'green' : 'blue';
+          const isRookie = isRookieCourse(course.slug);
           
           return (
             <div
@@ -323,7 +344,9 @@ export function TrainingTiles() {
                   "font-bold text-base text-foreground mb-2 group-hover:transition-colors pr-16",
                   isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
                 )}>
-                  {course.title.replace(' (Management Edition)', '')}
+                  {course.title
+                    .replace(' (Management Edition)', '')
+                    .replace('Management Edition - ', '')}
                 </h3>
                 
                 {course.description && (
