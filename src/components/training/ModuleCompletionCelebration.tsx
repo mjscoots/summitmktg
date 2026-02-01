@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import summitLogo from '@/assets/summit-logo-clean.png';
 
 interface ModuleCompletionCelebrationProps {
   moduleName: string;
@@ -75,17 +74,7 @@ export function ModuleCompletionCelebration({
         "relative z-10 text-center px-6 max-w-md transition-all duration-700",
         showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}>
-        {/* Logo */}
-        <div className={cn(
-          "mb-8 transition-all duration-1000",
-          showContent ? "opacity-100 scale-100" : "opacity-0 scale-75"
-        )}>
-          <img 
-            src={summitLogo} 
-            alt="Summit" 
-            className="w-24 h-24 mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
-          />
-        </div>
+        {/* Celebration Icon */}
 
         {/* Celebration Icon */}
         <div className={cn(
