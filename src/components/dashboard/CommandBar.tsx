@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Play, Flame, Users, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useStreak } from '@/hooks/useStreak';
 import { cn } from '@/lib/utils';
 
 interface CommandBarProps {
@@ -10,11 +11,11 @@ interface CommandBarProps {
 }
 
 export function CommandBar({ 
-  streak = 0, 
   signedThisWeek = 0 
 }: CommandBarProps) {
   const navigate = useNavigate();
   const { role } = useAuth();
+  const { streakData, getStreakMessage } = useStreak();
   const isManager = role === 'manager' || role === 'admin';
 
   return (
@@ -47,17 +48,33 @@ export function CommandBar({
 
       {/* Metrics */}
       <div className="flex items-center gap-3 ml-auto">
-        {/* Daily Streak */}
+        {/* Daily Streak - Now with real data */}
         <div className={cn(
-          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 cursor-default",
-          isManager
-            ? "bg-blue-500/5 border-blue-500/30"
-            : "bg-green-500/5 border-green-500/30"
+          "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 cursor-default group",
+          streakData.currentStreak > 0
+            ? isManager
+              ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_-5px_rgba(59,130,246,0.3)]"
+              : "bg-green-500/10 border-green-500/50 shadow-[0_0_15px_-5px_rgba(34,197,94,0.3)]"
+            : isManager
+              ? "bg-blue-500/5 border-blue-500/30"
+              : "bg-green-500/5 border-green-500/30"
         )}>
-          <Flame className="w-4 h-4 text-orange-400" />
+          <Flame className={cn(
+            "w-5 h-5 transition-transform group-hover:scale-110",
+            streakData.currentStreak > 0 ? "text-orange-400" : "text-muted-foreground"
+          )} />
           <div className="text-sm">
-            <span className="font-bold text-foreground">{streak}</span>
-            <span className="text-muted-foreground ml-1">Day Streak</span>
+            <span className={cn(
+              "font-black text-lg",
+              streakData.currentStreak > 0 
+                ? "text-foreground" 
+                : "text-muted-foreground"
+            )}>
+              {streakData.currentStreak}
+            </span>
+            <span className="text-muted-foreground ml-1.5">
+              {streakData.currentStreak === 1 ? 'Day' : 'Days'}
+            </span>
           </div>
         </div>
 
