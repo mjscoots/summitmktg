@@ -8,11 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Public pages
 import Index from "./pages/Index";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import RookieApplication from "./pages/RookieApplication";
-import VetApplication from "./pages/VetApplication";
-import ApplySuccess from "./pages/ApplySuccess";
+import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 
 // App pages
@@ -20,11 +16,9 @@ import DashboardPage from "./pages/app/DashboardPage";
 import TrainingPage from "./pages/app/TrainingPage";
 import TrainingCoursePage from "./pages/app/TrainingCoursePage";
 import LessonPage from "./pages/app/LessonPage";
-import ProgressPage from "./pages/app/ProgressPage";
-import AnnouncementsPage from "./pages/app/AnnouncementsPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
-import TeamPage from "./pages/app/TeamPage";
-import AdminVideos from "./pages/app/AdminVideos";
+import MyTeamPage from "./pages/app/MyTeamPage";
+import ProfilePage from "./pages/app/ProfilePage";
 import InterviewsPage from "./pages/app/InterviewsPage";
 import Interview1Page from "./pages/app/Interview1Page";
 import Interview2Page from "./pages/app/Interview2Page";
@@ -42,18 +36,12 @@ const App = () => (
           <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            
-            {/* Application routes - consolidated */}
-            <Route path="/apply" element={<RookieApplication />} />
-            <Route path="/apply/rookie" element={<RookieApplication />} />
-            <Route path="/apply/vet" element={<VetApplication />} />
-            <Route path="/apply/success" element={<ApplySuccess />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/signup" element={<AuthPage />} />
 
             {/* ========== APP - PROTECTED ROUTES ========== */}
             
-            {/* Main Dashboard - role-aware (replaces /app/rookie and /app/manager) */}
+            {/* Main Dashboard */}
             <Route path="/app" element={
               <ProtectedRoute>
                 <DashboardPage />
@@ -66,6 +54,7 @@ const App = () => (
             <Route path="/rookie" element={<Navigate to="/app" replace />} />
             <Route path="/manager" element={<Navigate to="/app" replace />} />
             <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
+            <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
             
             {/* Training */}
             <Route path="/app/training" element={
@@ -84,24 +73,17 @@ const App = () => (
               </ProtectedRoute>
             } />
             
-            {/* Progress */}
-            <Route path="/app/progress" element={
-              <ProtectedRoute>
-                <ProgressPage />
-              </ProtectedRoute>
-            } />
-            
-            {/* Team (Manager only) */}
+            {/* My Team (Manager only) */}
             <Route path="/app/team" element={
               <ProtectedRoute requiredRole="manager">
-                <TeamPage />
+                <MyTeamPage />
               </ProtectedRoute>
             } />
-            
-            {/* Announcements */}
-            <Route path="/app/announcements" element={
+
+            {/* Profile */}
+            <Route path="/app/profile" element={
               <ProtectedRoute>
-                <AnnouncementsPage />
+                <ProfilePage />
               </ProtectedRoute>
             } />
             
@@ -109,13 +91,6 @@ const App = () => (
             <Route path="/app/leaderboard" element={
               <ProtectedRoute>
                 <LeaderboardPage />
-              </ProtectedRoute>
-            } />
-            
-            {/* Admin: Manage Videos */}
-            <Route path="/app/admin/videos" element={
-              <ProtectedRoute requiredRole="manager">
-                <AdminVideos />
               </ProtectedRoute>
             } />
 

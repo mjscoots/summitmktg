@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import summitLogo from '@/assets/summit-logo-clean.png';
 
 const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
@@ -24,7 +25,8 @@ const baseNavItems = [
 const managerNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
-  { label: 'Interviews', path: '/app/interviews', icon: ClipboardList, managerOnly: true },
+  { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
+  { label: 'My Team', path: '/app/team', icon: Users },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
 ];
 
@@ -37,8 +39,6 @@ export function AppSidebar() {
 
   const isManager = role === 'manager' || role === 'admin';
   const roleLabel = isManager ? 'MANAGER' : 'ROOKIE';
-  const roleColorClass = isManager ? 'text-blue-400' : 'text-green-400';
-  const roleBgClass = isManager ? 'bg-blue-500/15' : 'bg-green-500/15';
 
   const handleSignOut = async () => {
     await signOut();
@@ -55,30 +55,32 @@ export function AppSidebar() {
   return (
     <Sidebar
       className={cn(
-        'border-r border-border bg-sidebar transition-all duration-200',
+        'border-r border-sidebar-border bg-sidebar transition-all duration-200',
         collapsed ? 'w-16' : 'w-64'
       )}
       collapsible="icon"
     >
-      <SidebarHeader className="p-4 border-b border-border">
+      <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div 
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate('/app')}
         >
-          <div className={cn(
-            "flex items-center justify-center w-10 h-10 rounded-lg font-black text-lg",
-            isManager ? "bg-blue-500/15 text-blue-400" : "bg-green-500/15 text-green-400"
-          )}>
-            S
-          </div>
+          {/* Summit Logo */}
+          <img 
+            src={summitLogo} 
+            alt="Summit" 
+            className="w-10 h-10 object-contain"
+          />
           {!collapsed && (
             <div>
-              <h1 className="text-base font-black tracking-tight">
-                SUMMIT <span className={roleColorClass}>MKTG</span>
+              <h1 className="text-base font-black tracking-tight text-foreground">
+                SUMMIT <span className="text-primary">MKTG</span>
               </h1>
               <span className={cn(
                 "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
-                roleColorClass, roleBgClass
+                isManager 
+                  ? "bg-blue-500/15 text-blue-400" 
+                  : "bg-green-500/15 text-green-400"
               )}>
                 {roleLabel}
               </span>
@@ -100,16 +102,13 @@ export function AppSidebar() {
                       className={cn(
                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 font-medium",
                         active 
-                          ? cn(
-                              "text-foreground",
-                              isManager ? "bg-blue-500/15" : "bg-green-500/15"
-                            )
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          ? "bg-primary/15 text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
                       <item.icon className={cn(
                         "w-5 h-5 flex-shrink-0",
-                        active && (isManager ? "text-blue-400" : "text-green-400")
+                        active && "text-primary"
                       )} />
                       {!collapsed && <span>{item.label}</span>}
                     </SidebarMenuButton>
@@ -121,16 +120,23 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-border">
-        <div className={cn(
-          "flex items-center gap-3 p-2 rounded-lg",
-          collapsed ? "justify-center" : ""
-        )}>
+      <SidebarFooter className="p-3 border-t border-sidebar-border">
+        {/* Clickable User Profile */}
+        <div
+          onClick={() => navigate('/app/profile')}
+          className={cn(
+            "flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:bg-muted/50",
+            collapsed ? "justify-center" : ""
+          )}
+        >
           <div className={cn(
             "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
             isManager ? "bg-blue-500/15" : "bg-green-500/15"
           )}>
-            <User className={cn("w-4 h-4", roleColorClass)} />
+            <User className={cn(
+              "w-4 h-4",
+              isManager ? "text-blue-400" : "text-green-400"
+            )} />
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
@@ -141,7 +147,10 @@ export function AppSidebar() {
             </div>
           )}
           <button
-            onClick={handleSignOut}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSignOut();
+            }}
             className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors flex-shrink-0"
             title="Sign Out"
           >
