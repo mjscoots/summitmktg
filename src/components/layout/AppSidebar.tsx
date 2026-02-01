@@ -71,7 +71,7 @@ export function AppSidebar() {
             alt="Summit Marketing" 
             className={cn(
               "object-contain transition-all duration-200",
-              collapsed ? "h-10 w-auto" : "h-16 w-auto"
+              collapsed ? "h-20 w-auto" : "h-32 w-auto"
             )}
           />
           {!collapsed && (
