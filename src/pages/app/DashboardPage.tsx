@@ -2,10 +2,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementsFeed } from '@/components/dashboard/AnnouncementsFeed';
 import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
-import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { CommandBar } from '@/components/dashboard/CommandBar';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
-import { Bell, Calendar, GraduationCap } from 'lucide-react';
+import { Bell, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -30,37 +29,12 @@ export default function DashboardPage() {
             <span className={isManager ? 'text-blue-400' : 'text-green-400'}>HOME</span>
           </h1>
           <p className="text-muted-foreground mt-1">
-            {isManager ? 'Lead your team to the summit' : 'Complete your training and climb the leaderboard'}
+            {isManager ? 'Lead your team to the summit' : 'Your status and action hub'}
           </p>
         </div>
 
-        {/* Command Bar */}
-        <CommandBar streak={0} completedPercent={0} lessonsThisWeek={0} />
-
-        {/* TRAINING SECTION - Most Important */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-5">
-            <div className={cn(
-              "p-2 rounded-lg",
-              isManager ? "bg-blue-500/15" : "bg-green-500/15"
-            )}>
-              <GraduationCap className={cn(
-                "w-6 h-6",
-                isManager ? "text-blue-400" : "text-green-400"
-              )} />
-            </div>
-            <h2 className="font-bold text-xl text-foreground">Training</h2>
-            <span className={cn(
-              "text-xs font-medium px-2 py-0.5 rounded-full",
-              isManager 
-                ? "text-blue-400 bg-blue-500/10" 
-                : "text-green-400 bg-green-500/10"
-            )}>
-              {isManager ? 'INCLUDES MANAGER CONTENT' : 'PRIORITY'}
-            </span>
-          </div>
-          <TrainingTiles />
-        </div>
+        {/* Command Bar - Left Aligned */}
+        <CommandBar streak={0} signedThisWeek={0} />
 
         {/* Announcements + Weekly Calendar Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -88,8 +62,6 @@ export default function DashboardPage() {
             <WeeklySchedule />
           </div>
         </div>
-
-        {/* Leaderboard is now ONLY in sidebar - removed from home */}
       </div>
 
       {/* AI Coach Chat */}
