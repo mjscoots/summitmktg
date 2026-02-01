@@ -187,12 +187,12 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
     return ROOKIE_COURSES.includes(slug);
   };
 
-  // Find featured course (first incomplete course, prioritizing Learn Your Pitch)
-  const featuredCourse = courses.find(c => c.progress > 0 && c.progress < 100) 
-    || courses.find(c => c.progress === 0) 
-    || courses[0];
+  // Find the primary course for border highlight only (Learn Your Pitch / Learn the Basics)
+  const primaryCourseSlug = courses.find(c => c.slug === 'learn-your-pitch')?.slug 
+    || courses.find(c => c.slug === 'learn-the-basics')?.slug 
+    || courses[0]?.slug;
 
-  if (!featuredCourse && courses.length === 0) {
+  if (courses.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <p>No training courses available.</p>
@@ -201,151 +201,49 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Featured "Continue" Card */}
-      {featuredCourse && (
-        <div 
-          onClick={() => handleCourseClick(featuredCourse.slug)}
-          className={cn(
-            "group relative p-6 rounded-xl border-2 bg-card cursor-pointer",
-            "transition-all duration-500 ease-out",
-            "hover:scale-[1.015] hover:-translate-y-1",
-            isRookieCourse(featuredCourse.slug)
-              ? "border-green-500/40 shadow-[0_0_30px_-5px_rgba(34,197,94,0.2)] hover:shadow-[0_0_50px_-5px_rgba(34,197,94,0.35)] hover:border-green-500/60"
-              : "border-blue-500/40 shadow-[0_0_30px_-5px_rgba(59,130,246,0.2)] hover:shadow-[0_0_50px_-5px_rgba(59,130,246,0.35)] hover:border-blue-500/60"
-          )}
-        >
-          {/* Role Pill */}
-          <div className="absolute top-4 right-4">
-            {isRookieCourse(featuredCourse.slug) ? (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30 transition-all duration-300 group-hover:bg-green-500/25 group-hover:border-green-500/50">
-                ROOKIE
-              </span>
-            ) : (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30 transition-all duration-300 group-hover:bg-blue-500/25 group-hover:border-blue-500/50">
-                MANAGER
-              </span>
-            )}
-          </div>
-
-          {/* Gradient overlay - animates on hover */}
-          <div className={cn(
-            "absolute inset-0 rounded-xl transition-opacity duration-500",
-            isRookieCourse(featuredCourse.slug)
-              ? "bg-gradient-to-br from-green-500 to-transparent opacity-5 group-hover:opacity-10"
-              : "bg-gradient-to-br from-blue-500 to-transparent opacity-5 group-hover:opacity-10"
-          )} />
-
-          <div className="relative flex items-start gap-5">
-            {/* Icon with hover glow */}
-            <div className={cn(
-              "p-4 rounded-xl flex-shrink-0 transition-all duration-300",
-              isRookieCourse(featuredCourse.slug)
-                ? "bg-green-500/15 text-green-400 group-hover:bg-green-500/25 group-hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.5)]"
-                : "bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25 group-hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.5)]"
-            )}>
-              <div className="transition-transform duration-300 group-hover:scale-110">
-                {COURSE_ICONS[featuredCourse.slug] || <BookOpen className="w-8 h-8" />}
-              </div>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className={cn(
-                  "text-xs font-bold uppercase tracking-wider transition-all duration-300",
-                  isRookieCourse(featuredCourse.slug)
-                    ? "text-green-400 group-hover:text-green-300"
-                    : "text-blue-400 group-hover:text-blue-300"
-                )}>
-                  {featuredCourse.progress > 0 ? 'CONTINUE' : 'START HERE'}
-                </span>
-              </div>
-              
-              <h3 className="text-xl font-bold text-foreground mb-1 transition-colors duration-300 group-hover:text-foreground/90">
-                {featuredCourse.title
-                  .replace(' (Management Edition)', '')
-                  .replace('Management Edition - ', '')}
-              </h3>
-              
-              <p className="text-sm text-muted-foreground mb-3 transition-colors duration-300 group-hover:text-muted-foreground/80">
-                Next up: {featuredCourse.description || 'Begin your training journey'}
-              </p>
-
-              <div className="flex items-center gap-4">
-                {(() => {
-                  const { text, icon: Icon } = getButtonState(featuredCourse.progress);
-                  return (
-                    <Button
-                      size="sm"
-                      className={cn(
-                        "font-bold gap-2 transition-all duration-300",
-                        "hover:translate-y-[-2px] active:translate-y-0",
-                        isRookieCourse(featuredCourse.slug)
-                          ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] hover:shadow-[0_0_35px_-5px_rgba(34,197,94,0.7)]"
-                          : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] hover:shadow-[0_0_35px_-5px_rgba(59,130,246,0.7)]"
-                      )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCourseClick(featuredCourse.slug);
-                      }}
-                    >
-                      <Icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
-                      {text}
-                    </Button>
-                  );
-                })()}
-                
-                <span className="text-sm text-muted-foreground">
-                  {featuredCourse.completedLessons} / {featuredCourse.totalLessons} lessons
-                </span>
-              </div>
-            </div>
-
-            {/* Progress circle with pulse effect */}
-            <div className="hidden sm:flex flex-col items-center justify-center">
-              <div className={cn(
-                "text-2xl font-black transition-all duration-300",
-                isRookieCourse(featuredCourse.slug)
-                  ? "text-green-400 group-hover:text-green-300 group-hover:scale-110"
-                  : "text-blue-400 group-hover:text-blue-300 group-hover:scale-110"
-              )}>
-                {featuredCourse.progress}%
-              </div>
-              <span className="text-xs text-muted-foreground transition-colors duration-300 group-hover:text-muted-foreground/80">complete</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Other Training Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
-        {courses.filter(c => c.id !== featuredCourse?.id).map((course) => {
+    <div>
+      {/* All Training Cards in Unified Grid - Equal height cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {courses.map((course) => {
           const isRookie = isRookieCourse(course.slug);
           const { text, icon: Icon } = getButtonState(course.progress);
+          const isPrimary = course.slug === primaryCourseSlug;
           
           return (
             <div
               key={course.id}
               onClick={() => handleCourseClick(course.slug)}
               className={cn(
-                "group relative bg-card rounded-xl border cursor-pointer flex flex-col min-h-[320px]",
-                "transition-all duration-500 ease-out",
-                "hover:scale-[1.03] hover:-translate-y-2",
-                course.progress === 100 
-                  ? 'border-success/40 hover:border-success/60 hover:shadow-[0_0_40px_-10px_rgba(34,197,94,0.3)]' 
-                  : isRookie
-                    ? 'border-border hover:border-green-500/50 hover:shadow-[0_0_40px_-10px_rgba(34,197,94,0.25)]'
-                    : 'border-border hover:border-blue-500/50 hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.25)]',
-                course.progress > 0 && course.progress < 100 && (
+                "group relative bg-card rounded-xl border cursor-pointer flex flex-col",
+                // Fixed height for all cards
+                "h-[340px]",
+                "transition-all duration-400 ease-out",
+                "hover:scale-[1.02] hover:-translate-y-1",
+                // Primary card (Learn Your Pitch) gets highlight border
+                isPrimary && (
+                  isRookie
+                    ? "border-2 border-green-500/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-green-500/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
+                    : "border-2 border-blue-500/50 shadow-[0_0_25px_-8px_rgba(59,130,246,0.25)] hover:border-blue-500/70 hover:shadow-[0_0_35px_-8px_rgba(59,130,246,0.35)]"
+                ),
+                // Non-primary cards
+                !isPrimary && (
+                  course.progress === 100 
+                    ? 'border border-success/40 hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.25)]' 
+                    : isRookie
+                      ? 'border border-border hover:border-green-500/40 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.2)]'
+                      : 'border border-border hover:border-blue-500/40 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]'
+                ),
+                // In-progress glow
+                !isPrimary && course.progress > 0 && course.progress < 100 && (
                   isRookie 
-                    ? 'shadow-[0_0_20px_-8px_rgba(34,197,94,0.2)]' 
-                    : 'shadow-[0_0_20px_-8px_rgba(59,130,246,0.2)]'
+                    ? 'shadow-[0_0_15px_-8px_rgba(34,197,94,0.15)]' 
+                    : 'shadow-[0_0_15px_-8px_rgba(59,130,246,0.15)]'
                 )
               )}
             >
               {/* Gradient overlay - appears on hover */}
               <div className={cn(
-                "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none",
+                "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-400 group-hover:opacity-100 pointer-events-none",
                 course.progress === 100
                   ? "bg-gradient-to-br from-success/5 to-transparent"
                   : isRookie
@@ -356,45 +254,45 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
               {/* Card Content - Flex container for perfect alignment */}
               <div className="p-5 flex flex-col h-full relative">
                 
-                {/* === HEADER REGION (fixed height) === */}
-                <div className="flex items-start justify-between mb-4 h-12">
+                {/* === HEADER REGION (fixed height ~48px) === */}
+                <div className="flex items-start justify-between mb-4 min-h-[48px]">
                   {/* Icon with hover effects */}
                   <div className={cn(
                     "p-3 rounded-xl flex-shrink-0 transition-all duration-300",
                     course.progress === 100 
-                      ? 'bg-success/20 text-success group-hover:bg-success/30 group-hover:shadow-[0_0_20px_-5px_rgba(34,197,94,0.4)]' 
+                      ? 'bg-success/20 text-success group-hover:bg-success/30' 
                       : isRookie
-                        ? 'bg-green-500/15 text-green-400 group-hover:bg-green-500/25 group-hover:shadow-[0_0_20px_-5px_rgba(34,197,94,0.4)]'
-                        : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25 group-hover:shadow-[0_0_20px_-5px_rgba(59,130,246,0.4)]'
+                        ? 'bg-green-500/15 text-green-400 group-hover:bg-green-500/25'
+                        : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25'
                   )}>
-                    <div className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                    <div className="transition-transform duration-300 group-hover:scale-110">
                       {COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />}
                     </div>
                   </div>
 
-                  {/* Role Pill with hover effect */}
+                  {/* Role Pill - top right, never overlapped */}
                   <div className="flex-shrink-0">
                     {isRookie ? (
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30 transition-all duration-300 group-hover:bg-green-500/25 group-hover:border-green-500/50">
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30 transition-all duration-300 group-hover:bg-green-500/25">
                         ROOKIE
                       </span>
                     ) : (
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30 transition-all duration-300 group-hover:bg-blue-500/25 group-hover:border-blue-500/50">
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30 transition-all duration-300 group-hover:bg-blue-500/25">
                         MANAGER
                       </span>
                     )}
                   </div>
 
-                  {/* Completion check with pulse */}
+                  {/* Completion check badge */}
                   {course.progress === 100 && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10 transition-transform duration-300 group-hover:scale-110">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
                       <span className="text-xs text-white">✓</span>
                     </div>
                   )}
                 </div>
 
-                {/* === BODY REGION (flex-grow) === */}
-                <div className="flex-1 min-h-[80px]">
+                {/* === BODY REGION (flex-grow, contains title + description) === */}
+                <div className="flex-1 min-h-0">
                   <h3 className={cn(
                     "font-bold text-base text-foreground mb-2 transition-colors duration-300",
                     isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
@@ -405,42 +303,16 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                   </h3>
                   
                   {course.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 transition-colors duration-300 group-hover:text-muted-foreground/80">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {course.description}
                     </p>
                   )}
                 </div>
 
-                {/* === PROGRESS REGION (fixed height, ~72px) === */}
-                <div className="h-[72px] flex flex-col justify-between pt-3 border-t border-border/50 transition-colors duration-300 group-hover:border-border">
-                  {/* Progress info row */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground font-medium transition-colors duration-300 group-hover:text-muted-foreground/80">
-                      {course.completedLessons} / {course.totalLessons} lessons
-                    </span>
-                    <span className={cn(
-                      "text-sm font-bold transition-all duration-300",
-                      course.progress === 100 
-                        ? 'text-success group-hover:scale-110' 
-                        : isRookie 
-                          ? 'text-green-400 group-hover:text-green-300 group-hover:scale-110' 
-                          : 'text-blue-400 group-hover:text-blue-300 group-hover:scale-110'
-                    )}>
-                      {course.progress}%
-                    </span>
-                  </div>
-                  
-                  {/* Progress bar with glow on hover */}
-                  <div className={cn(
-                    "h-2 bg-muted rounded-full overflow-hidden transition-shadow duration-300",
-                    course.progress > 0 && (
-                      course.progress === 100
-                        ? "group-hover:shadow-[0_0_10px_-2px_rgba(34,197,94,0.4)]"
-                        : isRookie
-                          ? "group-hover:shadow-[0_0_10px_-2px_rgba(34,197,94,0.4)]"
-                          : "group-hover:shadow-[0_0_10px_-2px_rgba(59,130,246,0.4)]"
-                    )
-                  )}>
+                {/* === PROGRESS REGION (fixed height ~56px) === */}
+                <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
+                  {/* Progress bar */}
+                  <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
                     <div 
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
@@ -451,28 +323,39 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                       style={{ width: `${course.progress}%` }}
                     />
                   </div>
+                  {/* Progress info row - lessons left, percentage right */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {course.completedLessons} / {course.totalLessons} lessons
+                    </span>
+                    <span className={cn(
+                      "text-xs text-muted-foreground",
+                    )}>
+                      {course.progress}% complete
+                    </span>
+                  </div>
                 </div>
 
-                {/* === FOOTER REGION (fixed height, ~48px) === */}
-                <div className="h-12 pt-3">
+                {/* === FOOTER REGION (fixed height ~44px) === */}
+                <div className="h-11 pt-3">
                   <Button
                     size="sm"
                     className={cn(
                       "w-full h-9 font-semibold gap-2",
                       "transition-all duration-300 ease-out",
-                      "hover:translate-y-[-3px] active:translate-y-0",
+                      "hover:translate-y-[-2px] active:translate-y-0",
                       course.progress === 100
-                        ? "bg-muted text-foreground hover:bg-muted/80 hover:shadow-lg"
+                        ? "bg-muted text-foreground hover:bg-muted/80"
                         : isRookie
-                          ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_-5px_rgba(34,197,94,0.6)]"
-                          : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.6)]"
+                          ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.6)]"
+                          : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.6)]"
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleCourseClick(course.slug);
                     }}
                   >
-                    <Icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+                    <Icon className="w-4 h-4" />
                     {text}
                   </Button>
                 </div>

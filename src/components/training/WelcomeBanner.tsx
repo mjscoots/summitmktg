@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Mountain, Flame, Users, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Mountain, Flame, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useStreak } from '@/hooks/useStreak';
 
@@ -56,6 +55,7 @@ export function WelcomeBanner({
 }: WelcomeBannerProps) {
   const { streakData, getStreakMessage } = useStreak();
   const [isVisible, setIsVisible] = useState(true);
+  const [isExiting, setIsExiting] = useState(false);
 
   // Find appropriate message based on lessons completed
   const currentMessage = [...JOURNEY_MESSAGES]
@@ -65,8 +65,11 @@ export function WelcomeBanner({
   const Icon = currentMessage.icon;
 
   const handleDismiss = () => {
-    setIsVisible(false);
-    setTimeout(() => onDismiss?.(), 300);
+    setIsExiting(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      onDismiss?.();
+    }, 300);
   };
 
   if (!isVisible) return null;
@@ -78,56 +81,53 @@ export function WelcomeBanner({
 
   return (
     <div className={cn(
-      "relative mb-6 p-6 rounded-xl border-2 overflow-hidden transition-all duration-300",
-      "bg-gradient-to-br from-green-500/10 via-card to-card",
-      "border-green-500/30 shadow-[0_0_40px_-15px_rgba(34,197,94,0.3)]",
-      isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+      "relative mb-6 p-5 rounded-xl overflow-hidden transition-all duration-300",
+      // Subtle, non-interactive styling - lower contrast than cards
+      "bg-muted/30 border border-border/50",
+      // No hover effects - this is informational only
+      "select-none",
+      isExiting ? "opacity-0 -translate-y-2 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"
     )}>
-      {/* Subtle glow effect */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(34,197,94,0.15)_0%,transparent_50%)]" />
+      {/* Dismiss button - top right */}
+      <button
+        onClick={handleDismiss}
+        className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+        aria-label="Dismiss banner"
+      >
+        <X className="w-4 h-4" />
+      </button>
 
-      <div className="relative flex items-start gap-4">
-        {/* Icon */}
-        <div className="p-3 rounded-xl bg-green-500/20 text-green-400 flex-shrink-0">
-          <Icon className="w-8 h-8" />
+      <div className="relative flex items-start gap-4 pr-8">
+        {/* Icon - muted styling */}
+        <div className="p-2.5 rounded-lg bg-muted/50 text-muted-foreground flex-shrink-0">
+          <Icon className="w-6 h-6" />
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-black text-foreground mb-1">
+          <h2 className="text-base font-bold text-foreground/90 mb-0.5">
             {currentMessage.title}
             {userName && lessonsCompleted === 0 && (
-              <span className="text-green-400">, {userName.split(' ')[0]}</span>
+              <span className="text-muted-foreground">, {userName.split(' ')[0]}</span>
             )}
           </h2>
-          <p className="text-muted-foreground mb-2">
+          <p className="text-sm text-muted-foreground mb-1">
             {currentMessage.message}
           </p>
-          <p className="text-sm text-green-400 font-medium">
+          <p className="text-xs text-muted-foreground/80">
             {currentMessage.subtext}
           </p>
 
           {/* Streak info */}
           {streakData.currentStreak > 0 && (
-            <div className="flex items-center gap-2 mt-3 text-sm">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <span className="text-muted-foreground">
+            <div className="flex items-center gap-2 mt-2 text-xs">
+              <Flame className="w-3.5 h-3.5 text-orange-400/70" />
+              <span className="text-muted-foreground/80">
                 {getStreakMessage()}
               </span>
             </div>
           )}
         </div>
-
-        {/* Continue Button */}
-        {lessonsCompleted > 0 && (
-          <Button
-            onClick={handleDismiss}
-            className="bg-green-500 hover:bg-green-600 font-bold gap-2 shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)]"
-          >
-            Continue
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        )}
       </div>
     </div>
   );
