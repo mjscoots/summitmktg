@@ -81,10 +81,6 @@ export function ModuleCompletionCelebration({
           {moduleName}
         </h1>
 
-        {/* Motivational message */}
-        <p className="text-muted-foreground mb-8">
-          Momentum is building. Keep pushing forward.
-        </p>
 
         {/* Next module preview */}
         {nextModuleName && (
