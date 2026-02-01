@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { DollarSign, Users, TrendingUp, Calculator, User, Percent, Briefcase } from "lucide-react";
+import { DollarSign, Users, TrendingUp, Calculator, User, Briefcase } from "lucide-react";
 
 // ============= EXACT TIER TABLES =============
 
@@ -159,7 +159,6 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
   const [avgVetPraStr, setAvgVetPraStr] = useState("275,000");
   const [numDirectManagersStr, setNumDirectManagersStr] = useState("");
   const [avgManagerTeamRevenueStr, setAvgManagerTeamRevenueStr] = useState("");
-  const [incentivesRateStr, setIncentivesRateStr] = useState("5");
 
   // Parse string values to numbers
   const personalGrossRevenue = parseFormattedNumber(personalGrossStr);
@@ -169,7 +168,9 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
   const avgVetPra = parseFormattedNumber(avgVetPraStr) || DEFAULT_AVG_VET_PRA;
   const numDirectManagers = parseFormattedNumber(numDirectManagersStr);
   const avgManagerTeamRevenue = parseFormattedNumber(avgManagerTeamRevenueStr);
-  const incentivesRate = (parseFormattedNumber(incentivesRateStr) || DEFAULT_INCENTIVES_RATE * 100) / 100;
+  
+  // Fixed 5% incentive cost - only applies to rookie revenue
+  const ROOKIE_INCENTIVES_RATE = 0.05;
 
   const handleCurrencyChange = (value: string, setter: (val: string) => void) => {
     setter(formatNumberInput(value));
@@ -185,11 +186,6 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
     if (!isNaN(parsed) && parsed >= 0) {
       setter(parsed.toString());
     }
-  };
-
-  const handlePercentChange = (value: string, setter: (val: string) => void) => {
-    const cleanValue = value.replace(/[^0-9.]/g, "");
-    setter(cleanValue);
   };
 
   // ============= PERSONAL MATH =============
@@ -211,27 +207,27 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
   // ============= TEAM EARNINGS VIA SPREAD =============
   
-  // Spread on Direct Rookies
+  // Spread on Direct Rookies (5% incentive cost applies ONLY here)
   const avgRookieActive = avgRookiePra * (1 - ATTRITION_RATE);
   const rookieCommissionRate = getRookieCommissionRate(avgRookieActive);
   const rookieGrossSpread = marketingDealRate - rookieCommissionRate;
-  const rookieNetSpread = Math.max(0, rookieGrossSpread - incentivesRate);
+  const rookieNetSpread = Math.max(0, rookieGrossSpread - ROOKIE_INCENTIVES_RATE);
   const directRookieActiveTotal = directRookieGross * (1 - ATTRITION_RATE);
   const directRookieSpreadEarnings = directRookieActiveTotal * rookieNetSpread;
 
-  // Spread on Direct Vets + Direct Managers (their personal production)
+  // Spread on Direct Vets + Direct Managers (their personal production) - NO incentive cost
   const avgVetActive = avgVetPra * (1 - ATTRITION_RATE);
   const vetManagerCommissionRate = getVetCommissionRate(avgVetActive);
   const vetManagerGrossSpread = marketingDealRate - vetManagerCommissionRate;
-  const vetManagerNetSpread = Math.max(0, vetManagerGrossSpread - incentivesRate);
+  const vetManagerNetSpread = Math.max(0, vetManagerGrossSpread); // No incentive deduction
   const directVetManagerActiveTotal = (directVetGross + directManagerGross) * (1 - ATTRITION_RATE);
   const directVetManagerSpreadEarnings = directVetManagerActiveTotal * vetManagerNetSpread;
 
-  // Spread on Managers' Teams (using direct revenue input)
+  // Spread on Managers' Teams (using direct revenue input) - NO incentive cost
   const oneManagerTeamActive = avgManagerTeamRevenue * (1 - ATTRITION_RATE);
   const managerDealRate = getMarketingDealRate(oneManagerTeamActive);
   const downlineGrossSpread = marketingDealRate - managerDealRate;
-  const downlineNetSpread = Math.max(0, downlineGrossSpread - incentivesRate);
+  const downlineNetSpread = Math.max(0, downlineGrossSpread); // No incentive deduction
   const oneManagerTeamSpreadEarnings = oneManagerTeamActive * downlineNetSpread;
   const totalManagerTeamSpreadEarnings = oneManagerTeamSpreadEarnings * numDirectManagers;
 
@@ -411,25 +407,6 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
             </div>
           </div>
 
-          {/* Incentives Cost % */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Percent className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Incentives Cost %</h4>
-            </div>
-            <p className="text-xs text-muted-foreground mb-2">Deducted from your spread (default 5%).</p>
-            <div className="relative">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={incentivesRateStr}
-                onChange={e => handlePercentChange(e.target.value, setIncentivesRateStr)}
-                className="input-field pr-8"
-                placeholder="Example: 5"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -496,7 +473,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
             <p className="text-primary font-bold uppercase text-xs mb-2">Spreads</p>
             <div className="space-y-2 font-mono text-xs">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Direct Rookies ({(rookieNetSpread * 100).toFixed(1)}% net)</span>
+                <span className="text-muted-foreground">Direct Rookies ({(rookieNetSpread * 100).toFixed(1)}% net, incl. 5% incentive)</span>
                 <span className="text-foreground">{formatCurrency(directRookieActiveTotal)} × {(rookieNetSpread * 100).toFixed(1)}% = {formatCurrency(directRookieSpreadEarnings)}</span>
               </div>
               <div className="flex justify-between">
