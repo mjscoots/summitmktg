@@ -67,12 +67,9 @@ export default function LessonPage() {
 
         setLesson(lessonData);
 
-        // Fetch quiz questions (safe view without answers)
+        // Fetch quiz questions using secure RPC (excludes correct answers)
         const { data: questionsData, error: questionsError } = await supabase
-          .from('quiz_questions_safe')
-          .select('*')
-          .eq('lesson_id', lessonId)
-          .order('display_order');
+          .rpc('get_quiz_questions', { _lesson_id: lessonId });
 
         if (!questionsError && questionsData) {
           setQuestions(questionsData as unknown as QuizQuestion[]);

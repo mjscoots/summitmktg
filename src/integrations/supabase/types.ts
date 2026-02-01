@@ -660,6 +660,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_quiz_questions: {
+        Args: { _lesson_id: string }
+        Returns: {
+          display_order: number
+          id: string
+          lesson_id: string
+          options: Json
+          question_text: string
+          question_type: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
