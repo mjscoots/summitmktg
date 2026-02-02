@@ -66,8 +66,14 @@ export const PILLAR_OWNERS: Record<string, string> = {
 
 // Name variants for pillar owners (normalized form -> canonical name)
 export const PILLAR_OWNER_VARIANTS: Record<string, string> = {
+  // Liam James Gardner variants (Paper Route owner)
   'liam gardner': 'Liam James Gardner',
   'liam james gardner': 'Liam James Gardner',
+  'william james gardner': 'Liam James Gardner',
+  'william gardner': 'Liam James Gardner',
+  // Cole Wesley Bundren variants (Altitude owner)
+  'cole bundren': 'Cole Wesley Bundren',
+  'cole wesley bundren': 'Cole Wesley Bundren',
 };
 
 // ============================================================
