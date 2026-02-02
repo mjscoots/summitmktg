@@ -125,6 +125,71 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_attendance: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          event_date: string
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          event_date: string
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          event_date?: string
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leaderboard_points: {
         Row: {
           call_attendance_points: number | null

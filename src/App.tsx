@@ -17,6 +17,7 @@ import TrainingPage from "./pages/app/TrainingPage";
 import TrainingCoursePage from "./pages/app/TrainingCoursePage";
 import LessonPage from "./pages/app/LessonPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
+import CalendarPage from "./pages/app/CalendarPage";
 import MyTeamPage from "./pages/app/MyTeamPage";
 import ProfilePage from "./pages/app/ProfilePage";
 import InterviewsPage from "./pages/app/InterviewsPage";
@@ -91,6 +92,13 @@ const App = () => (
             <Route path="/app/leaderboard" element={
               <ProtectedRoute>
                 <LeaderboardPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Calendar */}
+            <Route path="/app/calendar" element={
+              <ProtectedRoute>
+                <CalendarPage />
               </ProtectedRoute>
             } />
 

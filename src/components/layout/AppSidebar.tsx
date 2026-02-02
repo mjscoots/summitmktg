@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, ChevronRight } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, ChevronRight, Calendar } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,7 @@ const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
 ];
 
 const managerNavItems = [
@@ -28,6 +29,7 @@ const managerNavItems = [
   { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
   { label: 'My Team', path: '/app/team', icon: Users },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
 ];
 
 export function AppSidebar() {
@@ -60,12 +62,12 @@ export function AppSidebar() {
       )}
       collapsible="icon"
     >
-      {/* Header: Logo + Role */}
+      {/* Header: Logo centered + Role left-aligned */}
       <SidebarHeader className="px-4 pt-5 pb-4 border-b border-border/20">
         <div 
           className={cn(
             "flex flex-col cursor-pointer",
-            collapsed ? "items-center" : "items-start"
+            collapsed ? "items-center" : "items-center"
           )}
           onClick={() => navigate('/app')}
         >
@@ -74,11 +76,11 @@ export function AppSidebar() {
             alt="Summit" 
             className={cn(
               "object-contain transition-all duration-200",
-              collapsed ? "h-8 w-auto" : "h-12 w-auto"
+              collapsed ? "h-10 w-auto" : "h-16 w-auto"
             )}
           />
           {!collapsed && (
-            <span className="mt-2 text-[10px] font-semibold text-primary tracking-[0.15em] uppercase">
+            <span className="mt-2 text-[10px] font-semibold text-primary tracking-[0.15em] uppercase text-left w-full pl-1">
               {roleLabel}
             </span>
           )}
@@ -97,10 +99,10 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={() => navigate(item.path)}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 group",
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 group relative",
                         active 
                           ? "bg-primary/20 text-white"
-                          : "text-white/90 hover:bg-primary/10 hover:text-primary"
+                          : "text-white/90 hover:text-primary"
                       )}
                     >
                       {/* Active indicator */}
@@ -142,9 +144,17 @@ export function AppSidebar() {
           )}
         >
           {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30">
-            <User className="w-4 h-4 text-primary" strokeWidth={1.75} />
-          </div>
+          {profile?.avatar_url ? (
+            <img 
+              src={profile.avatar_url} 
+              alt="Avatar" 
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-primary/30"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30">
+              <User className="w-4 h-4 text-primary" strokeWidth={1.75} />
+            </div>
+          )}
           
           {!collapsed && (
             <>
@@ -161,7 +171,7 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Logout button - separate for clarity */}
+        {/* Logout button */}
         <button
           onClick={handleSignOut}
           className={cn(
