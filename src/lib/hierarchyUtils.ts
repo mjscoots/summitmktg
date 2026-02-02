@@ -61,7 +61,17 @@ export const PILLAR_OWNERS: Record<string, string> = {
   'atlas': 'Sean Douglas Jablonski',
   'apex': 'Hunter Terry Shannon',
   'minions': 'Colton Joyce',
-  'paper-route': 'William James Gardner',
+  'paper-route': 'Liam Gardner',
+};
+
+// ============================================================
+// SECTION 2b: MANAGER REDIRECTS
+// ============================================================
+// Some managers should redirect their reports to different managers
+// e.g., anyone under Joshua Robert Heacox should be marked as direct to Joshua Bingham
+export const MANAGER_REDIRECTS: Record<string, string> = {
+  'joshua robert heacox': 'Joshua Bingham',
+  'joshua heacox': 'Joshua Bingham',
 };
 
 // Get all pillar owner names (normalized)
@@ -94,6 +104,7 @@ export function isTopAdmin(name: string | null | undefined): boolean {
 }
 
 // Normalize manager name - if it matches root variants, return canonical form
+// Also applies manager redirects (e.g., Joshua Robert Heacox → Joshua Bingham)
 export function normalizeManagerName(name: string | null | undefined): string {
   if (!name) return '';
   const normalized = normalizeName(name);
@@ -103,7 +114,25 @@ export function normalizeManagerName(name: string | null | undefined): string {
     return CANONICAL_ROOT_NORMALIZED;
   }
   
+  // Check for manager redirects
+  if (MANAGER_REDIRECTS[normalized]) {
+    return normalizeName(MANAGER_REDIRECTS[normalized]);
+  }
+  
   return normalized;
+}
+
+// Get the effective manager name after redirects
+export function getEffectiveManager(managerName: string | null | undefined): string | null {
+  if (!managerName) return null;
+  const normalized = normalizeName(managerName);
+  
+  // Check for redirects first
+  if (MANAGER_REDIRECTS[normalized]) {
+    return MANAGER_REDIRECTS[normalized];
+  }
+  
+  return managerName;
 }
 
 // Check if two names match (case-insensitive, normalized)
