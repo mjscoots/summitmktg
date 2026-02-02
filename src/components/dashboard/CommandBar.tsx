@@ -20,21 +20,22 @@ export function CommandBar({
 
   return (
     <div className="flex flex-wrap items-center gap-3 mb-8">
-      {/* Primary: Resume Training */}
+      {/* Primary: Resume Training - Outline style */}
       <Button
         onClick={() => navigate('/app/training')}
-        className="btn-primary font-bold gap-2"
+        variant="outline"
+        className="font-bold gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
       >
         <Play className="w-4 h-4" />
         Resume Training
       </Button>
 
-      {/* Manager: Sign a Rep - Routes to Interview Resources */}
+      {/* Manager: Sign a Rep - Outline style */}
       {isManager && (
         <Button
           variant="outline"
           onClick={() => navigate('/app/interviews')}
-          className="btn-secondary font-semibold gap-2"
+          className="font-semibold gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
         >
           <UserPlus className="w-4 h-4" />
           Sign a Rep

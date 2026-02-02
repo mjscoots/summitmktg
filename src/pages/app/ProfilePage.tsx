@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, Mail, Phone, FileText, Lock, Camera, Loader2, CheckCircle2 } from 'lucide-react';
+import { User, FileText, Lock, Camera, Loader2, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
   const { user, profile, role, isLoading: authLoading } = useAuth();
   
   // Profile state
@@ -29,6 +27,9 @@ export default function ProfilePage() {
   // Loading states
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isManager = role === 'manager' || role === 'admin';
 
@@ -109,35 +110,59 @@ export default function ProfilePage() {
       return;
     }
 
-    try {
-      // Upload to storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError, data } = await supabase.storage
-        .from('training-videos')
-        .upload(`avatars/${fileName}`, file, { upsert: true });
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
 
-      if (uploadError) throw uploadError;
+    setIsUploadingAvatar(true);
+
+    try {
+      // Create unique filename with user id folder structure
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      // Upload to avatars bucket
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('training-videos')
-        .getPublicUrl(`avatars/${fileName}`);
+        .from('avatars')
+        .getPublicUrl(fileName);
 
-      // Update profile
+      // Update profile with new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({ 
+          avatar_url: publicUrl,
+          updated_at: new Date().toISOString()
+        })
         .eq('user_id', user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw updateError;
+      }
 
       setAvatarUrl(publicUrl);
-      toast.success('Photo uploaded');
+      toast.success('Photo uploaded successfully');
     } catch (err) {
-      toast.error('Failed to upload photo');
-      console.error(err);
+      console.error('Avatar upload error:', err);
+      toast.error('Failed to upload photo. Please try again.');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -164,11 +189,15 @@ export default function ProfilePage() {
         <div className="bg-card rounded-xl border border-border/50 p-6 mb-6">
           <div className="flex items-center gap-4">
             <div className="relative">
-              {avatarUrl ? (
+              {isUploadingAvatar ? (
+                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : avatarUrl ? (
                 <img 
                   src={avatarUrl} 
                   alt="Profile" 
-                  className="w-20 h-20 rounded-full object-cover"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-primary/30"
                 />
               ) : (
                 <div className={cn(
@@ -184,10 +213,12 @@ export default function ProfilePage() {
               <label className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/85 transition-colors">
                 <Camera className="w-4 h-4 text-primary-foreground" />
                 <input 
+                  ref={fileInputRef}
                   type="file" 
                   accept="image/*" 
                   className="hidden" 
                   onChange={handleAvatarUpload}
+                  disabled={isUploadingAvatar}
                 />
               </label>
             </div>
@@ -199,6 +230,9 @@ export default function ProfilePage() {
               )}>
                 {isManager ? 'MANAGER' : 'ROOKIE'}
               </span>
+              <p className="text-xs text-muted-foreground mt-1">
+                Click the camera icon to upload a new photo
+              </p>
             </div>
           </div>
         </div>
@@ -242,6 +276,18 @@ export default function ProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 123-4567"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Bio
+              </label>
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Tell us about yourself..."
+                className="min-h-[80px]"
               />
             </div>
 

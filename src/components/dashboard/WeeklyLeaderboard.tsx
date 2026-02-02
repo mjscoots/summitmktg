@@ -16,15 +16,12 @@ interface LeaderboardEntry {
     full_name: string;
     avatar_url: string | null;
   } | null;
-  role: 'rookie' | 'manager';
 }
 
 export function WeeklyLeaderboard() {
-  const { role, user } = useAuth();
+  const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const isManager = role === 'manager' || role === 'admin';
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -83,18 +80,15 @@ export function WeeklyLeaderboard() {
           (rolesRes.data || []).map(r => [r.user_id, r.role])
         );
 
-        const entries: LeaderboardEntry[] = pointsData.map(p => ({
-          ...p,
-          profile: profilesMap.get(p.user_id) || null,
-          role: (rolesMap.get(p.user_id) as 'rookie' | 'manager') || 'rookie'
-        }));
+        // Filter to ONLY show rookies - managers never appear
+        const rookieEntries: LeaderboardEntry[] = pointsData
+          .filter(p => rolesMap.get(p.user_id) === 'rookie')
+          .map(p => ({
+            ...p,
+            profile: profilesMap.get(p.user_id) || null,
+          }));
 
-        // Filter based on viewer's role
-        const filteredEntries = isManager 
-          ? entries 
-          : entries.filter(e => e.role === 'rookie');
-
-        setLeaderboard(filteredEntries);
+        setLeaderboard(rookieEntries);
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -103,7 +97,7 @@ export function WeeklyLeaderboard() {
     };
 
     fetchLeaderboard();
-  }, [user, isManager]);
+  }, [user]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -162,15 +156,6 @@ export function WeeklyLeaderboard() {
                 </span>
                 {isCurrentUser && (
                   <span className="text-xs text-primary">(You)</span>
-                )}
-                {isManager && (
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${
-                    entry.role === 'manager' 
-                      ? 'bg-blue-500/10 text-blue-400' 
-                      : 'bg-green-500/10 text-green-400'
-                  }`}>
-                    {entry.role === 'manager' ? 'MGR' : 'RKE'}
-                  </span>
                 )}
               </div>
               <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">

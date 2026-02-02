@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Pencil, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Pencil, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 
@@ -97,7 +97,7 @@ export default function InterviewsPage() {
         {/* Content */}
         {activeTab === 'forms' ? (
           <>
-            {/* Interview Cards - Equal height grid */}
+            {/* Interview Cards - Equal height grid with dark blue badges */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
               {interviewCards.map((card) => (
                 <div
@@ -105,10 +105,10 @@ export default function InterviewsPage() {
                   className="flex flex-col bg-card border border-border/50 rounded-xl p-5 card-hover cursor-pointer group"
                   onClick={() => navigate(card.path)}
                 >
-                  {/* Number Badge + Title */}
+                  {/* Number Badge (dark blue) + Title */}
                   <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
-                      <span className="text-black font-bold text-lg">{card.number}</span>
+                    <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-lg">{card.number}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground">{card.title}</h3>
@@ -138,7 +138,7 @@ export default function InterviewsPage() {
             <div className="bg-card border border-border/50 rounded-xl p-5">
               <h3 className="font-semibold text-foreground mb-3">Interview Process</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Complete each interview form in sequence during your recruiting process. Responses are saved automatically and can be reviewed by managers.
+                Complete each interview form during your recruiting process. Select the interview you need - no sequence required.
               </p>
               <div className="space-y-2">
                 {[
@@ -147,8 +147,8 @@ export default function InterviewsPage() {
                   { num: 3, text: 'Final decision and onboarding' },
                 ].map((item) => (
                   <div key={item.num} className="flex items-center gap-3 text-sm">
-                    <div className="w-6 h-6 rounded bg-primary/15 flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary font-semibold text-xs">{item.num}</span>
+                    <div className="w-6 h-6 rounded bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-semibold text-xs">{item.num}</span>
                     </div>
                     <span className="text-foreground">Interview {item.num}</span>
                     <span className="text-muted-foreground">— {item.text}</span>
