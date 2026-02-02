@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, ChevronRight } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -55,42 +55,41 @@ export function AppSidebar() {
   return (
     <Sidebar
       className={cn(
-        'border-r border-sidebar-border bg-sidebar transition-all duration-200',
-        collapsed ? 'w-16' : 'w-64'
+        'border-r border-border/30 bg-black transition-all duration-200',
+        collapsed ? 'w-14' : 'w-52'
       )}
       collapsible="icon"
     >
-      <SidebarHeader className="p-4 border-b border-sidebar-border">
+      {/* Header: Logo + Role */}
+      <SidebarHeader className="px-4 pt-5 pb-4 border-b border-border/20">
         <div 
-          className="flex flex-col items-center gap-2 cursor-pointer"
+          className={cn(
+            "flex flex-col cursor-pointer",
+            collapsed ? "items-center" : "items-start"
+          )}
           onClick={() => navigate('/app')}
         >
-          {/* Summit Logo */}
           <img 
             src={summitLogo} 
-            alt="Summit Marketing" 
+            alt="Summit" 
             className={cn(
               "object-contain transition-all duration-200",
-              collapsed ? "h-12 w-auto" : "h-20 w-auto"
+              collapsed ? "h-8 w-auto" : "h-12 w-auto"
             )}
           />
           {!collapsed && (
-            <span className={cn(
-              "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
-              isManager 
-                ? "bg-primary/15 text-primary" 
-                : "bg-green-500/15 text-green-400"
-            )}>
+            <span className="mt-2 text-[10px] font-semibold text-primary tracking-[0.15em] uppercase">
               {roleLabel}
             </span>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-3 py-4">
+      {/* Navigation */}
+      <SidebarContent className="px-2 py-3">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="space-y-0.5">
               {(isManager ? managerNavItems : baseNavItems).map((item) => {
                 const active = isActive(item.path);
                 return (
@@ -98,17 +97,31 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={() => navigate(item.path)}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 font-medium",
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 group",
                         active 
-                          ? "bg-primary/15 text-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          ? "bg-primary/20 text-white"
+                          : "text-white/90 hover:bg-primary/10 hover:text-primary"
                       )}
                     >
-                      <item.icon className={cn(
-                        "w-5 h-5 flex-shrink-0",
-                        active && "text-primary"
+                      {/* Active indicator */}
+                      <div className={cn(
+                        "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full transition-all",
+                        active ? "bg-primary" : "bg-transparent"
                       )} />
-                      {!collapsed && <span>{item.label}</span>}
+                      
+                      <item.icon className={cn(
+                        "w-[18px] h-[18px] flex-shrink-0 transition-colors",
+                        active ? "text-primary" : "text-white/80 group-hover:text-primary"
+                      )} strokeWidth={1.75} />
+                      
+                      {!collapsed && (
+                        <span className={cn(
+                          "text-sm font-medium transition-colors",
+                          active ? "text-white" : "group-hover:text-primary"
+                        )}>
+                          {item.label}
+                        </span>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -118,43 +131,48 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-sidebar-border">
-        {/* Clickable User Profile */}
+      {/* Account Panel */}
+      <SidebarFooter className="p-2 border-t border-border/20">
         <div
           onClick={() => navigate('/app/profile')}
           className={cn(
-            "flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200 hover:bg-muted/50",
+            "flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-all duration-200 group",
+            "hover:bg-primary/10",
             collapsed ? "justify-center" : ""
           )}
         >
-          <div className={cn(
-            "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
-            isManager ? "bg-blue-500/15" : "bg-green-500/15"
-          )}>
-            <User className={cn(
-              "w-4 h-4",
-              isManager ? "text-blue-400" : "text-green-400"
-            )} />
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30">
+            <User className="w-4 h-4 text-primary" strokeWidth={1.75} />
           </div>
+          
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {profile?.full_name || 'User'}
-              </p>
-              <p className="text-xs text-muted-foreground">{roleLabel}</p>
-            </div>
+            <>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate group-hover:text-primary transition-colors">
+                  {profile?.full_name || 'User'}
+                </p>
+                <p className="text-[10px] font-medium text-primary tracking-wide uppercase">
+                  {roleLabel}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-primary transition-colors flex-shrink-0" strokeWidth={1.75} />
+            </>
           )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSignOut();
-            }}
-            className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors flex-shrink-0"
-            title="Sign Out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
         </div>
+
+        {/* Logout button - separate for clarity */}
+        <button
+          onClick={handleSignOut}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2 mt-1 rounded-md transition-all duration-200",
+            "text-white/60 hover:text-white hover:bg-white/5",
+            collapsed ? "justify-center" : ""
+          )}
+        >
+          <LogOut className="w-[18px] h-[18px]" strokeWidth={1.75} />
+          {!collapsed && <span className="text-sm">Log out</span>}
+        </button>
       </SidebarFooter>
     </Sidebar>
   );
