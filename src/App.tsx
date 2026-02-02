@@ -24,6 +24,7 @@ import LessonPage from "./pages/app/LessonPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
 import CalendarPage from "./pages/app/CalendarPage";
 import MyTeamPage from "./pages/app/MyTeamPage";
+import MembersPage from "./pages/app/MembersPage";
 import ProfilePage from "./pages/app/ProfilePage";
 import InterviewsPage from "./pages/app/InterviewsPage";
 import Interview1Page from "./pages/app/Interview1Page";
@@ -89,6 +90,13 @@ const App = () => (
             <Route path="/app/team" element={
               <ProtectedRoute requiredRole="manager">
                 <MyTeamPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Members Directory (Manager only) */}
+            <Route path="/app/members" element={
+              <ProtectedRoute requiredRole="manager">
+                <MembersPage />
               </ProtectedRoute>
             } />
 

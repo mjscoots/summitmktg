@@ -1,183 +1,152 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, ChevronDown, ChevronRight, User } from 'lucide-react';
+import { Users, Search, AlertTriangle, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-
-interface TeamMember {
-  id: string;
-  user_id: string;
-  full_name: string;
-  email: string;
-  status: string | null;
-  experience: string | null;
-  direct_manager: string | null;
-  lessonsCompleted: number;
-  totalLessons: number;
-}
+import { PillarCard } from '@/components/team/PillarCard';
+import { PillarTreeView } from '@/components/team/PillarTreeView';
+import { DataIssuesPanel } from '@/components/team/DataIssuesPanel';
+import {
+  TeamMember,
+  Pillar,
+  PILLAR_OWNERS,
+  normalizeName,
+  namesMatch,
+  findPersonByName,
+  buildTree,
+  getDescendants,
+  isManager,
+  assignPillarsToRoster,
+} from '@/lib/hierarchyUtils';
 
 export default function MyTeamPage() {
   const { role, profile, isLoading: authLoading } = useAuth();
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
+  const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedManagers, setExpandedManagers] = useState<Set<string>>(new Set());
+  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
+  const [showDataIssues, setShowDataIssues] = useState(true);
+  const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
 
-  const isManager = role === 'manager' || role === 'admin';
-
+  // Fetch all data
   useEffect(() => {
-    const fetchTeamMembers = async () => {
-      if (!profile?.full_name) return;
-
+    const fetchData = async () => {
       try {
-        // Fetch profiles
-        let query = supabase
+        // Fetch all non-NLC profiles
+        const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('*')
           .neq('status', 'nlc')
           .order('full_name');
 
-        // If regular manager, only show people who report to them
-        if (role === 'manager') {
-          query = query.eq('direct_manager', profile.full_name);
-        }
+        if (profilesError) throw profilesError;
 
-        const { data: profiles, error } = await query;
+        // Fetch pillars (teams)
+        const { data: teamsData, error: teamsError } = await supabase
+          .from('teams')
+          .select('*')
+          .order('name');
 
-        if (error) {
-          console.error('Error fetching team:', error);
-          return;
-        }
+        if (teamsError) throw teamsError;
 
-        // Get total lessons count once
-        const { count: totalLessons } = await supabase
-          .from('training_lessons')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
+        // Fetch all user roles to identify managers
+        const { data: rolesData } = await supabase
+          .from('user_roles')
+          .select('user_id, role');
 
-        // Get lesson progress for each user
-        const membersWithProgress: TeamMember[] = [];
+        const managerUserIds = new Set(
+          (rolesData || [])
+            .filter(r => r.role === 'manager' || r.role === 'admin')
+            .map(r => r.user_id)
+        );
+        setManagerRoles(managerUserIds);
 
-        for (const p of profiles || []) {
-          const { count: completedLessons } = await supabase
-            .from('lesson_progress')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', p.user_id)
-            .eq('quiz_passed', true);
+        const members: TeamMember[] = (profiles || []).map(p => ({
+          id: p.id,
+          user_id: p.user_id,
+          full_name: p.full_name,
+          email: p.email,
+          status: p.status,
+          experience: p.experience,
+          direct_manager: p.direct_manager,
+          role: managerUserIds.has(p.user_id) ? 'manager' : 'rookie',
+        }));
 
-          membersWithProgress.push({
-            id: p.id,
-            user_id: p.user_id,
-            full_name: p.full_name,
-            email: p.email,
-            status: p.status,
-            experience: p.experience,
-            direct_manager: p.direct_manager,
-            lessonsCompleted: completedLessons || 0,
-            totalLessons: totalLessons || 0,
-          });
-        }
-
-        setTeamMembers(membersWithProgress);
+        setAllMembers(members);
+        setPillars(teamsData || []);
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Error fetching team data:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (!authLoading) {
-      fetchTeamMembers();
+      fetchData();
     }
-  }, [profile, role, authLoading]);
+  }, [authLoading]);
 
-  const filteredMembers = teamMembers.filter(member =>
-    member.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Assign pillars to all members
+  const { enrichedRoster, dataIssues } = useMemo(() => {
+    if (allMembers.length === 0 || pillars.length === 0) {
+      return { enrichedRoster: [], dataIssues: [] };
+    }
+    return assignPillarsToRoster(allMembers, pillars);
+  }, [allMembers, pillars]);
 
-  // Group by direct manager for tree view
-  const directReports = filteredMembers.filter(m => m.direct_manager === profile?.full_name);
-  const otherMembers = filteredMembers.filter(m => m.direct_manager !== profile?.full_name);
-
-  // Group others by their manager
-  const groupedByManager = otherMembers.reduce((acc, member) => {
-    const manager = member.direct_manager || 'Unassigned';
-    if (!acc[manager]) acc[manager] = [];
-    acc[manager].push(member);
-    return acc;
-  }, {} as Record<string, TeamMember[]>);
-
-  const toggleManager = (manager: string) => {
-    setExpandedManagers(prev => {
-      const next = new Set(prev);
-      if (next.has(manager)) {
-        next.delete(manager);
-      } else {
-        next.add(manager);
-      }
-      return next;
+  // Build pillar data with counts
+  const pillarData: Pillar[] = useMemo(() => {
+    return pillars.map(p => {
+      const ownerName = PILLAR_OWNERS[p.slug];
+      const owner = findPersonByName(enrichedRoster, ownerName);
+      const members = enrichedRoster.filter(m => m.pillar === p.slug);
+      
+      // Count managers vs rookies - anyone with direct reports is a "manager" in the tree
+      const managerCount = members.filter(m => 
+        isManager(enrichedRoster, m.full_name) || m.role === 'manager'
+      ).length;
+      
+      return {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        leader_id: p.leader_id,
+        owner,
+        members,
+        totalCount: members.length,
+        rookieCount: members.length - managerCount,
+        managerCount,
+      };
     });
-  };
+  }, [pillars, enrichedRoster]);
 
-  const getStatusBadge = (status: string | null) => {
-    const statusMap: Record<string, { label: string; className: string }> = {
-      active: { label: 'Active', className: 'bg-success/15 text-success' },
-      onboarded: { label: 'Onboarded', className: 'bg-primary/15 text-primary' },
-      contract_signed: { label: 'Contract Signed', className: 'bg-amber-500/15 text-amber-400' },
-      info_added: { label: 'Info Added', className: 'bg-amber-500/15 text-amber-400' },
-    };
-    const s = statusMap[status || ''] || { label: 'Pending', className: 'bg-muted text-muted-foreground' };
-    return (
-      <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', s.className)}>
-        {s.label}
-      </span>
+  // Build tree for selected pillar
+  const selectedPillarData = useMemo(() => {
+    if (!selectedPillar) return null;
+    return pillarData.find(p => p.slug === selectedPillar) || null;
+  }, [selectedPillar, pillarData]);
+
+  const selectedTree = useMemo(() => {
+    if (!selectedPillarData) return null;
+    const ownerName = PILLAR_OWNERS[selectedPillarData.slug];
+    return buildTree(enrichedRoster, ownerName);
+  }, [selectedPillarData, enrichedRoster]);
+
+  // Filter pillars by search
+  const filteredPillars = useMemo(() => {
+    if (!searchQuery) return pillarData;
+    const query = normalizeName(searchQuery);
+    return pillarData.filter(p => 
+      normalizeName(p.name).includes(query) ||
+      (p.owner && normalizeName(p.owner.full_name).includes(query)) ||
+      p.members.some(m => normalizeName(m.full_name).includes(query))
     );
-  };
+  }, [pillarData, searchQuery]);
 
-  const getExperienceBadge = (exp: string | null) => {
-    if (!exp) return null;
-    return (
-      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">
-        {exp}
-      </span>
-    );
-  };
-
-  const MemberRow = ({ member }: { member: TeamMember }) => {
-    const progressPercent = member.totalLessons > 0
-      ? Math.round((member.lessonsCompleted / member.totalLessons) * 100)
-      : 0;
-
-    return (
-      <div className="flex items-center gap-4 py-3 px-4 hover:bg-muted/30 transition-colors rounded-lg">
-        <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-          <User className="w-4 h-4 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground truncate">{member.full_name}</p>
-          <p className="text-sm text-muted-foreground truncate">{member.email}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {getExperienceBadge(member.experience)}
-          {getStatusBadge(member.status)}
-        </div>
-        <div className="flex items-center gap-3 min-w-[120px]">
-          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {progressPercent}%
-          </span>
-        </div>
-      </div>
-    );
-  };
+  // Unassigned members
+  const unassignedMembers = enrichedRoster.filter(m => m.pillar === 'unassigned');
 
   if (authLoading) {
     return (
@@ -189,90 +158,123 @@ export default function MyTeamPage() {
 
   return (
     <AppLayout>
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-foreground flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/15">
-              <Users className="w-5 h-5 text-primary" />
+        {!selectedPillar && (
+          <>
+            <div className="mb-8">
+              <h1 className="text-2xl font-semibold text-foreground flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/15">
+                  <Building2 className="w-5 h-5 text-primary" />
+                </div>
+                Team Pillars
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1">
+                View organizational structure by pillar
+              </p>
             </div>
-            My Team
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            View everyone assigned under you
-          </p>
-        </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
+            {/* Search */}
+            <div className="mb-6">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search pillars or members..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Data Issues Panel */}
+            {showDataIssues && dataIssues.length > 0 && (
+              <div className="mb-6">
+                <DataIssuesPanel 
+                  issues={dataIssues} 
+                  onClose={() => setShowDataIssues(false)} 
+                />
+              </div>
+            )}
+          </>
+        )}
 
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="animate-pulse text-muted-foreground">Loading team...</div>
+            <div className="animate-pulse text-muted-foreground">Loading team data...</div>
           </div>
-        ) : filteredMembers.length === 0 ? (
-          <div className="text-center py-12 bg-card rounded-xl border border-border/50">
-            <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">
-              {searchQuery ? 'No team members match your search' : 'No team members found'}
-            </p>
-          </div>
+        ) : selectedPillar && selectedPillarData ? (
+          // Pillar Tree View
+          <PillarTreeView
+            pillar={selectedPillarData}
+            tree={selectedTree}
+            roster={enrichedRoster}
+            onBack={() => setSelectedPillar(null)}
+          />
         ) : (
+          // Pillar Cards Grid
           <div className="space-y-6">
-            {/* Direct Reports */}
-            {directReports.length > 0 && (
-              <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
-                <div className="px-4 py-3 border-b border-border/50 bg-muted/30">
-                  <h2 className="font-semibold text-foreground text-sm">
-                    Direct Reports ({directReports.length})
-                  </h2>
-                </div>
-                <div className="divide-y divide-border/30">
-                  {directReports.map(member => (
-                    <MemberRow key={member.id} member={member} />
-                  ))}
-                </div>
+            {/* Stats Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-card rounded-xl border border-border/50 p-4">
+                <p className="text-sm text-muted-foreground">Total Members</p>
+                <p className="text-2xl font-bold text-foreground">{enrichedRoster.length}</p>
               </div>
-            )}
+              <div className="bg-card rounded-xl border border-border/50 p-4">
+                <p className="text-sm text-muted-foreground">Pillars</p>
+                <p className="text-2xl font-bold text-foreground">{pillars.length}</p>
+              </div>
+              <div className="bg-card rounded-xl border border-border/50 p-4">
+                <p className="text-sm text-muted-foreground">Managers</p>
+                <p className="text-2xl font-bold text-primary">
+                  {enrichedRoster.filter(m => isManager(enrichedRoster, m.full_name)).length}
+                </p>
+              </div>
+              <div className="bg-card rounded-xl border border-border/50 p-4">
+                <p className="text-sm text-muted-foreground">Rookies</p>
+                <p className="text-2xl font-bold text-success">
+                  {enrichedRoster.filter(m => !isManager(enrichedRoster, m.full_name)).length}
+                </p>
+              </div>
+            </div>
 
-            {/* Team Tree - For admins */}
-            {role === 'admin' && Object.keys(groupedByManager).length > 0 && (
-              <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
-                <div className="px-4 py-3 border-b border-border/50 bg-muted/30">
-                  <h2 className="font-semibold text-foreground text-sm">Team Tree</h2>
+            {/* Pillar Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPillars.map(pillar => (
+                <PillarCard
+                  key={pillar.id}
+                  pillar={pillar}
+                  onClick={() => setSelectedPillar(pillar.slug)}
+                />
+              ))}
+            </div>
+
+            {/* Unassigned Section */}
+            {unassignedMembers.length > 0 && (
+              <div className="bg-card rounded-xl border border-amber-500/30 p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <h3 className="font-semibold text-foreground">
+                    Unassigned Members ({unassignedMembers.length})
+                  </h3>
                 </div>
-                <div>
-                  {Object.entries(groupedByManager).map(([manager, members]) => (
-                    <div key={manager}>
-                      <button
-                        onClick={() => toggleManager(manager)}
-                        className="w-full flex items-center gap-2 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
-                      >
-                        {expandedManagers.has(manager) ? (
-                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
-                        <span className="font-medium text-foreground">{manager}</span>
-                        <span className="text-xs text-muted-foreground">({members.length})</span>
-                      </button>
-                      {expandedManagers.has(manager) && (
-                        <div className="pl-6 border-l-2 border-border/30 ml-4">
-                          {members.map(member => (
-                            <MemberRow key={member.id} member={member} />
-                          ))}
-                        </div>
-                      )}
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {unassignedMembers.map(member => (
+                    <div 
+                      key={member.id}
+                      className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-amber-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {member.full_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Manager: {member.direct_manager || 'None'}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
