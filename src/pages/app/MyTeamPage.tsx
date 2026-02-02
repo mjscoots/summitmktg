@@ -2,11 +2,13 @@ import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, Building2 } from 'lucide-react';
+import { Users, Search, AlertTriangle, Building2, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { PillarCard } from '@/components/team/PillarCard';
 import { PillarTreeView } from '@/components/team/PillarTreeView';
 import { DataIssuesPanel } from '@/components/team/DataIssuesPanel';
+import { HierarchyDiagnosticsPanel } from '@/components/team/HierarchyDiagnosticsPanel';
 import {
   TeamMember,
   Pillar,
@@ -18,7 +20,11 @@ import {
   getDescendants,
   isManager,
   assignPillarsToRoster,
+  generateHierarchyDiagnostics,
+  getEffectiveManager,
+  isNLC,
 } from '@/lib/hierarchyUtils';
+import { cn } from '@/lib/utils';
 
 export default function MyTeamPage() {
   const { role, profile, isLoading: authLoading } = useAuth();
@@ -28,72 +34,89 @@ export default function MyTeamPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   const [showDataIssues, setShowDataIssues] = useState(true);
+  const [showNLC, setShowNLC] = useState(true); // Show NLC by default (greyed out)
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
 
+  const isAdmin = role === 'admin';
+
   // Fetch all data
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch all profiles (including NLC for display purposes)
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('full_name');
+
+      if (profilesError) throw profilesError;
+
+      // Fetch pillars (teams)
+      const { data: teamsData, error: teamsError } = await supabase
+        .from('teams')
+        .select('*')
+        .order('name');
+
+      if (teamsError) throw teamsError;
+
+      // Fetch all user roles to identify managers
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      const managerUserIds = new Set(
+        (rolesData || [])
+          .filter(r => r.role === 'manager' || r.role === 'admin')
+          .map(r => r.user_id)
+      );
+      setManagerRoles(managerUserIds);
+
+      const members: TeamMember[] = (profiles || []).map(p => ({
+        id: p.id,
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        status: p.status,
+        experience: p.experience,
+        direct_manager: getEffectiveManager(p.direct_manager), // Apply redirects!
+        role: managerUserIds.has(p.user_id) ? 'manager' : 'rookie',
+        isNLC: p.status === 'nlc',
+      }));
+
+      setAllMembers(members);
+      setPillars(teamsData || []);
+    } catch (err) {
+      console.error('Error fetching team data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch all non-NLC profiles
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .neq('status', 'nlc')
-          .order('full_name');
-
-        if (profilesError) throw profilesError;
-
-        // Fetch pillars (teams)
-        const { data: teamsData, error: teamsError } = await supabase
-          .from('teams')
-          .select('*')
-          .order('name');
-
-        if (teamsError) throw teamsError;
-
-        // Fetch all user roles to identify managers
-        const { data: rolesData } = await supabase
-          .from('user_roles')
-          .select('user_id, role');
-
-        const managerUserIds = new Set(
-          (rolesData || [])
-            .filter(r => r.role === 'manager' || r.role === 'admin')
-            .map(r => r.user_id)
-        );
-        setManagerRoles(managerUserIds);
-
-        const members: TeamMember[] = (profiles || []).map(p => ({
-          id: p.id,
-          user_id: p.user_id,
-          full_name: p.full_name,
-          email: p.email,
-          status: p.status,
-          experience: p.experience,
-          direct_manager: p.direct_manager,
-          role: managerUserIds.has(p.user_id) ? 'manager' : 'rookie',
-        }));
-
-        setAllMembers(members);
-        setPillars(teamsData || []);
-      } catch (err) {
-        console.error('Error fetching team data:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (!authLoading) {
       fetchData();
     }
   }, [authLoading]);
 
+  // Filter members based on NLC toggle
+  const visibleMembers = useMemo(() => {
+    if (showNLC) return allMembers;
+    return allMembers.filter(m => m.status !== 'nlc');
+  }, [allMembers, showNLC]);
+
   // Assign pillars to all members
   const { enrichedRoster, dataIssues } = useMemo(() => {
-    if (allMembers.length === 0 || pillars.length === 0) {
+    if (visibleMembers.length === 0 || pillars.length === 0) {
       return { enrichedRoster: [], dataIssues: [] };
     }
-    return assignPillarsToRoster(allMembers, pillars);
+    return assignPillarsToRoster(visibleMembers, pillars);
+  }, [visibleMembers, pillars]);
+
+  // Generate diagnostics
+  const diagnostics = useMemo(() => {
+    if (allMembers.length === 0 || pillars.length === 0) return null;
+    return generateHierarchyDiagnostics(allMembers, pillars);
   }, [allMembers, pillars]);
 
   // Build pillar data with counts
@@ -103,7 +126,7 @@ export default function MyTeamPage() {
       const owner = findPersonByName(enrichedRoster, ownerName);
       const members = enrichedRoster.filter(m => m.pillar === p.slug);
       
-      // Count managers vs rookies - anyone with direct reports is a "manager" in the tree
+      // Count managers vs rookies
       const managerCount = members.filter(m => 
         isManager(enrichedRoster, m.full_name) || m.role === 'manager'
       ).length;
@@ -148,6 +171,9 @@ export default function MyTeamPage() {
   // Unassigned members
   const unassignedMembers = enrichedRoster.filter(m => m.pillar === 'unassigned');
 
+  // NLC members count
+  const nlcCount = allMembers.filter(m => m.status === 'nlc').length;
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -174,9 +200,9 @@ export default function MyTeamPage() {
               </p>
             </div>
 
-            {/* Search */}
-            <div className="mb-6">
-              <div className="relative max-w-md">
+            {/* Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search pillars or members..."
@@ -185,7 +211,45 @@ export default function MyTeamPage() {
                   className="pl-10"
                 />
               </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNLC(!showNLC)}
+                  className={cn(
+                    "gap-2",
+                    showNLC && "bg-muted"
+                  )}
+                >
+                  {showNLC ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  NLC ({nlcCount})
+                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDiagnostics(!showDiagnostics)}
+                    className={cn(
+                      "gap-2",
+                      showDiagnostics && "bg-muted"
+                    )}
+                  >
+                    Diagnostics
+                  </Button>
+                )}
+              </div>
             </div>
+
+            {/* Diagnostics Panel (Admin only) */}
+            {isAdmin && showDiagnostics && diagnostics && (
+              <div className="mb-6">
+                <HierarchyDiagnosticsPanel
+                  diagnostics={diagnostics}
+                  onRefresh={fetchData}
+                  isLoading={isLoading}
+                />
+              </div>
+            )}
 
             {/* Data Issues Panel */}
             {showDataIssues && dataIssues.length > 0 && (
@@ -215,7 +279,7 @@ export default function MyTeamPage() {
           // Pillar Cards Grid
           <div className="space-y-6">
             {/* Stats Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-card rounded-xl border border-border/50 p-4">
                 <p className="text-sm text-muted-foreground">Total Members</p>
                 <p className="text-2xl font-bold text-foreground">{enrichedRoster.length}</p>
@@ -233,8 +297,15 @@ export default function MyTeamPage() {
               <div className="bg-card rounded-xl border border-border/50 p-4">
                 <p className="text-sm text-muted-foreground">Rookies</p>
                 <p className="text-2xl font-bold text-success">
-                  {enrichedRoster.filter(m => !isManager(enrichedRoster, m.full_name)).length}
+                  {enrichedRoster.filter(m => !isManager(enrichedRoster, m.full_name) && m.status !== 'nlc').length}
                 </p>
+              </div>
+              <div className={cn(
+                "bg-card rounded-xl border p-4",
+                showNLC ? "border-muted-foreground/30" : "border-border/50"
+              )}>
+                <p className="text-sm text-muted-foreground">NLC</p>
+                <p className="text-2xl font-bold text-muted-foreground">{nlcCount}</p>
               </div>
             </div>
 
@@ -251,9 +322,9 @@ export default function MyTeamPage() {
 
             {/* Unassigned Section */}
             {unassignedMembers.length > 0 && (
-              <div className="bg-card rounded-xl border border-amber-500/30 p-4">
+              <div className="bg-card rounded-xl border border-destructive/30 p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
                   <h3 className="font-semibold text-foreground">
                     Unassigned Members ({unassignedMembers.length})
                   </h3>
@@ -262,14 +333,22 @@ export default function MyTeamPage() {
                   {unassignedMembers.map(member => (
                     <div 
                       key={member.id}
-                      className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg"
+                      className={cn(
+                        "flex items-center gap-3 p-2 bg-muted/30 rounded-lg",
+                        member.isNLC && "opacity-50"
+                      )}
                     >
-                      <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-amber-400" />
+                      <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-destructive" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">
                           {member.full_name}
+                          {member.isNLC && (
+                            <span className="ml-2 text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                              NLC
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
                           Manager: {member.direct_manager || 'None'}

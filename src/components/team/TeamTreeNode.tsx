@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, User, Crown, AlertTriangle } from 'lucide-react';
+import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 import { getStatusInfo } from '@/lib/hierarchyUtils';
@@ -15,6 +15,7 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
   const [expanded, setExpanded] = useState(isRoot || depth < 2);
   const hasChildren = member.children && member.children.length > 0;
   const statusInfo = getStatusInfo(member.status);
+  const isNLC = member.status === 'nlc' || member.isNLC;
 
   return (
     <div className={cn("relative", depth > 0 && "ml-6")}>
@@ -30,7 +31,8 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
         className={cn(
           "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
           hasChildren && "cursor-pointer hover:bg-muted/30",
-          isRoot && "bg-primary/10 border border-primary/20"
+          isRoot && "bg-primary/10 border border-primary/20",
+          isNLC && "opacity-50"
         )}
         onClick={() => hasChildren && setExpanded(!expanded)}
       >
@@ -50,9 +52,17 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
         {/* Avatar */}
         <div className={cn(
           "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-          isRoot ? "bg-amber-500/20" : isManager ? "bg-primary/20" : "bg-success/20"
+          isNLC 
+            ? "bg-muted" 
+            : isRoot 
+              ? "bg-amber-500/20" 
+              : isManager 
+                ? "bg-primary/20" 
+                : "bg-success/20"
         )}>
-          {isRoot ? (
+          {isNLC ? (
+            <UserX className="w-4 h-4 text-muted-foreground" />
+          ) : isRoot ? (
             <Crown className="w-4 h-4 text-amber-400" />
           ) : (
             <User className={cn("w-4 h-4", isManager ? "text-primary" : "text-success")} />
@@ -64,12 +74,16 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
           <div className="flex items-center gap-2">
             <span className={cn(
               "font-medium truncate",
-              isManager ? "text-primary" : "text-success"
+              isNLC 
+                ? "text-muted-foreground" 
+                : isManager 
+                  ? "text-primary" 
+                  : "text-success"
             )}>
               {member.full_name}
             </span>
             {member.dataIssue && (
-              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" />
             )}
           </div>
           <p className="text-xs text-muted-foreground truncate">{member.email}</p>
@@ -77,12 +91,14 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
 
         {/* Badges */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className={cn(
-            "text-xs font-medium px-2 py-0.5 rounded-full",
-            isManager ? "bg-primary/15 text-primary" : "bg-success/15 text-success"
-          )}>
-            {isManager ? 'Manager' : 'Rookie'}
-          </span>
+          {!isNLC && (
+            <span className={cn(
+              "text-xs font-medium px-2 py-0.5 rounded-full",
+              isManager ? "bg-primary/15 text-primary" : "bg-success/15 text-success"
+            )}>
+              {isManager ? 'Manager' : 'Rookie'}
+            </span>
+          )}
           <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", statusInfo.className)}>
             {statusInfo.label}
           </span>

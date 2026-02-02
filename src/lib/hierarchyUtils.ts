@@ -14,6 +14,7 @@ export interface TeamMember {
   pillar?: string;
   pillarId?: string;
   dataIssue?: string;
+  isNLC?: boolean;
 }
 
 export interface Pillar {
@@ -28,16 +29,26 @@ export interface Pillar {
   managerCount: number;
 }
 
+export interface HierarchyDiagnostics {
+  totalMembers: number;
+  totalManagers: number;
+  totalRookies: number;
+  nlcCount: number;
+  unresolvedManagerRefs: { name: string; referencedBy: string[] }[];
+  pillarsWithMissingOwners: string[];
+  deprecatedManagerRefs: { deprecated: string; rewrittenTo: string; affectedCount: number }[];
+  pillarStats: { slug: string; name: string; count: number; hasOwner: boolean }[];
+}
+
 // ============================================================
 // SECTION 1: CANONICAL ROOT DEFINITION
 // ============================================================
 
-// The ONE and ONLY canonical root user (normalized form)
+// The ONE and ONLY canonical root user
 export const CANONICAL_ROOT_NAME = 'Mathew Daniel Joyce';
 export const CANONICAL_ROOT_NORMALIZED = 'mathew daniel joyce';
 
 // All name variants that should resolve to the canonical root
-// These are treated as THE SAME PERSON
 export const ROOT_NAME_VARIANTS = [
   'mathew daniel joyce',
   'matthew daniel joyce',
@@ -46,6 +57,7 @@ export const ROOT_NAME_VARIANTS = [
   'matt joyce',
   'matthew joyce (manager)',
   'mathew joyce (manager)',
+  'scoots',  // Display alias
 ];
 
 // ============================================================
@@ -54,49 +66,87 @@ export const ROOT_NAME_VARIANTS = [
 
 // Pillar owners mapping - source of truth
 // All pillar owners report directly to Mathew Daniel Joyce
+// NOTE: Use canonical display names here - the alias system handles DB variations
 export const PILLAR_OWNERS: Record<string, string> = {
   'mafia': 'Luc Robert Chevalier',
   'quality-control': 'Joshua Bingham',
-  'altitude': 'Cole Wesley Bundren',
+  'altitude': 'Cole Wesley Bundren',  // NOTE: May not exist in DB yet
   'atlas': 'Sean Douglas Jablonski',
   'apex': 'Hunter Terry Shannon',
   'minions': 'Colton Joyce',
-  'paper-route': 'Liam James Gardner',
+  'paper-route': 'Liam Gardner',  // Same person as William James Gardner in DB
 };
 
-// Name variants for pillar owners (normalized form -> canonical name)
-export const PILLAR_OWNER_VARIANTS: Record<string, string> = {
-  // Liam James Gardner variants (Paper Route owner)
-  'liam gardner': 'Liam James Gardner',
-  'liam james gardner': 'Liam James Gardner',
-  'william james gardner': 'Liam James Gardner',
-  'william gardner': 'Liam James Gardner',
-  // Cole Wesley Bundren variants (Altitude owner)
-  'cole bundren': 'Cole Wesley Bundren',
+// ============================================================
+// SECTION 2b: COMPREHENSIVE NAME ALIAS SYSTEM
+// ============================================================
+
+// ALL name variants mapping (normalized lowercase -> canonical name)
+// This is the SINGLE SOURCE OF TRUTH for name resolution
+export const NAME_ALIASES: Record<string, string> = {
+  // === ROOT ADMIN (Mathew Daniel Joyce) ===
+  'mathew daniel joyce': 'Mathew Daniel Joyce',
+  'matthew daniel joyce': 'Mathew Daniel Joyce',
+  'matthew joyce': 'Mathew Daniel Joyce',
+  'mathew joyce': 'Mathew Daniel Joyce',
+  'matt joyce': 'Mathew Daniel Joyce',
+  'matthew joyce manager': 'Mathew Daniel Joyce',
+  'mathew joyce manager': 'Mathew Daniel Joyce',
+  'scoots': 'Mathew Daniel Joyce',
+  
+  // === Luc Robert Chevalier (Mafia) ===
+  'luc robert chevalier': 'Luc Robert Chevalier',
+  'luc chevalier': 'Luc Robert Chevalier',
+  'luke chevalier': 'Luc Robert Chevalier',
+  'luke robert chevalier': 'Luc Robert Chevalier',
+  
+  // === Joshua Bingham (Quality Control) ===
+  'joshua bingham': 'Joshua Bingham',
+  'josh bingham': 'Joshua Bingham',
+  
+  // === Cole Wesley Bundren (Altitude) ===
   'cole wesley bundren': 'Cole Wesley Bundren',
+  'cole bundren': 'Cole Wesley Bundren',
+  
+  // === Sean Douglas Jablonski (Atlas) ===
+  'sean douglas jablonski': 'Sean Douglas Jablonski',
+  'sean jablonski': 'Sean Douglas Jablonski',
+  
+  // === Hunter Terry Shannon (Apex) ===
+  'hunter terry shannon': 'Hunter Terry Shannon',
+  'hunter shannon': 'Hunter Terry Shannon',
+  
+  // === Colton Joyce (Minions) ===
+  'colton joyce': 'Colton Joyce',
+  
+  // === Liam Gardner / William James Gardner (Paper Route) ===
+  // Per user confirmation: these are THE SAME PERSON
+  'liam gardner': 'Liam Gardner',
+  'liam james gardner': 'Liam Gardner',
+  'william james gardner': 'Liam Gardner',
+  'william gardner': 'Liam Gardner',
+  'will gardner': 'Liam Gardner',
 };
 
 // ============================================================
-// SECTION 2b: MANAGER REDIRECTS
+// SECTION 2c: DEPRECATED MANAGER REDIRECTS
 // ============================================================
-// Some managers should redirect their reports to different managers
-// e.g., anyone under Joshua Robert Heacox should be marked as direct to Joshua Bingham
-export const MANAGER_REDIRECTS: Record<string, string> = {
-  'joshua robert heacox': 'Joshua Bingham',
-  'joshua heacox': 'Joshua Bingham',
-};
 
-// Get all pillar owner names (normalized)
-export const PILLAR_OWNER_NAMES_NORMALIZED = Object.values(PILLAR_OWNERS).map(n => normalizeName(n));
+// Managers who have been removed - their reports get reassigned
+// Format: normalized deprecated name -> { rewriteTo: canonical name, reason: string }
+export const DEPRECATED_MANAGERS: Record<string, { rewriteTo: string; reason: string }> = {
+  'joshua robert heacox': { rewriteTo: 'Joshua Bingham', reason: 'Terminated - all reports reassigned' },
+  'joshua heacox': { rewriteTo: 'Joshua Bingham', reason: 'Terminated - all reports reassigned' },
+  'josh heacox': { rewriteTo: 'Joshua Bingham', reason: 'Terminated - all reports reassigned' },
+  'joshua robert hecocks': { rewriteTo: 'Joshua Bingham', reason: 'Terminated - all reports reassigned' },
+  'joshua hecocks': { rewriteTo: 'Joshua Bingham', reason: 'Terminated - all reports reassigned' },
+};
 
 // ============================================================
 // SECTION 3: NAME NORMALIZATION (CRITICAL)
 // ============================================================
 
-// Normalize name for comparison - handles:
-// - Case sensitivity
-// - Extra spaces
-// - Punctuation differences
+// Normalize name for comparison
 export function normalizeName(name: string | null | undefined): string {
   if (!name) return '';
   return name
@@ -108,78 +158,76 @@ export function normalizeName(name: string | null | undefined): string {
     .trim();
 }
 
-// Check if a name matches the canonical root (Mathew Daniel Joyce)
-export function isTopAdmin(name: string | null | undefined): boolean {
-  if (!name) return false;
-  const normalized = normalizeName(name);
-  return ROOT_NAME_VARIANTS.includes(normalized);
-}
-
-// Normalize manager name - if it matches root variants, return canonical form
-// Also applies manager redirects (e.g., Joshua Robert Heacox → Joshua Bingham)
-// And pillar owner variants (e.g., Liam Gardner → Liam James Gardner)
-export function normalizeManagerName(name: string | null | undefined): string {
+// Get the canonical name for any input (resolves all aliases)
+export function getCanonicalName(name: string | null | undefined): string {
   if (!name) return '';
   const normalized = normalizeName(name);
   
-  // If this is a root variant, return the canonical root name
-  if (ROOT_NAME_VARIANTS.includes(normalized)) {
-    return CANONICAL_ROOT_NORMALIZED;
+  // Check if it's an alias
+  if (NAME_ALIASES[normalized]) {
+    return NAME_ALIASES[normalized];
   }
   
-  // Check for manager redirects
-  if (MANAGER_REDIRECTS[normalized]) {
-    return normalizeName(MANAGER_REDIRECTS[normalized]);
+  // Check if it's a deprecated manager
+  if (DEPRECATED_MANAGERS[normalized]) {
+    return DEPRECATED_MANAGERS[normalized].rewriteTo;
   }
   
-  // Check for pillar owner variants
-  if (PILLAR_OWNER_VARIANTS[normalized]) {
-    return normalizeName(PILLAR_OWNER_VARIANTS[normalized]);
-  }
-  
-  return normalized;
+  // Return the original name with proper casing (title case)
+  return name.trim();
 }
 
-// Get the effective manager name after redirects
+// Check if a name matches the canonical root
+export function isTopAdmin(name: string | null | undefined): boolean {
+  if (!name) return false;
+  const canonical = getCanonicalName(name);
+  return canonical === CANONICAL_ROOT_NAME;
+}
+
+// Check if a name is a deprecated manager
+export function isDeprecatedManager(name: string | null | undefined): { isDeprecated: boolean; rewriteTo?: string; reason?: string } {
+  if (!name) return { isDeprecated: false };
+  const normalized = normalizeName(name);
+  const deprecated = DEPRECATED_MANAGERS[normalized];
+  if (deprecated) {
+    return { isDeprecated: true, rewriteTo: deprecated.rewriteTo, reason: deprecated.reason };
+  }
+  return { isDeprecated: false };
+}
+
+// Get effective manager name (applies redirects and aliases)
 export function getEffectiveManager(managerName: string | null | undefined): string | null {
   if (!managerName) return null;
-  const normalized = normalizeName(managerName);
   
-  // Check for redirects first
-  if (MANAGER_REDIRECTS[normalized]) {
-    return MANAGER_REDIRECTS[normalized];
+  const { isDeprecated, rewriteTo } = isDeprecatedManager(managerName);
+  if (isDeprecated && rewriteTo) {
+    return rewriteTo;
   }
   
-  return managerName;
+  return getCanonicalName(managerName);
 }
 
-// Check if two names match (case-insensitive, normalized)
-// Also handles root name variants
+// Check if two names match (using canonical resolution)
 export function namesMatch(name1: string | null | undefined, name2: string | null | undefined): boolean {
   if (!name1 || !name2) return false;
   
-  const norm1 = normalizeManagerName(name1);
-  const norm2 = normalizeManagerName(name2);
+  const canonical1 = getCanonicalName(name1);
+  const canonical2 = getCanonicalName(name2);
   
-  return norm1 === norm2;
+  return normalizeName(canonical1) === normalizeName(canonical2);
 }
 
-// Fuzzy match for partial names (e.g., "Matt Joyce" matches "Mathew Daniel Joyce")
+// Fuzzy match for partial names
 function fuzzyNameMatch(input: string, target: string): boolean {
   const normInput = normalizeName(input);
   const normTarget = normalizeName(target);
   
-  // Exact match
   if (normInput === normTarget) return true;
-  
-  // One contains the other
   if (normTarget.includes(normInput) || normInput.includes(normTarget)) return true;
   
-  // Check first/last name match
   const inputParts = normInput.split(' ');
   const targetParts = normTarget.split(' ');
   
-  // If all input parts are found in target parts
   if (inputParts.every(part => targetParts.some(tp => tp.startsWith(part) || tp === part))) {
     return true;
   }
@@ -191,21 +239,20 @@ function fuzzyNameMatch(input: string, target: string): boolean {
 // SECTION 4: ROSTER LOOKUP FUNCTIONS
 // ============================================================
 
-// Find a person by name in the roster (normalized)
-// Uses fuzzy matching if exact match fails
+// Find a person by name in the roster (using canonical resolution)
 export function findPersonByName(roster: TeamMember[], name: string | null | undefined): TeamMember | undefined {
   if (!name) return undefined;
   
-  // First check if this is the root admin (handle all variants)
-  if (isTopAdmin(name)) {
-    return roster.find(p => isTopAdmin(p.full_name));
-  }
+  const canonicalName = getCanonicalName(name);
+  const normalized = normalizeName(canonicalName);
   
-  const normalized = normalizeName(name);
-  
-  // Try exact match first
-  const exactMatch = roster.find(p => normalizeName(p.full_name) === normalized);
+  // First try exact canonical match
+  const exactMatch = roster.find(p => normalizeName(getCanonicalName(p.full_name)) === normalized);
   if (exactMatch) return exactMatch;
+  
+  // Try direct normalized match
+  const directMatch = roster.find(p => normalizeName(p.full_name) === normalized);
+  if (directMatch) return directMatch;
   
   // Try fuzzy match
   const fuzzyMatch = roster.find(p => fuzzyNameMatch(name, p.full_name));
@@ -214,33 +261,27 @@ export function findPersonByName(roster: TeamMember[], name: string | null | und
   return undefined;
 }
 
-// Find a person including NLC users (for traversal purposes)
-// NLC users should not block traversal
-export function findPersonForTraversal(roster: TeamMember[], allMembers: TeamMember[], name: string | null | undefined): TeamMember | undefined {
-  // First try active roster
-  const active = findPersonByName(roster, name);
-  if (active) return active;
-  
-  // Then try all members (including NLC) for traversal
-  const anyMatch = findPersonByName(allMembers, name);
-  return anyMatch;
+// Check if a person is NLC
+export function isNLC(person: TeamMember): boolean {
+  return person.status === 'nlc';
 }
 
 // ============================================================
 // SECTION 5: HIERARCHY TRAVERSAL
 // ============================================================
 
-// Walk the manager chain to find which pillar a person belongs to
-// Rules:
-// - All paths MUST resolve to Mathew Daniel Joyce
-// - NLC users do not block traversal
-// - Pillar owners report directly to root
+// Get all pillar owner names (canonical)
+export function getPillarOwnerNames(): string[] {
+  return Object.values(PILLAR_OWNERS);
+}
+
+// Find which pillar a person belongs to
 export function findPillarForPerson(
   person: TeamMember,
   roster: TeamMember[],
-  pillarOwnerNames: string[],
   maxDepth: number = 25
 ): { pillar: string | null; chain: string[]; issue?: string } {
+  const pillarOwnerNames = getPillarOwnerNames();
   const chain: string[] = [];
   let current: TeamMember | undefined = person;
   let depth = 0;
@@ -249,7 +290,6 @@ export function findPillarForPerson(
   while (current && depth < maxDepth) {
     const currentNorm = normalizeName(current.full_name);
     
-    // Prevent infinite loops
     if (visited.has(currentNorm)) {
       return { pillar: null, chain, issue: 'Circular reference detected' };
     }
@@ -258,87 +298,46 @@ export function findPillarForPerson(
 
     // Check if current person IS the root admin
     if (isTopAdmin(current.full_name)) {
-      // This person is at the top - no pillar needed (they own all pillars)
       return { pillar: 'root', chain };
     }
 
     // Check if current person is a pillar owner
-    const ownerMatch = pillarOwnerNames.find(ownerName => 
-      namesMatch(current!.full_name, ownerName)
-    );
-    
-    if (ownerMatch) {
-      // Found the pillar owner - return the pillar
-      const pillarEntry = Object.entries(PILLAR_OWNERS).find(([_, name]) => 
-        namesMatch(name, ownerMatch)
-      );
-      return { pillar: pillarEntry ? pillarEntry[0] : null, chain };
-    }
-
-    // Check if current person's manager is the root admin
-    if (current.direct_manager && isTopAdmin(current.direct_manager)) {
-      // This person reports to root - check if they are a pillar owner
-      const directOwnerMatch = pillarOwnerNames.find(ownerName => 
-        namesMatch(current!.full_name, ownerName)
-      );
-      if (directOwnerMatch) {
-        const pillarEntry = Object.entries(PILLAR_OWNERS).find(([_, name]) => 
-          namesMatch(name, directOwnerMatch)
-        );
-        return { pillar: pillarEntry ? pillarEntry[0] : null, chain };
-      }
-      
-      // Reports to root but isn't a pillar owner - assign to closest known pillar
-      // This should not happen in a clean dataset, but handle gracefully
-      return { pillar: null, chain, issue: 'Reports to root but not a pillar owner' };
-    }
-
-    // Check if manager is a pillar owner by name (even if not in roster)
-    if (current.direct_manager) {
-      const managerIsPillarOwner = pillarOwnerNames.find(ownerName =>
-        namesMatch(current!.direct_manager, ownerName)
-      );
-      if (managerIsPillarOwner) {
-        const pillarEntry = Object.entries(PILLAR_OWNERS).find(([_, name]) => 
-          namesMatch(name, managerIsPillarOwner)
-        );
-        return { pillar: pillarEntry ? pillarEntry[0] : null, chain };
+    const canonicalCurrent = getCanonicalName(current.full_name);
+    for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
+      if (namesMatch(canonicalCurrent, ownerName)) {
+        return { pillar: slug, chain };
       }
     }
 
-    // Move up the chain
+    // Move up to manager
     if (!current.direct_manager) {
       return { pillar: null, chain, issue: 'No manager specified' };
     }
     
-    const manager = findPersonByName(roster, current.direct_manager);
-    if (!manager) {
-      // Manager not found - but check if it's a known pillar owner name
-      const missingIsPillarOwner = pillarOwnerNames.find(ownerName =>
-        namesMatch(current!.direct_manager, ownerName)
-      );
-      if (missingIsPillarOwner) {
-        const pillarEntry = Object.entries(PILLAR_OWNERS).find(([_, name]) => 
-          namesMatch(name, missingIsPillarOwner)
-        );
-        return { pillar: pillarEntry ? pillarEntry[0] : null, chain };
-      }
-      
-      // Check if manager is the root admin
-      if (isTopAdmin(current.direct_manager)) {
-        // Person reports directly to root - they might be a pillar owner
-        const directOwnerMatch = pillarOwnerNames.find(ownerName => 
-          namesMatch(current!.full_name, ownerName)
-        );
-        if (directOwnerMatch) {
-          const pillarEntry = Object.entries(PILLAR_OWNERS).find(([_, name]) => 
-            namesMatch(name, directOwnerMatch)
-          );
-          return { pillar: pillarEntry ? pillarEntry[0] : null, chain };
+    // Apply deprecated manager redirect
+    const effectiveManager = getEffectiveManager(current.direct_manager);
+    
+    // Check if manager is root
+    if (effectiveManager && isTopAdmin(effectiveManager)) {
+      // Person reports to root - check if they are a pillar owner
+      for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
+        if (namesMatch(current.full_name, ownerName)) {
+          return { pillar: slug, chain };
         }
       }
-      
-      // Manager truly not found - flag but attach to root
+      return { pillar: null, chain, issue: 'Reports to root but not a pillar owner' };
+    }
+    
+    // Check if manager is a pillar owner (even if not in roster)
+    for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
+      if (effectiveManager && namesMatch(effectiveManager, ownerName)) {
+        return { pillar: slug, chain };
+      }
+    }
+
+    const manager = findPersonByName(roster, effectiveManager);
+    if (!manager) {
+      // Manager not found - flag issue
       return { pillar: null, chain, issue: `Manager "${current.direct_manager}" not found in dataset` };
     }
     
@@ -369,7 +368,8 @@ export function buildTree(
     
     const children = roster.filter(p => {
       const pNorm = normalizeName(p.full_name);
-      return namesMatch(p.direct_manager, person.full_name) && 
+      const effectiveManager = getEffectiveManager(p.direct_manager);
+      return namesMatch(effectiveManager, person.full_name) && 
              !visited.has(pNorm) &&
              !namesMatch(p.full_name, person.full_name);
     });
@@ -395,10 +395,11 @@ export function getDescendants(
   const collect = (name: string, depth: number) => {
     if (depth > maxDepth) return;
     
-    const directReports = roster.filter(p => 
-      namesMatch(p.direct_manager, name) && 
-      !visited.has(normalizeName(p.full_name))
-    );
+    const directReports = roster.filter(p => {
+      const effectiveManager = getEffectiveManager(p.direct_manager);
+      return namesMatch(effectiveManager, name) && 
+             !visited.has(normalizeName(p.full_name));
+    });
 
     for (const report of directReports) {
       visited.add(normalizeName(report.full_name));
@@ -413,79 +414,73 @@ export function getDescendants(
 
 // Determine if a person is a manager (has direct reports)
 export function isManager(roster: TeamMember[], personName: string): boolean {
-  return roster.some(p => namesMatch(p.direct_manager, personName));
+  return roster.some(p => {
+    const effectiveManager = getEffectiveManager(p.direct_manager);
+    return namesMatch(effectiveManager, personName);
+  });
 }
 
 // ============================================================
 // SECTION 7: PILLAR ASSIGNMENT (WITH FULL RESOLUTION)
 // ============================================================
 
-// Assign pillars to all members
-// RULES:
-// - NO unassigned members after processing
-// - All paths must resolve to root
-// - Flag issues but still assign
 export function assignPillarsToRoster(
   roster: TeamMember[],
   pillars: { id: string; slug: string; name: string }[]
 ): { enrichedRoster: TeamMember[]; dataIssues: { person: TeamMember; issue: string }[] } {
-  const pillarOwnerNames = Object.values(PILLAR_OWNERS);
+  const pillarOwnerNames = getPillarOwnerNames();
   const dataIssues: { person: TeamMember; issue: string }[] = [];
 
   const enrichedRoster = roster.map(person => {
+    const personWithNLC = {
+      ...person,
+      isNLC: person.status === 'nlc',
+    };
+    
     // Check if this person IS the root admin
     if (isTopAdmin(person.full_name)) {
       return {
-        ...person,
+        ...personWithNLC,
         pillar: 'root',
         pillarId: undefined,
       };
     }
     
     // Check if this person IS a pillar owner
-    const isOwner = pillarOwnerNames.some(name => namesMatch(person.full_name, name));
-    
-    if (isOwner) {
-      const pillarEntry = Object.entries(PILLAR_OWNERS).find(([_, name]) => 
-        namesMatch(name, person.full_name)
-      );
-      if (pillarEntry) {
-        const pillarData = pillars.find(p => p.slug === pillarEntry[0]);
+    for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
+      if (namesMatch(person.full_name, ownerName)) {
+        const pillarData = pillars.find(p => p.slug === slug);
         return {
-          ...person,
-          pillar: pillarEntry[0],
+          ...personWithNLC,
+          pillar: slug,
           pillarId: pillarData?.id,
         };
       }
     }
 
     // Walk the chain to find pillar
-    const { pillar, issue } = findPillarForPerson(person, roster, pillarOwnerNames);
+    const { pillar, issue } = findPillarForPerson(person, roster);
     
     if (pillar && pillar !== 'root') {
       const pillarData = pillars.find(p => p.slug === pillar);
       return {
-        ...person,
+        ...personWithNLC,
         pillar,
         pillarId: pillarData?.id,
         dataIssue: issue,
       };
     }
 
-    // === RESOLUTION STRATEGY ===
-    // If we couldn't resolve via chain, try these fallbacks:
+    // === RESOLUTION FALLBACKS ===
     
-    // 1. Check if manager name matches a pillar owner (even with typos)
+    // 1. Check if manager name matches a pillar owner (fuzzy)
     if (person.direct_manager) {
+      const effectiveManager = getEffectiveManager(person.direct_manager);
       for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
-        if (fuzzyNameMatch(person.direct_manager, ownerName)) {
+        if (effectiveManager && fuzzyNameMatch(effectiveManager, ownerName)) {
           const pillarData = pillars.find(p => p.slug === slug);
-          dataIssues.push({ 
-            person, 
-            issue: `Manager name "${person.direct_manager}" fuzzy-matched to pillar owner "${ownerName}"` 
-          });
           return {
-            ...person,
+            ...personWithNLC,
             pillar: slug,
             pillarId: pillarData?.id,
           };
@@ -495,74 +490,35 @@ export function assignPillarsToRoster(
     
     // 2. Check if direct manager is the root admin
     if (person.direct_manager && isTopAdmin(person.direct_manager)) {
-      // This person reports to root but isn't a pillar owner
-      // Find the most likely pillar based on other context
-      // For now, flag but assign to first pillar as fallback
       dataIssues.push({ 
         person, 
-        issue: 'Reports directly to root but is not a pillar owner - needs review' 
+        issue: 'Reports directly to root but is not a pillar owner' 
       });
       
       // Check if they ARE a pillar owner we didn't recognize
-      const possiblePillar = Object.entries(PILLAR_OWNERS).find(([_, name]) =>
-        fuzzyNameMatch(person.full_name, name)
-      );
-      if (possiblePillar) {
-        const pillarData = pillars.find(p => p.slug === possiblePillar[0]);
-        return {
-          ...person,
-          pillar: possiblePillar[0],
-          pillarId: pillarData?.id,
-        };
-      }
-    }
-    
-    // 3. Last resort: Try to find ANY manager chain that works
-    // Walk roster to find someone who reports to this person's manager
-    // and has a valid pillar, then use that pillar
-    if (person.direct_manager) {
-      const siblings = roster.filter(p => 
-        namesMatch(p.direct_manager, person.direct_manager) &&
-        !namesMatch(p.full_name, person.full_name) &&
-        p.pillar &&
-        p.pillar !== 'unassigned'
-      );
-      
-      if (siblings.length > 0) {
-        // Use sibling's pillar
-        const siblingPillar = siblings[0].pillar;
-        if (siblingPillar) {
-          const pillarData = pillars.find(p => p.slug === siblingPillar);
-          dataIssues.push({
-            person,
-            issue: `Inherited pillar "${siblingPillar}" from sibling - needs verification`
-          });
+      for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
+        if (fuzzyNameMatch(person.full_name, ownerName)) {
+          const pillarData = pillars.find(p => p.slug === slug);
           return {
-            ...person,
-            pillar: siblingPillar,
+            ...personWithNLC,
+            pillar: slug,
             pillarId: pillarData?.id,
           };
         }
       }
     }
     
-    // 4. FINAL FALLBACK: Attach directly to root
-    // Per Section 6.16: "If still unresolved, attach directly to Matthew Daniel Joyce"
-    // We flag for review but DO NOT leave unassigned
+    // 3. Flag issue and mark as unassigned
     dataIssues.push({ 
       person, 
-      issue: issue || 'Could not resolve manager chain - attached to root for review'
+      issue: issue || 'Could not resolve manager chain'
     });
 
-    // Find the most appropriate pillar based on any available info
-    // Default to first pillar if truly no information
-    const fallbackPillar = pillars[0];
-    
     return {
-      ...person,
-      pillar: fallbackPillar?.slug || 'root-direct',
-      pillarId: fallbackPillar?.id,
-      dataIssue: 'Attached to root - needs manual pillar assignment',
+      ...personWithNLC,
+      pillar: 'unassigned',
+      pillarId: undefined,
+      dataIssue: issue || 'Could not resolve manager chain',
     };
   });
 
@@ -570,16 +526,116 @@ export function assignPillarsToRoster(
 }
 
 // ============================================================
-// SECTION 8: UTILITY FUNCTIONS
+// SECTION 8: HIERARCHY DIAGNOSTICS
 // ============================================================
 
-// Get status badge info
+export function generateHierarchyDiagnostics(
+  roster: TeamMember[],
+  pillars: { id: string; slug: string; name: string }[]
+): HierarchyDiagnostics {
+  const pillarOwnerNames = getPillarOwnerNames();
+  
+  // Count managers and rookies
+  const totalManagers = roster.filter(p => 
+    isManager(roster, p.full_name) || p.role === 'manager' || p.role === 'admin'
+  ).length;
+  
+  const nlcMembers = roster.filter(p => p.status === 'nlc');
+  
+  // Find unresolved manager references
+  const managerRefs = new Map<string, string[]>();
+  roster.forEach(person => {
+    if (person.direct_manager) {
+      const effectiveManager = getEffectiveManager(person.direct_manager);
+      if (effectiveManager) {
+        const found = findPersonByName(roster, effectiveManager);
+        if (!found && !isTopAdmin(effectiveManager)) {
+          // Check if it's a known pillar owner
+          const isPillarOwner = pillarOwnerNames.some(name => namesMatch(effectiveManager, name));
+          if (!isPillarOwner) {
+            const key = normalizeName(effectiveManager);
+            if (!managerRefs.has(key)) {
+              managerRefs.set(key, []);
+            }
+            managerRefs.get(key)!.push(person.full_name);
+          }
+        }
+      }
+    }
+  });
+  
+  const unresolvedManagerRefs = Array.from(managerRefs.entries()).map(([name, refs]) => ({
+    name,
+    referencedBy: refs,
+  }));
+  
+  // Find pillars with missing owners
+  const pillarsWithMissingOwners: string[] = [];
+  for (const [slug, ownerName] of Object.entries(PILLAR_OWNERS)) {
+    const owner = findPersonByName(roster, ownerName);
+    if (!owner) {
+      pillarsWithMissingOwners.push(`${slug} (${ownerName})`);
+    }
+  }
+  
+  // Count deprecated manager references
+  const deprecatedCounts = new Map<string, number>();
+  roster.forEach(person => {
+    if (person.direct_manager) {
+      const { isDeprecated, rewriteTo } = isDeprecatedManager(person.direct_manager);
+      if (isDeprecated && rewriteTo) {
+        const key = normalizeName(person.direct_manager);
+        deprecatedCounts.set(key, (deprecatedCounts.get(key) || 0) + 1);
+      }
+    }
+  });
+  
+  const deprecatedManagerRefs = Array.from(deprecatedCounts.entries()).map(([deprecated, count]) => {
+    const info = DEPRECATED_MANAGERS[deprecated];
+    return {
+      deprecated,
+      rewrittenTo: info?.rewriteTo || 'Unknown',
+      affectedCount: count,
+    };
+  });
+  
+  // Pillar stats
+  const { enrichedRoster } = assignPillarsToRoster(roster, pillars);
+  const pillarStats = pillars.map(p => {
+    const members = enrichedRoster.filter(m => m.pillar === p.slug);
+    const ownerName = PILLAR_OWNERS[p.slug];
+    const owner = findPersonByName(roster, ownerName);
+    return {
+      slug: p.slug,
+      name: p.name,
+      count: members.length,
+      hasOwner: !!owner,
+    };
+  });
+  
+  return {
+    totalMembers: roster.length,
+    totalManagers,
+    totalRookies: roster.length - totalManagers,
+    nlcCount: nlcMembers.length,
+    unresolvedManagerRefs,
+    pillarsWithMissingOwners,
+    deprecatedManagerRefs,
+    pillarStats,
+  };
+}
+
+// ============================================================
+// SECTION 9: UTILITY FUNCTIONS
+// ============================================================
+
 export function getStatusInfo(status: string | null): { label: string; className: string } {
   const statusMap: Record<string, { label: string; className: string }> = {
     active: { label: 'Active', className: 'bg-success/15 text-success' },
     onboarded: { label: 'Onboarded', className: 'bg-primary/15 text-primary' },
     contract_signed: { label: 'Contract Signed', className: 'bg-amber-500/15 text-amber-400' },
     info_added: { label: 'Info Added', className: 'bg-amber-500/15 text-amber-400' },
+    nlc: { label: 'NLC', className: 'bg-muted text-muted-foreground opacity-60' },
   };
   return statusMap[status || ''] || { label: 'Pending', className: 'bg-muted text-muted-foreground' };
 }
@@ -591,10 +647,10 @@ export function validateHierarchy(
 ): { isValid: boolean; issues: string[] } {
   const issues: string[] = [];
   
-  // Check for exactly one root user
+  // Check for root user
   const rootUsers = roster.filter(p => isTopAdmin(p.full_name));
   if (rootUsers.length === 0) {
-    issues.push('No root user (Mathew Daniel Joyce) found in roster');
+    issues.push(`No root user (${CANONICAL_ROOT_NAME}) found in roster`);
   } else if (rootUsers.length > 1) {
     issues.push(`Multiple root users found: ${rootUsers.map(r => r.full_name).join(', ')}`);
   }
@@ -607,14 +663,11 @@ export function validateHierarchy(
     }
   }
   
-  // Enrich roster and check for unassigned
-  const { enrichedRoster, dataIssues } = assignPillarsToRoster(roster, pillars);
-  
-  const unassigned = enrichedRoster.filter(p => 
-    p.pillar === 'unassigned' || !p.pillar
-  );
+  // Check for unassigned
+  const { enrichedRoster } = assignPillarsToRoster(roster, pillars);
+  const unassigned = enrichedRoster.filter(p => p.pillar === 'unassigned');
   if (unassigned.length > 0) {
-    issues.push(`${unassigned.length} members still unassigned after processing`);
+    issues.push(`${unassigned.length} members still unassigned`);
   }
   
   return {
@@ -622,3 +675,13 @@ export function validateHierarchy(
     issues,
   };
 }
+
+// Legacy exports for backwards compatibility
+export const PILLAR_OWNER_VARIANTS = NAME_ALIASES;
+export const MANAGER_REDIRECTS: Record<string, string> = Object.fromEntries(
+  Object.entries(DEPRECATED_MANAGERS).map(([k, v]) => [k, v.rewriteTo])
+);
+export function normalizeManagerName(name: string | null | undefined): string {
+  return normalizeName(getCanonicalName(name));
+}
+export const PILLAR_OWNER_NAMES_NORMALIZED = getPillarOwnerNames().map(n => normalizeName(n));
