@@ -35,7 +35,7 @@ export const PILLAR_OWNERS: Record<string, string> = {
   'atlas': 'Sean Douglas Jablonski',
   'apex': 'Hunter Terry Shannon',
   'minions': 'Colton Joyce',
-  'paper-route': 'Liam Gardner',
+  'paper-route': 'William James Gardner',
 };
 
 // Top admin name variations
