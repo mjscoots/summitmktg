@@ -61,7 +61,13 @@ export const PILLAR_OWNERS: Record<string, string> = {
   'atlas': 'Sean Douglas Jablonski',
   'apex': 'Hunter Terry Shannon',
   'minions': 'Colton Joyce',
-  'paper-route': 'Liam Gardner',
+  'paper-route': 'Liam James Gardner',
+};
+
+// Name variants for pillar owners (normalized form -> canonical name)
+export const PILLAR_OWNER_VARIANTS: Record<string, string> = {
+  'liam gardner': 'Liam James Gardner',
+  'liam james gardner': 'Liam James Gardner',
 };
 
 // ============================================================
@@ -105,6 +111,7 @@ export function isTopAdmin(name: string | null | undefined): boolean {
 
 // Normalize manager name - if it matches root variants, return canonical form
 // Also applies manager redirects (e.g., Joshua Robert Heacox → Joshua Bingham)
+// And pillar owner variants (e.g., Liam Gardner → Liam James Gardner)
 export function normalizeManagerName(name: string | null | undefined): string {
   if (!name) return '';
   const normalized = normalizeName(name);
@@ -117,6 +124,11 @@ export function normalizeManagerName(name: string | null | undefined): string {
   // Check for manager redirects
   if (MANAGER_REDIRECTS[normalized]) {
     return normalizeName(MANAGER_REDIRECTS[normalized]);
+  }
+  
+  // Check for pillar owner variants
+  if (PILLAR_OWNER_VARIANTS[normalized]) {
+    return normalizeName(PILLAR_OWNER_VARIANTS[normalized]);
   }
   
   return normalized;
