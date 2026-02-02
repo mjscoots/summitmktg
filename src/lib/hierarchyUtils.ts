@@ -83,12 +83,13 @@ export const PILLAR_OWNERS: Record<string, string> = {
 
 // ALL name variants mapping (normalized lowercase -> canonical name)
 // This is the SINGLE SOURCE OF TRUTH for name resolution
+// Updated with comprehensive mappings from actual database data
 export const NAME_ALIASES: Record<string, string> = {
   // === ROOT ADMIN (Mathew Daniel Joyce) ===
   'mathew daniel joyce': 'Mathew Daniel Joyce',
   'matthew daniel joyce': 'Mathew Daniel Joyce',
   'matthew joyce': 'Mathew Daniel Joyce',
-  'mathew joyce': 'Mathew Daniel Joyce',
+  'mathew joyce': 'Mathew Daniel Joyce',  // DB variant found
   'matt joyce': 'Mathew Daniel Joyce',
   'matthew joyce manager': 'Mathew Daniel Joyce',
   'mathew joyce manager': 'Mathew Daniel Joyce',
@@ -105,6 +106,7 @@ export const NAME_ALIASES: Record<string, string> = {
   'josh bingham': 'Joshua Bingham',
   
   // === Cole Wesley Bundren (Altitude) ===
+  // NOTE: Not in DB as profile - needs to be added or reports reassigned
   'cole wesley bundren': 'Cole Wesley Bundren',
   'cole bundren': 'Cole Wesley Bundren',
   
@@ -121,11 +123,76 @@ export const NAME_ALIASES: Record<string, string> = {
   
   // === Liam Gardner / William James Gardner (Paper Route) ===
   // Per user confirmation: these are THE SAME PERSON
+  // DB stores as "Liam Gardner" but manager refs use "William James Gardner"
   'liam gardner': 'Liam Gardner',
   'liam james gardner': 'Liam Gardner',
   'william james gardner': 'Liam Gardner',
   'william gardner': 'Liam Gardner',
   'will gardner': 'Liam Gardner',
+  
+  // === Other key managers found in DB ===
+  'troy thomas dela vega': 'Troy Thomas Dela Vega',
+  'troy dela vega': 'Troy Thomas Dela Vega',
+  'mathew peter rubino': 'Mathew Peter Rubino',
+  'matt rubino': 'Mathew Peter Rubino',
+  'adam matthew mcelfresh': 'Adam Matthew Mcelfresh',
+  'adam mcelfresh': 'Adam Matthew Mcelfresh',
+  'spencer john yanbin mamrick': 'Spencer John Yanbin Mamrick',
+  'spencer mamrick': 'Spencer John Yanbin Mamrick',
+  'ian reilly mcclurg': 'Ian Reilly Mcclurg',
+  'ian mcclurg': 'Ian Reilly Mcclurg',
+  'hewitt brandon mcbride': 'Hewitt Brandon Mcbride',
+  'hewitt mcbride': 'Hewitt Brandon Mcbride',
+  'jack dawson spiess': 'Jack Dawson Spiess',
+  'jack spiess': 'Jack Dawson Spiess',
+  'james jay harjak': 'James Jay Harjak',
+  'james harjak': 'James Jay Harjak',
+  'jessica lynne johnson': 'Jessica Lynne Johnson',
+  'jessica johnson': 'Jessica Lynne Johnson',
+  'caleb ryan hammond': 'Caleb Ryan Hammond',
+  'caleb hammond': 'Caleb Ryan Hammond',
+  'gabe thomas perron': 'Gabe Thomas Perron',
+  'gabe perron': 'Gabe Thomas Perron',
+  'corey john haden morgan': 'Corey John Haden Morgan',
+  'corey morgan': 'Corey John Haden Morgan',
+  'hassan omer hassan ahmed sati': 'Hassan Omer Hassan Ahmed Sati',
+  'hassan sati': 'Hassan Omer Hassan Ahmed Sati',
+  'elijah abraham wiater': 'Elijah Abraham Wiater',
+  'elijah wiater': 'Elijah Abraham Wiater',
+  'mitchell madison ingram bailey': 'Mitchell Madison Ingram Bailey',
+  'mitchell bailey': 'Mitchell Madison Ingram Bailey',
+  'gabriel joseph salvatore brugellis': 'Gabriel Joseph Salvatore Brugellis',
+  'gabriel brugellis': 'Gabriel Joseph Salvatore Brugellis',
+  'justin gordon casarotti': 'Justin Gordon Casarotti',
+  'justin casarotti': 'Justin Gordon Casarotti',
+  'jayce christian nelson': 'Jayce Christian Nelson',
+  'jayce nelson': 'Jayce Christian Nelson',
+  'jacob robert jazwin': 'Jacob Robert Jazwin',
+  'jacob jazwin': 'Jacob Robert Jazwin',
+  'jake jazwin': 'Jacob Robert Jazwin',
+  'jake dennis keller': 'Jake Dennis Keller',
+  'jake keller': 'Jake Dennis Keller',
+  'branson christopher liles': 'Branson Christopher Liles',
+  'branson liles': 'Branson Christopher Liles',
+  'brendon austin luke': 'Brendon Austin Luke',
+  'brendon luke': 'Brendon Austin Luke',
+  'dean patrick vincent': 'Dean Patrick Vincent',
+  'dean vincent': 'Dean Patrick Vincent',
+  'jacob eugene handy': 'Jacob Eugene Handy',
+  'jacob handy': 'Jacob Eugene Handy',
+  'justin william handy': 'Justin William Handy',
+  'justin handy': 'Justin William Handy',
+  'christopher cole wright': 'Christopher Cole Wright',
+  'chris wright': 'Christopher Cole Wright',
+  'mikail harms hassoun': 'Mikail Harms Hassoun',
+  'mikail hassoun': 'Mikail Harms Hassoun',
+  'nicholas singh batth': 'Nicholas Singh Batth',
+  'nicholas batth': 'Nicholas Singh Batth',
+  'nick batth': 'Nicholas Singh Batth',
+  'seth michael dyer': 'Seth Michael Dyer',
+  'seth dyer': 'Seth Michael Dyer',
+  'skyler thomas smith': 'Skyler Thomas Smith',
+  'skyler smith': 'Skyler Thomas Smith',
 };
 
 // ============================================================

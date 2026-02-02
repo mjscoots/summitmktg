@@ -252,10 +252,11 @@ export default function MyTeamPage() {
             )}
 
             {/* Data Issues Panel */}
-            {showDataIssues && dataIssues.length > 0 && (
+            {showDataIssues && (dataIssues.length > 0 || diagnostics?.pillarsWithMissingOwners?.length) && (
               <div className="mb-6">
                 <DataIssuesPanel 
-                  issues={dataIssues} 
+                  issues={dataIssues}
+                  roster={enrichedRoster}
                   onClose={() => setShowDataIssues(false)} 
                 />
               </div>
