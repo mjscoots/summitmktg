@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import summitLogo from '@/assets/summit-mktg-logo.png';
+import summitLogo from '@/assets/summit-logo-new.png';
 
 const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
