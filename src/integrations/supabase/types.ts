@@ -167,6 +167,8 @@ export type Database = {
           description: string | null
           event_date: string
           id: string
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          team_id: string | null
           title: string
           updated_at: string | null
         }
@@ -176,6 +178,8 @@ export type Database = {
           description?: string | null
           event_date: string
           id?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          team_id?: string | null
           title: string
           updated_at?: string | null
         }
@@ -185,10 +189,20 @@ export type Database = {
           description?: string | null
           event_date?: string
           id?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          team_id?: string | null
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leaderboard_points: {
         Row: {
@@ -280,10 +294,13 @@ export type Database = {
           full_name: string
           id: string
           organization: string | null
+          otp_verified: boolean | null
+          password_changed: boolean | null
           phone: string | null
           recruiter: string | null
           region: string | null
           status: Database["public"]["Enums"]["user_status"] | null
+          team_id: string | null
           updated_at: string | null
           user_id: string
         }
@@ -296,10 +313,13 @@ export type Database = {
           full_name: string
           id?: string
           organization?: string | null
+          otp_verified?: boolean | null
+          password_changed?: boolean | null
           phone?: string | null
           recruiter?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
+          team_id?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -312,14 +332,25 @@ export type Database = {
           full_name?: string
           id?: string
           organization?: string | null
+          otp_verified?: boolean | null
+          password_changed?: boolean | null
           phone?: string | null
           recruiter?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
+          team_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_questions: {
         Row: {
@@ -458,6 +489,30 @@ export type Database = {
           role?: string
           signed_up_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      teams: {
+        Row: {
+          created_at: string | null
+          id: string
+          leader_id: string | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          leader_id?: string | null
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          leader_id?: string | null
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
@@ -734,6 +789,19 @@ export type Database = {
           options: Json
           question_text: string
           question_type: string
+        }[]
+      }
+      get_user_downline: {
+        Args: { _manager_name: string }
+        Returns: {
+          depth: number
+          direct_manager: string
+          email: string
+          full_name: string
+          profile_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          team_name: string
+          user_id: string
         }[]
       }
       get_user_role: {
