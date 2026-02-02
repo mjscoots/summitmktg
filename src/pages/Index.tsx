@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User } from "lucide-react";
+import { User, LogIn } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [rookieHovered, setRookieHovered] = useState(false);
-  const [vetHovered, setVetHovered] = useState(false);
   const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number }>>([]);
 
   // Generate stars on mount
@@ -64,7 +62,7 @@ const Index = () => {
         onClick={() => navigate("/login")}
         className="absolute top-5 right-6 flex items-center gap-2 px-4 py-2 text-sm font-black text-foreground hover:text-primary border-2 border-primary/80 hover:border-primary rounded transition-all uppercase tracking-wider z-20"
       >
-        <User className="w-4 h-4" />
+        <LogIn className="w-4 h-4" />
         Log In
       </button>
 
@@ -87,7 +85,7 @@ const Index = () => {
           />
         </div>
 
-        {/* Main Question */}
+        {/* Main Heading */}
         <div className="mb-10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           <h1 
             className="text-4xl md:text-5xl font-black text-foreground mb-4 uppercase tracking-tight"
@@ -96,74 +94,30 @@ const Index = () => {
               letterSpacing: '-0.02em',
             }}
           >
-            Choose Your Path
+            Summit Marketing
           </h1>
           <p className="text-muted-foreground text-lg font-medium tracking-wide">
-            Four months. High upside. Clear training. Real leadership.
+            Internal Training Platform
           </p>
         </div>
 
-        {/* Selection Cards */}
-        <div className="grid grid-cols-2 gap-6 max-w-lg mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          {/* Rookie Card */}
-          <button
-            onClick={() => navigate("/apply/rookie")}
-            onMouseEnter={() => setRookieHovered(true)}
-            onMouseLeave={() => setRookieHovered(false)}
-            className="group bg-card/80 backdrop-blur-sm p-7 text-center transition-all duration-300 border-2 border-primary/60 rounded-2xl hover:bg-primary/10 hover:scale-[1.04] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] hover:border-primary cursor-pointer"
-          >
-            <span className="block text-[10px] font-bold text-primary uppercase tracking-widest mb-4 h-4">
-              New to Door-to-Door
-            </span>
-            
-            <h3 
-              className="text-3xl font-black text-foreground uppercase tracking-tight transition-all duration-300 my-4"
-              style={{
-                textShadow: '0 0 20px hsl(216, 80%, 45%, 0.6), 0 0 40px hsl(216, 80%, 45%, 0.3)',
-              }}
-            >
-              {rookieHovered ? "GO!" : "ROOKIE"}
-            </h3>
-            
-            <p className="text-muted-foreground text-xs font-medium h-8 flex items-center justify-center">
-              Interested in Sales
-            </p>
-          </button>
-
-          {/* Vet Card */}
-          <button
-            onClick={() => navigate("/apply/vet")}
-            onMouseEnter={() => setVetHovered(true)}
-            onMouseLeave={() => setVetHovered(false)}
-            className="group bg-card/80 backdrop-blur-sm p-7 text-center transition-all duration-300 border-2 border-primary/60 rounded-2xl hover:bg-primary/10 hover:scale-[1.04] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] hover:border-primary cursor-pointer"
-          >
-            <span className="block text-[10px] font-bold text-primary uppercase tracking-widest mb-4 h-4">
-              Experienced Rep
-            </span>
-            
-            <h3 
-              className="text-3xl font-black text-foreground uppercase tracking-tight transition-all duration-300 my-4"
-              style={{
-                textShadow: '0 0 20px hsl(216, 80%, 45%, 0.6), 0 0 40px hsl(216, 80%, 45%, 0.3)',
-              }}
-            >
-              {vetHovered ? "GO!" : "VET"}
-            </h3>
-            
-            <p className="text-muted-foreground text-xs font-medium h-8 flex items-center justify-center">
-              Completed Summer Door-to-Door Sales
-            </p>
-          </button>
-        </div>
-
-        {/* Login Link */}
-        <div className="mt-14 mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        {/* Single Login CTA */}
+        <div className="max-w-xs mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <button
             onClick={() => navigate("/login")}
-            className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+            className="w-full group bg-primary/10 backdrop-blur-sm py-5 px-8 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] cursor-pointer"
           >
-            Already a member? <span className="text-primary font-semibold">Sign in</span>
+            <div className="flex items-center justify-center gap-3">
+              <User className="w-5 h-5 text-primary group-hover:text-primary-foreground transition-colors" />
+              <span className="text-lg font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors">
+                Member Login
+              </span>
+            </div>
           </button>
+          
+          <p className="mt-4 text-xs text-muted-foreground">
+            This is a closed system. Contact your manager for access.
+          </p>
         </div>
       </div>
       

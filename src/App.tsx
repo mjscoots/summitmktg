@@ -38,7 +38,8 @@ const App = () => (
             {/* Public */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<AuthPage />} />
-            <Route path="/signup" element={<AuthPage />} />
+            {/* Redirect any signup attempts to login */}
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
 
             {/* ========== APP - PROTECTED ROUTES ========== */}
             
