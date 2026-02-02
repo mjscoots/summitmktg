@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, Menu, X, User } from 'lucide-react';
+import { LogOut, Menu, X, Mountain } from 'lucide-react';
 import { useState } from 'react';
 
 export function DashboardHeader() {
@@ -39,12 +39,15 @@ export function DashboardHeader() {
         <div className="flex items-center justify-between">
           {/* Logo + Role Badge */}
           <div className="flex items-center gap-4">
-            <h1 
-              className="text-lg font-black tracking-tight cursor-pointer"
-              onClick={() => navigate(isManager ? '/app/manager' : '/app/rookie')}
+            <button
+              onClick={() => navigate('/app')}
+              className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors"
             >
-              SUMMIT <span className={roleColor}>MKTG</span>
-            </h1>
+              <Mountain className="w-5 h-5 text-primary" />
+              <span className="text-lg font-black tracking-tight uppercase" style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}>
+                Summit
+              </span>
+            </button>
             <span className={`text-xs font-bold ${roleColor} ${roleBgColor} px-2.5 py-1 rounded uppercase tracking-wide`}>
               {roleLabel}
             </span>
