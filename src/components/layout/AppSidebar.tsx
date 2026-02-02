@@ -7,7 +7,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
   SidebarHeader,
@@ -27,7 +26,7 @@ const managerNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
-  { label: 'My Team', path: '/app/team', icon: Users },
+  { label: 'Teams', path: '/app/team', icon: Users },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
 ];
@@ -96,13 +95,13 @@ export function AppSidebar() {
                 const active = isActive(item.path);
                 return (
                   <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
+                    <button
                       onClick={() => navigate(item.path)}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 group relative",
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 relative group/navitem",
                         active 
-                          ? "bg-primary/20 text-white"
-                          : "text-white/90 hover:text-primary"
+                          ? "bg-primary/20"
+                          : "hover:bg-transparent"
                       )}
                     >
                       {/* Active indicator */}
@@ -113,18 +112,18 @@ export function AppSidebar() {
                       
                       <item.icon className={cn(
                         "w-[18px] h-[18px] flex-shrink-0 transition-colors",
-                        active ? "text-primary" : "text-white/80 group-hover:text-primary"
+                        active ? "text-primary" : "text-white/80 group-hover/navitem:text-primary"
                       )} strokeWidth={1.75} />
                       
                       {!collapsed && (
                         <span className={cn(
                           "text-sm font-medium transition-colors",
-                          active ? "text-white" : "group-hover:text-primary"
+                          active ? "text-white" : "text-white/90 group-hover/navitem:text-primary"
                         )}>
                           {item.label}
                         </span>
                       )}
-                    </SidebarMenuButton>
+                    </button>
                   </SidebarMenuItem>
                 );
               })}
