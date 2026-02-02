@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { ModuleCompletionCelebration } from '@/components/training/ModuleCompletionCelebration';
 import { LessonContent } from '@/components/training/LessonContent';
 import { useStreak } from '@/hooks/useStreak';
+import { useScrollGate } from '@/hooks/useScrollGate';
+import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
 
 interface Lesson {
   id: string;
@@ -43,6 +45,9 @@ const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-vid
 // Modules where quizzes are OPTIONAL
 const OPTIONAL_QUIZ_MODULES = ['introduction', 'scripts', 'body language'];
 
+// Button state machine
+type ButtonState = 'locked' | 'ready' | 'finalReady';
+
 export default function LessonPage() {
   const { courseSlug, lessonId } = useParams();
   const navigate = useNavigate();
@@ -54,17 +59,16 @@ export default function LessonPage() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [moduleInfo, setModuleInfo] = useState<ModuleInfo | null>(null);
   const [siblingLessons, setSiblingLessons] = useState<{ id: string; title: string; display_order: number }[]>([]);
+  const [allModules, setAllModules] = useState<{ id: string; title: string; display_order: number }[]>([]);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dataVersion, setDataVersion] = useState(0); // Force re-renders on navigation
   
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [quizResult, setQuizResult] = useState<{ passed: boolean } | null>(null);
   const [lessonCompleted, setLessonCompleted] = useState(false);
-  
-  // Scroll-based progression - must scroll 100% to unlock Next
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
@@ -76,27 +80,73 @@ export default function LessonPage() {
     ? OPTIONAL_QUIZ_MODULES.some(m => moduleInfo.title.toLowerCase().includes(m))
     : false;
 
-  // Scroll detection - unlock Next button when scrolled to bottom
+  // Use the scroll gate hook - reset when lesson changes
+  const { atBottom, scrollProgress, resetGate } = useScrollGate(undefined, {
+    threshold: 50,
+    enabled: !lessonCompleted, // If already completed, don't require scroll
+  });
+
+  // Computed values for navigation
+  const currentLessonIndex = useMemo(() => {
+    return lesson ? siblingLessons.findIndex(l => l.id === lesson.id) : -1;
+  }, [lesson, siblingLessons]);
+
+  const isLastLessonInModule = currentLessonIndex === siblingLessons.length - 1;
+  
+  const currentModuleIndex = useMemo(() => {
+    return moduleInfo ? allModules.findIndex(m => m.id === moduleInfo.id) : -1;
+  }, [moduleInfo, allModules]);
+
+  const isLastModule = currentModuleIndex === allModules.length - 1;
+  const isLastLesson = isLastLessonInModule && isLastModule;
+
+  // Next lesson info
+  const nextLesson = useMemo(() => {
+    if (currentLessonIndex < 0 || currentLessonIndex >= siblingLessons.length - 1) {
+      return null;
+    }
+    return siblingLessons[currentLessonIndex + 1];
+  }, [currentLessonIndex, siblingLessons]);
+
+  // Determine if user can proceed
+  const hasCompletedRequirements = lessonCompleted || questions.length === 0 || isQuizOptional;
+  const scrollUnlocked = atBottom || lessonCompleted;
+  const canProceed = scrollUnlocked && hasCompletedRequirements;
+
+  // Button state machine
+  const buttonState: ButtonState = useMemo(() => {
+    if (!scrollUnlocked) return 'locked';
+    if (isLastLesson && hasCompletedRequirements) return 'finalReady';
+    if (hasCompletedRequirements) return 'ready';
+    return 'locked';
+  }, [scrollUnlocked, isLastLesson, hasCompletedRequirements]);
+
+  // Button label based on state
+  const buttonLabel = useMemo(() => {
+    switch (buttonState) {
+      case 'finalReady':
+        return 'Complete';
+      case 'ready':
+      case 'locked':
+      default:
+        return 'Next';
+    }
+  }, [buttonState]);
+
+  // Reset state when lessonId changes
   useEffect(() => {
-    const handleWindowScroll = () => {
-      const scrolledToBottom = 
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100;
-      
-      if (scrolledToBottom && !hasScrolledToBottom) {
-        setHasScrolledToBottom(true);
-      }
-    };
+    // Reset all lesson-specific state
+    setShowQuiz(false);
+    setAnswers({});
+    setQuizResult(null);
+    setLessonCompleted(false);
+    setShowCelebration(false);
+    resetGate();
+    setDataVersion(v => v + 1);
     
-    // Check immediately in case content fits on screen
-    setTimeout(() => {
-      if (document.documentElement.scrollHeight <= window.innerHeight + 100) {
-        setHasScrolledToBottom(true);
-      }
-    }, 500);
-    
-    window.addEventListener('scroll', handleWindowScroll);
-    return () => window.removeEventListener('scroll', handleWindowScroll);
-  }, [hasScrolledToBottom, lesson]);
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [lessonId, resetGate]);
 
   // Fetch lesson data
   useEffect(() => {
@@ -106,11 +156,10 @@ export default function LessonPage() {
         return;
       }
 
-      // Reset scroll state on new lesson
-      setHasScrolledToBottom(false);
-      window.scrollTo({ top: 0 });
+      setIsLoading(true);
 
       try {
+        // Fetch lesson data
         const { data: lessonData, error: lessonError } = await supabase
           .from('training_lessons')
           .select('*')
@@ -119,8 +168,15 @@ export default function LessonPage() {
           .maybeSingle();
 
         if (lessonError || !lessonData) {
+          console.error('Lesson not found:', lessonId, lessonError);
           navigate(`/app/training/${courseSlug}`);
           return;
+        }
+
+        // Verify content exists
+        if (!lessonData.content || lessonData.content.trim() === '') {
+          console.error('Lesson has no content:', lessonId);
+          toast.error('Lesson content is missing');
         }
 
         setLesson(lessonData);
@@ -134,9 +190,21 @@ export default function LessonPage() {
 
         if (moduleData) {
           setModuleInfo(moduleData);
+
+          // Fetch all modules for this course (to determine last module)
+          const { data: allModulesData } = await supabase
+            .from('training_modules')
+            .select('id, title, display_order')
+            .eq('course_id', moduleData.course_id)
+            .eq('is_active', true)
+            .order('display_order');
+
+          if (allModulesData) {
+            setAllModules(allModulesData);
+          }
         }
 
-        // Fetch sibling lessons
+        // Fetch sibling lessons in this module
         const { data: siblingsData } = await supabase
           .from('training_lessons')
           .select('id, title, display_order')
@@ -157,6 +225,8 @@ export default function LessonPage() {
 
         if (questionsData && questionsData.length > 0) {
           setQuestions(questionsData as QuizQuestion[]);
+        } else {
+          setQuestions([]);
         }
 
         // Check existing progress
@@ -169,12 +239,11 @@ export default function LessonPage() {
 
         if (progressData?.quiz_passed) {
           setLessonCompleted(true);
-          setHasScrolledToBottom(true); // Already completed = can navigate
         }
         
         recordActivity();
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Error fetching lesson:', err);
       } finally {
         setIsLoading(false);
       }
@@ -183,7 +252,7 @@ export default function LessonPage() {
     fetchLesson();
   }, [lessonId, user, courseSlug, navigate, recordActivity]);
 
-  // Quiz submission - simplified: pass/fail only, no storage of answers
+  // Quiz submission
   const handleSubmitQuiz = async () => {
     const unansweredCount = questions.length - Object.keys(answers).length;
     if (unansweredCount > 0) {
@@ -194,13 +263,11 @@ export default function LessonPage() {
     if (!user || !lessonId) return;
 
     try {
-      // Use secure RPC to validate answers
       const { data, error } = await supabase.rpc('validate_and_record_quiz', {
         _lesson_id: lessonId,
         _answers: answers
       });
 
-      // On any error, let user proceed to avoid blocking
       if (error) {
         setQuizResult({ passed: true });
         setLessonCompleted(true);
@@ -217,9 +284,7 @@ export default function LessonPage() {
         setLessonCompleted(true);
         recordActivity();
       }
-      // If failed, user will see "Quiz not passed" and be sent back to lesson
     } catch {
-      // On any error, be graceful and let user continue
       setQuizResult({ passed: true });
       setLessonCompleted(true);
       recordActivity();
@@ -231,17 +296,16 @@ export default function LessonPage() {
     setShowQuiz(false);
     setQuizResult(null);
     setAnswers({});
-    setHasScrolledToBottom(false);
+    resetGate();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Mark lesson complete without quiz
-  const handleMarkComplete = async () => {
+  const handleMarkComplete = useCallback(async () => {
     if (!user || !lessonId) return;
 
     setLessonCompleted(true);
 
-    // Save in background
     await supabase
       .from('lesson_progress')
       .upsert({
@@ -252,67 +316,66 @@ export default function LessonPage() {
       }, { onConflict: 'user_id,lesson_id' });
     
     recordActivity();
-  };
+  }, [user, lessonId, recordActivity]);
 
-  // Handle next lesson - auto-advance
-  const handleNext = async () => {
+  // Handle next navigation - THE KEY FIX
+  const handleNext = useCallback(async () => {
     if (!lesson || !moduleInfo) return;
-
-    const currentIndex = siblingLessons.findIndex(l => l.id === lesson.id);
-    const isLastInModule = currentIndex === siblingLessons.length - 1;
 
     // Mark complete if no quiz required
     if (!lessonCompleted && (questions.length === 0 || isQuizOptional)) {
       await handleMarkComplete();
     }
 
-    if (isLastInModule) {
-      // Show brief "Module Complete" then auto-advance
-      const { data: modules } = await supabase
-        .from('training_modules')
-        .select('id, title, display_order')
-        .eq('course_id', moduleInfo.course_id)
-        .eq('is_active', true)
-        .order('display_order');
-
-      if (modules) {
-        const currentModuleIndex = modules.findIndex(m => m.id === moduleInfo.id);
-        const nextModule = modules[currentModuleIndex + 1];
-        
-        if (nextModule) {
-          setNextModuleName(nextModule.title);
-        }
-        
+    if (isLastLessonInModule) {
+      // Check for next module
+      const nextModuleIndex = currentModuleIndex + 1;
+      
+      if (nextModuleIndex < allModules.length) {
+        // There's a next module - show celebration then navigate
+        const nextModule = allModules[nextModuleIndex];
+        setNextModuleName(nextModule.title);
         setShowCelebration(true);
+      } else {
+        // Course complete - go back to course page
+        setShowCelebration(true);
+        setNextModuleName(null);
       }
     } else {
-      // Go to next lesson immediately
-      const nextLesson = siblingLessons[currentIndex + 1];
+      // Navigate to next lesson in same module
       if (nextLesson) {
+        // Use navigate with the lesson ID - this triggers the useEffect to reset state
         navigate(`/app/training/${courseSlug}/${nextLesson.id}`);
       }
     }
-  };
+  }, [
+    lesson, 
+    moduleInfo, 
+    lessonCompleted, 
+    questions.length, 
+    isQuizOptional, 
+    handleMarkComplete, 
+    isLastLessonInModule, 
+    currentModuleIndex, 
+    allModules, 
+    nextLesson, 
+    navigate, 
+    courseSlug
+  ]);
 
-  const handleCelebrationContinue = async () => {
-    if (!moduleInfo) return;
-
-    const { data: modules } = await supabase
-      .from('training_modules')
-      .select('id, display_order')
-      .eq('course_id', moduleInfo.course_id)
-      .eq('is_active', true)
-      .order('display_order');
-
-    if (!modules) {
+  // Handle celebration continue - navigate to first lesson of next module
+  const handleCelebrationContinue = useCallback(async () => {
+    if (!moduleInfo) {
       navigate(`/app/training/${courseSlug}`);
       return;
     }
 
-    const currentModuleIndex = modules.findIndex(m => m.id === moduleInfo.id);
-    const nextModule = modules[currentModuleIndex + 1];
+    const nextModuleIndex = currentModuleIndex + 1;
 
-    if (nextModule) {
+    if (nextModuleIndex < allModules.length) {
+      const nextModule = allModules[nextModuleIndex];
+      
+      // Fetch first lesson of next module
       const { data: firstLesson } = await supabase
         .from('training_lessons')
         .select('id')
@@ -328,15 +391,11 @@ export default function LessonPage() {
       }
     }
 
+    // Fallback to course page
     navigate(`/app/training/${courseSlug}`);
-  };
+  }, [moduleInfo, currentModuleIndex, allModules, navigate, courseSlug]);
 
-  const currentLessonIndex = lesson ? siblingLessons.findIndex(l => l.id === lesson.id) : 0;
-  const isLastLesson = currentLessonIndex === siblingLessons.length - 1;
-  
-  // Can proceed if: scrolled to bottom AND (completed OR no quiz OR quiz optional)
-  const canProceed = hasScrolledToBottom && (lessonCompleted || questions.length === 0 || isQuizOptional);
-
+  // Loading state
   if (isLoading) {
     return (
       <AppLayout>
@@ -350,11 +409,15 @@ export default function LessonPage() {
     );
   }
 
+  // Error state - no lesson found
   if (!lesson) {
     return (
       <AppLayout>
         <div className="max-w-3xl mx-auto px-4 py-12 text-center">
           <h1 className="text-xl text-foreground mb-4">Lesson not found</h1>
+          <p className="text-muted-foreground mb-4">
+            Lesson ID: {lessonId}
+          </p>
           <button 
             onClick={() => navigate(`/app/training/${courseSlug}`)}
             className={cn("hover:underline", isRookieCourse ? "text-green-400" : "text-blue-400")}
@@ -381,6 +444,23 @@ export default function LessonPage() {
   return (
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-4 pb-24">
+        {/* Dev Debug Panel */}
+        <LessonDebugPanel
+          currentTrack={courseSlug || ''}
+          currentLessonId={lesson.id}
+          currentLessonTitle={lesson.title}
+          hasContent={!!lesson.content && lesson.content.trim().length > 0}
+          atBottom={atBottom}
+          scrollProgress={scrollProgress}
+          nextLessonId={nextLesson?.id || null}
+          nextLessonTitle={nextLesson?.title || null}
+          isLastLesson={isLastLessonInModule}
+          isLastModule={isLastModule}
+          lessonCompleted={lessonCompleted}
+          canProceed={canProceed}
+          moduleTitle={moduleInfo?.title || null}
+        />
+
         {/* Streak Celebration */}
         {showStreakCelebration && (
           <div className={cn(
@@ -405,7 +485,7 @@ export default function LessonPage() {
           <span className="text-sm">Back to Course</span>
         </button>
 
-        {/* Lesson Header - Compact */}
+        {/* Lesson Header */}
         <header className="mb-4">
           <div className="flex items-start gap-2 mb-1">
             {lessonCompleted ? (
@@ -417,7 +497,6 @@ export default function LessonPage() {
               )} />
             )}
             <div className="flex-1 min-w-0">
-              {/* Title - reduced size */}
               <h1 className="text-lg font-semibold text-foreground leading-tight">
                 {lesson.title}
               </h1>
@@ -450,14 +529,23 @@ export default function LessonPage() {
             <div 
               ref={contentRef}
               className="bg-card rounded-lg border border-border p-5 mb-4"
+              key={`content-${lesson.id}-${dataVersion}`}
             >
-              <LessonContent 
-                content={lesson.content} 
-                isRookieCourse={isRookieCourse} 
-              />
+              {lesson.content && lesson.content.trim() ? (
+                <LessonContent 
+                  content={lesson.content} 
+                  isRookieCourse={isRookieCourse} 
+                />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-400" />
+                  <p>Content not available for this lesson.</p>
+                  <p className="text-xs mt-1">Lesson ID: {lesson.id}</p>
+                </div>
+              )}
             </div>
 
-            {/* Key Takeaways - Compact */}
+            {/* Key Takeaways */}
             {lesson.key_takeaways && lesson.key_takeaways.length > 0 && (
               <div className={cn(
                 "border rounded-lg p-4 mb-4",
@@ -484,7 +572,7 @@ export default function LessonPage() {
             )}
 
             {/* Quiz Section - Only show if has quiz and not complete */}
-            {questions.length > 0 && !lessonCompleted && !isQuizOptional && hasScrolledToBottom && (
+            {questions.length > 0 && !lessonCompleted && !isQuizOptional && scrollUnlocked && (
               <div className="mb-4">
                 <Button
                   onClick={() => setShowQuiz(true)}
@@ -502,10 +590,10 @@ export default function LessonPage() {
             )}
 
             {/* Scroll indicator if not scrolled */}
-            {!hasScrolledToBottom && !lessonCompleted && (
+            {!scrollUnlocked && !lessonCompleted && (
               <div className="text-center py-3 text-xs text-muted-foreground">
                 <AlertCircle className="w-4 h-4 inline mr-1" />
-                Scroll to bottom to continue
+                Scroll to bottom to continue ({Math.round(scrollProgress)}%)
               </div>
             )}
           </>
@@ -518,7 +606,7 @@ export default function LessonPage() {
             </h2>
 
             {quizResult ? (
-              /* Quiz Result - Simple pass/fail */
+              /* Quiz Result */
               <div className={cn(
                 "p-5 rounded-lg text-center",
                 quizResult.passed 
@@ -529,7 +617,7 @@ export default function LessonPage() {
                   "text-lg font-semibold mb-3",
                   quizResult.passed ? 'text-green-400' : 'text-amber-400'
                 )}>
-                  {quizResult.passed ? 'Module Complete' : 'Quiz not passed. Review the lesson and try again.'}
+                  {quizResult.passed ? 'Quiz Passed!' : 'Quiz not passed. Review the lesson and try again.'}
                 </h3>
                 
                 {quizResult.passed ? (
@@ -542,7 +630,7 @@ export default function LessonPage() {
                         : "bg-blue-500 hover:bg-blue-600"
                     )}
                   >
-                    {isLastLesson ? 'Continue' : 'Next Lesson'}
+                    {isLastLesson ? 'Complete' : 'Next'}
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 ) : (
@@ -656,7 +744,7 @@ export default function LessonPage() {
               {/* Progress */}
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-0.5">
-                  {Array.from({ length: siblingLessons.length }).map((_, i) => (
+                  {siblingLessons.map((_, i) => (
                     <div
                       key={i}
                       className={cn(
@@ -675,21 +763,21 @@ export default function LessonPage() {
                 </span>
               </div>
 
-              {/* Next - disabled until scrolled */}
+              {/* Next/Complete Button - State Machine */}
               <Button
                 onClick={handleNext}
                 size="sm"
-                disabled={!canProceed && !lessonCompleted}
+                disabled={buttonState === 'locked'}
                 className={cn(
-                  "gap-1.5 font-semibold",
-                  (canProceed || lessonCompleted) && (
+                  "gap-1.5 font-semibold transition-all",
+                  buttonState !== 'locked' && (
                     isRookieCourse
                       ? "bg-green-500 hover:bg-green-600"
                       : "bg-blue-500 hover:bg-blue-600"
                   )
                 )}
               >
-                {isLastLesson ? 'Complete' : 'Next'}
+                {buttonLabel}
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </div>
