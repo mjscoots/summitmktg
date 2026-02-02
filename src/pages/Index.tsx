@@ -65,7 +65,7 @@ const Index = () => {
               onClick={() => navigate("/recruiting")}
               className="hidden sm:block text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
             >
-              Join Us
+              Learn More
             </button>
             <button
               onClick={() => navigate("/login")}
@@ -123,7 +123,7 @@ const Index = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <span className="text-base font-bold text-primary-foreground uppercase tracking-wide">
-                  Join Us
+                  Learn More
                 </span>
                 <ArrowRight className="w-4 h-4 text-primary-foreground" />
               </div>

@@ -91,8 +91,8 @@ const Apply = () => {
             </h2>
             
             <p className="text-muted-foreground mb-6">
-              <span className="text-primary font-semibold">Prior D2D experience?</span> Join with higher pay, 
-              instant marketing deals, and the ability to build your own team.
+              <span className="text-primary font-semibold">Prior D2D experience?</span> Join with 
+              instant marketing deals and the ability to build your own team.
             </p>
             
             <ul className="space-y-2 text-sm text-muted-foreground mb-6">

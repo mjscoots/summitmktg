@@ -1,10 +1,21 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { Users, Search, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Users, ChevronRight, ChevronDown, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+
+// Top-level team pillars with their leaders
+const TEAM_PILLARS = [
+  { name: 'Mafia', leader: 'Luke Chevalier' },
+  { name: 'Quality Control', leader: 'Joshua Bingham' },
+  { name: 'Altitude', leader: 'Cole Bundren' },
+  { name: 'Atlas', leader: 'Sean Jablonski' },
+  { name: 'Apex', leader: 'Hunter Shannon' },
+  { name: 'Minions', leader: 'Colton Joyce' },
+  { name: 'Paper Route', leader: 'Liam Gardner' },
+];
 
 interface TeamMember {
   id: string;
@@ -12,73 +23,64 @@ interface TeamMember {
   full_name: string;
   email: string;
   status: string | null;
-  created_at: string | null;
-  lessonsCompleted: number;
-  totalLessons: number;
+  direct_manager: string | null;
+  experience: string | null;
+  role?: string;
+}
+
+interface TreeNode {
+  member: TeamMember;
+  children: TreeNode[];
+  isExpanded: boolean;
 }
 
 export default function TeamPage() {
-  const { role, profile, isLoading: authLoading } = useAuth();
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const { role, isLoading: authLoading } = useAuth();
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
   const isManager = role === 'manager' || role === 'admin';
 
   useEffect(() => {
-    const fetchTeamMembers = async () => {
-      if (!profile?.full_name) return;
-
+    const fetchAllMembers = async () => {
       try {
-        // Fetch profiles where recruiter matches this manager's name
-        // For admins, fetch all non-NLC profiles
-        let query = supabase
+        // Fetch all profiles with their roles
+        const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('*')
           .neq('status', 'nlc')
           .order('full_name');
 
-        if (role === 'manager') {
-          query = query.eq('recruiter', profile.full_name);
-        }
-
-        const { data: profiles, error } = await query;
-
-        if (error) {
-          console.error('Error fetching team:', error);
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
           return;
         }
 
-        // Get lesson progress for each user
-        const membersWithProgress: TeamMember[] = [];
+        // Fetch roles for all users
+        const { data: roles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role');
 
-        for (const p of profiles || []) {
-          // Get total lessons count
-          const { count: totalLessons } = await supabase
-            .from('training_lessons')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_active', true);
-
-          // Get completed lessons for this user
-          const { count: completedLessons } = await supabase
-            .from('lesson_progress')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', p.user_id)
-            .eq('quiz_passed', true);
-
-          membersWithProgress.push({
-            id: p.id,
-            user_id: p.user_id,
-            full_name: p.full_name,
-            email: p.email,
-            status: p.status,
-            created_at: p.created_at,
-            lessonsCompleted: completedLessons || 0,
-            totalLessons: totalLessons || 0,
-          });
+        if (rolesError) {
+          console.error('Error fetching roles:', rolesError);
         }
 
-        setTeamMembers(membersWithProgress);
+        const roleMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
+
+        const membersWithRoles: TeamMember[] = (profiles || []).map(p => ({
+          id: p.id,
+          user_id: p.user_id,
+          full_name: p.full_name,
+          email: p.email,
+          status: p.status,
+          direct_manager: p.direct_manager,
+          experience: p.experience,
+          role: roleMap.get(p.user_id) || 'rookie',
+        }));
+
+        setAllMembers(membersWithRoles);
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -87,37 +89,143 @@ export default function TeamPage() {
     };
 
     if (!authLoading) {
-      fetchTeamMembers();
+      fetchAllMembers();
     }
-  }, [profile, role, authLoading]);
+  }, [authLoading]);
 
-  const filteredMembers = teamMembers.filter(member =>
-    member.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Build tree structure for a pillar
+  const buildTree = (leader: string): TreeNode | null => {
+    const leaderMember = allMembers.find(m => 
+      m.full_name.toLowerCase() === leader.toLowerCase()
+    );
+    
+    if (!leaderMember) return null;
 
-  const getStatusIcon = (status: string | null) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle2 className="w-4 h-4 text-primary" />;
-      case 'onboarded':
-        return <CheckCircle2 className="w-4 h-4 text-primary/70" />;
-      case 'contract_signed':
-      case 'info_added':
-        return <Clock className="w-4 h-4 text-accent-foreground" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
-    }
+    const buildNode = (member: TeamMember): TreeNode => {
+      const children = allMembers
+        .filter(m => m.direct_manager?.toLowerCase() === member.full_name.toLowerCase())
+        .map(child => buildNode(child));
+      
+      return {
+        member,
+        children,
+        isExpanded: expandedNodes.has(member.id),
+      };
+    };
+
+    return buildNode(leaderMember);
   };
 
-  const getStatusLabel = (status: string | null) => {
-    switch (status) {
-      case 'active': return 'Active';
-      case 'onboarded': return 'Onboarded';
-      case 'contract_signed': return 'Contract Signed';
-      case 'info_added': return 'Info Added';
-      default: return 'Pending';
+  const toggleNode = (id: string) => {
+    setExpandedNodes(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const expandAll = () => {
+    const allIds = new Set(allMembers.map(m => m.id));
+    setExpandedNodes(allIds);
+  };
+
+  const collapseAll = () => {
+    setExpandedNodes(new Set());
+  };
+
+  // Filter members based on search
+  const filterTree = (node: TreeNode | null, query: string): TreeNode | null => {
+    if (!node) return null;
+    
+    const matchesSelf = node.member.full_name.toLowerCase().includes(query.toLowerCase());
+    const filteredChildren = node.children
+      .map(child => filterTree(child, query))
+      .filter((child): child is TreeNode => child !== null);
+    
+    if (matchesSelf || filteredChildren.length > 0) {
+      return {
+        ...node,
+        children: filteredChildren,
+        isExpanded: query.length > 0 ? true : node.isExpanded,
+      };
     }
+    
+    return null;
+  };
+
+  const renderTreeNode = (node: TreeNode, depth: number = 0) => {
+    const hasChildren = node.children.length > 0;
+    const isVeteran = node.member.role === 'manager' || node.member.role === 'admin' || node.member.experience === 'veteran';
+    const isExpanded = searchQuery.length > 0 || expandedNodes.has(node.member.id);
+    
+    return (
+      <div key={node.member.id} className="select-none">
+        <div
+          className={cn(
+            "flex items-center gap-2 py-2 px-3 rounded-lg transition-colors cursor-pointer",
+            "hover:bg-muted/50",
+            depth === 0 ? "bg-muted/30" : ""
+          )}
+          style={{ marginLeft: `${depth * 24}px` }}
+          onClick={() => hasChildren && toggleNode(node.member.id)}
+        >
+          {/* Expand/Collapse indicator */}
+          <div className="w-5 h-5 flex items-center justify-center">
+            {hasChildren ? (
+              isExpanded ? (
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              )
+            ) : (
+              <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
+            )}
+          </div>
+
+          {/* Role indicator dot */}
+          <div className={cn(
+            "w-2.5 h-2.5 rounded-full flex-shrink-0",
+            isVeteran ? "bg-primary" : "bg-green-500"
+          )} />
+
+          {/* Name */}
+          <span className={cn(
+            "font-medium text-sm",
+            isVeteran ? "text-primary" : "text-green-400"
+          )}>
+            {node.member.full_name}
+          </span>
+
+          {/* Role badge */}
+          <span className={cn(
+            "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide",
+            isVeteran 
+              ? "bg-primary/20 text-primary" 
+              : "bg-green-500/20 text-green-400"
+          )}>
+            {isVeteran ? 'Manager' : 'Rookie'}
+          </span>
+
+          {/* Children count */}
+          {hasChildren && (
+            <span className="text-xs text-muted-foreground ml-auto">
+              {node.children.length} {node.children.length === 1 ? 'report' : 'reports'}
+            </span>
+          )}
+        </div>
+
+        {/* Children */}
+        {isExpanded && hasChildren && (
+          <div className="border-l border-border/30 ml-5">
+            {node.children.map(child => renderTreeNode(child, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (authLoading) {
@@ -128,101 +236,115 @@ export default function TeamPage() {
     );
   }
 
+  // Non-managers shouldn't see this page
+  if (!isManager) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">You don't have access to this page.</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
-    <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
-      <div className="min-h-screen bg-background">
-        <DashboardHeader />
-
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <Users className="w-6 h-6 text-primary" />
-              Team Management
+    <AppLayout>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-lg bg-primary/15">
+              <Users className="w-5 h-5 text-primary" />
+            </div>
+            <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+              Teams
             </h1>
-            <p className="text-muted-foreground mt-1">
-              View and track your team's training progress
-            </p>
           </div>
+          <p className="text-muted-foreground text-sm">
+            Organizational hierarchy and team structure
+          </p>
+        </div>
 
-          {/* Search */}
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search team members..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search team members..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
+          <div className="flex gap-2">
+            <button
+              onClick={expandAll}
+              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              Expand All
+            </button>
+            <button
+              onClick={collapseAll}
+              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              Collapse All
+            </button>
+          </div>
+        </div>
 
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-pulse text-muted-foreground">Loading team...</div>
-            </div>
-          ) : filteredMembers.length === 0 ? (
-            <div className="text-center py-12 bg-card rounded-lg border border-border">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">
-                {searchQuery ? 'No team members match your search' : 'No team members found'}
-              </p>
-            </div>
-          ) : (
-            <div className="bg-card rounded-lg border border-border overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left px-4 py-3 text-sm font-semibold text-foreground">Name</th>
-                      <th className="text-left px-4 py-3 text-sm font-semibold text-foreground">Email</th>
-                      <th className="text-left px-4 py-3 text-sm font-semibold text-foreground">Status</th>
-                      <th className="text-left px-4 py-3 text-sm font-semibold text-foreground">Training Progress</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredMembers.map((member) => {
-                      const progressPercent = member.totalLessons > 0
-                        ? Math.round((member.lessonsCompleted / member.totalLessons) * 100)
-                        : 0;
+        {/* Legend */}
+        <div className="flex items-center gap-6 mb-6 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-primary" />
+            <span className="text-muted-foreground">Manager / Veteran</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="text-muted-foreground">Rookie</span>
+          </div>
+        </div>
 
-                      return (
-                        <tr key={member.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <span className="font-medium text-foreground">{member.full_name}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="text-muted-foreground text-sm">{member.email}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              {getStatusIcon(member.status)}
-                              <span className="text-sm text-foreground">{getStatusLabel(member.status)}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[120px]">
-                                <div
-                                  className="h-full bg-primary transition-all"
-                                  style={{ width: `${progressPercent}%` }}
-                                />
-                              </div>
-                              <span className="text-sm text-muted-foreground min-w-[60px]">
-                                {member.lessonsCompleted}/{member.totalLessons}
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </main>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-pulse text-muted-foreground">Loading team structure...</div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {TEAM_PILLARS.map(pillar => {
+              let tree = buildTree(pillar.leader);
+              
+              // Apply search filter
+              if (searchQuery && tree) {
+                tree = filterTree(tree, searchQuery);
+              }
+
+              return (
+                <div key={pillar.name} className="bg-card rounded-xl border border-border/50 p-5">
+                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border/30">
+                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{pillar.name}</h3>
+                      <p className="text-xs text-muted-foreground">Led by {pillar.leader}</p>
+                    </div>
+                  </div>
+                  
+                  {tree ? (
+                    <div className="space-y-1">
+                      {renderTreeNode(tree)}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      {searchQuery ? 'No members match your search' : `${pillar.leader} not found in system`}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </ThemeProvider>
+    </AppLayout>
   );
 }

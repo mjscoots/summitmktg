@@ -185,7 +185,7 @@ const VetApplication = () => {
     { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts." },
     { icon: TrendingUp, title: "Uncapped Recruiting", description: "You will never be capped on how many people you want to bring out." },
     { icon: Settings, title: "Elite Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and recruiting software — all provided free to veterans on day one." },
-    { icon: DollarSign, title: "Top-tier pay structure", description: "Higher commissions, scalable overrides, and a marketing deal structure designed for long-term upside." },
+    { icon: DollarSign, title: "Scalable Structure", description: "Scalable overrides and a marketing deal structure designed for long-term upside." },
   ];
 
   return (
