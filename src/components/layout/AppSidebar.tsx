@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, ChevronRight, Calendar } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, ChevronRight, Calendar, Mountain } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import summitLogo from '@/assets/summit-logo-new.png';
+
 
 const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
@@ -70,14 +70,23 @@ export function AppSidebar() {
           )}
           onClick={() => navigate('/app')}
         >
-          <img 
-            src={summitLogo} 
-            alt="Summit" 
-            className={cn(
-              "object-contain transition-all duration-200",
-              collapsed ? "h-10 w-auto" : "h-16 w-auto"
-            )}
-          />
+          <div className={cn(
+              "flex items-center gap-2",
+              collapsed ? "justify-center" : ""
+            )}>
+              <Mountain className={cn(
+                "text-primary flex-shrink-0",
+                collapsed ? "w-6 h-6" : "w-5 h-5"
+              )} />
+              {!collapsed && (
+                <span 
+                  className="text-lg font-black tracking-tight uppercase text-foreground/90"
+                  style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}
+                >
+                  Summit
+                </span>
+              )}
+            </div>
           {!collapsed && (
             <span className="mt-2 text-[10px] font-semibold text-primary tracking-[0.15em] uppercase text-left w-full pl-1">
               {roleLabel}
