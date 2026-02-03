@@ -10,12 +10,12 @@ import { toast } from 'sonner';
 interface FormData {
   recruitName: string;
   interviewerName: string;
-  videoReflection: string;
-  personalCharacteristic: string;
-  valueToTeam: string;
-  motivation: string;
-  salesThinking: string;
-  selfDevelopment: string;
+  firstImpression: string;
+  proudMoment: string;
+  teamValue: string;
+  whyHard: string;
+  overcomingPlateau: string;
+  growthMindset: string;
   scheduledInterview2: string;
   notes: string;
 }
@@ -27,12 +27,12 @@ export default function Interview1Page() {
   const [formData, setFormData] = useState<FormData>({
     recruitName: '',
     interviewerName: profile?.full_name || '',
-    videoReflection: '',
-    personalCharacteristic: '',
-    valueToTeam: '',
-    motivation: '',
-    salesThinking: '',
-    selfDevelopment: '',
+    firstImpression: '',
+    proudMoment: '',
+    teamValue: '',
+    whyHard: '',
+    overcomingPlateau: '',
+    growthMindset: '',
     scheduledInterview2: '',
     notes: '',
   });
@@ -62,12 +62,12 @@ export default function Interview1Page() {
       interviewer: formData.interviewerName,
       submitted: new Date().toISOString(),
       data: {
-        'Video Reflection': formData.videoReflection,
-        'Personal Characteristic': formData.personalCharacteristic,
-        'Value to Team': formData.valueToTeam,
-        'Motivation': formData.motivation,
-        'Sales Thinking': formData.salesThinking,
-        'Self Development': formData.selfDevelopment,
+        'First Impression': formData.firstImpression,
+        'Proud Moment': formData.proudMoment,
+        'Team Value': formData.teamValue,
+        'Why Hard Work': formData.whyHard,
+        'Overcoming Plateau': formData.overcomingPlateau,
+        'Growth Mindset': formData.growthMindset,
         'Interview 2 Scheduled': formData.scheduledInterview2,
         'Notes': formData.notes,
       },
@@ -105,12 +105,12 @@ export default function Interview1Page() {
               </button>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-yellow-500 flex items-center justify-center">
-                  <span className="text-black font-bold text-lg">1</span>
+                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">1</span>
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Interview 1</h1>
-                  <p className="text-muted-foreground text-sm">Initial screening and background</p>
+                  <p className="text-muted-foreground text-sm">First connection — building rapport</p>
                 </div>
               </div>
             </div>
@@ -145,79 +145,104 @@ export default function Interview1Page() {
                 </div>
               </div>
 
-              {/* Questions */}
+              {/* Psychology-Driven Questions - Dopamine Curve */}
+              
+              {/* Easy opener - builds confidence */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  What stood out to you from the video?
+                  What caught your attention about this opportunity?
                 </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Easy opener: Let them share what excited them
+                </p>
                 <textarea
-                  value={formData.videoReflection}
-                  onChange={(e) => handleChange('videoReflection', e.target.value)}
+                  value={formData.firstImpression}
+                  onChange={(e) => handleChange('firstImpression', e.target.value)}
                   placeholder="Record their response..."
                   rows={3}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
                 />
               </div>
 
+              {/* Pride question - builds them up */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  What's one personal characteristic you're most proud of?
+                  Tell me about a moment you're genuinely proud of — something that took real effort.
                 </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Social proof: Let them prove their worth to themselves
+                </p>
                 <textarea
-                  value={formData.personalCharacteristic}
-                  onChange={(e) => handleChange('personalCharacteristic', e.target.value)}
+                  value={formData.proudMoment}
+                  onChange={(e) => handleChange('proudMoment', e.target.value)}
                   placeholder="Record their response..."
                   rows={3}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
                 />
               </div>
 
+              {/* Value question - goes deeper */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Outside of producing revenue, what value do you think you bring to a team?
+                  Beyond just selling — what would you bring to a team culture?
                 </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Identity question: How do they see themselves contributing?
+                </p>
                 <textarea
-                  value={formData.valueToTeam}
-                  onChange={(e) => handleChange('valueToTeam', e.target.value)}
+                  value={formData.teamValue}
+                  onChange={(e) => handleChange('teamValue', e.target.value)}
                   placeholder="Record their response..."
                   rows={3}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
                 />
               </div>
 
+              {/* Challenge question - pattern interrupt */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Why do you want to do this instead of something easier this summer?
+                  Why choose something hard when you could do something easy this summer?
                 </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Pattern interrupt: Cuts through rehearsed answers
+                </p>
                 <textarea
-                  value={formData.motivation}
-                  onChange={(e) => handleChange('motivation', e.target.value)}
+                  value={formData.whyHard}
+                  onChange={(e) => handleChange('whyHard', e.target.value)}
                   placeholder="Record their response..."
                   rows={3}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
                 />
               </div>
 
+              {/* Problem-solving - tests mindset */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  If you were consistently selling 2–3 a day but couldn't break past that, what would you change?
+                  If you hit a wall and couldn't break past it, what would you actually change?
                 </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Reveals problem-solving approach and coachability
+                </p>
                 <textarea
-                  value={formData.salesThinking}
-                  onChange={(e) => handleChange('salesThinking', e.target.value)}
+                  value={formData.overcomingPlateau}
+                  onChange={(e) => handleChange('overcomingPlateau', e.target.value)}
                   placeholder="Record their response..."
                   rows={3}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
                 />
               </div>
 
+              {/* Growth mindset - ends on high note */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  What books or content are you currently consuming for self-development?
+                  What are you actively doing to become better — books, podcasts, mentors?
                 </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Growth indicator: Are they already investing in themselves?
+                </p>
                 <textarea
-                  value={formData.selfDevelopment}
-                  onChange={(e) => handleChange('selfDevelopment', e.target.value)}
+                  value={formData.growthMindset}
+                  onChange={(e) => handleChange('growthMindset', e.target.value)}
                   placeholder="Record their response..."
                   rows={2}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
@@ -255,7 +280,7 @@ export default function Interview1Page() {
               {/* Submit */}
               <button
                 onClick={handleSubmit}
-                className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
+                className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors"
               >
                 Submit Interview
               </button>

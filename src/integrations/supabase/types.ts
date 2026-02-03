@@ -369,6 +369,30 @@ export type Database = {
           },
         ]
       }
+      manager_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          manager_name: string
+          message: string
+          rep_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manager_name: string
+          message: string
+          rep_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manager_name?: string
+          message?: string
+          rep_name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -508,6 +532,50 @@ export type Database = {
         }
         Relationships: []
       }
+      rep_signups: {
+        Row: {
+          created_at: string
+          id: string
+          rep_email: string
+          rep_name: string
+          rep_phone: string
+          signed_at: string
+          signed_by: string | null
+          source: string | null
+          team_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rep_email: string
+          rep_name: string
+          rep_phone: string
+          signed_at?: string
+          signed_by?: string | null
+          source?: string | null
+          team_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rep_email?: string
+          rep_name?: string
+          rep_phone?: string
+          signed_at?: string
+          signed_by?: string | null
+          source?: string | null
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rep_signups_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedule_items: {
         Row: {
           created_at: string | null
@@ -582,6 +650,7 @@ export type Database = {
           created_at: string | null
           id: string
           leader_id: string | null
+          logo_url: string | null
           name: string
           slug: string
         }
@@ -589,6 +658,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           leader_id?: string | null
+          logo_url?: string | null
           name: string
           slug: string
         }
@@ -596,6 +666,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           leader_id?: string | null
+          logo_url?: string | null
           name?: string
           slug?: string
         }

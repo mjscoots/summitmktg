@@ -1,41 +1,99 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, UserPlus, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface FormData {
   recruitName: string;
   interviewerName: string;
-  pros: string;
-  cons: string;
+  dreamScenario: string;
+  identityQuestion: string;
+  futurePacing: string;
   confidenceScale: string;
-  pullBackResponse: string;
-  outcome: 'offer' | 'disqualified' | '';
+  commitmentLevel: string;
   notes: string;
+  outcome: 'offer' | 'disqualified' | '';
+}
+
+interface RepFormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  teamId: string;
 }
 
 export default function Interview3Page() {
   const navigate = useNavigate();
-  const { profile, isLoading } = useAuth();
+  const { profile, isLoading, user } = useAuth();
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const [showRepForm, setShowRepForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState<FormData>({
     recruitName: '',
     interviewerName: profile?.full_name || '',
-    pros: '',
-    cons: '',
+    dreamScenario: '',
+    identityQuestion: '',
+    futurePacing: '',
     confidenceScale: '',
-    pullBackResponse: '',
-    outcome: '',
+    commitmentLevel: '',
     notes: '',
+    outcome: '',
   });
+
+  const [repFormData, setRepFormData] = useState<RepFormData>({
+    fullName: '',
+    email: '',
+    phone: '',
+    teamId: '',
+  });
+
+  useEffect(() => {
+    if (profile?.full_name) {
+      setFormData(prev => ({ ...prev, interviewerName: profile.full_name }));
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      const { data } = await supabase.from('teams').select('id, name').order('name');
+      setTeams(data || []);
+    };
+    fetchTeams();
+  }, []);
 
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleRepChange = (field: keyof RepFormData, value: string) => {
+    setRepFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 3) return cleaned;
+    if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
   };
 
   const handleSubmit = () => {
@@ -52,7 +110,7 @@ export default function Interview3Page() {
       return;
     }
 
-    // Save to localStorage
+    // Save interview to localStorage
     const stored = localStorage.getItem('summit_interview_responses');
     const responses = stored ? JSON.parse(stored) : [];
     
@@ -63,10 +121,11 @@ export default function Interview3Page() {
       interviewer: formData.interviewerName,
       submitted: new Date().toISOString(),
       data: {
-        'Pros': formData.pros,
-        'Cons': formData.cons,
+        'Dream Scenario': formData.dreamScenario,
+        'Identity Question': formData.identityQuestion,
+        'Future Pacing': formData.futurePacing,
         'Confidence Scale (1-10)': formData.confidenceScale,
-        'Pull-Back Response': formData.pullBackResponse,
+        'Commitment Level': formData.commitmentLevel,
         'Final Outcome': formData.outcome === 'offer' ? 'Offer Extended' : 'Disqualified',
         'Notes': formData.notes,
       },
@@ -74,8 +133,58 @@ export default function Interview3Page() {
     
     localStorage.setItem('summit_interview_responses', JSON.stringify(responses));
     
-    toast.success('Interview submitted');
-    navigate('/app/interviews');
+    if (formData.outcome === 'offer') {
+      // Pre-fill rep form with recruit name
+      setRepFormData(prev => ({ ...prev, fullName: formData.recruitName }));
+      setShowRepForm(true);
+    } else {
+      toast.success('Interview submitted');
+      navigate('/app/interviews');
+    }
+  };
+
+  const handleAddRep = async () => {
+    if (!repFormData.fullName.trim()) {
+      toast.error('Please enter the rep\'s full name');
+      return;
+    }
+    if (!repFormData.email.trim()) {
+      toast.error('Please enter the rep\'s email');
+      return;
+    }
+    if (!repFormData.phone.trim()) {
+      toast.error('Please enter the rep\'s phone number');
+      return;
+    }
+    if (!repFormData.teamId) {
+      toast.error('Please select a team');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Insert into rep_signups table
+      const { error } = await supabase.from('rep_signups').insert({
+        rep_name: repFormData.fullName,
+        rep_email: repFormData.email,
+        rep_phone: repFormData.phone,
+        team_id: repFormData.teamId,
+        signed_by: user?.id,
+        source: 'interview3',
+      });
+
+      if (error) throw error;
+
+      toast.success('Rep signed successfully!', {
+        description: `${repFormData.fullName} has been added to the team`,
+      });
+      navigate('/app/interviews');
+    } catch (err) {
+      console.error('Error adding rep:', err);
+      toast.error('Failed to add rep');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -104,12 +213,12 @@ export default function Interview3Page() {
               </button>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
                   <span className="text-white font-bold text-lg">3</span>
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Interview 3</h1>
-                  <p className="text-muted-foreground text-sm">Final decision and onboarding</p>
+                  <p className="text-muted-foreground text-sm">Final decision — closing the deal</p>
                 </div>
               </div>
             </div>
@@ -144,60 +253,103 @@ export default function Interview3Page() {
                 </div>
               </div>
 
-              {/* Questions */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Give me 3–5 pros of doing this internship.
-                </label>
-                <textarea
-                  value={formData.pros}
-                  onChange={(e) => handleChange('pros', e.target.value)}
-                  placeholder="Record their response..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                />
+              {/* Psychology-Driven Questions */}
+              <div className="space-y-5">
+                {/* Easy opener - builds confidence */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Imagine you're 3 months into the summer. You've crushed it. What does that version of your life look like?
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Future-pacing: Get them to visualize success
+                  </p>
+                  <textarea
+                    value={formData.dreamScenario}
+                    onChange={(e) => handleChange('dreamScenario', e.target.value)}
+                    placeholder="Record their vision..."
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
+                  />
+                </div>
+
+                {/* Identity question - goes deeper */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    What type of person do you see yourself becoming? Not just this summer—in life?
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Identity-based: Connect the opportunity to who they want to be
+                  </p>
+                  <textarea
+                    value={formData.identityQuestion}
+                    onChange={(e) => handleChange('identityQuestion', e.target.value)}
+                    placeholder="Record their response..."
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
+                  />
+                </div>
+
+                {/* Anticipation builder */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    What are you most excited about starting?
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Dopamine trigger: End with anticipation, not doubt
+                  </p>
+                  <textarea
+                    value={formData.futurePacing}
+                    onChange={(e) => handleChange('futurePacing', e.target.value)}
+                    placeholder="Record their excitement..."
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
+                  />
+                </div>
+
+                {/* Commitment checks */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Readiness Scale (1-10)
+                    </label>
+                    <select
+                      value={formData.confidenceScale}
+                      onChange={(e) => handleChange('confidenceScale', e.target.value)}
+                      className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                    >
+                      <option value="">Select...</option>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Commitment Level
+                    </label>
+                    <select
+                      value={formData.commitmentLevel}
+                      onChange={(e) => handleChange('commitmentLevel', e.target.value)}
+                      className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                    >
+                      <option value="">Select...</option>
+                      <option value="all-in">All-in — ready to go</option>
+                      <option value="committed">Committed with minor concerns</option>
+                      <option value="interested">Interested but needs more info</option>
+                      <option value="hesitant">Hesitant — red flags present</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Any real cons you're thinking about?
+                  Additional Notes
                 </label>
                 <textarea
-                  value={formData.cons}
-                  onChange={(e) => handleChange('cons', e.target.value)}
-                  placeholder="Record their response..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  On a scale of 1–10, how ready are you to get started?
-                </label>
-                <select
-                  value={formData.confidenceScale}
-                  onChange={(e) => handleChange('confidenceScale', e.target.value)}
-                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                >
-                  <option value="">Select...</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Pull-Back Response (if applicable)
-                </label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  "Based on this, it might make more sense for us to go with someone else."
-                </p>
-                <textarea
-                  value={formData.pullBackResponse}
-                  onChange={(e) => handleChange('pullBackResponse', e.target.value)}
-                  placeholder="How did they respond?"
+                  value={formData.notes}
+                  onChange={(e) => handleChange('notes', e.target.value)}
+                  placeholder="Any other observations..."
                   rows={3}
                   className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
                 />
@@ -215,10 +367,11 @@ export default function Interview3Page() {
                     className={cn(
                       'flex-1 py-3 rounded-lg font-medium transition-all border',
                       formData.outcome === 'offer'
-                        ? 'bg-green-500 text-white border-green-500'
-                        : 'bg-background text-muted-foreground border-border hover:border-green-500/50'
+                        ? 'bg-success text-white border-success'
+                        : 'bg-background text-muted-foreground border-border hover:border-success/50'
                     )}
                   >
+                    <CheckCircle2 className="w-4 h-4 inline mr-2" />
                     Offer Extended
                   </button>
                   <button
@@ -227,8 +380,8 @@ export default function Interview3Page() {
                     className={cn(
                       'flex-1 py-3 rounded-lg font-medium transition-all border',
                       formData.outcome === 'disqualified'
-                        ? 'bg-red-500 text-white border-red-500'
-                        : 'bg-background text-muted-foreground border-border hover:border-red-500/50'
+                        ? 'bg-muted text-foreground border-border'
+                        : 'bg-background text-muted-foreground border-border hover:border-foreground/30'
                     )}
                   >
                     Disqualified
@@ -236,23 +389,10 @@ export default function Interview3Page() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Additional Notes
-                </label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => handleChange('notes', e.target.value)}
-                  placeholder="Any other observations..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                />
-              </div>
-
               {/* Submit */}
               <button
                 onClick={handleSubmit}
-                className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
+                className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors"
               >
                 Submit Interview
               </button>
@@ -260,6 +400,98 @@ export default function Interview3Page() {
           </main>
         </div>
       </SidebarProvider>
+
+      {/* Add Rep Modal */}
+      <Dialog open={showRepForm} onOpenChange={setShowRepForm}>
+        <DialogContent className="bg-card border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-primary" />
+              Add Rep to Team
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <p className="text-sm text-muted-foreground">
+              Complete the rep's information to add them to a team.
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                value={repFormData.fullName}
+                onChange={(e) => handleRepChange('fullName', e.target.value)}
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                value={repFormData.email}
+                onChange={(e) => handleRepChange('email', e.target.value)}
+                placeholder="rep@example.com"
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                value={repFormData.phone}
+                onChange={(e) => handleRepChange('phone', formatPhoneNumber(e.target.value))}
+                placeholder="(555) 123-4567"
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Assign to Team *
+              </label>
+              <Select value={repFormData.teamId} onValueChange={(v) => handleRepChange('teamId', v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams.map(team => (
+                    <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => {
+                  setShowRepForm(false);
+                  toast.success('Interview submitted');
+                  navigate('/app/interviews');
+                }}
+                className="flex-1 py-2.5 border border-border rounded-lg font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Skip for Now
+              </button>
+              <button
+                onClick={handleAddRep}
+                disabled={isSubmitting}
+                className="flex-1 py-2.5 bg-success text-white rounded-lg font-semibold hover:bg-success/90 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? 'Adding...' : 'Add Rep'}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </ThemeProvider>
   );
 }
