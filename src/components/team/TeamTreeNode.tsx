@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX, GraduationCap } from 'lucide-react';
+import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 import { getStatusInfo, getDisplayName } from '@/lib/hierarchyUtils';
-import { TrainingProgressBadge } from './TrainingProgressBadge';
 import type { MemberTrainingProgress } from '@/hooks/useTrainingProgress';
 
 interface TeamTreeNodeProps {
@@ -12,14 +11,21 @@ interface TeamTreeNodeProps {
   isRoot?: boolean;
   depth?: number;
   getProgress?: (userId: string) => MemberTrainingProgress;
+  onMemberClick?: (member: TeamMember) => void;
 }
 
-export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0, getProgress }: TeamTreeNodeProps) {
+export function TeamTreeNode({ 
+  member, 
+  isManager, 
+  isRoot = false, 
+  depth = 0, 
+  getProgress,
+  onMemberClick,
+}: TeamTreeNodeProps) {
   const [expanded, setExpanded] = useState(isRoot || depth < 2);
   const hasChildren = member.children && member.children.length > 0;
   const statusInfo = getStatusInfo(member.status);
   const isNLC = member.status === 'nlc' || member.isNLC;
-  const progress = getProgress?.(member.user_id);
 
   // Sort children: managers first by team size, then by training progress
   const sortedChildren = member.children?.slice().sort((a, b) => {
@@ -48,6 +54,18 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0, get
     return getDisplayName(a.full_name).localeCompare(getDisplayName(b.full_name));
   });
 
+  const handleRowClick = (e: React.MouseEvent) => {
+    // If clicking on expand/collapse area, toggle expansion
+    if (hasChildren) {
+      setExpanded(!expanded);
+    }
+  };
+
+  const handleNameClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onMemberClick?.(member);
+  };
+
   return (
     <div className={cn("relative", depth > 0 && "ml-6")}>
       {/* Connector line */}
@@ -65,7 +83,7 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0, get
           isRoot && "bg-primary/10 border border-primary/20",
           isNLC && "opacity-50"
         )}
-        onClick={() => hasChildren && setExpanded(!expanded)}
+        onClick={handleRowClick}
       >
         {/* Expand/collapse icon */}
         {hasChildren ? (
@@ -100,30 +118,28 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0, get
           )}
         </div>
 
-        {/* Name and info */}
+        {/* Name and info - CLICKABLE */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className={cn(
-              "font-medium truncate",
-              isNLC 
-                ? "text-muted-foreground" 
-                : isManager 
-                  ? "text-primary" 
-                  : "text-success"
-            )}>
+            <button
+              onClick={handleNameClick}
+              className={cn(
+                "font-medium truncate hover:underline cursor-pointer text-left",
+                isNLC 
+                  ? "text-muted-foreground" 
+                  : isManager 
+                    ? "text-primary" 
+                    : "text-success"
+              )}
+            >
               {getDisplayName(member.full_name)}
-            </span>
+            </button>
             {member.dataIssue && (
               <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" />
             )}
           </div>
           <p className="text-xs text-muted-foreground truncate">{member.email}</p>
         </div>
-
-        {/* Training Progress */}
-        {progress && !isNLC && (
-          <TrainingProgressBadge percentage={progress.percentage} showBar />
-        )}
 
         {/* Badges */}
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -158,6 +174,7 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0, get
               isManager={child.children && child.children.length > 0}
               depth={depth + 1}
               getProgress={getProgress}
+              onMemberClick={onMemberClick}
             />
           ))}
         </div>

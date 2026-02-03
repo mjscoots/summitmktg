@@ -3,6 +3,7 @@ import { ArrowLeft, Users, AlertTriangle, Search, ChevronDown, ChevronRight } fr
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TeamTreeNode } from './TeamTreeNode';
+import { MemberProfileModal } from './MemberProfileModal';
 import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
 import { isManager as checkIsManager, normalizeName, getDisplayName } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
@@ -19,10 +20,12 @@ interface PillarTreeViewProps {
 export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
   const { getProgress } = useTrainingProgress(userIds);
+
   // Build pyramid summary
   const getPyramidLevels = () => {
     if (!tree) return [];
@@ -80,6 +83,11 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
       }
       return next;
     });
+  };
+
+  // Handle member click for profile modal
+  const handleMemberClick = (member: TeamMember) => {
+    setSelectedMember(member);
   };
 
   // Count NLC members
@@ -201,20 +209,22 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
                       })
                       .map(member => {
                         const isNLC = member.status === 'nlc' || member.isNLC;
+                        const isMgr = member.children && member.children.length > 0;
                         return (
-                          <div 
+                          <button 
                             key={member.id}
+                            onClick={() => handleMemberClick(member)}
                             className={cn(
-                              "text-xs px-2 py-1 rounded-full",
+                              "text-xs px-2 py-1 rounded-full transition-colors cursor-pointer",
                               isNLC
-                                ? "bg-muted text-muted-foreground opacity-50"
-                                : member.children && member.children.length > 0
-                                  ? "bg-primary/10 text-primary"
-                                  : "bg-success/10 text-success"
+                                ? "bg-muted text-muted-foreground opacity-50 hover:opacity-75"
+                                : isMgr
+                                  ? "bg-primary/10 text-primary hover:bg-primary/20"
+                                  : "bg-success/10 text-success hover:bg-success/20"
                             )}
                           >
                             <span>{getDisplayName(member.full_name)}</span>
-                          </div>
+                          </button>
                         );
                       })}
                   </div>
@@ -251,6 +261,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
             isManager={true}
             isRoot={true}
             getProgress={getProgress}
+            onMemberClick={handleMemberClick}
           />
         ) : (
           <div className="text-center py-8">
@@ -261,6 +272,15 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
           </div>
         )}
       </div>
+
+      {/* Member Profile Modal */}
+      <MemberProfileModal
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        roster={roster}
+        onMemberClick={handleMemberClick}
+      />
     </div>
   );
 }
