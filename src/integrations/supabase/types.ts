@@ -703,6 +703,56 @@ export type Database = {
         }
         Relationships: []
       }
+      team_notifications: {
+        Row: {
+          created_at: string
+          dismissed_by_users: string[] | null
+          expires_at: string
+          id: string
+          new_rep_email: string | null
+          new_rep_name: string
+          new_rep_phone: string | null
+          signer_name: string
+          signer_user_id: string
+          team_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          dismissed_by_users?: string[] | null
+          expires_at: string
+          id?: string
+          new_rep_email?: string | null
+          new_rep_name: string
+          new_rep_phone?: string | null
+          signer_name: string
+          signer_user_id: string
+          team_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          dismissed_by_users?: string[] | null
+          expires_at?: string
+          id?: string
+          new_rep_email?: string | null
+          new_rep_name?: string
+          new_rep_phone?: string | null
+          signer_name?: string
+          signer_user_id?: string
+          team_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_notifications_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teams: {
         Row: {
           created_at: string | null

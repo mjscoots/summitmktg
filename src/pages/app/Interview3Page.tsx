@@ -189,27 +189,7 @@ export default function Interview3Page() {
 
       if (signupError) throw signupError;
 
-      // Create notification for the assigned manager
-      const interviewData = {
-        interview3: {
-          recruitName: formData.recruitName,
-          interviewer: formData.interviewerName,
-          dreamScenario: formData.dreamScenario,
-          identityQuestion: formData.identityQuestion,
-          futurePacing: formData.futurePacing,
-          confidenceScale: formData.confidenceScale,
-          commitmentLevel: formData.commitmentLevel,
-          notes: formData.notes,
-          outcome: 'Offer Extended',
-          submittedAt: new Date().toISOString(),
-        },
-        repInfo: {
-          fullName: repFormData.fullName,
-          email: repFormData.email,
-          phone: repFormData.phone,
-        }
-      };
-
+      // Create notification for the assigned manager (bell icon)
       const { error: notificationError } = await supabase.from('user_notifications').insert({
         user_id: repFormData.directManager.user_id,
         title: `New Rep Assigned: ${repFormData.fullName}`,
@@ -219,7 +199,45 @@ export default function Interview3Page() {
 
       if (notificationError) {
         console.error('Notification error:', notificationError);
-        // Don't block the flow for notification errors
+      }
+
+      // Create team-specific notifications (banners on team page)
+      // Manager-only notification (expires in 48 hours)
+      const managerExpiry = new Date();
+      managerExpiry.setHours(managerExpiry.getHours() + 48);
+
+      const { error: managerNotifError } = await supabase.from('team_notifications').insert({
+        team_id: repFormData.teamId,
+        type: 'manager_only',
+        signer_user_id: user?.id,
+        signer_name: formData.interviewerName,
+        new_rep_name: repFormData.fullName,
+        new_rep_email: repFormData.email,
+        new_rep_phone: repFormData.phone,
+        expires_at: managerExpiry.toISOString(),
+      });
+
+      if (managerNotifError) {
+        console.error('Manager notification error:', managerNotifError);
+      }
+
+      // Team-wide welcome notification (expires in 7 days)
+      const teamWideExpiry = new Date();
+      teamWideExpiry.setDate(teamWideExpiry.getDate() + 7);
+
+      const { error: teamWideNotifError } = await supabase.from('team_notifications').insert({
+        team_id: repFormData.teamId,
+        type: 'team_wide',
+        signer_user_id: user?.id,
+        signer_name: formData.interviewerName,
+        new_rep_name: repFormData.fullName,
+        new_rep_email: repFormData.email,
+        new_rep_phone: repFormData.phone,
+        expires_at: teamWideExpiry.toISOString(),
+      });
+
+      if (teamWideNotifError) {
+        console.error('Team-wide notification error:', teamWideNotifError);
       }
 
       toast.success('Rep signed successfully!', {

@@ -5,6 +5,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Users, ChevronRight, ChevronDown, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { TeamNotificationBanners } from '@/components/team/TeamNotificationBanners';
+import { TeamMember } from '@/lib/hierarchyUtils';
 
 // Top-level team pillars with their leaders
 const TEAM_PILLARS = [
@@ -17,11 +19,12 @@ const TEAM_PILLARS = [
   { name: 'Paper Route', leader: 'Liam Gardner' },
 ];
 
-interface TeamMember {
+interface TeamMemberLocal {
   id: string;
   user_id: string;
   full_name: string;
   email: string;
+  phone?: string | null;
   status: string | null;
   direct_manager: string | null;
   experience: string | null;
@@ -29,14 +32,27 @@ interface TeamMember {
 }
 
 interface TreeNode {
-  member: TeamMember;
+  member: TeamMemberLocal;
   children: TreeNode[];
   isExpanded: boolean;
 }
 
+// Convert local members to TeamMember format for modal
+const convertToTeamMember = (m: TeamMemberLocal): TeamMember => ({
+  id: m.id,
+  user_id: m.user_id,
+  full_name: m.full_name,
+  email: m.email,
+  phone: m.phone,
+  status: m.status,
+  experience: m.experience,
+  direct_manager: m.direct_manager,
+  role: (m.role as 'rookie' | 'manager' | 'admin') || 'rookie',
+});
+
 export default function TeamPage() {
   const { role, isLoading: authLoading } = useAuth();
-  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
+  const [allMembers, setAllMembers] = useState<TeamMemberLocal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
@@ -101,7 +117,7 @@ export default function TeamPage() {
     
     if (!leaderMember) return null;
 
-    const buildNode = (member: TeamMember): TreeNode => {
+    const buildNode = (member: TeamMemberLocal): TreeNode => {
       const children = allMembers
         .filter(m => m.direct_manager?.toLowerCase() === member.full_name.toLowerCase())
         .map(child => buildNode(child));
@@ -247,9 +263,18 @@ export default function TeamPage() {
     );
   }
 
+  // Convert all members to TeamMember format for banners
+  const rosterForBanners: TeamMember[] = allMembers.map(m => convertToTeamMember(m));
+
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Team Notification Banners */}
+        <TeamNotificationBanners 
+          teamName="the team" 
+          roster={rosterForBanners}
+        />
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
