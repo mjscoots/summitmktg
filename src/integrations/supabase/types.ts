@@ -160,13 +160,47 @@ export type Database = {
           },
         ]
       }
+      calendar_event_assignees: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_event_assignees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_events: {
         Row: {
           created_at: string | null
           created_by: string | null
           description: string | null
+          end_date: string | null
           event_date: string
+          event_type: string | null
           id: string
+          is_team_wide: boolean | null
+          location: string | null
+          manager_id: string | null
           target_role: Database["public"]["Enums"]["app_role"] | null
           team_id: string | null
           title: string
@@ -176,8 +210,13 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          end_date?: string | null
           event_date: string
+          event_type?: string | null
           id?: string
+          is_team_wide?: boolean | null
+          location?: string | null
+          manager_id?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
           title: string
@@ -187,8 +226,13 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          end_date?: string | null
           event_date?: string
+          event_type?: string | null
           id?: string
+          is_team_wide?: boolean | null
+          location?: string | null
+          manager_id?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
           title?: string
@@ -200,6 +244,47 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_notifications: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_id: string
+          id: string
+          notification_type: string
+          sent_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_id: string
+          id?: string
+          notification_type: string
+          sent_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_id?: string
+          id?: string
+          notification_type?: string
+          sent_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
             referencedColumns: ["id"]
           },
         ]
@@ -669,6 +754,47 @@ export type Database = {
           video_url?: string | null
         }
         Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          is_read: boolean | null
+          link: string | null
+          message: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          message?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
