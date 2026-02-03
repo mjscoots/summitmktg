@@ -56,10 +56,10 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        // Fetch ALL profiles including NLC for display at bottom
         const { data: profiles } = await supabase
           .from('profiles')
           .select('*')
-          .neq('status', 'nlc')
           .order('full_name');
 
         const { data: teamsData } = await supabase
@@ -87,6 +87,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
           experience: p.experience,
           direct_manager: p.direct_manager,
           role: managerUserIds.has(p.user_id) ? 'manager' : 'rookie',
+          isNLC: p.status === 'nlc',
         }));
 
         setAllMembers(members);
@@ -112,9 +113,16 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
   const userIds = useMemo(() => enrichedRoster.map(m => m.user_id), [enrichedRoster]);
   const { getProgress, isLoading: progressLoading } = useTrainingProgress(userIds);
 
-  // Apply filters
+  // Separate active and NLC members for display
+  const { activeMembers, nlcMembers } = useMemo(() => {
+    const active = enrichedRoster.filter(m => m.status !== 'nlc' && !m.isNLC);
+    const nlc = enrichedRoster.filter(m => m.status === 'nlc' || m.isNLC);
+    return { activeMembers: active, nlcMembers: nlc };
+  }, [enrichedRoster]);
+
+  // Apply filters to active members only (NLC handled separately)
   const filteredMembers = useMemo(() => {
-    return enrichedRoster.filter(member => {
+    return activeMembers.filter(member => {
       if (searchQuery) {
         const query = normalizeName(searchQuery);
         if (!normalizeName(member.full_name).includes(query) &&
@@ -136,7 +144,18 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
 
       return true;
     });
-  }, [enrichedRoster, searchQuery, pillarFilter, roleFilter]);
+  }, [activeMembers, enrichedRoster, searchQuery, pillarFilter, roleFilter]);
+
+  // Filter NLC members by search only
+  const filteredNLCMembers = useMemo(() => {
+    if (!searchQuery) return nlcMembers;
+    const query = normalizeName(searchQuery);
+    return nlcMembers.filter(member => 
+      normalizeName(member.full_name).includes(query) ||
+      normalizeName(member.email).includes(query) ||
+      (member.phone && normalizeName(member.phone).includes(query))
+    );
+  }, [nlcMembers, searchQuery]);
 
   // Build hierarchical structure: managers -> their direct reports -> unassigned
   const { managerGroups, unassignedMembers } = useMemo(() => {
@@ -225,9 +244,34 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
     return phone;
   };
 
-  const MemberCard = ({ member, indented = false }: { member: TeamMember; indented?: boolean }) => {
+  const MemberCard = ({ member, indented = false, isNLCMember = false }: { member: TeamMember; indented?: boolean; isNLCMember?: boolean }) => {
     const isMgr = isManager(enrichedRoster, member.full_name) || member.role === 'manager';
     const progress = getProgress(member.user_id);
+    
+    if (isNLCMember) {
+      return (
+        <button
+          onClick={() => setSelectedMember(member)}
+          className={cn(
+            "flex items-center gap-3 p-3 bg-muted/20 rounded-xl hover:bg-muted/30 transition-colors text-left w-full opacity-70",
+            indented && "ml-6 border-l-2 border-muted"
+          )}
+        >
+          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+            <User className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium truncate text-sm text-destructive">
+              {getDisplayName(member.full_name)}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {formatPhone(member.phone)}
+            </p>
+          </div>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">NLC</span>
+        </button>
+      );
+    }
     
     return (
       <button
@@ -270,7 +314,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
               </div>
               Members Directory
               <span className="text-sm font-normal text-muted-foreground">
-                ({enrichedRoster.length} total)
+                ({activeMembers.length} active{nlcMembers.length > 0 ? ` · ${nlcMembers.length} NLC` : ''})
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -401,6 +445,25 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
                       {unassignedMembers.map(member => (
                         <MemberCard key={member.id} member={member} />
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* NLC Members Section - Always at bottom with red names */}
+                {filteredNLCMembers.length > 0 && (
+                  <div className="space-y-2 pt-4 border-t border-destructive/30">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground px-3">
+                      <span className="text-destructive font-medium">NLC Members</span>
+                      <span className="text-xs bg-destructive/15 text-destructive px-2 py-0.5 rounded-full">
+                        {filteredNLCMembers.length}
+                      </span>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {filteredNLCMembers
+                        .sort((a, b) => getDisplayName(a.full_name).localeCompare(getDisplayName(b.full_name)))
+                        .map(member => (
+                          <MemberCard key={member.id} member={member} isNLCMember />
+                        ))}
                     </div>
                   </div>
                 )}

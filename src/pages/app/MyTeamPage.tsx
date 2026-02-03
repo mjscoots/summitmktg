@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Users, Search, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TeamCard } from '@/components/team/TeamCard';
 import { PillarTreeView } from '@/components/team/PillarTreeView';
@@ -40,7 +40,6 @@ export default function MyTeamPage() {
   const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null; logo_url?: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
-  const [showNLC, setShowNLC] = useState(false);
   const [membersModalOpen, setMembersModalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,11 +108,10 @@ export default function MyTeamPage() {
     }
   }, [authLoading]);
 
-  // Filter members based on NLC toggle
+  // Filter to active members only (exclude NLC)
   const visibleMembers = useMemo(() => {
-    if (showNLC) return allMembers;
     return allMembers.filter(m => m.status !== 'nlc');
-  }, [allMembers, showNLC]);
+  }, [allMembers]);
 
   // Assign pillars to all members
   const { enrichedRoster, dataIssues } = useMemo(() => {
@@ -207,9 +205,8 @@ export default function MyTeamPage() {
     return buildTree(enrichedRoster, ownerName);
   }, [selectedPillarData, enrichedRoster]);
 
-  // Total active members
-  const totalActiveMembers = enrichedRoster.filter(m => m.status !== 'nlc').length;
-  const nlcCount = allMembers.filter(m => m.status === 'nlc').length;
+  // Total active members (NLC excluded)
+  const totalActiveMembers = enrichedRoster.length;
 
   if (authLoading) {
     return (
@@ -292,19 +289,6 @@ export default function MyTeamPage() {
                   <span className="text-xl font-bold text-success">{teamsWithRanking.reduce((sum, t) => sum + t.rookieCount, 0)}</span>
                   <AnimatedEllipsis className="text-success text-lg font-bold" />
                 </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowNLC(!showNLC)}
-                  className={cn(
-                    "gap-1.5 text-xs ml-auto",
-                    showNLC && "bg-muted"
-                  )}
-                >
-                  {showNLC ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                  NLC ({nlcCount})
-                </Button>
               </div>
             </div>
           </>
@@ -321,6 +305,7 @@ export default function MyTeamPage() {
             tree={selectedTree}
             roster={enrichedRoster}
             onBack={() => setSelectedPillar(null)}
+            logoUrl={pillars.find(p => p.slug === selectedPillar)?.logo_url}
           />
         ) : (
           // Team Cards Grid
