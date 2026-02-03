@@ -52,72 +52,55 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, new_password } = await req.json();
+    const { email, password, full_name } = await req.json();
 
-    if (!email || !new_password) {
-      return new Response(JSON.stringify({ error: "Email and new_password required" }), {
+    if (!email || !password) {
+      return new Response(JSON.stringify({ error: "Email and password required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Find the user by email - paginate through all users
-    let targetUser = null;
-    let page = 1;
-    const perPage = 1000;
-    
-    while (!targetUser) {
-      const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
-        page,
-        perPage
-      });
-      
-      if (listError) {
-        return new Response(JSON.stringify({ error: "Failed to list users", details: listError.message }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    // Create the user in auth.users
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm email
+      user_metadata: { full_name: full_name || email }
+    });
 
-      if (!listData?.users || listData.users.length === 0) {
-        break;
-      }
-
-      targetUser = listData.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-      
-      if (listData.users.length < perPage) {
-        break; // No more pages
-      }
-      page++;
-    }
-    
-    if (!targetUser) {
-      return new Response(JSON.stringify({ 
-        error: "User not found in auth system",
-        hint: "The user may need to be created first"
-      }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Update the user's password
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      targetUser.id,
-      { password: new_password }
-    );
-
-    if (updateError) {
-      return new Response(JSON.stringify({ error: updateError.message }), {
+    if (createError) {
+      return new Response(JSON.stringify({ error: createError.message }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Update the existing profile to link to this new auth user
+    const { error: updateError } = await supabaseAdmin
+      .from("profiles")
+      .update({ user_id: newUser.user.id })
+      .eq("email", email.toLowerCase());
+
+    // Update user_roles to use the new user_id
+    const { data: existingProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("user_id")
+      .eq("email", email.toLowerCase())
+      .maybeSingle();
+
+    if (existingProfile) {
+      // Update any existing role entries to point to new user
+      await supabaseAdmin
+        .from("user_roles")
+        .update({ user_id: newUser.user.id })
+        .eq("user_id", existingProfile.user_id);
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
-      message: `Password reset for ${email}`,
-      user_id: targetUser.id 
+      message: `User created for ${email}`,
+      user_id: newUser.user.id 
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
