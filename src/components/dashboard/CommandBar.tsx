@@ -24,7 +24,7 @@ export function CommandBar({
       <Button
         onClick={() => navigate('/app/training')}
         variant="outline"
-        className="font-bold gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
+        className="font-bold gap-2 border-primary text-white hover:bg-primary hover:text-primary-foreground transition-all"
       >
         <Play className="w-4 h-4" />
         Resume Training
