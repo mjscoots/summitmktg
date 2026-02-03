@@ -278,6 +278,14 @@ export default function Interview1Page() {
                 />
               </div>
 
+              {/* Book Next Interview CTA */}
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Ready to schedule the next step?
+                </p>
+                <BookInterviewButton nextInterview={2} />
+              </div>
+
               {/* Submit */}
               <button
                 onClick={handleSubmit}
@@ -285,16 +293,6 @@ export default function Interview1Page() {
               >
                 Submit Interview
               </button>
-
-              {/* Book Next Interview CTA */}
-              <div className="pt-6 border-t border-border mt-6">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Ready to schedule the next step?
-                  </p>
-                  <BookInterviewButton nextInterview={2} />
-                </div>
-              </div>
             </div>
           </main>
         </div>

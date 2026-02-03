@@ -326,6 +326,14 @@ export default function Interview2Page() {
                 />
               </div>
 
+              {/* Book Next Interview CTA */}
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Ready to schedule the final interview?
+                </p>
+                <BookInterviewButton nextInterview={3} />
+              </div>
+
               {/* Submit */}
               <button
                 onClick={handleSubmit}
@@ -333,16 +341,6 @@ export default function Interview2Page() {
               >
                 Submit Interview
               </button>
-
-              {/* Book Next Interview CTA */}
-              <div className="pt-6 border-t border-border mt-6">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Ready to schedule the final interview?
-                  </p>
-                  <BookInterviewButton nextInterview={3} />
-                </div>
-              </div>
             </div>
           </main>
         </div>
