@@ -24,6 +24,7 @@ import {
   isManager,
   getStatusInfo,
   assignPillarsToRoster,
+  getDisplayName,
 } from '@/lib/hierarchyUtils';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
 import { TrainingProgressBadge } from './TrainingProgressBadge';
@@ -247,7 +248,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
             "font-medium truncate text-sm",
             isMgr ? "text-primary" : "text-success"
           )}>
-            {member.full_name}
+            {getDisplayName(member.full_name)}
           </p>
           <p className="text-xs text-muted-foreground truncate">
             {formatPhone(member.phone)}
@@ -355,7 +356,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
                         <div className="flex-1 min-w-0 text-left">
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-primary truncate">
-                              {manager.full_name}
+                              {getDisplayName(manager.full_name)}
                             </p>
                             <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full">
                               {teamSize} {teamSize === 1 ? 'member' : 'members'}
@@ -428,7 +429,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
                   <span className={cn(
                     isManager(enrichedRoster, selectedMember.full_name) ? "text-primary" : "text-success"
                   )}>
-                    {selectedMember.full_name}
+                    {getDisplayName(selectedMember.full_name)}
                   </span>
                 </SheetTitle>
               </SheetHeader>
