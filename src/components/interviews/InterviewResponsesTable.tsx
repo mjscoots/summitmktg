@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Table,
   TableBody,
@@ -30,6 +31,13 @@ interface InterviewResponse {
   interviewer: string;
   submitted: string;
   data: Record<string, string>;
+  pillar?: string; // Added pillar field
+}
+
+interface Team {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 // Load responses from localStorage
@@ -43,16 +51,27 @@ function getStoredResponses(): InterviewResponse[] {
 
 export function InterviewResponsesTable() {
   const [responses, setResponses] = useState<InterviewResponse[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [interviewerFilter, setInterviewerFilter] = useState('all');
+  const [pillarFilter, setPillarFilter] = useState('all');
   const [interviewFilter, setInterviewFilter] = useState('all');
   const [selectedResponse, setSelectedResponse] = useState<InterviewResponse | null>(null);
 
   useEffect(() => {
     setResponses(getStoredResponses());
+    
+    // Fetch teams/pillars for filter
+    const fetchTeams = async () => {
+      const { data } = await supabase
+        .from('teams')
+        .select('id, name, slug')
+        .order('name');
+      setTeams(data || []);
+    };
+    fetchTeams();
   }, []);
 
-  // Get unique interviewers for filter
+  // Get unique interviewers for filter (deprecated - using pillar filter now)
   const uniqueInterviewers = Array.from(new Set(responses.map(r => r.interviewer)));
 
   // Filter responses
@@ -61,13 +80,13 @@ export function InterviewResponsesTable() {
       response.interviewee.toLowerCase().includes(searchQuery.toLowerCase()) ||
       response.interviewer.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesInterviewer = 
-      interviewerFilter === 'all' || response.interviewer === interviewerFilter;
+    const matchesPillar = 
+      pillarFilter === 'all' || response.pillar === pillarFilter;
     
     const matchesInterview = 
       interviewFilter === 'all' || response.interview.toString() === interviewFilter;
 
-    return matchesSearch && matchesInterviewer && matchesInterview;
+    return matchesSearch && matchesPillar && matchesInterview;
   });
 
   const getInterviewPillColor = () => {
@@ -90,16 +109,16 @@ export function InterviewResponsesTable() {
           />
         </div>
 
-        {/* Interviewer Filter */}
-        <Select value={interviewerFilter} onValueChange={setInterviewerFilter}>
+        {/* Pillar Filter */}
+        <Select value={pillarFilter} onValueChange={setPillarFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Interviewers" />
+            <SelectValue placeholder="All Pillars" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Interviewers</SelectItem>
-            {uniqueInterviewers.map(interviewer => (
-              <SelectItem key={interviewer} value={interviewer}>
-                {interviewer}
+            <SelectItem value="all">All Pillars</SelectItem>
+            {teams.map(team => (
+              <SelectItem key={team.slug} value={team.slug}>
+                {team.name}
               </SelectItem>
             ))}
           </SelectContent>

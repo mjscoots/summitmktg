@@ -278,8 +278,19 @@ export default function MyTeamPage() {
               {/* Stats Row */}
               <div className="flex items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="text-3xl font-bold text-foreground">{totalActiveMembers}</span>
-                  <AnimatedEllipsis className="text-primary text-xl font-bold" />
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="text-xl font-bold text-foreground">{totalActiveMembers}</span>
+                  <AnimatedEllipsis className="text-primary text-lg font-bold" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Managers:</span>
+                  <span className="text-xl font-bold text-primary">{teamsWithRanking.reduce((sum, t) => sum + t.managerCount, 0)}</span>
+                  <AnimatedEllipsis className="text-primary text-lg font-bold" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Rookies:</span>
+                  <span className="text-xl font-bold text-success">{teamsWithRanking.reduce((sum, t) => sum + t.rookieCount, 0)}</span>
+                  <AnimatedEllipsis className="text-success text-lg font-bold" />
                 </div>
                 
                 <Button
@@ -287,7 +298,7 @@ export default function MyTeamPage() {
                   size="sm"
                   onClick={() => setShowNLC(!showNLC)}
                   className={cn(
-                    "gap-1.5 text-xs",
+                    "gap-1.5 text-xs ml-auto",
                     showNLC && "bg-muted"
                   )}
                 >
@@ -324,6 +335,7 @@ export default function MyTeamPage() {
                   team={team}
                   onClick={() => setSelectedPillar(team.slug)}
                   canUploadLogo={isManagerRole}
+                  isAdmin={isAdmin}
                   onLogoUpdate={fetchData}
                 />
               </div>

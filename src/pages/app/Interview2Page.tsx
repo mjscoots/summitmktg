@@ -6,6 +6,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { BookInterviewButton } from '@/components/interviews/BookInterviewButton';
 
 interface FormData {
   recruitName: string;
@@ -332,6 +333,16 @@ export default function Interview2Page() {
               >
                 Submit Interview
               </button>
+
+              {/* Book Next Interview CTA */}
+              <div className="pt-6 border-t border-border mt-6">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Ready to schedule the final interview?
+                  </p>
+                  <BookInterviewButton nextInterview={3} />
+                </div>
+              </div>
             </div>
           </main>
         </div>

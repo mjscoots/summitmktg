@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
+import { StreakCounter } from '@/components/training/StreakCounter';
 import { BookOpen, Users, ArrowLeft, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -64,6 +65,9 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="relative">
+          {/* Streak Counter - fixed position */}
+          <StreakCounter />
+          
           {/* Subtle starry background for rookies */}
           <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
             {STARS.map((star) => (
@@ -233,6 +237,9 @@ export default function TrainingPage() {
   return (
     <AppLayout>
       <div className="relative">
+        {/* Streak Counter - fixed position for all training views */}
+        <StreakCounter />
+        
         {/* Subtle starry background */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           {STARS.map((star) => (

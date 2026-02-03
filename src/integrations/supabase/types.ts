@@ -49,6 +49,7 @@ export type Database = {
           id: string
           is_pinned: boolean | null
           target_role: Database["public"]["Enums"]["app_role"] | null
+          team_ids: string[] | null
           title: string
           updated_at: string | null
         }
@@ -59,6 +60,7 @@ export type Database = {
           id?: string
           is_pinned?: boolean | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
+          team_ids?: string[] | null
           title: string
           updated_at?: string | null
         }
@@ -69,8 +71,33 @@ export type Database = {
           id?: string
           is_pinned?: boolean | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
+          team_ids?: string[] | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: string | null
         }
         Relationships: []
       }
@@ -201,6 +228,13 @@ export type Database = {
           is_team_wide: boolean | null
           location: string | null
           manager_id: string | null
+          parent_event_id: string | null
+          recurrence_count: number | null
+          recurrence_day_of_month: number | null
+          recurrence_days_of_week: number[] | null
+          recurrence_end_date: string | null
+          recurrence_interval: number | null
+          recurrence_type: string | null
           target_role: Database["public"]["Enums"]["app_role"] | null
           team_id: string | null
           title: string
@@ -217,6 +251,13 @@ export type Database = {
           is_team_wide?: boolean | null
           location?: string | null
           manager_id?: string | null
+          parent_event_id?: string | null
+          recurrence_count?: number | null
+          recurrence_day_of_month?: number | null
+          recurrence_days_of_week?: number[] | null
+          recurrence_end_date?: string | null
+          recurrence_interval?: number | null
+          recurrence_type?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
           title: string
@@ -233,12 +274,26 @@ export type Database = {
           is_team_wide?: boolean | null
           location?: string | null
           manager_id?: string | null
+          parent_event_id?: string | null
+          recurrence_count?: number | null
+          recurrence_day_of_month?: number | null
+          recurrence_days_of_week?: number[] | null
+          recurrence_end_date?: string | null
+          recurrence_interval?: number | null
+          recurrence_type?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
           title?: string
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "calendar_events_parent_event_id_fkey"
+            columns: ["parent_event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "calendar_events_team_id_fkey"
             columns: ["team_id"]
@@ -406,6 +461,7 @@ export type Database = {
           otp_verified: boolean | null
           password_changed: boolean | null
           phone: string | null
+          pillar_slug: string | null
           recruiter: string | null
           region: string | null
           status: Database["public"]["Enums"]["user_status"] | null
@@ -425,6 +481,7 @@ export type Database = {
           otp_verified?: boolean | null
           password_changed?: boolean | null
           phone?: string | null
+          pillar_slug?: string | null
           recruiter?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
@@ -444,6 +501,7 @@ export type Database = {
           otp_verified?: boolean | null
           password_changed?: boolean | null
           phone?: string | null
+          pillar_slug?: string | null
           recruiter?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null

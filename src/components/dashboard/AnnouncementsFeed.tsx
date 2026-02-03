@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Bell, Pin, Clock, Plus, Send, X } from 'lucide-react';
+import { Bell, Pin, Clock, Plus, Send, X, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -18,19 +19,44 @@ interface Announcement {
   created_at: string;
   target_role: 'rookie' | 'manager' | 'admin' | null;
   author_id: string | null;
+  team_ids: string[] | null;
+}
+
+interface Team {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 export function AnnouncementsFeed() {
-  const { role, user } = useAuth();
+  const { role, user, profile } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [isPinned, setIsPinned] = useState(false);
+  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
+  const [isAllTeams, setIsAllTeams] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin';
+  const isAdmin = role === 'admin';
+
+  // Fetch teams for targeting
+  useEffect(() => {
+    const fetchTeams = async () => {
+      const { data } = await supabase
+        .from('teams')
+        .select('id, name, slug')
+        .order('name');
+      setTeams(data || []);
+    };
+    if (isManager) {
+      fetchTeams();
+    }
+  }, [isManager]);
 
   const fetchAnnouncements = async () => {
     try {
@@ -79,6 +105,7 @@ export function AnnouncementsFeed() {
         content: newContent.trim(),
         is_pinned: isPinned,
         author_id: user?.id,
+        team_ids: isAllTeams ? null : selectedTeamIds.length > 0 ? selectedTeamIds : null,
       });
 
       if (error) {
@@ -90,6 +117,8 @@ export function AnnouncementsFeed() {
       setNewTitle('');
       setNewContent('');
       setIsPinned(false);
+      setSelectedTeamIds([]);
+      setIsAllTeams(true);
       setIsCreateOpen(false);
       fetchAnnouncements();
     } catch (err) {
@@ -182,6 +211,53 @@ export function AnnouncementsFeed() {
                   <span className="text-sm">Pin to top</span>
                 </button>
               </div>
+
+              {/* Team Targeting */}
+              <div className="border-t border-border pt-4">
+                <label className="block text-sm font-medium mb-2">Post To</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={isAllTeams}
+                      onChange={() => setIsAllTeams(true)}
+                      className="accent-primary"
+                    />
+                    <span className="text-sm">All Teams</span>
+                    {!isAdmin && <span className="text-xs text-muted-foreground">(Admin only)</span>}
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={!isAllTeams}
+                      onChange={() => setIsAllTeams(false)}
+                      className="accent-primary"
+                    />
+                    <span className="text-sm">Select Teams</span>
+                  </label>
+                </div>
+                
+                {!isAllTeams && (
+                  <div className="mt-3 max-h-32 overflow-y-auto space-y-1 bg-muted/30 p-2 rounded-lg">
+                    {teams.map(team => (
+                      <label key={team.id} className="flex items-center gap-2 p-1 hover:bg-muted rounded cursor-pointer">
+                        <Checkbox
+                          checked={selectedTeamIds.includes(team.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedTeamIds([...selectedTeamIds, team.id]);
+                            } else {
+                              setSelectedTeamIds(selectedTeamIds.filter(id => id !== team.id));
+                            }
+                          }}
+                        />
+                        <span className="text-sm">{team.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                   Cancel

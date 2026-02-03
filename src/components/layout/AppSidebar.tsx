@@ -49,7 +49,16 @@ export function AppSidebar() {
     if (path === '/app') {
       return location.pathname === '/app';
     }
+    // For Teams, only match exact /app/team path - not subpaths
+    if (path === '/app/team') {
+      return location.pathname === '/app/team' || location.pathname.startsWith('/app/team/');
+    }
     return location.pathname.startsWith(path);
+  };
+
+  // Handle navigation - for Teams, always go back to landing page
+  const handleNavigation = (path: string) => {
+    navigate(path);
   };
 
   return (
@@ -104,7 +113,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.path}>
                     <button
-                      onClick={() => navigate(item.path)}
+                      onClick={() => handleNavigation(item.path)}
                       className={cn(
                         "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 relative group/navitem",
                         active 

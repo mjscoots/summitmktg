@@ -8,6 +8,7 @@ interface ICSEvent {
   startDate: Date;
   endDate?: Date;
   organizer?: string;
+  rrule?: string | null; // RRULE string for recurring events
 }
 
 function formatDateToICS(date: Date): string {
@@ -56,6 +57,11 @@ export function generateICSFile(event: ICSEvent): string {
 
   if (event.organizer) {
     lines.push(`ORGANIZER;CN=${escapeICSText(event.organizer)}:mailto:noreply@summitmktgsales.com`);
+  }
+
+  // Add recurrence rule if provided
+  if (event.rrule) {
+    lines.push(event.rrule);
   }
 
   // Add a 30-minute reminder
