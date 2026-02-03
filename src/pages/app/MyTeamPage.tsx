@@ -123,18 +123,21 @@ export default function MyTeamPage() {
     return assignPillarsToRoster(visibleMembers, pillars);
   }, [visibleMembers, pillars]);
 
-  // Build pillar data with counts and ranking
+  // Build pillar data with counts and ranking - ONLY count ACTIVE members for points
   const teamsWithRanking: TeamWithRanking[] = useMemo(() => {
     const teams = pillars.map(p => {
-      const ownerName = PILLAR_OWNERS[p.slug];
-      const members = enrichedRoster.filter(m => m.pillar === p.slug);
+      // Get all members for this pillar (for display when NLC toggle is on)
+      const allMembers = enrichedRoster.filter(m => m.pillar === p.slug);
       
-      const managerCount = members.filter(m => 
+      // Filter to ACTIVE members only for point calculation (exclude NLC)
+      const activeMembers = allMembers.filter(m => m.status !== 'nlc');
+      
+      const managerCount = activeMembers.filter(m => 
         isManager(enrichedRoster, m.full_name) || m.role === 'manager'
       ).length;
-      const rookieCount = members.length - managerCount;
+      const rookieCount = activeMembers.length - managerCount;
       
-      // Points: managers = 2, rookies = 1
+      // Points: managers = 2, rookies = 1 (NLC = 0, excluded above)
       const points = (managerCount * 2) + (rookieCount * 1);
       
       return {
@@ -142,7 +145,7 @@ export default function MyTeamPage() {
         name: p.name,
         slug: p.slug,
         logo_url: p.logo_url,
-        totalMembers: members.length,
+        totalMembers: activeMembers.length, // Only show active count on cards
         managerCount,
         rookieCount,
         points,
