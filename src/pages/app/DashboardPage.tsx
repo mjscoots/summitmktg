@@ -71,7 +71,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Command Bar */}
-        <CommandBar streak={0} signedThisWeek={0} />
+        <CommandBar />
 
         {/* Announcements + Weekly Calendar Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

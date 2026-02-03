@@ -64,6 +64,7 @@ export default function MembersPage() {
           user_id: p.user_id,
           full_name: p.full_name,
           email: p.email,
+          phone: p.phone,
           status: p.status,
           experience: p.experience,
           direct_manager: p.direct_manager,
@@ -128,6 +129,15 @@ export default function MembersPage() {
     if (!slug) return 'Unassigned';
     const pillar = pillars.find(p => p.slug === slug);
     return pillar?.name || 'Unassigned';
+  };
+
+  const formatPhone = (phone: string | null | undefined) => {
+    if (!phone) return '—';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
   };
 
   if (authLoading || isLoading) {
@@ -297,6 +307,16 @@ export default function MembersPage() {
                 </SheetHeader>
 
                 <div className="mt-6 space-y-4">
+                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                    <Phone className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Phone</p>
+                      <p className="text-sm text-foreground">
+                        {selectedMember.phone ? formatPhone(selectedMember.phone) : '—'}
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                     <Mail className="w-4 h-4 text-muted-foreground" />
                     <div>

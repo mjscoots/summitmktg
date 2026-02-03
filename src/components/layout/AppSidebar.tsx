@@ -14,9 +14,6 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
-
-import { UserSearch } from 'lucide-react';
-
 const baseNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
@@ -29,7 +26,6 @@ const managerNavItems = [
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
   { label: 'Teams', path: '/app/team', icon: Users },
-  { label: 'Members', path: '/app/members', icon: UserSearch },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
 ];

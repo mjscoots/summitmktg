@@ -2,49 +2,60 @@ import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, Building2, Eye, EyeOff } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Users, Search, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PillarCard } from '@/components/team/PillarCard';
+import { TeamCard } from '@/components/team/TeamCard';
 import { PillarTreeView } from '@/components/team/PillarTreeView';
-import { DataIssuesPanel } from '@/components/team/DataIssuesPanel';
-import { HierarchyDiagnosticsPanel } from '@/components/team/HierarchyDiagnosticsPanel';
+import { MembersModal } from '@/components/team/MembersModal';
+import { AnimatedEllipsis } from '@/components/team/AnimatedEllipsis';
+import { useManagerNotifications } from '@/hooks/useManagerNotifications';
 import {
   TeamMember,
   Pillar,
   PILLAR_OWNERS,
   normalizeName,
-  namesMatch,
   findPersonByName,
   buildTree,
-  getDescendants,
   isManager,
   assignPillarsToRoster,
-  generateHierarchyDiagnostics,
   getEffectiveManager,
-  isNLC,
 } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
+
+interface TeamWithRanking {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url?: string | null;
+  totalMembers: number;
+  managerCount: number;
+  rookieCount: number;
+  points: number;
+  rank: number;
+}
 
 export default function MyTeamPage() {
   const { role, profile, isLoading: authLoading } = useAuth();
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
-  const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null }[]>([]);
+  const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null; logo_url?: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
-  const [showDataIssues, setShowDataIssues] = useState(true);
-  const [showNLC, setShowNLC] = useState(true); // Show NLC by default (greyed out)
-  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [showNLC, setShowNLC] = useState(false);
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
 
   const isAdmin = role === 'admin';
+  const isManagerRole = role === 'manager' || role === 'admin';
+
+  // Listen for manager notifications (real-time toasts)
+  useManagerNotifications();
 
   // Fetch all data
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch all profiles (including NLC for display purposes)
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -52,7 +63,6 @@ export default function MyTeamPage() {
 
       if (profilesError) throw profilesError;
 
-      // Fetch pillars (teams)
       const { data: teamsData, error: teamsError } = await supabase
         .from('teams')
         .select('*')
@@ -60,7 +70,6 @@ export default function MyTeamPage() {
 
       if (teamsError) throw teamsError;
 
-      // Fetch all user roles to identify managers
       const { data: rolesData } = await supabase
         .from('user_roles')
         .select('user_id, role');
@@ -77,9 +86,10 @@ export default function MyTeamPage() {
         user_id: p.user_id,
         full_name: p.full_name,
         email: p.email,
+        phone: p.phone,
         status: p.status,
         experience: p.experience,
-        direct_manager: getEffectiveManager(p.direct_manager), // Apply redirects!
+        direct_manager: getEffectiveManager(p.direct_manager),
         role: managerUserIds.has(p.user_id) ? 'manager' : 'rookie',
         isNLC: p.status === 'nlc',
       }));
@@ -113,20 +123,57 @@ export default function MyTeamPage() {
     return assignPillarsToRoster(visibleMembers, pillars);
   }, [visibleMembers, pillars]);
 
-  // Generate diagnostics
-  const diagnostics = useMemo(() => {
-    if (allMembers.length === 0 || pillars.length === 0) return null;
-    return generateHierarchyDiagnostics(allMembers, pillars);
-  }, [allMembers, pillars]);
+  // Build pillar data with counts and ranking
+  const teamsWithRanking: TeamWithRanking[] = useMemo(() => {
+    const teams = pillars.map(p => {
+      const ownerName = PILLAR_OWNERS[p.slug];
+      const members = enrichedRoster.filter(m => m.pillar === p.slug);
+      
+      const managerCount = members.filter(m => 
+        isManager(enrichedRoster, m.full_name) || m.role === 'manager'
+      ).length;
+      const rookieCount = members.length - managerCount;
+      
+      // Points: managers = 2, rookies = 1
+      const points = (managerCount * 2) + (rookieCount * 1);
+      
+      return {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        logo_url: p.logo_url,
+        totalMembers: members.length,
+        managerCount,
+        rookieCount,
+        points,
+        rank: 0,
+      };
+    });
 
-  // Build pillar data with counts
+    // Sort by points descending and assign ranks
+    teams.sort((a, b) => b.points - a.points);
+    teams.forEach((team, index) => {
+      team.rank = index + 1;
+    });
+
+    return teams;
+  }, [pillars, enrichedRoster]);
+
+  // Filter teams by search
+  const filteredTeams = useMemo(() => {
+    if (!searchQuery) return teamsWithRanking;
+    const query = normalizeName(searchQuery);
+    return teamsWithRanking.filter(t => 
+      normalizeName(t.name).includes(query)
+    );
+  }, [teamsWithRanking, searchQuery]);
+
+  // Build pillar data for tree view
   const pillarData: Pillar[] = useMemo(() => {
     return pillars.map(p => {
       const ownerName = PILLAR_OWNERS[p.slug];
       const owner = findPersonByName(enrichedRoster, ownerName);
       const members = enrichedRoster.filter(m => m.pillar === p.slug);
-      
-      // Count managers vs rookies
       const managerCount = members.filter(m => 
         isManager(enrichedRoster, m.full_name) || m.role === 'manager'
       ).length;
@@ -157,21 +204,8 @@ export default function MyTeamPage() {
     return buildTree(enrichedRoster, ownerName);
   }, [selectedPillarData, enrichedRoster]);
 
-  // Filter pillars by search
-  const filteredPillars = useMemo(() => {
-    if (!searchQuery) return pillarData;
-    const query = normalizeName(searchQuery);
-    return pillarData.filter(p => 
-      normalizeName(p.name).includes(query) ||
-      (p.owner && normalizeName(p.owner.full_name).includes(query)) ||
-      p.members.some(m => normalizeName(m.full_name).includes(query))
-    );
-  }, [pillarData, searchQuery]);
-
-  // Unassigned members
-  const unassignedMembers = enrichedRoster.filter(m => m.pillar === 'unassigned');
-
-  // NLC members count
+  // Total active members
+  const totalActiveMembers = enrichedRoster.filter(m => m.status !== 'nlc').length;
   const nlcCount = allMembers.filter(m => m.status === 'nlc').length;
 
   if (authLoading) {
@@ -189,78 +223,76 @@ export default function MyTeamPage() {
         {!selectedPillar && (
           <>
             <div className="mb-8">
-              <h1 className="text-2xl font-semibold text-foreground flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/15">
-                  <Building2 className="w-5 h-5 text-primary" />
+              {/* Title Row */}
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground tracking-tight">
+                    Summit Teams
+                  </h1>
+                  <p className="text-muted-foreground text-base mt-1">
+                    Many join the race. Few reach the{' '}
+                    <span className="text-primary font-semibold">top</span>.
+                  </p>
                 </div>
-                Team Pillars
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1">
-                View organizational structure by pillar
-              </p>
-            </div>
 
-            {/* Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search pillars or members..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+                {/* Top Right Actions */}
+                <div className="flex items-center gap-2">
+                  {/* Search Icon */}
+                  {searchOpen ? (
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search teams..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onBlur={() => !searchQuery && setSearchOpen(false)}
+                        autoFocus
+                        className="w-48 px-3 py-1.5 text-sm bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setSearchOpen(true)}
+                      className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Search className="w-5 h-5" />
+                    </button>
+                  )}
+
+                  {/* Members Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMembersModalOpen(true)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Users className="w-4 h-4 mr-1.5" />
+                    Members
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
+
+              {/* Stats Row */}
+              <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl font-bold text-foreground">{totalActiveMembers}</span>
+                  <AnimatedEllipsis className="text-primary text-xl font-bold" />
+                </div>
+                
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setShowNLC(!showNLC)}
                   className={cn(
-                    "gap-2",
+                    "gap-1.5 text-xs",
                     showNLC && "bg-muted"
                   )}
                 >
-                  {showNLC ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  {showNLC ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                   NLC ({nlcCount})
                 </Button>
-                {isAdmin && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDiagnostics(!showDiagnostics)}
-                    className={cn(
-                      "gap-2",
-                      showDiagnostics && "bg-muted"
-                    )}
-                  >
-                    Diagnostics
-                  </Button>
-                )}
               </div>
             </div>
-
-            {/* Diagnostics Panel (Admin only) */}
-            {isAdmin && showDiagnostics && diagnostics && (
-              <div className="mb-6">
-                <HierarchyDiagnosticsPanel
-                  diagnostics={diagnostics}
-                  onRefresh={fetchData}
-                  isLoading={isLoading}
-                />
-              </div>
-            )}
-
-            {/* Data Issues Panel */}
-            {showDataIssues && (dataIssues.length > 0 || diagnostics?.pillarsWithMissingOwners?.length) && (
-              <div className="mb-6">
-                <DataIssuesPanel 
-                  issues={dataIssues}
-                  roster={enrichedRoster}
-                  onClose={() => setShowDataIssues(false)} 
-                />
-              </div>
-            )}
           </>
         )}
 
@@ -277,91 +309,30 @@ export default function MyTeamPage() {
             onBack={() => setSelectedPillar(null)}
           />
         ) : (
-          // Pillar Cards Grid
-          <div className="space-y-6">
-            {/* Stats Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="bg-card rounded-xl border border-border/50 p-4">
-                <p className="text-sm text-muted-foreground">Total Members</p>
-                <p className="text-2xl font-bold text-foreground">{enrichedRoster.length}</p>
-              </div>
-              <div className="bg-card rounded-xl border border-border/50 p-4">
-                <p className="text-sm text-muted-foreground">Pillars</p>
-                <p className="text-2xl font-bold text-foreground">{pillars.length}</p>
-              </div>
-              <div className="bg-card rounded-xl border border-border/50 p-4">
-                <p className="text-sm text-muted-foreground">Managers</p>
-                <p className="text-2xl font-bold text-primary">
-                  {enrichedRoster.filter(m => isManager(enrichedRoster, m.full_name)).length}
-                </p>
-              </div>
-              <div className="bg-card rounded-xl border border-border/50 p-4">
-                <p className="text-sm text-muted-foreground">Rookies</p>
-                <p className="text-2xl font-bold text-success">
-                  {enrichedRoster.filter(m => !isManager(enrichedRoster, m.full_name) && m.status !== 'nlc').length}
-                </p>
-              </div>
-              <div className={cn(
-                "bg-card rounded-xl border p-4",
-                showNLC ? "border-muted-foreground/30" : "border-border/50"
-              )}>
-                <p className="text-sm text-muted-foreground">NLC</p>
-                <p className="text-2xl font-bold text-muted-foreground">{nlcCount}</p>
-              </div>
-            </div>
-
-            {/* Pillar Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredPillars.map(pillar => (
-                <PillarCard
-                  key={pillar.id}
-                  pillar={pillar}
-                  onClick={() => setSelectedPillar(pillar.slug)}
+          // Team Cards Grid
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredTeams.map((team, index) => (
+              <div
+                key={team.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <TeamCard
+                  team={team}
+                  onClick={() => setSelectedPillar(team.slug)}
+                  canUploadLogo={isManagerRole}
+                  onLogoUpdate={fetchData}
                 />
-              ))}
-            </div>
-
-            {/* Unassigned Section */}
-            {unassignedMembers.length > 0 && (
-              <div className="bg-card rounded-xl border border-destructive/30 p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                  <h3 className="font-semibold text-foreground">
-                    Unassigned Members ({unassignedMembers.length})
-                  </h3>
-                </div>
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {unassignedMembers.map(member => (
-                    <div 
-                      key={member.id}
-                      className={cn(
-                        "flex items-center gap-3 p-2 bg-muted/30 rounded-lg",
-                        member.isNLC && "opacity-50"
-                      )}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-destructive" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {member.full_name}
-                          {member.isNLC && (
-                            <span className="ml-2 text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                              NLC
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          Manager: {member.direct_manager || 'None'}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
+            ))}
           </div>
         )}
+
+        {/* Members Modal */}
+        <MembersModal 
+          open={membersModalOpen} 
+          onClose={() => setMembersModalOpen(false)} 
+        />
       </main>
     </AppLayout>
   );
