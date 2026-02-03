@@ -22,6 +22,12 @@ const Recruiting = () => {
     "Entrepreneurs who want real sales experience",
   ];
 
+  const handleApplyClick = (path: string) => {
+    // Navigate and ensure scroll to top
+    navigate(path);
+    window.scrollTo(0, 0);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -35,13 +41,13 @@ const Recruiting = () => {
             <span className="text-lg font-black tracking-tight uppercase">Summit</span>
           </button>
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/apply")}
+            <a
+              href="#apply"
               className="btn-primary text-sm"
             >
               Apply Now
               <ArrowRight className="w-4 h-4 ml-2" />
-            </button>
+            </a>
           </div>
         </div>
       </nav>
@@ -75,13 +81,13 @@ const Recruiting = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => navigate("/apply")}
+            <a
+              href="#apply"
               className="btn-primary text-lg px-8 py-4"
             >
               Start Your Application
               <ArrowRight className="w-5 h-5 ml-2" />
-            </button>
+            </a>
           </div>
         </div>
       </section>
@@ -140,52 +146,120 @@ const Recruiting = () => {
         </div>
       </section>
 
-      {/* Two Paths Section */}
-      <section className="py-20 bg-secondary/30">
+      {/* Two Paths Section - Now includes Apply page content */}
+      <section id="apply" className="py-20 bg-secondary/30 scroll-mt-20">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 uppercase tracking-wide">
-              Two Paths to the Summit
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Mountain className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4 uppercase tracking-tight">
+              Choose Your Path
             </h2>
-            <p className="text-muted-foreground">
-              Whether you're brand new or a seasoned pro, we have a path for you.
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Select the application that best matches your experience level. 
+              Each path is designed to set you up for success.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             {/* Rookie Path */}
-            <div className="card-elevated p-8 text-center hover:border-accent/30 transition-colors group">
-              <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/20 transition-colors">
+            <button
+              onClick={() => handleApplyClick("/apply/rookie")}
+              className="card-elevated p-8 text-left hover:border-accent/50 transition-all group cursor-pointer"
+            >
+              <div className="w-16 h-16 rounded-xl bg-accent/10 flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-colors">
                 <Users className="w-8 h-8 text-accent" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">Rookie</h3>
-              <p className="text-muted-foreground mb-6 text-sm">
-                No experience required. We'll teach you everything from scripts to closing.
+              
+              <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-wide">
+                Rookie
+              </h3>
+              
+              <p className="text-muted-foreground mb-6">
+                <span className="text-accent font-semibold">No experience required.</span> Perfect for college students, 
+                athletes, or anyone ready to learn a high-income skill from scratch.
               </p>
-              <button
-                onClick={() => navigate("/apply/rookie")}
-                className="w-full py-3 px-6 border-2 border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground font-bold uppercase tracking-wide rounded transition-all"
-              >
+              
+              <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  Full training & mentorship
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  Proven scripts & systems
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  Team housing available
+                </li>
+              </ul>
+              
+              <div className="flex items-center text-accent font-bold uppercase tracking-wide group-hover:translate-x-1 transition-transform">
                 Apply as Rookie
-              </button>
-            </div>
-            
+                <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+
             {/* Veteran Path */}
-            <div className="card-elevated p-8 text-center hover:border-primary/30 transition-colors group">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+            <button
+              onClick={() => handleApplyClick("/apply/veteran")}
+              className="card-elevated p-8 text-left hover:border-primary/50 transition-all group cursor-pointer"
+            >
+              <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                 <Trophy className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">Veteran</h3>
-              <p className="text-muted-foreground mb-6 text-sm">
-                Already have D2D experience? Get better pay, instant deals, and scale your team.
+              
+              <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-wide">
+                Veteran
+              </h3>
+              
+              <p className="text-muted-foreground mb-6">
+                <span className="text-primary font-semibold">Prior D2D experience?</span> Join with 
+                instant marketing deals and the ability to build your own team.
               </p>
-              <button
-                onClick={() => navigate("/apply/veteran")}
-                className="w-full py-3 px-6 border-2 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-bold uppercase tracking-wide rounded transition-all"
-              >
+              
+              <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Top-tier commission structure
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Uncapped recruiting overrides
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Elite systems & AI tools
+                </li>
+              </ul>
+              
+              <div className="flex items-center text-primary font-bold uppercase tracking-wide group-hover:translate-x-1 transition-transform">
                 Apply as Veteran
-              </button>
-            </div>
+                <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+          </div>
+
+          {/* Help Text */}
+          <div className="mt-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              Not sure which path is right for you?{" "}
+              <a 
+                href="https://www.instagram.com/summitmktgsales/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                DM us on Instagram
+              </a>{" "}
+              and we'll help you decide.
+            </p>
           </div>
         </div>
       </section>
@@ -200,13 +274,13 @@ const Recruiting = () => {
           <p className="text-muted-foreground mb-8">
             Stop wondering "what if" and start building the life you want.
           </p>
-          <button
-            onClick={() => navigate("/apply")}
-            className="btn-primary text-lg px-10 py-4"
+          <a
+            href="#apply"
+            className="btn-primary text-lg px-10 py-4 inline-flex items-center"
           >
             Start Your Application
             <ArrowRight className="w-5 h-5 ml-2" />
-          </button>
+          </a>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, DollarSign, Loader2 } from "lucide-react";
 import { VideoPlayer } from "@/components/VideoPlayer";
@@ -50,6 +50,11 @@ const VetApplication = () => {
     intendedMarket: false,
     referralName: false,
   });
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const RequiredAsterisk = () => <span className="text-destructive ml-1">*</span>;
 
@@ -155,6 +160,20 @@ const VetApplication = () => {
       });
 
       if (error) throw error;
+
+      // Send welcome email (fire and forget - don't block submission)
+      const firstName = formData.fullName.trim().split(" ")[0];
+      supabase.functions.invoke("send-welcome-email", {
+        body: {
+          email: formData.email.trim().toLowerCase(),
+          firstName,
+          applicationType: "vet",
+        },
+      }).catch((emailError) => {
+        console.error("Welcome email failed:", emailError);
+        // Don't show error to user - email is non-critical
+      });
+
       navigate("/apply/success");
     } catch (error) {
       console.error("Application submission error:", error);

@@ -11,7 +11,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 import Recruiting from "./pages/Recruiting";
-import Apply from "./pages/Apply";
+// Apply page removed - content merged into Recruiting page
 import RookieApplication from "./pages/RookieApplication";
 import VetApplication from "./pages/VetApplication";
 import ApplySuccess from "./pages/ApplySuccess";
@@ -44,7 +44,8 @@ const App = () => (
             {/* ========== PUBLIC ROUTES ========== */}
             <Route path="/" element={<Index />} />
             <Route path="/recruiting" element={<Recruiting />} />
-            <Route path="/apply" element={<Apply />} />
+            {/* Redirect /apply to /recruiting#apply section */}
+            <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
             <Route path="/apply/rookie" element={<RookieApplication />} />
             <Route path="/apply/veteran" element={<VetApplication />} />
             <Route path="/apply/success" element={<ApplySuccess />} />
