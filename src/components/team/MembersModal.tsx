@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { X, Search, User, Mail, Phone, Building2, UserCheck } from 'lucide-react';
+import { X, Search, User, Mail, Phone, Building2, UserCheck, ChevronDown, ChevronRight, GraduationCap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,10 +25,18 @@ import {
   getStatusInfo,
   assignPillarsToRoster,
 } from '@/lib/hierarchyUtils';
+import { useTrainingProgress } from '@/hooks/useTrainingProgress';
+import { TrainingProgressBadge } from './TrainingProgressBadge';
 
 interface MembersModalProps {
   open: boolean;
   onClose: () => void;
+}
+
+interface ManagerGroup {
+  manager: TeamMember;
+  teamSize: number;
+  directReports: TeamMember[];
 }
 
 export function MembersModal({ open, onClose }: MembersModalProps) {
@@ -39,6 +47,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
   const [pillarFilter, setPillarFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [expandedManagers, setExpandedManagers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!open) return;
@@ -98,6 +107,11 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
     return assignPillarsToRoster(allMembers, pillars);
   }, [allMembers, pillars]);
 
+  // Get all user IDs for training progress
+  const userIds = useMemo(() => enrichedRoster.map(m => m.user_id), [enrichedRoster]);
+  const { getProgress, isLoading: progressLoading } = useTrainingProgress(userIds);
+
+  // Apply filters
   const filteredMembers = useMemo(() => {
     return enrichedRoster.filter(member => {
       if (searchQuery) {
@@ -123,6 +137,78 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
     });
   }, [enrichedRoster, searchQuery, pillarFilter, roleFilter]);
 
+  // Build hierarchical structure: managers -> their direct reports -> unassigned
+  const { managerGroups, unassignedMembers } = useMemo(() => {
+    const managers: ManagerGroup[] = [];
+    const assignedMemberIds = new Set<string>();
+
+    // Find all managers and their direct reports
+    const managerMembers = filteredMembers.filter(m => 
+      isManager(enrichedRoster, m.full_name) || m.role === 'manager'
+    );
+
+    managerMembers.forEach(manager => {
+      const directReports = filteredMembers.filter(m => {
+        if (m.id === manager.id) return false;
+        const managerName = normalizeName(manager.full_name);
+        const reportManager = normalizeName(m.direct_manager || '');
+        return reportManager.includes(managerName) || managerName.includes(reportManager);
+      });
+
+      // Sort direct reports by training progress (highest first)
+      directReports.sort((a, b) => {
+        const aProgress = getProgress(a.user_id).percentage;
+        const bProgress = getProgress(b.user_id).percentage;
+        if (bProgress !== aProgress) return bProgress - aProgress;
+        return a.full_name.localeCompare(b.full_name);
+      });
+
+      managers.push({
+        manager,
+        teamSize: directReports.length,
+        directReports,
+      });
+
+      // Mark as assigned
+      assignedMemberIds.add(manager.id);
+      directReports.forEach(r => assignedMemberIds.add(r.id));
+    });
+
+    // Sort managers by team size (largest first)
+    managers.sort((a, b) => b.teamSize - a.teamSize);
+
+    // Get unassigned members (not a manager and not under a manager)
+    const unassigned = filteredMembers
+      .filter(m => !assignedMemberIds.has(m.id))
+      .sort((a, b) => {
+        const aProgress = getProgress(a.user_id).percentage;
+        const bProgress = getProgress(b.user_id).percentage;
+        if (bProgress !== aProgress) return bProgress - aProgress;
+        return a.full_name.localeCompare(b.full_name);
+      });
+
+    return { managerGroups: managers, unassignedMembers: unassigned };
+  }, [filteredMembers, enrichedRoster, getProgress]);
+
+  const toggleManager = (managerId: string) => {
+    setExpandedManagers(prev => {
+      const next = new Set(prev);
+      if (next.has(managerId)) {
+        next.delete(managerId);
+      } else {
+        next.add(managerId);
+      }
+      return next;
+    });
+  };
+
+  // Expand all managers by default when data loads
+  useEffect(() => {
+    if (managerGroups.length > 0 && expandedManagers.size === 0) {
+      setExpandedManagers(new Set(managerGroups.map(g => g.manager.id)));
+    }
+  }, [managerGroups]);
+
   const getPillarName = (slug: string | undefined) => {
     if (!slug) return 'Unassigned';
     const pillar = pillars.find(p => p.slug === slug);
@@ -136,6 +222,40 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
       return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     }
     return phone;
+  };
+
+  const MemberCard = ({ member, indented = false }: { member: TeamMember; indented?: boolean }) => {
+    const isMgr = isManager(enrichedRoster, member.full_name) || member.role === 'manager';
+    const progress = getProgress(member.user_id);
+    
+    return (
+      <button
+        onClick={() => setSelectedMember(member)}
+        className={cn(
+          "flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors text-left w-full",
+          indented && "ml-6 border-l-2 border-muted"
+        )}
+      >
+        <div className={cn(
+          "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+          isMgr ? "bg-primary/20" : "bg-success/20"
+        )}>
+          <User className={cn("w-5 h-5", isMgr ? "text-primary" : "text-success")} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={cn(
+            "font-medium truncate text-sm",
+            isMgr ? "text-primary" : "text-success"
+          )}>
+            {member.full_name}
+          </p>
+          <p className="text-xs text-muted-foreground truncate">
+            {formatPhone(member.phone)}
+          </p>
+        </div>
+        <TrainingProgressBadge percentage={progress.percentage} showBar />
+      </button>
+    );
   };
 
   return (
@@ -207,8 +327,8 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
             </div>
           </div>
 
-          {/* Members List */}
-          <div className="flex-1 overflow-y-auto py-3">
+          {/* Hierarchical Members List */}
+          <div className="flex-1 overflow-y-auto py-3 space-y-4">
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading...</div>
             ) : filteredMembers.length === 0 ? (
@@ -216,37 +336,74 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
                 No members match your search
               </div>
             ) : (
-              <div className="grid gap-2 sm:grid-cols-2">
-                {filteredMembers.map(member => {
-                  const isMgr = isManager(enrichedRoster, member.full_name);
+              <>
+                {/* Manager Groups */}
+                {managerGroups.map(({ manager, teamSize, directReports }) => {
+                  const isExpanded = expandedManagers.has(manager.id);
+                  const managerProgress = getProgress(manager.user_id);
                   
                   return (
-                    <button
-                      key={member.id}
-                      onClick={() => setSelectedMember(member)}
-                      className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors text-left"
-                    >
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-                        isMgr ? "bg-primary/20" : "bg-success/20"
-                      )}>
-                        <User className={cn("w-5 h-5", isMgr ? "text-primary" : "text-success")} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          "font-medium truncate text-sm",
-                          isMgr ? "text-primary" : "text-success"
-                        )}>
-                          {member.full_name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {formatPhone(member.phone)}
-                        </p>
-                      </div>
-                    </button>
+                    <div key={manager.id} className="space-y-2">
+                      {/* Manager Header */}
+                      <button
+                        onClick={() => toggleManager(manager.id)}
+                        className="w-full flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-primary truncate">
+                              {manager.full_name}
+                            </p>
+                            <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full">
+                              {teamSize} {teamSize === 1 ? 'member' : 'members'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {formatPhone(manager.phone)}
+                          </p>
+                        </div>
+                        <TrainingProgressBadge percentage={managerProgress.percentage} showBar />
+                        {directReports.length > 0 && (
+                          isExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                          )
+                        )}
+                      </button>
+
+                      {/* Direct Reports */}
+                      {isExpanded && directReports.length > 0 && (
+                        <div className="space-y-2 animate-fade-in">
+                          {directReports.map(report => (
+                            <MemberCard key={report.id} member={report} indented />
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
-              </div>
+
+                {/* Unassigned Members Section */}
+                {unassignedMembers.length > 0 && (
+                  <div className="space-y-2 pt-4 border-t border-border/50">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground px-3">
+                      <span>Unassigned Members</span>
+                      <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                        {unassignedMembers.length}
+                      </span>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {unassignedMembers.map(member => (
+                        <MemberCard key={member.id} member={member} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </DialogContent>
@@ -277,6 +434,36 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
               </SheetHeader>
 
               <div className="mt-6 space-y-4">
+                {/* Training Progress */}
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Training Progress</p>
+                    <div className="flex items-center gap-2">
+                      <TrainingProgressBadge 
+                        percentage={getProgress(selectedMember.user_id).percentage} 
+                        size="md"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        ({getProgress(selectedMember.user_id).completed}/{getProgress(selectedMember.user_id).total} lessons)
+                      </span>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        getProgress(selectedMember.user_id).percentage === 100 ? "bg-success" :
+                        getProgress(selectedMember.user_id).percentage >= 67 ? "bg-primary" :
+                        getProgress(selectedMember.user_id).percentage >= 34 ? "bg-yellow-500" :
+                        "bg-destructive"
+                      )}
+                      style={{ width: `${getProgress(selectedMember.user_id).percentage}%` }}
+                    />
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                   <Phone className="w-4 h-4 text-muted-foreground" />
                   <div>
