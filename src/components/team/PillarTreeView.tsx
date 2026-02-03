@@ -7,23 +7,22 @@ import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
 import { isManager as checkIsManager, normalizeName, getDisplayName } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
-import { TrainingProgressBadge } from './TrainingProgressBadge';
 
 interface PillarTreeViewProps {
   pillar: Pillar;
   tree: TeamMember | null;
   roster: TeamMember[];
   onBack: () => void;
+  logoUrl?: string | null;
 }
 
-export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewProps) {
+export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
   const { getProgress } = useTrainingProgress(userIds);
-
   // Build pyramid summary
   const getPyramidLevels = () => {
     if (!tree) return [];
@@ -104,6 +103,23 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
               )}
             </p>
           </div>
+          
+          {/* Team Logo in top right */}
+          {logoUrl ? (
+            <div className="w-14 h-14 rounded-xl border border-border/50 overflow-hidden bg-muted/30 flex-shrink-0">
+              <img 
+                src={logoUrl} 
+                alt={`${pillar.name} logo`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-14 h-14 rounded-xl border border-border/50 bg-muted/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-lg font-bold text-muted-foreground">
+                {pillar.name.slice(0, 2).toUpperCase()}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Search */}
@@ -172,7 +188,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
                     {level.members
                       .slice()
                       .sort((a, b) => {
-                        // Managers first by team size, then by training progress
+                        // Managers first by team size, then alphabetical
                         const aIsManager = a.children && a.children.length > 0;
                         const bIsManager = b.children && b.children.length > 0;
                         if (aIsManager && !bIsManager) return -1;
@@ -181,19 +197,15 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
                           const diff = b.children!.length - a.children!.length;
                           if (diff !== 0) return diff;
                         }
-                        const aProgress = getProgress(a.user_id).percentage;
-                        const bProgress = getProgress(b.user_id).percentage;
-                        if (bProgress !== aProgress) return bProgress - aProgress;
                         return getDisplayName(a.full_name).localeCompare(getDisplayName(b.full_name));
                       })
                       .map(member => {
-                        const progress = getProgress(member.user_id);
                         const isNLC = member.status === 'nlc' || member.isNLC;
                         return (
                           <div 
                             key={member.id}
                             className={cn(
-                              "flex items-center gap-2 text-xs px-2 py-1 rounded-full",
+                              "text-xs px-2 py-1 rounded-full",
                               isNLC
                                 ? "bg-muted text-muted-foreground opacity-50"
                                 : member.children && member.children.length > 0
@@ -202,9 +214,6 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
                             )}
                           >
                             <span>{getDisplayName(member.full_name)}</span>
-                            {!isNLC && (
-                              <TrainingProgressBadge percentage={progress.percentage} size="sm" />
-                            )}
                           </div>
                         );
                       })}
