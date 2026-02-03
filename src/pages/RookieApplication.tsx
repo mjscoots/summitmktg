@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain, Loader2 } from "lucide-react";
 import RookieCalculator from "@/components/RookieCalculator";
@@ -41,6 +41,11 @@ const RookieApplication = () => {
     cityState: false,
     referralName: false,
   });
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const updateField = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -140,6 +145,20 @@ const RookieApplication = () => {
       });
 
       if (error) throw error;
+
+      // Send welcome email (fire and forget - don't block submission)
+      const firstName = formData.fullName.trim().split(" ")[0];
+      supabase.functions.invoke("send-welcome-email", {
+        body: {
+          email: formData.email.trim().toLowerCase(),
+          firstName,
+          applicationType: "rookie",
+        },
+      }).catch((emailError) => {
+        console.error("Welcome email failed:", emailError);
+        // Don't show error to user - email is non-critical
+      });
+
       navigate("/apply/success");
     } catch (error) {
       console.error("Application submission error:", error);
