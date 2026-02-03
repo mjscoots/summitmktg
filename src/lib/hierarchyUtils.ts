@@ -759,6 +759,82 @@ export function validateHierarchy(
   };
 }
 
+// ============================================================
+// SECTION 9: STATUS EDITING PERMISSIONS
+// ============================================================
+
+// Check if current user can edit target member's status
+// Returns { canEdit: boolean, reason?: string }
+export function canEditMemberStatus(
+  roster: TeamMember[],
+  currentUserName: string,
+  currentUserRole: 'rookie' | 'manager' | 'admin' | undefined,
+  targetMember: TeamMember
+): { canEdit: boolean; reason?: string } {
+  // Admins can edit anyone
+  if (currentUserRole === 'admin') {
+    return { canEdit: true };
+  }
+  
+  // Rookies cannot edit anyone
+  if (currentUserRole === 'rookie' || !currentUserRole) {
+    return { canEdit: false, reason: 'Only managers can edit member status' };
+  }
+  
+  // Cannot edit yourself
+  if (namesMatch(currentUserName, targetMember.full_name)) {
+    return { canEdit: false, reason: 'Cannot edit your own status' };
+  }
+  
+  // Check if current user is a pillar owner
+  const isPillarOwner = Object.values(PILLAR_OWNERS).some(
+    ownerName => namesMatch(currentUserName, ownerName)
+  );
+  
+  if (isPillarOwner) {
+    // Pillar owners can edit anyone in their pillar
+    const currentUserPillar = Object.entries(PILLAR_OWNERS).find(
+      ([_, ownerName]) => namesMatch(currentUserName, ownerName)
+    )?.[0];
+    
+    if (currentUserPillar && targetMember.pillar === currentUserPillar) {
+      return { canEdit: true };
+    }
+    
+    // Check if target is in their team hierarchy
+    const descendants = getDescendants(roster, currentUserName);
+    if (descendants.some(d => d.user_id === targetMember.user_id)) {
+      return { canEdit: true };
+    }
+    
+    return { canEdit: false, reason: 'Member is not in your team' };
+  }
+  
+  // Regular managers can only edit their direct reports
+  const effectiveTargetManager = getEffectiveManager(targetMember.direct_manager);
+  if (namesMatch(effectiveTargetManager, currentUserName)) {
+    return { canEdit: true };
+  }
+  
+  return { canEdit: false, reason: 'You can only edit your direct reports' };
+}
+
+// Check if target member has direct reports (cannot be marked NLC without reassignment)
+export function hasDirectReports(roster: TeamMember[], personName: string): boolean {
+  return roster.some(p => {
+    const effectiveManager = getEffectiveManager(p.direct_manager);
+    return namesMatch(effectiveManager, personName) && p.status !== 'nlc';
+  });
+}
+
+// Get direct reports of a person
+export function getDirectReports(roster: TeamMember[], personName: string): TeamMember[] {
+  return roster.filter(p => {
+    const effectiveManager = getEffectiveManager(p.direct_manager);
+    return namesMatch(effectiveManager, personName);
+  });
+}
+
 // Legacy exports for backwards compatibility
 export const PILLAR_OWNER_VARIANTS = NAME_ALIASES;
 export const MANAGER_REDIRECTS: Record<string, string> = Object.fromEntries(
