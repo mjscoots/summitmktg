@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Mountain, Flame, Users, X } from 'lucide-react';
+import { Mountain, Flame, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useStreak } from '@/hooks/useStreak';
 
@@ -88,16 +88,9 @@ export function WelcomeBanner({
       "select-none",
       isExiting ? "opacity-0 -translate-y-2 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"
     )}>
-      {/* Dismiss button - top right */}
-      <button
-        onClick={handleDismiss}
-        className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-        aria-label="Dismiss banner"
-      >
-        <X className="w-4 h-4" />
-      </button>
+      {/* Removed X button - persistent banner */}
 
-      <div className="relative flex items-start gap-4 pr-8">
+      <div className="relative flex items-start gap-4">
         {/* Icon - muted styling */}
         <div className="p-2.5 rounded-lg bg-muted/50 text-muted-foreground flex-shrink-0">
           <Icon className="w-6 h-6" />

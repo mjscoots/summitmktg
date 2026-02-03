@@ -18,10 +18,13 @@ interface TeamCardProps {
   };
   onClick: () => void;
   canUploadLogo?: boolean;
+  isAdmin?: boolean;
   onLogoUpdate?: () => void;
 }
 
-export function TeamCard({ team, onClick, canUploadLogo = false, onLogoUpdate }: TeamCardProps) {
+export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false, onLogoUpdate }: TeamCardProps) {
+  // Only admins can actually upload logos
+  const canActuallyUpload = canUploadLogo && isAdmin;
   const [isUploading, setIsUploading] = useState(false);
   const [memberCountPulse, setMemberCountPulse] = useState(false);
 
@@ -149,8 +152,8 @@ export function TeamCard({ team, onClick, canUploadLogo = false, onLogoUpdate }:
             )}
           </div>
           
-          {/* Upload overlay for managers */}
-          {canUploadLogo && (
+          {/* Upload overlay for admins only */}
+          {canActuallyUpload && (
             <label 
               className={cn(
                 'absolute inset-0 flex items-center justify-center cursor-pointer',
@@ -158,6 +161,7 @@ export function TeamCard({ team, onClick, canUploadLogo = false, onLogoUpdate }:
                 isUploading && 'opacity-100'
               )}
               onClick={(e) => e.stopPropagation()}
+              title="Upload team logo"
             >
               {isUploading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -172,6 +176,16 @@ export function TeamCard({ team, onClick, canUploadLogo = false, onLogoUpdate }:
                 disabled={isUploading}
               />
             </label>
+          )}
+          {/* Non-admin managers see tooltip */}
+          {canUploadLogo && !isAdmin && (
+            <div 
+              className="absolute inset-0 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity bg-black/60"
+              onClick={(e) => e.stopPropagation()}
+              title="Contact admin to change team photo"
+            >
+              <span className="text-[9px] text-white/80 text-center px-1">Admin only</span>
+            </div>
           )}
         </div>
 

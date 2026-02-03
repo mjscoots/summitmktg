@@ -10,6 +10,7 @@ interface AddToCalendarButtonProps {
   location?: string;
   description?: string;
   organizer?: string;
+  rrule?: string | null;
   variant?: 'default' | 'ghost' | 'outline';
   size?: 'default' | 'sm' | 'icon';
   className?: string;
@@ -22,6 +23,7 @@ export function AddToCalendarButton({
   location,
   description,
   organizer,
+  rrule,
   variant = 'outline',
   size = 'sm',
   className
@@ -34,7 +36,8 @@ export function AddToCalendarButton({
         endDate,
         location,
         description,
-        organizer
+        organizer,
+        rrule
       });
       toast.success('Calendar file downloaded');
     } catch (error) {

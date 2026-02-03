@@ -12,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Users, User, Loader2 } from 'lucide-react';
+import { Users, User, Loader2, Repeat } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { RecurrenceSelector, DEFAULT_RECURRENCE, toRRule, type RecurrenceSettings } from './RecurrenceSelector';
 
 interface Rookie {
   user_id: string;
@@ -64,6 +65,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
   const [eventType, setEventType] = useState('general');
   const [isTeamWide, setIsTeamWide] = useState(true);
   const [selectedRookies, setSelectedRookies] = useState<string[]>([]);
+  const [recurrence, setRecurrence] = useState<RecurrenceSettings>(DEFAULT_RECURRENCE);
 
   // Fetch manager's downline
   useEffect(() => {
@@ -119,6 +121,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
     setEventType('general');
     setIsTeamWide(true);
     setSelectedRookies([]);
+    setRecurrence(DEFAULT_RECURRENCE);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,7 +153,16 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
         is_team_wide: isTeamWide,
         manager_id: user?.id,
         created_by: user?.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        // Recurrence fields
+        recurrence_type: recurrence.type !== 'none' ? recurrence.type : null,
+        recurrence_interval: recurrence.interval,
+        recurrence_days_of_week: recurrence.daysOfWeek.length > 0 ? recurrence.daysOfWeek : null,
+        recurrence_day_of_month: recurrence.dayOfMonth,
+        recurrence_end_date: recurrence.endType === 'date' && recurrence.endDate 
+          ? new Date(recurrence.endDate).toISOString() 
+          : null,
+        recurrence_count: recurrence.endType === 'count' ? recurrence.endCount : null,
       };
 
       let eventId = event?.id;
@@ -401,6 +413,11 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
                 )}
               </div>
             )}
+          </div>
+
+          {/* Recurrence Settings */}
+          <div className="border-t border-border pt-4">
+            <RecurrenceSelector value={recurrence} onChange={setRecurrence} />
           </div>
 
           {/* Actions */}

@@ -18,7 +18,7 @@ interface PillarTreeViewProps {
 
 export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2]));
+  const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
@@ -167,7 +167,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
                   </div>
                 </button>
                 
-                {isExpanded && level.members.length <= 8 && (
+                {isExpanded && (
                   <div className="ml-8 flex flex-wrap gap-2">
                     {level.members
                       .slice()
