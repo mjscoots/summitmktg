@@ -25,9 +25,13 @@ import {
   getStatusInfo,
   assignPillarsToRoster,
   getDisplayName,
+  canEditMemberStatus,
+  getEffectiveManager,
 } from '@/lib/hierarchyUtils';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
+import { useAuth } from '@/hooks/useAuth';
 import { TrainingProgressBadge } from './TrainingProgressBadge';
+import { MemberStatusToggle } from './MemberStatusToggle';
 
 interface MembersModalProps {
   open: boolean;
@@ -41,6 +45,7 @@ interface ManagerGroup {
 }
 
 export function MembersModal({ open, onClose }: MembersModalProps) {
+  const { profile, role: currentUserRole } = useAuth();
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [pillars, setPillars] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +54,11 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [expandedManagers, setExpandedManagers] = useState<Set<string>>(new Set());
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleStatusChange = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -100,7 +110,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
     };
 
     fetchData();
-  }, [open]);
+  }, [open, refreshKey]);
 
   const { enrichedRoster } = useMemo(() => {
     if (allMembers.length === 0 || pillars.length === 0) {
@@ -248,58 +258,87 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
     const isMgr = isManager(enrichedRoster, member.full_name) || member.role === 'manager';
     const progress = getProgress(member.user_id);
     
+    // Check if current user can edit this member's status
+    const { canEdit, reason } = canEditMemberStatus(
+      enrichedRoster,
+      profile?.full_name || '',
+      currentUserRole,
+      member
+    );
+    
     if (isNLCMember) {
       return (
-        <button
-          onClick={() => setSelectedMember(member)}
+        <div
           className={cn(
-            "flex items-center gap-3 p-3 bg-muted/20 rounded-xl hover:bg-muted/30 transition-colors text-left w-full opacity-70",
+            "flex items-center gap-3 p-3 bg-muted/20 rounded-xl transition-colors text-left w-full opacity-70",
             indented && "ml-6 border-l-2 border-muted"
           )}
         >
-          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
-            <User className="w-5 h-5 text-muted-foreground" />
+          <button
+            onClick={() => setSelectedMember(member)}
+            className="flex items-center gap-3 flex-1 min-w-0"
+          >
+            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+              <User className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="font-medium truncate text-sm text-destructive">
+                {getDisplayName(member.full_name)}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {formatPhone(member.phone)}
+              </p>
+            </div>
+          </button>
+          <MemberStatusToggle
+            member={member}
+            roster={enrichedRoster}
+            canEdit={canEdit}
+            disabledReason={reason}
+            onStatusChange={handleStatusChange}
+          />
+        </div>
+      );
+    }
+    
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors text-left w-full",
+          indented && "ml-6 border-l-2 border-muted"
+        )}
+      >
+        <button
+          onClick={() => setSelectedMember(member)}
+          className="flex items-center gap-3 flex-1 min-w-0"
+        >
+          <div className={cn(
+            "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+            isMgr ? "bg-primary/20" : "bg-success/20"
+          )}>
+            <User className={cn("w-5 h-5", isMgr ? "text-primary" : "text-success")} />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate text-sm text-destructive">
+          <div className="flex-1 min-w-0 text-left">
+            <p className={cn(
+              "font-medium truncate text-sm",
+              isMgr ? "text-primary" : "text-success"
+            )}>
               {getDisplayName(member.full_name)}
             </p>
             <p className="text-xs text-muted-foreground truncate">
               {formatPhone(member.phone)}
             </p>
           </div>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">NLC</span>
         </button>
-      );
-    }
-    
-    return (
-      <button
-        onClick={() => setSelectedMember(member)}
-        className={cn(
-          "flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors text-left w-full",
-          indented && "ml-6 border-l-2 border-muted"
-        )}
-      >
-        <div className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-          isMgr ? "bg-primary/20" : "bg-success/20"
-        )}>
-          <User className={cn("w-5 h-5", isMgr ? "text-primary" : "text-success")} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className={cn(
-            "font-medium truncate text-sm",
-            isMgr ? "text-primary" : "text-success"
-          )}>
-            {getDisplayName(member.full_name)}
-          </p>
-          <p className="text-xs text-muted-foreground truncate">
-            {formatPhone(member.phone)}
-          </p>
-        </div>
-        <TrainingProgressBadge percentage={progress.percentage} showBar />
-      </button>
+        <TrainingProgressBadge percentage={progress.percentage} showBar size="sm" />
+        <MemberStatusToggle
+          member={member}
+          roster={enrichedRoster}
+          canEdit={canEdit}
+          disabledReason={reason}
+          onStatusChange={handleStatusChange}
+        />
+      </div>
     );
   };
 
@@ -520,7 +559,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
                         "h-full rounded-full transition-all",
                         getProgress(selectedMember.user_id).percentage === 100 ? "bg-success" :
                         getProgress(selectedMember.user_id).percentage >= 67 ? "bg-primary" :
-                        getProgress(selectedMember.user_id).percentage >= 34 ? "bg-yellow-500" :
+                        getProgress(selectedMember.user_id).percentage >= 34 ? "bg-warning" :
                         "bg-destructive"
                       )}
                       style={{ width: `${getProgress(selectedMember.user_id).percentage}%` }}
@@ -560,13 +599,36 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
                   </div>
                 </div>
 
-                <div className="pt-4">
-                  <span className={cn(
-                    "text-sm font-medium px-3 py-1.5 rounded-full",
-                    getStatusInfo(selectedMember.status).className
-                  )}>
-                    {getStatusInfo(selectedMember.status).label}
-                  </span>
+                {/* Status with Toggle */}
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <UserCheck className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <p className="text-sm text-foreground">Member Status</p>
+                    </div>
+                  </div>
+                  <MemberStatusToggle
+                    member={selectedMember}
+                    roster={enrichedRoster}
+                    canEdit={canEditMemberStatus(
+                      enrichedRoster,
+                      profile?.full_name || '',
+                      currentUserRole,
+                      selectedMember
+                    ).canEdit}
+                    disabledReason={canEditMemberStatus(
+                      enrichedRoster,
+                      profile?.full_name || '',
+                      currentUserRole,
+                      selectedMember
+                    ).reason}
+                    onStatusChange={() => {
+                      handleStatusChange();
+                      setSelectedMember(null);
+                    }}
+                    size="md"
+                  />
                 </div>
               </div>
             </>
