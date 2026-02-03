@@ -35,7 +35,7 @@ export function CommandBar({
         <Button
           variant="outline"
           onClick={() => navigate('/app/interviews')}
-          className="font-semibold gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
+          className="font-semibold gap-2 border-primary text-white hover:bg-primary hover:text-primary-foreground transition-all"
         >
           <UserPlus className="w-4 h-4" />
           Sign a Rep
