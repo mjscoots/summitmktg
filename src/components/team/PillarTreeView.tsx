@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ArrowLeft, Users, AlertTriangle, Search, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TeamTreeNode } from './TeamTreeNode';
 import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
-import { isManager as checkIsManager, normalizeName } from '@/lib/hierarchyUtils';
+import { isManager as checkIsManager, normalizeName, getDisplayName } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
+import { useTrainingProgress } from '@/hooks/useTrainingProgress';
+import { TrainingProgressBadge } from './TrainingProgressBadge';
 
 interface PillarTreeViewProps {
   pillar: Pillar;
@@ -17,6 +19,10 @@ interface PillarTreeViewProps {
 export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2]));
+
+  // Get all user IDs for training progress
+  const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
+  const { getProgress } = useTrainingProgress(userIds);
 
   // Build pyramid summary
   const getPyramidLevels = () => {
@@ -163,21 +169,45 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
                 
                 {isExpanded && level.members.length <= 8 && (
                   <div className="ml-8 flex flex-wrap gap-2">
-                    {level.members.map(member => (
-                      <span 
-                        key={member.id}
-                        className={cn(
-                          "text-xs px-2 py-1 rounded-full",
-                          member.status === 'nlc' || member.isNLC
-                            ? "bg-muted text-muted-foreground opacity-50"
-                            : member.children && member.children.length > 0
-                              ? "bg-primary/10 text-primary"
-                              : "bg-success/10 text-success"
-                        )}
-                      >
-                        {member.full_name}
-                      </span>
-                    ))}
+                    {level.members
+                      .slice()
+                      .sort((a, b) => {
+                        // Managers first by team size, then by training progress
+                        const aIsManager = a.children && a.children.length > 0;
+                        const bIsManager = b.children && b.children.length > 0;
+                        if (aIsManager && !bIsManager) return -1;
+                        if (!aIsManager && bIsManager) return 1;
+                        if (aIsManager && bIsManager) {
+                          const diff = b.children!.length - a.children!.length;
+                          if (diff !== 0) return diff;
+                        }
+                        const aProgress = getProgress(a.user_id).percentage;
+                        const bProgress = getProgress(b.user_id).percentage;
+                        if (bProgress !== aProgress) return bProgress - aProgress;
+                        return getDisplayName(a.full_name).localeCompare(getDisplayName(b.full_name));
+                      })
+                      .map(member => {
+                        const progress = getProgress(member.user_id);
+                        const isNLC = member.status === 'nlc' || member.isNLC;
+                        return (
+                          <div 
+                            key={member.id}
+                            className={cn(
+                              "flex items-center gap-2 text-xs px-2 py-1 rounded-full",
+                              isNLC
+                                ? "bg-muted text-muted-foreground opacity-50"
+                                : member.children && member.children.length > 0
+                                  ? "bg-primary/10 text-primary"
+                                  : "bg-success/10 text-success"
+                            )}
+                          >
+                            <span>{getDisplayName(member.full_name)}</span>
+                            {!isNLC && (
+                              <TrainingProgressBadge percentage={progress.percentage} size="sm" />
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
                 )}
               </div>
@@ -211,6 +241,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack }: PillarTreeViewP
             member={displayTree}
             isManager={true}
             isRoot={true}
+            getProgress={getProgress}
           />
         ) : (
           <div className="text-center py-8">

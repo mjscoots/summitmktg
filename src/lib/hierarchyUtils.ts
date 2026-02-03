@@ -226,6 +226,21 @@ export function normalizeName(name: string | null | undefined): string {
     .trim();
 }
 
+// Get display name (First Last only, no middle names)
+// Database stores full name, this is for display only
+export function getDisplayName(fullName: string | null | undefined): string {
+  if (!fullName) return '';
+  const trimmed = fullName.trim();
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  
+  if (parts.length <= 2) {
+    return trimmed; // Already first + last or single name
+  }
+  
+  // Return first and last name only
+  return `${parts[0]} ${parts[parts.length - 1]}`;
+}
+
 // Get the canonical name for any input (resolves all aliases)
 export function getCanonicalName(name: string | null | undefined): string {
   if (!name) return '';

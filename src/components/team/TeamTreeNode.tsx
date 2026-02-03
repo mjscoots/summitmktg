@@ -1,21 +1,52 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX } from 'lucide-react';
+import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TeamMember } from '@/lib/hierarchyUtils';
-import { getStatusInfo } from '@/lib/hierarchyUtils';
+import { getStatusInfo, getDisplayName } from '@/lib/hierarchyUtils';
+import { TrainingProgressBadge } from './TrainingProgressBadge';
+import type { MemberTrainingProgress } from '@/hooks/useTrainingProgress';
 
 interface TeamTreeNodeProps {
   member: TeamMember;
   isManager: boolean;
   isRoot?: boolean;
   depth?: number;
+  getProgress?: (userId: string) => MemberTrainingProgress;
 }
 
-export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: TeamTreeNodeProps) {
+export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0, getProgress }: TeamTreeNodeProps) {
   const [expanded, setExpanded] = useState(isRoot || depth < 2);
   const hasChildren = member.children && member.children.length > 0;
   const statusInfo = getStatusInfo(member.status);
   const isNLC = member.status === 'nlc' || member.isNLC;
+  const progress = getProgress?.(member.user_id);
+
+  // Sort children: managers first by team size, then by training progress
+  const sortedChildren = member.children?.slice().sort((a, b) => {
+    const aIsManager = a.children && a.children.length > 0;
+    const bIsManager = b.children && b.children.length > 0;
+    
+    // Managers first
+    if (aIsManager && !bIsManager) return -1;
+    if (!aIsManager && bIsManager) return 1;
+    
+    // Among managers, sort by team size
+    if (aIsManager && bIsManager) {
+      const aSize = a.children!.length;
+      const bSize = b.children!.length;
+      if (bSize !== aSize) return bSize - aSize;
+    }
+    
+    // Among non-managers (or equal team size), sort by training progress
+    if (getProgress) {
+      const aProgress = getProgress(a.user_id).percentage;
+      const bProgress = getProgress(b.user_id).percentage;
+      if (bProgress !== aProgress) return bProgress - aProgress;
+    }
+    
+    // Alphabetical tiebreaker
+    return getDisplayName(a.full_name).localeCompare(getDisplayName(b.full_name));
+  });
 
   return (
     <div className={cn("relative", depth > 0 && "ml-6")}>
@@ -80,7 +111,7 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
                   ? "text-primary" 
                   : "text-success"
             )}>
-              {member.full_name}
+              {getDisplayName(member.full_name)}
             </span>
             {member.dataIssue && (
               <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" />
@@ -88,6 +119,11 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
           </div>
           <p className="text-xs text-muted-foreground truncate">{member.email}</p>
         </div>
+
+        {/* Training Progress */}
+        {progress && !isNLC && (
+          <TrainingProgressBadge percentage={progress.percentage} showBar />
+        )}
 
         {/* Badges */}
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -115,12 +151,13 @@ export function TeamTreeNode({ member, isManager, isRoot = false, depth = 0 }: T
       {/* Children */}
       {expanded && hasChildren && (
         <div className="mt-1">
-          {member.children!.map(child => (
+          {sortedChildren!.map(child => (
             <TeamTreeNode
               key={child.id}
               member={child}
               isManager={child.children && child.children.length > 0}
               depth={depth + 1}
+              getProgress={getProgress}
             />
           ))}
         </div>
