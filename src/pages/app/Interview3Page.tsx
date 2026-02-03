@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ManagerAutocomplete } from '@/components/interviews/ManagerAutocomplete';
 
 interface FormData {
   recruitName: string;
@@ -34,11 +35,19 @@ interface FormData {
   outcome: 'offer' | 'disqualified' | '';
 }
 
+interface SelectedManager {
+  user_id: string;
+  full_name: string;
+  email: string;
+  team_name: string | null;
+}
+
 interface RepFormData {
   fullName: string;
   email: string;
   phone: string;
   teamId: string;
+  directManager: SelectedManager | null;
 }
 
 export default function Interview3Page() {
@@ -65,6 +74,7 @@ export default function Interview3Page() {
     email: '',
     phone: '',
     teamId: '',
+    directManager: null,
   });
 
   useEffect(() => {
@@ -85,7 +95,7 @@ export default function Interview3Page() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleRepChange = (field: keyof RepFormData, value: string) => {
+  const handleRepChange = (field: keyof RepFormData, value: string | SelectedManager | null) => {
     setRepFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -156,6 +166,10 @@ export default function Interview3Page() {
       toast.error('Please enter the rep\'s phone number');
       return;
     }
+    if (!repFormData.directManager) {
+      toast.error('Please select a direct manager from the list');
+      return;
+    }
     if (!repFormData.teamId) {
       toast.error('Please select a team');
       return;
@@ -164,7 +178,7 @@ export default function Interview3Page() {
     setIsSubmitting(true);
     try {
       // Insert into rep_signups table
-      const { error } = await supabase.from('rep_signups').insert({
+      const { error: signupError } = await supabase.from('rep_signups').insert({
         rep_name: repFormData.fullName,
         rep_email: repFormData.email,
         rep_phone: repFormData.phone,
@@ -173,10 +187,43 @@ export default function Interview3Page() {
         source: 'interview3',
       });
 
-      if (error) throw error;
+      if (signupError) throw signupError;
+
+      // Create notification for the assigned manager
+      const interviewData = {
+        interview3: {
+          recruitName: formData.recruitName,
+          interviewer: formData.interviewerName,
+          dreamScenario: formData.dreamScenario,
+          identityQuestion: formData.identityQuestion,
+          futurePacing: formData.futurePacing,
+          confidenceScale: formData.confidenceScale,
+          commitmentLevel: formData.commitmentLevel,
+          notes: formData.notes,
+          outcome: 'Offer Extended',
+          submittedAt: new Date().toISOString(),
+        },
+        repInfo: {
+          fullName: repFormData.fullName,
+          email: repFormData.email,
+          phone: repFormData.phone,
+        }
+      };
+
+      const { error: notificationError } = await supabase.from('user_notifications').insert({
+        user_id: repFormData.directManager.user_id,
+        title: `New Rep Assigned: ${repFormData.fullName}`,
+        message: `${formData.interviewerName} has completed Interview 3 and assigned ${repFormData.fullName} to your team. The rep is ready to begin training.`,
+        link: '/app/team',
+      });
+
+      if (notificationError) {
+        console.error('Notification error:', notificationError);
+        // Don't block the flow for notification errors
+      }
 
       toast.success('Rep signed successfully!', {
-        description: `${repFormData.fullName} has been added to the team`,
+        description: `${repFormData.fullName} has been added and ${repFormData.directManager.full_name} has been notified`,
       });
       navigate('/app/interviews');
     } catch (err) {
@@ -451,6 +498,18 @@ export default function Interview3Page() {
                 onChange={(e) => handleRepChange('phone', formatPhoneNumber(e.target.value))}
                 placeholder="(555) 123-4567"
                 className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Who is their direct manager? *
+              </label>
+              <ManagerAutocomplete
+                value={repFormData.directManager}
+                onChange={(manager) => handleRepChange('directManager', manager)}
+                placeholder="Search for a manager..."
+                error={false}
               />
             </div>
 
