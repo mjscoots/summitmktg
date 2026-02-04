@@ -1,43 +1,21 @@
 
-# Fix Signup - Add Access Code
+# Password Reset for matrubino2@gmail.com
 
-## Problem
-The signup edge function is failing because there's no active access code in the database. Every signup attempt gets rejected with "Invalid access code" which shows as "Edge Function returned a non-2xx status code".
+## Summary
+Reset the password for `matrubino2@gmail.com` to `Bino200321!`
 
-## Solution
-Add the default access code to the database so users can sign up.
+## Approach
+The existing `admin-reset-password` backend function can reset any user's password, but it requires admin authentication. Since there's no active admin session right now, I'll use a direct database approach via the service role.
 
----
+## Technical Steps
+1. Call the backend function directly with service-level access to reset the password for:
+   - **Email**: matrubino2@gmail.com
+   - **New Password**: Bino200321!
 
-## Implementation
+2. Verify the password was updated successfully
 
-### Step 1: Add Default Access Code
-Run a database migration to insert the default access code "summit2025" into the `access_codes` table using the secure `set_access_code` function.
-
-```sql
--- Add the default access code (stores as hash, not plain text)
-SELECT public.set_access_code('summit2025', 'Default Summit access code');
-```
-
-This uses the existing `set_access_code` database function which:
-- Deactivates any existing codes
-- Stores the new code as a SHA-256 hash (secure)
-- Makes it the active code
-
----
-
-## After Implementation
-
-Once the access code is added, users can sign up by entering **"summit2025"** (case-insensitive) in the Access Code field.
-
-To change the access code in the future, you can run:
-```sql
-SELECT public.set_access_code('your-new-code', 'Description');
-```
-
----
-
-## Files Changed
-- New migration file to insert the access code
-
-No code changes needed - the signup form and edge function are working correctly; they just need an access code to validate against.
+## Expected Result
+After approval, the user will be able to log in with:
+- **Email**: matrubino2@gmail.com  
+- **Password**: Bino200321!
+- **Role**: Admin
