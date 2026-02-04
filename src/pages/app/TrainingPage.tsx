@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
-import { BookOpen, Users, ArrowLeft, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
+import { BookOpen, Users, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +17,8 @@ export default function TrainingPage() {
   const [view, setView] = useState<TrainingView>('selection');
   const [lessonsCompleted, setLessonsCompleted] = useState(0);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [requiredComplete, setRequiredComplete] = useState(false);
+  const [aiCoachUnlocked, setAiCoachUnlocked] = useState(false);
+  const [managerManualComplete, setManagerManualComplete] = useState(false);
   
   const isManager = role === 'manager' || role === 'admin';
 
@@ -28,9 +29,9 @@ export default function TrainingPage() {
 
       try {
         // For rookies: Learn Your Pitch + Summer Sales Manual
-        // For managers: Learn the Basics + Manager Manual
+        // For managers: Manager Manual + Recruiting Resources (learn-the-basics)
         const requiredSlugs = isManager 
-          ? ['learn-the-basics', 'manager-manual']
+          ? ['manager-manual', 'learn-the-basics']
           : ['learn-your-pitch', 'summer-sales-manual'];
 
         const { data: courses } = await supabase
@@ -40,7 +41,7 @@ export default function TrainingPage() {
           .eq('is_active', true);
 
         if (!courses || courses.length < 2) {
-          setRequiredComplete(false);
+          setAiCoachUnlocked(false);
           return;
         }
 
@@ -78,13 +79,71 @@ export default function TrainingPage() {
           }
         }
 
-        setRequiredComplete(allComplete);
+        setAiCoachUnlocked(allComplete);
       } catch (err) {
         console.error('Error checking progress:', err);
       }
     };
 
     checkRequiredProgress();
+  }, [user, isManager]);
+
+  // Check if Manager Manual is complete (for Recruiting Resources lock)
+  useEffect(() => {
+    const checkManagerManualProgress = async () => {
+      if (!user || !isManager) return;
+
+      try {
+        const { data: course } = await supabase
+          .from('training_courses')
+          .select('id')
+          .eq('slug', 'manager-manual')
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (!course) {
+          setManagerManualComplete(false);
+          return;
+        }
+
+        const { data: modules } = await supabase
+          .from('training_modules')
+          .select('id')
+          .eq('course_id', course.id)
+          .eq('is_active', true);
+
+        const moduleIds = modules?.map(m => m.id) || [];
+        if (moduleIds.length === 0) {
+          setManagerManualComplete(false);
+          return;
+        }
+
+        const { data: lessons } = await supabase
+          .from('training_lessons')
+          .select('id')
+          .in('module_id', moduleIds)
+          .eq('is_active', true);
+
+        const lessonIds = lessons?.map(l => l.id) || [];
+        if (lessonIds.length === 0) {
+          setManagerManualComplete(false);
+          return;
+        }
+
+        const { data: progress } = await supabase
+          .from('lesson_progress')
+          .select('lesson_id')
+          .eq('user_id', user.id)
+          .in('lesson_id', lessonIds)
+          .not('completed_at', 'is', null);
+
+        setManagerManualComplete((progress?.length || 0) >= lessonIds.length);
+      } catch (err) {
+        console.error('Error checking manager manual progress:', err);
+      }
+    };
+
+    checkManagerManualProgress();
   }, [user, isManager]);
 
   // Fetch user's lesson completion count
@@ -114,7 +173,7 @@ export default function TrainingPage() {
     );
   }
 
-  // For rookies, go straight to rookie training
+  // For rookies, go straight to rookie training (no AI Coach here)
   if (!isManager && view === 'selection') {
     return (
       <AppLayout>
@@ -137,16 +196,16 @@ export default function TrainingPage() {
 
           <TrainingTiles filterRole="rookie" />
 
-          {/* AI Coach Tile - Locked until requirements complete */}
+          {/* AI Coach Tile for Rookies */}
           <div className="mt-6">
-            <AICoachTile isLocked={!requiredComplete} isRookie={true} />
+            <AICoachTile isLocked={!aiCoachUnlocked} isRookie={true} />
           </div>
         </div>
       </AppLayout>
     );
   }
 
-  // Selection view for managers
+  // Selection view for managers - AI Coach lives HERE ONLY
   if (view === 'selection') {
     return (
       <AppLayout>
@@ -158,7 +217,7 @@ export default function TrainingPage() {
             </h1>
           </div>
 
-          {/* Two Selection Cards - Learn the Basics LEFT, Manager Manual implied via right */}
+          {/* Two Selection Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Rookie Training Card */}
             <button
@@ -204,21 +263,21 @@ export default function TrainingPage() {
               </h2>
               
               <p className="text-sm text-muted-foreground">
-                Learn the Basics, Manager Manual, Manager Videos
+                Manager Manual, Recruiting Resources, Manager Videos
               </p>
             </button>
           </div>
 
-          {/* AI Coach Tile - Locked until requirements complete */}
+          {/* AI Coach Tile - ONLY appears on selection screen */}
           <div className="mt-6">
-            <AICoachTile isLocked={!requiredComplete} isRookie={false} />
+            <AICoachTile isLocked={!aiCoachUnlocked} isRookie={false} />
           </div>
         </div>
       </AppLayout>
     );
   }
 
-  // Training content view (rookie or manager)
+  // Training content view (rookie or manager) - NO AI Coach here
   const isRookieView = view === 'rookie';
   
   return (
@@ -256,12 +315,12 @@ export default function TrainingPage() {
           </h1>
         </div>
 
-        <TrainingTiles filterRole={isRookieView ? 'rookie' : 'manager'} />
-
-        {/* AI Coach Tile - Locked until requirements complete */}
-        <div className="mt-6">
-          <AICoachTile isLocked={!requiredComplete} isRookie={isRookieView} />
-        </div>
+        <TrainingTiles 
+          filterRole={isRookieView ? 'rookie' : 'manager'} 
+          managerManualComplete={isRookieView ? true : managerManualComplete}
+        />
+        
+        {/* NO AI Coach in training content views */}
       </div>
     </AppLayout>
   );
@@ -296,7 +355,7 @@ function AICoachTile({ isLocked, isRookie }: { isLocked: boolean; isRookie: bool
           <h3 className="font-bold text-foreground">AI Coach</h3>
           <p className="text-sm text-muted-foreground">
             {isLocked 
-              ? `Complete ${isRookie ? 'Learn Your Pitch & Summer Sales Manual' : 'Learn the Basics & Manager Manual'} to unlock`
+              ? `Complete ${isRookie ? 'Learn Your Pitch & Summer Sales Manual' : 'Manager Manual & Recruiting Resources'} to unlock`
               : 'Your personal training assistant'
             }
           </p>

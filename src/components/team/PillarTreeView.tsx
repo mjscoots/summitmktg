@@ -142,9 +142,9 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
         </div>
       </div>
 
-      {/* Pyramid Summary */}
+      {/* Team Structure Summary */}
       <div className="bg-card rounded-xl border border-border/50 p-4">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">Pyramid Overview</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">Team Structure</h3>
         <div className="space-y-2">
           {pyramidLevels.map((level, idx) => {
             const isExpanded = expandedLevels.has(idx);
@@ -167,7 +167,6 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
                     ) : (
                       <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
-                    <span className="text-xs text-muted-foreground">Level {idx + 1}</span>
                     <span className="text-sm font-medium text-foreground">
                       {level.members.length} {level.members.length === 1 ? 'member' : 'members'}
                     </span>

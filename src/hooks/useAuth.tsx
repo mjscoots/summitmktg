@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { isHardCodedAdmin } from '@/lib/hierarchyUtils';
 
 type UserRole = 'rookie' | 'manager' | 'admin';
 
@@ -40,8 +41,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>('rookie');
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string): Promise<UserRole> => {
+  const fetchUserRole = async (userId: string, fullName?: string): Promise<UserRole> => {
     try {
+      // First check if user is a hard-coded admin
+      if (fullName && isHardCodedAdmin(fullName)) {
+        return 'admin';
+      }
+
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -84,10 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (user) {
-      const [newProfile, newRole] = await Promise.all([
-        fetchProfile(user.id),
-        fetchUserRole(user.id)
-      ]);
+      const newProfile = await fetchProfile(user.id);
+      const newRole = await fetchUserRole(user.id, newProfile?.full_name);
       setProfile(newProfile);
       setRole(newRole);
     }
@@ -103,10 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           // Defer database calls to avoid race conditions
           setTimeout(async () => {
-            const [userProfile, userRole] = await Promise.all([
-              fetchProfile(session.user.id),
-              fetchUserRole(session.user.id)
-            ]);
+            const userProfile = await fetchProfile(session.user.id);
+            const userRole = await fetchUserRole(session.user.id, userProfile?.full_name);
             setProfile(userProfile);
             setRole(userRole);
             setIsLoading(false);
@@ -125,13 +127,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        Promise.all([
-          fetchProfile(session.user.id),
-          fetchUserRole(session.user.id)
-        ]).then(([userProfile, userRole]) => {
-          setProfile(userProfile);
-          setRole(userRole);
-          setIsLoading(false);
+        fetchProfile(session.user.id).then((userProfile) => {
+          fetchUserRole(session.user.id, userProfile?.full_name).then((userRole) => {
+            setProfile(userProfile);
+            setRole(userRole);
+            setIsLoading(false);
+          });
         });
       } else {
         setIsLoading(false);

@@ -62,7 +62,45 @@ export const ROOT_NAME_VARIANTS = [
 ];
 
 // ============================================================
-// SECTION 2: PILLAR OWNERS (report directly to root)
+// SECTION 2: HARD-CODED ADMINS (full platform access)
+// ============================================================
+
+// These users ALWAYS have admin permissions across the entire platform
+// No approval needed - this is hard-coded system-level access
+export const HARD_CODED_ADMINS: string[] = [
+  'Joshua Bingham',
+  'Colton Joyce',
+  'William Gardner',      // Also known as Liam Gardner
+  'Liam Gardner',         // Same person as William Gardner
+  'Luc Robert Chevalier', // Also known as Luke Chevalier
+  'Luke Chevalier',       // Same person
+  'Mathew Peter Rubino',  // Matthew Rubino
+  'Matthew Rubino',       // Alias
+  'Hunter Terry Shannon', // Hunter Shannon
+  'Hunter Shannon',       // Alias
+  'Sean Douglas Jablonski', // Sean Jablonski
+  'Sean Jablonski',       // Alias
+  'Mathew Daniel Joyce',  // Root admin
+];
+
+// Normalized version for matching
+export const HARD_CODED_ADMIN_NORMALIZED: string[] = HARD_CODED_ADMINS.map(n => n.toLowerCase().trim());
+
+/**
+ * Check if a name is a hard-coded admin
+ */
+export function isHardCodedAdmin(name: string | null | undefined): boolean {
+  if (!name) return false;
+  const normalized = name.toLowerCase().trim();
+  return HARD_CODED_ADMIN_NORMALIZED.some(admin => 
+    normalized === admin || 
+    normalized.includes(admin) || 
+    admin.includes(normalized)
+  );
+}
+
+// ============================================================
+// SECTION 2b: PILLAR OWNERS (report directly to root)
 // ============================================================
 
 // Pillar owners mapping - source of truth
