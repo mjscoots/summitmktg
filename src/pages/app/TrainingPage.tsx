@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
+import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { BookOpen, Users, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -178,6 +179,11 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="max-w-5xl mx-auto px-4 py-6">
+          {/* Streak Display - Large and prominent */}
+          <div className="mb-6">
+            <StreakDisplay variant="large" />
+          </div>
+
           {/* Welcome Banner for new users */}
           {showWelcome && lessonsCompleted < 15 && (
             <WelcomeBanner
@@ -210,6 +216,11 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* Streak Display - Large and prominent */}
+          <div className="mb-6">
+            <StreakDisplay variant="large" />
+          </div>
+
           <div className="flex items-center gap-3 mb-6">
             <Sparkles className="w-5 h-5 text-primary" />
             <h1 className="text-xl font-bold text-foreground">

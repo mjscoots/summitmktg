@@ -10,6 +10,7 @@ import { TeamSnapshot } from '@/components/dashboard/TeamSnapshot';
 import { QuestLog } from '@/components/dashboard/QuestLog';
 import { MomentumMeter } from '@/components/dashboard/MomentumMeter';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
+import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { Button } from '@/components/ui/button';
 import { UserPlus, Play, Target, Zap, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -36,7 +37,7 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 py-6">
-        {/* Greeting + Momentum */}
+        {/* Greeting + Momentum + Streak */}
         <div className="flex items-start justify-between mb-6">
           <div>
             <h1 className="text-xl font-bold text-foreground">
@@ -48,7 +49,10 @@ export default function DashboardPage() {
                 : 'Complete training. Build momentum.'}
             </p>
           </div>
-          <MomentumMeter streak={streakData.currentStreak} />
+          <div className="flex items-center gap-3">
+            <StreakDisplay variant="compact" clickable />
+            <MomentumMeter streak={streakData.currentStreak} />
+          </div>
         </div>
 
         {/* Primary CTAs - Above the fold */}
