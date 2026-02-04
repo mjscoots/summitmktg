@@ -1,10 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+// Allowed origins for CORS
+const allowedOrigins = [
+  "https://summitmktg.lovable.app",
+  "https://summitmktgsales.com",
+  "https://www.summitmktgsales.com",
+];
+
+function getCorsHeaders(origin: string | null) {
+  const isAllowed = origin && (
+    allowedOrigins.includes(origin) || 
+    origin.endsWith('.lovable.app')
+  );
+  return {
+    "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 interface WelcomeEmailRequest {
   email: string;
@@ -13,6 +27,9 @@ interface WelcomeEmailRequest {
 }
 
 serve(async (req: Request): Promise<Response> => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -35,6 +52,37 @@ serve(async (req: Request): Promise<Response> => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       throw new Error("Invalid email format");
+    }
+
+    // Validate applicationType
+    if (!["rookie", "vet"].includes(applicationType)) {
+      throw new Error("Invalid application type");
+    }
+
+    // Rate limiting using Supabase
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+      
+      const rateLimitKey = `welcome-email:${email.toLowerCase()}`;
+      const { data: isAllowed } = await supabaseAdmin
+        .rpc("check_rate_limit", { 
+          p_key: rateLimitKey, 
+          p_max_attempts: 3, 
+          p_window_seconds: 3600 // 1 hour
+        });
+
+      if (!isAllowed) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Rate limit exceeded. Please try again later." }),
+          {
+            status: 429,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
     }
 
     const typeLabel = applicationType === "rookie" ? "Rookie" : "Veteran";
