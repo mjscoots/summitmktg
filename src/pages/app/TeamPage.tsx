@@ -282,11 +282,11 @@ export default function TeamPage() {
               <Users className="w-5 h-5 text-primary" />
             </div>
             <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-              Teams
+              Team Structure
             </h1>
           </div>
           <p className="text-muted-foreground text-sm">
-            Organizational hierarchy and team structure
+            Organizational hierarchy overview
           </p>
         </div>
 

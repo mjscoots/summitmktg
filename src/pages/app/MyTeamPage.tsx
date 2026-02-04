@@ -227,11 +227,10 @@ export default function MyTeamPage() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-foreground tracking-tight">
-                    Summit Teams
+                    Team Structure
                   </h1>
                   <p className="text-muted-foreground text-base mt-1">
-                    Many join the race. Few reach the{' '}
-                    <span className="text-primary font-semibold">top</span>.
+                    Organizational hierarchy overview
                   </p>
                 </div>
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, RotateCcw } from 'lucide-react';
+import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, RotateCcw, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +23,11 @@ interface CourseWithProgress extends Course {
 
 interface TrainingTilesProps {
   filterRole?: 'rookie' | 'manager';
+  managerManualComplete?: boolean; // For locking Recruiting Resources
 }
+
+// Courses that require Manager Manual to be completed first
+const LOCKED_UNTIL_MANAGER_MANUAL = ['learn-the-basics', 'recruiting-resources'];
 
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'learn-your-pitch': <BookOpen className="w-6 h-6" />,
@@ -31,6 +35,7 @@ const COURSE_ICONS: Record<string, React.ReactNode> = {
   'training-videos': <Video className="w-6 h-6" />,
   'management-basics': <Users className="w-6 h-6" />,
   'learn-the-basics': <Users className="w-6 h-6" />,
+  'recruiting-resources': <Users className="w-6 h-6" />,
   'manager-manual': <GraduationCap className="w-6 h-6" />,
   'manager-videos': <Video className="w-6 h-6" />,
 };
@@ -38,22 +43,31 @@ const COURSE_ICONS: Record<string, React.ReactNode> = {
 // Courses that are for rookies (show green)
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
+// Video library courses (no progress tracking, just lesson count)
+const VIDEO_COURSES = ['training-videos', 'manager-videos'];
+
 // Fixed lesson count overrides for display
 const LESSON_COUNT_OVERRIDES: Record<string, number> = {
   'summer-sales-manual': 43,
 };
 
-// Course priority order (Learn Your Pitch first)
+// Course priority order (Learn Your Pitch first, Manager Manual before Recruiting Resources)
 const COURSE_PRIORITY: Record<string, number> = {
   'learn-your-pitch': 1,
   'summer-sales-manual': 2,
   'training-videos': 3,
-  'learn-the-basics': 1,
-  'manager-manual': 2,
+  'manager-manual': 1,
+  'learn-the-basics': 2, // Will be renamed to Recruiting Resources
+  'recruiting-resources': 2,
   'manager-videos': 3,
 };
 
-export function TrainingTiles({ filterRole }: TrainingTilesProps) {
+// Display name overrides
+const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
+  'learn-the-basics': 'Recruiting Resources',
+};
+
+export function TrainingTiles({ filterRole, managerManualComplete = true }: TrainingTilesProps) {
   const { role, user } = useAuth();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseWithProgress[]>([]);
@@ -166,7 +180,9 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
     navigate(`/app/training/${slug}`);
   };
 
-  const getButtonState = (progress: number) => {
+  const getButtonState = (progress: number, isVideoCourse: boolean) => {
+    // Video courses always show "Open"
+    if (isVideoCourse) return { text: 'Open', icon: Play };
     if (progress === 0) return { text: 'Start Training', icon: Play };
     if (progress === 100) return { text: 'Review', icon: RotateCcw };
     return { text: 'Continue', icon: ArrowRight };
@@ -187,9 +203,9 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
     return ROOKIE_COURSES.includes(slug);
   };
 
-  // Find the primary course for border highlight only (Learn Your Pitch / Learn the Basics)
+  // Find the primary course for border highlight only (Learn Your Pitch for rookie, Manager Manual for manager)
   const primaryCourseSlug = courses.find(c => c.slug === 'learn-your-pitch')?.slug 
-    || courses.find(c => c.slug === 'learn-the-basics')?.slug 
+    || courses.find(c => c.slug === 'manager-manual')?.slug 
     || courses[0]?.slug;
 
   if (courses.length === 0) {
@@ -206,27 +222,35 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {courses.map((course) => {
           const isRookie = isRookieCourse(course.slug);
-          const { text, icon: Icon } = getButtonState(course.progress);
+          const isVideoCourse = VIDEO_COURSES.includes(course.slug);
+          const isLockedCourse = LOCKED_UNTIL_MANAGER_MANUAL.includes(course.slug) && !managerManualComplete;
+          const { text, icon: Icon } = getButtonState(course.progress, isVideoCourse);
           const isPrimary = course.slug === primaryCourseSlug;
+          const displayTitle = DISPLAY_NAME_OVERRIDES[course.slug] || course.title
+            .replace(' (Management Edition)', '')
+            .replace('Management Edition - ', '');
           
           return (
             <div
               key={course.id}
-              onClick={() => handleCourseClick(course.slug)}
+              onClick={() => !isLockedCourse && handleCourseClick(course.slug)}
               className={cn(
-                "group relative bg-card rounded-xl border cursor-pointer flex flex-col",
+                "group relative bg-card rounded-xl border flex flex-col",
                 // Fixed height for all cards
                 "h-[340px]",
                 "transition-all duration-400 ease-out",
-                "hover:scale-[1.02] hover:-translate-y-1",
+                // Locked state
+                isLockedCourse 
+                  ? "opacity-60 cursor-not-allowed border-border"
+                  : "cursor-pointer hover:scale-[1.02] hover:-translate-y-1",
                 // Primary card (Learn Your Pitch) gets highlight border
-                isPrimary && (
+                !isLockedCourse && isPrimary && (
                   isRookie
                     ? "border-2 border-green-500/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-green-500/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
                     : "border-2 border-blue-500/50 shadow-[0_0_25px_-8px_rgba(59,130,246,0.25)] hover:border-blue-500/70 hover:shadow-[0_0_35px_-8px_rgba(59,130,246,0.35)]"
                 ),
                 // Non-primary cards
-                !isPrimary && (
+                !isLockedCourse && !isPrimary && (
                   course.progress === 100 
                     ? 'border border-success/40 hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.25)]' 
                     : isRookie
@@ -234,7 +258,7 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                       : 'border border-border hover:border-blue-500/40 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]'
                 ),
                 // In-progress glow
-                !isPrimary && course.progress > 0 && course.progress < 100 && (
+                !isLockedCourse && !isPrimary && course.progress > 0 && course.progress < 100 && (
                   isRookie 
                     ? 'shadow-[0_0_15px_-8px_rgba(34,197,94,0.15)]' 
                     : 'shadow-[0_0_15px_-8px_rgba(59,130,246,0.15)]'
@@ -259,20 +283,32 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                   {/* Icon with hover effects */}
                   <div className={cn(
                     "p-3 rounded-xl flex-shrink-0 transition-all duration-300",
-                    course.progress === 100 
-                      ? 'bg-success/20 text-success group-hover:bg-success/30' 
-                      : isRookie
-                        ? 'bg-green-500/15 text-green-400 group-hover:bg-green-500/25'
-                        : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25'
+                    isLockedCourse
+                      ? 'bg-muted text-muted-foreground'
+                      : course.progress === 100 
+                        ? 'bg-success/20 text-success group-hover:bg-success/30' 
+                        : isRookie
+                          ? 'bg-green-500/15 text-green-400 group-hover:bg-green-500/25'
+                          : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25'
                   )}>
-                    <div className="transition-transform duration-300 group-hover:scale-110">
-                      {COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />}
+                    <div className={cn(
+                      "transition-transform duration-300",
+                      !isLockedCourse && "group-hover:scale-110"
+                    )}>
+                      {isLockedCourse 
+                        ? <Lock className="w-6 h-6" />
+                        : (COURSE_ICONS[course.slug] || <BookOpen className="w-6 h-6" />)
+                      }
                     </div>
                   </div>
 
-                  {/* Role Pill - top right, never overlapped */}
+                  {/* Role Pill or Locked Pill - top right, never overlapped */}
                   <div className="flex-shrink-0">
-                    {isRookie ? (
+                    {isLockedCourse ? (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-muted text-muted-foreground border border-border">
+                        LOCKED
+                      </span>
+                    ) : isRookie ? (
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30 transition-all duration-300 group-hover:bg-green-500/25">
                         ROOKIE
                       </span>
@@ -284,7 +320,7 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                   </div>
 
                   {/* Completion check badge */}
-                  {course.progress === 100 && (
+                  {course.progress === 100 && !isLockedCourse && (
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
                       <span className="text-xs text-white">✓</span>
                     </div>
@@ -297,9 +333,7 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                     "font-bold text-base text-foreground mb-2 transition-colors duration-300",
                     isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
                   )}>
-                    {course.title
-                      .replace(' (Management Edition)', '')
-                      .replace('Management Edition - ', '')}
+                    {displayTitle}
                   </h3>
                   
                   {course.description && (
@@ -309,54 +343,65 @@ export function TrainingTiles({ filterRole }: TrainingTilesProps) {
                   )}
                 </div>
 
-                {/* === PROGRESS REGION (fixed height ~56px) === */}
-                <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
-                  {/* Progress bar */}
-                  <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
-                    <div 
-                      className={cn(
-                        "h-full rounded-full transition-all duration-500",
-                        course.progress === 100 
-                          ? 'bg-success' 
-                          : isRookie ? 'bg-green-500' : 'bg-blue-500'
-                      )}
-                      style={{ width: `${course.progress}%` }}
-                    />
+                {/* === PROGRESS REGION - Different for video courses === */}
+                {isVideoCourse ? (
+                  // Video courses: just show lesson count, no progress bar
+                  <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
+                    <div className="flex items-center justify-center">
+                      <span className="text-sm text-muted-foreground font-medium">
+                        {course.totalLessons} LESSONS
+                      </span>
+                    </div>
                   </div>
-                  {/* Progress info row - lessons left, percentage right */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      {course.completedLessons} / {course.totalLessons} lessons
-                    </span>
-                    <span className={cn(
-                      "text-xs text-muted-foreground",
-                    )}>
-                      {course.progress}% complete
-                    </span>
+                ) : (
+                  // Regular courses: show progress bar
+                  <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
+                    <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+                      <div 
+                        className={cn(
+                          "h-full rounded-full transition-all duration-500",
+                          course.progress === 100 
+                            ? 'bg-success' 
+                            : isRookie ? 'bg-green-500' : 'bg-blue-500'
+                        )}
+                        style={{ width: `${course.progress}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
+                        {course.completedLessons} / {course.totalLessons} lessons
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {course.progress}% complete
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* === FOOTER REGION (fixed height ~44px) === */}
                 <div className="h-11 pt-3">
                   <Button
                     size="sm"
+                    disabled={isLockedCourse}
                     className={cn(
                       "w-full h-9 font-semibold gap-2",
                       "transition-all duration-300 ease-out",
-                      "hover:translate-y-[-2px] active:translate-y-0",
-                      course.progress === 100
-                        ? "bg-muted text-foreground hover:bg-muted/80"
-                        : isRookie
-                          ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.6)]"
-                          : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.6)]"
+                      !isLockedCourse && "hover:translate-y-[-2px] active:translate-y-0",
+                      isLockedCourse
+                        ? "bg-muted text-muted-foreground cursor-not-allowed"
+                        : course.progress === 100
+                          ? "bg-muted text-foreground hover:bg-muted/80"
+                          : isRookie
+                            ? "bg-green-500 hover:bg-green-600 text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.6)]"
+                            : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.6)]"
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleCourseClick(course.slug);
+                      if (!isLockedCourse) handleCourseClick(course.slug);
                     }}
                   >
-                    <Icon className="w-4 h-4" />
-                    {text}
+                    {isLockedCourse ? <Lock className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                    {isLockedCourse ? 'Complete Manager Manual First' : text}
                   </Button>
                 </div>
               </div>
