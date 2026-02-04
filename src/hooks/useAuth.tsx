@@ -17,6 +17,9 @@ interface Profile {
   experience: 'rookie' | 'veteran';
   status: 'active' | 'contract_signed' | 'onboarded' | 'info_added' | 'nlc';
   avatar_url: string | null;
+  team_id: string | null;
+  pillar_slug: string | null;
+  direct_manager: string | null;
 }
 
 interface AuthContextType {

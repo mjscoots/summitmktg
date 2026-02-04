@@ -753,6 +753,88 @@ export type Database = {
           },
         ]
       }
+      team_resources: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          description: string | null
+          id: string
+          resource_name: string
+          resource_type: string
+          resource_url: string
+          team_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          resource_name: string
+          resource_type: string
+          resource_url: string
+          team_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          resource_name?: string
+          resource_type?: string
+          resource_url?: string
+          team_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_resources_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_scripts: {
+        Row: {
+          created_at: string
+          id: string
+          last_edited_at: string | null
+          last_edited_by: string | null
+          module: string
+          script_content: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          module: string
+          script_content?: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          module?: string
+          script_content?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_scripts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teams: {
         Row: {
           created_at: string | null
@@ -897,6 +979,7 @@ export type Database = {
       }
       training_videos: {
         Row: {
+          added_by: string | null
           category: string
           created_at: string | null
           description: string | null
@@ -905,10 +988,14 @@ export type Database = {
           id: string
           is_active: boolean | null
           target_role: Database["public"]["Enums"]["app_role"] | null
+          team_specific: boolean | null
+          thumbnail_url: string | null
           title: string
           video_url: string | null
+          visible_to_teams: string[] | null
         }
         Insert: {
+          added_by?: string | null
           category: string
           created_at?: string | null
           description?: string | null
@@ -917,10 +1004,14 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
+          team_specific?: boolean | null
+          thumbnail_url?: string | null
           title: string
           video_url?: string | null
+          visible_to_teams?: string[] | null
         }
         Update: {
+          added_by?: string | null
           category?: string
           created_at?: string | null
           description?: string | null
@@ -929,8 +1020,11 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
+          team_specific?: boolean | null
+          thumbnail_url?: string | null
           title?: string
           video_url?: string | null
+          visible_to_teams?: string[] | null
         }
         Relationships: []
       }
