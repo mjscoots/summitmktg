@@ -1,30 +1,17 @@
-import { useState, useEffect } from 'react';
 import { Calendar, ExternalLink } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 
 interface BookInterviewButtonProps {
   nextInterview: 2 | 3;
 }
 
+// Static URLs for interview booking
+const INTERVIEW_URLS = {
+  2: 'https://docs.google.com/document/d/1i8Ubyf4zZCHC6087YG-lvCf0W9tD53_Cb4UCRCo9dCw/edit?usp=sharing',
+  3: 'https://calendly.com/mathewjoyce',
+} as const;
+
 export function BookInterviewButton({ nextInterview }: BookInterviewButtonProps) {
-  const [bookingUrl, setBookingUrl] = useState<string>('https://calendly.com');
-
-  useEffect(() => {
-    const fetchBookingUrl = async () => {
-      const { data } = await supabase
-        .from('app_settings')
-        .select('value')
-        .eq('key', 'interview_booking_url')
-        .single();
-      
-      if (data?.value) {
-        setBookingUrl(data.value);
-      }
-    };
-
-    fetchBookingUrl();
-  }, []);
+  const bookingUrl = INTERVIEW_URLS[nextInterview];
 
   return (
     <a
