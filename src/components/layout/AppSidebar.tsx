@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, ChevronRight, Calendar, Mountain } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -49,94 +49,65 @@ export function AppSidebar() {
     if (path === '/app') {
       return location.pathname === '/app';
     }
-    // For Teams, only match exact /app/team path - not subpaths
     if (path === '/app/team') {
       return location.pathname === '/app/team' || location.pathname.startsWith('/app/team/');
     }
     return location.pathname.startsWith(path);
   };
 
-  // Handle navigation - for Teams, always go back to landing page
   const handleNavigation = (path: string) => {
     navigate(path);
   };
 
+  const navItems = isManager ? managerNavItems : baseNavItems;
+
   return (
     <Sidebar
       className={cn(
-        'border-r border-border/30 bg-black transition-all duration-200',
-        collapsed ? 'w-14' : 'w-52'
+        'border-r border-border/20 bg-black transition-all duration-200',
+        collapsed ? 'w-[52px]' : 'w-44'
       )}
       collapsible="icon"
     >
-      {/* Header: Logo centered + Role left-aligned */}
-      <SidebarHeader className="px-4 pt-5 pb-4 border-b border-border/20">
+      {/* Header: Compact logo */}
+      <SidebarHeader className="px-3 pt-4 pb-3">
         <div 
-          className={cn(
-            "flex flex-col cursor-pointer",
-            collapsed ? "items-center" : "items-center"
-          )}
+          className="flex items-center gap-2 cursor-pointer"
           onClick={() => navigate('/app')}
         >
-          <div className={cn(
-              "flex items-center gap-2",
-              collapsed ? "justify-center" : ""
-            )}>
-              <Mountain className={cn(
-                "text-primary flex-shrink-0",
-                collapsed ? "w-6 h-6" : "w-5 h-5"
-              )} />
-              {!collapsed && (
-                <span 
-                  className="text-lg font-black tracking-tight uppercase text-foreground/90"
-                  style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}
-                >
-                  Summit
-                </span>
-              )}
-            </div>
+          <Mountain className={cn(
+            "text-primary flex-shrink-0",
+            collapsed ? "w-5 h-5" : "w-4 h-4"
+          )} />
           {!collapsed && (
-            <span className="mt-2 text-[10px] font-semibold text-primary tracking-[0.15em] uppercase text-left w-full pl-1">
-              {roleLabel}
+            <span className="text-sm font-black tracking-tight uppercase text-foreground/90">
+              Summit
             </span>
           )}
         </div>
       </SidebarHeader>
 
-      {/* Navigation */}
-      <SidebarContent className="px-2 py-3">
+      {/* Navigation - Tight spacing */}
+      <SidebarContent className="px-1.5 py-1">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {(isManager ? managerNavItems : baseNavItems).map((item) => {
+              {navItems.map((item) => {
                 const active = isActive(item.path);
                 return (
                   <SidebarMenuItem key={item.path}>
                     <button
                       onClick={() => handleNavigation(item.path)}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-150 relative group/navitem",
+                        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
                         active 
-                          ? "bg-primary/20"
-                          : "hover:bg-transparent"
+                          ? "bg-primary/15 text-primary"
+                          : "text-white/70 hover:text-white hover:bg-white/5"
                       )}
                     >
-                      {/* Active indicator */}
-                      <div className={cn(
-                        "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full transition-all",
-                        active ? "bg-primary" : "bg-transparent"
-                      )} />
-                      
-                      <item.icon className={cn(
-                        "w-[18px] h-[18px] flex-shrink-0 transition-colors",
-                        active ? "text-primary" : "text-white/80 group-hover/navitem:text-primary"
-                      )} strokeWidth={1.75} />
-                      
+                      <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
                       {!collapsed && (
-                        <span className={cn(
-                          "text-sm font-medium transition-colors",
-                          active ? "text-white" : "text-white/90 group-hover/navitem:text-primary"
-                        )}>
+                        <span className="text-[13px] font-medium">
                           {item.label}
                         </span>
                       )}
@@ -149,55 +120,50 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Account Panel */}
-      <SidebarFooter className="p-2 border-t border-border/20">
+      {/* Footer - Compact */}
+      <SidebarFooter className="p-1.5 border-t border-border/10">
         <div
           onClick={() => navigate('/app/profile')}
           className={cn(
-            "flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-all duration-200 group",
-            "hover:bg-primary/10",
+            "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all duration-200",
+            "hover:bg-white/5",
             collapsed ? "justify-center" : ""
           )}
         >
-          {/* Avatar */}
           {profile?.avatar_url ? (
             <img 
               src={profile.avatar_url} 
               alt="Avatar" 
-              className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-primary/30"
+              className="w-6 h-6 rounded-full object-cover flex-shrink-0"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30">
-              <User className="w-4 h-4 text-primary" strokeWidth={1.75} />
+            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <User className="w-3 h-3 text-primary" strokeWidth={1.75} />
             </div>
           )}
           
           {!collapsed && (
-            <>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate group-hover:text-primary transition-colors">
-                  {profile?.full_name || 'User'}
-                </p>
-                <p className="text-[10px] font-medium text-primary tracking-wide uppercase">
-                  {roleLabel}
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-primary transition-colors flex-shrink-0" strokeWidth={1.75} />
-            </>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-white/90 truncate">
+                {profile?.full_name?.split(' ')[0] || 'User'}
+              </p>
+              <p className="text-[10px] text-primary/80 uppercase tracking-wide">
+                {roleLabel}
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Logout button */}
         <button
           onClick={handleSignOut}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 mt-1 rounded-md transition-all duration-200",
-            "text-white/60 hover:text-white hover:bg-white/5",
+            "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md transition-all duration-150",
+            "text-white/50 hover:text-white/80 hover:bg-white/5",
             collapsed ? "justify-center" : ""
           )}
         >
-          <LogOut className="w-[18px] h-[18px]" strokeWidth={1.75} />
-          {!collapsed && <span className="text-sm">Log out</span>}
+          <LogOut className="w-4 h-4" strokeWidth={1.75} />
+          {!collapsed && <span className="text-xs">Log out</span>}
         </button>
       </SidebarFooter>
     </Sidebar>
