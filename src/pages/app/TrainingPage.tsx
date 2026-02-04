@@ -4,27 +4,12 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
-import { StreakCounter } from '@/components/training/StreakCounter';
-import { BookOpen, Users, ArrowLeft, Sparkles } from 'lucide-react';
+import { BookOpen, Users, ArrowLeft, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
 type TrainingView = 'selection' | 'rookie' | 'manager';
-
-// Generate static stars
-const generateStars = (count: number) => {
-  return Array.from({ length: count }).map((_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 2 + 0.5,
-    opacity: Math.random() * 0.4 + 0.1,
-    delay: Math.random() * 3,
-  }));
-};
-
-const STARS = generateStars(60);
 
 export default function TrainingPage() {
   const { role, user, isLoading } = useAuth();
@@ -32,8 +17,75 @@ export default function TrainingPage() {
   const [view, setView] = useState<TrainingView>('selection');
   const [lessonsCompleted, setLessonsCompleted] = useState(0);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [requiredComplete, setRequiredComplete] = useState(false);
   
   const isManager = role === 'manager' || role === 'admin';
+
+  // Check if required sections are complete to unlock AI Coach
+  useEffect(() => {
+    const checkRequiredProgress = async () => {
+      if (!user) return;
+
+      try {
+        // For rookies: Learn Your Pitch + Summer Sales Manual
+        // For managers: Learn the Basics + Manager Manual
+        const requiredSlugs = isManager 
+          ? ['learn-the-basics', 'manager-manual']
+          : ['learn-your-pitch', 'summer-sales-manual'];
+
+        const { data: courses } = await supabase
+          .from('training_courses')
+          .select('id, slug')
+          .in('slug', requiredSlugs)
+          .eq('is_active', true);
+
+        if (!courses || courses.length < 2) {
+          setRequiredComplete(false);
+          return;
+        }
+
+        let allComplete = true;
+
+        for (const course of courses) {
+          const { data: modules } = await supabase
+            .from('training_modules')
+            .select('id')
+            .eq('course_id', course.id)
+            .eq('is_active', true);
+
+          const moduleIds = modules?.map(m => m.id) || [];
+          if (moduleIds.length === 0) continue;
+
+          const { data: lessons } = await supabase
+            .from('training_lessons')
+            .select('id')
+            .in('module_id', moduleIds)
+            .eq('is_active', true);
+
+          const lessonIds = lessons?.map(l => l.id) || [];
+          if (lessonIds.length === 0) continue;
+
+          const { data: progress } = await supabase
+            .from('lesson_progress')
+            .select('lesson_id')
+            .eq('user_id', user.id)
+            .in('lesson_id', lessonIds)
+            .not('completed_at', 'is', null);
+
+          if ((progress?.length || 0) < lessonIds.length) {
+            allComplete = false;
+            break;
+          }
+        }
+
+        setRequiredComplete(allComplete);
+      } catch (err) {
+        console.error('Error checking progress:', err);
+      }
+    };
+
+    checkRequiredProgress();
+  }, [user, isManager]);
 
   // Fetch user's lesson completion count
   useEffect(() => {
@@ -44,7 +96,7 @@ export default function TrainingPage() {
         .from('lesson_progress')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .eq('quiz_passed', true);
+        .not('completed_at', 'is', null);
 
       setLessonsCompleted(count || 0);
     };
@@ -54,9 +106,11 @@ export default function TrainingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
+      <AppLayout>
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
+      </AppLayout>
     );
   }
 
@@ -64,51 +118,28 @@ export default function TrainingPage() {
   if (!isManager && view === 'selection') {
     return (
       <AppLayout>
-        <div className="relative">
-          {/* Streak Counter - fixed position */}
-          <StreakCounter />
-          
-          {/* Subtle starry background for rookies */}
-          <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-            {STARS.map((star) => (
-              <div
-                key={star.id}
-                className="absolute rounded-full animate-pulse"
-                style={{
-                  left: `${star.x}%`,
-                  top: `${star.y}%`,
-                  width: `${star.size}px`,
-                  height: `${star.size}px`,
-                  backgroundColor: `rgba(34, 197, 94, ${star.opacity})`,
-                  animationDelay: `${star.delay}s`,
-                  animationDuration: '4s',
-                }}
-              />
-            ))}
-          </div>
-          
-          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8">
-            {/* Welcome Banner for new users */}
-            {showWelcome && lessonsCompleted < 15 && (
-              <WelcomeBanner
-                userName={user?.user_metadata?.full_name}
-                lessonsCompleted={lessonsCompleted}
-                onDismiss={() => setShowWelcome(false)}
-              />
-            )}
+        <div className="max-w-5xl mx-auto px-4 py-6">
+          {/* Welcome Banner for new users */}
+          {showWelcome && lessonsCompleted < 15 && (
+            <WelcomeBanner
+              userName={user?.user_metadata?.full_name}
+              lessonsCompleted={lessonsCompleted}
+              onDismiss={() => setShowWelcome(false)}
+            />
+          )}
 
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Sparkles className="w-6 h-6 text-green-400" />
-                <h1 className="text-3xl font-black text-foreground tracking-tight">
-                  ROOKIE <span className="text-green-400">TRAINING</span>
-                </h1>
-              </div>
-              <p className="text-muted-foreground">
-                Master the craft and build real income
-              </p>
-            </div>
-            <TrainingTiles filterRole="rookie" />
+          <div className="flex items-center gap-3 mb-6">
+            <Sparkles className="w-5 h-5 text-success" />
+            <h1 className="text-xl font-bold text-foreground">
+              Rookie Training
+            </h1>
+          </div>
+
+          <TrainingTiles filterRole="rookie" />
+
+          {/* AI Coach Tile - Locked until requirements complete */}
+          <div className="mt-6">
+            <AICoachTile isLocked={!requiredComplete} isRookie={true} />
           </div>
         </div>
       </AppLayout>
@@ -119,112 +150,68 @@ export default function TrainingPage() {
   if (view === 'selection') {
     return (
       <AppLayout>
-        <div className="relative">
-          {/* Subtle starry background */}
-          <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-            {STARS.map((star) => (
-              <div
-                key={star.id}
-                className="absolute rounded-full animate-pulse"
-                style={{
-                  left: `${star.x}%`,
-                  top: `${star.y}%`,
-                  width: `${star.size}px`,
-                  height: `${star.size}px`,
-                  backgroundColor: `rgba(59, 130, 246, ${star.opacity})`,
-                  animationDelay: `${star.delay}s`,
-                  animationDuration: '4s',
-                }}
-              />
-            ))}
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.1)_0%,transparent_60%)]" />
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">
+              Select Training
+            </h1>
           </div>
 
-          <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8">
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <Sparkles className="w-6 h-6 text-blue-400" />
-                <h1 className="text-3xl font-black text-foreground tracking-tight">
-                  SELECT <span className="text-blue-400">TRAINING</span>
-                </h1>
+          {/* Two Selection Cards - Learn the Basics LEFT, Manager Manual implied via right */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Rookie Training Card */}
+            <button
+              onClick={() => setView('rookie')}
+              className="group relative p-6 bg-card rounded-xl border-2 border-success/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.4)] text-left"
+            >
+              <div className="absolute top-3 right-3">
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-success/15 text-success border border-success/30">
+                  ROOKIE
+                </span>
               </div>
-              <p className="text-muted-foreground">
-                Choose your training path
+
+              <div className="p-3 rounded-xl bg-success/15 text-success w-fit mb-4 group-hover:bg-success/25 transition-colors">
+                <BookOpen className="w-8 h-8" />
+              </div>
+
+              <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-success transition-colors">
+                Rookie Training
+              </h2>
+              
+              <p className="text-sm text-muted-foreground">
+                Learn Your Pitch, Summer Sales Manual, Videos
               </p>
-            </div>
+            </button>
 
-            {/* Two Large Selection Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Rookie Training Card */}
-              <button
-                onClick={() => setView('rookie')}
-                className="group relative p-8 bg-card/80 backdrop-blur-sm rounded-2xl border-2 border-green-500/40 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-green-500/70 hover:shadow-[0_0_50px_-10px_rgba(34,197,94,0.5)] text-left"
-              >
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 opacity-5 rounded-2xl bg-gradient-to-br from-green-500 to-transparent" />
-                
-                {/* Role Pill */}
-                <div className="absolute top-4 right-4">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
-                    ROOKIE
-                  </span>
-                </div>
+            {/* Manager Training Card */}
+            <button
+              onClick={() => setView('manager')}
+              className="group relative p-6 bg-card rounded-xl border-2 border-primary/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-primary/60 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.4)] text-left"
+            >
+              <div className="absolute top-3 right-3">
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30">
+                  MANAGER
+                </span>
+              </div>
 
-                <div className="relative">
-                  <div className="p-4 rounded-xl bg-green-500/15 text-green-400 w-fit mb-5 group-hover:shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] transition-shadow duration-300">
-                    <BookOpen className="w-10 h-10" />
-                  </div>
+              <div className="p-3 rounded-xl bg-primary/15 text-primary w-fit mb-4 group-hover:bg-primary/25 transition-colors">
+                <Users className="w-8 h-8" />
+              </div>
 
-                  <h2 className="text-2xl font-black text-foreground mb-2 group-hover:text-green-400 transition-colors">
-                    Rookie Training
-                  </h2>
-                  
-                  <p className="text-muted-foreground mb-4">
-                    Learn Your Pitch, Summer Sales Manual, and Training Videos
-                  </p>
+              <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+                Manager Training
+              </h2>
+              
+              <p className="text-sm text-muted-foreground">
+                Learn the Basics, Manager Manual, Manager Videos
+              </p>
+            </button>
+          </div>
 
-                  <div className="flex items-center gap-2 text-sm text-green-400 font-medium">
-                    <span>Enter Training</span>
-                    <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </button>
-
-              {/* Manager Training Card */}
-              <button
-                onClick={() => setView('manager')}
-                className="group relative p-8 bg-card/80 backdrop-blur-sm rounded-2xl border-2 border-blue-500/40 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-blue-500/70 hover:shadow-[0_0_50px_-10px_rgba(59,130,246,0.5)] text-left"
-              >
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 opacity-5 rounded-2xl bg-gradient-to-br from-blue-500 to-transparent" />
-                
-                {/* Role Pill */}
-                <div className="absolute top-4 right-4">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                    MANAGER
-                  </span>
-                </div>
-
-                <div className="relative">
-                  <div className="p-4 rounded-xl bg-blue-500/15 text-blue-400 w-fit mb-5 group-hover:shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] transition-shadow duration-300">
-                    <Users className="w-10 h-10" />
-                  </div>
-
-                  <h2 className="text-2xl font-black text-foreground mb-2 group-hover:text-blue-400 transition-colors">
-                    Manager Training
-                  </h2>
-                  
-                  <p className="text-muted-foreground mb-4">
-                    Learn the Basics, Manager Manual, and Manager Videos
-                  </p>
-
-                  <div className="flex items-center gap-2 text-sm text-blue-400 font-medium">
-                    <span>Enter Training</span>
-                    <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </button>
-            </div>
+          {/* AI Coach Tile - Locked until requirements complete */}
+          <div className="mt-6">
+            <AICoachTile isLocked={!requiredComplete} isRookie={false} />
           </div>
         </div>
       </AppLayout>
@@ -236,74 +223,93 @@ export default function TrainingPage() {
   
   return (
     <AppLayout>
-      <div className="relative">
-        {/* Streak Counter - fixed position for all training views */}
-        <StreakCounter />
-        
-        {/* Subtle starry background */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          {STARS.map((star) => (
-            <div
-              key={star.id}
-              className="absolute rounded-full animate-pulse"
-              style={{
-                left: `${star.x}%`,
-                top: `${star.y}%`,
-                width: `${star.size}px`,
-                height: `${star.size}px`,
-                backgroundColor: isRookieView 
-                  ? `rgba(34, 197, 94, ${star.opacity})`
-                  : `rgba(59, 130, 246, ${star.opacity})`,
-                animationDelay: `${star.delay}s`,
-                animationDuration: '4s',
-              }}
-            />
-          ))}
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        {/* Back button for managers - TOP LEFT */}
+        {isManager && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setView('selection')}
+            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground gap-1.5"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back
+          </Button>
+        )}
+
+        {/* Welcome Banner for rookie view */}
+        {isRookieView && showWelcome && lessonsCompleted < 15 && (
+          <WelcomeBanner
+            userName={user?.user_metadata?.full_name}
+            lessonsCompleted={lessonsCompleted}
+            onDismiss={() => setShowWelcome(false)}
+          />
+        )}
+
+        <div className="flex items-center gap-3 mb-6">
+          <Sparkles className={cn(
+            "w-5 h-5",
+            isRookieView ? "text-success" : "text-primary"
+          )} />
+          <h1 className="text-xl font-bold text-foreground">
+            {isRookieView ? 'Rookie' : 'Manager'} Training
+          </h1>
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          {/* Welcome Banner for rookie view */}
-          {isRookieView && showWelcome && lessonsCompleted < 15 && (
-            <WelcomeBanner
-              userName={user?.user_metadata?.full_name}
-              lessonsCompleted={lessonsCompleted}
-              onDismiss={() => setShowWelcome(false)}
-            />
-          )}
+        <TrainingTiles filterRole={isRookieView ? 'rookie' : 'manager'} />
 
-          {/* Back button for managers */}
-          {isManager && (
-            <Button
-              variant="ghost"
-              onClick={() => setView('selection')}
-              className="mb-4 text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Selection
-            </Button>
-          )}
-
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className={cn(
-                "w-6 h-6",
-                isRookieView ? "text-green-400" : "text-blue-400"
-              )} />
-              <h1 className="text-3xl font-black text-foreground tracking-tight">
-                {isRookieView ? 'ROOKIE' : 'MANAGER'}{' '}
-                <span className={isRookieView ? 'text-green-400' : 'text-blue-400'}>TRAINING</span>
-              </h1>
-            </div>
-            <p className="text-muted-foreground">
-              {isRookieView 
-                ? 'Master the craft and build real income' 
-                : 'Lead your team to the summit'}
-            </p>
-          </div>
-
-          <TrainingTiles filterRole={isRookieView ? 'rookie' : 'manager'} />
+        {/* AI Coach Tile - Locked until requirements complete */}
+        <div className="mt-6">
+          <AICoachTile isLocked={!requiredComplete} isRookie={isRookieView} />
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+// AI Coach Tile Component
+function AICoachTile({ isLocked, isRookie }: { isLocked: boolean; isRookie: boolean }) {
+  return (
+    <div 
+      className={cn(
+        "relative p-5 bg-card rounded-xl border transition-all",
+        isLocked 
+          ? "border-border/50 opacity-60 cursor-not-allowed"
+          : isRookie
+            ? "border-success/40 hover:border-success/60 cursor-pointer hover:shadow-[0_0_25px_-8px_rgba(34,197,94,0.3)]"
+            : "border-primary/40 hover:border-primary/60 cursor-pointer hover:shadow-[0_0_25px_-8px_rgba(59,130,246,0.3)]"
+      )}
+    >
+      <div className="flex items-center gap-4">
+        <div className={cn(
+          "p-3 rounded-xl",
+          isLocked 
+            ? "bg-muted text-muted-foreground" 
+            : isRookie 
+              ? "bg-success/15 text-success" 
+              : "bg-primary/15 text-primary"
+        )}>
+          {isLocked ? <Lock className="w-6 h-6" /> : <Bot className="w-6 h-6" />}
+        </div>
+
+        <div className="flex-1">
+          <h3 className="font-bold text-foreground">AI Coach</h3>
+          <p className="text-sm text-muted-foreground">
+            {isLocked 
+              ? `Complete ${isRookie ? 'Learn Your Pitch & Summer Sales Manual' : 'Learn the Basics & Manager Manual'} to unlock`
+              : 'Your personal training assistant'
+            }
+          </p>
+        </div>
+
+        {isLocked && (
+          <div className="absolute top-3 right-3">
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-muted text-muted-foreground">
+              LOCKED
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
