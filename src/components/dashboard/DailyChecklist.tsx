@@ -132,40 +132,43 @@
    const totalCount = items.length;
  
    return (
-     <div className="bg-card rounded-lg border border-border/50">
-      <div className="p-3 border-b border-border/30 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CheckSquare className="w-4 h-4 text-primary" />
-          <div>
-            <h2 className="font-semibold text-sm text-foreground">Today's Priorities</h2>
-            <p className="text-[10px] text-muted-foreground">to-do list</p>
+     <div className="bg-card rounded-lg border border-border/50 relative overflow-hidden">
+       {/* Blue accent line on left */}
+       <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary/40" />
+       
+       <div className="p-4 border-b border-border/30 flex items-center justify-between">
+         <div className="flex items-center gap-2">
+           <CheckSquare className="w-4 h-4 text-primary" />
+           <div>
+             <h2 className="font-semibold text-sm text-foreground">Today's Priorities</h2>
+             <p className="text-[10px] text-muted-foreground">to-do list</p>
+           </div>
           </div>
-        </div>
          {totalCount > 0 && (
-           <span className="text-[10px] text-muted-foreground">
-             {completedCount}/{totalCount}
+           <span className="text-[10px] text-muted-foreground/70">
+             {completedCount} / {totalCount} completed
            </span>
          )}
        </div>
        
-       <div className="p-3 space-y-1.5">
+       <div className="p-4 space-y-2">
          {sortedItems.map((item) => (
            <div 
              key={item.id}
              className={cn(
-               "flex items-start gap-2 p-2 rounded-md transition-all group",
-               item.isRolledOver && !item.completed && "bg-primary/10 border border-primary/20",
-               item.completed && "opacity-50"
+               "flex items-start gap-2.5 p-2.5 rounded-md transition-all group",
+               item.isRolledOver && !item.completed && "bg-primary/8 border-l-2 border-l-primary border border-primary/20",
+               item.completed && "opacity-40"
              )}
            >
              <button
                onClick={() => toggleItem(item.id)}
-               className="flex-shrink-0 mt-0.5"
+               className="flex-shrink-0 mt-0.5 transition-transform hover:scale-110"
              >
                {item.completed ? (
                  <CheckCircle className="w-4 h-4 text-success" />
                ) : (
-                 <Square className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+                 <Square className="w-4 h-4 text-muted-foreground/60 hover:text-primary transition-colors" />
                )}
              </button>
              <input
@@ -179,12 +182,12 @@
                placeholder="Task..."
                className={cn(
                  "flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/50",
-                 item.completed && "line-through text-muted-foreground",
+                 item.completed && "line-through text-muted-foreground/60",
                  item.isRolledOver && !item.completed && "text-primary font-medium"
                )}
              />
              {item.isRolledOver && !item.completed && (
-               <span className="text-[9px] text-primary font-medium px-1.5 py-0.5 rounded bg-primary/10">
+               <span className="text-[9px] text-primary/80 font-medium px-1.5 py-0.5 rounded bg-primary/10">
                  ROLLOVER
                </span>
              )}
@@ -192,7 +195,7 @@
          ))}
          
          {/* Add new item */}
-         <div className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/30 transition-colors">
+         <div className="flex items-center gap-2.5 p-2.5 rounded-md hover:bg-muted/30 transition-colors border border-dashed border-border/30">
            <Plus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
            <input
              ref={newItemInputRef}
@@ -201,7 +204,7 @@
              onChange={(e) => setNewItemText(e.target.value)}
              onKeyDown={(e) => handleKeyDown(e)}
              placeholder="Add a task..."
-             className="flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/50"
+             className="flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/40"
            />
          </div>
        </div>

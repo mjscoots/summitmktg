@@ -402,27 +402,57 @@
    onEdit: (announcement: Announcement) => void;
    onDelete: (id: string) => void;
  }) {
+   const [isHovered, setIsHovered] = useState(false);
+   
+   // Auto-bold first actionable sentence
+   const formatContent = (content: string) => {
+     const actionPhrases = ['Action Required:', 'Important:', 'Deadline:', 'Reminder:', 'Update:', 'Notice:'];
+     for (const phrase of actionPhrases) {
+       if (content.startsWith(phrase)) {
+         const restOfContent = content.slice(phrase.length);
+         const firstSentenceEnd = restOfContent.search(/[.!?]/);
+         if (firstSentenceEnd > 0) {
+           const boldPart = phrase + restOfContent.slice(0, firstSentenceEnd + 1);
+           const rest = restOfContent.slice(firstSentenceEnd + 1);
+           return { boldPart, rest };
+         }
+         return { boldPart: content, rest: '' };
+       }
+     }
+     return { boldPart: '', rest: content };
+   };
+   
+   const { boldPart, rest } = formatContent(announcement.content);
+   
    return (
      <div 
+       onMouseEnter={() => setIsHovered(true)}
+       onMouseLeave={() => setIsHovered(false)}
        className={cn(
-         "p-3 rounded-md border transition-all",
+         "p-3 rounded-md border transition-all relative overflow-hidden group",
          announcement.is_pinned 
-           ? "border-primary/30 bg-primary/5" 
-           : "border-border/50 bg-card hover:border-border"
+           ? "border-primary/30 bg-slate-900/50" 
+           : "border-border/30 bg-card hover:border-border/50"
        )}
      >
+       {/* Blue indicator for pinned */}
+       {announcement.is_pinned && (
+         <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary" />
+       )}
+       
        <div className="flex items-start justify-between gap-2">
          <div className="flex-1 min-w-0">
            <div className="flex items-center gap-1.5 mb-0.5">
              {announcement.is_pinned && (
-               <Pin className="w-3 h-3 text-primary flex-shrink-0" />
+               <Pin className="w-3 h-3 text-primary/70 flex-shrink-0" />
              )}
              <h4 className="font-medium text-sm text-foreground line-clamp-1">
                {announcement.title}
              </h4>
            </div>
-          <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
-             {announcement.content}
+           <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
+             {boldPart && <span className="font-semibold text-foreground">{boldPart}</span>}
+             {rest}
            </p>
            <div className="flex items-center gap-2 mt-1.5">
              <p className="text-[10px] text-muted-foreground/60">
@@ -435,10 +465,10 @@
              )}
            </div>
          </div>
-         {canManage && (
+         {canManage && isHovered && (
            <DropdownMenu>
              <DropdownMenuTrigger asChild>
-               <button className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+               <button className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors opacity-0 group-hover:opacity-100">
                  <MoreVertical className="w-4 h-4" />
                </button>
              </DropdownMenuTrigger>

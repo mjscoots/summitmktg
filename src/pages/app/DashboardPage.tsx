@@ -8,6 +8,7 @@
  import { MomentumMeter } from '@/components/dashboard/MomentumMeter';
  import { AICoachChat } from '@/components/dashboard/AICoachChat';
  import { StreakDisplay } from '@/components/training/StreakDisplay';
+ import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
  import { Button } from '@/components/ui/button';
  import { UserPlus, Play, BookOpen } from 'lucide-react';
  
@@ -33,32 +34,33 @@
    return (
      <AppLayout>
        <div className="max-w-5xl mx-auto px-4 py-6">
-         {/* Greeting + Momentum + Streak */}
-         <div className="flex items-start justify-between mb-6">
-           <div>
-             <h1 className="text-xl font-bold text-foreground">
-               {isManager ? 'Command Center' : `What's up, ${firstName}`}
-             </h1>
-             <p className="text-sm text-muted-foreground mt-0.5">
-               {isManager 
-                 ? 'Lead with pressure, sign with purpose' 
-                 : 'Complete training. Build momentum.'}
-             </p>
+         {/* Manager gets Command Center, Rookies get simple greeting */}
+         {isManager ? (
+           <CommandCenterHeader />
+         ) : (
+           <div className="flex items-start justify-between mb-6">
+             <div>
+               <h1 className="text-xl font-bold text-foreground">
+                 What's up, {firstName}
+               </h1>
+               <p className="text-sm text-muted-foreground mt-0.5">
+                 Complete training. Build momentum.
+               </p>
+             </div>
+             <div className="flex items-center gap-3">
+               <StreakDisplay variant="compact" clickable />
+               <MomentumMeter streak={streakData.currentStreak} />
+             </div>
            </div>
-           <div className="flex items-center gap-3">
-             <StreakDisplay variant="compact" clickable />
-             <MomentumMeter streak={streakData.currentStreak} />
-           </div>
-         </div>
+         )}
  
          {/* Primary CTAs */}
-         <div className="flex flex-wrap gap-3 mb-4">
+         <div className="flex flex-wrap gap-3 mb-5">
            {isManager ? (
              <>
                <Button
                  onClick={() => navigate('/app/interviews')}
-                 className="gap-2 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
-                 size="lg"
+                 className="gap-2 font-semibold bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
                >
                  <UserPlus className="w-5 h-5" />
                  Sign a Rep
@@ -66,7 +68,7 @@
                <Button
                  onClick={() => navigate('/app/training')}
                  variant="outline"
-                 className="gap-2 font-semibold border-primary/50 text-foreground hover:bg-primary/10"
+                 className="gap-2 font-medium border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"
                >
                  <Play className="w-4 h-4" />
                  Resume Training
