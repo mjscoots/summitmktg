@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock } from 'lucide-react';
+ import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { format, isFuture, isPast, isToday } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { AddToCalendarButton } from '@/components/calendar/AddToCalendarButton';
+ import { WeeklyOutlook } from '@/components/calendar/WeeklyOutlook';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -275,9 +276,15 @@ export default function CalendarPage() {
           )}
         </div>
 
+         {/* Weekly Outlook */}
+         <WeeklyOutlook 
+           events={upcomingEvents}
+           userTeamId={profile?.team_id || null}
+         />
+
         {/* Upcoming Events */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Upcoming Events</h2>
+           <h2 className="text-lg font-semibold text-foreground mb-4">All Upcoming Events</h2>
           {upcomingEvents.length === 0 ? (
             <div className="text-center py-12 bg-card rounded-lg border border-border">
               <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

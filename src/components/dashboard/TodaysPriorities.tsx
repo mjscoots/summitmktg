@@ -1,9 +1,17 @@
-import { useNavigate } from 'react-router-dom';
+ import { useState } from 'react';
+ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamData } from '@/hooks/useTeamData';
-import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Flame } from 'lucide-react';
+ import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
  import { UserAvatar } from '@/components/shared/UserAvatar';
+ import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+ import type { TeamMember } from '@/lib/hierarchyUtils';
+
+ // Extended TeamMember type with avatar for local use
+ interface TeamMemberWithAvatar extends TeamMember {
+   avatar_url?: string | null;
+ }
 
 interface PriorityItem {
   id: string;
@@ -15,6 +23,7 @@ interface PriorityItem {
 }
 
 export function TodaysPriorities() {
+   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const navigate = useNavigate();
   const { role, profile } = useAuth();
   const { needsAttention, members, teamName, isLoading } = useTeamData();
@@ -39,6 +48,24 @@ export function TodaysPriorities() {
     .sort((a, b) => a.trainingProgress - b.trainingProgress)
     .slice(0, 3);
   
+   // Convert useTeamData member to TeamMember type for modal
+   const convertToTeamMember = (m: typeof members[0]): TeamMemberWithAvatar => ({
+     id: m.id,
+     user_id: m.user_id,
+     full_name: m.full_name,
+     email: m.email,
+     phone: null,
+     pillar: null,
+     direct_manager: null,
+     role: 'rookie',
+     status: m.status,
+     avatar_url: m.avatar_url,
+     experience: null,
+   });
+
+   // Create roster for modal
+   const roster = members.map(convertToTeamMember);
+
   const behindOnTraining = needsAttention.length;
 
   const priorities: PriorityItem[] = [
@@ -111,15 +138,15 @@ export function TodaysPriorities() {
             {lowestPerformers.map(member => (
               <div 
                 key={member.id}
-                className="flex items-center gap-2 p-1.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-                onClick={() => navigate('/app/team')}
+                 className="flex items-center gap-2 p-1.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer group"
+                 onClick={() => setSelectedMember(convertToTeamMember(member))}
               >
                 <UserAvatar 
                   avatarUrl={member.avatar_url} 
                   fullName={member.full_name} 
                   size="xs" 
                 />
-                <span className="text-xs text-foreground truncate flex-1">
+                 <span className="text-xs text-primary truncate flex-1 group-hover:underline">
                   {member.full_name.split(' ').slice(0, 2).join(' ')}
                 </span>
                 <span className={cn(
@@ -137,6 +164,14 @@ export function TodaysPriorities() {
           </div>
         </div>
       )}
+
+       {/* Member Profile Modal */}
+       <MemberProfileModal
+         member={selectedMember as TeamMember | null}
+         open={!!selectedMember}
+         onClose={() => setSelectedMember(null)}
+         roster={roster}
+       />
     </div>
   );
 }

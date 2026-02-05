@@ -17,7 +17,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import {
   TeamMember,
@@ -200,7 +199,7 @@ export function MemberProfileModal({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
+         <div className="flex-1 overflow-y-auto -mx-6 px-6" style={{ maxHeight: 'calc(85vh - 120px)' }}>
           {isEditMode ? (
             <MemberEditForm
               member={member}
@@ -350,7 +349,7 @@ export function MemberProfileModal({
               </div>
             </div>
           )}
-        </ScrollArea>
+         </div>
       </DialogContent>
     </Dialog>
   );
