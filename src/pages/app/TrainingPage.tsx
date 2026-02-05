@@ -185,7 +185,7 @@ export default function TrainingPage() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
-                ROOKIE TRAINING
+                D2D TRAINING
               </h1>
               <p className="text-sm text-muted-foreground mt-1">Master your craft. Build your future.</p>
             </div>
@@ -221,12 +221,22 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* Hero Background Header - Green to Blue gradient */}
+          <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-success/30 via-success/15 to-primary/30" />
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
+                HONE YOUR SKILLS
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">Sharpen your edge. Lead with excellence.</p>
+            </div>
+          </div>
+
           {/* Streak Display - Large and prominent */}
           <div className="mb-6">
             <StreakDisplay variant="large" />
           </div>
-
-          <h2 className="text-lg font-semibold text-foreground mb-4">Choose Your Path</h2>
 
           {/* Two Selection Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -237,7 +247,7 @@ export default function TrainingPage() {
             >
               <div className="absolute top-3 right-3">
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-success/15 text-success border border-success/30">
-                  ROOKIE
+                  D2D
                 </span>
               </div>
 
@@ -246,7 +256,7 @@ export default function TrainingPage() {
               </div>
 
               <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-success transition-colors">
-                Rookie Training
+                D2D Training
               </h2>
               
               <p className="text-sm text-muted-foreground">
@@ -305,7 +315,7 @@ export default function TrainingPage() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
-              {isRookieView ? 'ROOKIE TRAINING' : 'MANAGER TRAINING'}
+              {isRookieView ? 'D2D TRAINING' : 'MANAGER TRAINING'}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               {isRookieView ? 'Master your craft. Build your future.' : 'Lead your team to success.'}
