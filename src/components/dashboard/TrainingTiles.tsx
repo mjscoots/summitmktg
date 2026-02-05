@@ -320,7 +320,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                       </span>
                     ) : isRookie ? (
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30 transition-all duration-300 group-hover:bg-green-500/25">
-                        ROOKIE
+                        SALES
                       </span>
                     ) : (
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30 transition-all duration-300 group-hover:bg-blue-500/25">
