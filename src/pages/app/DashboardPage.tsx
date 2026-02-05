@@ -1,16 +1,17 @@
- import { useNavigate } from 'react-router-dom';
- import { useAuth } from '@/hooks/useAuth';
- import { useStreak } from '@/hooks/useStreak';
- import { AppLayout } from '@/components/layout/AppLayout';
- import { CommunityFeed } from '@/components/dashboard/CommunityFeed';
- import { WeeklyScheduleExpanded } from '@/components/dashboard/WeeklyScheduleExpanded';
- import { DailyChecklist } from '@/components/dashboard/DailyChecklist';
- import { MomentumMeter } from '@/components/dashboard/MomentumMeter';
- import { AICoachChat } from '@/components/dashboard/AICoachChat';
- import { StreakDisplay } from '@/components/training/StreakDisplay';
- import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
- import { Button } from '@/components/ui/button';
- import { UserPlus, Play, BookOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useStreak } from '@/hooks/useStreak';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { CommunityFeed } from '@/components/dashboard/CommunityFeed';
+import { WeeklyScheduleExpanded } from '@/components/dashboard/WeeklyScheduleExpanded';
+import { DailyChecklist } from '@/components/dashboard/DailyChecklist';
+import { MomentumMeter } from '@/components/dashboard/MomentumMeter';
+import { AICoachChat } from '@/components/dashboard/AICoachChat';
+import { StreakDisplay } from '@/components/training/StreakDisplay';
+import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { Button } from '@/components/ui/button';
+import { UserPlus, Play, BookOpen } from 'lucide-react';
  
  export default function DashboardPage() {
    const navigate = useNavigate();
@@ -54,37 +55,42 @@
            </div>
          )}
  
-         {/* Primary CTAs */}
-         <div className="flex flex-wrap gap-3 mb-5">
-           {isManager ? (
-             <>
-               <Button
-                 onClick={() => navigate('/app/interviews')}
-                 className="gap-2 font-semibold bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
-               >
-                 <UserPlus className="w-5 h-5" />
-                 Sign a Rep
-               </Button>
-               <Button
-                 onClick={() => navigate('/app/training')}
-                 variant="outline"
-                 className="gap-2 font-medium border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"
-               >
-                 <Play className="w-4 h-4" />
-                 Resume Training
-               </Button>
-             </>
-           ) : (
-             <Button
-               onClick={() => navigate('/app/training')}
-               className="gap-2 font-bold bg-success hover:bg-success/90 shadow-lg shadow-success/25"
-               size="lg"
-             >
-               <BookOpen className="w-5 h-5" />
-               Open Training
-             </Button>
-           )}
-         </div>
+        {/* Quick Actions (Manager) or Primary CTA (Rookie) */}
+        {isManager ? (
+          <QuickActions />
+        ) : (
+          <div className="flex flex-wrap gap-3 mb-5">
+            <Button
+              onClick={() => navigate('/app/training')}
+              className="gap-2 font-bold bg-success hover:bg-success/90 shadow-lg shadow-success/25"
+              size="lg"
+            >
+              <BookOpen className="w-5 h-5" />
+              Open Training
+            </Button>
+          </div>
+        )}
+
+        {/* Primary CTAs for Manager */}
+        {isManager && (
+          <div className="flex flex-wrap gap-3 mb-5">
+            <Button
+              onClick={() => navigate('/app/interviews')}
+              className="gap-2 font-semibold bg-primary hover:bg-primary/90 shadow-md shadow-primary/20"
+            >
+              <UserPlus className="w-5 h-5" />
+              Sign a Rep
+            </Button>
+            <Button
+              onClick={() => navigate('/app/training')}
+              variant="outline"
+              className="gap-2 font-medium border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              <Play className="w-4 h-4" />
+              Resume Training
+            </Button>
+          </div>
+        )}
  
          {/* Daily Checklist */}
          <div className="mb-4">
