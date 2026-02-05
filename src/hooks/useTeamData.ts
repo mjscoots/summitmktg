@@ -10,6 +10,9 @@ interface TeamMember {
   avatar_url: string | null;
   team_id: string | null;
   status: string;
+   last_active_at?: string | null;
+   is_active_now?: boolean;
+   time_this_week_minutes?: number;
 }
 
 interface TeamMemberWithProgress extends TeamMember {
@@ -24,6 +27,7 @@ interface TeamData {
   members: TeamMemberWithProgress[];
   topPerformers: TeamMemberWithProgress[];
   needsAttention: TeamMemberWithProgress[];
+   needsCheckIn: TeamMemberWithProgress[];
   completionRate: number;
   isLoading: boolean;
   error: string | null;
@@ -72,7 +76,7 @@ export function useTeamData(): TeamData {
         // For admins not on a team, or non-pillar managers, show direct reports
         let memberQuery = supabase
           .from('profiles')
-          .select('id, user_id, full_name, email, avatar_url, team_id, status')
+           .select('id, user_id, full_name, email, avatar_url, team_id, status, last_active_at, is_active_now, time_this_week_minutes')
           .neq('status', 'nlc');
 
         if (isPillarOwner && pillarTeamId) {
@@ -88,7 +92,8 @@ export function useTeamData(): TeamData {
           return;
         }
 
-        const { data: membersData, error: membersError } = await memberQuery;
+        const { data: membersData, error: membersError } = await memberQuery
+          .order('last_active_at', { ascending: false, nullsFirst: false });
 
         if (membersError) {
           console.error('Error fetching team members:', membersError);
@@ -149,6 +154,21 @@ export function useTeamData(): TeamData {
     .sort((a, b) => a.trainingProgress - b.trainingProgress)
     .slice(0, 3);
 
+   // Members inactive for 24+ hours
+   const needsCheckIn = [...members]
+     .filter(m => {
+       if (m.status !== 'active') return false;
+       if (!m.last_active_at) return true;
+       const hoursSinceActive = (Date.now() - new Date(m.last_active_at).getTime()) / (1000 * 60 * 60);
+       return hoursSinceActive >= 24;
+     })
+     .sort((a, b) => {
+       const aTime = a.last_active_at ? new Date(a.last_active_at).getTime() : 0;
+       const bTime = b.last_active_at ? new Date(b.last_active_at).getTime() : 0;
+       return aTime - bTime; // Oldest first
+     })
+     .slice(0, 3);
+ 
   const activeMembers = members.filter(m => m.status === 'active');
   const completionRate = activeMembers.length > 0
     ? Math.round(activeMembers.reduce((sum, m) => sum + m.trainingProgress, 0) / activeMembers.length)
@@ -160,6 +180,7 @@ export function useTeamData(): TeamData {
     members,
     topPerformers,
     needsAttention,
+     needsCheckIn,
     completionRate,
     isLoading,
     error,

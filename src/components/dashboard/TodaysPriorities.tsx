@@ -2,10 +2,11 @@
  import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamData } from '@/hooks/useTeamData';
- import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2 } from 'lucide-react';
+  import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Clock, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
  import { UserAvatar } from '@/components/shared/UserAvatar';
  import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+  import { formatLastActive } from '@/hooks/useActivityTracking';
  import type { TeamMember } from '@/lib/hierarchyUtils';
 
  // Extended TeamMember type with avatar for local use
@@ -26,7 +27,7 @@ export function TodaysPriorities() {
    const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const navigate = useNavigate();
   const { role, profile } = useAuth();
-  const { needsAttention, members, teamName, isLoading } = useTeamData();
+   const { needsAttention, needsCheckIn, members, teamName, isLoading } = useTeamData();
 
   const isManager = role === 'manager' || role === 'admin';
 
@@ -49,19 +50,21 @@ export function TodaysPriorities() {
     .slice(0, 3);
   
    // Convert useTeamData member to TeamMember type for modal
-   const convertToTeamMember = (m: typeof members[0]): TeamMemberWithAvatar => ({
-     id: m.id,
-     user_id: m.user_id,
-     full_name: m.full_name,
-     email: m.email,
-     phone: null,
-     pillar: null,
-     direct_manager: null,
-     role: 'rookie',
-     status: m.status,
-     avatar_url: m.avatar_url,
-     experience: null,
-   });
+   const convertToTeamMember = (m: typeof members[0]): TeamMemberWithAvatar => {
+     return {
+       id: m.id,
+       user_id: m.user_id,
+       full_name: m.full_name,
+       email: m.email,
+       phone: null,
+       pillar: null,
+       direct_manager: null,
+       role: 'rookie',
+       status: m.status,
+       avatar_url: m.avatar_url,
+       experience: null,
+     };
+   };
 
    // Create roster for modal
    const roster = members.map(convertToTeamMember);
@@ -165,6 +168,49 @@ export function TodaysPriorities() {
         </div>
       )}
 
+       {/* Needs Check-In Section - Inactive members */}
+       {needsCheckIn.length > 0 && (
+         <div className="p-3 pt-0">
+           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+             <Clock className="w-3 h-3" />
+             <span>Needs check-in (inactive 24+ hrs):</span>
+           </div>
+           <div className="space-y-1.5">
+             {needsCheckIn.map(member => (
+               <div 
+                 key={member.id}
+                 className="flex items-center gap-2 p-1.5 rounded-lg bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 transition-colors cursor-pointer group"
+                 onClick={() => setSelectedMember(convertToTeamMember(member))}
+               >
+                 <UserAvatar 
+                   avatarUrl={member.avatar_url} 
+                   fullName={member.full_name} 
+                   size="xs" 
+                 />
+                 <span className="text-xs text-amber-600 truncate flex-1 group-hover:underline">
+                   {member.full_name.split(' ').slice(0, 2).join(' ')}
+                 </span>
+                 <span className="text-[10px] text-muted-foreground">
+                   {formatLastActive(member.last_active_at || null)}
+                 </span>
+               </div>
+             ))}
+           </div>
+         </div>
+       )}
+ 
+       {/* All team members active message */}
+       {needsCheckIn.length === 0 && members.length > 0 && (
+         <div className="px-3 pb-3">
+           <div className="flex items-center gap-2 p-2 rounded-lg bg-success/5 border border-success/20">
+             <Flame className="w-4 h-4 text-success" />
+             <span className="text-xs text-success font-medium">
+               All team members active within 24 hours! 🎉
+             </span>
+           </div>
+         </div>
+       )}
+ 
        {/* Member Profile Modal */}
        <MemberProfileModal
          member={selectedMember as TeamMember | null}

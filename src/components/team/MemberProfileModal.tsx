@@ -28,6 +28,8 @@ import {
 import { canEditMemberProfile } from '@/lib/editPermissions';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
 import { useAuth } from '@/hooks/useAuth';
+ import { formatLastActive, formatTimeMinutes } from '@/hooks/useActivityTracking';
+ import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
 import { TrainingProgressBadge } from './TrainingProgressBadge';
 import { MemberStatusToggle } from './MemberStatusToggle';
 import { MemberEditForm } from './MemberEditForm';
@@ -242,6 +244,38 @@ export function MemberProfileModal({
                 </div>
               )}
 
+           {/* Activity Status - Show for all non-NLC members */}
+           {!isNLC && (
+             <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+               <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                 <div className={cn(
+                   "w-3 h-3 rounded-full",
+                   (member as any).is_active_now 
+                     ? "bg-success animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]" 
+                     : "bg-muted-foreground/40"
+                 )} />
+               </div>
+               <div className="flex-1">
+                 <p className="text-xs text-muted-foreground">Activity Status</p>
+                 <p className={cn(
+                   "text-sm font-medium",
+                   (member as any).is_active_now ? "text-success" : "text-foreground"
+                 )}>
+                   {formatLastActive((member as any).last_active_at)}
+                 </p>
+               </div>
+               {/* Show time this week for pillars only */}
+               {(currentUserRole === 'admin' || currentUserRole === 'manager') && (member as any).time_this_week_minutes !== undefined && (
+                 <div className="text-right">
+                   <p className="text-xs text-muted-foreground">This week</p>
+                   <p className="text-sm font-medium text-foreground">
+                     {formatTimeMinutes((member as any).time_this_week_minutes || 0)}
+                   </p>
+                 </div>
+               )}
+             </div>
+           )}
+ 
               {/* Phone */}
               <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                 <Phone className="w-5 h-5 text-muted-foreground flex-shrink-0" />

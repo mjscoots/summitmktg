@@ -9,6 +9,7 @@ import { PillarTreeView } from '@/components/team/PillarTreeView';
 import { MembersModal } from '@/components/team/MembersModal';
 import { AnimatedEllipsis } from '@/components/team/AnimatedEllipsis';
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
+ import { formatTimeMinutes } from '@/hooks/useActivityTracking';
 import {
   TeamMember,
   Pillar,
@@ -208,6 +209,9 @@ export default function MyTeamPage() {
   // Total active members (NLC excluded)
   const totalActiveMembers = enrichedRoster.length;
 
+   // Calculate total team time this week
+   const totalTeamTimeMinutes = teamsWithRanking.reduce((sum, t) => sum, 0);
+ 
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

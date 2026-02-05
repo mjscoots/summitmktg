@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
  import { UserAvatar } from '@/components/shared/UserAvatar';
+ import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 import { getStatusInfo, getDisplayName } from '@/lib/hierarchyUtils';
 import type { MemberTrainingProgress } from '@/hooks/useTrainingProgress';
@@ -147,7 +148,17 @@ export function TeamTreeNode({
               <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" />
             )}
           </div>
-          <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+           <div className="flex items-center gap-2">
+             <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+             {!isNLC && (member as any).last_active_at && (
+               <ActivityIndicator 
+                 lastActiveAt={(member as any).last_active_at}
+                 isActiveNow={(member as any).is_active_now}
+                 size="xs"
+                 showText={false}
+               />
+             )}
+           </div>
         </div>
 
         {/* Badges */}

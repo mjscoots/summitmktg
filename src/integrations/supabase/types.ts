@@ -457,6 +457,8 @@ export type Database = {
           experience: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
           id: string
+          is_active_now: boolean | null
+          last_active_at: string | null
           organization: string | null
           otp_verified: boolean | null
           password_changed: boolean | null
@@ -466,8 +468,10 @@ export type Database = {
           region: string | null
           status: Database["public"]["Enums"]["user_status"] | null
           team_id: string | null
+          time_this_week_minutes: number | null
           updated_at: string | null
           user_id: string
+          week_start: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -477,6 +481,8 @@ export type Database = {
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
           id?: string
+          is_active_now?: boolean | null
+          last_active_at?: string | null
           organization?: string | null
           otp_verified?: boolean | null
           password_changed?: boolean | null
@@ -486,8 +492,10 @@ export type Database = {
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
+          time_this_week_minutes?: number | null
           updated_at?: string | null
           user_id: string
+          week_start?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -497,6 +505,8 @@ export type Database = {
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name?: string
           id?: string
+          is_active_now?: boolean | null
+          last_active_at?: string | null
           organization?: string | null
           otp_verified?: boolean | null
           password_changed?: boolean | null
@@ -506,8 +516,10 @@ export type Database = {
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
+          time_this_week_minutes?: number | null
           updated_at?: string | null
           user_id?: string
+          week_start?: string | null
         }
         Relationships: [
           {
@@ -1227,10 +1239,13 @@ export type Database = {
           direct_manager: string
           email: string
           full_name: string
+          is_active_now: boolean
+          last_active_at: string
           profile_id: string
           role: Database["public"]["Enums"]["app_role"]
           status: Database["public"]["Enums"]["user_status"]
           team_name: string
+          time_this_week_minutes: number
           user_id: string
         }[]
       }
@@ -1269,10 +1284,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_inactive_users: { Args: never; Returns: undefined }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string
       }
+      update_user_activity: { Args: { _user_id: string }; Returns: undefined }
       validate_access_code: { Args: { input_code: string }; Returns: boolean }
       validate_and_record_quiz: {
         Args: { _answers: Json; _lesson_id: string }

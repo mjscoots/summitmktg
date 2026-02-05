@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { TeamTreeNode } from './TeamTreeNode';
 import { MemberProfileModal } from './MemberProfileModal';
  import { TeamResources } from './TeamResources';
+ import { TeamTimeStats } from './TeamTimeStats';
 import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
 import { isManager as checkIsManager, normalizeName, getDisplayName } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
@@ -284,6 +285,9 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
 
       {/* Team Resources Section */}
       <TeamResources teamId={pillar.id} teamSlug={pillar.slug} />
+ 
+       {/* Team Time Stats (Pillar view only) */}
+       <TeamTimeStats teamId={pillar.id} teamName={pillar.name} />
     </div>
   );
 }
