@@ -29,6 +29,9 @@ interface TrainingTilesProps {
 // Courses that require Manager Manual to be completed first
 const LOCKED_UNTIL_MANAGER_MANUAL = ['learn-the-basics', 'recruiting-resources'];
 
+// Courses that are "Coming Soon" - grayed out and not clickable
+const COMING_SOON_COURSES = ['management-basics'];
+
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'learn-your-pitch': <BookOpen className="w-6 h-6" />,
   'summer-sales-manual': <FileText className="w-6 h-6" />,
@@ -65,6 +68,7 @@ const COURSE_PRIORITY: Record<string, number> = {
 // Display name overrides
 const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
   'learn-the-basics': 'Recruiting Resources',
+  'management-basics': 'Recruiting Resources',
 };
 
 export function TrainingTiles({ filterRole, managerManualComplete = true }: TrainingTilesProps) {
@@ -224,6 +228,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           const isRookie = isRookieCourse(course.slug);
           const isVideoCourse = VIDEO_COURSES.includes(course.slug);
           const isLockedCourse = LOCKED_UNTIL_MANAGER_MANUAL.includes(course.slug) && !managerManualComplete;
+          const isComingSoon = COMING_SOON_COURSES.includes(course.slug);
           const { text, icon: Icon } = getButtonState(course.progress, isVideoCourse);
           const isPrimary = course.slug === primaryCourseSlug;
           const displayTitle = DISPLAY_NAME_OVERRIDES[course.slug] || course.title
@@ -233,24 +238,24 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           return (
             <div
               key={course.id}
-              onClick={() => !isLockedCourse && handleCourseClick(course.slug)}
+              onClick={() => !isLockedCourse && !isComingSoon && handleCourseClick(course.slug)}
               className={cn(
                 "group relative bg-card rounded-xl border flex flex-col",
                 // Fixed height for all cards
                 "h-[340px]",
                 "transition-all duration-400 ease-out",
-                // Locked state
-                isLockedCourse 
+                // Locked or Coming Soon state
+                (isLockedCourse || isComingSoon)
                   ? "opacity-60 cursor-not-allowed border-border"
                   : "cursor-pointer hover:scale-[1.02] hover:-translate-y-1",
                 // Primary card (Learn Your Pitch) gets highlight border
-                !isLockedCourse && isPrimary && (
+                !isLockedCourse && !isComingSoon && isPrimary && (
                   isRookie
                     ? "border-2 border-green-500/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-green-500/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
                     : "border-2 border-blue-500/50 shadow-[0_0_25px_-8px_rgba(59,130,246,0.25)] hover:border-blue-500/70 hover:shadow-[0_0_35px_-8px_rgba(59,130,246,0.35)]"
                 ),
                 // Non-primary cards
-                !isLockedCourse && !isPrimary && (
+                !isLockedCourse && !isComingSoon && !isPrimary && (
                   course.progress === 100 
                     ? 'border border-success/40 hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.25)]' 
                     : isRookie
@@ -258,7 +263,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                       : 'border border-border hover:border-blue-500/40 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]'
                 ),
                 // In-progress glow
-                !isLockedCourse && !isPrimary && course.progress > 0 && course.progress < 100 && (
+                !isLockedCourse && !isComingSoon && !isPrimary && course.progress > 0 && course.progress < 100 && (
                   isRookie 
                     ? 'shadow-[0_0_15px_-8px_rgba(34,197,94,0.15)]' 
                     : 'shadow-[0_0_15px_-8px_rgba(59,130,246,0.15)]'
@@ -267,7 +272,8 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
             >
               {/* Gradient overlay - appears on hover */}
               <div className={cn(
-                "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-400 group-hover:opacity-100 pointer-events-none",
+                "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-400 pointer-events-none",
+                !isComingSoon && "group-hover:opacity-100",
                 course.progress === 100
                   ? "bg-gradient-to-br from-success/5 to-transparent"
                   : isRookie
@@ -304,7 +310,11 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
                   {/* Role Pill or Locked Pill - top right, never overlapped */}
                   <div className="flex-shrink-0">
-                    {isLockedCourse ? (
+                    {isComingSoon ? (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-muted text-muted-foreground border border-border">
+                        COMING SOON
+                      </span>
+                    ) : isLockedCourse ? (
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-muted text-muted-foreground border border-border">
                         LOCKED
                       </span>
@@ -320,7 +330,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                   </div>
 
                   {/* Completion check badge */}
-                  {course.progress === 100 && !isLockedCourse && (
+                  {course.progress === 100 && !isLockedCourse && !isComingSoon && (
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
                       <span className="text-xs text-white">✓</span>
                     </div>
@@ -331,7 +341,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 <div className="flex-1 min-h-0">
                   <h3 className={cn(
                     "font-bold text-base text-foreground mb-2 transition-colors duration-300",
-                    isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400"
+                    !isComingSoon && (isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400")
                   )}>
                     {displayTitle}
                   </h3>
@@ -382,12 +392,12 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 <div className="h-11 pt-3">
                   <Button
                     size="sm"
-                    disabled={isLockedCourse}
+                    disabled={isLockedCourse || isComingSoon}
                     className={cn(
                       "w-full h-9 font-semibold gap-2",
                       "transition-all duration-300 ease-out",
-                      !isLockedCourse && "hover:translate-y-[-2px] active:translate-y-0",
-                      isLockedCourse
+                      !isLockedCourse && !isComingSoon && "hover:translate-y-[-2px] active:translate-y-0",
+                      (isLockedCourse || isComingSoon)
                         ? "bg-muted text-muted-foreground cursor-not-allowed"
                         : course.progress === 100
                           ? "bg-muted text-foreground hover:bg-muted/80"
@@ -397,11 +407,11 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!isLockedCourse) handleCourseClick(course.slug);
+                      if (!isLockedCourse && !isComingSoon) handleCourseClick(course.slug);
                     }}
                   >
-                    {isLockedCourse ? <Lock className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                    {isLockedCourse ? 'Complete Manager Manual First' : text}
+                    {(isLockedCourse || isComingSoon) ? <Lock className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                    {isComingSoon ? 'Coming Soon' : isLockedCourse ? 'Complete Manager Manual First' : text}
                   </Button>
                 </div>
               </div>
