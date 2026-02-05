@@ -119,23 +119,28 @@
      saveItems(newItems);
    };
  
-   // Sort items: rolled-over incomplete first, then incomplete, then completed
-   const sortedItems = [...items].sort((a, b) => {
-     if (a.completed !== b.completed) return a.completed ? 1 : -1;
-     if (a.isRolledOver !== b.isRolledOver) return a.isRolledOver ? -1 : 1;
-     return 0;
-   });
+  // Filter out completed items (they disappear when checked)
+  // Sort remaining: rolled-over incomplete first, then others
+  const sortedItems = [...items]
+    .filter(item => !item.completed)
+    .sort((a, b) => {
+      if (a.isRolledOver !== b.isRolledOver) return a.isRolledOver ? -1 : 1;
+      return 0;
+    });
  
    const completedCount = items.filter(i => i.completed).length;
    const totalCount = items.length;
  
    return (
      <div className="bg-card rounded-lg border border-border/50">
-       <div className="p-3 border-b border-border/30 flex items-center justify-between">
-         <div className="flex items-center gap-2">
-           <CheckSquare className="w-4 h-4 text-primary" />
-           <h2 className="font-semibold text-sm text-foreground">Today's Priorities</h2>
-         </div>
+      <div className="p-3 border-b border-border/30 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CheckSquare className="w-4 h-4 text-primary" />
+          <div>
+            <h2 className="font-semibold text-sm text-foreground">Today's Priorities</h2>
+            <p className="text-[10px] text-muted-foreground">to-do list</p>
+          </div>
+        </div>
          {totalCount > 0 && (
            <span className="text-[10px] text-muted-foreground">
              {completedCount}/{totalCount}
