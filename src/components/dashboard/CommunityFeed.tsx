@@ -421,7 +421,7 @@
                {announcement.title}
              </h4>
            </div>
-           <p className="text-xs text-muted-foreground line-clamp-2">
+          <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
              {announcement.content}
            </p>
            <div className="flex items-center gap-2 mt-1.5">

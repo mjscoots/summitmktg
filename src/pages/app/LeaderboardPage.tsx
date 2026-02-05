@@ -6,14 +6,13 @@ import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type LeaderboardTab = 'training' | 'signings' | 'streak';
+type LeaderboardTab = 'training' | 'streak';
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('training');
 
   const tabs: { id: LeaderboardTab; label: string }[] = [
     { id: 'training', label: 'Training' },
-    { id: 'signings', label: 'Signings' },
     { id: 'streak', label: 'Streak' },
   ];
 
@@ -54,7 +53,6 @@ export default function LeaderboardPage() {
         {/* Leaderboard Content */}
         <div className="bg-card rounded-lg border border-border/50">
           {activeTab === 'training' && <TrainingLeaderboard />}
-          {activeTab === 'signings' && <SigningsLeaderboard />}
           {activeTab === 'streak' && <StreakLeaderboard />}
         </div>
       </main>
