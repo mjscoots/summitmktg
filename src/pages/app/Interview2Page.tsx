@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { BookInterviewButton } from '@/components/interviews/BookInterviewButton';
 
@@ -26,6 +26,16 @@ interface FormData {
 export default function Interview2Page() {
   const navigate = useNavigate();
   const { profile, isLoading } = useAuth();
+  const [copied, setCopied] = useState(false);
+  
+  const interviewVideoLink = 'https://drive.google.com/file/d/1zjI04-xY-wdazHnVTn3CzU3MU8VbPk1t/view?usp=sharing';
+  
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(interviewVideoLink);
+    setCopied(true);
+    toast.success('Link copied to clipboard');
+    setTimeout(() => setCopied(false), 2000);
+  };
   
   const [formData, setFormData] = useState<FormData>({
     recruitName: '',
@@ -332,6 +342,30 @@ export default function Interview2Page() {
                   Ready to schedule the final interview?
                 </p>
                 <BookInterviewButton nextInterview={3} />
+              </div>
+
+              {/* Interview Video Link */}
+              <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-sm text-muted-foreground mb-3">
+                  I will be attaching Google Drive links to the interview videos below. These links are for managers to copy and send to the recruit to review prior to or after the interview.
+                </p>
+                <div className="flex items-center gap-2">
+                  <a 
+                    href={interviewVideoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-sm text-primary hover:underline truncate"
+                  >
+                    Interview 2 Video
+                  </a>
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary hover:bg-primary/90 text-white rounded-md transition-colors"
+                  >
+                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied ? 'Copied!' : 'Copy Link'}
+                  </button>
+                </div>
               </div>
 
               {/* Submit */}
