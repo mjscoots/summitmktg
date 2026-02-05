@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTeamData } from '@/hooks/useTeamData';
 import { Users, TrendingDown, TrendingUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+ import { UserAvatar } from '@/components/shared/UserAvatar';
 
 export function TeamSnapshot() {
   const navigate = useNavigate();
@@ -71,14 +72,25 @@ export function TeamSnapshot() {
               <TrendingUp className="w-3 h-3 text-success" />
               <span>Top performers</span>
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="space-y-1.5">
               {topPerformers.map((member) => (
-                <span 
+                <div 
                   key={member.id} 
-                  className="text-[11px] px-2 py-0.5 bg-success/10 text-success rounded-full"
+                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => navigate('/app/team')}
                 >
-                  {member.full_name.split(' ').slice(0, 2).join(' ')}
-                </span>
+                  <UserAvatar 
+                    avatarUrl={member.avatar_url} 
+                    fullName={member.full_name} 
+                    size="xs" 
+                  />
+                  <span className="text-xs text-foreground truncate flex-1">
+                    {member.full_name.split(' ').slice(0, 2).join(' ')}
+                  </span>
+                  <span className="text-[10px] text-success font-medium">
+                    {member.trainingProgress}%
+                  </span>
+                </div>
               ))}
             </div>
           </div>
@@ -91,15 +103,25 @@ export function TeamSnapshot() {
               <TrendingDown className="w-3 h-3 text-destructive" />
               <span>Needs attention</span>
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="space-y-1.5">
               {needsAttention.map((member) => (
-                <button 
+                <div 
                   key={member.id} 
+                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                   onClick={() => navigate('/app/team')}
-                  className="text-[11px] px-2 py-0.5 bg-destructive/10 text-destructive rounded-full hover:bg-destructive/20 transition-colors"
                 >
-                  {member.full_name.split(' ').slice(0, 2).join(' ')} - {member.trainingProgress}%
-                </button>
+                  <UserAvatar 
+                    avatarUrl={member.avatar_url} 
+                    fullName={member.full_name} 
+                    size="xs" 
+                  />
+                  <span className="text-xs text-foreground truncate flex-1">
+                    {member.full_name.split(' ').slice(0, 2).join(' ')}
+                  </span>
+                  <span className="text-[10px] text-destructive font-medium">
+                    {member.trainingProgress}%
+                  </span>
+                </div>
               ))}
             </div>
           </div>

@@ -703,6 +703,47 @@ export type Database = {
         }
         Relationships: []
       }
+      streak_breaks: {
+        Row: {
+          acknowledged: boolean
+          broke_at: string
+          created_at: string
+          id: string
+          manager_user_id: string | null
+          streak_count: number
+          team_id: string | null
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean
+          broke_at?: string
+          created_at?: string
+          id?: string
+          manager_user_id?: string | null
+          streak_count?: number
+          team_id?: string | null
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean
+          broke_at?: string
+          created_at?: string
+          id?: string
+          manager_user_id?: string | null
+          streak_count?: number
+          team_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streak_breaks_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_notifications: {
         Row: {
           created_at: string
@@ -1178,6 +1219,20 @@ export type Database = {
           p_window_seconds: number
         }
         Returns: boolean
+      }
+      get_pillar_team_members: {
+        Args: { _pillar_user_id: string }
+        Returns: {
+          avatar_url: string
+          direct_manager: string
+          email: string
+          full_name: string
+          profile_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["user_status"]
+          team_name: string
+          user_id: string
+        }[]
       }
       get_quiz_questions: {
         Args: { _lesson_id: string }

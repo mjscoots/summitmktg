@@ -179,6 +179,18 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="max-w-5xl mx-auto px-4 py-6">
+          {/* Hero Background Header */}
+          <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-success/30 via-success/20 to-success/10" />
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
+                ROOKIE TRAINING
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">Master your craft. Build your future.</p>
+            </div>
+          </div>
+
           {/* Streak Display - Large and prominent */}
           <div className="mb-6">
             <StreakDisplay variant="large" />
@@ -192,13 +204,6 @@ export default function TrainingPage() {
               onDismiss={() => setShowWelcome(false)}
             />
           )}
-
-          <div className="flex items-center gap-3 mb-6">
-            <Sparkles className="w-5 h-5 text-success" />
-            <h1 className="text-xl font-bold text-foreground">
-              Rookie Training
-            </h1>
-          </div>
 
           <TrainingTiles filterRole="rookie" />
 
@@ -221,12 +226,7 @@ export default function TrainingPage() {
             <StreakDisplay variant="large" />
           </div>
 
-          <div className="flex items-center gap-3 mb-6">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">
-              Select Training
-            </h1>
-          </div>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Choose Your Path</h2>
 
           {/* Two Selection Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -294,13 +294,32 @@ export default function TrainingPage() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 py-6">
+        {/* Hero Background Header */}
+        <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+          <div className={cn(
+            "absolute inset-0",
+            isRookieView 
+              ? "bg-gradient-to-r from-success/30 via-success/20 to-success/10" 
+              : "bg-gradient-to-r from-primary/30 via-primary/20 to-primary/10"
+          )} />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
+              {isRookieView ? 'ROOKIE TRAINING' : 'MANAGER TRAINING'}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isRookieView ? 'Master your craft. Build your future.' : 'Lead your team to success.'}
+            </p>
+          </div>
+        </div>
+
         {/* Back button for managers - TOP LEFT */}
         {isManager && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setView('selection')}
-            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground gap-1.5"
+            className="mb-4 -ml-2 -mt-2 text-muted-foreground hover:text-foreground gap-1.5"
           >
             <ChevronLeft className="w-4 h-4" />
             Back
@@ -315,16 +334,6 @@ export default function TrainingPage() {
             onDismiss={() => setShowWelcome(false)}
           />
         )}
-
-        <div className="flex items-center gap-3 mb-6">
-          <Sparkles className={cn(
-            "w-5 h-5",
-            isRookieView ? "text-success" : "text-primary"
-          )} />
-          <h1 className="text-xl font-bold text-foreground">
-            {isRookieView ? 'Rookie' : 'Manager'} Training
-          </h1>
-        </div>
 
         <TrainingTiles 
           filterRole={isRookieView ? 'rookie' : 'manager'} 
