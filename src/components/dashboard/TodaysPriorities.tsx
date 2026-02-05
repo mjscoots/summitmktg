@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamData } from '@/hooks/useTeamData';
-import { Phone, Calendar, UserPlus, ChevronRight, AlertTriangle, Loader2 } from 'lucide-react';
+import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
+ import { UserAvatar } from '@/components/shared/UserAvatar';
 
 interface PriorityItem {
   id: string;
@@ -32,16 +33,21 @@ export function TodaysPriorities() {
     );
   }
 
-  // Build priorities based on actual team data
-  const behindOnTraining = needsAttention.length;
+  // Calculate lowest performers - always show at least 3
   const activeMembers = members.filter(m => m.status === 'active');
+  const lowestPerformers = [...activeMembers]
+    .sort((a, b) => a.trainingProgress - b.trainingProgress)
+    .slice(0, 3);
+  
+  const behindOnTraining = needsAttention.length;
 
   const priorities: PriorityItem[] = [
     { 
       id: '1', 
-      title: `Reach out to ${Math.min(3, activeMembers.length)} reps`, 
+      title: `Check in with ${lowestPerformers.length} reps`, 
       icon: Phone, 
-      action: '/app/interviews' 
+      action: '/app/team',
+      count: lowestPerformers.length,
     },
   ];
 
@@ -97,18 +103,36 @@ export function TodaysPriorities() {
         ))}
       </div>
 
-      {/* Show specific reps who need attention */}
-      {needsAttention.length > 0 && (
+      {/* Show lowest performing reps (always show if we have members) */}
+      {lowestPerformers.length > 0 && (
         <div className="p-3 pt-0">
-          <div className="text-xs text-muted-foreground mb-2">Behind on training:</div>
-          <div className="flex flex-wrap gap-1.5">
-            {needsAttention.slice(0, 3).map(member => (
-              <span 
+          <div className="text-xs text-muted-foreground mb-2">Lowest training progress:</div>
+          <div className="space-y-1.5">
+            {lowestPerformers.map(member => (
+              <div 
                 key={member.id}
-                className="text-[10px] px-2 py-0.5 bg-destructive/10 text-destructive rounded-full"
+                className="flex items-center gap-2 p-1.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => navigate('/app/team')}
               >
-                {member.full_name.split(' ').slice(0, 2).join(' ')} ({member.trainingProgress}%)
-              </span>
+                <UserAvatar 
+                  avatarUrl={member.avatar_url} 
+                  fullName={member.full_name} 
+                  size="xs" 
+                />
+                <span className="text-xs text-foreground truncate flex-1">
+                  {member.full_name.split(' ').slice(0, 2).join(' ')}
+                </span>
+                <span className={cn(
+                  "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
+                  member.trainingProgress < 30 
+                    ? "bg-destructive/10 text-destructive" 
+                    : member.trainingProgress < 60 
+                      ? "bg-amber-500/10 text-amber-600"
+                      : "bg-success/10 text-success"
+                )}>
+                  {member.trainingProgress}%
+                </span>
+              </div>
             ))}
           </div>
         </div>

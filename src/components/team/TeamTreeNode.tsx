@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+ import { UserAvatar } from '@/components/shared/UserAvatar';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 import { getStatusInfo, getDisplayName } from '@/lib/hierarchyUtils';
 import type { MemberTrainingProgress } from '@/hooks/useTrainingProgress';
@@ -98,25 +99,33 @@ export function TeamTreeNode({
           <div className="w-5" />
         )}
 
-        {/* Avatar */}
-        <div className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-          isNLC 
-            ? "bg-muted" 
-            : isRoot 
+        {/* Avatar with profile picture */}
+        {isNLC ? (
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+            <UserX className="w-4 h-4 text-muted-foreground" />
+          </div>
+        ) : (member as any).avatar_url ? (
+          <UserAvatar 
+            avatarUrl={(member as any).avatar_url} 
+            fullName={member.full_name} 
+            size="md" 
+          />
+        ) : (
+          <div className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+            isRoot 
               ? "bg-amber-500/20" 
               : isManager 
                 ? "bg-primary/20" 
                 : "bg-success/20"
-        )}>
-          {isNLC ? (
-            <UserX className="w-4 h-4 text-muted-foreground" />
-          ) : isRoot ? (
-            <Crown className="w-4 h-4 text-amber-400" />
-          ) : (
-            <User className={cn("w-4 h-4", isManager ? "text-primary" : "text-success")} />
-          )}
-        </div>
+          )}>
+            {isRoot ? (
+              <Crown className="w-4 h-4 text-amber-400" />
+            ) : (
+              <User className={cn("w-4 h-4", isManager ? "text-primary" : "text-success")} />
+            )}
+          </div>
+        )}
 
         {/* Name and info - CLICKABLE */}
         <div className="flex-1 min-w-0">

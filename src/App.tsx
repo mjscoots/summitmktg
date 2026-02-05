@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+ import { RookieViewProvider } from "@/contexts/RookieViewContext";
 
 // Public pages
 import Index from "./pages/Index";
@@ -36,119 +37,121 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* ========== PUBLIC ROUTES ========== */}
-            <Route path="/" element={<Index />} />
-            <Route path="/recruiting" element={<Recruiting />} />
-            {/* Redirect /apply to /recruiting#apply section */}
-            <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
-            <Route path="/apply/rookie" element={<RookieApplication />} />
-            <Route path="/apply/veteran" element={<VetApplication />} />
-            <Route path="/apply/success" element={<ApplySuccess />} />
-            <Route path="/login" element={<AuthPage />} />
-            {/* Redirect any signup attempts to login */}
-            <Route path="/signup" element={<Navigate to="/login" replace />} />
+      <RookieViewProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* ========== PUBLIC ROUTES ========== */}
+              <Route path="/" element={<Index />} />
+              <Route path="/recruiting" element={<Recruiting />} />
+              {/* Redirect /apply to /recruiting#apply section */}
+              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
+              <Route path="/apply/rookie" element={<RookieApplication />} />
+              <Route path="/apply/veteran" element={<VetApplication />} />
+              <Route path="/apply/success" element={<ApplySuccess />} />
+              <Route path="/login" element={<AuthPage />} />
+              {/* Redirect any signup attempts to login */}
+              <Route path="/signup" element={<Navigate to="/login" replace />} />
 
-            {/* ========== APP - PROTECTED ROUTES ========== */}
-            
-            {/* Main Dashboard */}
-            <Route path="/app" element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            } />
+              {/* ========== APP - PROTECTED ROUTES ========== */}
+              
+              {/* Main Dashboard */}
+              <Route path="/app" element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } />
 
-            {/* Legacy routes - redirect to unified /app */}
-            <Route path="/app/rookie" element={<Navigate to="/app" replace />} />
-            <Route path="/app/manager" element={<Navigate to="/app" replace />} />
-            <Route path="/rookie" element={<Navigate to="/app" replace />} />
-            <Route path="/manager" element={<Navigate to="/app" replace />} />
-            <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
-            <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
-            
-            {/* Training */}
-            <Route path="/app/training" element={
-              <ProtectedRoute>
-                <TrainingPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/training/:courseSlug" element={
-              <ProtectedRoute>
-                <TrainingCoursePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/training/:courseSlug/:lessonId" element={
-              <ProtectedRoute>
-                <LessonPage />
-              </ProtectedRoute>
-            } />
-            
-            {/* My Team (Manager only) */}
-            <Route path="/app/team" element={
-              <ProtectedRoute requiredRole="manager">
-                <MyTeamPage />
-              </ProtectedRoute>
-            } />
+              {/* Legacy routes - redirect to unified /app */}
+              <Route path="/app/rookie" element={<Navigate to="/app" replace />} />
+              <Route path="/app/manager" element={<Navigate to="/app" replace />} />
+              <Route path="/rookie" element={<Navigate to="/app" replace />} />
+              <Route path="/manager" element={<Navigate to="/app" replace />} />
+              <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
+              <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
+              
+              {/* Training */}
+              <Route path="/app/training" element={
+                <ProtectedRoute>
+                  <TrainingPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/training/:courseSlug" element={
+                <ProtectedRoute>
+                  <TrainingCoursePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/training/:courseSlug/:lessonId" element={
+                <ProtectedRoute>
+                  <LessonPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* My Team (Manager only) */}
+              <Route path="/app/team" element={
+                <ProtectedRoute requiredRole="manager">
+                  <MyTeamPage />
+                </ProtectedRoute>
+              } />
 
-            {/* Members Directory (Manager only) */}
-            <Route path="/app/members" element={
-              <ProtectedRoute requiredRole="manager">
-                <MembersPage />
-              </ProtectedRoute>
-            } />
+              {/* Members Directory (Manager only) */}
+              <Route path="/app/members" element={
+                <ProtectedRoute requiredRole="manager">
+                  <MembersPage />
+                </ProtectedRoute>
+              } />
 
-            {/* Profile */}
-            <Route path="/app/profile" element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            } />
-            
-            {/* Leaderboard */}
-            <Route path="/app/leaderboard" element={
-              <ProtectedRoute>
-                <LeaderboardPage />
-              </ProtectedRoute>
-            } />
+              {/* Profile */}
+              <Route path="/app/profile" element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Leaderboard */}
+              <Route path="/app/leaderboard" element={
+                <ProtectedRoute>
+                  <LeaderboardPage />
+                </ProtectedRoute>
+              } />
 
-            {/* Calendar */}
-            <Route path="/app/calendar" element={
-              <ProtectedRoute>
-                <CalendarPage />
-              </ProtectedRoute>
-            } />
+              {/* Calendar */}
+              <Route path="/app/calendar" element={
+                <ProtectedRoute>
+                  <CalendarPage />
+                </ProtectedRoute>
+              } />
 
-            {/* Interviews (Manager Only) */}
-            <Route path="/app/interviews" element={
-              <ProtectedRoute requiredRole="manager">
-                <InterviewsPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/interviews/1" element={
-              <ProtectedRoute requiredRole="manager">
-                <Interview1Page />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/interviews/2" element={
-              <ProtectedRoute requiredRole="manager">
-                <Interview2Page />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/interviews/3" element={
-              <ProtectedRoute requiredRole="manager">
-                <Interview3Page />
-              </ProtectedRoute>
-            } />
+              {/* Interviews (Manager Only) */}
+              <Route path="/app/interviews" element={
+                <ProtectedRoute requiredRole="manager">
+                  <InterviewsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/interviews/1" element={
+                <ProtectedRoute requiredRole="manager">
+                  <Interview1Page />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/interviews/2" element={
+                <ProtectedRoute requiredRole="manager">
+                  <Interview2Page />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/interviews/3" element={
+                <ProtectedRoute requiredRole="manager">
+                  <Interview3Page />
+                </ProtectedRoute>
+              } />
 
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </RookieViewProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

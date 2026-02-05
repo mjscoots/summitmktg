@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Medal, Award, Flame } from 'lucide-react';
+import { Trophy, Medal, Award, Flame, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+ import { UserAvatar } from '@/components/shared/UserAvatar';
+ import { useNavigate } from 'react-router-dom';
 
 interface StreakEntry {
   user_id: string;
@@ -13,6 +15,7 @@ interface StreakEntry {
 
 export function StreakLeaderboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<StreakEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -129,60 +132,113 @@ export function StreakLeaderboard() {
 
   if (entries.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <Flame className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-        <p className="text-muted-foreground text-sm">No active streaks</p>
+      <div className="p-8 text-center bg-gradient-to-b from-orange-500/5 to-transparent rounded-xl">
+        <Flame className="w-12 h-12 text-orange-400/50 mx-auto mb-2" />
+        <p className="text-muted-foreground text-sm">No active streaks yet</p>
+        <p className="text-xs text-muted-foreground/70 mt-1">Complete training to start your streak!</p>
       </div>
     );
   }
 
+  // Top 3 get special treatment
+  const top3 = entries.slice(0, 3);
+  const rest = entries.slice(3);
+
   return (
-    <div className="divide-y divide-border/50">
-      {entries.map((entry, index) => {
-        const isCurrentUser = entry.user_id === user?.id;
-        const rank = index + 1;
-
-        return (
-          <div
-            key={entry.user_id}
-            className={cn(
-              "flex items-center gap-3 px-4 py-3 transition-colors",
-              isCurrentUser && "bg-primary/5"
-            )}
-          >
-            <div className="w-6 flex justify-center">{getRankIcon(rank)}</div>
+    <div className="space-y-4">
+      {/* Top 3 - Featured Display */}
+      {top3.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 px-4 pt-4">
+          {top3.map((entry, index) => {
+            const rank = index + 1;
+            const isCurrentUser = entry.user_id === user?.id;
+            const bgClass = rank === 1 
+              ? 'bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-amber-500/30' 
+              : rank === 2 
+                ? 'bg-gradient-to-b from-slate-400/20 to-slate-400/5 border-slate-400/30'
+                : 'bg-gradient-to-b from-orange-600/20 to-orange-600/5 border-orange-600/30';
             
-            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
-              {entry.avatar_url ? (
-                <img src={entry.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-xs font-medium text-muted-foreground">
-                  {entry.full_name.charAt(0)}
-                </span>
-              )}
-            </div>
+            return (
+              <button
+                key={entry.user_id}
+                onClick={() => navigate('/app/team')}
+                className={cn(
+                  "flex flex-col items-center p-3 rounded-xl border transition-all hover:scale-[1.02]",
+                  bgClass,
+                  isCurrentUser && "ring-2 ring-primary/50"
+                )}
+              >
+                <div className="mb-1">{getRankIcon(rank)}</div>
+                <UserAvatar 
+                  avatarUrl={entry.avatar_url} 
+                  fullName={entry.full_name} 
+                  size="md" 
+                  className="mb-1.5"
+                />
+                <p className={cn(
+                  "text-xs font-medium text-center truncate w-full",
+                  isCurrentUser ? "text-primary" : "text-foreground"
+                )}>
+                  {entry.full_name.split(' ')[0]}
+                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
+                  <span className="text-lg font-bold text-orange-500">{entry.streak}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-            <div className="flex-1 min-w-0">
-              <p className={cn(
-                "text-sm font-medium truncate",
-                isCurrentUser ? "text-primary" : "text-foreground"
-              )}>
-                {entry.full_name}
-                {isCurrentUser && <span className="text-xs ml-1">(You)</span>}
-              </p>
-            </div>
+      {/* Rest of leaderboard */}
+      {rest.length > 0 && (
+        <div className="divide-y divide-border/50 border-t border-border/30">
+          {rest.map((entry, index) => {
+            const isCurrentUser = entry.user_id === user?.id;
+            const rank = index + 4;
 
-            <div className="flex items-center gap-1.5">
-              <Flame className={cn(
-                "w-4 h-4",
-                entry.streak >= 7 ? "text-orange-500" : "text-orange-400/70"
-              )} />
-              <span className="text-lg font-bold text-foreground">{entry.streak}</span>
-              <span className="text-xs text-muted-foreground">days</span>
-            </div>
-          </div>
-        );
-      })}
+            return (
+              <button
+                key={entry.user_id}
+                onClick={() => navigate('/app/team')}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/50 text-left",
+                  isCurrentUser && "bg-primary/5"
+                )}
+              >
+                <div className="w-6 flex justify-center">
+                  <span className="text-xs font-medium text-muted-foreground">{rank}</span>
+                </div>
+                
+                <UserAvatar 
+                  avatarUrl={entry.avatar_url} 
+                  fullName={entry.full_name} 
+                  size="sm" 
+                />
+
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-sm font-medium truncate",
+                    isCurrentUser ? "text-primary" : "text-foreground"
+                  )}>
+                    {entry.full_name.split(' ').slice(0, 2).join(' ')}
+                    {isCurrentUser && <span className="text-xs ml-1 text-muted-foreground">(You)</span>}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Flame className={cn(
+                    "w-3.5 h-3.5",
+                    entry.streak >= 7 ? "text-orange-500" : "text-orange-400/70"
+                  )} />
+                  <span className="text-sm font-bold text-foreground">{entry.streak}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

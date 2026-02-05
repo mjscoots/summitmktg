@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+ import { usePillarCheck } from '@/hooks/usePillarCheck';
 import { 
   Dialog, 
   DialogContent, 
@@ -12,14 +13,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Users, User, Loader2, Repeat } from 'lucide-react';
+import { Users, User, UserCheck, Loader2, Repeat, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RecurrenceSelector, DEFAULT_RECURRENCE, toRRule, type RecurrenceSettings } from './RecurrenceSelector';
 
-interface Rookie {
+interface TeamMember {
   user_id: string;
   full_name: string;
   email: string;
+  role: string;
+  avatar_url?: string | null;
 }
 
 interface CalendarEvent {
@@ -49,11 +52,14 @@ const EVENT_TYPES = [
   { value: 'call', label: 'Team Call' },
 ];
 
+type AssignmentMode = 'entire_team' | 'managers_only' | 'rookies_only' | 'specific';
+
 export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEventFormProps) {
   const { user, profile } = useAuth();
+  const { isPillar, teamId } = usePillarCheck();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [rookies, setRookies] = useState<Rookie[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   
   // Form state
   const [title, setTitle] = useState('');
@@ -64,32 +70,59 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
   const [location, setLocation] = useState('');
   const [eventType, setEventType] = useState('general');
   const [isTeamWide, setIsTeamWide] = useState(true);
-  const [selectedRookies, setSelectedRookies] = useState<string[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [assignmentMode, setAssignmentMode] = useState<AssignmentMode>('entire_team');
+  const [memberSearch, setMemberSearch] = useState('');
   const [recurrence, setRecurrence] = useState<RecurrenceSettings>(DEFAULT_RECURRENCE);
 
-  // Fetch manager's downline
+  // Fetch team members - use team_id for pillars, downline for others
   useEffect(() => {
-    const fetchRookies = async () => {
-      if (!profile?.full_name) return;
+    const fetchTeamMembers = async () => {
+      if (!user || !profile?.full_name) return;
       
       setIsLoading(true);
-      const { data, error } = await supabase
-        .rpc('get_user_downline', { _manager_name: profile.full_name });
-      
-      if (!error && data) {
-        setRookies(data.map((d: { user_id: string; full_name: string; email: string }) => ({
-          user_id: d.user_id,
-          full_name: d.full_name,
-          email: d.email
-        })));
+
+      try {
+        // If pillar owner, use the pillar team members function
+        if (isPillar && teamId) {
+          const { data, error } = await supabase
+            .rpc('get_pillar_team_members', { _pillar_user_id: user.id });
+          
+          if (!error && data) {
+            setTeamMembers(data.map((d: any) => ({
+              user_id: d.user_id,
+              full_name: d.full_name,
+              email: d.email,
+              role: d.role || 'rookie',
+              avatar_url: d.avatar_url,
+            })));
+          }
+        } else {
+          // Use downline for non-pillar managers
+          const { data, error } = await supabase
+            .rpc('get_user_downline', { _manager_name: profile.full_name });
+          
+          if (!error && data) {
+            setTeamMembers(data.map((d: any) => ({
+              user_id: d.user_id,
+              full_name: d.full_name,
+              email: d.email,
+              role: d.role || 'rookie',
+              avatar_url: null,
+            })));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching team members:', err);
       }
+      
       setIsLoading(false);
     };
 
     if (isOpen) {
-      fetchRookies();
+      fetchTeamMembers();
     }
-  }, [isOpen, profile?.full_name]);
+  }, [isOpen, user, profile?.full_name, isPillar, teamId]);
 
   // Populate form when editing
   useEffect(() => {
@@ -105,7 +138,8 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
       setLocation(event.location || '');
       setEventType(event.event_type || 'general');
       setIsTeamWide(event.is_team_wide);
-      setSelectedRookies(event.assignees || []);
+      setSelectedMembers(event.assignees || []);
+      setAssignmentMode(event.is_team_wide ? 'entire_team' : 'specific');
     } else {
       resetForm();
     }
@@ -120,7 +154,9 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
     setLocation('');
     setEventType('general');
     setIsTeamWide(true);
-    setSelectedRookies([]);
+    setSelectedMembers([]);
+    setAssignmentMode('entire_team');
+    setMemberSearch('');
     setRecurrence(DEFAULT_RECURRENCE);
   };
 
@@ -132,8 +168,8 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
       return;
     }
 
-    if (!isTeamWide && selectedRookies.length === 0) {
-      toast.error('Please select at least one rookie or choose team-wide');
+    if (!isTeamWide && selectedMembers.length === 0) {
+      toast.error('Please select at least one team member or choose team-wide');
       return;
     }
 
@@ -196,8 +232,8 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
           .eq('event_id', eventId);
         
         // Insert new assignees
-        if (selectedRookies.length > 0) {
-          const assigneeRecords = selectedRookies.map(userId => ({
+        if (selectedMembers.length > 0) {
+          const assigneeRecords = selectedMembers.map(userId => ({
             event_id: eventId,
             user_id: userId
           }));
@@ -210,8 +246,8 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
 
       // Send notifications
       const usersToNotify = isTeamWide 
-        ? rookies.map(r => r.user_id) 
-        : selectedRookies;
+        ? teamMembers.map(r => r.user_id) 
+        : selectedMembers;
 
       if (usersToNotify.length > 0) {
         await supabase.functions.invoke('send-calendar-notification', {
@@ -240,17 +276,39 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
     }
   };
 
-  const toggleRookie = (userId: string) => {
-    setSelectedRookies(prev => 
+  const toggleMember = (userId: string) => {
+    setSelectedMembers(prev => 
       prev.includes(userId) 
         ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
   };
 
-  const selectAllRookies = () => {
-    setSelectedRookies(rookies.map(r => r.user_id));
+  const selectAllByMode = (mode: AssignmentMode) => {
+    if (mode === 'entire_team') {
+      setIsTeamWide(true);
+      setSelectedMembers([]);
+    } else if (mode === 'managers_only') {
+      setIsTeamWide(false);
+      setSelectedMembers(teamMembers.filter(m => m.role === 'manager' || m.role === 'admin').map(m => m.user_id));
+    } else if (mode === 'rookies_only') {
+      setIsTeamWide(false);
+      setSelectedMembers(teamMembers.filter(m => m.role === 'rookie').map(m => m.user_id));
+    } else {
+      setIsTeamWide(false);
+    }
+    setAssignmentMode(mode);
   };
+
+  // Filter members by search and role
+  const filteredMembers = teamMembers.filter(m => {
+    if (!memberSearch) return true;
+    return m.full_name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+           m.email.toLowerCase().includes(memberSearch.toLowerCase());
+  });
+
+  const managerCount = teamMembers.filter(m => m.role === 'manager' || m.role === 'admin').length;
+  const rookieCount = teamMembers.filter(m => m.role === 'rookie').length;
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
@@ -340,72 +398,120 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
 
           {/* Assignment */}
           <div className="border-t border-border pt-4">
-            <label className="block text-sm font-medium mb-3">Assign To</label>
+            <label className="block text-sm font-medium mb-3">Assign To Team Members</label>
             
-            <div className="flex gap-3 mb-3">
+            <div className="grid grid-cols-2 gap-2 mb-3">
               <button
                 type="button"
-                onClick={() => setIsTeamWide(true)}
+                onClick={() => selectAllByMode('entire_team')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all",
-                  isTeamWide 
+                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all",
+                  assignmentMode === 'entire_team' 
                     ? "border-primary bg-primary/10 text-primary" 
                     : "border-border text-muted-foreground hover:border-primary/50"
                 )}
               >
                 <Users className="w-4 h-4" />
-                Entire Team
+                Entire Team ({teamMembers.length})
               </button>
               <button
                 type="button"
-                onClick={() => setIsTeamWide(false)}
+                onClick={() => selectAllByMode('managers_only')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all",
-                  !isTeamWide 
+                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all",
+                  assignmentMode === 'managers_only' 
+                    ? "border-primary bg-primary/10 text-primary" 
+                    : "border-border text-muted-foreground hover:border-primary/50"
+                )}
+              >
+                <UserCheck className="w-4 h-4" />
+                Managers ({managerCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => selectAllByMode('rookies_only')}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all",
+                  assignmentMode === 'rookies_only' 
+                    ? "border-success bg-success/10 text-success" 
+                    : "border-border text-muted-foreground hover:border-success/50"
+                )}
+              >
+                <User className="w-4 h-4" />
+                Rookies ({rookieCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => selectAllByMode('specific')}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all",
+                  assignmentMode === 'specific' 
                     ? "border-primary bg-primary/10 text-primary" 
                     : "border-border text-muted-foreground hover:border-primary/50"
                 )}
               >
                 <User className="w-4 h-4" />
-                Select Rookies
+                Select Specific
               </button>
             </div>
 
-            {!isTeamWide && (
-              <div className="bg-muted/50 rounded-lg p-3 max-h-48 overflow-y-auto">
+            {assignmentMode === 'specific' && (
+              <div className="bg-muted/50 rounded-lg p-3 max-h-56 overflow-y-auto">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                   </div>
-                ) : rookies.length === 0 ? (
+                ) : teamMembers.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No rookies in your downline
+                    No team members found
                   </p>
                 ) : (
                   <>
+                    {/* Search */}
+                    <div className="relative mb-2">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Search members..."
+                        value={memberSearch}
+                        onChange={(e) => setMemberSearch(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 text-sm bg-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                    
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs text-muted-foreground">
-                        {selectedRookies.length} of {rookies.length} selected
+                        {selectedMembers.length} of {teamMembers.length} selected
                       </span>
                       <button
                         type="button"
-                        onClick={selectAllRookies}
+                        onClick={() => setSelectedMembers(teamMembers.map(m => m.user_id))}
                         className="text-xs text-primary hover:underline"
                       >
                         Select all
                       </button>
                     </div>
                     <div className="space-y-1">
-                      {rookies.map((rookie) => (
+                      {filteredMembers.map((member) => (
                         <label
-                          key={rookie.user_id}
-                          className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer"
+                          key={member.user_id}
+                          className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer group"
                         >
                           <Checkbox
-                            checked={selectedRookies.includes(rookie.user_id)}
-                            onCheckedChange={() => toggleRookie(rookie.user_id)}
+                            checked={selectedMembers.includes(member.user_id)}
+                            onCheckedChange={() => toggleMember(member.user_id)}
                           />
-                          <span className="text-sm">{rookie.full_name}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm truncate block">{member.full_name}</span>
+                          </div>
+                          <span className={cn(
+                            "text-[10px] px-1.5 py-0.5 rounded-full",
+                            member.role === 'rookie' 
+                              ? "bg-success/10 text-success" 
+                              : "bg-primary/10 text-primary"
+                          )}>
+                            {member.role === 'rookie' ? 'Rookie' : 'Manager'}
+                          </span>
                         </label>
                       ))}
                     </div>
