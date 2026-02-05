@@ -185,7 +185,7 @@ export default function TrainingPage() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
-                D2D TRAINING
+                SALES TRAINING
               </h1>
               <p className="text-sm text-muted-foreground mt-1">Master your craft. Build your future.</p>
             </div>
@@ -246,8 +246,8 @@ export default function TrainingPage() {
               className="group relative p-6 bg-card rounded-xl border-2 border-success/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.4)] text-left"
             >
               <div className="absolute top-3 right-3">
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-success/15 text-success border border-success/30">
-                  D2D
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
+                  SALES
                 </span>
               </div>
 
@@ -256,7 +256,7 @@ export default function TrainingPage() {
               </div>
 
               <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-success transition-colors">
-                D2D Training
+                Sales Training
               </h2>
               
               <p className="text-sm text-muted-foreground">
@@ -315,7 +315,7 @@ export default function TrainingPage() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
-              {isRookieView ? 'D2D TRAINING' : 'MANAGER TRAINING'}
+              {isRookieView ? 'SALES TRAINING' : 'MANAGER TRAINING'}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               {isRookieView ? 'Master your craft. Build your future.' : 'Lead your team to success.'}
