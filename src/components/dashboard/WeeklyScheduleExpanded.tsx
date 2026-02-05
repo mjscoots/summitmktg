@@ -76,6 +76,9 @@
    })).filter(day => day.items.length > 0);
  
    const today = new Date().getDay();
+   
+   // Count required events this week
+   const requiredEventCount = schedule.length;
  
    if (isLoading) {
      return (
@@ -86,11 +89,19 @@
    }
  
    return (
-     <div className="bg-card rounded-lg border border-border/50 h-full flex flex-col">
+     <div className="bg-card rounded-lg border border-border/50 h-full flex flex-col relative overflow-hidden">
+       {/* Blue accent line */}
+       <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary/40" />
+       
        <div className="p-3 border-b border-border/30 flex items-center justify-between flex-shrink-0">
          <div className="flex items-center gap-2">
            <Calendar className="w-4 h-4 text-primary" />
            <h2 className="font-semibold text-sm text-foreground">This Week</h2>
+           {requiredEventCount > 0 && (
+             <span className="text-[10px] text-muted-foreground/70">
+               {requiredEventCount} events
+             </span>
+           )}
          </div>
          <Button
            variant="ghost"
@@ -103,57 +114,75 @@
          </Button>
        </div>
        
-       <div className="p-3 space-y-2 flex-1 overflow-y-auto">
+       <div className="p-3 space-y-1.5 flex-1 overflow-y-auto">
          {scheduleByDay.length === 0 ? (
            <div className="text-center py-6">
              <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
              <p className="text-sm text-muted-foreground">No events scheduled</p>
            </div>
          ) : (
-           scheduleByDay.map((day) => (
-             <div 
-               key={day.dayIndex}
-               className={cn(
-                 "p-2.5 rounded-md border transition-all",
-                 day.dayIndex === today 
-                   ? "border-primary/40 bg-primary/5" 
-                   : "border-border/30 bg-muted/20"
-               )}
-             >
-               <div className="flex items-center gap-2 mb-1.5">
-                 <span className={cn(
-                   "text-[10px] font-bold px-1.5 py-0.5 rounded",
-                   day.dayIndex === today 
-                     ? "bg-primary text-primary-foreground" 
-                     : "bg-muted text-muted-foreground"
-                 )}>
-                   {day.short}
-                 </span>
-                 {day.dayIndex === today && (
-                   <span className="text-[10px] text-primary font-medium">Today</span>
+           scheduleByDay.map((day) => {
+             const isPast = day.dayIndex < today;
+             const isToday = day.dayIndex === today;
+             
+             return (
+               <div 
+                 key={day.dayIndex}
+                 className={cn(
+                   "p-2.5 rounded-md border transition-all",
+                   isToday 
+                     ? "border-primary/50 bg-primary/8 shadow-[0_0_12px_-4px_rgba(59,130,246,0.3)]" 
+                     : isPast
+                       ? "border-border/20 bg-muted/10 opacity-60"
+                       : "border-border/30 bg-muted/20"
                  )}
-               </div>
-               <div className="space-y-1">
-                 {day.items.map((item) => (
-                   <div key={item.id} className="flex items-start gap-1.5">
-                     <Clock className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
-                     <div className="flex-1 min-w-0">
-                       <div className="flex items-baseline gap-1.5">
-                         <span className="text-xs font-medium text-foreground truncate">
-                           {item.title}
-                         </span>
-                         {item.time_pst && (
-                           <span className="text-[10px] text-primary font-medium flex-shrink-0">
-                             {item.time_pst}
+               >
+                 <div className="flex items-center gap-2 mb-1.5">
+                   <span className={cn(
+                     "text-[10px] font-bold px-1.5 py-0.5 rounded",
+                     isToday 
+                       ? "bg-primary text-primary-foreground" 
+                       : isPast
+                         ? "bg-muted/50 text-muted-foreground/60"
+                         : "bg-muted text-muted-foreground"
+                   )}>
+                     {day.short}
+                   </span>
+                   {isToday && (
+                     <span className="text-[10px] text-primary font-medium">Today</span>
+                   )}
+                 </div>
+                 <div className="space-y-1">
+                   {day.items.map((item) => (
+                     <div key={item.id} className="flex items-start gap-1.5">
+                       <Clock className={cn(
+                         "w-3 h-3 mt-0.5 flex-shrink-0",
+                         isPast ? "text-muted-foreground/40" : "text-muted-foreground"
+                       )} />
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-baseline gap-1.5">
+                           <span className={cn(
+                             "text-xs font-medium truncate",
+                             isPast ? "text-muted-foreground/60" : "text-foreground"
+                           )}>
+                             {item.title}
                            </span>
-                         )}
+                           {item.time_pst && (
+                             <span className={cn(
+                               "text-[10px] font-medium flex-shrink-0",
+                               isPast ? "text-primary/40" : "text-primary"
+                             )}>
+                               {item.time_pst}
+                             </span>
+                           )}
+                         </div>
                        </div>
                      </div>
-                   </div>
-                 ))}
+                   ))}
+                 </div>
                </div>
-             </div>
-           ))
+             );
+           })
          )}
        </div>
      </div>
