@@ -69,22 +69,22 @@ export function AppSidebar() {
       )}
       collapsible="icon"
     >
-      {/* Header: Compact logo */}
+      {/* Header: Compact logo - Clickable Home Button */}
       <SidebarHeader className="px-3 pt-4 pb-3">
-        <div 
-          className="flex items-center gap-2 cursor-pointer"
+        <button 
+          className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-all duration-200 hover:bg-white/10 active:scale-95"
           onClick={() => navigate('/app')}
         >
           <Mountain className={cn(
-            "text-primary flex-shrink-0",
+            "text-primary flex-shrink-0 transition-colors",
             collapsed ? "w-5 h-5" : "w-4 h-4"
           )} />
           {!collapsed && (
-            <span className="text-sm font-black tracking-tight uppercase text-foreground/90">
+            <span className="text-sm font-black tracking-tight uppercase text-foreground/90 hover:text-primary transition-colors">
               Summit
             </span>
           )}
-        </div>
+        </button>
       </SidebarHeader>
 
       {/* Navigation - Tight spacing */}

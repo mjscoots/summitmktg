@@ -4,7 +4,8 @@ import {
   Users, 
   Calendar, 
   MessageSquare, 
-  TrendingUp
+  TrendingUp,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,13 +17,16 @@ interface QuickAction {
   label: string;
   shortLabel: string;
   onClick: () => void;
+  adminOnly?: boolean;
 }
 
 export function QuickActions() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, role } = useAuth();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+
+  const isAdmin = role === 'admin';
 
   // Navigate directly to user's team page
   const handleViewTeam = () => {
@@ -33,7 +37,7 @@ export function QuickActions() {
     }
   };
 
-  const actions: QuickAction[] = [
+  const allActions: QuickAction[] = [
     {
       icon: <Users className="w-4 h-4" />,
       label: 'View Full Team',
@@ -58,7 +62,17 @@ export function QuickActions() {
       shortLabel: 'Leaders',
       onClick: () => navigate('/app/leaderboard'),
     },
+    {
+      icon: <Settings className="w-4 h-4" />,
+      label: 'Training CMS',
+      shortLabel: 'CMS',
+      onClick: () => navigate('/app/admin/training'),
+      adminOnly: true,
+    },
   ];
+
+  // Filter actions based on user role
+  const actions = allActions.filter(action => !action.adminOnly || isAdmin);
 
   return (
     <>
@@ -77,7 +91,10 @@ export function QuickActions() {
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
                 "bg-card border border-border/50",
-                "text-muted-foreground hover:text-primary",
+                action.adminOnly 
+                  ? "text-primary border-primary/30 bg-primary/5" 
+                  : "text-muted-foreground",
+                "hover:text-primary",
                 "hover:border-primary/50 hover:bg-primary/5",
                 "transition-all duration-200",
                 "hover:-translate-y-0.5 hover:shadow-sm hover:shadow-primary/10"

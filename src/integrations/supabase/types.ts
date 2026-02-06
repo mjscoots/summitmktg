@@ -915,6 +915,101 @@ export type Database = {
         }
         Relationships: []
       }
+      training_content: {
+        Row: {
+          content_html: string | null
+          content_key: string
+          created_at: string | null
+          display_order: number | null
+          features_benefits: Json | null
+          id: string
+          is_active: boolean | null
+          last_edited_at: string | null
+          last_edited_by: string | null
+          section_type: string
+          title: string | null
+          updated_at: string | null
+          version: number | null
+          video_url: string | null
+        }
+        Insert: {
+          content_html?: string | null
+          content_key: string
+          created_at?: string | null
+          display_order?: number | null
+          features_benefits?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          section_type: string
+          title?: string | null
+          updated_at?: string | null
+          version?: number | null
+          video_url?: string | null
+        }
+        Update: {
+          content_html?: string | null
+          content_key?: string
+          created_at?: string | null
+          display_order?: number | null
+          features_benefits?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          section_type?: string
+          title?: string | null
+          updated_at?: string | null
+          version?: number | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      training_content_versions: {
+        Row: {
+          change_description: string | null
+          content_html_snapshot: string | null
+          content_id: string | null
+          edited_at: string | null
+          edited_by: string | null
+          features_benefits_snapshot: Json | null
+          id: string
+          version_number: number
+          video_url_snapshot: string | null
+        }
+        Insert: {
+          change_description?: string | null
+          content_html_snapshot?: string | null
+          content_id?: string | null
+          edited_at?: string | null
+          edited_by?: string | null
+          features_benefits_snapshot?: Json | null
+          id?: string
+          version_number: number
+          video_url_snapshot?: string | null
+        }
+        Update: {
+          change_description?: string | null
+          content_html_snapshot?: string | null
+          content_id?: string | null
+          edited_at?: string | null
+          edited_by?: string | null
+          features_benefits_snapshot?: Json | null
+          id?: string
+          version_number?: number
+          video_url_snapshot?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_content_versions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "training_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       training_courses: {
         Row: {
           created_at: string | null
