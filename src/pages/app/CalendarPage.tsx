@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
- import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { format, isFuture, isPast, isToday } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { AddToCalendarButton } from '@/components/calendar/AddToCalendarButton';
- import { WeeklyOutlook } from '@/components/calendar/WeeklyOutlook';
+import { WeeklyOutlook } from '@/components/calendar/WeeklyOutlook';
+import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,8 @@ interface CalendarEvent {
   is_team_wide: boolean;
   manager_id: string | null;
   created_by: string | null;
+  recurrence_type?: string | null;
+  recurrence_interval?: number | null;
 }
 
 interface Attendance {
@@ -53,6 +56,7 @@ export default function CalendarPage() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
   const isManager = role === 'manager' || role === 'admin';
 
@@ -299,6 +303,7 @@ export default function CalendarPage() {
          <WeeklyOutlook 
            events={upcomingEvents}
            userTeamId={profile?.team_id || null}
+           onEventClick={(event) => setSelectedEvent(event)}
          />
 
         {/* Upcoming Events */}
@@ -335,8 +340,9 @@ export default function CalendarPage() {
                 return (
                   <div
                     key={event.id}
+                    onClick={() => setSelectedEvent(event)}
                     className={cn(
-                      "p-5 rounded-lg border bg-card",
+                      "p-5 rounded-lg border bg-card cursor-pointer transition-all hover:border-primary/30",
                       isEventToday && "border-primary/50 bg-primary/5"
                     )}
                   >
@@ -547,6 +553,24 @@ export default function CalendarPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Event Details Modal */}
+        {selectedEvent && (
+          <EventDetailsModal
+            event={selectedEvent}
+            isOpen={!!selectedEvent}
+            onClose={() => setSelectedEvent(null)}
+            onEdit={(event) => {
+              setSelectedEvent(null);
+              handleEditEvent(event);
+            }}
+            onDelete={(eventId) => {
+              setSelectedEvent(null);
+              setDeleteEventId(eventId);
+            }}
+            canEdit={isManager && selectedEvent.manager_id === user?.id}
+          />
+        )}
       </main>
     </AppLayout>
   );
