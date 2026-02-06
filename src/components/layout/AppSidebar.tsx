@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain, MessageSquare } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +25,7 @@ const managerNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
+  { label: 'Weekly 1:1\'s', path: '/app/weekly-one-on-ones', icon: MessageSquare },
   { label: 'Teams', path: '/app/team', icon: Users },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },

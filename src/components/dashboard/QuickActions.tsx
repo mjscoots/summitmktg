@@ -5,7 +5,8 @@ import {
   Calendar, 
   MessageSquare, 
   TrendingUp,
-  Settings
+  Settings,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -55,6 +56,12 @@ export function QuickActions() {
       label: 'Send Update',
       shortLabel: 'Update',
       onClick: () => setIsAnnouncementModalOpen(true),
+    },
+    {
+      icon: <ClipboardList className="w-4 h-4" />,
+      label: 'Weekly 1:1',
+      shortLabel: '1:1',
+      onClick: () => navigate('/app/weekly-one-on-ones'),
     },
     {
       icon: <TrendingUp className="w-4 h-4" />,
