@@ -1273,6 +1273,123 @@ export type Database = {
           },
         ]
       }
+      weekly_one_on_ones_manager: {
+        Row: {
+          completed_mission: string
+          created_at: string
+          gethawx_review: string
+          id: string
+          interview_forms_check: string
+          interviewer_name: string
+          manager_improvement: string
+          manager_name: string
+          obstacles_encountered: string
+          obstacles_review: string
+          recruit_goal: string
+          rep_relationship: string
+          submitted_at: string
+          submitted_by: string
+          system_utilization_rating: number
+          team: string
+          team_development: Json
+          training_progress_check: string
+          upcoming_events: string
+          weekly_mission: string
+        }
+        Insert: {
+          completed_mission: string
+          created_at?: string
+          gethawx_review: string
+          id?: string
+          interview_forms_check: string
+          interviewer_name: string
+          manager_improvement: string
+          manager_name: string
+          obstacles_encountered: string
+          obstacles_review: string
+          recruit_goal: string
+          rep_relationship: string
+          submitted_at?: string
+          submitted_by: string
+          system_utilization_rating: number
+          team: string
+          team_development?: Json
+          training_progress_check: string
+          upcoming_events: string
+          weekly_mission: string
+        }
+        Update: {
+          completed_mission?: string
+          created_at?: string
+          gethawx_review?: string
+          id?: string
+          interview_forms_check?: string
+          interviewer_name?: string
+          manager_improvement?: string
+          manager_name?: string
+          obstacles_encountered?: string
+          obstacles_review?: string
+          recruit_goal?: string
+          rep_relationship?: string
+          submitted_at?: string
+          submitted_by?: string
+          system_utilization_rating?: number
+          team?: string
+          team_development?: Json
+          training_progress_check?: string
+          upcoming_events?: string
+          weekly_mission?: string
+        }
+        Relationships: []
+      }
+      weekly_one_on_ones_rookie: {
+        Row: {
+          big_win: string
+          completed_challenge: string
+          created_at: string
+          id: string
+          manager_name: string
+          pitch_work_needed: string
+          rookie_name: string
+          submitted_at: string
+          submitted_by: string
+          team: string
+          upcoming_activities: string
+          week_description: string
+          weekly_mission: string
+        }
+        Insert: {
+          big_win: string
+          completed_challenge: string
+          created_at?: string
+          id?: string
+          manager_name: string
+          pitch_work_needed: string
+          rookie_name: string
+          submitted_at?: string
+          submitted_by: string
+          team: string
+          upcoming_activities: string
+          week_description: string
+          weekly_mission: string
+        }
+        Update: {
+          big_win?: string
+          completed_challenge?: string
+          created_at?: string
+          id?: string
+          manager_name?: string
+          pitch_work_needed?: string
+          rookie_name?: string
+          submitted_at?: string
+          submitted_by?: string
+          team?: string
+          upcoming_activities?: string
+          week_description?: string
+          weekly_mission?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       quiz_questions_safe: {

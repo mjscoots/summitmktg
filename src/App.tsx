@@ -32,6 +32,7 @@ import InterviewsPage from "./pages/app/InterviewsPage";
 import Interview1Page from "./pages/app/Interview1Page";
 import Interview2Page from "./pages/app/Interview2Page";
 import Interview3Page from "./pages/app/Interview3Page";
+import WeeklyOneOnOnesPage from "./pages/app/WeeklyOneOnOnesPage";
 import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
 const queryClient = new QueryClient();
 
@@ -146,6 +147,13 @@ const queryClient = new QueryClient();
             <Route path="/app/interviews/3" element={
               <ProtectedRoute requiredRole="manager">
                 <Interview3Page />
+              </ProtectedRoute>
+            } />
+
+            {/* Weekly 1:1's */}
+            <Route path="/app/weekly-one-on-ones" element={
+              <ProtectedRoute requiredRole="manager">
+                <WeeklyOneOnOnesPage />
               </ProtectedRoute>
             } />
             
