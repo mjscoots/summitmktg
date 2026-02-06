@@ -1,7 +1,8 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import ForcePasswordChange from '@/components/auth/ForcePasswordChange';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -9,8 +10,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, role, profile } = useAuth();
+  const { isAuthenticated, isLoading, role, profile, user, refreshProfile } = useAuth();
   const location = useLocation();
+  const [passwordChanged, setPasswordChanged] = useState(false);
 
   if (isLoading) {
     return (
@@ -35,6 +37,20 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
           </p>
         </div>
       </div>
+    );
+  }
+
+  // Check if user needs to change password (first login)
+  // Only check if profile exists and password_changed is explicitly false
+  if (profile && profile.password_changed === false && !passwordChanged) {
+    return (
+      <ForcePasswordChange 
+        userEmail={profile.email || user?.email || ''} 
+        onComplete={() => {
+          setPasswordChanged(true);
+          refreshProfile();
+        }}
+      />
     );
   }
 
