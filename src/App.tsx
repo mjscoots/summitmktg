@@ -32,7 +32,7 @@ import InterviewsPage from "./pages/app/InterviewsPage";
 import Interview1Page from "./pages/app/Interview1Page";
 import Interview2Page from "./pages/app/Interview2Page";
 import Interview3Page from "./pages/app/Interview3Page";
-
+import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
 const queryClient = new QueryClient();
 
  // Inner app component to use hooks
@@ -143,11 +143,18 @@ const queryClient = new QueryClient();
                <Interview2Page />
              </ProtectedRoute>
            } />
-           <Route path="/app/interviews/3" element={
-             <ProtectedRoute requiredRole="manager">
-               <Interview3Page />
-             </ProtectedRoute>
-           } />
+            <Route path="/app/interviews/3" element={
+              <ProtectedRoute requiredRole="manager">
+                <Interview3Page />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin Training Editor */}
+            <Route path="/app/admin/training" element={
+              <ProtectedRoute requiredRole="manager">
+                <AdminTrainingEditor />
+              </ProtectedRoute>
+            } />
  
            {/* Catch-all */}
            <Route path="*" element={<NotFound />} />

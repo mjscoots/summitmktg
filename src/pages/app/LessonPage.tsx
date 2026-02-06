@@ -13,6 +13,7 @@ import { TeamScriptSelector } from '@/components/training/TeamScriptSelector';
 import { useStreak } from '@/hooks/useStreak';
 import { useScrollGate } from '@/hooks/useScrollGate';
 import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
+import { QuizResultsDisplay } from '@/components/training/QuizResultsDisplay';
 
 interface Lesson {
   id: string;
@@ -38,6 +39,23 @@ interface QuizQuestion {
   options: { id: string; text: string; isCorrect?: boolean }[] | null;
   display_order: number;
   correct_answer?: string;
+}
+
+interface QuizQuestionResult {
+  question_id: string;
+  question_text: string;
+  user_answer: string;
+  correct_answer: string;
+  is_correct: boolean;
+  explanation: string;
+}
+
+interface QuizResultData {
+  passed: boolean;
+  score: number;
+  correct: number;
+  total: number;
+  results: QuizQuestionResult[];
 }
 
 // Rookie courses always use green
@@ -79,7 +97,7 @@ export default function LessonPage() {
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [quizResult, setQuizResult] = useState<{ passed: boolean } | null>(null);
+  const [quizResult, setQuizResult] = useState<QuizResultData | null>(null);
   const [lessonCompleted, setLessonCompleted] = useState(false);
   
   // Celebration state
@@ -270,7 +288,7 @@ export default function LessonPage() {
     fetchLesson();
   }, [lessonId, user, courseSlug, navigate, recordActivity]);
 
-  // Quiz submission
+  // Quiz submission - with detailed results
   const handleSubmitQuiz = async () => {
     const unansweredCount = questions.length - Object.keys(answers).length;
     if (unansweredCount > 0) {
@@ -287,34 +305,101 @@ export default function LessonPage() {
       });
 
       if (error) {
-        setQuizResult({ passed: true });
-        setLessonCompleted(true);
-        recordActivity();
+        console.error('Quiz submission error:', error);
+        toast.error('Failed to submit quiz');
         return;
       }
 
-      const result = data as { passed?: boolean } | null;
-      const passed = result?.passed ?? true;
+      const result = data as unknown as QuizResultData | null;
       
-      setQuizResult({ passed });
+      if (result) {
+        setQuizResult(result);
 
-      if (passed) {
-        setLessonCompleted(true);
-        recordActivity();
+        if (result.passed) {
+          setLessonCompleted(true);
+          recordActivity();
+          toast.success('🎉 Quiz passed! 100% correct!');
+          
+          // Send notification to manager (fire and forget)
+          notifyManagerOfQuizCompletion(result.score, result.correct, result.total);
+        } else {
+          toast.error(`You need 100% to pass. You got ${result.score}%`);
+        }
       }
-    } catch {
-      setQuizResult({ passed: true });
-      setLessonCompleted(true);
-      recordActivity();
+    } catch (err) {
+      console.error('Quiz error:', err);
+      toast.error('Something went wrong');
+    }
+  };
+
+  // Notify manager when quiz is passed
+  const notifyManagerOfQuizCompletion = async (score: number, correct: number, total: number) => {
+    if (!user || !lesson || !moduleInfo) return;
+    
+    try {
+      // Get user profile to find manager
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('full_name, direct_manager, team_id')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (!userProfile?.direct_manager) return;
+      
+      // Find manager's user_id
+      const { data: managerProfile } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('full_name', userProfile.direct_manager)
+        .single();
+      
+      if (!managerProfile) return;
+      
+      // Create notification for manager
+      await supabase.from('user_notifications').insert({
+        user_id: managerProfile.user_id,
+        title: `🎓 ${userProfile.full_name} passed quiz`,
+        message: `${userProfile.full_name} completed "${lesson.title}" quiz with ${score}% (${correct}/${total} correct).`,
+        link: `/app/team`,
+      });
+      
+      // Also notify pillar leader if different from direct manager
+      if (userProfile.team_id) {
+        const { data: team } = await supabase
+          .from('teams')
+          .select('leader_id')
+          .eq('id', userProfile.team_id)
+          .single();
+        
+        if (team?.leader_id && team.leader_id !== managerProfile.user_id) {
+          await supabase.from('user_notifications').insert({
+            user_id: team.leader_id,
+            title: `🎓 ${userProfile.full_name} passed quiz`,
+            message: `${userProfile.full_name} completed "${lesson.title}" quiz with ${score}% (${correct}/${total} correct).`,
+            link: `/app/team`,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to notify manager:', err);
+      // Don't fail the quiz submission if notification fails
     }
   };
 
   // Handle back to lesson after failure
+  // Handle back to lesson after failure (review material)
   const handleBackToLesson = () => {
     setShowQuiz(false);
     setQuizResult(null);
     setAnswers({});
     resetGate();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle immediate retake (stay in quiz view, just reset answers)
+  const handleRetakeQuiz = () => {
+    setQuizResult(null);
+    setAnswers({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -633,47 +718,19 @@ export default function LessonPage() {
             </h2>
 
             {quizResult ? (
-              /* Quiz Result */
-              <div className={cn(
-                "p-5 rounded-lg text-center",
-                quizResult.passed 
-                  ? 'bg-green-500/10 border border-green-500/20' 
-                  : 'bg-amber-500/10 border border-amber-500/20'
-              )}>
-                <h3 className={cn(
-                  "text-lg font-semibold mb-3",
-                  quizResult.passed ? 'text-green-400' : 'text-amber-400'
-                )}>
-                  {quizResult.passed ? 'Quiz Passed!' : 'Quiz not passed. Review the lesson and try again.'}
-                </h3>
-                
-                {quizResult.passed ? (
-                  <Button 
-                    onClick={handleNext}
-                    className={cn(
-                      "font-semibold h-10",
-                      isRookieCourse 
-                        ? "bg-green-500 hover:bg-green-600" 
-                        : "bg-blue-500 hover:bg-blue-600"
-                    )}
-                  >
-                    {isLastLesson ? 'Complete' : 'Next'}
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handleBackToLesson}
-                    className={cn(
-                      "font-semibold h-10",
-                      isRookieCourse 
-                        ? "bg-green-500 hover:bg-green-600" 
-                        : "bg-blue-500 hover:bg-blue-600"
-                    )}
-                  >
-                    Back to Lesson
-                  </Button>
-                )}
-              </div>
+              /* Quiz Result with detailed feedback */
+              <QuizResultsDisplay
+                passed={quizResult.passed}
+                score={quizResult.score}
+                correct={quizResult.correct}
+                total={quizResult.total}
+                results={quizResult.results || []}
+                isRookieCourse={isRookieCourse}
+                isLastLesson={isLastLesson}
+                onNext={handleNext}
+                onRetake={handleRetakeQuiz}
+                onReviewMaterial={handleBackToLesson}
+              />
             ) : (
               /* Quiz Questions */
               <div className="space-y-4">
