@@ -60,7 +60,15 @@ export default function CalendarPage() {
     if (!user) return;
 
     try {
-      // Fetch all events (RLS will filter appropriately)
+      // Fetch events assigned to this user
+      const { data: userAssignments } = await supabase
+        .from('calendar_event_assignees')
+        .select('event_id')
+        .eq('user_id', user.id);
+
+      const assignedEventIds = (userAssignments || []).map(a => a.event_id);
+
+      // Fetch all events
       const { data: eventsData, error: eventsError } = await supabase
         .from('calendar_events')
         .select('*')
@@ -71,7 +79,18 @@ export default function CalendarPage() {
         return;
       }
 
-      setEvents(eventsData || []);
+      // Filter events: show if team_wide OR assigned to user OR created by user
+      const filteredEvents = (eventsData || []).filter(event => {
+        // User created the event
+        if (event.created_by === user.id || event.manager_id === user.id) return true;
+        // Team-wide event
+        if (event.is_team_wide) return true;
+        // User is specifically assigned
+        if (assignedEventIds.includes(event.id)) return true;
+        return false;
+      });
+
+      setEvents(filteredEvents);
 
       // Fetch user's own attendance
       const { data: userAttendanceData } = await supabase
