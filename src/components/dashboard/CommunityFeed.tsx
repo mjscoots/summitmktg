@@ -40,19 +40,21 @@
    isAdmin?: boolean;
  }
  
- export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFeedProps) {
-   const { role, user } = useAuth();
-   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-   const [teams, setTeams] = useState<Team[]>([]);
-   const [isLoading, setIsLoading] = useState(true);
-   const [isCreateOpen, setIsCreateOpen] = useState(false);
-   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
-   const [newTitle, setNewTitle] = useState('');
-   const [newContent, setNewContent] = useState('');
-   const [isPinned, setIsPinned] = useState(false);
-   const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
-   const [isAllTeams, setIsAllTeams] = useState(true);
-   const [isSubmitting, setIsSubmitting] = useState(false);
+export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFeedProps) {
+  const { role, user } = useAuth();
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
+  const [newTitle, setNewTitle] = useState('');
+  const [newContent, setNewContent] = useState('');
+  const [isPinned, setIsPinned] = useState(false);
+  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
+  const [audienceType, setAudienceType] = useState<'everyone' | 'managers_only' | 'teams'>('everyone');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isManager = role === 'manager' || role === 'admin';
  
    useEffect(() => {
      const fetchTeams = async () => {
@@ -119,47 +121,59 @@
      fetchAnnouncements();
    }, [role]);
  
-   const resetForm = () => {
-     setNewTitle('');
-     setNewContent('');
-     setIsPinned(false);
-     setSelectedTeamIds([]);
-     setIsAllTeams(true);
-     setIsCreateOpen(false);
-     setEditingAnnouncement(null);
-   };
+  const resetForm = () => {
+    setNewTitle('');
+    setNewContent('');
+    setIsPinned(false);
+    setSelectedTeamIds([]);
+    setAudienceType('everyone');
+    setIsCreateOpen(false);
+    setEditingAnnouncement(null);
+  };
  
    const handleSaveAnnouncement = async () => {
      if (!newTitle.trim() || !newContent.trim()) {
        toast.error('Please fill in all fields');
        return;
      }
-     setIsSubmitting(true);
-     try {
-       if (editingAnnouncement) {
-         const { error } = await supabase
-           .from('announcements')
-           .update({
-             title: newTitle.trim(),
-             content: newContent.trim(),
-             is_pinned: isPinned,
-             team_ids: isAllTeams ? null : selectedTeamIds.length > 0 ? selectedTeamIds : null,
-           })
-           .eq('id', editingAnnouncement.id);
+    setIsSubmitting(true);
+    try {
+      // Determine target_role based on audience type
+      let targetRole: 'manager' | null = null;
+      let teamIds: string[] | null = null;
+
+      if (audienceType === 'managers_only') {
+        targetRole = 'manager';
+      } else if (audienceType === 'teams' && selectedTeamIds.length > 0) {
+        teamIds = selectedTeamIds;
+      }
+
+      if (editingAnnouncement) {
+        const { error } = await supabase
+          .from('announcements')
+          .update({
+            title: newTitle.trim(),
+            content: newContent.trim(),
+            is_pinned: isPinned,
+            target_role: targetRole,
+            team_ids: teamIds,
+          })
+          .eq('id', editingAnnouncement.id);
          
          if (error) {
            toast.error('Failed to update announcement');
            return;
          }
          toast.success('Updated!');
-       } else {
-         const { error } = await supabase.from('announcements').insert({
-           title: newTitle.trim(),
-           content: newContent.trim(),
-           is_pinned: isPinned,
-           author_id: user?.id,
-           team_ids: isAllTeams ? null : selectedTeamIds.length > 0 ? selectedTeamIds : null,
-         });
+      } else {
+        const { error } = await supabase.from('announcements').insert({
+          title: newTitle.trim(),
+          content: newContent.trim(),
+          is_pinned: isPinned,
+          author_id: user?.id,
+          target_role: targetRole,
+          team_ids: teamIds,
+        });
          if (error) {
            toast.error('Failed to create announcement');
            return;
@@ -198,15 +212,22 @@
      }
    };
  
-   const handleEdit = (announcement: Announcement) => {
-     setEditingAnnouncement(announcement);
-     setNewTitle(announcement.title);
-     setNewContent(announcement.content);
-     setIsPinned(announcement.is_pinned);
-     setSelectedTeamIds(announcement.team_ids || []);
-     setIsAllTeams(!announcement.team_ids || announcement.team_ids.length === 0);
-     setIsCreateOpen(true);
-   };
+  const handleEdit = (announcement: Announcement) => {
+    setEditingAnnouncement(announcement);
+    setNewTitle(announcement.title);
+    setNewContent(announcement.content);
+    setIsPinned(announcement.is_pinned);
+    setSelectedTeamIds(announcement.team_ids || []);
+    // Determine audience type from announcement
+    if (announcement.target_role === 'manager') {
+      setAudienceType('managers_only');
+    } else if (announcement.team_ids && announcement.team_ids.length > 0) {
+      setAudienceType('teams');
+    } else {
+      setAudienceType('everyone');
+    }
+    setIsCreateOpen(true);
+  };
  
    const handleDelete = async (id: string) => {
      try {
@@ -288,30 +309,55 @@
                        Pin
                      </button>
                    </div>
-                   {isAdmin && (
+                   {isManager && (
                      <div className="border-t border-border pt-3">
-                       <label className="block text-xs font-medium mb-2 text-muted-foreground">Post To</label>
-                       <div className="flex gap-3">
-                         <label className="flex items-center gap-1.5 cursor-pointer text-xs">
-                           <input
-                             type="radio"
-                             checked={isAllTeams}
-                             onChange={() => setIsAllTeams(true)}
-                             className="accent-primary w-3 h-3"
-                           />
-                           All Teams
-                         </label>
-                         <label className="flex items-center gap-1.5 cursor-pointer text-xs">
-                           <input
-                             type="radio"
-                             checked={!isAllTeams}
-                             onChange={() => setIsAllTeams(false)}
-                             className="accent-primary w-3 h-3"
-                           />
-                           Select Teams
-                         </label>
+                       <label className="block text-xs font-medium mb-2 text-muted-foreground">Who should see this?</label>
+                       <div className="flex gap-2 flex-wrap">
+                         <button
+                           type="button"
+                           onClick={() => setAudienceType('everyone')}
+                           className={cn(
+                             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-colors",
+                             audienceType === 'everyone'
+                               ? "border-primary bg-primary/10 text-primary"
+                               : "border-border text-muted-foreground hover:text-foreground"
+                           )}
+                         >
+                           Everyone
+                         </button>
+                         <button
+                           type="button"
+                           onClick={() => setAudienceType('managers_only')}
+                           className={cn(
+                             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-colors",
+                             audienceType === 'managers_only'
+                               ? "border-primary bg-primary/10 text-primary"
+                               : "border-border text-muted-foreground hover:text-foreground"
+                           )}
+                         >
+                           Managers Only
+                         </button>
+                         {isAdmin && (
+                           <button
+                             type="button"
+                             onClick={() => setAudienceType('teams')}
+                             className={cn(
+                               "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-colors",
+                               audienceType === 'teams'
+                                 ? "border-primary bg-primary/10 text-primary"
+                                 : "border-border text-muted-foreground hover:text-foreground"
+                             )}
+                           >
+                             Select Teams
+                           </button>
+                         )}
                        </div>
-                       {!isAllTeams && (
+                       <p className="text-[10px] text-muted-foreground mt-1.5">
+                         {audienceType === 'everyone' && 'All managers and rookies will see this'}
+                         {audienceType === 'managers_only' && 'Only managers will see this (no rookies)'}
+                         {audienceType === 'teams' && 'Only selected team members will see this'}
+                       </p>
+                       {audienceType === 'teams' && isAdmin && (
                          <div className="mt-2 max-h-24 overflow-y-auto space-y-1 bg-muted/30 p-2 rounded-md">
                            {teams.map(team => (
                              <label key={team.id} className="flex items-center gap-2 p-1 hover:bg-muted rounded cursor-pointer text-xs">
