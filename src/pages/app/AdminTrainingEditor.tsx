@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,12 +16,16 @@ import {
   Trash2,
   ArrowLeft,
   GripVertical,
+  Crown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+
+// Lazy load the rich text editor to avoid SSR issues
+const RichTextEditor = lazy(() => import('@/components/admin/RichTextEditor').then(m => ({ default: m.RichTextEditor })));
 
 interface Course {
   id: string;
@@ -348,9 +352,12 @@ export default function AdminTrainingEditor() {
             </button>
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Book className="w-5 h-5 text-primary" />
-              Training Editor
+              Training CMS
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">Admin Content Management</p>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <Crown className="w-3 h-3 text-primary" />
+              Admin Content Editor
+            </p>
           </div>
           
           {/* Course List */}
@@ -505,17 +512,23 @@ export default function AdminTrainingEditor() {
                     )}
                   </div>
                   
-                  {/* Content */}
+                  {/* Content - Rich Text Editor */}
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Lesson Content (Markdown/HTML)</label>
-                    <Textarea
-                      value={editingContent}
-                      onChange={(e) => setEditingContent(e.target.value)}
-                      placeholder="Enter lesson content..."
-                      className="min-h-[400px] font-mono text-sm"
-                    />
+                    <label className="block text-sm font-medium mb-1.5">Lesson Content</label>
+                    <Suspense fallback={
+                      <div className="min-h-[400px] flex items-center justify-center bg-muted rounded-lg border">
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      </div>
+                    }>
+                      <RichTextEditor
+                        value={editingContent}
+                        onChange={setEditingContent}
+                        placeholder="Enter lesson content with rich formatting..."
+                        minHeight="400px"
+                      />
+                    </Suspense>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Supports HTML tags for formatting
+                      Use the toolbar for formatting. Supports images, videos, and links.
                     </p>
                   </div>
                   
