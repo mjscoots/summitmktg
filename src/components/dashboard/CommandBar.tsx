@@ -1,16 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, Flame, Users, UserPlus } from 'lucide-react';
+import { Play, Flame, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useStreak } from '@/hooks/useStreak';
-import { useRepSignups } from '@/hooks/useRepSignups';
+import { TrainingProgressBadge } from '@/components/layout/TrainingProgressBadge';
 import { cn } from '@/lib/utils';
 
 export function CommandBar() {
   const navigate = useNavigate();
   const { role } = useAuth();
   const { streakData } = useStreak();
-  const { signedThisWeek } = useRepSignups();
   const isManager = role === 'manager' || role === 'admin';
 
   return (
@@ -63,14 +62,8 @@ export function CommandBar() {
           </div>
         </div>
 
-        {/* Signed This Week - Now uses real data */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border/50 bg-secondary">
-          <Users className="w-4 h-4 text-primary" />
-          <div className="text-sm">
-            <span className="font-bold text-foreground">{signedThisWeek}</span>
-            <span className="text-muted-foreground ml-1">Signed This Week</span>
-          </div>
-        </div>
+        {/* Personal Training Progress - Replaces "Signed This Week" */}
+        <TrainingProgressBadge variant="full" />
       </div>
     </div>
   );
