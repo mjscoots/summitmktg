@@ -14,6 +14,8 @@ import { Card } from '@/components/ui/card';
 import { Loader2, MessageSquare, User, UserCheck, Filter, X, Calendar } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, subWeeks, startOfMonth } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { UserAutocomplete } from '@/components/one-on-one/UserAutocomplete';
+import { createTasksFromRookieForm, createTasksFromManagerForm } from '@/hooks/usePriorityTasks';
 
 interface Team {
   id: string;
@@ -22,6 +24,7 @@ interface Team {
 
 interface RookieFormData {
   rookie_name: string;
+  rookie_user_id: string | null;
   manager_name: string;
   team: string;
   week_description: string;
@@ -34,6 +37,7 @@ interface RookieFormData {
 
 interface ManagerFormData {
   manager_name: string;
+  manager_user_id: string | null;
   interviewer_name: string;
   team: string;
   rep_relationship: string;
@@ -65,6 +69,7 @@ interface ResponseItem {
 
 const initialRookieForm: RookieFormData = {
   rookie_name: '',
+  rookie_user_id: null,
   manager_name: '',
   team: '',
   week_description: '',
@@ -77,6 +82,7 @@ const initialRookieForm: RookieFormData = {
 
 const initialManagerForm: ManagerFormData = {
   manager_name: '',
+  manager_user_id: null,
   interviewer_name: '',
   team: '',
   rep_relationship: '',
@@ -183,21 +189,57 @@ function RookieManagerForm({
   });
   const [submitting, setSubmitting] = useState(false);
 
+  const handleRookieNameChange = (name: string, userId: string | null) => {
+    setFormData(prev => ({
+      ...prev,
+      rookie_name: name,
+      rookie_user_id: userId
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
 
+    if (!formData.rookie_user_id) {
+      toast.error('Please select a valid rookie from the suggestions');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('weekly_one_on_ones_rookie').insert({
-        ...formData,
-        submitted_by: userId,
-        submitted_at: new Date().toISOString()
-      });
+      // Insert the form submission
+      const { data: submission, error } = await supabase
+        .from('weekly_one_on_ones_rookie')
+        .insert({
+          rookie_name: formData.rookie_name,
+          rookie_user_id: formData.rookie_user_id,
+          manager_name: formData.manager_name,
+          team: formData.team,
+          week_description: formData.week_description,
+          big_win: formData.big_win,
+          completed_challenge: formData.completed_challenge,
+          upcoming_activities: formData.upcoming_activities,
+          pitch_work_needed: formData.pitch_work_needed,
+          weekly_mission: formData.weekly_mission,
+          submitted_by: userId,
+          submitted_at: new Date().toISOString()
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
 
-      toast.success('Rookie 1:1 form submitted successfully!');
+      // Create tasks for the rookie
+      const tasksCreated = await createTasksFromRookieForm(
+        formData.rookie_user_id,
+        submission.id,
+        userId,
+        formData.pitch_work_needed,
+        formData.weekly_mission
+      );
+
+      toast.success(`Rookie 1:1 submitted! ${tasksCreated} tasks created for ${formData.rookie_name}`);
       setFormData({ ...initialRookieForm, manager_name: profile?.full_name || '' });
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -219,18 +261,23 @@ function RookieManagerForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Rookie Name */}
+        {/* Rookie Name - Autocomplete */}
         <div className="space-y-2">
           <Label htmlFor="rookie_name">
             Name of Rookie <span className="text-destructive">*</span>
           </Label>
-          <Input
+          <UserAutocomplete
             id="rookie_name"
             value={formData.rookie_name}
-            onChange={e => setFormData({ ...formData, rookie_name: e.target.value })}
-            placeholder="Enter rookie's full name"
+            selectedUserId={formData.rookie_user_id}
+            onChange={handleRookieNameChange}
+            placeholder="Start typing rookie's name..."
+            filterRole="rookie"
             required
           />
+          <p className="text-xs text-muted-foreground">
+            Tasks will be automatically created for this rookie based on your responses
+          </p>
         </div>
 
         {/* Manager Name */}
@@ -343,6 +390,9 @@ function RookieManagerForm({
           <p className="text-xs text-muted-foreground">
             Remember the compliment sandwich: praise, correction, praise.
           </p>
+          <p className="text-xs text-primary font-medium">
+            📋 This will become a daily task in their Today's Priorities
+          </p>
           <Textarea
             id="pitch_work_needed"
             value={formData.pitch_work_needed}
@@ -358,6 +408,9 @@ function RookieManagerForm({
           <Label htmlFor="weekly_mission">
             Give a mission to complete for the week? <span className="text-destructive">*</span>
           </Label>
+          <p className="text-xs text-primary font-medium">
+            📋 This will become a daily task in their Today's Priorities
+          </p>
           <Textarea
             id="weekly_mission"
             value={formData.weekly_mission}
@@ -398,27 +451,69 @@ function ManagerForm({
 }) {
   const [formData, setFormData] = useState<ManagerFormData>({
     ...initialManagerForm,
-    manager_name: profile?.full_name || ''
+    interviewer_name: profile?.full_name || ''
   });
   const [submitting, setSubmitting] = useState(false);
+
+  const handleManagerNameChange = (name: string, userId: string | null) => {
+    setFormData(prev => ({
+      ...prev,
+      manager_name: name,
+      manager_user_id: userId
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
 
+    if (!formData.manager_user_id) {
+      toast.error('Please select a valid manager from the suggestions');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('weekly_one_on_ones_manager').insert({
-        ...formData,
-        team_development: formData.team_development,
-        submitted_by: userId,
-        submitted_at: new Date().toISOString()
-      });
+      // Insert the form submission
+      const { data: submission, error } = await supabase
+        .from('weekly_one_on_ones_manager')
+        .insert({
+          manager_name: formData.manager_name,
+          manager_user_id: formData.manager_user_id,
+          interviewer_name: formData.interviewer_name,
+          team: formData.team,
+          rep_relationship: formData.rep_relationship,
+          obstacles_encountered: formData.obstacles_encountered,
+          obstacles_review: formData.obstacles_review,
+          completed_mission: formData.completed_mission,
+          weekly_mission: formData.weekly_mission,
+          recruit_goal: formData.recruit_goal,
+          gethawx_review: formData.gethawx_review,
+          training_progress_check: formData.training_progress_check,
+          interview_forms_check: formData.interview_forms_check,
+          upcoming_events: formData.upcoming_events,
+          team_development: formData.team_development,
+          system_utilization_rating: formData.system_utilization_rating,
+          manager_improvement: formData.manager_improvement,
+          submitted_by: userId,
+          submitted_at: new Date().toISOString()
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
 
-      toast.success('Manager 1:1 form submitted successfully!');
-      setFormData({ ...initialManagerForm, manager_name: profile?.full_name || '' });
+      // Create tasks for the manager
+      const tasksCreated = await createTasksFromManagerForm(
+        formData.manager_user_id,
+        submission.id,
+        userId,
+        formData.weekly_mission,
+        formData.recruit_goal
+      );
+
+      toast.success(`Manager 1:1 submitted! ${tasksCreated} tasks created for ${formData.manager_name}`);
+      setFormData({ ...initialManagerForm, interviewer_name: profile?.full_name || '' });
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Failed to submit form');
@@ -448,17 +543,23 @@ function ManagerForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Manager Name */}
+        {/* Manager Name - Autocomplete */}
         <div className="space-y-2">
           <Label htmlFor="manager_name_mgr">
             Full Name <span className="text-destructive">*</span>
           </Label>
-          <Input
+          <UserAutocomplete
             id="manager_name_mgr"
             value={formData.manager_name}
-            onChange={e => setFormData({ ...formData, manager_name: e.target.value })}
+            selectedUserId={formData.manager_user_id}
+            onChange={handleManagerNameChange}
+            placeholder="Start typing manager's name..."
+            filterRole="manager"
             required
           />
+          <p className="text-xs text-muted-foreground">
+            Tasks will be automatically created for this manager based on your responses
+          </p>
         </div>
 
         {/* Interviewer Name */}
@@ -568,6 +669,9 @@ function ManagerForm({
           <Label htmlFor="weekly_mission_mgr">
             This week's mission: <span className="text-destructive">*</span>
           </Label>
+          <p className="text-xs text-primary font-medium">
+            📋 This will become a daily task in their Today's Priorities
+          </p>
           <Textarea
             id="weekly_mission_mgr"
             value={formData.weekly_mission}
@@ -582,6 +686,9 @@ function ManagerForm({
           <Label htmlFor="recruit_goal">
             What is your goal for new recruits this week? <span className="text-destructive">*</span>
           </Label>
+          <p className="text-xs text-primary font-medium">
+            📋 This will become a daily task in their Today's Priorities
+          </p>
           <Input
             id="recruit_goal"
             value={formData.recruit_goal}

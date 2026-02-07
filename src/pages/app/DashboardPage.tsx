@@ -10,8 +10,10 @@ import { AICoachChat } from '@/components/dashboard/AICoachChat';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
 import { QuickActions } from '@/components/dashboard/QuickActions';
+import { OneOnOneTasks } from '@/components/dashboard/OneOnOneTasks';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Play, BookOpen } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
  
  export default function DashboardPage() {
    const navigate = useNavigate();
@@ -92,6 +94,19 @@ import { UserPlus, Play, BookOpen } from 'lucide-react';
           </div>
         )}
  
+         {/* Tasks from Weekly 1:1 (for rookies) */}
+         {!isManager && (
+           <Card className="mb-4">
+             <div className="p-3 border-b border-border/30">
+               <div className="flex items-center gap-2">
+                 <MessageSquare className="w-4 h-4 text-primary" />
+                 <h2 className="font-semibold text-sm text-foreground">From Your 1:1</h2>
+               </div>
+             </div>
+             <OneOnOneTasks />
+           </Card>
+         )}
+
          {/* Daily Checklist */}
          <div className="mb-4">
            <DailyChecklist />

@@ -1,13 +1,14 @@
- import { useState } from 'react';
- import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamData } from '@/hooks/useTeamData';
-  import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Clock, Flame } from 'lucide-react';
+import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Clock, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
- import { UserAvatar } from '@/components/shared/UserAvatar';
- import { MemberProfileModal } from '@/components/team/MemberProfileModal';
-  import { formatLastActive } from '@/hooks/useActivityTracking';
- import type { TeamMember } from '@/lib/hierarchyUtils';
+import { UserAvatar } from '@/components/shared/UserAvatar';
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { formatLastActive } from '@/hooks/useActivityTracking';
+import type { TeamMember } from '@/lib/hierarchyUtils';
+import { OneOnOneTasks } from './OneOnOneTasks';
 
  // Extended TeamMember type with avatar for local use
  interface TeamMemberWithAvatar extends TeamMember {
@@ -210,6 +211,9 @@ export function TodaysPriorities() {
            </div>
          </div>
        )}
+
+       {/* Tasks from Weekly 1:1's */}
+       <OneOnOneTasks />
  
        {/* Member Profile Modal */}
        <MemberProfileModal

@@ -1217,6 +1217,57 @@ export type Database = {
           },
         ]
       }
+      user_priority_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          is_completed: boolean
+          recurs_daily: boolean
+          replaced_at: string | null
+          source_form_id: string
+          source_form_type: Database["public"]["Enums"]["source_form_type"]
+          task_description: string
+          task_title: string
+          task_type: Database["public"]["Enums"]["priority_task_type"]
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          is_completed?: boolean
+          recurs_daily?: boolean
+          replaced_at?: string | null
+          source_form_id: string
+          source_form_type: Database["public"]["Enums"]["source_form_type"]
+          task_description: string
+          task_title: string
+          task_type: Database["public"]["Enums"]["priority_task_type"]
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          is_completed?: boolean
+          recurs_daily?: boolean
+          replaced_at?: string | null
+          source_form_id?: string
+          source_form_type?: Database["public"]["Enums"]["source_form_type"]
+          task_description?: string
+          task_title?: string
+          task_type?: Database["public"]["Enums"]["priority_task_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1283,6 +1334,7 @@ export type Database = {
           interviewer_name: string
           manager_improvement: string
           manager_name: string
+          manager_user_id: string | null
           obstacles_encountered: string
           obstacles_review: string
           recruit_goal: string
@@ -1305,6 +1357,7 @@ export type Database = {
           interviewer_name: string
           manager_improvement: string
           manager_name: string
+          manager_user_id?: string | null
           obstacles_encountered: string
           obstacles_review: string
           recruit_goal: string
@@ -1327,6 +1380,7 @@ export type Database = {
           interviewer_name?: string
           manager_improvement?: string
           manager_name?: string
+          manager_user_id?: string | null
           obstacles_encountered?: string
           obstacles_review?: string
           recruit_goal?: string
@@ -1351,6 +1405,7 @@ export type Database = {
           manager_name: string
           pitch_work_needed: string
           rookie_name: string
+          rookie_user_id: string | null
           submitted_at: string
           submitted_by: string
           team: string
@@ -1366,6 +1421,7 @@ export type Database = {
           manager_name: string
           pitch_work_needed: string
           rookie_name: string
+          rookie_user_id?: string | null
           submitted_at?: string
           submitted_by: string
           team: string
@@ -1381,6 +1437,7 @@ export type Database = {
           manager_name?: string
           pitch_work_needed?: string
           rookie_name?: string
+          rookie_user_id?: string | null
           submitted_at?: string
           submitted_by?: string
           team?: string
@@ -1511,6 +1568,12 @@ export type Database = {
     Enums: {
       app_role: "rookie" | "manager" | "admin"
       experience_level: "rookie" | "veteran"
+      priority_task_type:
+        | "pitch_work"
+        | "weekly_mission"
+        | "manager_mission"
+        | "recruit_goal"
+      source_form_type: "rookie_1_on_1" | "manager_1_on_1"
       user_status:
         | "active"
         | "contract_signed"
@@ -1646,6 +1709,13 @@ export const Constants = {
     Enums: {
       app_role: ["rookie", "manager", "admin"],
       experience_level: ["rookie", "veteran"],
+      priority_task_type: [
+        "pitch_work",
+        "weekly_mission",
+        "manager_mission",
+        "recruit_goal",
+      ],
+      source_form_type: ["rookie_1_on_1", "manager_1_on_1"],
       user_status: [
         "active",
         "contract_signed",
