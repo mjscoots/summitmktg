@@ -470,7 +470,7 @@ function ManagerForm({
             id="interviewer_name"
             value={formData.interviewer_name}
             onChange={e => setFormData({ ...formData, interviewer_name: e.target.value })}
-            placeholder="Person conducting the interview"
+            placeholder="Person conducting the 1:1"
             required
           />
         </div>
