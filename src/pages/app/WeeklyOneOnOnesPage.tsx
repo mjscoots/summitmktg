@@ -464,7 +464,7 @@ function ManagerForm({
         {/* Interviewer Name */}
         <div className="space-y-2">
           <Label htmlFor="interviewer_name">
-            Name of Interviewer <span className="text-destructive">*</span>
+            Name of Manager <span className="text-destructive">*</span>
           </Label>
           <Input
             id="interviewer_name"
