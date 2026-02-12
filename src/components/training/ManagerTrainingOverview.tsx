@@ -5,6 +5,10 @@ import { cn } from '@/lib/utils';
 import { Users, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+interface ManagerTrainingOverviewProps {
+  teamId?: string;
+}
+
 interface RepProgress {
   userId: string;
   name: string;
@@ -17,7 +21,7 @@ interface RepProgress {
 
 type SortMode = 'highest' | 'lowest' | 'recent';
 
-export function ManagerTrainingOverview() {
+export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps = {}) {
   const { user, role } = useAuth();
   const [reps, setReps] = useState<RepProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,23 +34,53 @@ export function ManagerTrainingOverview() {
       if (!user?.id || !isManager) return;
 
       try {
-        // Get current user's profile for name-based downline
-        const { data: myProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        let rookieReps: { user_id: string; full_name: string }[] = [];
 
-        if (!myProfile) { setIsLoading(false); return; }
+        if (teamId) {
+          // Team-specific: get all profiles on this team that are rookies
+          const { data: teamProfiles } = await supabase
+            .from('profiles')
+            .select('user_id, full_name')
+            .eq('team_id', teamId)
+            .neq('status', 'nlc');
 
-        // Get downline reps
-        const { data: downline } = await supabase
-          .rpc('get_user_downline', { _manager_name: myProfile.full_name });
+          if (!teamProfiles || teamProfiles.length === 0) { setIsLoading(false); return; }
 
-        if (!downline || downline.length === 0) { setIsLoading(false); return; }
+          // Get roles to filter rookies
+          const userIds = teamProfiles.map(p => p.user_id);
+          const { data: rolesData } = await supabase
+            .from('user_roles')
+            .select('user_id, role')
+            .in('user_id', userIds);
 
-        // Get rookie reps only
-        const rookieReps = downline.filter(d => d.role === 'rookie');
+          const managerIds = new Set(
+            (rolesData || []).filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id)
+          );
+
+          rookieReps = teamProfiles
+            .filter(p => !managerIds.has(p.user_id))
+            .map(p => ({ user_id: p.user_id, full_name: p.full_name }));
+        } else {
+          // Downline-based (original behavior)
+          const { data: myProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (!myProfile) { setIsLoading(false); return; }
+
+          const { data: downline } = await supabase
+            .rpc('get_user_downline', { _manager_name: myProfile.full_name });
+
+          if (!downline || downline.length === 0) { setIsLoading(false); return; }
+
+          rookieReps = downline
+            .filter(d => d.role === 'rookie')
+            .map(d => ({ user_id: d.user_id, full_name: d.full_name }));
+        }
+
+        if (rookieReps.length === 0) { setIsLoading(false); return; }
 
         // Get course structure
         const slugsToCheck = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
@@ -141,7 +175,7 @@ export function ManagerTrainingOverview() {
     };
 
     fetchRepProgress();
-  }, [user?.id, isManager]);
+  }, [user?.id, isManager, teamId]);
 
   if (!isManager) return null;
 

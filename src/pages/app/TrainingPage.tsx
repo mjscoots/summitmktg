@@ -8,7 +8,6 @@ import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { BookOpen, Users, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
-import { ManagerTrainingOverview } from '@/components/training/ManagerTrainingOverview';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -360,13 +359,6 @@ export default function TrainingPage() {
           managerManualComplete={isRookieView ? true : managerManualComplete}
         />
 
-        {/* Manager Training Overview - Rep Progress Table */}
-        {isManager && !isRookieView && (
-          <div className="mt-8">
-            <ManagerTrainingOverview />
-          </div>
-        )}
-        
         {/* NO AI Coach in training content views */}
       </div>
     </AppLayout>
