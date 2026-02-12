@@ -7,6 +7,7 @@ import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { BookOpen, Users, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
+import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -212,6 +213,11 @@ export default function TrainingPage() {
           {/* AI Coach Tile for Rookies */}
           <div className="mt-6">
             <AICoachTile isLocked={!aiCoachUnlocked} isRookie={true} />
+          </div>
+
+          {/* Training Leaderboard */}
+          <div className="mt-6">
+            <TrainingLeaderboardPanel />
           </div>
         </div>
       </AppLayout>

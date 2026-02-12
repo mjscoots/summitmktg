@@ -8,6 +8,7 @@ import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
+import { ManagerTrainingOverview } from '@/components/training/ManagerTrainingOverview';
 import { Bell, Calendar, GraduationCap, Trophy, Users, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -67,6 +68,11 @@ export default function ManagerDashboardPage() {
               </Link>
             </div>
             <TrainingTiles />
+          </div>
+
+          {/* Rep Training Progress Overview */}
+          <div className="mb-10">
+            <ManagerTrainingOverview />
           </div>
 
           {/* Top Row: Announcements + Weekly Calendar */}
