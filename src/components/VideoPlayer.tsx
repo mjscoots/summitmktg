@@ -52,7 +52,13 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
   }) => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const hasTriggeredComplete = useRef(false);
+    const onEndedRef = useRef(vimeoOnEnded);
+    const onProgressRef = useRef(vimeoOnProgress);
     const vimeoId = getVimeoId(vimeoSrc);
+
+    // Keep refs in sync without re-initializing player
+    onEndedRef.current = vimeoOnEnded;
+    onProgressRef.current = vimeoOnProgress;
 
     useEffect(() => {
       hasTriggeredComplete.current = false;
@@ -65,17 +71,17 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
 
       player.on('timeupdate', (data: { percent: number }) => {
         const pct = data.percent * 100;
-        vimeoOnProgress?.(pct);
+        onProgressRef.current?.(pct);
         if (pct >= 90 && !hasTriggeredComplete.current) {
           hasTriggeredComplete.current = true;
-          vimeoOnEnded?.();
+          onEndedRef.current?.();
         }
       });
 
       player.on('ended', () => {
         if (!hasTriggeredComplete.current) {
           hasTriggeredComplete.current = true;
-          vimeoOnEnded?.();
+          onEndedRef.current?.();
         }
       });
 
