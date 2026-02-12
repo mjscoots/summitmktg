@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +40,8 @@ import type { Database } from '@/integrations/supabase/types';
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
 
+type VideoSource = 'url' | 'upload';
+
 const CATEGORIES = [
   'Pitch',
   'Switchover',
@@ -48,6 +51,19 @@ const CATEGORIES = [
   'Mindset',
   'General',
 ];
+
+const parseEmbedUrl = (url: string): string | null => {
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeoMatch) {
+    const hashMatch = url.match(/[?&]h=([a-zA-Z0-9]+)/);
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}${hashMatch ? `?h=${hashMatch[1]}` : ''}`;
+  }
+  return null;
+};
 
 export default function AdminVideos() {
   const { role, isLoading: authLoading } = useAuth();
@@ -69,6 +85,8 @@ export default function AdminVideos() {
   const [targetRole, setTargetRole] = useState<AppRole | 'all'>('all');
   const [duration, setDuration] = useState('');
   const [uploadedUrl, setUploadedUrl] = useState('');
+  const [videoSource, setVideoSource] = useState<VideoSource>('url');
+  const [externalUrl, setExternalUrl] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Check access
@@ -111,6 +129,8 @@ export default function AdminVideos() {
     setTargetRole('all');
     setDuration('');
     setUploadedUrl('');
+    setVideoSource('url');
+    setExternalUrl('');
     setEditingVideo(null);
   };
 
@@ -123,10 +143,11 @@ export default function AdminVideos() {
   };
 
   const handleSaveVideo = async () => {
-    if (!title || !category || !uploadedUrl) {
+    const finalUrl = videoSource === 'url' ? externalUrl.trim() : uploadedUrl;
+    if (!title || !category || !finalUrl) {
       toast({
         title: 'Missing fields',
-        description: 'Please fill in title, category, and upload a video.',
+        description: `Please fill in title, category, and ${videoSource === 'url' ? 'paste a video URL' : 'upload a video'}.`,
         variant: 'destructive',
       });
       return;
@@ -140,7 +161,7 @@ export default function AdminVideos() {
         category,
         target_role: targetRole === 'all' ? null : targetRole,
         duration_minutes: duration ? parseInt(duration) : null,
-        video_url: uploadedUrl,
+        video_url: finalUrl,
         is_active: true,
       };
 
@@ -213,7 +234,19 @@ export default function AdminVideos() {
     setCategory(video.category);
     setTargetRole(video.target_role || 'all');
     setDuration(video.duration_minutes?.toString() || '');
-    setUploadedUrl(video.video_url || '');
+    // Detect if it's an external URL or uploaded file
+    const url = video.video_url || '';
+    const isExternal = url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.startsWith('http');
+    const isStoragePath = url && !url.startsWith('http');
+    if (isStoragePath) {
+      setVideoSource('upload');
+      setUploadedUrl(url);
+      setExternalUrl('');
+    } else {
+      setVideoSource('url');
+      setExternalUrl(url);
+      setUploadedUrl(url);
+    }
     setShowUploadDialog(true);
   };
 
@@ -297,9 +330,12 @@ export default function AdminVideos() {
                     <h3 className="font-semibold text-foreground truncate">
                       {video.title}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground flex-wrap">
                       <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs">
                         {video.category}
+                      </span>
+                      <span className="px-2 py-0.5 bg-muted rounded text-xs">
+                        {video.video_url?.includes('vimeo.com') ? '🎬 Vimeo' : video.video_url?.includes('youtube.com') || video.video_url?.includes('youtu.be') ? '▶ YouTube' : '📁 Uploaded'}
                       </span>
                       {video.target_role && (
                         <span className="px-2 py-0.5 bg-muted rounded text-xs capitalize">
@@ -366,8 +402,73 @@ export default function AdminVideos() {
             </DialogHeader>
 
             <div className="space-y-6 py-4">
-              {/* Video Uploader (only show if not editing or no existing URL) */}
-              {!editingVideo && (
+              {/* Video Source Toggle */}
+              <div>
+                <Label className="mb-2 block">Video Source *</Label>
+                <div className="flex rounded-lg border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setVideoSource('url')}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors",
+                      videoSource === 'url'
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Film className="w-4 h-4" />
+                    Vimeo / YouTube URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVideoSource('upload')}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors",
+                      videoSource === 'upload'
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Video className="w-4 h-4" />
+                    Upload from Device
+                  </button>
+                </div>
+              </div>
+
+              {/* URL Input */}
+              {videoSource === 'url' && (
+                <div>
+                  <Label htmlFor="externalUrl">Video URL *</Label>
+                  <Input
+                    id="externalUrl"
+                    value={externalUrl}
+                    onChange={(e) => setExternalUrl(e.target.value)}
+                    placeholder="https://vimeo.com/123456789 or https://youtube.com/watch?v=..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Supports Vimeo and YouTube links in any format
+                  </p>
+
+                  {/* Live Preview */}
+                  {externalUrl && parseEmbedUrl(externalUrl) && (
+                    <div className="mt-3 rounded-lg overflow-hidden border border-border">
+                      <p className="text-xs font-medium text-muted-foreground px-3 py-1.5 bg-muted">Preview</p>
+                      <div className="aspect-video">
+                        <iframe
+                          src={parseEmbedUrl(externalUrl)!}
+                          className="w-full h-full"
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowFullScreen
+                          title="Video preview"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* File Upload */}
+              {videoSource === 'upload' && (
                 <div>
                   <Label className="mb-2 block">Video File</Label>
                   <VideoUploader
@@ -380,12 +481,11 @@ export default function AdminVideos() {
                       })
                     }
                   />
-                </div>
-              )}
-
-              {uploadedUrl && (
-                <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-green-600 dark:text-green-400">
-                  ✓ Video uploaded successfully
+                  {uploadedUrl && videoSource === 'upload' && (
+                    <div className="mt-2 p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success">
+                      ✓ Video uploaded successfully
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -473,7 +573,7 @@ export default function AdminVideos() {
                 </Button>
                 <Button
                   onClick={handleSaveVideo}
-                  disabled={saving || (!uploadedUrl && !editingVideo)}
+                  disabled={saving || (videoSource === 'url' ? !externalUrl.trim() : !uploadedUrl) || !title || !category}
                 >
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editingVideo ? 'Update Video' : 'Save Video'}
