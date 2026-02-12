@@ -30,7 +30,7 @@ interface TrainingTilesProps {
 const LOCKED_UNTIL_MANAGER_MANUAL = ['learn-the-basics', 'recruiting-resources'];
 
 // Courses that are "Coming Soon" - grayed out and not clickable
-const COMING_SOON_COURSES = ['management-basics', 'training-videos'];
+const COMING_SOON_COURSES = ['management-basics'];
 
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'learn-your-pitch': <BookOpen className="w-6 h-6" />,
@@ -181,7 +181,11 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
   }, [user, filterRole]);
 
   const handleCourseClick = (slug: string) => {
-    navigate(`/app/training/${slug}`);
+    if (VIDEO_COURSES.includes(slug)) {
+      navigate('/app/training/videos');
+    } else {
+      navigate(`/app/training/${slug}`);
+    }
   };
 
   const getButtonState = (progress: number, isVideoCourse: boolean) => {
