@@ -632,6 +632,50 @@ export default function LessonPage() {
 
         {!showQuiz ? (
           <>
+            {/* Video Player - show if lesson has a video_url */}
+            {lesson.video_url && lesson.video_url.trim() && (() => {
+              const url = lesson.video_url!.trim();
+              const vimeoMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+              const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
+              
+              if (vimeoMatch) {
+                return (
+                  <div className="mb-4 rounded-lg overflow-hidden border border-border bg-black aspect-video">
+                    <iframe
+                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
+                      className="w-full h-full"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      title={lesson.title}
+                    />
+                  </div>
+                );
+              }
+              
+              if (youtubeMatch) {
+                return (
+                  <div className="mb-4 rounded-lg overflow-hidden border border-border bg-black aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={lesson.title}
+                    />
+                  </div>
+                );
+              }
+
+              // Direct video URL fallback
+              return (
+                <div className="mb-4 rounded-lg overflow-hidden border border-border bg-black aspect-video">
+                  <video controls className="w-full h-full" title={lesson.title}>
+                    <source src={url} />
+                  </video>
+                </div>
+              );
+            })()}
+
             {/* Lesson Content */}
             <div 
               ref={contentRef}
