@@ -43,13 +43,14 @@ export default function VideoPlayerPage() {
   const [isWatched, setIsWatched] = useState(false);
   const [isMarking, setIsMarking] = useState(false);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
+  const [hasAutoCompleted, setHasAutoCompleted] = useState(false);
 
   useEffect(() => {
     if (!videoId || !user) return;
+    setHasAutoCompleted(false);
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch current video + all active videos in parallel
         const [videoRes, allRes, progressRes, watchedRes] = await Promise.all([
           supabase.from('training_videos').select('*').eq('id', videoId).maybeSingle(),
           supabase.from('training_videos').select('*').eq('is_active', true).order('display_order'),
@@ -70,7 +71,7 @@ export default function VideoPlayerPage() {
     fetchData();
   }, [videoId, user]);
 
-  // Build strictly ordered "Up Next" queue
+  // Build strictly ordered "Up Next" queue — unwatched first, same category first
   const upNextVideos = useMemo(() => {
     if (!video || allVideos.length === 0) return [];
 
@@ -85,22 +86,29 @@ export default function VideoPlayerPage() {
         return (a.display_order ?? 0) - (b.display_order ?? 0);
       });
 
-    // 1. Same-category videos that come AFTER current video
-    const sameCatAfter = sorted.filter(v =>
+    // Step 1: Unwatched videos in same category after current position
+    const sameCatUnwatched = sorted.filter(v =>
       v.category.toLowerCase() === video.category.toLowerCase() &&
-      (v.display_order ?? 0) > (video.display_order ?? 0)
+      (v.display_order ?? 0) > (video.display_order ?? 0) &&
+      !watchedIds.has(v.id)
     );
 
-    // 2. If we've exhausted same category, show first video(s) of next category
-    const nextCatVideos = sorted.filter(v =>
-      getCategoryIndex(v.category) > currentCatIdx
+    // Step 2: If same category exhausted, get unwatched from next categories in order
+    const nextCatUnwatched = sorted.filter(v =>
+      getCategoryIndex(v.category) > currentCatIdx &&
+      !watchedIds.has(v.id)
     );
 
-    // Combine: same-category remainder first, then next categories
-    const queue = [...sameCatAfter, ...nextCatVideos];
+    // Step 3: Fill remaining slots with watched same-cat videos (for context)
+    const sameCatWatched = sorted.filter(v =>
+      v.category.toLowerCase() === video.category.toLowerCase() &&
+      (v.display_order ?? 0) > (video.display_order ?? 0) &&
+      watchedIds.has(v.id)
+    );
 
+    const queue = [...sameCatUnwatched, ...sameCatWatched, ...nextCatUnwatched];
     return queue.slice(0, 6);
-  }, [video, allVideos]);
+  }, [video, allVideos, watchedIds]);
 
   const markAsWatched = useCallback(async () => {
     if (!user || !videoId || isWatched || isMarking) return;
@@ -137,6 +145,14 @@ export default function VideoPlayerPage() {
       setIsMarking(false);
     }
   }, [user, videoId, isWatched, isMarking]);
+
+  // Auto-complete at 90% progress (for native HTML5 videos)
+  const handleProgress = useCallback((percent: number) => {
+    if (percent >= 90 && !isWatched && !hasAutoCompleted) {
+      setHasAutoCompleted(true);
+      markAsWatched();
+    }
+  }, [isWatched, hasAutoCompleted, markAsWatched]);
 
   if (isLoading) {
     return (
@@ -182,6 +198,7 @@ export default function VideoPlayerPage() {
                 src={video.video_url || ''}
                 title={video.title}
                 onEnded={markAsWatched}
+                onProgress={handleProgress}
               />
             </div>
 
@@ -233,7 +250,7 @@ export default function VideoPlayerPage() {
             </div>
           </div>
 
-          {/* Up Next Sidebar - Sequential Only */}
+          {/* Up Next Sidebar - Unwatched first, sequential */}
           <div className="space-y-3">
             <h3 className="font-semibold text-foreground text-sm">Up Next</h3>
             {upNextVideos.length === 0 ? (
@@ -256,7 +273,10 @@ export default function VideoPlayerPage() {
                       )}
                       <div
                         onClick={() => navigate(`/app/training/videos/${rv.id}`)}
-                        className="flex gap-3 cursor-pointer group"
+                        className={cn(
+                          "flex gap-3 cursor-pointer group",
+                          rvWatched && "opacity-60"
+                        )}
                       >
                         <div className="w-32 flex-shrink-0 aspect-video bg-muted rounded-lg relative flex items-center justify-center overflow-hidden">
                           {thumbnail ? (
