@@ -5,28 +5,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Video, ChevronLeft, Loader2, Film } from 'lucide-react';
+import { Video, ChevronLeft, Loader2, Film, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
+import { REQUIRED_CATEGORY_TABS, BONUS_CATEGORY_TABS, isBonusCategory } from '@/lib/trainingConstants';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
-const CATEGORY_TABS = [
-  'All Videos',
-  'Introduction',
-  'Switchover',
-  'Fresh Account',
-  'Body Language',
-  'Tonality',
-  'Objections',
-  'Closing',
-  'Advanced Training',
-  'Mental Mastery',
-  'Zoom Trainings',
-  'Manager Training',
-];
+const CATEGORY_TABS = [...REQUIRED_CATEGORY_TABS, ...BONUS_CATEGORY_TABS];
 
 export default function TrainingVideosPage() {
   const { user, role } = useAuth();
@@ -93,8 +81,12 @@ export default function TrainingVideosPage() {
 
   const displayedVideos = searchTerm ? (searchFilteredVideos || []) : categoryFiltered;
 
-  const watchedCount = videos.filter(v => watchedIds.has(v.id)).length;
-  const progressPercent = videos.length > 0 ? Math.round((watchedCount / videos.length) * 100) : 0;
+  // Separate required vs bonus counts
+  const requiredVideos = videos.filter(v => !isBonusCategory(v.category));
+  const bonusVideos = videos.filter(v => isBonusCategory(v.category));
+  const requiredWatchedCount = requiredVideos.filter(v => watchedIds.has(v.id)).length;
+  const bonusWatchedCount = bonusVideos.filter(v => watchedIds.has(v.id)).length;
+  const progressPercent = requiredVideos.length > 0 ? Math.round((requiredWatchedCount / requiredVideos.length) * 100) : 0;
 
   // Highlight helper for search
   const renderHighlightedTitle = (title: string) => {
@@ -144,13 +136,21 @@ export default function TrainingVideosPage() {
         {/* Progress Card */}
         <div className="bg-card rounded-xl border border-border p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-foreground">Your Progress</span>
+            <span className="text-sm font-medium text-foreground">Required Progress</span>
             <span className="text-sm text-muted-foreground">
-              {watchedCount}/{videos.length} videos watched
+              {requiredWatchedCount}/{requiredVideos.length} required videos watched
             </span>
           </div>
           <Progress value={progressPercent} className="h-2.5" />
-          <p className="text-xs text-muted-foreground mt-2">{progressPercent}% complete</p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs text-muted-foreground">{progressPercent}% complete</p>
+            {bonusVideos.length > 0 && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Star className="w-3 h-3 text-yellow-400" />
+                {bonusWatchedCount} bonus watched
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -164,16 +164,16 @@ export default function TrainingVideosPage() {
         />
 
         {/* Category Filter Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
-          {CATEGORY_TABS.map(cat => {
-            const count = cat === 'All Videos' ? videos.length : videos.filter(v => v.category === cat).length;
+        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none items-center">
+          {/* Required category tabs */}
+          {REQUIRED_CATEGORY_TABS.map(cat => {
+            const count = cat === 'All Videos' ? requiredVideos.length : videos.filter(v => v.category === cat).length;
             if (cat !== 'All Videos' && count === 0) return null;
             return (
               <button
                 key={cat}
                 onClick={() => {
                   setActiveCategory(cat);
-                  // Clear search when switching tabs manually
                   setSearchTerm('');
                   setSearchFilteredVideos(null);
                 }}
@@ -186,6 +186,43 @@ export default function TrainingVideosPage() {
               >
                 {cat}
                 {count > 0 && <span className="ml-1.5 opacity-70">({count})</span>}
+              </button>
+            );
+          })}
+
+          {/* Divider */}
+          {BONUS_CATEGORY_TABS.some(cat => videos.some(v => v.category === cat)) && (
+            <div className="flex items-center gap-2 mx-1">
+              <div className="w-px h-6 bg-border" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-500 whitespace-nowrap flex items-center gap-1">
+                <Star className="w-3 h-3" />
+                Bonus
+              </span>
+              <div className="w-px h-6 bg-border" />
+            </div>
+          )}
+
+          {/* Bonus category tabs */}
+          {BONUS_CATEGORY_TABS.map(cat => {
+            const count = videos.filter(v => v.category === cat).length;
+            if (count === 0) return null;
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  setSearchTerm('');
+                  setSearchFilteredVideos(null);
+                }}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                  activeCategory === cat
+                    ? "bg-yellow-500/90 text-white"
+                    : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border border-yellow-500/30"
+                )}
+              >
+                {cat}
+                <span className="ml-1.5 opacity-70">({count})</span>
               </button>
             );
           })}

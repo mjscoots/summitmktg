@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { Trophy } from 'lucide-react';
+import { Trophy, Star } from 'lucide-react';
 import { MilestoneBadges } from './MilestoneBadges';
 import { CompletionCelebration } from './CompletionCelebration';
 
@@ -10,11 +10,13 @@ interface GlobalProgressData {
   totalItems: number;
   completedItems: number;
   percentage: number;
+  bonusTotal: number;
+  bonusCompleted: number;
 }
 
 export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' | 'manager' }) {
   const { user } = useAuth();
-  const [data, setData] = useState<GlobalProgressData>({ totalItems: 0, completedItems: 0, percentage: 0 });
+  const [data, setData] = useState<GlobalProgressData>({ totalItems: 0, completedItems: 0, percentage: 0, bonusTotal: 0, bonusCompleted: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,24 +38,56 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
 
         let totalItems = 0;
         let completedItems = 0;
+        let bonusTotal = 0;
+        let bonusCompleted = 0;
 
         for (const course of courses) {
           const isVideo = ['training-videos', 'manager-videos'].includes(course.slug);
 
           if (isVideo) {
-            const { count: totalCount } = await supabase
+            // Required videos only
+            const { count: requiredCount } = await supabase
               .from('training_videos')
               .select('*', { count: 'exact', head: true })
-              .eq('is_active', true);
+              .eq('is_active', true)
+              .eq('is_required', true);
 
-            const { count: watchedCount } = await supabase
-              .from('video_progress')
+            // Bonus videos
+            const { count: bonusCount } = await supabase
+              .from('training_videos')
               .select('*', { count: 'exact', head: true })
+              .eq('is_active', true)
+              .eq('is_required', false);
+
+            // Get all watched video IDs
+            const { data: watchedData } = await supabase
+              .from('video_progress')
+              .select('video_id')
               .eq('user_id', user.id)
               .eq('watched', true);
 
-            totalItems += totalCount || 0;
-            completedItems += watchedCount || 0;
+            const watchedIds = new Set((watchedData || []).map(w => w.video_id));
+
+            // Get required video IDs to check which watched ones are required
+            const { data: requiredVideos } = await supabase
+              .from('training_videos')
+              .select('id')
+              .eq('is_active', true)
+              .eq('is_required', true);
+
+            const { data: bonusVideos } = await supabase
+              .from('training_videos')
+              .select('id')
+              .eq('is_active', true)
+              .eq('is_required', false);
+
+            const requiredWatched = (requiredVideos || []).filter(v => watchedIds.has(v.id)).length;
+            const bonusWatched = (bonusVideos || []).filter(v => watchedIds.has(v.id)).length;
+
+            totalItems += requiredCount || 0;
+            completedItems += requiredWatched;
+            bonusTotal += bonusCount || 0;
+            bonusCompleted += bonusWatched;
           } else {
             const { data: modules } = await supabase
               .from('training_modules')
@@ -87,7 +121,7 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
         }
 
         const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-        setData({ totalItems, completedItems, percentage });
+        setData({ totalItems, completedItems, percentage, bonusTotal, bonusCompleted });
       } catch (err) {
         console.error('Error fetching global progress:', err);
       } finally {
@@ -142,9 +176,17 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
           />
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          Completed {data.completedItems} of {data.totalItems} total lessons
-        </p>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>
+            Completed {data.completedItems} of {data.totalItems} required lessons
+          </span>
+          {data.bonusTotal > 0 && (
+            <span className="flex items-center gap-1">
+              <Star className="w-3 h-3 text-yellow-400" />
+              {data.bonusCompleted} bonus watched
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Milestone Badges */}

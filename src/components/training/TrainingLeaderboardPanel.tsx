@@ -100,9 +100,18 @@ export function TrainingLeaderboardPanel() {
         const { count: totalVideos } = await supabase
           .from('training_videos')
           .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
+          .eq('is_active', true)
+          .eq('is_required', true);
 
         const totalItems = allLessonIds.length + (totalVideos || 0);
+
+        // Get required video IDs for accurate counting
+        const { data: requiredVideosList } = await supabase
+          .from('training_videos')
+          .select('id')
+          .eq('is_active', true)
+          .eq('is_required', true);
+        const requiredVideoIds = new Set((requiredVideosList || []).map(v => v.id));
 
         // Get all achievements
         const userIds = profiles.map(p => p.user_id);
@@ -123,13 +132,15 @@ export function TrainingLeaderboardPanel() {
             const completedLessonIds = new Set(lessonProg?.map(lp => lp.lesson_id) || []);
             const lessonsDone = allLessonIds.filter(id => completedLessonIds.has(id)).length;
 
-            const { count: videosDone } = await supabase
+            const { data: videoProg } = await supabase
               .from('video_progress')
-              .select('*', { count: 'exact', head: true })
+              .select('video_id')
               .eq('user_id', p.user_id)
               .eq('watched', true);
 
-            const totalDone = lessonsDone + (videosDone || 0);
+            const videosDone = (videoProg || []).filter(vp => requiredVideoIds.has(vp.video_id)).length;
+
+            const totalDone = lessonsDone + videosDone;
             const globalPercent = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
 
             const badges = (allAchievements || [])
