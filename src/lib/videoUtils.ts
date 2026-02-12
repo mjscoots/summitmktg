@@ -3,19 +3,34 @@
  */
 export function extractVimeoId(url: string): string | null {
   if (!url) return null;
-  // Match vimeo.com/ID, player.vimeo.com/video/ID, etc.
   const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   return match ? match[1] : null;
 }
 
 /**
- * Get Vimeo thumbnail URL from a Vimeo video URL.
- * Uses vumbnail.com service for instant thumbnails without API key.
+ * Clean Vimeo embed URL with all branding removed
  */
-export function getVimeoThumbnailUrl(videoUrl: string, size: 'small' | 'medium' | 'large' = 'large'): string | null {
+export function getCleanVimeoEmbedUrl(videoId: string): string {
+  const params = new URLSearchParams({
+    title: '0',
+    byline: '0',
+    portrait: '0',
+    badge: '0',
+    autopause: '0',
+    player_id: '0',
+    app_id: '0',
+    controls: '1',
+    dnt: '1',
+  });
+  return `https://player.vimeo.com/video/${videoId}?${params.toString()}`;
+}
+
+/**
+ * Get Vimeo thumbnail URL using vumbnail.com (no API key needed)
+ */
+export function getVimeoThumbnailUrl(videoUrl: string): string | null {
   const id = extractVimeoId(videoUrl);
   if (!id) return null;
-  // vumbnail.com provides Vimeo thumbnails without API auth
   return `https://vumbnail.com/${id}.jpg`;
 }
 

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { getCleanVimeoEmbedUrl } from '@/lib/videoUtils';
 
 interface VideoPlayerProps {
   src: string;
@@ -88,13 +89,14 @@ export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps
   if (isVimeo) {
     const videoId = getVimeoId(src);
     return (
-      <div className={cn("aspect-video w-full rounded-lg overflow-hidden bg-black", className)}>
+      <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-black", className)}>
         <iframe
-          src={`https://player.vimeo.com/video/${videoId}`}
+          src={getCleanVimeoEmbedUrl(videoId || '')}
           title={title || 'Video'}
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
           className="w-full h-full"
+          style={{ border: 'none' }}
         />
       </div>
     );
