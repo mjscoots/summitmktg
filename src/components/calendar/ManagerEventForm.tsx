@@ -265,7 +265,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
         : selectedMembers;
 
       if (usersToNotify.length > 0) {
-        await supabase.functions.invoke('send-calendar-notification', {
+        const { data: notifResponse, error: notifError } = await supabase.functions.invoke('send-calendar-notification', {
           body: {
             event_id: eventId,
             event_title: title,
@@ -277,6 +277,14 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
             user_ids: usersToNotify
           }
         });
+
+        if (notifError) {
+          console.error('Failed to send notifications:', notifError);
+          toast.warning('Event saved, but notifications could not be sent. Assigned members were not notified.');
+        } else if (notifResponse?.notifications_sent?.errors?.length > 0) {
+          console.error('Some notifications failed:', notifResponse.notifications_sent.errors);
+          toast.warning('Event saved, but some notifications failed to send.');
+        }
       }
 
       toast.success(event?.id ? 'Event updated!' : 'Event created!');

@@ -189,6 +189,9 @@ export default function Interview3Page() {
 
       if (signupError) throw signupError;
 
+      // Track notification failures
+      const notificationErrors: string[] = [];
+
       // Create notification for the assigned manager (bell icon)
       const { error: notificationError } = await supabase.from('user_notifications').insert({
         user_id: repFormData.directManager.user_id,
@@ -199,6 +202,7 @@ export default function Interview3Page() {
 
       if (notificationError) {
         console.error('Notification error:', notificationError);
+        notificationErrors.push('manager bell notification');
       }
 
       // Create team-specific notifications (banners on team page)
@@ -219,6 +223,7 @@ export default function Interview3Page() {
 
       if (managerNotifError) {
         console.error('Manager notification error:', managerNotifError);
+        notificationErrors.push('manager team banner');
       }
 
       // Team-wide welcome notification (expires in 7 days)
@@ -238,11 +243,21 @@ export default function Interview3Page() {
 
       if (teamWideNotifError) {
         console.error('Team-wide notification error:', teamWideNotifError);
+        notificationErrors.push('team welcome banner');
       }
 
-      toast.success('Rep signed successfully!', {
-        description: `${repFormData.fullName} has been added and ${repFormData.directManager.full_name} has been notified`,
-      });
+      if (notificationErrors.length > 0) {
+        toast.success('Rep signed successfully!', {
+          description: `${repFormData.fullName} has been added to the team.`,
+        });
+        toast.warning('Some notifications could not be sent', {
+          description: `Failed: ${notificationErrors.join(', ')}. The manager may need to be notified manually.`,
+        });
+      } else {
+        toast.success('Rep signed successfully!', {
+          description: `${repFormData.fullName} has been added and ${repFormData.directManager.full_name} has been notified`,
+        });
+      }
       navigate('/app/interviews');
     } catch (err) {
       console.error('Error adding rep:', err);
