@@ -45,20 +45,17 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
     return match ? match[1] : null;
   };
 
-  // Vimeo embed with SDK-based progress tracking
-  const VimeoEmbed = ({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded, vimeoOnProgress }: {
+  // Vimeo embed — completion only on 'ended' event
+  const VimeoEmbed = ({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded }: {
     vimeoSrc: string; vimeoTitle?: string; vimeoClassName?: string;
-    vimeoOnEnded?: () => void; vimeoOnProgress?: (percent: number) => void;
+    vimeoOnEnded?: () => void;
   }) => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const hasTriggeredComplete = useRef(false);
     const onEndedRef = useRef(vimeoOnEnded);
-    const onProgressRef = useRef(vimeoOnProgress);
     const vimeoId = getVimeoId(vimeoSrc);
 
-    // Keep refs in sync without re-initializing player
     onEndedRef.current = vimeoOnEnded;
-    onProgressRef.current = vimeoOnProgress;
 
     useEffect(() => {
       hasTriggeredComplete.current = false;
@@ -69,15 +66,6 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
 
       const player = new Player(iframeRef.current);
 
-      player.on('timeupdate', (data: { percent: number }) => {
-        const pct = data.percent * 100;
-        onProgressRef.current?.(pct);
-        if (pct >= 90 && !hasTriggeredComplete.current) {
-          hasTriggeredComplete.current = true;
-          onEndedRef.current?.();
-        }
-      });
-
       player.on('ended', () => {
         if (!hasTriggeredComplete.current) {
           hasTriggeredComplete.current = true;
@@ -86,7 +74,6 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
       });
 
       return () => {
-        player.off('timeupdate');
         player.off('ended');
         player.destroy();
       };
@@ -156,7 +143,6 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
         vimeoTitle={title}
         vimeoClassName={className}
         vimeoOnEnded={onEnded}
-        vimeoOnProgress={onProgress}
       />
     );
   }

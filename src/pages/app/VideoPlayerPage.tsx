@@ -146,14 +146,7 @@ export default function VideoPlayerPage() {
     setIsMarking(false);
   }, [user, videoId, isWatched, isMarking, silentMarkComplete]);
 
-  // 90% progress — silent background only
-  const handleProgress = useCallback((percent: number) => {
-    if (percent >= 90 && !silentCompletedRef.current) {
-      silentMarkComplete();
-    }
-  }, [silentMarkComplete]);
-
-  // Natural video end — now safe to update UI
+  // Natural video end — mark complete + update UI (video is done, safe to re-render)
   const handleVideoEnded = useCallback(() => {
     if (!silentCompletedRef.current) {
       silentMarkComplete();
@@ -206,7 +199,6 @@ export default function VideoPlayerPage() {
                 src={video.video_url || ''}
                 title={video.title}
                 onEnded={handleVideoEnded}
-                onProgress={handleProgress}
               />
             </div>
 
