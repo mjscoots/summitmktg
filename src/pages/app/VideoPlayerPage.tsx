@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,11 +43,11 @@ export default function VideoPlayerPage() {
   const [isWatched, setIsWatched] = useState(false);
   const [isMarking, setIsMarking] = useState(false);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
-  const [hasAutoCompleted, setHasAutoCompleted] = useState(false);
+  const silentCompletedRef = useRef(false);
 
   useEffect(() => {
     if (!videoId || !user) return;
-    setHasAutoCompleted(false);
+    silentCompletedRef.current = false;
     const fetchData = async () => {
       setIsLoading(true);
       try {
@@ -60,7 +60,9 @@ export default function VideoPlayerPage() {
 
         setVideo(videoRes.data);
         setAllVideos(allRes.data || []);
-        setIsWatched(progressRes.data?.watched ?? false);
+        const alreadyWatched = progressRes.data?.watched ?? false;
+        setIsWatched(alreadyWatched);
+        if (alreadyWatched) silentCompletedRef.current = true;
         setWatchedIds(new Set((watchedRes.data || []).map(p => p.video_id)));
       } catch (err) {
         console.error('Error fetching video:', err);
@@ -71,13 +73,12 @@ export default function VideoPlayerPage() {
     fetchData();
   }, [videoId, user]);
 
-  // Build strictly ordered "Up Next" queue — unwatched first, same category first
+  // Build strictly ordered "Up Next" queue
   const upNextVideos = useMemo(() => {
     if (!video || allVideos.length === 0) return [];
 
     const currentCatIdx = getCategoryIndex(video.category);
 
-    // Sort all videos by category order, then display_order, then title as tiebreaker
     const sorted = [...allVideos]
       .filter(v => v.id !== video.id)
       .sort((a, b) => {
@@ -88,27 +89,25 @@ export default function VideoPlayerPage() {
         return a.title.localeCompare(b.title);
       });
 
-    // Step 1: ALL remaining videos in same category (unwatched first, then watched)
     const sameCatAll = sorted.filter(v =>
       v.category.toLowerCase() === video.category.toLowerCase()
     );
     const sameCatUnwatched = sameCatAll.filter(v => !watchedIds.has(v.id));
     const sameCatWatched = sameCatAll.filter(v => watchedIds.has(v.id));
 
-    // Step 2: Only if same category is exhausted, show next categories
     const nextCatUnwatched = sorted.filter(v =>
       getCategoryIndex(v.category) > currentCatIdx &&
       !watchedIds.has(v.id)
     );
 
-    // Priority: same-cat unwatched → same-cat watched → next-cat unwatched
     const queue = [...sameCatUnwatched, ...sameCatWatched, ...nextCatUnwatched];
     return queue.slice(0, 6);
   }, [video, allVideos, watchedIds]);
 
-  const markAsWatched = useCallback(async () => {
-    if (!user || !videoId || isWatched || isMarking) return;
-    setIsMarking(true);
+  // Silent DB write — no state changes, no re-render, no player remount
+  const silentMarkComplete = useCallback(async () => {
+    if (!user || !videoId || silentCompletedRef.current) return;
+    silentCompletedRef.current = true;
     try {
       const { error } = await supabase
         .from('video_progress')
@@ -118,11 +117,7 @@ export default function VideoPlayerPage() {
           watched: true,
           watched_at: new Date().toISOString(),
         }, { onConflict: 'user_id,video_id' });
-
       if (error) throw error;
-
-      setIsWatched(true);
-      setWatchedIds(prev => new Set(prev).add(videoId));
 
       try {
         await supabase.rpc('award_training_points', {
@@ -132,23 +127,40 @@ export default function VideoPlayerPage() {
       } catch (e) {
         console.error('Points award failed:', e);
       }
-
       toast.success('Video complete! +10 points added to leaderboard');
     } catch (err) {
       console.error('Error marking watched:', err);
-      toast.error('Failed to mark as watched');
-    } finally {
-      setIsMarking(false);
+      silentCompletedRef.current = false;
     }
-  }, [user, videoId, isWatched, isMarking]);
+  }, [user, videoId]);
 
-  // Auto-complete at 90% progress (for native HTML5 videos)
-  const handleProgress = useCallback((percent: number) => {
-    if (percent >= 90 && !isWatched && !hasAutoCompleted) {
-      setHasAutoCompleted(true);
-      markAsWatched();
+  // Manual button — updates UI
+  const markAsWatched = useCallback(async () => {
+    if (!user || !videoId || isWatched || isMarking) return;
+    setIsMarking(true);
+    if (!silentCompletedRef.current) {
+      await silentMarkComplete();
     }
-  }, [isWatched, hasAutoCompleted, markAsWatched]);
+    setIsWatched(true);
+    setWatchedIds(prev => new Set(prev).add(videoId));
+    setIsMarking(false);
+  }, [user, videoId, isWatched, isMarking, silentMarkComplete]);
+
+  // 90% progress — silent background only
+  const handleProgress = useCallback((percent: number) => {
+    if (percent >= 90 && !silentCompletedRef.current) {
+      silentMarkComplete();
+    }
+  }, [silentMarkComplete]);
+
+  // Natural video end — now safe to update UI
+  const handleVideoEnded = useCallback(() => {
+    if (!silentCompletedRef.current) {
+      silentMarkComplete();
+    }
+    setIsWatched(true);
+    if (videoId) setWatchedIds(prev => new Set(prev).add(videoId));
+  }, [silentMarkComplete, videoId]);
 
   if (isLoading) {
     return (
@@ -193,7 +205,7 @@ export default function VideoPlayerPage() {
               <VideoPlayer
                 src={video.video_url || ''}
                 title={video.title}
-                onEnded={markAsWatched}
+                onEnded={handleVideoEnded}
                 onProgress={handleProgress}
               />
             </div>
