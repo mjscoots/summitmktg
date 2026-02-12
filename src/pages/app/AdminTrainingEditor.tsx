@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 
 // Lazy load the rich text editor to avoid SSR issues
 const RichTextEditor = lazy(() => import('@/components/admin/RichTextEditor').then(m => ({ default: m.RichTextEditor })));
+const TrainingVideosManager = lazy(() => import('@/components/training/TrainingVideosManager').then(m => ({ default: m.TrainingVideosManager })));
 
 interface Course {
   id: string;
@@ -65,7 +66,7 @@ interface QuizQuestion {
   display_order: number;
 }
 
-type EditorView = 'courses' | 'lesson' | 'quiz';
+type EditorView = 'courses' | 'lesson' | 'quiz' | 'videos';
 
 export default function AdminTrainingEditor() {
   const navigate = useNavigate();
@@ -178,6 +179,13 @@ export default function AdminTrainingEditor() {
     setSelectedLesson(null);
     setEditorView('courses');
     fetchModulesAndLessons(courseId);
+  };
+
+  const handleSelectTrainingVideos = () => {
+    setSelectedCourseId(null);
+    setSelectedModuleId(null);
+    setSelectedLesson(null);
+    setEditorView('videos');
   };
 
   const handleSelectLesson = (lesson: Lesson) => {
@@ -360,6 +368,22 @@ export default function AdminTrainingEditor() {
             </p>
           </div>
           
+          {/* Training Videos Link */}
+          <div className="p-2 border-b border-border">
+            <button
+              onClick={handleSelectTrainingVideos}
+              className={cn(
+                "w-full flex items-center gap-2 p-2 rounded-md text-left transition-colors",
+                editorView === 'videos'
+                  ? "bg-primary/10 text-primary"
+                  : "hover:bg-muted text-foreground"
+              )}
+            >
+              <Video className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm font-medium">Training Videos</span>
+            </button>
+          </div>
+
           {/* Course List */}
           <div className="p-2">
             {courses.map(course => (
@@ -430,7 +454,13 @@ export default function AdminTrainingEditor() {
         
         {/* Main Editor Area */}
         <div className="flex-1 overflow-y-auto p-6">
-          {!selectedLesson ? (
+          {editorView === 'videos' ? (
+            <div className="max-w-5xl mx-auto">
+              <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+                <TrainingVideosManager />
+              </Suspense>
+            </div>
+          ) : !selectedLesson ? (
             <div className="text-center py-20 text-muted-foreground">
               <Book className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Select a lesson from the sidebar to edit</p>
