@@ -108,6 +108,37 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
         const coursesWithProgress = await Promise.all(
           filteredCourses.map(async (course) => {
+            const isVideoCourse = VIDEO_COURSES.includes(course.slug);
+
+            // Video courses: count from training_videos + video_progress
+            if (isVideoCourse) {
+              const { count: totalCount } = await supabase
+                .from('training_videos')
+                .select('*', { count: 'exact', head: true })
+                .eq('is_active', true);
+
+              const totalLessons = totalCount || 0;
+
+              const { count: watchedCount } = await supabase
+                .from('video_progress')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('watched', true);
+
+              const completedLessons = watchedCount || 0;
+              const progress = totalLessons > 0
+                ? Math.round((completedLessons / totalLessons) * 100)
+                : 0;
+
+              return {
+                ...course,
+                progress,
+                totalLessons,
+                completedLessons,
+              };
+            }
+
+            // Regular courses: count from training_lessons + lesson_progress
             const { data: modules } = await supabase
               .from('training_modules')
               .select('id')
@@ -189,8 +220,11 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
   };
 
   const getButtonState = (progress: number, isVideoCourse: boolean) => {
-    // Video courses always show "Open"
-    if (isVideoCourse) return { text: 'Open', icon: Play };
+    if (isVideoCourse) {
+      if (progress === 100) return { text: 'Review', icon: RotateCcw };
+      if (progress > 0) return { text: 'Continue', icon: ArrowRight };
+      return { text: 'Open', icon: Play };
+    }
     if (progress === 0) return { text: 'Start Training', icon: Play };
     if (progress === 100) return { text: 'Review', icon: RotateCcw };
     return { text: 'Continue', icon: ArrowRight };
@@ -357,40 +391,28 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                   )}
                 </div>
 
-                {/* === PROGRESS REGION - Different for video courses === */}
-                {isVideoCourse ? (
-                  // Video courses: just show lesson count, no progress bar
-                  <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
-                    <div className="flex items-center justify-center">
-                      <span className="text-sm text-muted-foreground font-medium">
-                        {course.totalLessons} LESSONS
-                      </span>
-                    </div>
+                {/* === PROGRESS REGION === */}
+                <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+                    <div 
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        course.progress === 100 
+                          ? 'bg-success' 
+                          : isRookie ? 'bg-green-500' : 'bg-blue-500'
+                      )}
+                      style={{ width: `${course.progress}%` }}
+                    />
                   </div>
-                ) : (
-                  // Regular courses: show progress bar
-                  <div className="h-14 flex flex-col justify-end pt-3 border-t border-border/40">
-                    <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
-                      <div 
-                        className={cn(
-                          "h-full rounded-full transition-all duration-500",
-                          course.progress === 100 
-                            ? 'bg-success' 
-                            : isRookie ? 'bg-green-500' : 'bg-blue-500'
-                        )}
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {course.completedLessons} / {course.totalLessons} lessons
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {course.progress}% complete
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {course.completedLessons} / {course.totalLessons} {isVideoCourse ? 'videos' : 'lessons'}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {course.progress}% complete
+                    </span>
                   </div>
-                )}
+                </div>
 
                 {/* === FOOTER REGION (fixed height ~44px) === */}
                 <div className="h-11 pt-3">
