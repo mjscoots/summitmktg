@@ -6,6 +6,7 @@ import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { BookOpen, Users, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
+import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -205,6 +206,7 @@ export default function TrainingPage() {
             />
           )}
 
+          <GlobalTrainingProgress filterRole="rookie" />
           <TrainingTiles filterRole="rookie" />
 
           {/* AI Coach Tile for Rookies */}
@@ -345,6 +347,7 @@ export default function TrainingPage() {
           />
         )}
 
+        <GlobalTrainingProgress filterRole={isRookieView ? 'rookie' : 'manager'} />
         <TrainingTiles 
           filterRole={isRookieView ? 'rookie' : 'manager'} 
           managerManualComplete={isRookieView ? true : managerManualComplete}
