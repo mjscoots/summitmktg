@@ -8,10 +8,11 @@ interface VideoPlayerProps {
   src: string;
   title?: string;
   onEnded?: () => void;
+  onProgress?: (percent: number) => void;
   className?: string;
 }
 
-export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps) {
+export function VideoPlayer({ src, title, onEnded, onProgress, className }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -125,6 +126,7 @@ export function VideoPlayer({ src, title, onEnded, className }: VideoPlayerProps
     if (videoRef.current) {
       const currentProgress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
       setProgress(currentProgress);
+      onProgress?.(currentProgress);
     }
   };
 
