@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { getCleanVimeoEmbedUrl } from '@/lib/videoUtils';
+import Player from '@vimeo/player';
 
 interface VideoPlayerProps {
   src: string;
@@ -44,7 +45,62 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
     return match ? match[1] : null;
   };
 
-  // Fetch signed URL for private bucket videos
+  // Vimeo embed with SDK-based progress tracking
+  const VimeoEmbed = ({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded, vimeoOnProgress }: {
+    vimeoSrc: string; vimeoTitle?: string; vimeoClassName?: string;
+    vimeoOnEnded?: () => void; vimeoOnProgress?: (percent: number) => void;
+  }) => {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const hasTriggeredComplete = useRef(false);
+    const vimeoId = getVimeoId(vimeoSrc);
+
+    useEffect(() => {
+      hasTriggeredComplete.current = false;
+    }, [vimeoSrc]);
+
+    useEffect(() => {
+      if (!iframeRef.current) return;
+
+      const player = new Player(iframeRef.current);
+
+      player.on('timeupdate', (data: { percent: number }) => {
+        const pct = data.percent * 100;
+        vimeoOnProgress?.(pct);
+        if (pct >= 90 && !hasTriggeredComplete.current) {
+          hasTriggeredComplete.current = true;
+          vimeoOnEnded?.();
+        }
+      });
+
+      player.on('ended', () => {
+        if (!hasTriggeredComplete.current) {
+          hasTriggeredComplete.current = true;
+          vimeoOnEnded?.();
+        }
+      });
+
+      return () => {
+        player.off('timeupdate');
+        player.off('ended');
+        player.destroy();
+      };
+    }, [vimeoSrc]);
+
+    return (
+      <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-black", vimeoClassName)}>
+        <iframe
+          ref={iframeRef}
+          src={getCleanVimeoEmbedUrl(vimeoId || '')}
+          title={vimeoTitle || 'Video'}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          className="w-full h-full"
+          style={{ border: 'none' }}
+        />
+      </div>
+    );
+  };
+
   useEffect(() => {
     const fetchSignedUrl = async () => {
       if (isStoragePath && !isExternal) {
@@ -88,18 +144,14 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
   }
 
   if (isVimeo) {
-    const videoId = getVimeoId(src);
     return (
-      <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-black", className)}>
-        <iframe
-          src={getCleanVimeoEmbedUrl(videoId || '')}
-          title={title || 'Video'}
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-          className="w-full h-full"
-          style={{ border: 'none' }}
-        />
-      </div>
+      <VimeoEmbed
+        vimeoSrc={src}
+        vimeoTitle={title}
+        vimeoClassName={className}
+        vimeoOnEnded={onEnded}
+        vimeoOnProgress={onProgress}
+      />
     );
   }
 
