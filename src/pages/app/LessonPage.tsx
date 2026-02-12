@@ -639,14 +639,16 @@ export default function LessonPage() {
               const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
               
               if (vimeoMatch) {
+                const vimeoParams = 'title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=0&controls=1&dnt=1';
                 return (
-                  <div className="mb-4 rounded-lg overflow-hidden border border-border bg-black aspect-video">
+                  <div className="mb-4 rounded-xl overflow-hidden border border-border bg-black aspect-video">
                     <iframe
-                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
+                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}?${vimeoParams}`}
                       className="w-full h-full"
                       allow="autoplay; fullscreen; picture-in-picture"
                       allowFullScreen
                       title={lesson.title}
+                      style={{ border: 'none' }}
                     />
                   </div>
                 );
