@@ -1,12 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, ChevronRight, ChevronDown, Search } from 'lucide-react';
+import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { TeamNotificationBanners } from '@/components/team/TeamNotificationBanners';
-import { TeamMember } from '@/lib/hierarchyUtils';
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { AddMemberModal } from '@/components/team/AddMemberModal';
+import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 
 // Top-level team pillars with their leaders
 const TEAM_PILLARS = [
@@ -37,7 +64,6 @@ interface TreeNode {
   isExpanded: boolean;
 }
 
-// Convert local members to TeamMember format for modal
 const convertToTeamMember = (m: TeamMemberLocal): TeamMember => ({
   id: m.id,
   user_id: m.user_id,
@@ -55,186 +81,225 @@ export default function TeamPage() {
   const [allMembers, setAllMembers] = useState<TeamMemberLocal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'nlc' | 'all'>('active');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [teams, setTeams] = useState<{ id: string; name: string; slug: string }[]>([]);
+  
+  // Modals
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  // NLC confirm dialog
+  const [nlcConfirm, setNlcConfirm] = useState<{ open: boolean; member: TeamMemberLocal | null }>({
+    open: false, member: null
+  });
 
   const isManager = role === 'manager' || role === 'admin';
+  const isAdmin = role === 'admin';
+
+  const fetchAllMembers = useCallback(async () => {
+    try {
+      let query = supabase.from('profiles').select('*').order('full_name');
+      
+      if (statusFilter === 'active') {
+        query = query.neq('status', 'nlc');
+      } else if (statusFilter === 'nlc') {
+        query = query.eq('status', 'nlc');
+      }
+
+      const { data: profiles, error: profilesError } = await query;
+      if (profilesError) { console.error(profilesError); return; }
+
+      const { data: roles } = await supabase.from('user_roles').select('user_id, role');
+      const roleMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
+
+      const membersWithRoles: TeamMemberLocal[] = (profiles || []).map(p => ({
+        id: p.id,
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        phone: p.phone,
+        status: p.status,
+        direct_manager: p.direct_manager,
+        experience: p.experience,
+        role: roleMap.get(p.user_id) || 'rookie',
+      }));
+
+      setAllMembers(membersWithRoles);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [statusFilter]);
+
+  const fetchTeams = useCallback(async () => {
+    const { data } = await supabase.from('teams').select('id, name, slug').order('name');
+    setTeams(data || []);
+  }, []);
 
   useEffect(() => {
-    const fetchAllMembers = async () => {
-      try {
-        // Fetch all profiles with their roles
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .neq('status', 'nlc')
-          .order('full_name');
-
-        if (profilesError) {
-          console.error('Error fetching profiles:', profilesError);
-          return;
-        }
-
-        // Fetch roles for all users
-        const { data: roles, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('user_id, role');
-
-        if (rolesError) {
-          console.error('Error fetching roles:', rolesError);
-        }
-
-        const roleMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
-
-        const membersWithRoles: TeamMember[] = (profiles || []).map(p => ({
-          id: p.id,
-          user_id: p.user_id,
-          full_name: p.full_name,
-          email: p.email,
-          status: p.status,
-          direct_manager: p.direct_manager,
-          experience: p.experience,
-          role: roleMap.get(p.user_id) || 'rookie',
-        }));
-
-        setAllMembers(membersWithRoles);
-      } catch (err) {
-        console.error('Error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (!authLoading) {
       fetchAllMembers();
+      fetchTeams();
     }
-  }, [authLoading]);
+  }, [authLoading, fetchAllMembers, fetchTeams]);
+
+  const handleMemberAdded = () => {
+    setIsLoading(true);
+    fetchAllMembers();
+  };
+
+  const handleMarkNLC = async (member: TeamMemberLocal) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'nlc', updated_at: new Date().toISOString() })
+        .eq('user_id', member.user_id);
+
+      if (error) throw error;
+      toast.success(`✅ ${getDisplayName(member.full_name)} marked as NLC`);
+      fetchAllMembers();
+    } catch (err: any) {
+      toast.error('Failed to update status', { description: err.message });
+    }
+  };
+
+  const handleMemberClick = (member: TeamMemberLocal) => {
+    setSelectedMember(convertToTeamMember(member));
+    setProfileModalOpen(true);
+  };
 
   // Build tree structure for a pillar
   const buildTree = (leader: string): TreeNode | null => {
-    const leaderMember = allMembers.find(m => 
+    const leaderMember = allMembers.find(m =>
       m.full_name.toLowerCase() === leader.toLowerCase()
     );
-    
     if (!leaderMember) return null;
 
     const buildNode = (member: TeamMemberLocal): TreeNode => {
       const children = allMembers
         .filter(m => m.direct_manager?.toLowerCase() === member.full_name.toLowerCase())
         .map(child => buildNode(child));
-      
-      return {
-        member,
-        children,
-        isExpanded: expandedNodes.has(member.id),
-      };
+      return { member, children, isExpanded: expandedNodes.has(member.id) };
     };
-
     return buildNode(leaderMember);
   };
 
   const toggleNode = (id: string) => {
     setExpandedNodes(prev => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
 
-  const expandAll = () => {
-    const allIds = new Set(allMembers.map(m => m.id));
-    setExpandedNodes(allIds);
-  };
+  const expandAll = () => setExpandedNodes(new Set(allMembers.map(m => m.id)));
+  const collapseAll = () => setExpandedNodes(new Set());
 
-  const collapseAll = () => {
-    setExpandedNodes(new Set());
-  };
-
-  // Filter members based on search
   const filterTree = (node: TreeNode | null, query: string): TreeNode | null => {
     if (!node) return null;
-    
     const matchesSelf = node.member.full_name.toLowerCase().includes(query.toLowerCase());
     const filteredChildren = node.children
       .map(child => filterTree(child, query))
-      .filter((child): child is TreeNode => child !== null);
-    
+      .filter((c): c is TreeNode => c !== null);
     if (matchesSelf || filteredChildren.length > 0) {
-      return {
-        ...node,
-        children: filteredChildren,
-        isExpanded: query.length > 0 ? true : node.isExpanded,
-      };
+      return { ...node, children: filteredChildren, isExpanded: query.length > 0 ? true : node.isExpanded };
     }
-    
     return null;
+  };
+
+  const getActiveCount = (leader: string): number => {
+    const tree = buildTree(leader);
+    if (!tree) return 0;
+    const count = (node: TreeNode): number => 1 + node.children.reduce((sum, c) => sum + count(c), 0);
+    return count(tree);
   };
 
   const renderTreeNode = (node: TreeNode, depth: number = 0) => {
     const hasChildren = node.children.length > 0;
     const isVeteran = node.member.role === 'manager' || node.member.role === 'admin' || node.member.experience === 'veteran';
     const isExpanded = searchQuery.length > 0 || expandedNodes.has(node.member.id);
-    
+    const isNLC = node.member.status === 'nlc';
+
     return (
       <div key={node.member.id} className="select-none">
         <div
           className={cn(
-            "flex items-center gap-2 py-2 px-3 rounded-lg transition-colors cursor-pointer",
+            "flex items-center gap-2 py-2 px-3 rounded-lg transition-colors group",
             "hover:bg-muted/50",
-            depth === 0 ? "bg-muted/30" : ""
+            depth === 0 ? "bg-muted/30" : "",
+            isNLC && "opacity-50"
           )}
           style={{ marginLeft: `${depth * 24}px` }}
-          onClick={() => hasChildren && toggleNode(node.member.id)}
         >
-          {/* Expand/Collapse indicator */}
-          <div className="w-5 h-5 flex items-center justify-center">
+          {/* Expand/Collapse */}
+          <div
+            className="w-5 h-5 flex items-center justify-center cursor-pointer"
+            onClick={() => hasChildren && toggleNode(node.member.id)}
+          >
             {hasChildren ? (
-              isExpanded ? (
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              )
+              isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />
             ) : (
               <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
             )}
           </div>
 
-          {/* Role indicator dot */}
-          <div className={cn(
-            "w-2.5 h-2.5 rounded-full flex-shrink-0",
-            isVeteran ? "bg-primary" : "bg-green-500"
-          )} />
+          {/* Role dot */}
+          <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-green-500")} />
 
-          {/* Name */}
-          <span className={cn(
-            "font-medium text-sm",
-            isVeteran ? "text-primary" : "text-green-400"
-          )}>
-            {node.member.full_name}
-          </span>
+          {/* Name - clickable */}
+          <button
+            onClick={() => handleMemberClick(node.member)}
+            className={cn(
+              "font-medium text-sm hover:underline text-left",
+              isNLC ? "text-muted-foreground line-through" : isVeteran ? "text-primary" : "text-green-400"
+            )}
+          >
+            {getDisplayName(node.member.full_name)}
+          </button>
 
           {/* Role badge */}
           <span className={cn(
             "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide",
-            isVeteran 
-              ? "bg-primary/20 text-primary" 
-              : "bg-green-500/20 text-green-400"
+            isVeteran ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400"
           )}>
             {isVeteran ? 'Manager' : 'Rookie'}
           </span>
 
           {/* Children count */}
           {hasChildren && (
-            <span className="text-xs text-muted-foreground ml-auto">
+            <span className="text-xs text-muted-foreground ml-auto mr-2">
               {node.children.length} {node.children.length === 1 ? 'report' : 'reports'}
             </span>
           )}
+
+          {/* Action menu - show on hover */}
+          {isManager && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted">
+                  <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={() => handleMemberClick(node.member)}>
+                  <Pencil className="w-3.5 h-3.5 mr-2" /> Edit Member
+                </DropdownMenuItem>
+                {node.member.status !== 'nlc' && (
+                  <DropdownMenuItem
+                    onClick={() => setNlcConfirm({ open: true, member: node.member })}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <UserX className="w-3.5 h-3.5 mr-2" /> Mark as NLC
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
-        {/* Children */}
         {isExpanded && hasChildren && (
           <div className="border-l border-border/30 ml-5">
             {node.children.map(child => renderTreeNode(child, depth + 1))}
@@ -252,7 +317,6 @@ export default function TeamPage() {
     );
   }
 
-  // Non-managers shouldn't see this page
   if (!isManager) {
     return (
       <AppLayout>
@@ -263,31 +327,29 @@ export default function TeamPage() {
     );
   }
 
-  // Convert all members to TeamMember format for banners
   const rosterForBanners: TeamMember[] = allMembers.map(m => convertToTeamMember(m));
 
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Team Notification Banners */}
-        <TeamNotificationBanners 
-          teamName="the team" 
-          roster={rosterForBanners}
-        />
+        <TeamNotificationBanners teamName="the team" roster={rosterForBanners} />
 
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-primary/15">
-              <Users className="w-5 h-5 text-primary" />
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/15">
+                <Users className="w-5 h-5 text-primary" />
+              </div>
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">Team Structure</h1>
             </div>
-            <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-              Team Structure
-            </h1>
+            <p className="text-muted-foreground text-sm">Organizational hierarchy overview</p>
           </div>
-          <p className="text-muted-foreground text-sm">
-            Organizational hierarchy overview
-          </p>
+          {isManager && (
+            <Button onClick={() => setAddModalOpen(true)} className="gap-2">
+              <UserPlus className="w-4 h-4" /> Add Member
+            </Button>
+          )}
         </div>
 
         {/* Controls */}
@@ -301,17 +363,21 @@ export default function TeamPage() {
               className="pl-10"
             />
           </div>
+          <Select value={statusFilter} onValueChange={v => { setStatusFilter(v as any); setIsLoading(true); }}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="nlc">NLC Only</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
           <div className="flex gap-2">
-            <button
-              onClick={expandAll}
-              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
-            >
+            <button onClick={expandAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">
               Expand All
             </button>
-            <button
-              onClick={collapseAll}
-              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
-            >
+            <button onClick={collapseAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">
               Collapse All
             </button>
           </div>
@@ -337,11 +403,8 @@ export default function TeamPage() {
           <div className="space-y-6">
             {TEAM_PILLARS.map(pillar => {
               let tree = buildTree(pillar.leader);
-              
-              // Apply search filter
-              if (searchQuery && tree) {
-                tree = filterTree(tree, searchQuery);
-              }
+              if (searchQuery && tree) tree = filterTree(tree, searchQuery);
+              const count = getActiveCount(pillar.leader);
 
               return (
                 <div key={pillar.name} className="bg-card rounded-xl border border-border/50 p-5">
@@ -349,16 +412,17 @@ export default function TeamPage() {
                     <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                       <Users className="w-4 h-4 text-primary" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{pillar.name}</h3>
                       <p className="text-xs text-muted-foreground">Led by {pillar.leader}</p>
                     </div>
+                    <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                      {count} members
+                    </span>
                   </div>
-                  
+
                   {tree ? (
-                    <div className="space-y-1">
-                      {renderTreeNode(tree)}
-                    </div>
+                    <div className="space-y-1">{renderTreeNode(tree)}</div>
                   ) : (
                     <p className="text-sm text-muted-foreground py-4 text-center">
                       {searchQuery ? 'No members match your search' : `${pillar.leader} not found in system`}
@@ -370,6 +434,49 @@ export default function TeamPage() {
           </div>
         )}
       </div>
+
+      {/* Add Member Modal */}
+      <AddMemberModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onMemberAdded={handleMemberAdded}
+        teams={teams}
+      />
+
+      {/* Profile/Edit Modal */}
+      <MemberProfileModal
+        member={selectedMember}
+        open={profileModalOpen}
+        onClose={() => { setProfileModalOpen(false); setSelectedMember(null); }}
+        roster={rosterForBanners}
+        pillars={teams}
+        onMemberClick={(m) => setSelectedMember(m)}
+        onStatusChange={() => { setIsLoading(true); fetchAllMembers(); }}
+      />
+
+      {/* NLC Confirmation */}
+      <AlertDialog open={nlcConfirm.open} onOpenChange={open => !open && setNlcConfirm({ open: false, member: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark as NLC?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Mark {nlcConfirm.member ? getDisplayName(nlcConfirm.member.full_name) : ''} as NLC? They will be removed from all active team lists.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (nlcConfirm.member) handleMarkNLC(nlcConfirm.member);
+                setNlcConfirm({ open: false, member: null });
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
