@@ -1289,6 +1289,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_training_achievements: {
+        Row: {
+          awarded_at: string
+          badge_type: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          badge_type: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          badge_type?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       video_progress: {
         Row: {
           created_at: string | null

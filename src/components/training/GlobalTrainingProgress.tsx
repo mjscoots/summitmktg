@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Trophy } from 'lucide-react';
+import { MilestoneBadges } from './MilestoneBadges';
+import { CompletionCelebration } from './CompletionCelebration';
 
 interface GlobalProgressData {
   totalItems: number;
@@ -20,7 +22,6 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
       if (!user?.id) return;
 
       try {
-        // Determine which course slugs to include
         const rookieSlugs = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
         const managerSlugs = ['manager-manual', 'learn-the-basics', 'recruiting-resources', 'manager-videos'];
         const targetSlugs = filterRole === 'manager' ? managerSlugs : rookieSlugs;
@@ -106,44 +107,51 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
   const isComplete = data.percentage === 100;
 
   return (
-    <div className={cn(
-      "mb-6 p-5 bg-card rounded-xl border transition-all",
-      isComplete 
-        ? "border-success/50 shadow-[0_0_30px_-10px_rgba(34,197,94,0.3)]" 
-        : "border-border"
-    )}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2.5">
-          <Trophy className={cn(
-            "w-5 h-5",
+    <>
+      <div className={cn(
+        "mb-4 p-5 bg-card rounded-xl border transition-all",
+        isComplete 
+          ? "border-success/50 shadow-[0_0_30px_-10px_rgba(34,197,94,0.3)]" 
+          : "border-border"
+      )}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <Trophy className={cn(
+              "w-5 h-5",
+              isComplete ? "text-success" : "text-primary"
+            )} />
+            <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+              Total Training Progress
+            </span>
+          </div>
+          <span className={cn(
+            "text-lg font-bold tabular-nums",
             isComplete ? "text-success" : "text-primary"
-          )} />
-          <span className="text-sm font-bold uppercase tracking-wider text-foreground">
-            Total Training Progress
+          )}>
+            {data.percentage}%
           </span>
         </div>
-        <span className={cn(
-          "text-lg font-bold tabular-nums",
-          isComplete ? "text-success" : "text-primary"
-        )}>
-          {data.percentage}%
-        </span>
+
+        <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
+          <div
+            className={cn(
+              "h-full rounded-full transition-all duration-700 ease-out",
+              isComplete ? "bg-success" : "bg-primary"
+            )}
+            style={{ width: `${data.percentage}%` }}
+          />
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Completed {data.completedItems} of {data.totalItems} total lessons
+        </p>
       </div>
 
-      {/* Progress bar - larger than module bars */}
-      <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
-        <div
-          className={cn(
-            "h-full rounded-full transition-all duration-700 ease-out",
-            isComplete ? "bg-success" : "bg-primary"
-          )}
-          style={{ width: `${data.percentage}%` }}
-        />
-      </div>
+      {/* Milestone Badges */}
+      <MilestoneBadges percentage={data.percentage} />
 
-      <p className="text-xs text-muted-foreground">
-        Completed {data.completedItems} of {data.totalItems} total lessons
-      </p>
-    </div>
+      {/* Completion Celebration (triggers once at 100%) */}
+      <CompletionCelebration percentage={data.percentage} />
+    </>
   );
 }
