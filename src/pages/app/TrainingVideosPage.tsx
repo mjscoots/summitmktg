@@ -5,9 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Video, Play, CheckCircle, ChevronLeft, Loader2, Film } from 'lucide-react';
+import { Video, ChevronLeft, Loader2, Film } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
+import { VideoCard } from '@/components/training/VideoCard';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
@@ -95,12 +96,12 @@ export default function TrainingVideosPage() {
   const watchedCount = videos.filter(v => watchedIds.has(v.id)).length;
   const progressPercent = videos.length > 0 ? Math.round((watchedCount / videos.length) * 100) : 0;
 
-  // Highlight helper
-  const highlightTitle = (title: string) => {
-    if (!searchTerm) return title;
+  // Highlight helper for search
+  const renderHighlightedTitle = (title: string) => {
+    if (!searchTerm) return undefined;
     const q = searchTerm.toLowerCase();
     const idx = title.toLowerCase().indexOf(q);
-    if (idx === -1) return title;
+    if (idx === -1) return undefined;
     return (
       <>
         {title.slice(0, idx)}
@@ -109,7 +110,6 @@ export default function TrainingVideosPage() {
       </>
     );
   };
-
   if (isLoading) {
     return (
       <AppLayout>
@@ -208,59 +208,16 @@ export default function TrainingVideosPage() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {displayedVideos.map(video => {
-              const isWatched = watchedIds.has(video.id);
-              return (
-                <div
-                  key={video.id}
-                  onClick={() => navigate(`/app/training/videos/${video.id}`)}
-                  className="group bg-card rounded-xl border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-lg hover:border-primary/40"
-                >
-                  <div className="aspect-video bg-muted relative flex items-center justify-center">
-                    {video.thumbnail_url ? (
-                      <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <Video className="w-12 h-12 text-muted-foreground/50" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center">
-                        <Play className="w-7 h-7 text-primary-foreground ml-0.5" fill="currentColor" />
-                      </div>
-                    </div>
-                    {isWatched && (
-                      <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-success/90 text-white rounded-full text-[10px] font-bold">
-                        <CheckCircle className="w-3 h-3" />
-                        WATCHED
-                      </div>
-                    )}
-                    {video.duration_minutes && (
-                      <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 text-white text-[10px] rounded">
-                        {video.duration_minutes} min
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                      {highlightTitle(video.title)}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
-                        {video.category}
-                      </span>
-                      {video.target_role && (
-                        <span className="px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground capitalize">
-                          {video.target_role} only
-                        </span>
-                      )}
-                    </div>
-                    {video.description && (
-                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{video.description}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {displayedVideos.map(video => (
+              <VideoCard
+                key={video.id}
+                video={video}
+                isWatched={watchedIds.has(video.id)}
+                onClick={() => navigate(`/app/training/videos/${video.id}`)}
+                highlightTitle={renderHighlightedTitle(video.title)}
+              />
+            ))}
           </div>
         )}
       </div>
