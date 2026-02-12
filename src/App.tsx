@@ -34,6 +34,8 @@ import Interview2Page from "./pages/app/Interview2Page";
 import Interview3Page from "./pages/app/Interview3Page";
 import WeeklyOneOnOnesPage from "./pages/app/WeeklyOneOnOnesPage";
 import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
+import TrainingVideosPage from "./pages/app/TrainingVideosPage";
+import VideoPlayerPage from "./pages/app/VideoPlayerPage";
 const queryClient = new QueryClient();
 
  // Inner app component to use hooks
@@ -77,21 +79,31 @@ const queryClient = new QueryClient();
            <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
            
            {/* Training */}
-           <Route path="/app/training" element={
-             <ProtectedRoute>
-               <TrainingPage />
-             </ProtectedRoute>
-           } />
-           <Route path="/app/training/:courseSlug" element={
-             <ProtectedRoute>
-               <TrainingCoursePage />
-             </ProtectedRoute>
-           } />
-           <Route path="/app/training/:courseSlug/:lessonId" element={
-             <ProtectedRoute>
-               <LessonPage />
-             </ProtectedRoute>
-           } />
+            <Route path="/app/training" element={
+              <ProtectedRoute>
+                <TrainingPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/training/videos" element={
+              <ProtectedRoute>
+                <TrainingVideosPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/training/videos/:videoId" element={
+              <ProtectedRoute>
+                <VideoPlayerPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/training/:courseSlug" element={
+              <ProtectedRoute>
+                <TrainingCoursePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/app/training/:courseSlug/:lessonId" element={
+              <ProtectedRoute>
+                <LessonPage />
+              </ProtectedRoute>
+            } />
            
            {/* My Team (Manager only) */}
            <Route path="/app/team" element={
