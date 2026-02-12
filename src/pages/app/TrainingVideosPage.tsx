@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Video, Play, CheckCircle, ChevronLeft, Loader2, Film } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
@@ -34,12 +35,15 @@ export default function TrainingVideosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All Videos');
 
+  // Search state
+  const [searchFilteredVideos, setSearchFilteredVideos] = useState<TrainingVideo[] | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch published videos visible to this user's role
         let query = supabase
           .from('training_videos')
           .select('*')
@@ -48,16 +52,14 @@ export default function TrainingVideosPage() {
           .order('created_at', { ascending: false });
 
         const { data: videosData } = await query;
-        
-        // Filter by role visibility
+
         const filtered = (videosData || []).filter(v => {
-          if (!v.target_role) return true; // visible to all
+          if (!v.target_role) return true;
           return v.target_role === role;
         });
-        
+
         setVideos(filtered);
 
-        // Fetch watch progress
         const { data: progressData } = await supabase
           .from('video_progress')
           .select('video_id')
@@ -74,12 +76,39 @@ export default function TrainingVideosPage() {
     fetchData();
   }, [user, role]);
 
-  const filteredVideos = activeCategory === 'All Videos'
+  const handleSearchResults = useCallback((filtered: TrainingVideo[], term: string) => {
+    setSearchTerm(term);
+    setSearchFilteredVideos(term ? filtered : null);
+  }, []);
+
+  const handleCategoryChange = useCallback((cat: string) => {
+    setActiveCategory(cat);
+  }, []);
+
+  // Determine displayed videos
+  const categoryFiltered = activeCategory === 'All Videos'
     ? videos
     : videos.filter(v => v.category === activeCategory);
 
+  const displayedVideos = searchTerm ? (searchFilteredVideos || []) : categoryFiltered;
+
   const watchedCount = videos.filter(v => watchedIds.has(v.id)).length;
   const progressPercent = videos.length > 0 ? Math.round((watchedCount / videos.length) * 100) : 0;
+
+  // Highlight helper
+  const highlightTitle = (title: string) => {
+    if (!searchTerm) return title;
+    const q = searchTerm.toLowerCase();
+    const idx = title.toLowerCase().indexOf(q);
+    if (idx === -1) return title;
+    return (
+      <>
+        {title.slice(0, idx)}
+        <span className="font-bold text-primary">{title.slice(idx, idx + searchTerm.length)}</span>
+        {title.slice(idx + searchTerm.length)}
+      </>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -94,7 +123,6 @@ export default function TrainingVideosPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Back button */}
         <Button
           variant="ghost"
           size="sm"
@@ -105,7 +133,6 @@ export default function TrainingVideosPage() {
           Back to Training
         </Button>
 
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
             <Video className="w-7 h-7 text-primary" />
@@ -126,6 +153,16 @@ export default function TrainingVideosPage() {
           <p className="text-xs text-muted-foreground mt-2">{progressPercent}% complete</p>
         </div>
 
+        {/* Search Bar */}
+        <VideoSearchBar
+          videos={videos}
+          categoryTabs={CATEGORY_TABS}
+          activeCategory={activeCategory}
+          onFilteredVideos={handleSearchResults}
+          onCategoryChange={handleCategoryChange}
+          onNavigateToVideo={(id) => navigate(`/app/training/videos/${id}`)}
+        />
+
         {/* Category Filter Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
           {CATEGORY_TABS.map(cat => {
@@ -134,7 +171,12 @@ export default function TrainingVideosPage() {
             return (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  // Clear search when switching tabs manually
+                  setSearchTerm('');
+                  setSearchFilteredVideos(null);
+                }}
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
                   activeCategory === cat
@@ -150,15 +192,24 @@ export default function TrainingVideosPage() {
         </div>
 
         {/* Video Grid */}
-        {filteredVideos.length === 0 ? (
+        {displayedVideos.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <Film className="w-16 h-16 mx-auto mb-4 opacity-40" />
-            <p>No videos in this category yet.</p>
-            <p className="text-sm mt-1">Check back soon!</p>
+            {searchTerm ? (
+              <>
+                <p>No videos found for "{searchTerm}"</p>
+                <p className="text-sm mt-1">Try searching a category like Introduction, Closing, or Body Language</p>
+              </>
+            ) : (
+              <>
+                <p>No videos in this category yet.</p>
+                <p className="text-sm mt-1">Check back soon!</p>
+              </>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredVideos.map(video => {
+            {displayedVideos.map(video => {
               const isWatched = watchedIds.has(video.id);
               return (
                 <div
@@ -166,41 +217,32 @@ export default function TrainingVideosPage() {
                   onClick={() => navigate(`/app/training/videos/${video.id}`)}
                   className="group bg-card rounded-xl border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-lg hover:border-primary/40"
                 >
-                  {/* Thumbnail */}
                   <div className="aspect-video bg-muted relative flex items-center justify-center">
                     {video.thumbnail_url ? (
                       <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
                     ) : (
                       <Video className="w-12 h-12 text-muted-foreground/50" />
                     )}
-                    
-                    {/* Play overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center">
                         <Play className="w-7 h-7 text-primary-foreground ml-0.5" fill="currentColor" />
                       </div>
                     </div>
-
-                    {/* Watched badge */}
                     {isWatched && (
                       <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-success/90 text-white rounded-full text-[10px] font-bold">
                         <CheckCircle className="w-3 h-3" />
                         WATCHED
                       </div>
                     )}
-
-                    {/* Duration */}
                     {video.duration_minutes && (
                       <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 text-white text-[10px] rounded">
                         {video.duration_minutes} min
                       </div>
                     )}
                   </div>
-
-                  {/* Info */}
                   <div className="p-4">
                     <h3 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                      {video.title}
+                      {highlightTitle(video.title)}
                     </h3>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
