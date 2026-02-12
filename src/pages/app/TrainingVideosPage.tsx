@@ -13,15 +13,15 @@ type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
 const CATEGORY_TABS = [
   'All Videos',
-  'Pitch Training',
+  'Introduction',
   'Switchover',
-  'Backyard Pitch',
+  'Fresh Account',
+  'Body Language',
+  'Tonality',
   'Objections',
   'Closing',
-  'Mindset',
-  'Success Stories',
-  'Role Plays',
-  'General',
+  'Advanced Training',
+  'Manager Training',
 ];
 
 export default function TrainingVideosPage() {
