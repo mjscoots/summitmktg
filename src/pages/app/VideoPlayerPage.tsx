@@ -77,35 +77,31 @@ export default function VideoPlayerPage() {
 
     const currentCatIdx = getCategoryIndex(video.category);
 
-    // Sort all videos by category order, then display_order
+    // Sort all videos by category order, then display_order, then title as tiebreaker
     const sorted = [...allVideos]
       .filter(v => v.id !== video.id)
       .sort((a, b) => {
         const catDiff = getCategoryIndex(a.category) - getCategoryIndex(b.category);
         if (catDiff !== 0) return catDiff;
-        return (a.display_order ?? 0) - (b.display_order ?? 0);
+        const orderDiff = (a.display_order ?? 0) - (b.display_order ?? 0);
+        if (orderDiff !== 0) return orderDiff;
+        return a.title.localeCompare(b.title);
       });
 
-    // Step 1: Unwatched videos in same category after current position
-    const sameCatUnwatched = sorted.filter(v =>
-      v.category.toLowerCase() === video.category.toLowerCase() &&
-      (v.display_order ?? 0) > (video.display_order ?? 0) &&
-      !watchedIds.has(v.id)
+    // Step 1: ALL remaining videos in same category (unwatched first, then watched)
+    const sameCatAll = sorted.filter(v =>
+      v.category.toLowerCase() === video.category.toLowerCase()
     );
+    const sameCatUnwatched = sameCatAll.filter(v => !watchedIds.has(v.id));
+    const sameCatWatched = sameCatAll.filter(v => watchedIds.has(v.id));
 
-    // Step 2: If same category exhausted, get unwatched from next categories in order
+    // Step 2: Only if same category is exhausted, show next categories
     const nextCatUnwatched = sorted.filter(v =>
       getCategoryIndex(v.category) > currentCatIdx &&
       !watchedIds.has(v.id)
     );
 
-    // Step 3: Fill remaining slots with watched same-cat videos (for context)
-    const sameCatWatched = sorted.filter(v =>
-      v.category.toLowerCase() === video.category.toLowerCase() &&
-      (v.display_order ?? 0) > (video.display_order ?? 0) &&
-      watchedIds.has(v.id)
-    );
-
+    // Priority: same-cat unwatched → same-cat watched → next-cat unwatched
     const queue = [...sameCatUnwatched, ...sameCatWatched, ...nextCatUnwatched];
     return queue.slice(0, 6);
   }, [video, allVideos, watchedIds]);
