@@ -21,6 +21,7 @@ const CATEGORY_TABS = [
   'Objections',
   'Closing',
   'Advanced Training',
+  'Mental Mastery',
   'Manager Training',
 ];
 
