@@ -29,6 +29,7 @@ const CATEGORIES = [
   'Objections',
   'Closing',
   'Advanced Training',
+  'Mental Mastery',
   'Manager Training',
 ];
 
