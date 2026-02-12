@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    // Verify the caller is an admin
+    // Verify the caller is an admin or manager
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Missing authorization" }), {
@@ -37,36 +37,67 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if caller is admin
+    // Check if caller is admin or manager
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerUser.id)
-      .eq("role", "admin")
-      .maybeSingle();
+      .in("role", ["admin", "manager"]);
 
-    if (!roleData) {
-      return new Response(JSON.stringify({ error: "Admin access required" }), {
+    if (!roleData || roleData.length === 0) {
+      return new Response(JSON.stringify({ error: "Admin or manager access required" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { email, password, full_name } = await req.json();
+    const body = await req.json();
+    const { 
+      email, 
+      password = "summit2026", 
+      full_name, 
+      phone, 
+      role = "rookie", 
+      team_id, 
+      direct_manager, 
+      status = "active",
+      send_welcome = true,
+    } = body;
 
-    if (!email || !password) {
-      return new Response(JSON.stringify({ error: "Email and password required" }), {
+    if (!email || !full_name) {
+      return new Response(JSON.stringify({ error: "Email and full name are required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Create the user in auth.users
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if profile already exists with this email
+    const { data: existingProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("id, user_id, email")
+      .eq("email", normalizedEmail)
+      .maybeSingle();
+
+    if (existingProfile) {
+      return new Response(JSON.stringify({ error: "A member with this email already exists" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Create the auth user
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: normalizedEmail,
       password,
-      email_confirm: true, // Auto-confirm email
-      user_metadata: { full_name: full_name || email }
+      email_confirm: true,
+      user_metadata: { 
+        full_name,
+        phone: phone || undefined,
+        direct_manager: direct_manager || undefined,
+        selected_role: role,
+      }
     });
 
     if (createError) {
@@ -76,31 +107,58 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update the existing profile to link to this new auth user
+    // The handle_new_user trigger creates the profile and role automatically.
+    // Now update the profile with additional fields.
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
-      .update({ user_id: newUser.user.id })
-      .eq("email", email.toLowerCase());
+      .update({
+        phone: phone || null,
+        team_id: team_id || null,
+        direct_manager: direct_manager || null,
+        status: status,
+      })
+      .eq("user_id", newUser.user.id);
 
-    // Update user_roles to use the new user_id
-    const { data: existingProfile } = await supabaseAdmin
-      .from("profiles")
-      .select("user_id")
-      .eq("email", email.toLowerCase())
-      .maybeSingle();
+    if (updateError) {
+      console.error("Profile update error:", updateError);
+    }
 
-    if (existingProfile) {
-      // Update any existing role entries to point to new user
-      await supabaseAdmin
-        .from("user_roles")
-        .update({ user_id: newUser.user.id })
-        .eq("user_id", existingProfile.user_id);
+    // Send welcome/invite email if requested
+    if (send_welcome) {
+      try {
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Summit <onboarding@resend.dev>",
+              to: [normalizedEmail],
+              subject: "Welcome to Summit — Your Account is Ready",
+              html: `
+                <h2>Welcome to Summit, ${full_name}!</h2>
+                <p>Your account has been created. Here are your login details:</p>
+                <p><strong>Email:</strong> ${normalizedEmail}</p>
+                <p><strong>Temporary Password:</strong> ${password}</p>
+                <p>Please log in and change your password immediately.</p>
+                <p><a href="https://summitmktg.lovable.app/app/auth">Log in to Summit</a></p>
+              `,
+            }),
+          });
+        }
+      } catch (emailErr) {
+        console.error("Welcome email failed:", emailErr);
+        // Don't fail the whole operation if email fails
+      }
     }
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: `User created for ${email}`,
-      user_id: newUser.user.id 
+      message: `${full_name} added successfully`,
+      user_id: newUser.user.id,
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
