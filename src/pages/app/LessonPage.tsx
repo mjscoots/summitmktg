@@ -106,9 +106,13 @@ export default function LessonPage() {
 
   const isRookieCourse = ROOKIE_COURSES.includes(courseSlug || '');
   
-  const isQuizOptional = moduleInfo 
-    ? OPTIONAL_QUIZ_MODULES.some(m => moduleInfo.title.toLowerCase().includes(m))
-    : false;
+  // Mastery Check lessons always require quizzes, even in optional-quiz modules
+  const isMasteryCheck = lesson?.title?.toLowerCase().includes('mastery') ?? false;
+  const isQuizOptional = isMasteryCheck 
+    ? false 
+    : (moduleInfo 
+        ? OPTIONAL_QUIZ_MODULES.some(m => moduleInfo.title.toLowerCase().includes(m))
+        : false);
 
   // Check if this is a Scripts module lesson (for team script selector)
   const isScriptsLesson = moduleInfo?.id === SCRIPTS_MODULE_ID;
