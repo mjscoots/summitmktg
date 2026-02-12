@@ -21,15 +21,15 @@ type AppRole = Database['public']['Enums']['app_role'];
 type VideoSource = 'url' | 'upload';
 
 const CATEGORIES = [
-  'Pitch Training',
+  'Introduction',
   'Switchover',
-  'Backyard Pitch',
+  'Fresh Account',
+  'Body Language',
+  'Tonality',
   'Objections',
   'Closing',
-  'Mindset',
-  'Success Stories',
-  'Role Plays',
-  'General',
+  'Advanced Training',
+  'Manager Training',
 ];
 
 const parseEmbedUrl = (url: string): string | null => {
@@ -60,7 +60,7 @@ export function TrainingVideosManager() {
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Pitch Training');
+  const [category, setCategory] = useState('Introduction');
   const [targetRole, setTargetRole] = useState<AppRole | 'all'>('all');
   const [isPublished, setIsPublished] = useState(true);
   const [videoSource, setVideoSource] = useState<VideoSource>('url');
@@ -91,7 +91,7 @@ export function TrainingVideosManager() {
   const resetForm = () => {
     setTitle('');
     setDescription('');
-    setCategory('Pitch Training');
+    setCategory('Introduction');
     setTargetRole('all');
     setIsPublished(true);
     setVideoSource('url');
