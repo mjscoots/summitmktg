@@ -13,22 +13,30 @@ interface LessonContentProps {
  * and renders accordingly to preserve formatting from admin edits.
  */
 export function LessonContent({ content, isRookieCourse = true }: LessonContentProps) {
+  // Clean content: strip bare <p> wrappers that contain markdown
+  const cleanedContent = useMemo(() => {
+    // If content is just wrapped in a single <p>...</p> but contains markdown syntax inside, unwrap it
+    const stripped = content.replace(/^<p>([\s\S]*)<\/p>$/i, '$1').trim();
+    return stripped || content;
+  }, [content]);
+
   const isHtmlContent = useMemo(() => {
     // Detect if content is HTML by checking for common HTML tags
-    return /<(h[1-6]|p|ul|ol|li|div|span|strong|em|blockquote|br|img|a|table)\b/i.test(content);
-  }, [content]);
+    // But ignore if the only HTML is simple wrapper tags around markdown
+    return /<(h[1-6]|ul|ol|li|div|blockquote|br|img|a|table)\b/i.test(cleanedContent) ||
+           (/<(p|strong|em|span)\b/i.test(cleanedContent) && !/(^|\n)#{1,6}\s/.test(cleanedContent));
+  }, [cleanedContent]);
 
   const processedContent = useMemo(() => {
     if (isHtmlContent) {
-      // Content is HTML from the CMS Rich Text Editor - render as-is with sanitization
-      return DOMPurify.sanitize(content, {
+      return DOMPurify.sanitize(cleanedContent, {
         ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'em', 'b', 'i', 'u', 's', 'br', 'blockquote', 'hr', 'span', 'div', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'sub', 'sup'],
         ALLOWED_ATTR: ['class', 'style', 'href', 'src', 'alt', 'target', 'rel', 'width', 'height'],
       });
     }
 
     // Legacy markdown content - apply regex transforms
-    let html = content
+    let html = cleanedContent
       .replace(/^#{1}\s+(.+)$/gm, `<h1 class="text-2xl font-semibold text-foreground mb-4 mt-6 first:mt-0 tracking-tight">$1</h1>`)
       .replace(/^#{2}\s+(.+)$/gm, `<h2 class="text-lg font-semibold text-foreground mb-3 mt-8 first:mt-0 pb-2 border-b border-border/30">$1</h2>`)
       .replace(/^#{3}\s+(.+)$/gm, `<h3 class="text-base font-semibold text-foreground mb-2 mt-6">$1</h3>`)
@@ -60,7 +68,7 @@ export function LessonContent({ content, isRookieCourse = true }: LessonContentP
       ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'p', 'strong', 'em', 'br', 'blockquote', 'hr', 'span', 'div', 'ul', 'ol', 'li', 'code'],
       ALLOWED_ATTR: ['class', 'style'],
     });
-  }, [content, isRookieCourse, isHtmlContent]);
+  }, [cleanedContent, isRookieCourse, isHtmlContent]);
 
   return (
     <div 
