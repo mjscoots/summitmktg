@@ -174,6 +174,12 @@ export default function AdminTrainingEditor() {
   };
 
   const handleSelectCourse = (courseId: string) => {
+    // If the course is "Training Videos", show the video manager instead
+    const course = courses.find(c => c.id === courseId);
+    if (course?.slug === 'training-videos') {
+      handleSelectTrainingVideos();
+      return;
+    }
     setSelectedCourseId(courseId);
     setSelectedModuleId(null);
     setSelectedLesson(null);
