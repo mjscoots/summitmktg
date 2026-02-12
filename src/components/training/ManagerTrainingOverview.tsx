@@ -111,11 +111,20 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
           courseLessonMap[course.slug] = lessons?.map(l => l.id) || [];
         }
 
-        // Get total video count
+        // Get total REQUIRED video count only
         const { count: totalVideos } = await supabase
           .from('training_videos')
           .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
+          .eq('is_active', true)
+          .eq('is_required', true);
+
+        // Get required video IDs for accurate counting
+        const { data: requiredVideosList } = await supabase
+          .from('training_videos')
+          .select('id')
+          .eq('is_active', true)
+          .eq('is_required', true);
+        const requiredVideoIds = new Set((requiredVideosList || []).map(v => v.id));
 
         const pitchLessons = courseLessonMap['learn-your-pitch'] || [];
         const manualLessons = courseLessonMap['summer-sales-manual'] || [];
@@ -137,14 +146,16 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
             const pitchDone = pitchLessons.filter(id => completedIds.has(id)).length;
             const manualDone = manualLessons.filter(id => completedIds.has(id)).length;
 
-            // Video progress
-            const { count: videosDone } = await supabase
+            // Video progress - only count required videos
+            const { data: videoProg } = await supabase
               .from('video_progress')
-              .select('*', { count: 'exact', head: true })
+              .select('video_id')
               .eq('user_id', rep.user_id)
               .eq('watched', true);
 
-            const totalDone = pitchDone + manualDone + (videosDone || 0);
+            const videosDone = (videoProg || []).filter(vp => requiredVideoIds.has(vp.video_id)).length;
+
+            const totalDone = pitchDone + manualDone + videosDone;
             const globalPercent = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0;
 
             // Get last active
@@ -160,7 +171,7 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
               globalPercent,
               pitchPercent: pitchLessons.length > 0 ? Math.round((pitchDone / pitchLessons.length) * 100) : 0,
               manualPercent: manualLessons.length > 0 ? Math.round((manualDone / manualLessons.length) * 100) : 0,
-              videoPercent: totalVideoCount > 0 ? Math.round(((videosDone || 0) / totalVideoCount) * 100) : 0,
+              videoPercent: totalVideoCount > 0 ? Math.round((videosDone / totalVideoCount) * 100) : 0,
               lastActive: profile?.last_active_at || null,
             };
           })

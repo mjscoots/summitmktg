@@ -1135,6 +1135,7 @@ export type Database = {
           duration_minutes: number | null
           id: string
           is_active: boolean | null
+          is_required: boolean
           target_role: Database["public"]["Enums"]["app_role"] | null
           team_specific: boolean | null
           thumbnail_url: string | null
@@ -1151,6 +1152,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_active?: boolean | null
+          is_required?: boolean
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_specific?: boolean | null
           thumbnail_url?: string | null
@@ -1167,6 +1169,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_active?: boolean | null
+          is_required?: boolean
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_specific?: boolean | null
           thumbnail_url?: string | null

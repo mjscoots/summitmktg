@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Play, CheckCircle, Clock } from 'lucide-react';
+import { Play, CheckCircle, Clock, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getVideoThumbnailUrl } from '@/lib/videoUtils';
+import { isBonusCategory } from '@/lib/trainingConstants';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
@@ -16,6 +17,7 @@ interface VideoCardProps {
 export function VideoCard({ video, isWatched, onClick, highlightTitle }: VideoCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const isBonus = isBonusCategory(video.category);
 
   const thumbnailUrl = video.thumbnail_url || getVideoThumbnailUrl(video.video_url);
 
@@ -83,13 +85,28 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle }: VideoCa
             WATCHED
           </div>
         )}
+
+        {/* Bonus badge - top left */}
+        {isBonus && (
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2 py-0.5 bg-yellow-500/90 text-white rounded-full text-[10px] font-bold tracking-wide">
+            <Star className="w-3 h-3" />
+            BONUS
+          </div>
+        )}
       </div>
 
       {/* Card Info */}
       <div className="p-3">
-        <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-          {highlightTitle || video.title}
-        </h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+            {highlightTitle || video.title}
+          </h3>
+          {isBonus && (
+            <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-500 border border-yellow-500/30">
+              Optional
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2 mt-2">
           <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
             {video.category}

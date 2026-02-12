@@ -115,17 +115,28 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
               const { count: totalCount } = await supabase
                 .from('training_videos')
                 .select('*', { count: 'exact', head: true })
-                .eq('is_active', true);
+                .eq('is_active', true)
+                .eq('is_required', true);
 
               const totalLessons = totalCount || 0;
 
-              const { count: watchedCount } = await supabase
+              // Get watched required videos only
+              const { data: requiredVideos } = await supabase
+                .from('training_videos')
+                .select('id')
+                .eq('is_active', true)
+                .eq('is_required', true);
+              const requiredIds = new Set((requiredVideos || []).map(v => v.id));
+
+              const { data: watchedData } = await supabase
                 .from('video_progress')
-                .select('*', { count: 'exact', head: true })
+                .select('video_id')
                 .eq('user_id', user.id)
                 .eq('watched', true);
 
-              const completedLessons = watchedCount || 0;
+              const completedLessons = (watchedData || []).filter(w => requiredIds.has(w.video_id)).length;
+
+              
               const progress = totalLessons > 0
                 ? Math.round((completedLessons / totalLessons) * 100)
                 : 0;
