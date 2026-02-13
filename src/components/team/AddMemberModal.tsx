@@ -75,7 +75,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
 
   // Fetch managers/pillars for Reports To dropdown
   useEffect(() => {
-    if (!open || !selectedTeamId) {
+    if (!open) {
       setManagerOptions([]);
       return;
     }
@@ -88,29 +88,53 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
         .in('role', ['manager', 'admin']);
 
       const managerUserIds = roleData?.map(r => r.user_id) || [];
-      if (managerUserIds.length === 0) return;
+      if (managerUserIds.length === 0) { setManagerOptions([]); return; }
 
-      // Get profiles for these managers on the selected team
-      const { data: profiles } = await supabase
+      // Build query - filter by team if selected, otherwise show all
+      let query = supabase
         .from('profiles')
         .select('user_id, full_name, team_id, teams:team_id (name)')
         .in('user_id', managerUserIds)
-        .eq('team_id', selectedTeamId)
         .neq('status', 'nlc');
+
+      if (selectedTeamId) {
+        query = query.eq('team_id', selectedTeamId);
+      }
+
+      const { data: profiles } = await query;
 
       const roleMap = new Map(roleData?.map(r => [r.user_id, r.role]) || []);
 
-      const options: ManagerOption[] = (profiles || []).map(p => ({
-        user_id: p.user_id,
-        full_name: p.full_name,
-        role: roleMap.get(p.user_id) || 'manager',
-        team_name: (p.teams as any)?.name || null,
-        team_id: p.team_id,
-      }));
+      // Also get team leaders (pillars) from teams table
+      const { data: teamsData } = await supabase.from('teams').select('leader_id');
+      const pillarIds = new Set(teamsData?.map(t => t.leader_id).filter(Boolean) || []);
 
-      // If role is rookie, show managers and pillars
-      // If role is manager, show only pillars (team leaders)
-      options.sort((a, b) => a.full_name.localeCompare(b.full_name));
+      let options: ManagerOption[] = (profiles || []).map(p => {
+        const dbRole = roleMap.get(p.user_id) || 'manager';
+        const isPillar = pillarIds.has(p.user_id);
+        return {
+          user_id: p.user_id,
+          full_name: p.full_name,
+          role: isPillar ? 'pillar' : dbRole,
+          team_name: (p.teams as any)?.name || null,
+          team_id: p.team_id,
+        };
+      });
+
+      // Filter by selected role:
+      // Rookies can report to managers or pillars
+      // Managers can only report to pillars
+      if (selectedRole === 'manager') {
+        options = options.filter(o => o.role === 'pillar' || o.role === 'admin');
+      }
+
+      // Sort: pillars first, then managers, then by name
+      options.sort((a, b) => {
+        const roleOrder = (r: string) => r === 'pillar' ? 0 : r === 'admin' ? 1 : 2;
+        const diff = roleOrder(a.role) - roleOrder(b.role);
+        return diff !== 0 ? diff : a.full_name.localeCompare(b.full_name);
+      });
+
       setManagerOptions(options);
     };
 
@@ -125,8 +149,9 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
     }
     const q = managerSearch.toLowerCase();
     setFilteredManagers(managerOptions.filter(m =>
-      m.full_name.toLowerCase().includes(q)
-    ));
+      m.full_name.toLowerCase().includes(q) ||
+      (m.team_name && m.team_name.toLowerCase().includes(q))
+    ).slice(0, 20));
   }, [managerSearch, managerOptions]);
 
   // Close dropdown on outside click
@@ -331,21 +356,21 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
                     value={managerSearch}
                     onChange={e => { setManagerSearch(e.target.value); setShowManagerDropdown(true); }}
                     onFocus={() => setShowManagerDropdown(true)}
-                    placeholder={selectedTeamId ? "Search managers on this team..." : "Select a team first"}
+                    placeholder={selectedTeamId ? "Search managers on this team..." : "Search all managers..."}
                     className={cn(
                       "w-full pl-10 pr-4 py-2.5 bg-background border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50",
                       errors.reportsTo ? "border-destructive" : "border-border"
                     )}
-                    disabled={isSaving || !selectedTeamId}
+                    disabled={isSaving}
                   />
                 </div>
               )}
 
-              {showManagerDropdown && !reportsTo && selectedTeamId && (
-                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-40 overflow-y-auto">
+              {showManagerDropdown && !reportsTo && (
+                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
                   {filteredManagers.length === 0 ? (
                     <div className="p-3 text-center text-sm text-muted-foreground">
-                      {managerSearch ? 'No managers found' : 'No managers on this team'}
+                      {managerSearch ? `No managers found for '${managerSearch}'` : 'No managers available'}
                     </div>
                   ) : (
                     <ul className="py-1">
@@ -354,14 +379,16 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
                           <button
                             type="button"
                             onClick={() => { setReportsTo(m); setShowManagerDropdown(false); setManagerSearch(''); }}
-                            className="w-full text-left px-3 py-2 hover:bg-muted/50 flex items-center gap-2 text-sm"
+                            className="w-full text-left px-3 py-2.5 hover:bg-muted/50 flex items-center gap-3 text-sm"
                           >
-                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <User className="w-3 h-3 text-primary" />
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <User className="w-4 h-4 text-primary" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <span className="font-medium">{m.full_name}</span>
-                              <span className="text-muted-foreground ml-1 capitalize">({m.role})</span>
+                              <p className="font-medium text-foreground truncate">{m.full_name}</p>
+                              <p className="text-xs text-muted-foreground capitalize truncate">
+                                {m.role} • {m.team_name || 'No team'}
+                              </p>
                             </div>
                           </button>
                         </li>

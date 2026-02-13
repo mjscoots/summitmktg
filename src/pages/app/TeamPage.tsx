@@ -35,16 +35,11 @@ import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 
-// Top-level team pillars with their leaders
-const TEAM_PILLARS = [
-  { name: 'Mafia', leader: 'Luke Chevalier' },
-  { name: 'Quality Control', leader: 'Joshua Bingham' },
-  { name: 'Altitude', leader: 'Cole Bundren' },
-  { name: 'Atlas', leader: 'Sean Jablonski' },
-  { name: 'Apex', leader: 'Hunter Shannon' },
-  { name: 'Minions', leader: 'Colton Joyce' },
-  { name: 'Paper Route', leader: 'Liam Gardner' },
-];
+interface TeamPillar {
+  name: string;
+  leader: string;
+  id: string;
+}
 
 interface TeamMemberLocal {
   id: string;
@@ -84,6 +79,7 @@ export default function TeamPage() {
   const [statusFilter, setStatusFilter] = useState<'active' | 'nlc' | 'all'>('active');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [teams, setTeams] = useState<{ id: string; name: string; slug: string }[]>([]);
+  const [teamPillars, setTeamPillars] = useState<TeamPillar[]>([]);
   
   // Modals
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -135,8 +131,27 @@ export default function TeamPage() {
   }, [statusFilter]);
 
   const fetchTeams = useCallback(async () => {
-    const { data } = await supabase.from('teams').select('id, name, slug').order('name');
+    const { data } = await supabase.from('teams').select('id, name, slug, leader_id').order('name');
     setTeams(data || []);
+
+    // Build dynamic team pillars from DB
+    if (data && data.length > 0) {
+      const leaderIds = data.filter(t => t.leader_id).map(t => t.leader_id!);
+      let leaderMap = new Map<string, string>();
+      if (leaderIds.length > 0) {
+        const { data: leaders } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', leaderIds);
+        leaders?.forEach(l => leaderMap.set(l.user_id, l.full_name));
+      }
+      const pillars: TeamPillar[] = data.map(t => ({
+        id: t.id,
+        name: t.name,
+        leader: t.leader_id ? (leaderMap.get(t.leader_id) || 'Unknown') : 'Unassigned',
+      }));
+      setTeamPillars(pillars);
+    }
   }, []);
 
   useEffect(() => {
@@ -401,20 +416,20 @@ export default function TeamPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {TEAM_PILLARS.map(pillar => {
+            {teamPillars.map(pillar => {
               let tree = buildTree(pillar.leader);
               if (searchQuery && tree) tree = filterTree(tree, searchQuery);
               const count = getActiveCount(pillar.leader);
 
               return (
-                <div key={pillar.name} className="bg-card rounded-xl border border-border/50 p-5">
+                <div key={pillar.id} className="bg-card rounded-xl border border-border/50 p-5">
                   <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border/30">
                     <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                       <Users className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{pillar.name}</h3>
-                      <p className="text-xs text-muted-foreground">Led by {pillar.leader}</p>
+                      <p className="text-xs text-muted-foreground">Led by {getDisplayName(pillar.leader)}</p>
                     </div>
                     <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
                       {count} members
@@ -425,7 +440,7 @@ export default function TeamPage() {
                     <div className="space-y-1">{renderTreeNode(tree)}</div>
                   ) : (
                     <p className="text-sm text-muted-foreground py-4 text-center">
-                      {searchQuery ? 'No members match your search' : `${pillar.leader} not found in system`}
+                      {searchQuery ? 'No members match your search' : `${getDisplayName(pillar.leader)} not found in system`}
                     </p>
                   )}
                 </div>
