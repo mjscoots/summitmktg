@@ -232,7 +232,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-hidden flex flex-col bg-card border-border">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col bg-card border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-primary" />
@@ -240,7 +240,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 py-2 -mx-6 px-6" style={{ maxHeight: 'calc(85vh - 140px)' }}>
+        <div className="flex-1 overflow-y-auto overflow-x-visible space-y-4 py-2 -mx-6 px-6" style={{ maxHeight: 'calc(90vh - 140px)' }}>
           {/* Name fields */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -367,7 +367,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
               )}
 
               {showManagerDropdown && !reportsTo && (
-                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                <div className="mt-1 bg-card border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
                   {filteredManagers.length === 0 ? (
                     <div className="p-3 text-center text-sm text-muted-foreground">
                       {managerSearch ? `No managers found for '${managerSearch}'` : 'No managers available'}

@@ -2,11 +2,12 @@ import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle } from 'lucide-react';
+import { Users, Search, AlertTriangle, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TeamCard } from '@/components/team/TeamCard';
 import { PillarTreeView } from '@/components/team/PillarTreeView';
 import { MembersModal } from '@/components/team/MembersModal';
+import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { AnimatedEllipsis } from '@/components/team/AnimatedEllipsis';
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
  import { formatTimeMinutes } from '@/hooks/useActivityTracking';
@@ -42,6 +43,7 @@ export default function MyTeamPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   const [membersModalOpen, setMembersModalOpen] = useState(false);
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
@@ -272,6 +274,18 @@ export default function MyTeamPage() {
                     <Users className="w-4 h-4 mr-1.5" />
                     Members
                   </Button>
+
+                  {/* Add Member Button */}
+                  {isManagerRole && (
+                    <Button
+                      onClick={() => setAddMemberOpen(true)}
+                      size="sm"
+                      className="gap-1.5"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Add Member
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -335,6 +349,14 @@ export default function MyTeamPage() {
         <MembersModal 
           open={membersModalOpen} 
           onClose={() => setMembersModalOpen(false)} 
+        />
+
+        {/* Add Member Modal */}
+        <AddMemberModal
+          open={addMemberOpen}
+          onClose={() => setAddMemberOpen(false)}
+          onMemberAdded={() => fetchData()}
+          teams={pillars.map(p => ({ id: p.id, name: p.name, slug: p.slug }))}
         />
       </main>
     </AppLayout>
