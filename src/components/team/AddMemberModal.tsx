@@ -90,18 +90,12 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
       const managerUserIds = roleData?.map(r => r.user_id) || [];
       if (managerUserIds.length === 0) { setManagerOptions([]); return; }
 
-      // Build query - filter by team if selected, otherwise show all
-      let query = supabase
+      // Query ALL active managers/pillars across ALL teams - no team filter
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, full_name, team_id, teams:team_id (name)')
         .in('user_id', managerUserIds)
         .neq('status', 'nlc');
-
-      if (selectedTeamId) {
-        query = query.eq('team_id', selectedTeamId);
-      }
-
-      const { data: profiles } = await query;
 
       const roleMap = new Map(roleData?.map(r => [r.user_id, r.role]) || []);
 
@@ -139,7 +133,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
     };
 
     fetchManagers();
-  }, [open, selectedTeamId, selectedRole]);
+  }, [open, selectedRole]);
 
   // Filter managers by search
   useEffect(() => {
@@ -165,11 +159,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Reset Reports To when team changes
-  useEffect(() => {
-    setReportsTo(null);
-    setManagerSearch('');
-  }, [selectedTeamId]);
+  // No longer reset Reports To when team changes since dropdown shows all teams
 
   const formatPhoneNumber = (value: string): string => {
     const cleaned = value.replace(/\D/g, '');
