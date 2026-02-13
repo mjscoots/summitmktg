@@ -5,27 +5,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { ArrowLeft, UserPlus, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ManagerAutocomplete } from '@/components/interviews/ManagerAutocomplete';
+import { TeamAssignmentSection, TeamAssignmentData } from '@/components/interviews/TeamAssignmentSection';
 
 interface FormData {
   recruitName: string;
   interviewerName: string;
+  recruitEmail: string;
+  recruitPhone: string;
   dreamScenario: string;
   identityQuestion: string;
   futurePacing: string;
@@ -35,31 +24,17 @@ interface FormData {
   outcome: 'offer' | 'disqualified' | '';
 }
 
-interface SelectedManager {
-  user_id: string;
-  full_name: string;
-  email: string;
-  team_name: string | null;
-}
-
-interface RepFormData {
-  fullName: string;
-  email: string;
-  phone: string;
-  teamId: string;
-  directManager: SelectedManager | null;
-}
-
 export default function Interview3Page() {
   const navigate = useNavigate();
   const { profile, isLoading, user } = useAuth();
-  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
-  const [showRepForm, setShowRepForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [teamAssignment, setTeamAssignment] = useState<TeamAssignmentData | null>(null);
+
   const [formData, setFormData] = useState<FormData>({
     recruitName: '',
     interviewerName: profile?.full_name || '',
+    recruitEmail: '',
+    recruitPhone: '',
     dreamScenario: '',
     identityQuestion: '',
     futurePacing: '',
@@ -69,34 +44,14 @@ export default function Interview3Page() {
     outcome: '',
   });
 
-  const [repFormData, setRepFormData] = useState<RepFormData>({
-    fullName: '',
-    email: '',
-    phone: '',
-    teamId: '',
-    directManager: null,
-  });
-
   useEffect(() => {
     if (profile?.full_name) {
       setFormData(prev => ({ ...prev, interviewerName: profile.full_name }));
     }
   }, [profile]);
 
-  useEffect(() => {
-    const fetchTeams = async () => {
-      const { data } = await supabase.from('teams').select('id, name').order('name');
-      setTeams(data || []);
-    };
-    fetchTeams();
-  }, []);
-
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleRepChange = (field: keyof RepFormData, value: string | SelectedManager | null) => {
-    setRepFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const formatPhoneNumber = (value: string) => {
@@ -106,7 +61,7 @@ export default function Interview3Page() {
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.recruitName.trim()) {
       toast.error('Please enter the recruit name');
       return;
@@ -120,148 +75,130 @@ export default function Interview3Page() {
       return;
     }
 
-    // Save interview to localStorage
-    const stored = localStorage.getItem('summit_interview_responses');
-    const responses = stored ? JSON.parse(stored) : [];
-    
-    responses.push({
-      id: crypto.randomUUID(),
-      interviewee: formData.recruitName,
-      interview: 3,
-      interviewer: formData.interviewerName,
-      submitted: new Date().toISOString(),
-      data: {
-        'Dream Scenario': formData.dreamScenario,
-        'Identity Question': formData.identityQuestion,
-        'Future Pacing': formData.futurePacing,
-        'Confidence Scale (1-10)': formData.confidenceScale,
-        'Commitment Level': formData.commitmentLevel,
-        'Final Outcome': formData.outcome === 'offer' ? 'Offer Extended' : 'Disqualified',
-        'Notes': formData.notes,
-      },
-    });
-    
-    localStorage.setItem('summit_interview_responses', JSON.stringify(responses));
-    
-    if (formData.outcome === 'offer') {
-      // Pre-fill rep form with recruit name
-      setRepFormData(prev => ({ ...prev, fullName: formData.recruitName }));
-      setShowRepForm(true);
-    } else {
-      toast.success('Interview submitted');
-      navigate('/app/interviews');
+    // Validate team assignment if partially filled
+    if (teamAssignment && !teamAssignment.reportsTo) {
+      toast.error('Please select who this recruit reports to');
+      return;
     }
-  };
 
-  const handleAddRep = async () => {
-    if (!repFormData.fullName.trim()) {
-      toast.error('Please enter the rep\'s full name');
-      return;
-    }
-    if (!repFormData.email.trim()) {
-      toast.error('Please enter the rep\'s email');
-      return;
-    }
-    if (!repFormData.phone.trim()) {
-      toast.error('Please enter the rep\'s phone number');
-      return;
-    }
-    if (!repFormData.directManager) {
-      toast.error('Please select a direct manager from the list');
-      return;
-    }
-    if (!repFormData.teamId) {
-      toast.error('Please select a team');
+    if (teamAssignment?.createAccount && !formData.recruitEmail.trim()) {
+      toast.error('Email is required to create a Summit account');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Insert into rep_signups table
-      const { error: signupError } = await supabase.from('rep_signups').insert({
-        rep_name: repFormData.fullName,
-        rep_email: repFormData.email,
-        rep_phone: repFormData.phone,
-        team_id: repFormData.teamId,
-        signed_by: user?.id,
-        source: 'interview3',
+      // Save interview to localStorage
+      const stored = localStorage.getItem('summit_interview_responses');
+      const responses = stored ? JSON.parse(stored) : [];
+      
+      responses.push({
+        id: crypto.randomUUID(),
+        interviewee: formData.recruitName,
+        interview: 3,
+        interviewer: formData.interviewerName,
+        submitted: new Date().toISOString(),
+        data: {
+          'Dream Scenario': formData.dreamScenario,
+          'Identity Question': formData.identityQuestion,
+          'Future Pacing': formData.futurePacing,
+          'Confidence Scale (1-10)': formData.confidenceScale,
+          'Commitment Level': formData.commitmentLevel,
+          'Final Outcome': formData.outcome === 'offer' ? 'Offer Extended' : 'Disqualified',
+          'Notes': formData.notes,
+        },
       });
+      
+      localStorage.setItem('summit_interview_responses', JSON.stringify(responses));
 
-      if (signupError) throw signupError;
-
-      // Track notification failures
-      const notificationErrors: string[] = [];
-
-      // Create notification for the assigned manager (bell icon)
-      const { error: notificationError } = await supabase.from('user_notifications').insert({
-        user_id: repFormData.directManager.user_id,
-        title: `New Rep Assigned: ${repFormData.fullName}`,
-        message: `${formData.interviewerName} has completed Interview 3 and assigned ${repFormData.fullName} to your team. The rep is ready to begin training.`,
-        link: '/app/team',
-      });
-
-      if (notificationError) {
-        console.error('Notification error:', notificationError);
-        notificationErrors.push('manager bell notification');
-      }
-
-      // Create team-specific notifications (banners on team page)
-      // Manager-only notification (expires in 48 hours)
-      const managerExpiry = new Date();
-      managerExpiry.setHours(managerExpiry.getHours() + 48);
-
-      const { error: managerNotifError } = await supabase.from('team_notifications').insert({
-        team_id: repFormData.teamId,
-        type: 'manager_only',
-        signer_user_id: user?.id,
-        signer_name: formData.interviewerName,
-        new_rep_name: repFormData.fullName,
-        new_rep_email: repFormData.email,
-        new_rep_phone: repFormData.phone,
-        expires_at: managerExpiry.toISOString(),
-      });
-
-      if (managerNotifError) {
-        console.error('Manager notification error:', managerNotifError);
-        notificationErrors.push('manager team banner');
-      }
-
-      // Team-wide welcome notification (expires in 7 days)
-      const teamWideExpiry = new Date();
-      teamWideExpiry.setDate(teamWideExpiry.getDate() + 7);
-
-      const { error: teamWideNotifError } = await supabase.from('team_notifications').insert({
-        team_id: repFormData.teamId,
-        type: 'team_wide',
-        signer_user_id: user?.id,
-        signer_name: formData.interviewerName,
-        new_rep_name: repFormData.fullName,
-        new_rep_email: repFormData.email,
-        new_rep_phone: repFormData.phone,
-        expires_at: teamWideExpiry.toISOString(),
-      });
-
-      if (teamWideNotifError) {
-        console.error('Team-wide notification error:', teamWideNotifError);
-        notificationErrors.push('team welcome banner');
-      }
-
-      if (notificationErrors.length > 0) {
-        toast.success('Rep signed successfully!', {
-          description: `${repFormData.fullName} has been added to the team.`,
+      // Handle team assignment if selected (for "offer" outcome)
+      if (formData.outcome === 'offer' && teamAssignment && teamAssignment.reportsTo) {
+        // Insert rep signup record
+        await supabase.from('rep_signups').insert({
+          rep_name: formData.recruitName,
+          rep_email: formData.recruitEmail || 'no-email@pending.com',
+          rep_phone: formData.recruitPhone || '',
+          team_id: teamAssignment.teamId,
+          signed_by: user?.id,
+          source: 'interview3',
         });
-        toast.warning('Some notifications could not be sent', {
-          description: `Failed: ${notificationErrors.join(', ')}. The manager may need to be notified manually.`,
-        });
+
+        if (teamAssignment.createAccount && formData.recruitEmail.trim()) {
+          // Create account via edge function
+          const { data, error } = await supabase.functions.invoke('admin-create-user', {
+            body: {
+              email: formData.recruitEmail.trim().toLowerCase(),
+              password: 'summit2026',
+              full_name: formData.recruitName.trim(),
+              phone: formData.recruitPhone.replace(/\D/g, ''),
+              role: teamAssignment.role,
+              team_id: teamAssignment.teamId,
+              direct_manager: teamAssignment.reportsTo.full_name,
+              status: 'active',
+              send_welcome: true,
+            },
+          });
+
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+
+          toast.success(`✅ ${formData.recruitName} added to ${teamAssignment.teamName} under ${teamAssignment.reportsTo.full_name} and invited to Summit!`);
+        } else {
+          // No account creation — just record the signup
+          toast.success(`✅ ${formData.recruitName} added to ${teamAssignment.teamName}. No login created yet.`);
+        }
+
+        // Send notifications to assigned manager
+        const notifPromises = [];
+
+        notifPromises.push(
+          supabase.from('user_notifications').insert({
+            user_id: teamAssignment.reportsTo.user_id,
+            title: `New Rep Assigned: ${formData.recruitName}`,
+            message: `${formData.interviewerName} has completed Interview 3 and assigned ${formData.recruitName} to your team.`,
+            link: '/app/team',
+          })
+        );
+
+        const managerExpiry = new Date();
+        managerExpiry.setHours(managerExpiry.getHours() + 48);
+        notifPromises.push(
+          supabase.from('team_notifications').insert({
+            team_id: teamAssignment.teamId,
+            type: 'manager_only',
+            signer_user_id: user?.id || '',
+            signer_name: formData.interviewerName,
+            new_rep_name: formData.recruitName,
+            new_rep_email: formData.recruitEmail,
+            new_rep_phone: formData.recruitPhone,
+            expires_at: managerExpiry.toISOString(),
+          })
+        );
+
+        const teamWideExpiry = new Date();
+        teamWideExpiry.setDate(teamWideExpiry.getDate() + 7);
+        notifPromises.push(
+          supabase.from('team_notifications').insert({
+            team_id: teamAssignment.teamId,
+            type: 'team_wide',
+            signer_user_id: user?.id || '',
+            signer_name: formData.interviewerName,
+            new_rep_name: formData.recruitName,
+            new_rep_email: formData.recruitEmail,
+            new_rep_phone: formData.recruitPhone,
+            expires_at: teamWideExpiry.toISOString(),
+          })
+        );
+
+        await Promise.allSettled(notifPromises);
       } else {
-        toast.success('Rep signed successfully!', {
-          description: `${repFormData.fullName} has been added and ${repFormData.directManager.full_name} has been notified`,
-        });
+        toast.success('Interview submitted');
       }
+
       navigate('/app/interviews');
-    } catch (err) {
-      console.error('Error adding rep:', err);
-      toast.error('Failed to add rep');
+    } catch (err: any) {
+      console.error('Error submitting interview:', err);
+      toast.error('Failed to submit interview', { description: err.message });
     } finally {
       setIsSubmitting(false);
     }
@@ -333,9 +270,36 @@ export default function Interview3Page() {
                 </div>
               </div>
 
+              {/* Recruit contact info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Recruit Email
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.recruitEmail}
+                    onChange={(e) => handleChange('recruitEmail', e.target.value)}
+                    placeholder="recruit@example.com"
+                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Recruit Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.recruitPhone}
+                    onChange={(e) => handleChange('recruitPhone', formatPhoneNumber(e.target.value))}
+                    placeholder="(555) 123-4567"
+                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+
               {/* Psychology-Driven Questions */}
               <div className="space-y-5">
-                {/* Easy opener - builds confidence */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Imagine you're 3 months into the summer. You've crushed it. What does that version of your life look like?
@@ -352,7 +316,6 @@ export default function Interview3Page() {
                   />
                 </div>
 
-                {/* Identity question - goes deeper */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     What type of person do you see yourself becoming? Not just this summer—in life?
@@ -369,7 +332,6 @@ export default function Interview3Page() {
                   />
                 </div>
 
-                {/* Anticipation builder */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     What are you most excited about starting?
@@ -386,7 +348,6 @@ export default function Interview3Page() {
                   />
                 </div>
 
-                {/* Commitment checks */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -469,121 +430,26 @@ export default function Interview3Page() {
                 </div>
               </div>
 
+              {/* Team Assignment Section — only shown when outcome is "offer" */}
+              {formData.outcome === 'offer' && (
+                <TeamAssignmentSection
+                  recruitEmail={formData.recruitEmail}
+                  onChange={setTeamAssignment}
+                />
+              )}
+
               {/* Submit */}
               <button
                 onClick={handleSubmit}
-                className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors"
+                disabled={isSubmitting}
+                className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
               >
-                Submit Interview
+                {isSubmitting ? 'Submitting...' : 'Submit Interview'}
               </button>
             </div>
           </main>
         </div>
       </SidebarProvider>
-
-      {/* Add Rep Modal */}
-      <Dialog open={showRepForm} onOpenChange={setShowRepForm}>
-        <DialogContent className="bg-card border-border max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-primary" />
-              Add Rep to Team
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-4">
-            <p className="text-sm text-muted-foreground">
-              Complete the rep's information to add them to a team.
-            </p>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                value={repFormData.fullName}
-                onChange={(e) => handleRepChange('fullName', e.target.value)}
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                value={repFormData.email}
-                onChange={(e) => handleRepChange('email', e.target.value)}
-                placeholder="rep@example.com"
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                value={repFormData.phone}
-                onChange={(e) => handleRepChange('phone', formatPhoneNumber(e.target.value))}
-                placeholder="(555) 123-4567"
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Who is their direct manager? *
-              </label>
-              <ManagerAutocomplete
-                value={repFormData.directManager}
-                onChange={(manager) => handleRepChange('directManager', manager)}
-                placeholder="Search for a manager..."
-                error={false}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Assign to Team *
-              </label>
-              <Select value={repFormData.teamId} onValueChange={(v) => handleRepChange('teamId', v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.map(team => (
-                    <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={() => {
-                  setShowRepForm(false);
-                  toast.success('Interview submitted');
-                  navigate('/app/interviews');
-                }}
-                className="flex-1 py-2.5 border border-border rounded-lg font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Skip for Now
-              </button>
-              <button
-                onClick={handleAddRep}
-                disabled={isSubmitting}
-                className="flex-1 py-2.5 bg-success text-white rounded-lg font-semibold hover:bg-success/90 transition-colors disabled:opacity-50"
-              >
-                {isSubmitting ? 'Adding...' : 'Add Rep'}
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </ThemeProvider>
   );
 }
