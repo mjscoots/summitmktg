@@ -72,7 +72,7 @@ const convertToTeamMember = (m: TeamMemberLocal): TeamMember => ({
 });
 
 export default function TeamPage() {
-  const { role, isLoading: authLoading } = useAuth();
+  const { role, profile, isLoading: authLoading } = useAuth();
   const [allMembers, setAllMembers] = useState<TeamMemberLocal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -360,7 +360,7 @@ export default function TeamPage() {
             </div>
             <p className="text-muted-foreground text-sm">Organizational hierarchy overview</p>
           </div>
-          {(isManager || isAdmin) && (
+          {(isAdmin || teamPillars.some(p => p.leader === profile?.full_name)) && (
             <Button onClick={() => setAddModalOpen(true)} size="lg" className="gap-2">
               <UserPlus className="w-4 h-4" /> Add Member
             </Button>

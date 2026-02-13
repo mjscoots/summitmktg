@@ -13,6 +13,7 @@ export interface EditPermission {
   canEdit: boolean;
   canEditAll: boolean; // Full access to all fields
   canEditBasic: boolean; // Only basic contact info
+  canEditHierarchy: boolean; // Can change Reports To / Team
   reason?: string;
   allowedFields: string[];
 }
@@ -49,12 +50,13 @@ export function canEditMemberProfile(
   currentUserId: string,
   targetMember: TeamMember
 ): EditPermission {
-  // Admins can edit anyone with full access
+  // Admins can edit anyone with full access including hierarchy
   if (currentUserRole === 'admin') {
     return {
       canEdit: true,
       canEditAll: true,
       canEditBasic: true,
+      canEditHierarchy: true,
       allowedFields: ALL_EDITABLE_FIELDS,
     };
   }
@@ -62,21 +64,21 @@ export function canEditMemberProfile(
   // Self-editing (limited to basic fields for non-admins)
   const isSelf = currentUserId === targetMember.user_id;
   if (isSelf) {
-    // Managers can edit more of their own profile
     if (currentUserRole === 'manager') {
       return {
         canEdit: true,
         canEditAll: false,
         canEditBasic: true,
+        canEditHierarchy: false,
         allowedFields: ['phone', 'email'],
         reason: 'You can edit your contact information',
       };
     }
-    // Rookies have limited self-edit
     return {
       canEdit: true,
       canEditAll: false,
       canEditBasic: true,
+      canEditHierarchy: false,
       allowedFields: BASIC_EDITABLE_FIELDS,
       reason: 'You can edit your phone number',
     };
@@ -88,6 +90,7 @@ export function canEditMemberProfile(
       canEdit: false,
       canEditAll: false,
       canEditBasic: false,
+      canEditHierarchy: false,
       reason: 'Only managers can edit member profiles',
       allowedFields: [],
     };
@@ -99,28 +102,27 @@ export function canEditMemberProfile(
   );
 
   if (isPillarOwner) {
-    // Find which pillar the current user owns
     const currentUserPillar = Object.entries(PILLAR_OWNERS).find(
       ([_, ownerName]) => namesMatch(currentUserName, ownerName)
     )?.[0];
 
-    // Check if target is in their pillar
     if (currentUserPillar && targetMember.pillar === currentUserPillar) {
       return {
         canEdit: true,
         canEditAll: true,
         canEditBasic: true,
+        canEditHierarchy: true, // Pillars CAN edit hierarchy
         allowedFields: ALL_EDITABLE_FIELDS,
       };
     }
 
-    // Check if target is in their team hierarchy (descendants)
     const descendants = getDescendants(roster, currentUserName);
     if (descendants.some(d => d.user_id === targetMember.user_id)) {
       return {
         canEdit: true,
         canEditAll: true,
         canEditBasic: true,
+        canEditHierarchy: true, // Pillars CAN edit hierarchy
         allowedFields: ALL_EDITABLE_FIELDS,
       };
     }
@@ -129,19 +131,23 @@ export function canEditMemberProfile(
       canEdit: false,
       canEditAll: false,
       canEditBasic: false,
+      canEditHierarchy: false,
       reason: 'Member is not in your team',
       allowedFields: [],
     };
   }
 
-  // Regular managers can only edit their direct reports
+  // Regular managers can edit their direct reports BUT NOT hierarchy fields
   const effectiveTargetManager = getEffectiveManager(targetMember.direct_manager);
   if (namesMatch(effectiveTargetManager, currentUserName)) {
+    const managerFields = ALL_EDITABLE_FIELDS.filter(f => f !== 'direct_manager' && f !== 'pillar_slug' && f !== 'team_id');
     return {
       canEdit: true,
-      canEditAll: true,
+      canEditAll: false,
       canEditBasic: true,
-      allowedFields: ALL_EDITABLE_FIELDS,
+      canEditHierarchy: false, // Managers CANNOT edit hierarchy
+      allowedFields: managerFields,
+      reason: 'Only Pillars and Admins can change reporting structure',
     };
   }
 
@@ -149,6 +155,7 @@ export function canEditMemberProfile(
     canEdit: false,
     canEditAll: false,
     canEditBasic: false,
+    canEditHierarchy: false,
     reason: 'You can only edit your direct reports',
     allowedFields: [],
   };

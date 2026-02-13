@@ -275,8 +275,8 @@ export default function MyTeamPage() {
                     Members
                   </Button>
 
-                  {/* Add Member Button */}
-                  {isManagerRole && (
+                  {/* Add Member Button - Pillar/Admin only */}
+                  {(isAdmin || pillars.some(p => p.leader_id === profile?.user_id)) && (
                     <Button
                       onClick={() => setAddMemberOpen(true)}
                       size="sm"

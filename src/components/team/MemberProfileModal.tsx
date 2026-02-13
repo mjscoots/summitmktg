@@ -97,7 +97,7 @@ export function MemberProfileModal({
   // Check edit permissions
   const editPermission = useMemo(() => {
     if (!member || !profile) {
-      return { canEdit: false, canEditAll: false, canEditBasic: false, allowedFields: [], reason: '' };
+      return { canEdit: false, canEditAll: false, canEditBasic: false, canEditHierarchy: false, allowedFields: [], reason: '' };
     }
     return canEditMemberProfile(
       roster,
@@ -209,6 +209,7 @@ export function MemberProfileModal({
               onSave={handleEditSave}
               onCancel={() => setIsEditMode(false)}
               teams={effectivePillars}
+              canEditHierarchy={editPermission.canEditHierarchy}
             />
           ) : (
             <div className="space-y-4 py-4">
