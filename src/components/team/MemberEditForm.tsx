@@ -90,7 +90,7 @@ export function MemberEditForm({
       try {
         const { data: roleData } = await supabase
           .from('user_roles')
-          .select('user_id')
+          .select('user_id, role')
           .in('role', ['manager', 'admin']);
 
         const managerIds = roleData?.map(r => r.user_id) || [];
@@ -99,11 +99,17 @@ export function MemberEditForm({
           return;
         }
 
+        // Fetch ALL active managers/pillars across ALL teams - no team filter
         const { data: profileData } = await supabase
           .from('profiles')
           .select(`user_id, full_name, email, team_id, teams:team_id (name)`)
           .in('user_id', managerIds)
           .neq('status', 'nlc');
+
+        // Also get team leaders (pillars) from teams table
+        const { data: teamsData } = await supabase.from('teams').select('leader_id');
+        const pillarIds = new Set(teamsData?.map(t => t.leader_id).filter(Boolean) || []);
+        const roleMap = new Map(roleData?.map(r => [r.user_id, r.role]) || []);
 
         const managerList: Manager[] = (profileData || []).map(p => ({
           user_id: p.user_id,
@@ -112,7 +118,13 @@ export function MemberEditForm({
           team_name: (p.teams as any)?.name || null
         }));
 
-        managerList.sort((a, b) => a.full_name.localeCompare(b.full_name));
+        // Sort pillars first, then by name
+        managerList.sort((a, b) => {
+          const aIsPillar = pillarIds.has(a.user_id) ? 0 : 1;
+          const bIsPillar = pillarIds.has(b.user_id) ? 0 : 1;
+          if (aIsPillar !== bIsPillar) return aIsPillar - bIsPillar;
+          return a.full_name.localeCompare(b.full_name);
+        });
         setManagers(managerList);
 
         // Set initial manager if exists
@@ -480,7 +492,7 @@ export function MemberEditForm({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{manager.full_name}</p>
                           <p className="text-xs text-muted-foreground truncate">
-                            {manager.team_name || manager.email}
+                            Manager • {manager.team_name || manager.email}
                           </p>
                         </div>
                       </button>
