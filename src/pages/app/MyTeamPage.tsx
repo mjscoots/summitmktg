@@ -323,6 +323,7 @@ export default function MyTeamPage() {
             roster={enrichedRoster}
             onBack={() => setSelectedPillar(null)}
             logoUrl={pillars.find(p => p.slug === selectedPillar)?.logo_url}
+            onDataChange={() => fetchData()}
           />
         ) : (
           // Team Cards Grid
