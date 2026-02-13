@@ -20,7 +20,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Save, X, Search, User } from 'lucide-react';
+import { Loader2, Save, X, Search, User, Lock } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { TeamMember } from '@/lib/hierarchyUtils';
@@ -39,6 +40,7 @@ interface MemberEditFormProps {
   onSave: () => void;
   onCancel: () => void;
   teams: { id: string; name: string; slug: string }[];
+  canEditHierarchy?: boolean;
 }
 
 interface FormData {
@@ -56,6 +58,7 @@ export function MemberEditForm({
   onSave,
   onCancel,
   teams,
+  canEditHierarchy = false,
 }: MemberEditFormProps) {
   const [formData, setFormData] = useState<FormData>({
     full_name: member.full_name || '',
@@ -203,7 +206,7 @@ export function MemberEditForm({
       newErrors.email = 'Please enter a valid email address';
     }
 
-    if (!formData.direct_manager) {
+    if (canEditHierarchy && !formData.direct_manager) {
       newErrors.direct_manager = 'Please select a direct manager';
     }
 
@@ -284,20 +287,28 @@ export function MemberEditForm({
     setIsSaving(true);
 
     try {
-      const teamId = teams.find(t => t.slug === formData.pillar_slug)?.id || null;
+      const teamId = canEditHierarchy 
+        ? (teams.find(t => t.slug === formData.pillar_slug)?.id || null)
+        : undefined;
       
+      const updateData: Record<string, any> = {
+        full_name: formData.full_name.trim(),
+        phone: formData.phone,
+        email: formData.email.trim().toLowerCase(),
+        status: formData.status,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Only include hierarchy fields if user has permission
+      if (canEditHierarchy) {
+        updateData.direct_manager = formData.direct_manager?.full_name || '';
+        updateData.pillar_slug = formData.pillar_slug;
+        updateData.team_id = teamId;
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          full_name: formData.full_name.trim(),
-          phone: formData.phone,
-          email: formData.email.trim().toLowerCase(),
-          status: formData.status,
-          direct_manager: formData.direct_manager?.full_name || '',
-          pillar_slug: formData.pillar_slug,
-          team_id: teamId,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('user_id', member.user_id);
 
       if (error) throw error;
@@ -419,90 +430,120 @@ export function MemberEditForm({
         </Select>
       </div>
 
-      {/* Direct Manager - Custom Autocomplete */}
+      {/* Direct Manager */}
       <div className="space-y-2">
-        <Label>Direct Manager</Label>
-        <div ref={managerWrapperRef} className="relative">
-          {formData.direct_manager ? (
-            <div className={cn(
-              "flex items-center justify-between px-4 py-2.5 bg-background border rounded-lg",
-              errors.direct_manager ? "border-destructive" : "border-border"
-            )}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{formData.direct_manager.full_name}</p>
-                  {formData.direct_manager.team_name && (
-                    <p className="text-xs text-muted-foreground">{formData.direct_manager.team_name}</p>
-                  )}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, direct_manager: null }))}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                disabled={isSaving}
-              >
-                Change
-              </button>
-            </div>
-          ) : (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={managerSearch}
-                onChange={(e) => {
-                  setManagerSearch(e.target.value);
-                  setIsManagerDropdownOpen(true);
-                }}
-                onFocus={() => setIsManagerDropdownOpen(true)}
-                placeholder="Search for a manager..."
-                className={cn(
-                  "w-full pl-10 pr-4 py-2.5 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all",
-                  errors.direct_manager ? "border-destructive" : "border-border"
-                )}
-                disabled={isSaving}
-              />
-            </div>
-          )}
-
-          {isManagerDropdownOpen && !formData.direct_manager && (
-            <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-              {isLoadingManagers ? (
-                <div className="p-4 text-center text-sm text-muted-foreground">Loading...</div>
-              ) : filteredManagers.length === 0 ? (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  {managerSearch ? 'No managers found' : 'No managers available'}
-                </div>
-              ) : (
-                <ul className="py-1">
-                  {filteredManagers.map((manager) => (
-                    <li key={manager.user_id}>
-                      <button
-                        type="button"
-                        onClick={() => handleManagerSelect(manager)}
-                        className="w-full text-left px-4 py-2.5 hover:bg-muted/50 transition-colors flex items-center gap-3"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <User className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{manager.full_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            Manager • {manager.team_name || manager.email}
-                          </p>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+        <div className="flex items-center gap-2">
+          <Label>Direct Manager</Label>
+          {!canEditHierarchy && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Only Pillars and Admins can change reporting structure</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
+        
+        {canEditHierarchy ? (
+          /* Editable manager search dropdown */
+          <div ref={managerWrapperRef} className="relative">
+            {formData.direct_manager ? (
+              <div className={cn(
+                "flex items-center justify-between px-4 py-2.5 bg-background border rounded-lg",
+                errors.direct_manager ? "border-destructive" : "border-border"
+              )}>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{formData.direct_manager.full_name}</p>
+                    {formData.direct_manager.team_name && (
+                      <p className="text-xs text-muted-foreground">{formData.direct_manager.team_name}</p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, direct_manager: null }))}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isSaving}
+                >
+                  Change
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={managerSearch}
+                  onChange={(e) => {
+                    setManagerSearch(e.target.value);
+                    setIsManagerDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsManagerDropdownOpen(true)}
+                  placeholder="Search for a manager..."
+                  className={cn(
+                    "w-full pl-10 pr-4 py-2.5 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all",
+                    errors.direct_manager ? "border-destructive" : "border-border"
+                  )}
+                  disabled={isSaving}
+                />
+              </div>
+            )}
+
+            {isManagerDropdownOpen && !formData.direct_manager && (
+              <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                {isLoadingManagers ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">Loading...</div>
+                ) : filteredManagers.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    {managerSearch ? 'No managers found' : 'No managers available'}
+                  </div>
+                ) : (
+                  <ul className="py-1">
+                    {filteredManagers.map((manager) => (
+                      <li key={manager.user_id}>
+                        <button
+                          type="button"
+                          onClick={() => handleManagerSelect(manager)}
+                          className="w-full text-left px-4 py-2.5 hover:bg-muted/50 transition-colors flex items-center gap-3"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{manager.full_name}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              Manager • {manager.team_name || manager.email}
+                            </p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Read-only display for non-pillar/admin users */
+          <div className="flex items-center px-4 py-2.5 bg-muted/30 border border-border rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-sm font-medium text-foreground">
+                {member.direct_manager || 'Unassigned'}
+              </p>
+            </div>
+          </div>
+        )}
         {errors.direct_manager && (
           <p className="text-xs text-destructive">{errors.direct_manager}</p>
         )}
@@ -510,23 +551,45 @@ export function MemberEditForm({
 
       {/* Team Assignment */}
       <div className="space-y-2">
-        <Label>Team Assignment</Label>
-        <Select
-          value={formData.pillar_slug}
-          onValueChange={handleTeamChange}
-          disabled={isSaving}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select team..." />
-          </SelectTrigger>
-          <SelectContent>
-            {teams.map((team) => (
-              <SelectItem key={team.id} value={team.slug}>
-                {team.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Label>Team Assignment</Label>
+          {!canEditHierarchy && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Only Pillars and Admins can change team assignment</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        {canEditHierarchy ? (
+          <Select
+            value={formData.pillar_slug}
+            onValueChange={handleTeamChange}
+            disabled={isSaving}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select team..." />
+            </SelectTrigger>
+            <SelectContent>
+              {teams.map((team) => (
+                <SelectItem key={team.id} value={team.slug}>
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="px-4 py-2.5 bg-muted/30 border border-border rounded-lg">
+            <p className="text-sm font-medium text-foreground">
+              {teams.find(t => t.slug === formData.pillar_slug)?.name || 'Unassigned'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Action Buttons */}
