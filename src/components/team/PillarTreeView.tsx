@@ -18,9 +18,10 @@ interface PillarTreeViewProps {
   roster: TeamMember[];
   onBack: () => void;
   logoUrl?: string | null;
+  onDataChange?: () => void;
 }
 
-export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: PillarTreeViewProps) {
+export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataChange }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
@@ -282,6 +283,10 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl }: Pillar
         onClose={() => setSelectedMember(null)}
         roster={roster}
         onMemberClick={handleMemberClick}
+        onStatusChange={() => {
+          setSelectedMember(null);
+          onDataChange?.();
+        }}
       />
 
       {/* Rep Training Progress */}
