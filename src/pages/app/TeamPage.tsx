@@ -360,8 +360,8 @@ export default function TeamPage() {
             </div>
             <p className="text-muted-foreground text-sm">Organizational hierarchy overview</p>
           </div>
-          {isManager && (
-            <Button onClick={() => setAddModalOpen(true)} className="gap-2">
+          {(isManager || isAdmin) && (
+            <Button onClick={() => setAddModalOpen(true)} size="lg" className="gap-2">
               <UserPlus className="w-4 h-4" /> Add Member
             </Button>
           )}
