@@ -435,20 +435,20 @@ export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFee
    );
  }
  
- function FeedCard({ 
-   announcement, 
-   canManage,
-   onTogglePin,
-   onEdit,
-   onDelete,
- }: { 
-   announcement: Announcement; 
-   canManage: boolean;
-   onTogglePin: (id: string, pinned: boolean) => void;
-   onEdit: (announcement: Announcement) => void;
-   onDelete: (id: string) => void;
- }) {
-   const [isHovered, setIsHovered] = useState(false);
+function FeedCard({ 
+    announcement, 
+    canManage,
+    onTogglePin,
+    onEdit,
+    onDelete,
+  }: { 
+    announcement: Announcement; 
+    canManage: boolean;
+    onTogglePin: (id: string, pinned: boolean) => void;
+    onEdit: (announcement: Announcement) => void;
+    onDelete: (id: string) => void;
+  }) {
+    const [menuOpen, setMenuOpen] = useState(false);
    
    // Auto-bold first actionable sentence
    const formatContent = (content: string) => {
@@ -471,9 +471,7 @@ export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFee
    const { boldPart, rest } = formatContent(announcement.content);
    
    return (
-     <div 
-       onMouseEnter={() => setIsHovered(true)}
-       onMouseLeave={() => setIsHovered(false)}
+      <div
        className={cn(
          "p-3 rounded-md border transition-all relative overflow-hidden group",
          announcement.is_pinned 
@@ -511,10 +509,13 @@ export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFee
              )}
            </div>
          </div>
-         {canManage && isHovered && (
-           <DropdownMenu>
-             <DropdownMenuTrigger asChild>
-               <button className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors opacity-0 group-hover:opacity-100">
+          {canManage && (
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  "p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors",
+                  menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                )}>
                  <MoreVertical className="w-4 h-4" />
                </button>
              </DropdownMenuTrigger>

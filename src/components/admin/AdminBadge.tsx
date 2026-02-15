@@ -7,9 +7,9 @@ export function AdminBadge() {
   if (role !== 'admin') return null;
   
   return (
-    <div className="fixed top-16 right-4 z-50 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1.5 rounded-full shadow-lg animate-pulse flex items-center gap-1.5">
-      <Crown className="w-3.5 h-3.5" />
-      <span className="text-xs font-bold uppercase tracking-wide">Admin Mode</span>
+    <div className="fixed top-[3.25rem] right-14 z-50 bg-primary/15 border border-primary/30 text-primary px-2 py-0.5 rounded-md flex items-center gap-1">
+      <Crown className="w-2.5 h-2.5" />
+      <span className="text-[11px] font-semibold uppercase tracking-wider">Admin</span>
     </div>
   );
 }
