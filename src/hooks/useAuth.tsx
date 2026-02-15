@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
-import { isHardCodedAdmin } from '@/lib/hierarchyUtils';
+
 
 type UserRole = 'rookie' | 'manager' | 'admin';
 
@@ -45,13 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>('rookie');
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string, fullName?: string): Promise<UserRole> => {
+  const fetchUserRole = async (userId: string): Promise<UserRole> => {
     try {
-      // First check if user is a hard-coded admin
-      if (fullName && isHardCodedAdmin(fullName)) {
-        return 'admin';
-      }
-
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -95,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = async () => {
     if (user) {
       const newProfile = await fetchProfile(user.id);
-      const newRole = await fetchUserRole(user.id, newProfile?.full_name);
+      const newRole = await fetchUserRole(user.id);
       setProfile(newProfile);
       setRole(newRole);
     }
@@ -112,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Defer database calls to avoid race conditions
           setTimeout(async () => {
             const userProfile = await fetchProfile(session.user.id);
-            const userRole = await fetchUserRole(session.user.id, userProfile?.full_name);
+            const userRole = await fetchUserRole(session.user.id);
             setProfile(userProfile);
             setRole(userRole);
             setIsLoading(false);
@@ -132,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         fetchProfile(session.user.id).then((userProfile) => {
-          fetchUserRole(session.user.id, userProfile?.full_name).then((userRole) => {
+          fetchUserRole(session.user.id).then((userRole) => {
             setProfile(userProfile);
             setRole(userRole);
             setIsLoading(false);
