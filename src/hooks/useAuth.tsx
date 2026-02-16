@@ -15,12 +15,14 @@ interface Profile {
   recruiter: string | null;
   region: string | null;
   experience: 'rookie' | 'veteran';
-  status: 'active' | 'contract_signed' | 'onboarded' | 'info_added' | 'nlc';
+  status: 'active' | 'contract_signed' | 'onboarded' | 'info_added' | 'nlc' | 'pending' | 'rejected';
   avatar_url: string | null;
   team_id: string | null;
   pillar_slug: string | null;
   direct_manager: string | null;
   password_changed: boolean | null;
+  approved: boolean | null;
+  referred_by: string | null;
 }
 
 interface AuthContextType {
@@ -31,7 +33,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, metadata?: Record<string, string>) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -155,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, metadata?: Record<string, string>) => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -164,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           emailRedirectTo: window.location.origin,
           data: {
             full_name: fullName,
+            ...metadata,
           },
         },
       });

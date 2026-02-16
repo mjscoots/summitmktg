@@ -110,6 +110,7 @@ Deno.serve(async (req) => {
         phone: phone || undefined,
         direct_manager: direct_manager || undefined,
         selected_role: role,
+        approved: true,
       }
     });
 
@@ -129,6 +130,7 @@ Deno.serve(async (req) => {
         team_id: team_id || null,
         direct_manager: direct_manager || null,
         status: status,
+        approved: true,
       })
       .eq("user_id", newUser.user.id);
 
