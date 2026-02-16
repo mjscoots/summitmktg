@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import {
@@ -16,8 +16,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -29,6 +27,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface RepRow {
   user_id: string;
@@ -53,6 +58,25 @@ interface TeamRow {
   member_count: number;
 }
 
+interface BootcampRow {
+  user_id: string;
+  full_name: string;
+  email: string;
+  team_name: string;
+  phase_1_complete: boolean;
+  phase_2_complete: boolean;
+  phase_3_complete: boolean;
+  bootcamp_completed: boolean;
+  bootcamp_completed_at: string | null;
+  sunblock_video_url: string | null;
+  motivation_video_url: string | null;
+  final_commitment_video_url: string | null;
+  agreement_start_date: string | null;
+  agreement_end_date: string | null;
+  signature_name: string | null;
+  signature_data: string | null;
+}
+
 const SUPER_ADMIN_EMAIL = 'mjscoots9@gmail.com';
 
 export default function AdminTeamPage() {
@@ -71,52 +95,53 @@ export default function AdminTeamPage() {
   const [editUser, setEditUser] = useState<RepRow | null>(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '' });
   const [editLoading, setEditLoading] = useState(false);
-
-  // Delete user state
   const [deleteTarget, setDeleteTarget] = useState<RepRow | null>(null);
-
-  // Team management state
   const [newTeamName, setNewTeamName] = useState('');
   const [editTeam, setEditTeam] = useState<TeamRow | null>(null);
   const [editTeamName, setEditTeamName] = useState('');
   const [deleteTeam, setDeleteTeam] = useState<TeamRow | null>(null);
   const [reassignTeamId, setReassignTeamId] = useState('');
-
-  // System settings state
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
+
+  // Bootcamp responses state
+  const [bootcampData, setBootcampData] = useState<BootcampRow[]>([]);
+  const [bootcampSearch, setBootcampSearch] = useState('');
+  const [bootcampTeamFilter, setBootcampTeamFilter] = useState('all');
+  const [bootcampStatusFilter, setBootcampStatusFilter] = useState('all');
+  const [bootcampDetail, setBootcampDetail] = useState<BootcampRow | null>(null);
+  const [videoUrls, setVideoUrls] = useState<Record<string, string>>({});
 
   const fetchData = async () => {
     setLoading(true);
 
     const [profilesRes, bootcampRes, roleRes, teamsRes, settingsRes] = await Promise.all([
       supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id').order('created_at', { ascending: false }),
-      supabase.from('bootcamp_progress').select('user_id, bootcamp_completed'),
+      supabase.from('bootcamp_progress').select('*'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('teams').select('id, name, slug, created_at').order('name'),
       supabase.from('app_settings').select('key, value'),
     ]);
 
-    const bootcampMap = new Map((bootcampRes.data || []).map(b => [b.user_id, b.bootcamp_completed]));
+    const bootcampMap = new Map((bootcampRes.data || []).map(b => [b.user_id, b]));
     const roleMap = new Map((roleRes.data || []).map(r => [r.user_id, r.role]));
     const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id));
+    const teamsMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
 
     const allReps: RepRow[] = (profilesRes.data || []).map(p => ({
       ...p,
-      bootcamp_completed: bootcampMap.get(p.user_id) ?? true,
+      bootcamp_completed: bootcampMap.get(p.user_id)?.bootcamp_completed ?? true,
       role: roleMap.get(p.user_id) || 'rookie',
     }));
 
     const pending = allReps.filter(r => r.status === 'pending' && !r.approved);
     const approved = allReps.filter(r => r.status !== 'pending' || r.approved);
-
     setPendingUsers(pending);
     setReps(approved);
 
     const mgrs = (profilesRes.data || []).filter(p => managerIds.has(p.user_id)).map(p => ({ user_id: p.user_id, full_name: p.full_name }));
     setManagers(mgrs);
 
-    // Build team rows with member counts
     const teamsList = (teamsRes.data || []).map(t => ({
       ...t,
       member_count: allReps.filter(r => r.team_id === t.id).length,
@@ -124,15 +149,52 @@ export default function AdminTeamPage() {
     setTeams(teamsList);
     setTeamsSimple((teamsRes.data || []).map(t => ({ id: t.id, name: t.name })));
 
-    // Settings
     const settingsMap: Record<string, string> = {};
     (settingsRes.data || []).forEach(s => { settingsMap[s.key] = s.value || ''; });
     setSettings(settingsMap);
+
+    // Build bootcamp responses data
+    const bcRows: BootcampRow[] = (profilesRes.data || [])
+      .map(p => {
+        const bc = bootcampMap.get(p.user_id);
+        if (!bc) return null;
+        return {
+          user_id: p.user_id,
+          full_name: p.full_name,
+          email: p.email,
+          team_name: p.team_id ? (teamsMap.get(p.team_id) || '—') : '—',
+          phase_1_complete: bc.phase_1_complete,
+          phase_2_complete: bc.phase_2_complete,
+          phase_3_complete: bc.phase_3_complete,
+          bootcamp_completed: bc.bootcamp_completed,
+          bootcamp_completed_at: bc.bootcamp_completed_at,
+          sunblock_video_url: (bc as any).sunblock_video_url || null,
+          motivation_video_url: (bc as any).motivation_video_url || bc.phase_2_video_url || null,
+          final_commitment_video_url: (bc as any).final_commitment_video_url || bc.phase_3_video_url || null,
+          agreement_start_date: (bc as any).agreement_start_date || bc.commitment_start_date || null,
+          agreement_end_date: (bc as any).agreement_end_date || bc.commitment_end_date || null,
+          signature_name: bc.signature_name,
+          signature_data: bc.signature_data,
+        } as BootcampRow;
+      })
+      .filter(Boolean) as BootcampRow[];
+    setBootcampData(bcRows);
 
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  // Get signed URL for a video
+  const getVideoUrl = async (path: string): Promise<string | null> => {
+    if (videoUrls[path]) return videoUrls[path];
+    const { data } = await supabase.storage.from('bootcamp-videos').createSignedUrl(path, 3600);
+    if (data?.signedUrl) {
+      setVideoUrls(prev => ({ ...prev, [path]: data.signedUrl }));
+      return data.signedUrl;
+    }
+    return null;
+  };
 
   // ============ APPROVAL HANDLERS ============
   const handleApprove = async (userId: string) => {
@@ -208,8 +270,7 @@ export default function AdminTeamPage() {
   const handleSendResetEmail = async (email: string, fullName: string) => {
     try {
       await supabase.functions.invoke('admin-reset-password', { body: { email, new_password: 'summit2026' } });
-      await supabase.from('profiles').update({ password_changed: false }).eq('email', email);
-      toast({ title: 'Password Reset & Email Sent', description: `${fullName} will need to change password on next login.` });
+      toast({ title: 'Password Reset', description: `${fullName}'s password has been reset.` });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
@@ -290,7 +351,6 @@ export default function AdminTeamPage() {
       toast({ title: 'Error', description: 'Reassign members before deleting.', variant: 'destructive' });
       return;
     }
-    // Reassign members
     if (deleteTeam.member_count > 0 && reassignTeamId) {
       await supabase.from('profiles').update({ team_id: reassignTeamId }).eq('team_id', deleteTeam.id);
     }
@@ -326,6 +386,14 @@ export default function AdminTeamPage() {
     t.name.toLowerCase().includes(teamSearch.toLowerCase())
   );
 
+  const filteredBootcamp = bootcampData.filter(b => {
+    if (bootcampSearch && !b.full_name.toLowerCase().includes(bootcampSearch.toLowerCase()) && !b.email.toLowerCase().includes(bootcampSearch.toLowerCase())) return false;
+    if (bootcampTeamFilter !== 'all' && b.team_name !== bootcampTeamFilter) return false;
+    if (bootcampStatusFilter === 'complete' && !b.bootcamp_completed) return false;
+    if (bootcampStatusFilter === 'incomplete' && b.bootcamp_completed) return false;
+    return true;
+  });
+
   const getTeamName = (teamId: string | null) => {
     if (!teamId) return '—';
     return teamsSimple.find(t => t.id === teamId)?.name || '—';
@@ -338,10 +406,18 @@ export default function AdminTeamPage() {
     return <Badge variant="outline" className="text-[10px]">Active</Badge>;
   };
 
+  const openVideoInNewTab = async (path: string | null) => {
+    if (!path) return;
+    const url = await getVideoUrl(path);
+    if (url) window.open(url, '_blank');
+    else toast({ title: 'Error', description: 'Could not load video', variant: 'destructive' });
+  };
+
+  const uniqueTeamNames = [...new Set(bootcampData.map(b => b.team_name).filter(t => t !== '—'))];
+
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-2">
@@ -358,12 +434,13 @@ export default function AdminTeamPage() {
         </div>
 
         <Tabs defaultValue="approvals" className="w-full">
-          <TabsList className="bg-white/5 border border-white/10 mb-4">
+          <TabsList className="bg-white/5 border border-white/10 mb-4 flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full">{pendingUsers.length}</span>}
             </TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Users</TabsTrigger>
             <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Teams</TabsTrigger>
+            <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Bootcamp Responses</TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
             )}
@@ -388,7 +465,6 @@ export default function AdminTeamPage() {
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Phone</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Level</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Referred By</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Date</th>
                       <th className="text-right px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Actions</th>
                     </tr>
@@ -401,7 +477,6 @@ export default function AdminTeamPage() {
                         <td className="px-4 py-3 text-white/60">{user.phone || '—'}</td>
                         <td className="px-4 py-3"><Badge variant="secondary" className="text-[10px] capitalize">{user.role}</Badge></td>
                         <td className="px-4 py-3 text-white/60">{getTeamName(user.team_id)}</td>
-                        <td className="px-4 py-3 text-white/60">{user.referred_by || '—'}</td>
                         <td className="px-4 py-3 text-white/40 text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
@@ -532,7 +607,108 @@ export default function AdminTeamPage() {
             </div>
           </TabsContent>
 
-          {/* ========== SYSTEM CONTROLS TAB (Super Admin Only) ========== */}
+          {/* ========== BOOTCAMP RESPONSES TAB ========== */}
+          <TabsContent value="bootcamp">
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input value={bootcampSearch} onChange={e => setBootcampSearch(e.target.value)} placeholder="Search by name or email..." className="pl-9 bg-white/5 border-white/10" />
+              </div>
+              <Select value={bootcampTeamFilter} onValueChange={setBootcampTeamFilter}>
+                <SelectTrigger className="w-40 bg-white/5 border-white/10">
+                  <SelectValue placeholder="All Teams" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Teams</SelectItem>
+                  {uniqueTeamNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={bootcampStatusFilter} onValueChange={setBootcampStatusFilter}>
+                <SelectTrigger className="w-40 bg-white/5 border-white/10">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="complete">Complete</SelectItem>
+                  <SelectItem value="incomplete">Incomplete</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12 text-muted-foreground">Loading...</div>
+            ) : (
+              <div className="border border-white/10 rounded-lg overflow-hidden overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-white/[0.02]">
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Sunblock</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Motivation</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Commitment</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Completed</th>
+                      <th className="text-right px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBootcamp.map(b => (
+                      <tr key={b.user_id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                        <td className="px-4 py-3 font-medium text-white">{b.full_name}</td>
+                        <td className="px-4 py-3 text-white/60">{b.email}</td>
+                        <td className="px-4 py-3 text-white/60">{b.team_name}</td>
+                        <td className="px-4 py-3">
+                          {b.sunblock_video_url ? (
+                            <button onClick={() => openVideoInNewTab(b.sunblock_video_url)} className="text-primary hover:underline text-xs flex items-center gap-1"><Play className="w-3 h-3" /> View</button>
+                          ) : b.phase_1_complete ? (
+                            <Badge variant="outline" className="text-[10px]">Done</Badge>
+                          ) : (
+                            <span className="text-white/20 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {b.motivation_video_url ? (
+                            <button onClick={() => openVideoInNewTab(b.motivation_video_url)} className="text-primary hover:underline text-xs flex items-center gap-1"><Play className="w-3 h-3" /> View</button>
+                          ) : b.phase_2_complete ? (
+                            <Badge variant="outline" className="text-[10px]">Done</Badge>
+                          ) : (
+                            <span className="text-white/20 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {b.final_commitment_video_url ? (
+                            <button onClick={() => openVideoInNewTab(b.final_commitment_video_url)} className="text-primary hover:underline text-xs flex items-center gap-1"><Play className="w-3 h-3" /> View</button>
+                          ) : b.phase_3_complete ? (
+                            <Badge variant="outline" className="text-[10px]">Done</Badge>
+                          ) : (
+                            <span className="text-white/20 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {b.bootcamp_completed_at ? (
+                            <span className="text-white/60 text-xs">{format(new Date(b.bootcamp_completed_at), 'MMM d, yyyy')}</span>
+                          ) : (
+                            <Badge variant="destructive" className="text-[10px]">Incomplete</Badge>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button onClick={() => setBootcampDetail(b)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="View Details">
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredBootcamp.length === 0 && (
+                      <tr><td colSpan={8} className="px-4 py-12 text-center text-white/30">No bootcamp data found</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ========== SYSTEM CONTROLS TAB ========== */}
           {isSuperAdmin && (
             <TabsContent value="system">
               <div className="space-y-6">
@@ -563,7 +739,7 @@ export default function AdminTeamPage() {
                 <div>
                   <h2 className="text-lg font-bold text-foreground mb-4">Admin Utilities</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Button variant="outline" className="justify-start gap-2 border-white/10 text-white/70 hover:text-white" onClick={async () => {
+                    <Button variant="outline" className="justify-start gap-2 border-white/10 text-white/70 hover:text-white" onClick={() => {
                       const allProfiles = reps.map(r => `${r.full_name},${r.email},${r.role},${r.status},${getTeamName(r.team_id)}`).join('\n');
                       const csv = `Name,Email,Role,Status,Team\n${allProfiles}`;
                       const blob = new Blob([csv], { type: 'text/csv' });
@@ -644,7 +820,7 @@ export default function AdminTeamPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Permanently Delete User?</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to permanently delete <strong>{deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone. All related data will be removed.
+                Are you sure you want to permanently delete <strong>{deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -681,15 +857,85 @@ export default function AdminTeamPage() {
                       {teamsSimple.filter(t => t.id !== deleteTeam?.id).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                   </>
-                ) : 'This team has no members and can be deleted safely.'}
+                ) : 'This will permanently delete this team.'}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteTeam} disabled={deleteTeam?.member_count! > 0 && !reassignTeamId} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete Team</AlertDialogAction>
+              <AlertDialogAction onClick={handleDeleteTeam} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete Team</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Bootcamp Detail Modal */}
+        <Dialog open={!!bootcampDetail} onOpenChange={(open) => !open && setBootcampDetail(null)}>
+          <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Bootcamp Details — {bootcampDetail?.full_name}</DialogTitle>
+            </DialogHeader>
+            {bootcampDetail && (
+              <div className="space-y-6 mt-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Email</p>
+                    <p className="text-foreground">{bootcampDetail.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Team</p>
+                    <p className="text-foreground">{bootcampDetail.team_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Agreement Start Date</p>
+                    <p className="text-foreground">{bootcampDetail.agreement_start_date || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Agreement End Date</p>
+                    <p className="text-foreground">{bootcampDetail.agreement_end_date || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Completed At</p>
+                    <p className="text-foreground">{bootcampDetail.bootcamp_completed_at ? format(new Date(bootcampDetail.bootcamp_completed_at), 'MMM d, yyyy h:mm a') : '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Signature Name</p>
+                    <p className="text-foreground">{bootcampDetail.signature_name || '—'}</p>
+                  </div>
+                </div>
+
+                {/* Videos */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold text-foreground">Videos</h3>
+                  {[
+                    { label: 'Sunblock', url: bootcampDetail.sunblock_video_url },
+                    { label: 'Motivation', url: bootcampDetail.motivation_video_url },
+                    { label: 'Final Commitment', url: bootcampDetail.final_commitment_video_url },
+                  ].map(v => (
+                    <div key={v.label} className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3">
+                      <span className="text-sm text-foreground">{v.label}</span>
+                      {v.url ? (
+                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openVideoInNewTab(v.url)}>
+                          <Play className="w-3 h-3" /> Play
+                        </Button>
+                      ) : (
+                        <span className="text-white/30 text-xs">Not uploaded</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Signature */}
+                {bootcampDetail.signature_data && (
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground mb-2">Signature</h3>
+                    <div className="bg-white rounded-lg p-2 inline-block">
+                      <img src={bootcampDetail.signature_data} alt="Signature" className="max-h-24" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

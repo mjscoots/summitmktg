@@ -10,21 +10,41 @@ import { Label } from '@/components/ui/label';
 import { CheckCircle2, Upload, Video, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-const VIDEO_QUESTIONS = [
-  'Name',
-  'Manager',
-  'Commitment 1–10',
-  'What will you say when you want to quit?',
-  'Advice to yourself during adversity',
-  'What do you want us to say if you try to quit?',
-  'Anything else your future weak self needs to hear',
-];
+const AGREEMENT_TEXT = `COMMITMENT AGREEMENT
 
-const VIDEO_CHECKLIST = [
-  'Good lighting',
-  'Clear audio',
-  'All questions answered',
-  'Video uploaded',
+I, the undersigned, hereby commit to the following terms and conditions as a member of this organization:
+
+1. DEDICATION & EFFORT
+I commit to giving my absolute best effort every single day. I understand that success in this role requires consistent dedication, discipline, and a willingness to push beyond my comfort zone.
+
+2. ATTENDANCE & PUNCTUALITY
+I will arrive on time to all scheduled meetings, training sessions, and team activities. I understand that my presence and punctuality directly impact my team and my own success.
+
+3. PROFESSIONAL CONDUCT
+I will maintain the highest standards of professional conduct at all times. I will represent myself, my team, and this organization with integrity and respect.
+
+4. CONTINUOUS IMPROVEMENT
+I commit to continuously improving my skills through daily practice, training completion, and applying feedback from my leadership team.
+
+5. TEAM COMMITMENT
+I will support my teammates, participate actively in team activities, and contribute to a positive team culture. I understand that individual success is built on team success.
+
+6. FINANCIAL RESPONSIBILITY
+I understand the financial structure of this opportunity and take full responsibility for my own financial outcomes based on my effort and performance.
+
+7. COMMUNICATION
+I will maintain open and honest communication with my manager and team. I will voice concerns constructively and seek solutions rather than dwelling on problems.
+
+8. ACCOUNTABILITY
+I hold myself accountable for my results. I will not make excuses but instead focus on what I can control and improve.
+
+By signing below, I acknowledge that I have read, understood, and agree to uphold all terms outlined in this commitment agreement.`;
+
+const COMPLETION_CHECKLIST = [
+  'I have recorded myself reading the full commitment agreement aloud',
+  'I have answered all sections clearly on video',
+  'I have uploaded my video',
+  'I have understood the commitment agreement',
 ];
 
 export default function BootcampPhase3() {
@@ -36,11 +56,10 @@ export default function BootcampPhase3() {
   const [hasSigned, setHasSigned] = useState(false);
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoChecked, setVideoChecked] = useState<boolean[]>(new Array(VIDEO_CHECKLIST.length).fill(false));
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [checked, setChecked] = useState<boolean[]>(new Array(COMPLETION_CHECKLIST.length).fill(false));
+  const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [signatureName, setSignatureName] = useState('');
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -126,12 +145,11 @@ export default function BootcampPhase3() {
 
   const allReady =
     videoFile &&
-    videoChecked.every(Boolean) &&
+    checked.every(Boolean) &&
     startDate &&
     endDate &&
     signatureName.trim().length > 1 &&
-    hasSigned &&
-    acceptTerms;
+    hasSigned;
 
   const handleSubmit = async () => {
     if (!allReady || !user || submitting) return;
@@ -140,20 +158,19 @@ export default function BootcampPhase3() {
     try {
       setUploading(true);
       const ext = videoFile.name.split('.').pop();
-      const path = `${user.id}/phase-3-commitment.${ext}`;
+      const path = `${user.id}/final-commitment.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('bootcamp-videos')
         .upload(path, videoFile, { upsert: true });
       if (uploadError) throw uploadError;
       setUploading(false);
 
-      // Get signature data
       const sigData = canvasRef.current?.toDataURL('image/png') || '';
 
       const success = await updatePhase(3, {
-        phase_3_video_url: path,
-        commitment_start_date: startDate,
-        commitment_end_date: endDate,
+        final_commitment_video_url: path,
+        agreement_start_date: startDate,
+        agreement_end_date: endDate,
         signature_name: signatureName,
         signature_data: sigData,
       });
@@ -179,32 +196,67 @@ export default function BootcampPhase3() {
 
   return (
     <div className="min-h-screen bg-black px-4 py-12">
-      <div className="w-full max-w-lg mx-auto">
+      <div className="w-full max-w-2xl mx-auto">
         <PhaseIndicator current={3} progress={progress} />
 
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-10">
           <h1 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-            PHASE 3
+            FINAL COMMITMENT
           </h1>
-          <p className="text-white/40 text-sm mb-6">FINAL COMMITMENT</p>
+          <p className="text-white/40 text-sm mb-6">MODULE 3</p>
 
-          {/* Video questions */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 mb-6">
-            <p className="text-white/60 text-xs font-medium mb-3 uppercase tracking-wider">
-              Record a video answering:
-            </p>
-            <ul className="space-y-1.5">
-              {VIDEO_QUESTIONS.map((q, i) => (
-                <li key={i} className="text-white/50 text-sm flex items-start gap-2">
-                  <span className="text-white/20 text-xs mt-0.5">{i + 1}.</span>
-                  {q}
-                </li>
-              ))}
-            </ul>
+          {/* Date fields */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <Label className="text-white/60 text-xs">Start Date *</Label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-white/5 border-white/10 text-white mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-white/60 text-xs">End Date *</Label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-white/5 border-white/10 text-white mt-1"
+              />
+            </div>
+          </div>
+
+          {/* Agreement block */}
+          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 mb-6 max-h-80 overflow-y-auto">
+            <pre className="text-white/50 text-xs whitespace-pre-wrap font-sans leading-relaxed">
+              {AGREEMENT_TEXT}
+            </pre>
+          </div>
+
+          {/* Completion checklist */}
+          <div className="space-y-3 mb-6">
+            {COMPLETION_CHECKLIST.map((item, i) => (
+              <label key={i} className="flex items-start gap-3 cursor-pointer group">
+                <Checkbox
+                  checked={checked[i]}
+                  onCheckedChange={(val) => {
+                    const next = [...checked];
+                    next[i] = !!val;
+                    setChecked(next);
+                  }}
+                  className="mt-0.5 border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                />
+                <span className={`text-sm ${checked[i] ? 'text-white' : 'text-white/50'}`}>
+                  {item}
+                </span>
+              </label>
+            ))}
           </div>
 
           {/* Video upload */}
           <div className="mb-6">
+            <Label className="text-white/60 text-xs mb-2 block">Upload Final Commitment Video *</Label>
             {videoFile ? (
               <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
                 <Video className="w-5 h-5 text-white/60 shrink-0" />
@@ -228,49 +280,12 @@ export default function BootcampPhase3() {
             )}
           </div>
 
-          {/* Video checklist */}
-          <div className="space-y-3 mb-8">
-            {VIDEO_CHECKLIST.map((item, i) => (
-              <label key={i} className="flex items-center gap-3 cursor-pointer">
-                <Checkbox
-                  checked={videoChecked[i]}
-                  onCheckedChange={(val) => {
-                    const next = [...videoChecked];
-                    next[i] = !!val;
-                    setVideoChecked(next);
-                  }}
-                  className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-black"
-                />
-                <span className={`text-sm ${videoChecked[i] ? 'text-white' : 'text-white/50'}`}>{item}</span>
-              </label>
-            ))}
-          </div>
-
-          {/* Commitment form */}
+          {/* Signature section */}
           <div className="border-t border-white/10 pt-6 mb-6">
-            <h2 className="text-lg font-black text-white mb-4">FINAL COMMITMENT AGREEMENT</h2>
-
+            <h2 className="text-lg font-black text-white mb-4">SIGNATURE</h2>
             <div className="space-y-4">
               <div>
-                <Label className="text-white/60 text-xs">Start Date</Label>
-                <Input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white mt-1"
-                />
-              </div>
-              <div>
-                <Label className="text-white/60 text-xs">End Date</Label>
-                <Input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white mt-1"
-                />
-              </div>
-              <div>
-                <Label className="text-white/60 text-xs">Signature (Typed Name)</Label>
+                <Label className="text-white/60 text-xs">Typed Name *</Label>
                 <Input
                   value={signatureName}
                   onChange={(e) => setSignatureName(e.target.value)}
@@ -278,11 +293,9 @@ export default function BootcampPhase3() {
                   className="bg-white/5 border-white/10 text-white mt-1 placeholder:text-white/20"
                 />
               </div>
-
-              {/* Signature pad */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <Label className="text-white/60 text-xs">Digital Signature</Label>
+                  <Label className="text-white/60 text-xs">Draw Signature *</Label>
                   {hasSigned && (
                     <button onClick={clearSignature} className="text-xs text-white/40 hover:text-white">
                       Clear
@@ -293,7 +306,7 @@ export default function BootcampPhase3() {
                   ref={canvasRef}
                   width={400}
                   height={150}
-                  className="w-full border border-white/10 rounded-lg bg-white/[0.02] cursor-crosshair touch-none"
+                  className="w-full border border-white/10 rounded-lg bg-white cursor-crosshair touch-none"
                   onMouseDown={startDraw}
                   onMouseMove={draw}
                   onMouseUp={endDraw}
@@ -306,30 +319,8 @@ export default function BootcampPhase3() {
                   <p className="text-xs text-white/20 mt-1">Draw your signature above</p>
                 )}
               </div>
-
-              {/* Date auto-filled */}
-              <div>
-                <Label className="text-white/60 text-xs">Date</Label>
-                <Input
-                  value={new Date().toLocaleDateString()}
-                  disabled
-                  className="bg-white/5 border-white/10 text-white/40 mt-1"
-                />
-              </div>
             </div>
           </div>
-
-          {/* Terms checkbox */}
-          <label className="flex items-start gap-3 cursor-pointer mb-8">
-            <Checkbox
-              checked={acceptTerms}
-              onCheckedChange={(val) => setAcceptTerms(!!val)}
-              className="mt-0.5 border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-black"
-            />
-            <span className="text-xs text-white/50">
-              I accept full responsibility for my performance and understand the financial obligations outlined.
-            </span>
-          </label>
 
           <Button
             onClick={handleSubmit}
@@ -337,7 +328,7 @@ export default function BootcampPhase3() {
             size="lg"
             className="w-full bg-white text-black hover:bg-white/90 font-black text-base h-12 disabled:opacity-30"
           >
-            {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'SUBMIT & COMPLETE BOOT CAMP'}
+            {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'COMPLETE FINAL COMMITMENT'}
           </Button>
         </div>
       </div>
@@ -346,20 +337,24 @@ export default function BootcampPhase3() {
 }
 
 function PhaseIndicator({ current, progress }: { current: number; progress: any }) {
+  const labels = ['SUNBLOCK', 'MOTIVATION', 'COMMITMENT'];
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
       {[1, 2, 3].map((p, i) => {
         const done = p === 1 ? progress?.phase_1_complete : p === 2 ? progress?.phase_2_complete : progress?.phase_3_complete;
         return (
           <div key={p} className="flex items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
-                done ? 'bg-white text-black border-white' : p === current ? 'border-white text-white' : 'border-white/20 text-white/20'
-              }`}
-            >
-              {done ? <CheckCircle2 className="w-4 h-4" /> : p}
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                  done ? 'bg-white text-black border-white' : p === current ? 'border-white text-white' : 'border-white/20 text-white/20'
+                }`}
+              >
+                {done ? <CheckCircle2 className="w-4 h-4" /> : p}
+              </div>
+              <span className={`text-[9px] mt-1 ${done || p === current ? 'text-white/60' : 'text-white/20'}`}>{labels[i]}</span>
             </div>
-            {i < 2 && <div className={`w-12 h-0.5 mx-1 ${done ? 'bg-white' : 'bg-white/10'}`} />}
+            {i < 2 && <div className={`w-12 h-0.5 mx-1 mb-4 ${done ? 'bg-white' : 'bg-white/10'}`} />}
           </div>
         );
       })}

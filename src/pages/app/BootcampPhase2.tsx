@@ -4,36 +4,27 @@ import { useBootcamp } from '@/hooks/useBootcamp';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Upload, Video, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-const VIDEO_CHECKLIST = [
-  'Good lighting',
-  'Clear audio',
-  'All questions answered',
-  'Video uploaded',
-];
-
 const QUESTIONS = [
-  'Full Name',
-  'Manager Name',
-  'Why are you doing this even though it\'s difficult?',
-  'Why does that matter?',
-  'Why does that matter? (deeper level)',
-  'Quantify your why (money goal)',
-  'Years to accomplish (max 5)',
-  'What must you do years 1–5',
+  'Your name',
+  'Name of your manager',
+  'Why are you doing this job even though it is extremely difficult?',
+  'Why does that matter? Why do you want that?',
+  'How can you quantify your why? Break it down into measurable metrics.',
+  'How much money do you need to make this happen?',
+  'How many years (max 5) would you like to accomplish this?',
+  'What must you accomplish in years 1 through 5 to make it happen?',
 ];
 
 export default function BootcampPhase2() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { progress, isLoading, updatePhase } = useBootcamp();
-  const [checked, setChecked] = useState<boolean[]>(new Array(VIDEO_CHECKLIST.length).fill(false));
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !progress?.phase_1_complete) {
@@ -47,7 +38,6 @@ export default function BootcampPhase2() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const validTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo'];
     if (!validTypes.includes(file.type)) {
       toast({ title: 'Invalid file type', description: 'Please upload MP4, MOV, WebM, or AVI', variant: 'destructive' });
@@ -60,25 +50,21 @@ export default function BootcampPhase2() {
     setVideoFile(file);
   };
 
-  const allReady = videoFile && checked.every(Boolean);
-
   const handleSubmit = async () => {
-    if (!allReady || !user || submitting) return;
+    if (!videoFile || !user || submitting) return;
     setSubmitting(true);
 
     try {
-      // Upload video
       setUploading(true);
       const ext = videoFile.name.split('.').pop();
-      const path = `${user.id}/phase-2-motivation.${ext}`;
+      const path = `${user.id}/motivation.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('bootcamp-videos')
         .upload(path, videoFile, { upsert: true });
-
       if (uploadError) throw uploadError;
       setUploading(false);
 
-      const success = await updatePhase(2, { phase_2_video_url: path });
+      const success = await updatePhase(2, { motivation_video_url: path });
       if (success) {
         navigate('/bootcamp/phase-3', { replace: true });
       }
@@ -104,15 +90,16 @@ export default function BootcampPhase2() {
 
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-10">
           <h1 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-            PHASE 2
+            MOTIVATION
           </h1>
-          <p className="text-white/40 text-sm mb-6">DEFINE YOUR WHY</p>
+          <p className="text-white/40 text-sm mb-6">MODULE 2</p>
+
+          <p className="text-white/60 text-sm mb-6">
+            Please record yourself on your phone reading the following questions out loud and answering them.
+          </p>
 
           <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 mb-6">
-            <p className="text-white/60 text-xs font-medium mb-3 uppercase tracking-wider">
-              Record a video answering:
-            </p>
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {QUESTIONS.map((q, i) => (
                 <li key={i} className="text-white/50 text-sm flex items-start gap-2">
                   <span className="text-white/20 text-xs mt-0.5">{i + 1}.</span>
@@ -122,8 +109,11 @@ export default function BootcampPhase2() {
             </ul>
           </div>
 
-          {/* Upload area */}
-          <div className="mb-6">
+          <p className="text-white/50 text-sm mb-4">
+            After recording, upload your video below to complete this module.
+          </p>
+
+          <div className="mb-8">
             {videoFile ? (
               <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
                 <Video className="w-5 h-5 text-white/60 shrink-0" />
@@ -147,33 +137,13 @@ export default function BootcampPhase2() {
             )}
           </div>
 
-          {/* Checklist */}
-          <div className="space-y-3 mb-8">
-            {VIDEO_CHECKLIST.map((item, i) => (
-              <label key={i} className="flex items-center gap-3 cursor-pointer group">
-                <Checkbox
-                  checked={checked[i]}
-                  onCheckedChange={(val) => {
-                    const next = [...checked];
-                    next[i] = !!val;
-                    setChecked(next);
-                  }}
-                  className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-black"
-                />
-                <span className={`text-sm ${checked[i] ? 'text-white' : 'text-white/50'}`}>
-                  {item}
-                </span>
-              </label>
-            ))}
-          </div>
-
           <Button
             onClick={handleSubmit}
-            disabled={!allReady || submitting}
+            disabled={!videoFile || submitting}
             size="lg"
             className="w-full bg-white text-black hover:bg-white/90 font-black text-base h-12 disabled:opacity-30"
           >
-            {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'NEXT →'}
+            {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'COMPLETE MODULE →'}
           </Button>
         </div>
       </div>
@@ -182,20 +152,24 @@ export default function BootcampPhase2() {
 }
 
 function PhaseIndicator({ current, progress }: { current: number; progress: any }) {
+  const labels = ['SUNBLOCK', 'MOTIVATION', 'COMMITMENT'];
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
       {[1, 2, 3].map((p, i) => {
         const done = p === 1 ? progress?.phase_1_complete : p === 2 ? progress?.phase_2_complete : progress?.phase_3_complete;
         return (
           <div key={p} className="flex items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
-                done ? 'bg-white text-black border-white' : p === current ? 'border-white text-white' : 'border-white/20 text-white/20'
-              }`}
-            >
-              {done ? <CheckCircle2 className="w-4 h-4" /> : p}
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                  done ? 'bg-white text-black border-white' : p === current ? 'border-white text-white' : 'border-white/20 text-white/20'
+                }`}
+              >
+                {done ? <CheckCircle2 className="w-4 h-4" /> : p}
+              </div>
+              <span className={`text-[9px] mt-1 ${done || p === current ? 'text-white/60' : 'text-white/20'}`}>{labels[i]}</span>
             </div>
-            {i < 2 && <div className={`w-12 h-0.5 mx-1 ${done ? 'bg-white' : 'bg-white/10'}`} />}
+            {i < 2 && <div className={`w-12 h-0.5 mx-1 mb-4 ${done ? 'bg-white' : 'bg-white/10'}`} />}
           </div>
         );
       })}

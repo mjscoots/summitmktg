@@ -10,8 +10,13 @@ export interface BootcampProgress {
   phase_3_complete: boolean;
   bootcamp_completed: boolean;
   bootcamp_completed_at: string | null;
+  sunblock_video_url: string | null;
+  motivation_video_url: string | null;
+  final_commitment_video_url: string | null;
   phase_2_video_url: string | null;
   phase_3_video_url: string | null;
+  agreement_start_date: string | null;
+  agreement_end_date: string | null;
   commitment_start_date: string | null;
   commitment_end_date: string | null;
   signature_name: string | null;
@@ -23,7 +28,6 @@ export function useBootcamp() {
   const [progress, setProgress] = useState<BootcampProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Managers and admins bypass bootcamp
   const isBypassed = role === 'manager' || role === 'admin';
 
   const fetchProgress = useCallback(async () => {
@@ -45,7 +49,6 @@ export function useBootcamp() {
     }
 
     if (!data) {
-      // Create initial record
       const { data: newData, error: insertError } = await supabase
         .from('bootcamp_progress')
         .insert({ user_id: user.id })
@@ -55,10 +58,10 @@ export function useBootcamp() {
       if (insertError) {
         console.error('Error creating bootcamp progress:', insertError);
       } else {
-        setProgress(newData as BootcampProgress);
+        setProgress(newData as unknown as BootcampProgress);
       }
     } else {
-      setProgress(data as BootcampProgress);
+      setProgress(data as unknown as BootcampProgress);
     }
 
     setIsLoading(false);
@@ -68,13 +71,12 @@ export function useBootcamp() {
     fetchProgress();
   }, [fetchProgress]);
 
-  const updatePhase = async (phase: 1 | 2 | 3, data: Partial<BootcampProgress>) => {
+  const updatePhase = async (phase: 1 | 2 | 3, data: Record<string, unknown>) => {
     if (!user || !progress) return false;
 
-    const phaseKey = `phase_${phase}_complete` as keyof BootcampProgress;
+    const phaseKey = `phase_${phase}_complete`;
     const updateData: Record<string, unknown> = { ...data, [phaseKey]: true };
 
-    // Check if all phases will be complete
     const willComplete =
       (phase === 1 || progress.phase_1_complete) &&
       (phase === 2 || progress.phase_2_complete) &&
@@ -109,7 +111,7 @@ export function useBootcamp() {
     ? 2
     : !progress.phase_3_complete
     ? 3
-    : 0; // all done
+    : 0;
 
   return {
     progress,
