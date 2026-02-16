@@ -61,23 +61,18 @@ Deno.serve(async (req) => {
     }
 
     if (action === "approve") {
-      // Determine the role to assign
       const assignRole = newRole || "rookie";
 
-      // Update profile
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .update({ approved: true, status: "active" })
         .eq("user_id", user_id);
-
       if (profileError) throw new Error(profileError.message);
 
-      // Update role if needed
       const { error: roleUpdateError } = await supabaseAdmin
         .from("user_roles")
         .update({ role: assignRole })
         .eq("user_id", user_id);
-
       if (roleUpdateError) throw new Error(roleUpdateError.message);
 
       // Initialize bootcamp progress
@@ -139,7 +134,6 @@ Deno.serve(async (req) => {
         .from("profiles")
         .update({ approved: false, status: "rejected" })
         .eq("user_id", user_id);
-
       if (profileError) throw new Error(profileError.message);
 
       return new Response(JSON.stringify({ success: true, message: "User rejected" }), {
@@ -147,17 +141,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
 
-    } else if (action === "update_profile") {
-      const { updates } = await req.json().catch(() => ({ updates: {} }));
-      // Re-parse body since we already consumed it
-      // Actually the body was already parsed, so we need to get updates from the original parse
-      return new Response(JSON.stringify({ error: "Use dedicated endpoint for profile updates" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-
     } else if (action === "promote_admin") {
-      // Add admin role
       const { data: existingRole } = await supabaseAdmin
         .from("user_roles")
         .select("id")
@@ -196,12 +180,47 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
 
-    } else if (action === "update_fields") {
-      // Generic profile field update by admin
-      const body = JSON.parse(req.headers.get("x-update-fields") || "{}");
-      // This won't work since body is consumed. Let me restructure.
-      return new Response(JSON.stringify({ error: "Not implemented via this action" }), {
-        status: 400,
+    } else if (action === "delete_user") {
+      // Only super admin can delete users - verify caller email
+      const { data: callerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("email")
+        .eq("user_id", callerUser.id)
+        .maybeSingle();
+
+      if (callerProfile?.email !== "mjscoots9@gmail.com") {
+        return new Response(JSON.stringify({ error: "Only super admin can delete users" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Prevent deleting self
+      if (user_id === callerUser.id) {
+        return new Response(JSON.stringify({ error: "Cannot delete your own account" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Delete related data first
+      await supabaseAdmin.from("bootcamp_progress").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("lesson_progress").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("video_progress").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("leaderboard_points").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("user_training_achievements").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("user_notifications").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("calendar_attendance").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("streak_breaks").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("profiles").delete().eq("user_id", user_id);
+
+      // Delete auth user
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user_id);
+      if (deleteError) throw new Error(deleteError.message);
+
+      return new Response(JSON.stringify({ success: true, message: "User permanently deleted" }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
