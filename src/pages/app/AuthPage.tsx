@@ -25,12 +25,9 @@ const AuthPage = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [signupLevel, setSignupLevel] = useState<'rookie' | 'manager'>('rookie');
   const [signupTeam, setSignupTeam] = useState("");
-  const [signupReferredBy, setSignupReferredBy] = useState("");
-  const [signupReferredByOther, setSignupReferredByOther] = useState("");
   const [showSignupPassword, setShowSignupPassword] = useState(false);
 
   // Dropdown data
-  const [approvedUsers, setApprovedUsers] = useState<{ user_id: string; full_name: string }[]>([]);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
 
   // Redirect if already authenticated
@@ -44,23 +41,14 @@ const AuthPage = () => {
     }
   }, [isAuthenticated, profile, navigate]);
 
-  // Fetch data for dropdowns
+  // Fetch teams for dropdown
   useEffect(() => {
     const fetchData = async () => {
-      const [profilesRes, teamsRes] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("user_id, full_name")
-          .eq("approved", true)
-          .order("full_name"),
-        supabase
-          .from("teams")
-          .select("id, name")
-          .order("name"),
-      ]);
-
-      setApprovedUsers(profilesRes.data || []);
-      setTeams(teamsRes.data || []);
+      const { data } = await supabase
+        .from("teams")
+        .select("id, name")
+        .order("name");
+      setTeams(data || []);
     };
     fetchData();
   }, []);
@@ -96,14 +84,6 @@ const AuthPage = () => {
       return;
     }
 
-    const referredBy = signupReferredBy === "__other__" 
-      ? signupReferredByOther 
-      : approvedUsers.find(u => u.user_id === signupReferredBy)?.full_name || "";
-
-    if (!referredBy.trim()) {
-      setError("Please specify who referred you.");
-      return;
-    }
 
     setIsLoading(true);
 
@@ -113,7 +93,6 @@ const AuthPage = () => {
       phone: signupPhone.trim(),
       team_id: signupTeam,
       team_name: selectedTeam?.name || "",
-      referred_by: referredBy,
       selected_role: signupLevel,
     });
 
@@ -252,19 +231,6 @@ const AuthPage = () => {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Who Referred You? *</label>
-              <select value={signupReferredBy} onChange={(e) => setSignupReferredBy(e.target.value)} className="input-field" required disabled={isLoading}>
-                <option value="">Select...</option>
-                {approvedUsers.map(u => (
-                  <option key={u.user_id} value={u.user_id}>{u.full_name}</option>
-                ))}
-                <option value="__other__">Other (type below)</option>
-              </select>
-              {signupReferredBy === '__other__' && (
-                <input type="text" value={signupReferredByOther} onChange={(e) => setSignupReferredByOther(e.target.value)} placeholder="Who referred you?" className="input-field mt-2" required disabled={isLoading} />
-              )}
-            </div>
 
             <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
               {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Creating Account...</>) : "Create Account"}
