@@ -37,16 +37,29 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if caller is admin or manager
+    // Check if caller is admin ONLY
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerUser.id)
-      .in("role", ["admin", "manager"]);
+      .eq("role", "admin");
 
     if (!roleData || roleData.length === 0) {
-      return new Response(JSON.stringify({ error: "Admin or manager access required" }), {
+      return new Response(JSON.stringify({ error: "Admin access required" }), {
         status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Rate limit: max 10 account creations per 5 minutes
+    const { data: allowed } = await supabaseAdmin.rpc("check_rate_limit", {
+      p_key: `admin_create_user_${callerUser.id}`,
+      p_max_attempts: 10,
+      p_window_seconds: 300,
+    });
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again in a few minutes." }), {
+        status: 429,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -121,6 +134,21 @@ Deno.serve(async (req) => {
 
     if (updateError) {
       console.error("Profile update error:", updateError);
+    }
+
+    // Initialize bootcamp progress (locked by default)
+    const { error: bootcampError } = await supabaseAdmin
+      .from("bootcamp_progress")
+      .insert({
+        user_id: newUser.user.id,
+        phase_1_complete: false,
+        phase_2_complete: false,
+        phase_3_complete: false,
+        bootcamp_completed: false,
+      });
+
+    if (bootcampError) {
+      console.error("Bootcamp progress init error:", bootcampError);
     }
 
     // Send welcome/invite email if requested

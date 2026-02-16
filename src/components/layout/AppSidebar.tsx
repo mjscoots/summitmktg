@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain, MessageSquare } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain, MessageSquare, Shield } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -13,8 +13,10 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
-const baseNavItems = [
+// Primary nav items (top section)
+const rookieNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
@@ -26,9 +28,14 @@ const managerNavItems = [
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
   { label: 'Weekly 1:1\'s', path: '/app/weekly-one-on-ones', icon: MessageSquare },
-  { label: 'Teams', path: '/app/team', icon: Users },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
+];
+
+// Bottom admin items (above footer)
+const bottomNavItems = [
+  { label: 'Team', path: '/app/team', icon: Users, requiredRole: 'manager' as const },
+  { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' as const },
 ];
 
 export function AppSidebar() {
@@ -39,7 +46,8 @@ export function AppSidebar() {
   const collapsed = state === 'collapsed';
 
   const isManager = role === 'manager' || role === 'admin';
-  const roleLabel = isManager ? 'MANAGER' : 'ROOKIE';
+  const isAdmin = role === 'admin';
+  const roleLabel = isAdmin ? 'ADMIN' : isManager ? 'MANAGER' : 'ROOKIE';
 
   const handleSignOut = async () => {
     await signOut();
@@ -47,20 +55,17 @@ export function AppSidebar() {
   };
 
   const isActive = (path: string) => {
-    if (path === '/app') {
-      return location.pathname === '/app';
-    }
-    if (path === '/app/team') {
-      return location.pathname === '/app/team' || location.pathname.startsWith('/app/team/');
-    }
+    if (path === '/app') return location.pathname === '/app';
     return location.pathname.startsWith(path);
   };
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
+  const navItems = isManager ? managerNavItems : rookieNavItems;
 
-  const navItems = isManager ? managerNavItems : baseNavItems;
+  const visibleBottomItems = bottomNavItems.filter(item => {
+    if (item.requiredRole === 'admin') return isAdmin;
+    if (item.requiredRole === 'manager') return isManager;
+    return true;
+  });
 
   return (
     <Sidebar
@@ -70,7 +75,7 @@ export function AppSidebar() {
       )}
       collapsible="icon"
     >
-      {/* Header: Compact logo - Clickable Home Button */}
+      {/* Header */}
       <SidebarHeader className="px-3 pt-4 pb-3">
         <button 
           className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-all duration-200 hover:bg-white/10 active:scale-95"
@@ -88,8 +93,8 @@ export function AppSidebar() {
         </button>
       </SidebarHeader>
 
-      {/* Navigation - Tight spacing */}
-      <SidebarContent className="px-1.5 py-1">
+      {/* Main nav - grows to push bottom items down */}
+      <SidebarContent className="px-1.5 py-1 flex flex-col flex-1">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
@@ -98,7 +103,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.path}>
                     <button
-                      onClick={() => handleNavigation(item.path)}
+                      onClick={() => navigate(item.path)}
                       className={cn(
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
                         active 
@@ -108,9 +113,7 @@ export function AppSidebar() {
                     >
                       <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
                       {!collapsed && (
-                        <span className="text-[13px] font-medium">
-                          {item.label}
-                        </span>
+                        <span className="text-[13px] font-medium">{item.label}</span>
                       )}
                     </button>
                   </SidebarMenuItem>
@@ -119,9 +122,44 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Bottom admin section */}
+        {visibleBottomItems.length > 0 && (
+          <SidebarGroup>
+            <Separator className="mb-2 bg-white/5" />
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-0.5">
+                {visibleBottomItems.map((item) => {
+                  const active = isActive(item.path);
+                  return (
+                    <SidebarMenuItem key={item.path}>
+                      <button
+                        onClick={() => navigate(item.path)}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150",
+                          active 
+                            ? "bg-primary/15 text-primary"
+                            : "text-white/50 hover:text-white/80 hover:bg-white/5"
+                        )}
+                      >
+                        <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                        {!collapsed && (
+                          <span className="text-[13px] font-medium">{item.label}</span>
+                        )}
+                      </button>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
-      {/* Footer - Compact */}
+      {/* Footer */}
       <SidebarFooter className="p-1.5 border-t border-border/10">
         <div
           onClick={() => navigate('/app/profile')}
@@ -132,25 +170,18 @@ export function AppSidebar() {
           )}
         >
           {profile?.avatar_url ? (
-            <img 
-              src={profile.avatar_url} 
-              alt="Avatar" 
-              className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-            />
+            <img src={profile.avatar_url} alt="Avatar" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
           ) : (
             <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               <User className="w-3 h-3 text-primary" strokeWidth={1.75} />
             </div>
           )}
-          
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-white/90 truncate">
                 {profile?.full_name?.split(' ')[0] || 'User'}
               </p>
-              <p className="text-[10px] text-primary/80 uppercase tracking-wide">
-                {roleLabel}
-              </p>
+              <p className="text-[10px] text-primary/80 uppercase tracking-wide">{roleLabel}</p>
             </div>
           )}
         </div>

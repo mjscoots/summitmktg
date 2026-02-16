@@ -40,6 +40,7 @@ import Interview3Page from "./pages/app/Interview3Page";
 import WeeklyOneOnOnesPage from "./pages/app/WeeklyOneOnOnesPage";
 import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
 import TrainingVideosPage from "./pages/app/TrainingVideosPage";
+import AdminTeamPage from "./pages/app/AdminTeamPage";
 import VideoPlayerPage from "./pages/app/VideoPlayerPage";
 const queryClient = new QueryClient();
 
@@ -218,6 +219,13 @@ const queryClient = new QueryClient();
             <Route path="/app/admin/training" element={
               <ProtectedRoute requiredRole="manager">
                 <AdminTrainingEditor />
+              </ProtectedRoute>
+            } />
+
+            {/* Admin Team Management */}
+            <Route path="/admin/team" element={
+              <ProtectedRoute requiredRole="manager">
+                <AdminTeamPage />
               </ProtectedRoute>
             } />
  
