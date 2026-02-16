@@ -152,6 +152,60 @@ export type Database = {
         }
         Relationships: []
       }
+      bootcamp_progress: {
+        Row: {
+          bootcamp_completed: boolean
+          bootcamp_completed_at: string | null
+          commitment_end_date: string | null
+          commitment_start_date: string | null
+          created_at: string
+          id: string
+          phase_1_complete: boolean
+          phase_2_complete: boolean
+          phase_2_video_url: string | null
+          phase_3_complete: boolean
+          phase_3_video_url: string | null
+          signature_data: string | null
+          signature_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bootcamp_completed?: boolean
+          bootcamp_completed_at?: string | null
+          commitment_end_date?: string | null
+          commitment_start_date?: string | null
+          created_at?: string
+          id?: string
+          phase_1_complete?: boolean
+          phase_2_complete?: boolean
+          phase_2_video_url?: string | null
+          phase_3_complete?: boolean
+          phase_3_video_url?: string | null
+          signature_data?: string | null
+          signature_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bootcamp_completed?: boolean
+          bootcamp_completed_at?: string | null
+          commitment_end_date?: string | null
+          commitment_start_date?: string | null
+          created_at?: string
+          id?: string
+          phase_1_complete?: boolean
+          phase_2_complete?: boolean
+          phase_2_video_url?: string | null
+          phase_3_complete?: boolean
+          phase_3_video_url?: string | null
+          signature_data?: string | null
+          signature_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       calendar_attendance: {
         Row: {
           created_at: string | null

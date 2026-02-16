@@ -19,8 +19,13 @@ import VetApplication from "./pages/VetApplication";
 import ApplySuccess from "./pages/ApplySuccess";
 
 // App pages
+import { BootcampGate } from "@/components/BootcampGate";
 import DashboardPage from "./pages/app/DashboardPage";
 import TrainingPage from "./pages/app/TrainingPage";
+import BootcampLock from "./pages/app/BootcampLock";
+import BootcampPhase1 from "./pages/app/BootcampPhase1";
+import BootcampPhase2 from "./pages/app/BootcampPhase2";
+import BootcampPhase3 from "./pages/app/BootcampPhase3";
 import TrainingCoursePage from "./pages/app/TrainingCoursePage";
 import LessonPage from "./pages/app/LessonPage";
 import LeaderboardPage from "./pages/app/LeaderboardPage";
@@ -61,84 +66,124 @@ const queryClient = new QueryClient();
            {/* Redirect any signup attempts to login */}
            <Route path="/signup" element={<Navigate to="/login" replace />} />
  
-           {/* ========== APP - PROTECTED ROUTES ========== */}
-           
-           {/* Main Dashboard */}
-           <Route path="/app" element={
-             <ProtectedRoute>
-               <DashboardPage />
-             </ProtectedRoute>
-           } />
- 
-           {/* Legacy routes - redirect to unified /app */}
-           <Route path="/app/rookie" element={<Navigate to="/app" replace />} />
-           <Route path="/app/manager" element={<Navigate to="/app" replace />} />
+            {/* ========== BOOTCAMP ROUTES ========== */}
+            <Route path="/bootcamp-lock" element={
+              <ProtectedRoute>
+                <BootcampLock />
+              </ProtectedRoute>
+            } />
+            <Route path="/bootcamp/phase-1" element={
+              <ProtectedRoute>
+                <BootcampPhase1 />
+              </ProtectedRoute>
+            } />
+            <Route path="/bootcamp/phase-2" element={
+              <ProtectedRoute>
+                <BootcampPhase2 />
+              </ProtectedRoute>
+            } />
+            <Route path="/bootcamp/phase-3" element={
+              <ProtectedRoute>
+                <BootcampPhase3 />
+              </ProtectedRoute>
+            } />
+
+            {/* ========== APP - PROTECTED ROUTES ========== */}
+            
+            {/* Main Dashboard */}
+            <Route path="/app" element={
+              <ProtectedRoute>
+                <BootcampGate>
+                  <DashboardPage />
+                </BootcampGate>
+              </ProtectedRoute>
+            } />
+  
+            {/* Legacy routes - redirect to unified /app */}
+            <Route path="/app/rookie" element={<Navigate to="/app" replace />} />
+            <Route path="/app/manager" element={<Navigate to="/app" replace />} />
            <Route path="/rookie" element={<Navigate to="/app" replace />} />
            <Route path="/manager" element={<Navigate to="/app" replace />} />
            <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
            <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
            
-           {/* Training */}
-            <Route path="/app/training" element={
-              <ProtectedRoute>
-                <TrainingPage />
+            {/* Training */}
+             <Route path="/app/training" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <TrainingPage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
+             <Route path="/app/training/videos" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <TrainingVideosPage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
+             <Route path="/app/training/videos/:videoId" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <VideoPlayerPage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
+             <Route path="/app/training/:courseSlug" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <TrainingCoursePage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
+             <Route path="/app/training/:courseSlug/:lessonId" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <LessonPage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
+            
+            {/* My Team (Manager only) */}
+            <Route path="/app/team" element={
+              <ProtectedRoute requiredRole="manager">
+                <MyTeamPage />
               </ProtectedRoute>
             } />
-            <Route path="/app/training/videos" element={
-              <ProtectedRoute>
-                <TrainingVideosPage />
+
+            {/* Members Directory (Manager only) */}
+            <Route path="/app/members" element={
+              <ProtectedRoute requiredRole="manager">
+                <MembersPage />
               </ProtectedRoute>
             } />
-            <Route path="/app/training/videos/:videoId" element={
-              <ProtectedRoute>
-                <VideoPlayerPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/training/:courseSlug" element={
-              <ProtectedRoute>
-                <TrainingCoursePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/app/training/:courseSlug/:lessonId" element={
-              <ProtectedRoute>
-                <LessonPage />
-              </ProtectedRoute>
-            } />
-           
-           {/* My Team (Manager only) */}
-           <Route path="/app/team" element={
-             <ProtectedRoute requiredRole="manager">
-               <MyTeamPage />
-             </ProtectedRoute>
-           } />
- 
-           {/* Members Directory (Manager only) */}
-           <Route path="/app/members" element={
-             <ProtectedRoute requiredRole="manager">
-               <MembersPage />
-             </ProtectedRoute>
-           } />
  
            {/* Profile */}
-           <Route path="/app/profile" element={
-             <ProtectedRoute>
-               <ProfilePage />
-             </ProtectedRoute>
-           } />
-           
-           {/* Leaderboard */}
-           <Route path="/app/leaderboard" element={
-             <ProtectedRoute>
-               <LeaderboardPage />
-             </ProtectedRoute>
-           } />
+            <Route path="/app/profile" element={
+              <ProtectedRoute>
+                <BootcampGate>
+                  <ProfilePage />
+                </BootcampGate>
+              </ProtectedRoute>
+            } />
+            
+            {/* Leaderboard */}
+            <Route path="/app/leaderboard" element={
+              <ProtectedRoute>
+                <BootcampGate>
+                  <LeaderboardPage />
+                </BootcampGate>
+              </ProtectedRoute>
+            } />
  
-           {/* Calendar */}
-           <Route path="/app/calendar" element={
-             <ProtectedRoute>
-               <CalendarPage />
-             </ProtectedRoute>
-           } />
+            {/* Calendar */}
+            <Route path="/app/calendar" element={
+              <ProtectedRoute>
+                <BootcampGate>
+                  <CalendarPage />
+                </BootcampGate>
+              </ProtectedRoute>
+            } />
  
            {/* Interviews (Manager Only) */}
            <Route path="/app/interviews" element={
