@@ -24,14 +24,14 @@ const AuthPage = () => {
   const [signupPhone, setSignupPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupLevel, setSignupLevel] = useState<'rookie' | 'manager'>('rookie');
-  const [signupManager, setSignupManager] = useState("");
+  const [signupTeam, setSignupTeam] = useState("");
   const [signupReferredBy, setSignupReferredBy] = useState("");
   const [signupReferredByOther, setSignupReferredByOther] = useState("");
   const [showSignupPassword, setShowSignupPassword] = useState(false);
 
   // Dropdown data
   const [approvedUsers, setApprovedUsers] = useState<{ user_id: string; full_name: string }[]>([]);
-  const [managers, setManagers] = useState<{ user_id: string; full_name: string }[]>([]);
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -44,26 +44,25 @@ const AuthPage = () => {
     }
   }, [isAuthenticated, profile, navigate]);
 
-  // Fetch approved users for referral dropdown
+  // Fetch data for dropdowns
   useEffect(() => {
-    const fetchUsers = async () => {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name")
-        .eq("approved", true)
-        .order("full_name");
+    const fetchData = async () => {
+      const [profilesRes, teamsRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("user_id, full_name")
+          .eq("approved", true)
+          .order("full_name"),
+        supabase
+          .from("teams")
+          .select("id, name")
+          .order("name"),
+      ]);
 
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("user_id, role")
-        .in("role", ["manager", "admin"]);
-
-      const managerIds = new Set((roleData || []).map(r => r.user_id));
-
-      setApprovedUsers(profiles || []);
-      setManagers((profiles || []).filter(p => managerIds.has(p.user_id)));
+      setApprovedUsers(profilesRes.data || []);
+      setTeams(teamsRes.data || []);
     };
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -80,7 +79,6 @@ const AuthPage = () => {
       return;
     }
 
-    // Auth state change will handle redirect via useEffect
     setIsLoading(false);
   };
 
@@ -93,8 +91,8 @@ const AuthPage = () => {
       return;
     }
 
-    if (!signupManager) {
-      setError("Please select a manager.");
+    if (!signupTeam) {
+      setError("Please select a team.");
       return;
     }
 
@@ -109,11 +107,12 @@ const AuthPage = () => {
 
     setIsLoading(true);
 
-    const managerName = managers.find(m => m.user_id === signupManager)?.full_name || "";
+    const selectedTeam = teams.find(t => t.id === signupTeam);
 
     const { error } = await signUp(signupEmail.trim(), signupPassword, signupName.trim(), {
       phone: signupPhone.trim(),
-      direct_manager: managerName,
+      team_id: signupTeam,
+      team_name: selectedTeam?.name || "",
       referred_by: referredBy,
       selected_role: signupLevel,
     });
@@ -186,34 +185,13 @@ const AuthPage = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="input-field"
-                required
-                disabled={isLoading}
-              />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Password</label>
               <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="input-field pr-12"
-                  required
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  disabled={isLoading}
-                >
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="input-field pr-12" required disabled={isLoading} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" disabled={isLoading}>
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
@@ -233,61 +211,24 @@ const AuthPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Full Name *</label>
-              <input
-                type="text"
-                value={signupName}
-                onChange={(e) => setSignupName(e.target.value)}
-                placeholder="John Doe"
-                className="input-field"
-                required
-                disabled={isLoading}
-              />
+              <input type="text" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="John Doe" className="input-field" required disabled={isLoading} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Email *</label>
-              <input
-                type="email"
-                value={signupEmail}
-                onChange={(e) => setSignupEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="input-field"
-                required
-                disabled={isLoading}
-              />
+              <input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Phone Number *</label>
-              <input
-                type="tel"
-                value={signupPhone}
-                onChange={(e) => setSignupPhone(e.target.value)}
-                placeholder="(555) 123-4567"
-                className="input-field"
-                required
-                disabled={isLoading}
-              />
+              <input type="tel" value={signupPhone} onChange={(e) => setSignupPhone(e.target.value)} placeholder="(555) 123-4567" className="input-field" required disabled={isLoading} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Password *</label>
               <div className="relative">
-                <input
-                  type={showSignupPassword ? "text" : "password"}
-                  value={signupPassword}
-                  onChange={(e) => setSignupPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="input-field pr-12"
-                  required
-                  minLength={6}
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSignupPassword(!showSignupPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <input type={showSignupPassword ? "text" : "password"} value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="••••••••" className="input-field pr-12" required minLength={6} disabled={isLoading} />
+                <button type="button" onClick={() => setShowSignupPassword(!showSignupPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                   {showSignupPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
@@ -295,42 +236,25 @@ const AuthPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Level of Experience *</label>
-              <select
-                value={signupLevel}
-                onChange={(e) => setSignupLevel(e.target.value as 'rookie' | 'manager')}
-                className="input-field"
-                disabled={isLoading}
-              >
+              <select value={signupLevel} onChange={(e) => setSignupLevel(e.target.value as 'rookie' | 'manager')} className="input-field" disabled={isLoading}>
                 <option value="rookie">Rookie</option>
                 <option value="manager">Manager</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Manager *</label>
-              <select
-                value={signupManager}
-                onChange={(e) => setSignupManager(e.target.value)}
-                className="input-field"
-                required
-                disabled={isLoading}
-              >
-                <option value="">Select a manager...</option>
-                {managers.map(m => (
-                  <option key={m.user_id} value={m.user_id}>{m.full_name}</option>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Whose team are you a part of? *</label>
+              <select value={signupTeam} onChange={(e) => setSignupTeam(e.target.value)} className="input-field" required disabled={isLoading}>
+                <option value="">Select a team...</option>
+                {teams.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Who Referred You? *</label>
-              <select
-                value={signupReferredBy}
-                onChange={(e) => setSignupReferredBy(e.target.value)}
-                className="input-field"
-                required
-                disabled={isLoading}
-              >
+              <select value={signupReferredBy} onChange={(e) => setSignupReferredBy(e.target.value)} className="input-field" required disabled={isLoading}>
                 <option value="">Select...</option>
                 {approvedUsers.map(u => (
                   <option key={u.user_id} value={u.user_id}>{u.full_name}</option>
@@ -338,15 +262,7 @@ const AuthPage = () => {
                 <option value="__other__">Other (type below)</option>
               </select>
               {signupReferredBy === '__other__' && (
-                <input
-                  type="text"
-                  value={signupReferredByOther}
-                  onChange={(e) => setSignupReferredByOther(e.target.value)}
-                  placeholder="Who referred you?"
-                  className="input-field mt-2"
-                  required
-                  disabled={isLoading}
-                />
+                <input type="text" value={signupReferredByOther} onChange={(e) => setSignupReferredByOther(e.target.value)} placeholder="Who referred you?" className="input-field mt-2" required disabled={isLoading} />
               )}
             </div>
 
