@@ -13,10 +13,10 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 import Recruiting from "./pages/Recruiting";
-// Apply page removed - content merged into Recruiting page
 import RookieApplication from "./pages/RookieApplication";
 import VetApplication from "./pages/VetApplication";
 import ApplySuccess from "./pages/ApplySuccess";
+import PendingApproval from "./pages/app/PendingApproval";
 
 // App pages
 import { BootcampGate } from "@/components/BootcampGate";
@@ -63,9 +63,10 @@ const queryClient = new QueryClient();
            <Route path="/apply/rookie" element={<RookieApplication />} />
            <Route path="/apply/veteran" element={<VetApplication />} />
            <Route path="/apply/success" element={<ApplySuccess />} />
-           <Route path="/login" element={<AuthPage />} />
-           {/* Redirect any signup attempts to login */}
-           <Route path="/signup" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/pending-approval" element={<PendingApproval />} />
+            {/* Redirect any signup attempts to login */}
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
  
             {/* ========== BOOTCAMP ROUTES ========== */}
             <Route path="/bootcamp-lock" element={

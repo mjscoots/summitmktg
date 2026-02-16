@@ -504,6 +504,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved: boolean | null
           avatar_url: string | null
           created_at: string | null
           direct_manager: string | null
@@ -519,6 +520,7 @@ export type Database = {
           phone: string | null
           pillar_slug: string | null
           recruiter: string | null
+          referred_by: string | null
           region: string | null
           status: Database["public"]["Enums"]["user_status"] | null
           team_id: string | null
@@ -528,6 +530,7 @@ export type Database = {
           week_start: string | null
         }
         Insert: {
+          approved?: boolean | null
           avatar_url?: string | null
           created_at?: string | null
           direct_manager?: string | null
@@ -543,6 +546,7 @@ export type Database = {
           phone?: string | null
           pillar_slug?: string | null
           recruiter?: string | null
+          referred_by?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
@@ -552,6 +556,7 @@ export type Database = {
           week_start?: string | null
         }
         Update: {
+          approved?: boolean | null
           avatar_url?: string | null
           created_at?: string | null
           direct_manager?: string | null
@@ -567,6 +572,7 @@ export type Database = {
           phone?: string | null
           pillar_slug?: string | null
           recruiter?: string | null
+          referred_by?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
@@ -1661,6 +1667,8 @@ export type Database = {
         | "onboarded"
         | "info_added"
         | "nlc"
+        | "pending"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1803,6 +1811,8 @@ export const Constants = {
         "onboarded",
         "info_added",
         "nlc",
+        "pending",
+        "rejected",
       ],
     },
   },

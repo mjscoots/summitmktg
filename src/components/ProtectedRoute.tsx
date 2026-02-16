@@ -26,6 +26,11 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Check if user is pending approval
+  if (profile && profile.approved === false) {
+    return <Navigate to="/pending-approval" replace />;
+  }
+
   // Check if user is NLC (no access)
   if (profile?.status === 'nlc') {
     return (
