@@ -154,12 +154,16 @@ export type Database = {
       }
       bootcamp_progress: {
         Row: {
+          agreement_end_date: string | null
+          agreement_start_date: string | null
           bootcamp_completed: boolean
           bootcamp_completed_at: string | null
           commitment_end_date: string | null
           commitment_start_date: string | null
           created_at: string
+          final_commitment_video_url: string | null
           id: string
+          motivation_video_url: string | null
           phase_1_complete: boolean
           phase_2_complete: boolean
           phase_2_video_url: string | null
@@ -167,16 +171,21 @@ export type Database = {
           phase_3_video_url: string | null
           signature_data: string | null
           signature_name: string | null
+          sunblock_video_url: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          agreement_end_date?: string | null
+          agreement_start_date?: string | null
           bootcamp_completed?: boolean
           bootcamp_completed_at?: string | null
           commitment_end_date?: string | null
           commitment_start_date?: string | null
           created_at?: string
+          final_commitment_video_url?: string | null
           id?: string
+          motivation_video_url?: string | null
           phase_1_complete?: boolean
           phase_2_complete?: boolean
           phase_2_video_url?: string | null
@@ -184,16 +193,21 @@ export type Database = {
           phase_3_video_url?: string | null
           signature_data?: string | null
           signature_name?: string | null
+          sunblock_video_url?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          agreement_end_date?: string | null
+          agreement_start_date?: string | null
           bootcamp_completed?: boolean
           bootcamp_completed_at?: string | null
           commitment_end_date?: string | null
           commitment_start_date?: string | null
           created_at?: string
+          final_commitment_video_url?: string | null
           id?: string
+          motivation_video_url?: string | null
           phase_1_complete?: boolean
           phase_2_complete?: boolean
           phase_2_video_url?: string | null
@@ -201,6 +215,7 @@ export type Database = {
           phase_3_video_url?: string | null
           signature_data?: string | null
           signature_name?: string | null
+          sunblock_video_url?: string | null
           updated_at?: string
           user_id?: string
         }
