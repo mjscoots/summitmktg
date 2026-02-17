@@ -226,8 +226,13 @@ export default function TrainingCoursePage() {
               ? Math.round((module.lessons.filter(l => l.quiz_passed).length / module.lessons.length) * 100)
               : 0;
             
+            const isModuleComplete = moduleProgress === 100;
             const isModuleLocked = moduleIndex > 0 && 
               modules[moduleIndex - 1].lessons.some(l => !l.quiz_passed);
+
+            // Find the first incomplete lesson across all modules to determine "continue" point
+            const isCurrentModule = !isModuleLocked && !isModuleComplete && 
+              (moduleIndex === 0 || !modules[moduleIndex - 1].lessons.some(l => !l.quiz_passed));
 
             return (
               <div 
@@ -235,28 +240,55 @@ export default function TrainingCoursePage() {
                 className={cn(
                   "bg-card rounded-lg border transition-all",
                   isModuleLocked 
-                    ? 'border-border opacity-60' 
-                    : isRookieCourse
-                      ? 'border-border hover:border-green-500/30'
-                      : 'border-border hover:border-blue-500/30'
+                    ? 'border-border opacity-40 grayscale' 
+                    : isModuleComplete
+                      ? 'border-border/50 opacity-60'
+                      : isCurrentModule
+                        ? isRookieCourse
+                          ? 'border-green-500/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
+                          : 'border-blue-500/50 ring-1 ring-blue-500/20 shadow-[0_0_15px_-5px_rgba(59,130,246,0.15)]'
+                        : isRookieCourse
+                          ? 'border-border hover:border-green-500/30'
+                          : 'border-border hover:border-blue-500/30'
                 )}
               >
                 {/* Module Header */}
-                <div className="p-4 border-b border-border">
+                <div className={cn(
+                  "p-4 border-b border-border",
+                  isCurrentModule && "bg-muted/30"
+                )}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className={cn(
                         "text-sm font-medium px-2 py-0.5 rounded",
-                        isRookieCourse 
-                          ? "text-green-400 bg-green-500/10"
-                          : "text-blue-400 bg-blue-500/10"
+                        isModuleComplete
+                          ? "text-muted-foreground bg-muted/50"
+                          : isRookieCourse 
+                            ? "text-green-400 bg-green-500/10"
+                            : "text-blue-400 bg-blue-500/10"
                       )}>
-                        Module {moduleIndex + 1}
+                        {isModuleComplete ? '✓' : `Module ${moduleIndex + 1}`}
                       </span>
-                      <h3 className="font-semibold text-foreground">{module.title}</h3>
+                      <h3 className={cn(
+                        "font-semibold",
+                        isModuleComplete ? "text-muted-foreground" : "text-foreground"
+                      )}>{module.title}</h3>
+                      {isCurrentModule && (
+                        <span className={cn(
+                          "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse",
+                          isRookieCourse 
+                            ? "bg-green-500/15 text-green-400"
+                            : "bg-blue-500/15 text-blue-400"
+                        )}>
+                          CONTINUE
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">
+                      <span className={cn(
+                        "text-sm",
+                        isModuleComplete ? "text-muted-foreground" : "text-muted-foreground"
+                      )}>
                         {moduleProgress}%
                       </span>
                       {isModuleLocked && <Lock className="w-4 h-4 text-muted-foreground" />}
@@ -272,44 +304,68 @@ export default function TrainingCoursePage() {
                   {module.lessons.map((lesson, lessonIndex) => {
                     const isLessonLocked = isModuleLocked || 
                       (lessonIndex > 0 && !module.lessons[lessonIndex - 1].quiz_passed);
+                    
+                    // First incomplete, unlocked lesson in this module = current lesson
+                    const isCurrentLesson = !isLessonLocked && !lesson.quiz_passed &&
+                      (lessonIndex === 0 || module.lessons[lessonIndex - 1].quiz_passed);
 
                     return (
                       <button
                         key={lesson.id}
                         onClick={() => !isLessonLocked && navigate(`/app/training/${courseSlug}/${lesson.id}`)}
                         disabled={isLessonLocked}
-                        className={`w-full p-4 flex items-center justify-between text-left transition-colors ${
+                        className={cn(
+                          "w-full p-4 flex items-center justify-between text-left transition-all",
                           isLessonLocked 
-                            ? 'cursor-not-allowed' 
-                            : 'hover:bg-muted/50 cursor-pointer'
-                        }`}
+                            ? 'cursor-not-allowed opacity-40' 
+                            : lesson.quiz_passed
+                              ? 'opacity-60 hover:opacity-80 cursor-pointer'
+                              : isCurrentLesson
+                                ? cn(
+                                    'cursor-pointer',
+                                    isRookieCourse 
+                                      ? 'bg-green-500/5 hover:bg-green-500/10' 
+                                      : 'bg-blue-500/5 hover:bg-blue-500/10'
+                                  )
+                                : 'hover:bg-muted/50 cursor-pointer'
+                        )}
                       >
                         <div className="flex items-center gap-3">
                           {lesson.quiz_passed ? (
-                            <CheckCircle2 className={cn(
-                              "w-5 h-5 flex-shrink-0",
-                              isRookieCourse ? "text-green-400" : "text-blue-400"
-                            )} />
+                            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-muted-foreground" />
                           ) : isLessonLocked ? (
                             <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                          ) : isCurrentLesson ? (
+                            <PlayCircle className={cn(
+                              "w-5 h-5 flex-shrink-0 animate-pulse",
+                              isRookieCourse ? "text-green-400" : "text-blue-400"
+                            )} />
                           ) : (
                             <PlayCircle className={cn(
                               "w-5 h-5 flex-shrink-0",
-                              isRookieCourse ? "text-green-400" : "text-blue-400"
+                              isRookieCourse ? "text-green-400/60" : "text-blue-400/60"
                             )} />
                           )}
-                          <span className={`text-sm ${
+                          <span className={cn(
+                            "text-sm",
                             lesson.quiz_passed 
-                              ? 'text-muted-foreground' 
+                              ? 'text-muted-foreground line-through decoration-muted-foreground/30' 
                               : isLessonLocked 
                                 ? 'text-muted-foreground'
-                                : 'text-foreground'
-                          }`}>
+                                : isCurrentLesson
+                                  ? 'text-foreground font-medium'
+                                  : 'text-foreground'
+                          )}>
                             {lesson.title}
                           </span>
                         </div>
                         {!isLessonLocked && (
-                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                          <ChevronRight className={cn(
+                            "w-4 h-4",
+                            isCurrentLesson 
+                              ? isRookieCourse ? "text-green-400" : "text-blue-400"
+                              : "text-muted-foreground"
+                          )} />
                         )}
                       </button>
                     );
