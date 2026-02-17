@@ -130,11 +130,15 @@ export default function AdminTeamPage() {
     const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id));
     const teamsMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
 
-    const allReps: RepRow[] = (profilesRes.data || []).map(p => ({
-      ...p,
-      bootcamp_completed: bootcampMap.get(p.user_id)?.bootcamp_completed ?? true,
-      role: roleMap.get(p.user_id) || 'rookie',
-    }));
+    const allReps: RepRow[] = (profilesRes.data || []).map(p => {
+      const userRole = roleMap.get(p.user_id) || 'rookie';
+      const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin';
+      return {
+        ...p,
+        bootcamp_completed: isManagerOrAdmin ? true : (bootcampMap.get(p.user_id)?.bootcamp_completed ?? true),
+        role: userRole,
+      };
+    });
 
     const pending = allReps.filter(r => r.status === 'pending' && !r.approved);
     const approved = allReps.filter(r => r.status !== 'pending' || r.approved);
@@ -155,8 +159,12 @@ export default function AdminTeamPage() {
     (settingsRes.data || []).forEach(s => { settingsMap[s.key] = s.value || ''; });
     setSettings(settingsMap);
 
-    // Build bootcamp responses data
+    // Build bootcamp responses data — exclude managers/admins
     const bcRows: BootcampRow[] = (profilesRes.data || [])
+      .filter(p => {
+        const userRole = roleMap.get(p.user_id) || 'rookie';
+        return userRole === 'rookie';
+      })
       .map(p => {
         const bc = bootcampMap.get(p.user_id);
         if (!bc) return null;
@@ -295,13 +303,14 @@ export default function AdminTeamPage() {
   const handleSaveEdit = async () => {
     if (!editUser) return;
     setEditLoading(true);
+    const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin';
     const { error: profileError } = await supabase.from('profiles').update({
       full_name: editForm.full_name,
       phone: editForm.phone || null,
       direct_manager: editForm.direct_manager || null,
       status: editForm.status as any,
       team_id: editForm.team_id || null,
-      experience: editForm.experience as any || 'rookie',
+      experience: (isManagerRole ? 'veteran' : editForm.experience) as any || 'rookie',
     }).eq('user_id', editUser.user_id);
 
     if (profileError) {
@@ -543,9 +552,13 @@ export default function AdminTeamPage() {
                         <td className="px-4 py-3">{statusBadge(rep.status)}</td>
                         <td className="px-4 py-3 text-white/60">{getTeamName(rep.team_id)}</td>
                         <td className="px-4 py-3">
-                          <Badge variant={rep.bootcamp_completed ? 'default' : 'destructive'} className="text-[10px]">
-                            {rep.bootcamp_completed ? 'Complete' : 'Incomplete'}
-                          </Badge>
+                          {rep.role === 'manager' || rep.role === 'admin' ? (
+                            <span className="text-muted-foreground text-[10px] font-medium">N/A</span>
+                          ) : (
+                            <Badge variant={rep.bootcamp_completed ? 'default' : 'destructive'} className="text-[10px]">
+                              {rep.bootcamp_completed ? 'Complete' : 'Incomplete'}
+                            </Badge>
+                          )}
                         </td>
                         {isAdmin && (
                           <td className="px-4 py-3 text-right">
@@ -823,19 +836,28 @@ export default function AdminTeamPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Role</label>
-                <select className="input-field w-full" value={editForm.role} onChange={e => setEditForm(f => ({ ...f, role: e.target.value }))}>
+                <select className="input-field w-full" value={editForm.role} onChange={e => {
+                  const newRole = e.target.value;
+                  setEditForm(f => ({
+                    ...f,
+                    role: newRole,
+                    experience: (newRole === 'manager' || newRole === 'admin') ? 'veteran' : f.experience,
+                  }));
+                }}>
                   <option value="rookie">Rookie</option>
                   <option value="manager">Manager</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Experience Level</label>
-                <select className="input-field w-full" value={editForm.experience} onChange={e => setEditForm(f => ({ ...f, experience: e.target.value }))}>
-                  <option value="rookie">Rookie</option>
-                  <option value="veteran">Veteran</option>
-                </select>
-              </div>
+              {editForm.role === 'rookie' && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Experience Level</label>
+                  <select className="input-field w-full" value={editForm.experience} onChange={e => setEditForm(f => ({ ...f, experience: e.target.value }))}>
+                    <option value="rookie">Rookie</option>
+                    <option value="veteran">Veteran</option>
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                 <select className="input-field w-full" value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}>
