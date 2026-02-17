@@ -158,6 +158,7 @@ export type Database = {
           agreement_start_date: string | null
           bootcamp_completed: boolean
           bootcamp_completed_at: string | null
+          bootcamp_exempt: boolean
           commitment_end_date: string | null
           commitment_start_date: string | null
           created_at: string
@@ -180,6 +181,7 @@ export type Database = {
           agreement_start_date?: string | null
           bootcamp_completed?: boolean
           bootcamp_completed_at?: string | null
+          bootcamp_exempt?: boolean
           commitment_end_date?: string | null
           commitment_start_date?: string | null
           created_at?: string
@@ -202,6 +204,7 @@ export type Database = {
           agreement_start_date?: string | null
           bootcamp_completed?: boolean
           bootcamp_completed_at?: string | null
+          bootcamp_exempt?: boolean
           commitment_end_date?: string | null
           commitment_start_date?: string | null
           created_at?: string

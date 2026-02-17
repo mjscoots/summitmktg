@@ -95,7 +95,7 @@ export default function AdminTeamPage() {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<RepRow | null>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '' });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '', bootcamp_exempt: false });
   const [editLoading, setEditLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<RepRow | null>(null);
   const [newTeamName, setNewTeamName] = useState('');
