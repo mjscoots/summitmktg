@@ -288,6 +288,7 @@ export default function AdminTeamPage() {
       status: rep.status || 'active',
       team_id: rep.team_id || '',
       experience: rep.experience || 'rookie',
+      bootcamp_exempt: false,
     });
   };
 
