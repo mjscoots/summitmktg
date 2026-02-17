@@ -20,7 +20,7 @@ interface Profile {
   team_id: string | null;
   pillar_slug: string | null;
   direct_manager: string | null;
-  password_changed: boolean | null;
+  
   approved: boolean | null;
   referred_by: string | null;
 }
