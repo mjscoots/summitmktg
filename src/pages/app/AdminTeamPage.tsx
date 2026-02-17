@@ -56,6 +56,7 @@ interface TeamRow {
   name: string;
   slug: string;
   created_at: string | null;
+  leader_id: string | null;
   member_count: number;
 }
 
@@ -120,7 +121,7 @@ export default function AdminTeamPage() {
       supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('*'),
       supabase.from('user_roles').select('user_id, role'),
-      supabase.from('teams').select('id, name, slug, created_at').order('name'),
+      supabase.from('teams').select('id, name, slug, created_at, leader_id').order('name'),
       supabase.from('app_settings').select('key, value'),
     ]);
 
@@ -332,6 +333,16 @@ export default function AdminTeamPage() {
     } else {
       toast({ title: 'Team Created' });
       setNewTeamName('');
+      fetchData();
+    }
+  };
+
+  const handleAssignLeader = async (teamId: string, leaderId: string | null) => {
+    const { error } = await supabase.from('teams').update({ leader_id: leaderId }).eq('id', teamId);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Pillar Leader Updated' });
       fetchData();
     }
   };
@@ -584,6 +595,7 @@ export default function AdminTeamPage() {
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.02]">
                     <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team Name</th>
+                    <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Pillar Leader</th>
                     <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Members</th>
                     <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Created</th>
                     {isSuperAdmin && <th className="text-right px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Actions</th>}
@@ -593,6 +605,22 @@ export default function AdminTeamPage() {
                   {filteredTeams.map(team => (
                     <tr key={team.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="px-4 py-3 font-medium text-white flex items-center gap-2"><Users className="w-4 h-4 text-primary/60" />{team.name}</td>
+                      <td className="px-4 py-3">
+                        <Select
+                          value={team.leader_id || 'none'}
+                          onValueChange={(val) => handleAssignLeader(team.id, val === 'none' ? null : val)}
+                        >
+                          <SelectTrigger className="w-48 bg-white/5 border-white/10 h-8 text-xs">
+                            <SelectValue placeholder="Unassigned" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Unassigned</SelectItem>
+                            {managers.map(m => (
+                              <SelectItem key={m.user_id} value={m.user_id}>{m.full_name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
                       <td className="px-4 py-3 text-white/60">{team.member_count}</td>
                       <td className="px-4 py-3 text-white/40 text-xs">{team.created_at ? format(new Date(team.created_at), 'MMM d, yyyy') : '—'}</td>
                       {isSuperAdmin && (
