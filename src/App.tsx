@@ -42,6 +42,7 @@ import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
 import TrainingVideosPage from "./pages/app/TrainingVideosPage";
 import AdminTeamPage from "./pages/app/AdminTeamPage";
 import VideoPlayerPage from "./pages/app/VideoPlayerPage";
+import ChatPage from "./pages/app/ChatPage";
 const queryClient = new QueryClient();
 
  // Inner app component to use hooks
@@ -108,7 +109,16 @@ const queryClient = new QueryClient();
            <Route path="/manager" element={<Navigate to="/app" replace />} />
            <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
            <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
-           
+
+            {/* Chat */}
+            <Route path="/app/chat" element={
+              <ProtectedRoute>
+                <BootcampGate>
+                  <ChatPage />
+                </BootcampGate>
+              </ProtectedRoute>
+            } />
+            
             {/* Training */}
              <Route path="/app/training" element={
                <ProtectedRoute>

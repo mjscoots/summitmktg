@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain, MessageSquare, Shield } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain, MessageSquare, Shield, MessagesSquare } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 const rookieNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
+  { label: 'Chat', path: '/app/chat', icon: MessagesSquare },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
 ];
@@ -26,6 +27,7 @@ const rookieNavItems = [
 const managerNavItems = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
+  { label: 'Chat', path: '/app/chat', icon: MessagesSquare },
   { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
   { label: 'Weekly 1:1\'s', path: '/app/weekly-one-on-ones', icon: MessageSquare },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
