@@ -52,10 +52,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    const PROTECTED_EMAIL = "mjscoots9@gmail.com";
+    const PROTECTED_EMAILS = [
+      "mjscoots9@gmail.com",
+      "william.gardner127@gmail.com",
+      "j.alvarez7925@gmail.com",
+    ];
 
     // Confirm caller is the protected admin
-    if (callerUser.email !== PROTECTED_EMAIL) {
+    if (callerUser.email !== PROTECTED_EMAILS[0]) {
       return new Response(JSON.stringify({ error: "Only the primary admin can execute this purge" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -76,10 +80,11 @@ Deno.serve(async (req) => {
       page++;
     }
 
-    const usersToDelete = allUsers.filter(u => u.email?.toLowerCase() !== PROTECTED_EMAIL);
+    const protectedSet = new Set(PROTECTED_EMAILS.map(e => e.toLowerCase()));
+    const usersToDelete = allUsers.filter(u => !protectedSet.has(u.email?.toLowerCase()));
     const userIdsToDelete = usersToDelete.map(u => u.id);
 
-    console.log(`Purging ${userIdsToDelete.length} users, keeping ${PROTECTED_EMAIL}`);
+    console.log(`Purging ${userIdsToDelete.length} users, keeping ${PROTECTED_EMAILS.join(', ')}`);
 
     // Delete from dependent tables first (using service role bypasses RLS)
     if (userIdsToDelete.length > 0) {
@@ -117,10 +122,10 @@ Deno.serve(async (req) => {
 
       return new Response(JSON.stringify({ 
         success: true, 
-        message: `Purged ${deleted} users. ${errors} errors. Kept ${PROTECTED_EMAIL}.`,
+        message: `Purged ${deleted} users. ${errors} errors. Kept ${PROTECTED_EMAILS.join(', ')}.`,
         deleted,
         errors,
-        kept: PROTECTED_EMAIL,
+        kept: PROTECTED_EMAILS,
       }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
