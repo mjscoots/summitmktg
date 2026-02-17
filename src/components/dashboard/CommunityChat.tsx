@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, MessageSquare, Bot, Loader2 } from 'lucide-react';
+import { Send, MessageSquare, Bot, Loader2, Pencil, Trash2, X, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -25,6 +25,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, string>>({});
@@ -218,12 +220,28 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     }
   };
 
+  const handleEdit = async (msgId: string) => {
+    if (!editText.trim()) return;
+    const { error } = await supabase.from('chat_messages').update({ content: editText.trim() }).eq('id', msgId);
+    if (error) { toast.error('Failed to edit message'); return; }
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: editText.trim() } : m));
+    setEditingId(null);
+    setEditText('');
+  };
+
+  const handleDelete = async (msgId: string) => {
+    const { error } = await supabase.from('chat_messages').delete().eq('id', msgId);
+    if (error) { toast.error('Failed to delete message'); return; }
+    setMessages(prev => prev.filter(m => m.id !== msgId));
+  };
+
   const getDisplayName = (msg: ChatMessage) => {
     if (msg.is_ai) return 'Summit AI Coach';
     return profileMap[msg.user_id] || 'Team Member';
   };
 
   const isOwnMessage = (msg: ChatMessage) => msg.user_id === user?.id && !msg.is_ai;
+  const isAdmin = role === 'admin';
 
   return (
     <div className="bg-card rounded-lg border border-border/50 h-full flex flex-col">
@@ -253,7 +271,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex flex-col ${isOwnMessage(msg) ? 'items-end' : 'items-start'}`}
+            className={`flex flex-col ${isOwnMessage(msg) ? 'items-end' : 'items-start'} group/msg`}
           >
             <div className="flex items-center gap-1.5 mb-0.5">
               {msg.is_ai && <Bot className="w-3 h-3 text-primary" />}
@@ -266,15 +284,54 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
               </span>
             </div>
-            <div className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-              msg.is_ai
-                ? 'bg-primary/10 border border-primary/20 text-foreground'
-                : isOwnMessage(msg)
-                  ? 'bg-muted text-foreground'
-                  : 'bg-card border border-border text-foreground'
-            }`}>
-              <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-            </div>
+
+            {editingId === msg.id ? (
+              <div className="max-w-[85%] w-full flex gap-1.5">
+                <input
+                  type="text"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }}
+                  className="flex-1 bg-muted text-foreground text-sm px-2.5 py-1.5 rounded-lg border border-primary/50 focus:outline-none"
+                  autoFocus
+                />
+                <button onClick={() => handleEdit(msg.id)} className="p-1 text-primary hover:bg-primary/10 rounded"><Check className="w-3.5 h-3.5" /></button>
+                <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:bg-muted rounded"><X className="w-3.5 h-3.5" /></button>
+              </div>
+            ) : (
+              <div className="relative max-w-[85%]">
+                <div className={`rounded-lg px-3 py-2 text-sm ${
+                  msg.is_ai
+                    ? 'bg-primary/10 border border-primary/20 text-foreground'
+                    : isOwnMessage(msg)
+                      ? 'bg-muted text-foreground'
+                      : 'bg-card border border-border text-foreground'
+                }`}>
+                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                </div>
+                {/* Edit/Delete controls */}
+                {(isOwnMessage(msg) || isAdmin) && !msg.is_ai && (
+                  <div className="absolute -top-1 right-0 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border rounded-md shadow-sm px-0.5 py-0.5">
+                    {isOwnMessage(msg) && (
+                      <button
+                        onClick={() => { setEditingId(msg.id); setEditText(msg.content); }}
+                        className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(msg.id)}
+                      className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
 
