@@ -692,15 +692,7 @@ export default function LessonPage() {
               )}
             </div>
 
-            {/* Team Script Selector for Scripts module lessons */}
-            {scriptModuleKey && (
-              <div className="mb-4">
-                <TeamScriptSelector 
-                  moduleKey={scriptModuleKey} 
-                  moduleTitle={lesson.title}
-                />
-              </div>
-            )}
+            {/* Team Script Selector removed from training */}
             {/* Key Takeaways */}
             {lesson.key_takeaways && lesson.key_takeaways.length > 0 && (
               <div className={cn(
