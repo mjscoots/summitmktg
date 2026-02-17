@@ -38,6 +38,7 @@ import Interview1Page from "./pages/app/Interview1Page";
 import Interview2Page from "./pages/app/Interview2Page";
 import Interview3Page from "./pages/app/Interview3Page";
 import WeeklyOneOnOnesPage from "./pages/app/WeeklyOneOnOnesPage";
+import FormsPage from "./pages/app/FormsPage";
 import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
 import TrainingVideosPage from "./pages/app/TrainingVideosPage";
 import AdminTeamPage from "./pages/app/AdminTeamPage";
@@ -197,12 +198,15 @@ const queryClient = new QueryClient();
               </ProtectedRoute>
             } />
  
-           {/* Interviews (Manager Only) */}
-           <Route path="/app/interviews" element={
+           {/* Forms (unified - Manager Only) */}
+           <Route path="/app/forms" element={
              <ProtectedRoute requiredRole="manager">
-               <InterviewsPage />
+               <FormsPage />
              </ProtectedRoute>
            } />
+
+           {/* Interview sub-routes */}
+           <Route path="/app/interviews" element={<Navigate to="/app/forms" replace />} />
            <Route path="/app/interviews/1" element={
              <ProtectedRoute requiredRole="manager">
                <Interview1Page />
@@ -219,12 +223,8 @@ const queryClient = new QueryClient();
               </ProtectedRoute>
             } />
 
-            {/* Weekly 1:1's */}
-            <Route path="/app/weekly-one-on-ones" element={
-              <ProtectedRoute requiredRole="manager">
-                <WeeklyOneOnOnesPage />
-              </ProtectedRoute>
-            } />
+            {/* Weekly 1:1's - redirect to forms */}
+            <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />
             
             {/* Admin Training Editor */}
             <Route path="/app/admin/training" element={
