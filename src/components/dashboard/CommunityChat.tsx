@@ -134,13 +134,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         const userQuestion = content.replace('@coach', '').trim();
         
         try {
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          const accessToken = currentSession?.access_token;
+          if (!accessToken) throw new Error('Not authenticated');
+
           const response = await fetch(
             `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
             {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                Authorization: `Bearer ${accessToken}`,
+                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
               },
               body: JSON.stringify({
                 messages: [{ role: 'user', content: userQuestion }],
