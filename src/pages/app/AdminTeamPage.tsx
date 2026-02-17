@@ -451,8 +451,8 @@ export default function AdminTeamPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Manage approvals, users, teams & system</p>
           </div>
           {isAdmin && (
-            <Button onClick={() => setCreateOpen(true)} className="gap-2 bg-white text-black hover:bg-white/90 font-black">
-              <UserPlus className="w-4 h-4" /> CREATE REP ACCOUNT
+            <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 bg-transparent border border-border text-foreground hover:bg-white/5 font-semibold text-xs">
+              <UserPlus className="w-3.5 h-3.5" /> CREATE REP
             </Button>
           )}
         </div>
