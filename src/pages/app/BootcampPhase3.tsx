@@ -176,7 +176,7 @@ export default function BootcampPhase3() {
       });
 
       if (success) {
-        toast({ title: '🎉 Boot Camp Complete!', description: 'Welcome to The Academy.' });
+        toast({ title: '🎉 Boot Camp Complete!', description: 'Welcome to the Summit.' });
         navigate('/app', { replace: true });
       }
     } catch (err: any) {
