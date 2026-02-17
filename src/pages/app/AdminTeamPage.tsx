@@ -48,6 +48,7 @@ interface RepRow {
   team_id: string | null;
   bootcamp_completed: boolean;
   role?: string;
+  experience?: string | null;
 }
 
 interface TeamRow {
@@ -93,7 +94,7 @@ export default function AdminTeamPage() {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<RepRow | null>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '' });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '' });
   const [editLoading, setEditLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<RepRow | null>(null);
   const [newTeamName, setNewTeamName] = useState('');
@@ -116,7 +117,7 @@ export default function AdminTeamPage() {
     setLoading(true);
 
     const [profilesRes, bootcampRes, roleRes, teamsRes, settingsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('*'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('teams').select('id, name, slug, created_at').order('name'),
@@ -285,6 +286,7 @@ export default function AdminTeamPage() {
       role: rep.role || 'rookie',
       status: rep.status || 'active',
       team_id: rep.team_id || '',
+      experience: rep.experience || 'rookie',
     });
   };
 
@@ -297,6 +299,7 @@ export default function AdminTeamPage() {
       direct_manager: editForm.direct_manager || null,
       status: editForm.status as any,
       team_id: editForm.team_id || null,
+      experience: editForm.experience as any || 'rookie',
     }).eq('user_id', editUser.user_id);
 
     if (profileError) {
@@ -795,6 +798,13 @@ export default function AdminTeamPage() {
                   <option value="rookie">Rookie</option>
                   <option value="manager">Manager</option>
                   <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Experience Level</label>
+                <select className="input-field w-full" value={editForm.experience} onChange={e => setEditForm(f => ({ ...f, experience: e.target.value }))}>
+                  <option value="rookie">Rookie</option>
+                  <option value="veteran">Veteran</option>
                 </select>
               </div>
               <div>
