@@ -23,7 +23,7 @@ const AuthPage = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPhone, setSignupPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
-  const [signupLevel, setSignupLevel] = useState<'rookie' | 'manager'>('rookie');
+  const [signupLevel, setSignupLevel] = useState<'rookie' | 'manager' | ''>('');
   const [signupTeam, setSignupTeam] = useState("");
   const [showSignupPassword, setShowSignupPassword] = useState(false);
 
@@ -76,6 +76,11 @@ const AuthPage = () => {
 
     if (!signupName.trim() || !signupEmail.trim() || !signupPhone.trim() || !signupPassword.trim()) {
       setError("All fields are required.");
+      return;
+    }
+
+    if (!signupLevel) {
+      setError("Please select your level of experience.");
       return;
     }
 
@@ -215,7 +220,8 @@ const AuthPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Level of Experience *</label>
-              <select value={signupLevel} onChange={(e) => setSignupLevel(e.target.value as 'rookie' | 'manager')} className="input-field" disabled={isLoading}>
+              <select value={signupLevel} onChange={(e) => setSignupLevel(e.target.value as 'rookie' | 'manager' | '')} className="input-field" required disabled={isLoading}>
+                <option value="">Select experience level...</option>
                 <option value="rookie">Rookie</option>
                 <option value="manager">Manager</option>
               </select>
