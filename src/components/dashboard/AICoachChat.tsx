@@ -9,7 +9,12 @@ interface Message {
   content: string;
 }
 
-export function AICoachChat() {
+interface AICoachChatProps {
+  hasNewMessages?: boolean;
+  onOpen?: () => void;
+}
+
+export function AICoachChat({ hasNewMessages, onOpen }: AICoachChatProps) {
   const { role, profile } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -133,16 +138,26 @@ export function AICoachChat() {
   if (!isOpen) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          onOpen?.();
+        }}
         className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 ${
           isManager 
             ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30' 
             : 'bg-green-600 hover:bg-green-500 shadow-green-500/30'
-        }`}
+        } ${hasNewMessages ? 'animate-pulse ring-4 ring-primary/50' : ''}`}
         aria-label="Open AI Coach"
       >
         <MessageCircle className="w-6 h-6 text-white" />
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-pulse" />
+        {hasNewMessages && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full flex items-center justify-center">
+            <span className="w-2 h-2 bg-white rounded-full" />
+          </span>
+        )}
+        {!hasNewMessages && (
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-pulse" />
+        )}
       </button>
     );
   }
