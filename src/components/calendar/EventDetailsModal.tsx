@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { useUserTimezone } from '@/hooks/useUserTimezone';
+import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -65,6 +67,7 @@ export function EventDetailsModal({
   canEdit = false 
 }: EventDetailsModalProps) {
   const { profile } = useAuth();
+  const { timezone } = useUserTimezone();
   const [attendees, setAttendees] = useState<Attendee[]>([]);
   const [creator, setCreator] = useState<{ full_name: string; avatar_url: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -203,12 +206,13 @@ export function EventDetailsModal({
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">
-                {format(eventDate, 'EEEE, MMMM d, yyyy')}
+                {formatInTimezone(eventDate, timezone, 'EEEE, MMM d')}
               </p>
               <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
-                {format(eventDate, 'h:mm a')}
-                {endDate && ` - ${format(endDate, 'h:mm a')}`}
+                {formatInTimezone(eventDate, timezone, 'h:mm a')}
+                {endDate && ` - ${formatInTimezone(endDate, timezone, 'h:mm a')}`}
+                <span className="text-xs text-muted-foreground/60 ml-1">{getTimezoneShort(timezone)}</span>
               </p>
               {getRecurrenceText() && (
                 <p className="text-xs text-primary flex items-center gap-1.5 mt-1">

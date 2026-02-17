@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight, Globe } from 'lucide-react';
 import { format, isFuture, isPast, isToday } from 'date-fns';
+import { useUserTimezone } from '@/hooks/useUserTimezone';
+import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -48,6 +50,7 @@ interface Attendance {
 
 export default function CalendarPage() {
   const { role, user, profile } = useAuth();
+  const { timezone } = useUserTimezone();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance[]>>({});
   const [userAttendance, setUserAttendance] = useState<Record<string, 'attending' | 'not_attending'>>({});
@@ -288,6 +291,10 @@ export default function CalendarPage() {
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               {isManager ? 'Manage events for your team' : 'Upcoming events and attendance tracking'}
+              <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground/70">
+                <Globe className="w-3 h-3" />
+                {getTimezoneShort(timezone)}
+              </span>
             </p>
           </div>
 
@@ -366,8 +373,9 @@ export default function CalendarPage() {
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <span className="flex items-center gap-1.5 text-primary font-medium">
                             <Clock className="w-4 h-4" />
-                            {format(eventDate, 'EEEE, MMM d')} at {format(eventDate, 'h:mm a')}
-                            {endDate && ` - ${format(endDate, 'h:mm a')}`}
+                            {formatInTimezone(eventDate, timezone, 'EEEE, MMM d')} at {formatInTimezone(eventDate, timezone, 'h:mm a')}
+                            {endDate && ` - ${formatInTimezone(endDate, timezone, 'h:mm a')}`}
+                            <span className="text-muted-foreground/60 text-xs ml-1">{getTimezoneShort(timezone)}</span>
                           </span>
                           {event.location && (
                             <span className="flex items-center gap-1.5 text-muted-foreground">

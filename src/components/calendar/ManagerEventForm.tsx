@@ -12,10 +12,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Users, User, UserCheck, Loader2, Search } from 'lucide-react';
+import { Users, User, UserCheck, Loader2, Search, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RecurrenceSelector, DEFAULT_RECURRENCE, toRRule, type RecurrenceSettings } from './RecurrenceSelector';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { TIMEZONES, DEFAULT_TIMEZONE } from '@/lib/timezones';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface TeamMember {
   user_id: string;
@@ -74,6 +76,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
   const [assignmentMode, setAssignmentMode] = useState<AssignmentMode>('entire_team');
   const [memberSearch, setMemberSearch] = useState('');
   const [recurrence, setRecurrence] = useState<RecurrenceSettings>(DEFAULT_RECURRENCE);
+  const [eventTimezone, setEventTimezone] = useState(DEFAULT_TIMEZONE);
 
   // Fetch ALL active members across all teams (not team-filtered)
   useEffect(() => {
@@ -173,6 +176,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
     setAssignmentMode('entire_team');
     setMemberSearch('');
     setRecurrence(DEFAULT_RECURRENCE);
+    setEventTimezone(DEFAULT_TIMEZONE);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -205,6 +209,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
         manager_id: user?.id,
         created_by: user?.id,
         updated_at: new Date().toISOString(),
+        timezone: eventTimezone,
         // Recurrence fields
         recurrence_type: recurrence.type !== 'none' ? recurrence.type : null,
         recurrence_interval: recurrence.interval,
@@ -214,7 +219,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
           ? new Date(recurrence.endDate).toISOString() 
           : null,
         recurrence_count: recurrence.endType === 'count' ? recurrence.endCount : null,
-      };
+      } as any;
 
       let eventId = event?.id;
 
@@ -408,6 +413,24 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Timezone */}
+          <div>
+            <label className="block text-sm font-medium mb-1.5 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-primary" />
+              Timezone *
+            </label>
+            <Select value={eventTimezone} onValueChange={setEventTimezone}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select timezone" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIMEZONES.map(tz => (
+                  <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Description */}

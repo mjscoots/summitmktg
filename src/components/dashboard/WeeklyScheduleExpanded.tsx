@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Calendar, Clock, ChevronRight, MapPin } from 'lucide-react';
+import { Calendar, Clock, ChevronRight, MapPin, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { format, startOfWeek, endOfWeek, parseISO, isSameDay } from 'date-fns';
 import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
+import { useUserTimezone } from '@/hooks/useUserTimezone';
+import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
 
 interface CalendarEvent {
   id: string;
@@ -41,6 +43,7 @@ const MANAGER_ONLY_ITEMS = ['Manager Call'];
 export function WeeklyScheduleExpanded() {
   const navigate = useNavigate();
   const { role, user } = useAuth();
+  const { timezone } = useUserTimezone();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -273,7 +276,7 @@ export function WeeklyScheduleExpanded() {
                               "text-[10px] font-medium flex-shrink-0",
                               isPast ? "text-primary/40" : "text-primary"
                             )}>
-                              {format(parseISO(event.event_date), 'h:mm a')}
+                              {formatInTimezone(parseISO(event.event_date), timezone, 'h:mm a')}
                             </span>
                           </div>
                           {event.location && (

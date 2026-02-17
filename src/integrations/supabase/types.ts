@@ -306,6 +306,7 @@ export type Database = {
           recurrence_type: string | null
           target_role: Database["public"]["Enums"]["app_role"] | null
           team_id: string | null
+          timezone: string | null
           title: string
           updated_at: string | null
         }
@@ -329,6 +330,7 @@ export type Database = {
           recurrence_type?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
+          timezone?: string | null
           title: string
           updated_at?: string | null
         }
@@ -352,6 +354,7 @@ export type Database = {
           recurrence_type?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
+          timezone?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -540,6 +543,7 @@ export type Database = {
           status: Database["public"]["Enums"]["user_status"] | null
           team_id: string | null
           time_this_week_minutes: number | null
+          timezone: string | null
           updated_at: string | null
           user_id: string
           week_start: string | null
@@ -566,6 +570,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
           time_this_week_minutes?: number | null
+          timezone?: string | null
           updated_at?: string | null
           user_id: string
           week_start?: string | null
@@ -592,6 +597,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
           time_this_week_minutes?: number | null
+          timezone?: string | null
           updated_at?: string | null
           user_id?: string
           week_start?: string | null

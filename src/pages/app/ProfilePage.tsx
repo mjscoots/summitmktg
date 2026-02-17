@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, FileText, Lock, Camera, Loader2, CheckCircle2 } from 'lucide-react';
+import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezones';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ProfilePage() {
   const { user, profile, role, isLoading: authLoading } = useAuth();
@@ -17,6 +19,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
+  const [timezone, setTimezone] = useState(DEFAULT_TIMEZONE);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   // Password change state
@@ -39,6 +42,16 @@ export default function ProfilePage() {
       setEmail(profile.email || '');
       setPhone(profile.phone || '');
       setAvatarUrl(profile.avatar_url);
+      // Fetch timezone from DB
+      const fetchTimezone = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('timezone')
+          .eq('user_id', profile.user_id)
+          .single();
+        setTimezone((data as any)?.timezone || detectBrowserTimezone());
+      };
+      fetchTimezone();
     }
   }, [profile]);
 
@@ -53,8 +66,9 @@ export default function ProfilePage() {
         .update({
           full_name: fullName,
           phone: phone,
+          timezone: timezone,
           updated_at: new Date().toISOString(),
-        })
+        } as any)
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -277,6 +291,24 @@ export default function ProfilePage() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 123-4567"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-primary" />
+                Timezone
+              </label>
+              <Select value={timezone} onValueChange={setTimezone}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map(tz => (
+                    <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">Calendar events will display in your timezone</p>
             </div>
 
             <div>
