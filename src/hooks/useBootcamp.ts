@@ -21,12 +21,14 @@ export interface BootcampProgress {
   commitment_end_date: string | null;
   signature_name: string | null;
   signature_data: string | null;
+  bootcamp_exempt: boolean;
 }
 
 export function useBootcamp() {
   const { user, role } = useAuth();
   const [progress, setProgress] = useState<BootcampProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [globalRequired, setGlobalRequired] = useState(true);
 
   const isBypassed = role === 'manager' || role === 'admin';
 
@@ -36,11 +38,21 @@ export function useBootcamp() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('bootcamp_progress')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    // Fetch global setting and user progress in parallel
+    const [settingsRes, progressRes] = await Promise.all([
+      supabase.from('app_settings').select('value').eq('key', 'bootcamp_required').maybeSingle(),
+      supabase.from('bootcamp_progress').select('*').eq('user_id', user.id).maybeSingle(),
+    ]);
+
+    // Parse global setting
+    if (settingsRes.data) {
+      setGlobalRequired(settingsRes.data.value === 'true');
+    } else {
+      setGlobalRequired(true);
+    }
+
+    const data = progressRes.data;
+    const error = progressRes.error;
 
     if (error) {
       console.error('Error fetching bootcamp progress:', error);
@@ -101,7 +113,8 @@ export function useBootcamp() {
     return true;
   };
 
-  const isLocked = !isBypassed && !isLoading && (!progress || !progress.bootcamp_completed);
+  const isExempt = progress?.bootcamp_exempt === true;
+  const isLocked = !isBypassed && globalRequired && !isExempt && !isLoading && (!progress || !progress.bootcamp_completed);
 
   const currentPhase = !progress
     ? 0
