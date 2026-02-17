@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
-import { Loader2, User, UserCheck, X, Calendar } from 'lucide-react';
+import { Loader2, User, UserCheck, X, Calendar, Pencil } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, subWeeks, startOfMonth } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { UserAutocomplete } from '@/components/one-on-one/UserAutocomplete';
@@ -99,10 +98,14 @@ const initialManagerForm: ManagerFormData = {
   manager_improvement: ''
 };
 
+type OneOnOneSubTab = 'forms' | 'responses';
+type OneOnOneFormType = 'rookie' | 'manager';
+
 export default function WeeklyOneOnOnesContent() {
   const { profile, user } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
-  const [activeTab, setActiveTab] = useState('rookie-form');
+  const [subTab, setSubTab] = useState<OneOnOneSubTab>('forms');
+  const [activeForm, setActiveForm] = useState<OneOnOneFormType | null>(null);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -114,36 +117,120 @@ export default function WeeklyOneOnOnesContent() {
 
   return (
     <div>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 h-12">
-          <TabsTrigger value="rookie-form" className="flex items-center gap-2">
-            <User className="w-4 h-4" />
-            <span className="hidden sm:inline">Rookie-Manager 1:1</span>
-            <span className="sm:hidden">Rookie</span>
-          </TabsTrigger>
-          <TabsTrigger value="manager-form" className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4" />
-            <span className="hidden sm:inline">Manager 1:1</span>
-            <span className="sm:hidden">Manager</span>
-          </TabsTrigger>
-          <TabsTrigger value="responses" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Responses
-          </TabsTrigger>
-        </TabsList>
+      {/* Sub-tabs matching interview style */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => { setSubTab('forms'); setActiveForm(null); }}
+          className={cn(
+            'text-xs px-3 py-1.5 rounded-full border transition-all duration-150',
+            subTab === 'forms'
+              ? 'bg-primary/10 border-primary/30 text-primary font-medium'
+              : 'border-border/50 text-muted-foreground hover:text-foreground hover:border-border'
+          )}
+        >
+          Forms
+        </button>
+        <button
+          onClick={() => setSubTab('responses')}
+          className={cn(
+            'text-xs px-3 py-1.5 rounded-full border transition-all duration-150',
+            subTab === 'responses'
+              ? 'bg-primary/10 border-primary/30 text-primary font-medium'
+              : 'border-border/50 text-muted-foreground hover:text-foreground hover:border-border'
+          )}
+        >
+          Responses
+        </button>
+      </div>
 
-        <TabsContent value="rookie-form">
-          <RookieManagerForm teams={teams} profile={profile} userId={user?.id} />
-        </TabsContent>
+      {subTab === 'forms' ? (
+        activeForm === null ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+              <div
+                className="flex flex-col bg-card border border-border/50 rounded-xl p-5 card-hover cursor-pointer group"
+                onClick={() => setActiveForm('rookie')}
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground">Rookie-Manager 1:1</h3>
+                    <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with rookies</p>
+                  </div>
+                </div>
+                <div className="flex-1" />
+                <button
+                  onClick={(e) => { e.stopPropagation(); setActiveForm('rookie'); }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span>Fill Out Form</span>
+                </button>
+              </div>
 
-        <TabsContent value="manager-form">
-          <ManagerForm teams={teams} profile={profile} userId={user?.id} />
-        </TabsContent>
+              <div
+                className="flex flex-col bg-card border border-border/50 rounded-xl p-5 card-hover cursor-pointer group"
+                onClick={() => setActiveForm('manager')}
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                    <UserCheck className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground">Manager 1:1</h3>
+                    <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with managers</p>
+                  </div>
+                </div>
+                <div className="flex-1" />
+                <button
+                  onClick={(e) => { e.stopPropagation(); setActiveForm('manager'); }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span>Fill Out Form</span>
+                </button>
+              </div>
+            </div>
 
-        <TabsContent value="responses">
-          <ResponsesTab teams={teams} />
-        </TabsContent>
-      </Tabs>
+            <div className="bg-card border border-border/50 rounded-xl p-5">
+              <h3 className="font-semibold text-foreground mb-3">Weekly 1:1 Process</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Keep these to 30 minutes or less. The primary purpose is to maintain consistent communication.
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 text-sm">
+                  <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-foreground">Rookie-Manager 1:1</span>
+                  <span className="text-muted-foreground">— Weekly check-in with rookies, creates daily tasks</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <UserCheck className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-foreground">Manager 1:1</span>
+                  <span className="text-muted-foreground">— Weekly check-in with managers, tracks team development</span>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div>
+            <button
+              onClick={() => setActiveForm(null)}
+              className="text-sm text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1.5 transition-colors"
+            >
+              ← Back to forms
+            </button>
+            {activeForm === 'rookie' ? (
+              <RookieManagerForm teams={teams} profile={profile} userId={user?.id} />
+            ) : (
+              <ManagerForm teams={teams} profile={profile} userId={user?.id} />
+            )}
+          </div>
+        )
+      ) : (
+        <ResponsesTab teams={teams} />
+      )}
     </div>
   );
 }
