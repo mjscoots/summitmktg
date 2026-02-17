@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, ClipboardList, Users, Calendar, Mountain, MessageSquare, Shield, MessagesSquare } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,29 +15,35 @@ import {
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 
+interface NavItem {
+  label: string;
+  path: string;
+  icon: React.ComponentType<any>;
+  iconColor?: string; // custom color for the icon when NOT active
+}
+
 // Primary nav items (top section)
-const rookieNavItems = [
+const rookieNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
-  { label: 'Training', path: '/app/training', icon: GraduationCap },
-  { label: 'Chat', path: '/app/chat', icon: MessagesSquare },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
+  { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
+  { label: 'Chat', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
 
-const managerNavItems = [
+const managerNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
-  { label: 'Training', path: '/app/training', icon: GraduationCap },
-  { label: 'Chat', path: '/app/chat', icon: MessagesSquare },
-  { label: 'Interviews', path: '/app/interviews', icon: ClipboardList },
-  { label: 'Weekly 1:1\'s', path: '/app/weekly-one-on-ones', icon: MessageSquare },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
+  { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
+  { label: 'Chat', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
+  { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
 
 // Bottom admin items (above footer)
-const bottomNavItems = [
-  { label: 'Team', path: '/app/team', icon: Users, requiredRole: 'manager' as const },
-  { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' as const },
+const bottomNavItems: NavItem[] = [
+  { label: 'Team', path: '/app/team', icon: Users, requiredRole: 'manager' as any } as any,
+  { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' as any } as any,
 ];
 
 export function AppSidebar() {
@@ -58,12 +64,18 @@ export function AppSidebar() {
 
   const isActive = (path: string) => {
     if (path === '/app') return location.pathname === '/app';
+    // Forms path also matches interviews and weekly-one-on-ones
+    if (path === '/app/forms') {
+      return location.pathname.startsWith('/app/forms') || 
+             location.pathname.startsWith('/app/interviews') || 
+             location.pathname.startsWith('/app/weekly-one-on-ones');
+    }
     return location.pathname.startsWith(path);
   };
 
   const navItems = isManager ? managerNavItems : rookieNavItems;
 
-  const visibleBottomItems = bottomNavItems.filter(item => {
+  const visibleBottomItems = (bottomNavItems as any[]).filter((item: any) => {
     if (item.requiredRole === 'admin') return isAdmin;
     if (item.requiredRole === 'manager') return isManager;
     return true;
@@ -95,7 +107,7 @@ export function AppSidebar() {
         </button>
       </SidebarHeader>
 
-      {/* Main nav - grows to push bottom items down */}
+      {/* Main nav */}
       <SidebarContent className="px-1.5 py-1 flex flex-col flex-1">
         <SidebarGroup>
           <SidebarGroupContent>
@@ -113,7 +125,13 @@ export function AppSidebar() {
                           : "text-white/70 hover:text-white hover:bg-white/5"
                       )}
                     >
-                      <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                      <item.icon 
+                        className={cn(
+                          "w-4 h-4 flex-shrink-0",
+                          active ? "text-primary" : item.iconColor || ""
+                        )} 
+                        strokeWidth={1.75} 
+                      />
                       {!collapsed && (
                         <span className="text-[13px] font-medium">{item.label}</span>
                       )}
@@ -134,7 +152,7 @@ export function AppSidebar() {
             <Separator className="mb-2 bg-white/5" />
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0.5">
-                {visibleBottomItems.map((item) => {
+                {visibleBottomItems.map((item: any) => {
                   const active = isActive(item.path);
                   return (
                     <SidebarMenuItem key={item.path}>
