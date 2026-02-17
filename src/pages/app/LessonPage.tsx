@@ -61,8 +61,7 @@ interface QuizResultData {
 // Rookie courses always use green
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
-// Modules where quizzes are OPTIONAL
-const OPTIONAL_QUIZ_MODULES = ['introduction', 'scripts', 'body language'];
+// All quizzes are now required - no optional modules
 
 // Scripts module ID for team-specific script selector
 const SCRIPTS_MODULE_ID = 'a1b2c3d4-0002-4000-8000-000000000002';
@@ -106,13 +105,8 @@ export default function LessonPage() {
 
   const isRookieCourse = ROOKIE_COURSES.includes(courseSlug || '');
   
-  // Mastery Check lessons always require quizzes, even in optional-quiz modules
-  const isMasteryCheck = lesson?.title?.toLowerCase().includes('mastery') ?? false;
-  const isQuizOptional = isMasteryCheck 
-    ? false 
-    : (moduleInfo 
-        ? OPTIONAL_QUIZ_MODULES.some(m => moduleInfo.title.toLowerCase().includes(m))
-        : false);
+  // All quizzes are required - no optional modules
+  const isQuizOptional = false;
 
   // Check if this is a Scripts module lesson (for team script selector)
   const isScriptsLesson = moduleInfo?.id === SCRIPTS_MODULE_ID;
