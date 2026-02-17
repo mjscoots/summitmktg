@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, Trash2 } from 'lucide-react';
+import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, Trash2, Clock, TrendingUp, Activity } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useTrainingProgress } from '@/hooks/useTrainingProgress';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -51,6 +52,10 @@ interface TeamMemberLocal {
   direct_manager: string | null;
   experience: string | null;
   role?: string;
+  team_id?: string | null;
+  time_this_week_minutes?: number | null;
+  last_active_at?: string | null;
+  is_active_now?: boolean | null;
 }
 
 interface TreeNode {
@@ -77,6 +82,7 @@ export default function TeamPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'active' | 'nlc' | 'all'>('active');
+  const [viewMode, setViewMode] = useState<'teams' | 'members'>('teams');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [teams, setTeams] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [teamPillars, setTeamPillars] = useState<TeamPillar[]>([]);
@@ -93,6 +99,61 @@ export default function TeamPage() {
 
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
+
+  // Training progress for all members
+  const memberUserIds = useMemo(() => allMembers.map(m => m.user_id), [allMembers]);
+  const { getProgress, getProgressColor } = useTrainingProgress(memberUserIds);
+
+  // Get team name helper
+  const getTeamName = useCallback((teamId: string | null | undefined) => {
+    if (!teamId) return '—';
+    return teams.find(t => t.id === teamId)?.name || '—';
+  }, [teams]);
+
+  // Format minutes to hours
+  const formatTime = (minutes: number | null | undefined) => {
+    if (!minutes || minutes === 0) return '0m';
+    if (minutes < 60) return `${minutes}m`;
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  };
+
+  // Relative time for last active
+  const getLastActive = (lastActive: string | null | undefined, isActiveNow: boolean | null | undefined) => {
+    if (isActiveNow) return 'Active now';
+    if (!lastActive) return 'Never';
+    const diff = Date.now() - new Date(lastActive).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
+
+  // Filtered members for Members view
+  const filteredMembers = useMemo(() => {
+    let members = allMembers.filter(m => m.status !== 'nlc');
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      members = members.filter(m =>
+        m.full_name.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q)
+      );
+    }
+    // Sort: managers first (by team size desc), then rookies by training %
+    return members.sort((a, b) => {
+      const aIsManager = a.role === 'manager' || a.role === 'admin';
+      const bIsManager = b.role === 'manager' || b.role === 'admin';
+      if (aIsManager && !bIsManager) return -1;
+      if (!aIsManager && bIsManager) return 1;
+      if (!aIsManager && !bIsManager) {
+        return getProgress(b.user_id).percentage - getProgress(a.user_id).percentage;
+      }
+      return a.full_name.localeCompare(b.full_name);
+    });
+  }, [allMembers, searchQuery, getProgress]);
 
   const fetchAllMembers = useCallback(async () => {
     try {
@@ -120,6 +181,10 @@ export default function TeamPage() {
         direct_manager: p.direct_manager,
         experience: p.experience,
         role: roleMap.get(p.user_id) || 'rookie',
+        team_id: p.team_id,
+        time_this_week_minutes: p.time_this_week_minutes,
+        last_active_at: p.last_active_at,
+        is_active_now: p.is_active_now,
       }));
 
       setAllMembers(membersWithRoles);
@@ -350,103 +415,252 @@ export default function TeamPage() {
         <TeamNotificationBanners teamName="the team" roster={rosterForBanners} />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-primary/15">
                 <Users className="w-5 h-5 text-primary" />
               </div>
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight">Team Structure</h1>
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+                {viewMode === 'teams' ? 'Team Structure' : 'All Members'}
+              </h1>
             </div>
-            <p className="text-muted-foreground text-sm">Organizational hierarchy overview</p>
+            <p className="text-muted-foreground text-sm">
+              {viewMode === 'teams' ? 'Organizational hierarchy overview' : `${filteredMembers.length} active members`}
+            </p>
           </div>
           {(isAdmin || teamPillars.some(p => p.leader === profile?.full_name)) && (
-            <Button onClick={() => setAddModalOpen(true)} size="lg" className="gap-2">
-              <UserPlus className="w-4 h-4" /> Add Member
+            <Button onClick={() => setAddModalOpen(true)} size="sm" className="gap-1.5 bg-transparent border border-border text-foreground hover:bg-white/5 font-semibold text-xs">
+              <UserPlus className="w-3.5 h-3.5" /> Add Member
             </Button>
           )}
         </div>
 
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search team members..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={v => { setStatusFilter(v as any); setIsLoading(true); }}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="nlc">NLC Only</SelectItem>
-              <SelectItem value="all">All</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="flex gap-2">
-            <button onClick={expandAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">
-              Expand All
-            </button>
-            <button onClick={collapseAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">
-              Collapse All
-            </button>
-          </div>
+        {/* View Toggle */}
+        <div className="flex items-center gap-1 mb-6 p-1 bg-muted/30 rounded-lg w-fit border border-border/30">
+          <button
+            onClick={() => setViewMode('teams')}
+            className={cn(
+              "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
+              viewMode === 'teams'
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Teams
+          </button>
+          <button
+            onClick={() => setViewMode('members')}
+            className={cn(
+              "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
+              viewMode === 'members'
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Members
+          </button>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-6 mb-6 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-primary" />
-            <span className="text-muted-foreground">Manager / Veteran</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-muted-foreground">Rookie</span>
-          </div>
-        </div>
+        {/* ===== TEAMS VIEW ===== */}
+        {viewMode === 'teams' && (
+          <>
+            {/* Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search team members..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={v => { setStatusFilter(v as any); setIsLoading(true); }}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="nlc">NLC Only</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex gap-2">
+                <button onClick={expandAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                  Expand All
+                </button>
+                <button onClick={collapseAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                  Collapse All
+                </button>
+              </div>
+            </div>
 
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-pulse text-muted-foreground">Loading team structure...</div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {teamPillars.map(pillar => {
-              let tree = buildTree(pillar.leader);
-              if (searchQuery && tree) tree = filterTree(tree, searchQuery);
-              const count = getActiveCount(pillar.leader);
+            {/* Legend */}
+            <div className="flex items-center gap-6 mb-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-primary" />
+                <span className="text-muted-foreground">Manager / Veteran</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="text-muted-foreground">Rookie</span>
+              </div>
+            </div>
 
-              return (
-                <div key={pillar.id} className="bg-card rounded-xl border border-border/50 p-5">
-                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border/30">
-                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                      <Users className="w-4 h-4 text-primary" />
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-pulse text-muted-foreground">Loading team structure...</div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {teamPillars.map(pillar => {
+                  let tree = buildTree(pillar.leader);
+                  if (searchQuery && tree) tree = filterTree(tree, searchQuery);
+                  const count = getActiveCount(pillar.leader);
+
+                  return (
+                    <div key={pillar.id} className="bg-card rounded-xl border border-border/50 p-5">
+                      <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border/30">
+                        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">{pillar.name}</h3>
+                          <p className="text-xs text-muted-foreground">Led by {getDisplayName(pillar.leader)}</p>
+                        </div>
+                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                          {count} members
+                        </span>
+                      </div>
+
+                      {tree ? (
+                        <div className="space-y-1">{renderTreeNode(tree)}</div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground py-4 text-center">
+                          {searchQuery ? 'No members match your search' : `${getDisplayName(pillar.leader)} not found in system`}
+                        </p>
+                      )}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground">{pillar.name}</h3>
-                      <p className="text-xs text-muted-foreground">Led by {getDisplayName(pillar.leader)}</p>
-                    </div>
-                    <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                      {count} members
-                    </span>
-                  </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
 
-                  {tree ? (
-                    <div className="space-y-1">{renderTreeNode(tree)}</div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground py-4 text-center">
-                      {searchQuery ? 'No members match your search' : `${getDisplayName(pillar.leader)} not found in system`}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        {/* ===== MEMBERS VIEW ===== */}
+        {viewMode === 'members' && (
+          <>
+            <div className="relative mb-6 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-pulse text-muted-foreground">Loading members...</div>
+              </div>
+            ) : (
+              <div className="border border-border/50 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/30 bg-muted/20">
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Name</th>
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Role</th>
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Team</th>
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                        <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Training</span>
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Time This Week</span>
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                        <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> Last Active</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredMembers.map(member => {
+                      const progress = getProgress(member.user_id);
+                      const isVeteran = member.role === 'manager' || member.role === 'admin';
+                      const progressColor = progress.percentage >= 100 ? 'text-green-400' :
+                        progress.percentage >= 71 ? 'text-primary' :
+                        progress.percentage >= 41 ? 'text-yellow-500' : 'text-destructive';
+
+                      return (
+                        <tr
+                          key={member.user_id}
+                          onClick={() => handleMemberClick(member)}
+                          className="border-b border-border/20 hover:bg-muted/30 cursor-pointer transition-colors"
+                        >
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className={cn("w-2 h-2 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-green-500")} />
+                              <span className="font-medium text-foreground">{getDisplayName(member.full_name)}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={cn(
+                              "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide",
+                              isVeteran ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400"
+                            )}>
+                              {member.role === 'admin' ? 'Admin' : isVeteran ? 'Manager' : 'Rookie'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground">{getTeamName(member.team_id)}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
+                                <div
+                                  className={cn("h-full rounded-full transition-all", 
+                                    progress.percentage >= 100 ? "bg-green-400" :
+                                    progress.percentage >= 71 ? "bg-primary" :
+                                    progress.percentage >= 41 ? "bg-yellow-500" : "bg-destructive"
+                                  )}
+                                  style={{ width: `${Math.min(progress.percentage, 100)}%` }}
+                                />
+                              </div>
+                              <span className={cn("text-xs font-semibold tabular-nums", progressColor)}>
+                                {progress.percentage}%
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-foreground text-xs font-medium tabular-nums">
+                              {formatTime(member.time_this_week_minutes)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1.5">
+                              {member.is_active_now && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                              )}
+                              <span className={cn("text-xs", member.is_active_now ? "text-green-400 font-medium" : "text-muted-foreground")}>
+                                {getLastActive(member.last_active_at, member.is_active_now)}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filteredMembers.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                          No members found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
 
