@@ -112,21 +112,23 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
             // Video courses: count from training_videos + video_progress
             if (isVideoCourse) {
-              const { count: totalCount } = await supabase
-                .from('training_videos')
-                .select('*', { count: 'exact', head: true })
-                .eq('is_active', true)
-                .eq('is_required', true);
-
-              const totalLessons = totalCount || 0;
-
-              // Get watched required videos only
-              const { data: requiredVideos } = await supabase
+              // Manager videos only count Advanced Training + Manager Training categories
+              const isManagerVideoCourse = course.slug === 'manager-videos';
+              
+              let videoQuery = supabase
                 .from('training_videos')
                 .select('id')
-                .eq('is_active', true)
-                .eq('is_required', true);
-              const requiredIds = new Set((requiredVideos || []).map(v => v.id));
+                .eq('is_active', true);
+              
+              if (isManagerVideoCourse) {
+                videoQuery = videoQuery.in('category', ['Advanced Training', 'Manager Training']);
+              } else {
+                videoQuery = videoQuery.eq('is_required', true);
+              }
+
+              const { data: relevantVideos } = await videoQuery;
+              const relevantIds = new Set((relevantVideos || []).map(v => v.id));
+              const totalLessons = relevantIds.size;
 
               const { data: watchedData } = await supabase
                 .from('video_progress')
@@ -134,9 +136,8 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 .eq('user_id', user.id)
                 .eq('watched', true);
 
-              const completedLessons = (watchedData || []).filter(w => requiredIds.has(w.video_id)).length;
+              const completedLessons = (watchedData || []).filter(w => relevantIds.has(w.video_id)).length;
 
-              
               const progress = totalLessons > 0
                 ? Math.round((completedLessons / totalLessons) * 100)
                 : 0;
@@ -223,7 +224,9 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
   }, [user, filterRole]);
 
   const handleCourseClick = (slug: string) => {
-    if (VIDEO_COURSES.includes(slug)) {
+    if (slug === 'manager-videos') {
+      navigate('/app/training/manager-videos');
+    } else if (slug === 'training-videos') {
       navigate('/app/training/videos');
     } else {
       navigate(`/app/training/${slug}`);
