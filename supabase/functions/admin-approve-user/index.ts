@@ -70,19 +70,20 @@ Deno.serve(async (req) => {
     }
 
     if (action === "approve") {
-      const assignRole = newRole || "rookie";
-
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .update({ approved: true, status: "active" })
         .eq("user_id", user_id);
       if (profileError) throw new Error(profileError.message);
 
-      const { error: roleUpdateError } = await supabaseAdmin
-        .from("user_roles")
-        .update({ role: assignRole })
-        .eq("user_id", user_id);
-      if (roleUpdateError) throw new Error(roleUpdateError.message);
+      // Only update role if explicitly provided; otherwise keep the role set during signup
+      if (newRole) {
+        const { error: roleUpdateError } = await supabaseAdmin
+          .from("user_roles")
+          .update({ role: newRole })
+          .eq("user_id", user_id);
+        if (roleUpdateError) throw new Error(roleUpdateError.message);
+      }
 
       // Initialize bootcamp progress
       const { data: existing } = await supabaseAdmin
