@@ -164,6 +164,8 @@ export type Database = {
           created_at: string
           final_commitment_video_url: string | null
           id: string
+          last_manager_reminder_at: string | null
+          last_rep_reminder_at: string | null
           manager_notified_at: string | null
           motivation_video_url: string | null
           phase_1_complete: boolean
@@ -188,6 +190,8 @@ export type Database = {
           created_at?: string
           final_commitment_video_url?: string | null
           id?: string
+          last_manager_reminder_at?: string | null
+          last_rep_reminder_at?: string | null
           manager_notified_at?: string | null
           motivation_video_url?: string | null
           phase_1_complete?: boolean
@@ -212,6 +216,8 @@ export type Database = {
           created_at?: string
           final_commitment_video_url?: string | null
           id?: string
+          last_manager_reminder_at?: string | null
+          last_rep_reminder_at?: string | null
           manager_notified_at?: string | null
           motivation_video_url?: string | null
           phase_1_complete?: boolean

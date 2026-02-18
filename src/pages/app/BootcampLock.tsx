@@ -128,7 +128,7 @@ export default function BootcampLock() {
 
           {/* Social proof */}
           <p className="text-white/30 text-xs mb-4">
-            Most reps complete boot camp in under 25 minutes
+            Most reps complete boot camp in under 15 minutes
           </p>
 
           <Button
