@@ -1,9 +1,10 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Info, ArrowUp, ArrowDown, Minus, Crown, Star, Zap } from 'lucide-react';
+import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Point weights for leaderboard scoring
 const POINTS = {
   LESSON_COMPLETED: 100,
   STREAK_DAY: 10,
@@ -29,17 +29,17 @@ interface LeaderboardEntry {
   hoursThisWeek: number;
   avgQuizScore: number;
   totalPoints: number;
+  progressPct: number;
+  isActiveToday: boolean;
   breakdown: {
     lessonsPoints: number;
     streakPoints: number;
     hoursPoints: number;
     quizPoints: number;
   };
-  // Weekly badge
   weeklyBadge: string | null;
 }
 
-// Weekly badge definitions
 const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: string; check: (e: LeaderboardEntry, rank: number) => boolean }[] = [
   { id: 'champion', icon: Crown, label: 'Weekly Champion', color: 'text-yellow-500', check: (_, rank) => rank === 1 },
   { id: 'quiz-master', icon: Target, label: 'Quiz Master', color: 'text-purple-500', check: (e) => e.avgQuizScore >= 95 },
@@ -73,7 +73,7 @@ export function TrainingLeaderboard() {
         const [profilesRes, totalLessonsRes, progressRes] = await Promise.all([
           supabase
             .from('profiles')
-            .select('user_id, full_name, avatar_url, time_this_week_minutes')
+            .select('user_id, full_name, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
             .in('user_id', rookieIds)
             .not('status', 'eq', 'nlc'),
           supabase
@@ -101,6 +101,9 @@ export function TrainingLeaderboard() {
           userStats.set(p.user_id, existing);
         });
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         const leaderboard: LeaderboardEntry[] = profiles.map(p => {
           const stats = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
           const lessonsCompleted = stats.completed;
@@ -109,6 +112,11 @@ export function TrainingLeaderboard() {
             : 0;
           const hoursThisWeek = Math.round((p.time_this_week_minutes || 0) / 60 * 10) / 10;
           const streakDays = 0;
+          const progressPct = Math.round((lessonsCompleted / totalLessons) * 100);
+
+          // Check if active today
+          const lastActive = p.last_active_at ? new Date(p.last_active_at) : null;
+          const isActiveToday = lastActive ? lastActive >= today : false;
 
           const lessonsPoints = lessonsCompleted * POINTS.LESSON_COMPLETED;
           const streakPoints = streakDays * POINTS.STREAK_DAY;
@@ -126,12 +134,13 @@ export function TrainingLeaderboard() {
             hoursThisWeek,
             avgQuizScore,
             totalPoints,
+            progressPct,
+            isActiveToday,
             breakdown: { lessonsPoints, streakPoints, hoursPoints, quizPoints },
             weeklyBadge: null,
           };
         }).sort((a, b) => b.totalPoints - a.totalPoints);
 
-        // Assign weekly badges
         leaderboard.forEach((entry, index) => {
           const rank = index + 1;
           for (const badge of WEEKLY_BADGES) {
@@ -143,7 +152,6 @@ export function TrainingLeaderboard() {
         });
 
         setEntries(leaderboard.slice(0, 20));
-        // Trigger animation
         setTimeout(() => setAnimateIn(true), 100);
       } catch (err) {
         console.error('Error:', err);
@@ -158,6 +166,12 @@ export function TrainingLeaderboard() {
   const getBadgeInfo = (badgeId: string | null) => {
     if (!badgeId) return null;
     return WEEKLY_BADGES.find(b => b.id === badgeId) || null;
+  };
+
+  const getProgressColor = (pct: number) => {
+    if (pct >= 80) return 'text-success';
+    if (pct >= 40) return 'text-primary';
+    return 'text-muted-foreground';
   };
 
   if (isLoading) {
@@ -182,86 +196,55 @@ export function TrainingLeaderboard() {
 
   return (
     <div>
-      {/* Point breakdown legend */}
-      <div className="px-4 py-2 bg-muted/30 border-b border-border/50">
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-          <Info className="w-3 h-3" />
-          <span>Points: Lessons (100) • Streak (10/day) • Hours (5/hr) • Quiz Avg (3/%)</span>
-        </div>
-      </div>
-
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
         <div className="relative px-4 pt-8 pb-4 bg-gradient-to-b from-primary/5 via-muted/10 to-transparent border-b border-border/50 overflow-hidden">
-          {/* Background glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/10 rounded-full blur-3xl" />
 
           <div className="relative flex items-end justify-center gap-3">
             {/* 2nd Place */}
-            <div
-              className={cn(
-                "flex flex-col items-center transition-all duration-700",
-                animateIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              )}
-              style={{ transitionDelay: '200ms' }}
-            >
-              <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedEntry(top3[1])}>
-                <UserAvatar avatarUrl={top3[1].avatar_url} fullName={top3[1].full_name} size="lg" className="ring-2 ring-gray-400 shadow-lg" />
-                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                  2
-                </div>
-              </div>
-              <p className="text-xs font-semibold text-foreground mt-2 truncate max-w-[80px]">{top3[1].full_name.split(' ')[0]}</p>
-              <p className="text-sm font-bold text-primary">{top3[1].totalPoints.toLocaleString()}</p>
-              {/* Podium bar */}
-              <div className="w-20 h-16 bg-gradient-to-t from-gray-500/20 to-gray-400/10 rounded-t-lg mt-2 border border-gray-400/20 flex items-center justify-center">
-                <Medal className="w-5 h-5 text-gray-400" />
-              </div>
-            </div>
-
+            <PodiumSlot
+              entry={top3[1]}
+              rank={2}
+              animateIn={animateIn}
+              delay="200ms"
+              ringClass="ring-2 ring-gray-400"
+              podiumH="h-16"
+              podiumBg="from-gray-500/20 to-gray-400/10"
+              podiumBorder="border-gray-400/20"
+              icon={<Medal className="w-5 h-5 text-gray-400" />}
+              rankBg="bg-gray-400"
+              onClick={() => setSelectedEntry(top3[1])}
+            />
             {/* 1st Place */}
-            <div
-              className={cn(
-                "flex flex-col items-center transition-all duration-700",
-                animateIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-              )}
-              style={{ transitionDelay: '0ms' }}
-            >
-              <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedEntry(top3[0])}>
-                <UserAvatar avatarUrl={top3[0].avatar_url} fullName={top3[0].full_name} size="lg" className="ring-4 ring-yellow-500 shadow-xl shadow-yellow-500/20 !w-16 !h-16" />
-                <div className="absolute -top-2 -right-1 w-7 h-7 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
-                  <Crown className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              <p className="text-sm font-bold text-foreground mt-2 truncate max-w-[100px]">{top3[0].full_name.split(' ')[0]}</p>
-              <p className="text-lg font-black text-primary">{top3[0].totalPoints.toLocaleString()}</p>
-              {/* Podium bar - tallest */}
-              <div className="w-24 h-24 bg-gradient-to-t from-yellow-500/20 to-yellow-400/5 rounded-t-lg mt-2 border border-yellow-500/30 flex items-center justify-center">
-                <Trophy className="w-7 h-7 text-yellow-500" />
-              </div>
-            </div>
-
+            <PodiumSlot
+              entry={top3[0]}
+              rank={1}
+              animateIn={animateIn}
+              delay="0ms"
+              ringClass="ring-4 ring-yellow-500 shadow-xl shadow-yellow-500/20 !w-16 !h-16"
+              podiumH="h-24"
+              podiumBg="from-yellow-500/20 to-yellow-400/5"
+              podiumBorder="border-yellow-500/30"
+              icon={<Trophy className="w-7 h-7 text-yellow-500" />}
+              rankBg="bg-yellow-500"
+              isCrown
+              onClick={() => setSelectedEntry(top3[0])}
+            />
             {/* 3rd Place */}
-            <div
-              className={cn(
-                "flex flex-col items-center transition-all duration-700",
-                animateIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              )}
-              style={{ transitionDelay: '400ms' }}
-            >
-              <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={() => setSelectedEntry(top3[2])}>
-                <UserAvatar avatarUrl={top3[2].avatar_url} fullName={top3[2].full_name} size="lg" className="ring-2 ring-amber-600 shadow-lg" />
-                <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                  3
-                </div>
-              </div>
-              <p className="text-xs font-semibold text-foreground mt-2 truncate max-w-[80px]">{top3[2].full_name.split(' ')[0]}</p>
-              <p className="text-sm font-bold text-primary">{top3[2].totalPoints.toLocaleString()}</p>
-              {/* Podium bar */}
-              <div className="w-20 h-12 bg-gradient-to-t from-amber-600/20 to-amber-600/5 rounded-t-lg mt-2 border border-amber-600/20 flex items-center justify-center">
-                <Award className="w-5 h-5 text-amber-600" />
-              </div>
-            </div>
+            <PodiumSlot
+              entry={top3[2]}
+              rank={3}
+              animateIn={animateIn}
+              delay="400ms"
+              ringClass="ring-2 ring-amber-600"
+              podiumH="h-12"
+              podiumBg="from-amber-600/20 to-amber-600/5"
+              podiumBorder="border-amber-600/20"
+              icon={<Award className="w-5 h-5 text-amber-600" />}
+              rankBg="bg-amber-600"
+              onClick={() => setSelectedEntry(top3[2])}
+            />
           </div>
         </div>
       )}
@@ -313,7 +296,12 @@ export function TrainingLeaderboard() {
                 <span className="text-sm font-bold text-muted-foreground">{rank}</span>
               </div>
 
-              <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" />
+              <div className="relative">
+                <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" />
+                {entry.isActiveToday && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-card" />
+                )}
+              </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -328,9 +316,15 @@ export function TrainingLeaderboard() {
                     <badge.icon className={cn('w-3.5 h-3.5 flex-shrink-0', badge.color)} />
                   )}
                 </div>
+                {/* Training progress bar */}
+                <div className="flex items-center gap-2 mt-1">
+                  <Progress value={entry.progressPct} className="h-1.5 flex-1" />
+                  <span className={cn("text-[10px] font-semibold tabular-nums min-w-[32px] text-right", getProgressColor(entry.progressPct))}>
+                    {entry.progressPct}%
+                  </span>
+                </div>
                 <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-0.5"><BookOpen className="w-3 h-3" /> {entry.lessonsCompleted}</span>
-                  <span className="flex items-center gap-0.5"><Flame className="w-3 h-3 text-orange-500" /> {entry.streakDays}d</span>
+                  <span className="flex items-center gap-0.5"><BookOpen className="w-3 h-3" /> {entry.lessonsCompleted}/{entry.totalLessons}</span>
                   <span className="flex items-center gap-0.5"><Clock className="w-3 h-3" /> {entry.hoursThisWeek}h</span>
                   <span className="flex items-center gap-0.5"><Target className="w-3 h-3" /> {entry.avgQuizScore}%</span>
                 </div>
@@ -362,13 +356,43 @@ export function TrainingLeaderboard() {
 
           {selectedEntry && (
             <div className="space-y-3 pt-2">
+              {/* Training Progress */}
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium flex items-center gap-1.5">
+                    <GraduationCap className="w-4 h-4 text-primary" />
+                    Training Progress
+                  </span>
+                  <span className={cn("text-sm font-bold", getProgressColor(selectedEntry.progressPct))}>
+                    {selectedEntry.progressPct}%
+                  </span>
+                </div>
+                <Progress value={selectedEntry.progressPct} className="h-2.5" />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {selectedEntry.lessonsCompleted} of {selectedEntry.totalLessons} lessons completed
+                </p>
+              </div>
+
+              {/* Daily Activity */}
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg border",
+                selectedEntry.isActiveToday
+                  ? "border-success/30 bg-success/5"
+                  : "border-destructive/30 bg-destructive/5"
+              )}>
+                <Activity className={cn("w-4 h-4", selectedEntry.isActiveToday ? "text-success" : "text-destructive")} />
+                <span className={cn("text-sm font-medium", selectedEntry.isActiveToday ? "text-success" : "text-destructive")}>
+                  {selectedEntry.isActiveToday ? "Active today ✓" : "Not logged in today"}
+                </span>
+              </div>
+
               {/* Badge */}
               {(() => {
                 const badge = getBadgeInfo(selectedEntry.weeklyBadge);
                 if (!badge) return null;
                 const BadgeIcon = badge.icon;
                 return (
-                  <div className={cn("flex items-center gap-2 px-3 py-2 rounded-lg border", `border-${badge.color.replace('text-', '')}/20 bg-${badge.color.replace('text-', '')}/5`)}>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
                     <BadgeIcon className={cn('w-5 h-5', badge.color)} />
                     <span className={cn('text-sm font-semibold', badge.color)}>{badge.label}</span>
                   </div>
@@ -405,6 +429,55 @@ export function TrainingLeaderboard() {
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// Podium slot sub-component
+function PodiumSlot({
+  entry, rank, animateIn, delay, ringClass, podiumH, podiumBg, podiumBorder, icon, rankBg, isCrown, onClick
+}: {
+  entry: LeaderboardEntry; rank: number; animateIn: boolean; delay: string;
+  ringClass: string; podiumH: string; podiumBg: string; podiumBorder: string;
+  icon: React.ReactNode; rankBg: string; isCrown?: boolean; onClick: () => void;
+}) {
+  const avatarSize = isCrown ? 'lg' : 'lg';
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center transition-all duration-700",
+        animateIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      )}
+      style={{ transitionDelay: delay }}
+    >
+      <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
+        <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size={avatarSize} className={cn(ringClass, "shadow-lg")} />
+        {isCrown ? (
+          <div className="absolute -top-2 -right-1 w-7 h-7 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
+            <Crown className="w-4 h-4 text-white" />
+          </div>
+        ) : (
+          <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md", rankBg)}>
+            {rank}
+          </div>
+        )}
+        {entry.isActiveToday && (
+          <div className="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-card" />
+        )}
+      </div>
+      <p className={cn("font-semibold text-foreground mt-2 truncate", isCrown ? "text-sm max-w-[100px]" : "text-xs max-w-[80px]")}>
+        {entry.full_name.split(' ')[0]}
+      </p>
+      {/* Mini progress bar */}
+      <div className="w-16 mt-1">
+        <Progress value={entry.progressPct} className="h-1" />
+        <p className="text-[9px] text-muted-foreground text-center mt-0.5">{entry.progressPct}%</p>
+      </div>
+      <p className={cn("font-bold text-primary", isCrown ? "text-lg" : "text-sm")}>{entry.totalPoints.toLocaleString()}</p>
+      {/* Podium bar */}
+      <div className={cn("rounded-t-lg mt-1 border flex items-center justify-center", podiumH, podiumBorder, `bg-gradient-to-t ${podiumBg}`, isCrown ? "w-24" : "w-20")}>
+        {icon}
+      </div>
     </div>
   );
 }
