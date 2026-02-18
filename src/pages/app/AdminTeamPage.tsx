@@ -10,6 +10,7 @@ import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList } from 'lucide-react';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
+import AdminFeedbackTab from '@/components/admin/AdminFeedbackTab';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import {
@@ -467,6 +468,7 @@ export default function AdminTeamPage() {
             <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Teams</TabsTrigger>
             <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Bootcamp Responses</TabsTrigger>
             <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Applications</TabsTrigger>
+            <TabsTrigger value="feedback" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Feedback</TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
             )}
@@ -475,6 +477,11 @@ export default function AdminTeamPage() {
           {/* ========== APPLICATIONS TAB ========== */}
           <TabsContent value="applications">
             <AdminApplicationsTab />
+          </TabsContent>
+
+          {/* ========== FEEDBACK TAB ========== */}
+          <TabsContent value="feedback">
+            <AdminFeedbackTab />
           </TabsContent>
 
           {/* ========== APPROVALS TAB ========== */}
