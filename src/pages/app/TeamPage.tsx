@@ -239,7 +239,7 @@ export default function TeamPage() {
         .eq('user_id', member.user_id);
 
       if (error) throw error;
-      toast.success(`✅ ${getDisplayName(member.full_name)} marked as NLC`);
+      toast.success(`${getDisplayName(member.full_name)} marked as NLC`);
       fetchAllMembers();
     } catch (err: any) {
       toast.error('Failed to update status', { description: err.message });

@@ -206,7 +206,7 @@ export function TodaysPriorities() {
            <div className="flex items-center gap-2 p-2 rounded-lg bg-success/5 border border-success/20">
              <Flame className="w-4 h-4 text-success" />
              <span className="text-xs text-success font-medium">
-               All team members active within 24 hours! 🎉
+               All team members active within 24 hours!
              </span>
            </div>
          </div>

@@ -206,7 +206,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      toast.success(`✅ ${fullName} added to ${teamName} under ${reportsTo?.full_name}`);
+      toast.success(`${fullName} added to ${teamName} under ${reportsTo?.full_name}`);
       onMemberAdded();
       onClose();
     } catch (err: any) {

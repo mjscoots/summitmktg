@@ -56,7 +56,7 @@ export function RookieWelcomeModal({ isOpen, onClose, repName, repPhone }: Rooki
             <PartyPopper className="w-8 h-8 text-success" />
           </div>
           <DialogTitle className="text-xl">
-            Welcome {repName}! 🎉
+            Welcome {repName}!
           </DialogTitle>
         </DialogHeader>
 

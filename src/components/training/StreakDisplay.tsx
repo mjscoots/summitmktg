@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Flame } from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +10,7 @@ interface StreakDisplayProps {
 }
 
 /**
- * Streak display component with animated fire emoji
+ * Streak display component with animated flame icon
  * - large: For /app/training page (prominent display)
  * - compact: For home page (smaller, clickable)
  */
@@ -46,7 +47,7 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
       <span className="text-2xl font-black text-warning">
         {streakCount}
       </span>
-      <span className="text-xl animate-pulse">🔥</span>
+      <Flame className="w-5 h-5 text-warning animate-pulse" />
       </button>
     );
   }
@@ -67,15 +68,11 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
       
       {/* Main content */}
       <div className="relative z-10 flex items-center gap-3">
-        <span className="text-4xl animate-pulse">
-          🔥
-        </span>
+        <Flame className="w-8 h-8 text-warning animate-pulse" />
         <span className="font-black text-5xl text-warning">
           Day {streakCount}
         </span>
-        <span className="text-4xl animate-pulse">
-          🔥
-        </span>
+        <Flame className="w-8 h-8 text-warning animate-pulse" />
       </div>
 
       {/* Short motivational text */}

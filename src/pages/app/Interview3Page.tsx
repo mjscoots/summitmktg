@@ -252,7 +252,7 @@ export default function Interview3Page() {
 
         await Promise.allSettled(notifPromises);
 
-        toast.success(`✅ ${formData.recruitName} added to ${teamName} under ${formData.reportsTo.full_name}`);
+        toast.success(`${formData.recruitName} added to ${teamName} under ${formData.reportsTo.full_name}`);
       } else {
         toast.success('Interview submitted');
       }

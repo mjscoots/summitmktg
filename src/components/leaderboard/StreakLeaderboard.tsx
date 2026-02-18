@@ -107,10 +107,10 @@ export function StreakLeaderboard() {
         <p className="text-muted-foreground text-sm">No active streaks yet</p>
         <p className="text-xs text-muted-foreground/70 mt-1">Log in daily to build your streak!</p>
         <div className="mt-3 text-[10px] text-muted-foreground/60 space-y-0.5">
-          <p>🔥 3 days = +50 bonus pts</p>
-          <p>🔥 7 days = +150 bonus pts</p>
-          <p>🔥 14 days = +300 bonus pts</p>
-          <p>🔥 30 days = +1000 bonus pts</p>
+          <p>3 days = +50 bonus pts</p>
+          <p>7 days = +150 bonus pts</p>
+          <p>14 days = +300 bonus pts</p>
+          <p>30 days = +1000 bonus pts</p>
         </div>
       </div>
     );

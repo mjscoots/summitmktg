@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, Sparkles, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LessonCompletionFeedbackProps {
@@ -31,6 +31,40 @@ function ConfettiParticle({ delay, isRookie }: { delay: number; isRookie: boolea
   );
 }
 
+// XP Points counter that counts up
+function XPCounter({ points, isRookie }: { points: number; isRookie: boolean }) {
+  const [displayPoints, setDisplayPoints] = useState(0);
+
+  useEffect(() => {
+    const steps = 15;
+    const increment = points / steps;
+    let current = 0;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      current += increment;
+      setDisplayPoints(Math.round(current));
+      if (step >= steps) {
+        clearInterval(timer);
+        setDisplayPoints(points);
+      }
+    }, 40);
+    return () => clearInterval(timer);
+  }, [points]);
+
+  return (
+    <div className={cn(
+      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold animate-scale-in",
+      isRookie
+        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+        : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+    )}>
+      <Zap className="w-4 h-4" />
+      +{displayPoints} XP
+    </div>
+  );
+}
+
 export function LessonCompletionFeedback({
   lessonTitle,
   progressBefore,
@@ -40,6 +74,7 @@ export function LessonCompletionFeedback({
 }: LessonCompletionFeedbackProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [displayProgress, setDisplayProgress] = useState(progressBefore);
+  const [showXP, setShowXP] = useState(false);
 
   // Animate progress number
   useEffect(() => {
@@ -63,17 +98,33 @@ export function LessonCompletionFeedback({
     return () => clearInterval(timer);
   }, [progressBefore, progressAfter]);
 
-  // Auto-dismiss after 3 seconds
+  // Show XP after a short delay for sequential dopamine hits
+  useEffect(() => {
+    const timer = setTimeout(() => setShowXP(true), 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auto-dismiss after 3.5 seconds (slightly longer to enjoy the moment)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onComplete, 300);
-    }, 3000);
+    }, 3500);
 
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   const progressGain = progressAfter - progressBefore;
+  const xpEarned = Math.max(25, Math.round(progressGain * 5));
+
+  // Dynamic motivational message based on progress
+  const getMessage = () => {
+    if (progressAfter >= 100) return "Course complete. You earned this.";
+    if (progressAfter >= 75) return "Almost there. Finish what you started.";
+    if (progressAfter >= 50) return "Over halfway. You're in the zone.";
+    if (progressAfter >= 25) return "Building momentum. Proving yourself.";
+    return "You're just getting started. Keep going.";
+  };
 
   return (
     <div className={cn(
@@ -115,7 +166,7 @@ export function LessonCompletionFeedback({
             "w-5 h-5",
             isRookieCourse ? "text-green-400" : "text-blue-400"
           )} />
-          <h3 className="text-xl font-black text-foreground">Lesson Complete!</h3>
+          <h3 className="text-xl font-black text-foreground">Lesson Complete</h3>
           <Sparkles className={cn(
             "w-5 h-5",
             isRookieCourse ? "text-green-400" : "text-blue-400"
@@ -123,9 +174,16 @@ export function LessonCompletionFeedback({
         </div>
 
         {/* Lesson Title */}
-        <p className="text-muted-foreground mb-6 line-clamp-1">
+        <p className="text-muted-foreground mb-4 line-clamp-1">
           {lessonTitle}
         </p>
+
+        {/* XP Badge — delayed entrance */}
+        {showXP && (
+          <div className="flex justify-center mb-4">
+            <XPCounter points={xpEarned} isRookie={isRookieCourse} />
+          </div>
+        )}
 
         {/* Progress Display */}
         <div className={cn(
@@ -139,7 +197,7 @@ export function LessonCompletionFeedback({
             )} />
             <div>
               <span className={cn(
-                "text-3xl font-black",
+                "text-3xl font-black tabular-nums",
                 isRookieCourse ? "text-green-400" : "text-blue-400"
               )}>
                 {displayProgress}%
@@ -151,7 +209,20 @@ export function LessonCompletionFeedback({
               )}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
+
+          {/* Animated progress bar */}
+          <div className="mt-3 h-2 bg-muted/50 rounded-full overflow-hidden">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-1000 ease-out",
+                isRookieCourse
+                  ? "bg-gradient-to-r from-green-500 to-green-400"
+                  : "bg-gradient-to-r from-blue-500 to-blue-400"
+              )}
+              style={{ width: `${displayProgress}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
             Course Progress
           </p>
         </div>
@@ -161,15 +232,7 @@ export function LessonCompletionFeedback({
           "text-sm font-medium",
           isRookieCourse ? "text-green-400" : "text-blue-400"
         )}>
-          {progressAfter < 25 
-            ? "You're just getting started. Keep going!"
-            : progressAfter < 50
-            ? "Building momentum. You're proving yourself."
-            : progressAfter < 75
-            ? "Over halfway there. You're in the zone."
-            : progressAfter < 100
-            ? "Almost there. Finish what you started."
-            : "Course complete! You showed up. You won."}
+          {getMessage()}
         </p>
       </div>
     </div>
