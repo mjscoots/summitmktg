@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe } from 'lucide-react';
+import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -179,6 +179,25 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemoveAvatar = async () => {
+    if (!user) return;
+    setIsUploadingAvatar(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setAvatarUrl(null);
+      toast.success('Photo removed');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to remove photo');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -246,6 +265,16 @@ export default function ProfilePage() {
               <p className="text-xs text-muted-foreground mt-1">
                 Click the camera icon to upload a new photo
               </p>
+              {avatarUrl && (
+                <button
+                  onClick={handleRemoveAvatar}
+                  disabled={isUploadingAvatar}
+                  className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 mt-1 transition-colors"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Remove photo
+                </button>
+              )}
             </div>
           </div>
         </div>
