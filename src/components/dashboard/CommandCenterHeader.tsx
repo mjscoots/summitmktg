@@ -2,10 +2,7 @@ import { Users, UserCheck, GraduationCap } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useStreak } from '@/hooks/useStreak';
-import { ManagerMetrics } from './ManagerMetrics';
 import { cn } from '@/lib/utils';
- 
 interface Stats {
   activeManagers: number;
   activeRookies: number;
@@ -61,7 +58,6 @@ function AnimatedValue({ value, suffix = '' }: AnimatedValueProps) {
  
 export function CommandCenterHeader() {
   const { profile } = useAuth();
-  const { streakData } = useStreak();
   const [stats, setStats] = useState<Stats>({
     activeManagers: 0,
     activeRookies: 0,
@@ -69,19 +65,8 @@ export function CommandCenterHeader() {
     trainingCompletion: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [momentum, setMomentum] = useState(0);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
-
-  // Calculate momentum based on activity
-  useEffect(() => {
-    // Simple momentum calculation based on streak and activity
-    // In production, this would pull from actual activity logs
-    const basePoints = Math.min(streakData.currentStreak * 10, 50);
-    const activityPoints = Math.min(streakData.totalDaysActive * 3, 30);
-    const randomBonus = Math.floor(Math.random() * 20); // Simulate other interactions
-    setMomentum(Math.min(basePoints + activityPoints + randomBonus, 100));
-  }, [streakData]);
  
    useEffect(() => {
      const fetchStats = async () => {
@@ -229,25 +214,7 @@ export function CommandCenterHeader() {
               Welcome back, <span className="font-semibold">{firstName}</span>
             </p>
           </div>
-          
-          {/* Streak & Momentum - Right side */}
-          <div className="hidden sm:block">
-            <ManagerMetrics 
-              streak={streakData.currentStreak} 
-              momentum={momentum}
-              lastTrainedAgo={streakData.lastLoginDate ? 'Today' : undefined}
-            />
-          </div>
         </div>
-      </div>
-      
-      {/* Mobile metrics - show below header on small screens */}
-      <div className="sm:hidden mb-4 flex justify-center">
-        <ManagerMetrics 
-          streak={streakData.currentStreak} 
-          momentum={momentum}
-          lastTrainedAgo={streakData.lastLoginDate ? 'Today' : undefined}
-        />
       </div>
  
       {/* Status Strip */}
