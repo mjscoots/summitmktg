@@ -1,12 +1,14 @@
  import { useMemo } from 'react';
  import { cn } from '@/lib/utils';
  
- interface UserAvatarProps {
-   avatarUrl?: string | null;
-   fullName: string;
-   size?: 'xs' | 'sm' | 'md' | 'lg';
-   className?: string;
- }
+interface UserAvatarProps {
+  avatarUrl?: string | null;
+  fullName: string;
+  size?: 'xs' | 'sm' | 'md' | 'lg';
+  className?: string;
+  showOnline?: boolean;
+  isOnline?: boolean;
+}
  
  // Generate a consistent color based on name hash
  function getColorFromName(name: string): string {
@@ -45,41 +47,58 @@
    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
  }
  
- const sizeClasses = {
-   xs: 'w-5 h-5 text-[9px]',
-   sm: 'w-7 h-7 text-[10px]',
-   md: 'w-9 h-9 text-xs',
-   lg: 'w-12 h-12 text-sm',
- };
- 
- export function UserAvatar({ avatarUrl, fullName, size = 'sm', className }: UserAvatarProps) {
-   const initials = useMemo(() => getInitials(fullName), [fullName]);
-   const bgColor = useMemo(() => getColorFromName(fullName), [fullName]);
- 
-   if (avatarUrl) {
-     return (
-       <div className={cn(
-         'rounded-full overflow-hidden flex-shrink-0',
-         sizeClasses[size],
-         className
-       )}>
-         <img 
-           src={avatarUrl} 
-           alt={fullName} 
-           className="w-full h-full object-cover"
-         />
-       </div>
-     );
-   }
- 
-   return (
-     <div className={cn(
-       'rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium',
-       sizeClasses[size],
-       bgColor,
-       className
-     )}>
-       {initials}
-     </div>
-   );
- }
+const sizeClasses = {
+  xs: 'w-5 h-5 text-[9px]',
+  sm: 'w-7 h-7 text-[10px]',
+  md: 'w-10 h-10 text-xs',
+  lg: 'w-12 h-12 text-sm',
+};
+
+const dotSizeClasses = {
+  xs: 'w-1.5 h-1.5 border',
+  sm: 'w-2 h-2 border',
+  md: 'w-2.5 h-2.5 border-2',
+  lg: 'w-3 h-3 border-2',
+};
+
+export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline }: UserAvatarProps) {
+  const initials = useMemo(() => getInitials(fullName), [fullName]);
+  const bgColor = useMemo(() => getColorFromName(fullName), [fullName]);
+
+  const onlineDot = showOnline ? (
+    <span className={cn(
+      'absolute bottom-0 right-0 rounded-full border-background',
+      dotSizeClasses[size],
+      isOnline ? 'bg-green-500' : 'bg-muted-foreground/40'
+    )} />
+  ) : null;
+
+  if (avatarUrl) {
+    return (
+      <div className={cn(
+        'relative rounded-full overflow-visible flex-shrink-0',
+        sizeClasses[size],
+        className
+      )}>
+        <img 
+          src={avatarUrl} 
+          alt={fullName} 
+          className="w-full h-full rounded-full object-cover"
+        />
+        {onlineDot}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn(
+      'relative rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium',
+      sizeClasses[size],
+      bgColor,
+      className
+    )}>
+      {initials}
+      {onlineDot}
+    </div>
+  );
+}
