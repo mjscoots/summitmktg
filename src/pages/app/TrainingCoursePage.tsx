@@ -234,13 +234,24 @@ export default function TrainingCoursePage() {
             const isCurrentModule = !isModuleLocked && !isModuleComplete && 
               (moduleIndex === 0 || !modules[moduleIndex - 1].lessons.some(l => !l.quiz_passed));
 
+            // Find the first incomplete lesson to navigate to
+            const firstIncompleteLessonId = !isModuleLocked 
+              ? module.lessons.find(l => !l.quiz_passed)?.id || module.lessons[0]?.id
+              : null;
+
+            const handleModuleClick = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              if (isModuleLocked || !firstIncompleteLessonId) return;
+              navigate(`/app/training/${courseSlug}/${firstIncompleteLessonId}`);
+            };
+
             return (
               <div 
                 key={module.id}
                 className={cn(
                   "bg-card rounded-lg border transition-all",
                   isModuleLocked 
-                    ? 'border-border opacity-40 grayscale' 
+                    ? 'border-border opacity-40 grayscale cursor-not-allowed' 
                     : isModuleComplete
                       ? 'border-border/50 opacity-60'
                       : isCurrentModule
@@ -252,11 +263,15 @@ export default function TrainingCoursePage() {
                           : 'border-border hover:border-blue-500/30'
                 )}
               >
-                {/* Module Header */}
-                <div className={cn(
-                  "p-4 border-b border-border",
-                  isCurrentModule && "bg-muted/30"
-                )}>
+                {/* Module Header - Clickable */}
+                <div 
+                  onClick={handleModuleClick}
+                  className={cn(
+                    "p-4 border-b border-border transition-colors",
+                    isCurrentModule && "bg-muted/30",
+                    !isModuleLocked && "cursor-pointer hover:bg-muted/40"
+                  )}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className={cn(
@@ -285,13 +300,18 @@ export default function TrainingCoursePage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={cn(
-                        "text-sm",
-                        isModuleComplete ? "text-muted-foreground" : "text-muted-foreground"
-                      )}>
+                      <span className="text-sm text-muted-foreground">
                         {moduleProgress}%
                       </span>
                       {isModuleLocked && <Lock className="w-4 h-4 text-muted-foreground" />}
+                      {!isModuleLocked && (
+                        <ChevronRight className={cn(
+                          "w-4 h-4 transition-transform",
+                          isCurrentModule 
+                            ? isRookieCourse ? "text-green-400" : "text-blue-400"
+                            : "text-muted-foreground"
+                        )} />
+                      )}
                     </div>
                   </div>
                   {module.description && (
