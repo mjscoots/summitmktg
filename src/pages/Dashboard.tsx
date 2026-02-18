@@ -166,9 +166,9 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Training Modules */}
+        {/* Training Chapters */}
         <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <h2 className="text-xl font-semibold text-foreground mb-4">Training Modules</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">Training Chapters</h2>
           <div className="space-y-3">
             {modules.map((module) => (
               <button

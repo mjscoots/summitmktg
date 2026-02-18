@@ -66,7 +66,7 @@ const TrainingHome = ({ role = "rookie" }: TrainingHomeProps) => {
         <div className="mb-8 animate-fade-in">
           <h1 className="text-2xl font-bold text-foreground">Training</h1>
           <p className="text-muted-foreground mt-1">
-            {role === "vet" ? "All training modules" : "Your assigned training modules"}
+            {role === "vet" ? "All training chapters" : "Your assigned training chapters"}
           </p>
         </div>
 
