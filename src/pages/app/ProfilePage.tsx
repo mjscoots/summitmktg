@@ -14,7 +14,7 @@ import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 
 export default function ProfilePage() {
-  const { user, profile, role, isLoading: authLoading } = useAuth();
+  const { user, profile, role, isLoading: authLoading, refreshProfile } = useAuth();
   
   // Profile state
   const [fullName, setFullName] = useState('');
@@ -171,6 +171,7 @@ export default function ProfilePage() {
 
       setAvatarUrl(publicUrl);
       setCropDialogOpen(false);
+      await refreshProfile();
       toast.success('Photo uploaded successfully');
     } catch (err) {
       console.error('Avatar upload error:', err);
@@ -190,6 +191,7 @@ export default function ProfilePage() {
         .eq('user_id', user.id);
       if (error) throw error;
       setAvatarUrl(null);
+      await refreshProfile();
       toast.success('Photo removed');
     } catch (err) {
       console.error(err);
