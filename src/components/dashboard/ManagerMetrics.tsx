@@ -50,7 +50,7 @@ export function ManagerMetrics({ streak, momentum, lastTrainedAgo }: ManagerMetr
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-[200px]">
           <div className="text-xs">
-            <p className="font-semibold mb-1">🔥 {streak}-Day Streak</p>
+            <p className="font-semibold mb-1">{streak}-Day Streak</p>
             {lastTrainedAgo && (
               <p className="text-muted-foreground">Last trained: {lastTrainedAgo}</p>
             )}

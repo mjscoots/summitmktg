@@ -1,4 +1,5 @@
-import { CheckCircle2, XCircle, AlertTriangle, ArrowRight, RotateCcw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, XCircle, AlertTriangle, ArrowRight, RotateCcw, Zap, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +25,40 @@ interface QuizResultsDisplayProps {
   onReviewMaterial: () => void;
 }
 
+function XPBadge({ points, delay = 0 }: { points: number; delay?: number }) {
+  const [show, setShow] = useState(false);
+  const [displayPts, setDisplayPts] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  useEffect(() => {
+    if (!show) return;
+    const steps = 12;
+    const inc = points / steps;
+    let cur = 0;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      cur += inc;
+      setDisplayPts(Math.round(cur));
+      if (step >= steps) { clearInterval(timer); setDisplayPts(points); }
+    }, 35);
+    return () => clearInterval(timer);
+  }, [show, points]);
+
+  if (!show) return null;
+
+  return (
+    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-bold animate-scale-in">
+      <Zap className="w-4 h-4" />
+      +{displayPts} XP
+    </div>
+  );
+}
+
 export function QuizResultsDisplay({
   passed,
   score,
@@ -36,22 +71,25 @@ export function QuizResultsDisplay({
   onRetake,
   onReviewMaterial,
 }: QuizResultsDisplayProps) {
-  const accentColor = isRookieCourse ? 'green' : 'blue';
-
   if (passed) {
     return (
       <div className="p-6 rounded-lg text-center bg-green-500/10 border border-green-500/20">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-green-400" />
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center animate-scale-in">
+          <Trophy className="w-8 h-8 text-green-400" />
         </div>
         
         <h3 className="text-xl font-bold text-green-400 mb-2">
-          🎉 Congratulations!
+          Perfect Score
         </h3>
         
-        <p className="text-lg text-foreground mb-4">
+        <p className="text-lg text-foreground mb-3">
           You scored <span className="font-bold text-green-400">100%</span> ({correct}/{total} correct)
         </p>
+
+        {/* XP reward with delayed entrance */}
+        <div className="flex justify-center mb-4">
+          <XPBadge points={total * 25} delay={400} />
+        </div>
         
         {/* Show all correct answers */}
         <div className="bg-card/50 rounded-lg p-4 mb-6 text-left max-h-60 overflow-y-auto">
@@ -66,13 +104,13 @@ export function QuizResultsDisplay({
         </div>
         
         <p className="text-sm text-muted-foreground mb-4">
-          Your manager has been notified of your success!
+          Your manager has been notified of your success.
         </p>
         
         <Button 
           onClick={onNext}
           className={cn(
-            "font-semibold h-11 px-6",
+            "font-semibold h-11 px-6 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg",
             isRookieCourse 
               ? "bg-green-500 hover:bg-green-600" 
               : "bg-blue-500 hover:bg-blue-600"
@@ -93,7 +131,7 @@ export function QuizResultsDisplay({
       </div>
       
       <h3 className="text-xl font-bold text-amber-400 mb-2 text-center">
-        📚 Not Quite There Yet
+        Not Quite There Yet
       </h3>
       
       <p className="text-lg text-foreground mb-2 text-center">
@@ -101,7 +139,7 @@ export function QuizResultsDisplay({
       </p>
       
       <p className="text-sm text-amber-400 mb-4 text-center font-medium">
-        ⚠️ You must score 100% to proceed
+        You must score 100% to proceed
       </p>
       
       {/* Detailed results */}
@@ -140,7 +178,7 @@ export function QuizResultsDisplay({
                     </p>
                     {result.explanation && (
                       <p className="text-xs text-muted-foreground mt-2 italic">
-                        💡 {result.explanation}
+                        {result.explanation}
                       </p>
                     )}
                   </div>
@@ -170,7 +208,7 @@ export function QuizResultsDisplay({
           )}
         >
           <RotateCcw className="w-4 h-4" />
-          Retake Quiz Immediately
+          Retake Quiz
         </Button>
       </div>
     </div>

@@ -18,6 +18,22 @@ export function StreakCelebration({
   isRookieCourse = true,
 }: StreakCelebrationProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const [countUp, setCountUp] = useState(0);
+
+  // Animate the streak number counting up
+  useEffect(() => {
+    const steps = Math.min(streak, 15);
+    const inc = streak / steps;
+    let cur = 0;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      cur += inc;
+      setCountUp(Math.round(cur));
+      if (step >= steps) { clearInterval(timer); setCountUp(streak); }
+    }, 60);
+    return () => clearInterval(timer);
+  }, [streak]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,13 +52,23 @@ export function StreakCelebration({
   };
 
   const getMilestoneTitle = () => {
-    if (milestone === 1) return "First Spark!";
-    if (milestone === 3) return "3-Day Fire!";
-    if (milestone === 7) return "One Week Strong!";
-    if (milestone === 14) return "Two Weeks Dominant!";
-    if (milestone === 21) return "21 Days — Habit Formed!";
-    if (milestone === 30) return "30 Days — Legendary!";
-    return `${streak} Day Streak!`;
+    if (milestone === 1) return "First Spark";
+    if (milestone === 3) return "3-Day Fire";
+    if (milestone === 7) return "One Week Strong";
+    if (milestone === 14) return "Two Weeks Dominant";
+    if (milestone === 21) return "21 Days — Habit Formed";
+    if (milestone === 30) return "30 Days — Legendary";
+    return `${streak} Day Streak`;
+  };
+
+  // Calculate bonus points for milestone display
+  const getBonusPoints = () => {
+    if (milestone === 3) return 50;
+    if (milestone === 7) return 150;
+    if (milestone === 14) return 300;
+    if (milestone === 21) return 500;
+    if (milestone === 30) return 1000;
+    return 10;
   };
 
   return (
@@ -75,18 +101,30 @@ export function StreakCelebration({
           <p className="text-sm text-muted-foreground">
             {message}
           </p>
+          {/* Bonus points badge */}
+          {milestone && (
+            <div className={cn(
+              "inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold animate-scale-in",
+              isRookieCourse
+                ? "bg-green-500/20 text-green-400"
+                : "bg-blue-500/20 text-blue-400"
+            )}>
+              <Zap className="w-3 h-3" />
+              +{getBonusPoints()} bonus pts
+            </div>
+          )}
         </div>
 
-        {/* Streak Number */}
+        {/* Streak Number with count-up */}
         <div className={cn(
           "flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg",
           isRookieCourse ? "bg-green-500/20" : "bg-blue-500/20"
         )}>
           <span className={cn(
-            "text-2xl font-black",
+            "text-2xl font-black tabular-nums",
             isRookieCourse ? "text-green-400" : "text-blue-400"
           )}>
-            {streak}
+            {countUp}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
             days

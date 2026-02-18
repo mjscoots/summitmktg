@@ -316,7 +316,7 @@ export default function LessonPage() {
         if (result.passed) {
           setLessonCompleted(true);
           recordActivity();
-          toast.success('🎉 Quiz passed! 100% correct!');
+          toast.success('Quiz passed — 100% correct!');
           
           // Send notification to manager (fire and forget)
           notifyManagerOfQuizCompletion(result.score, result.correct, result.total);

@@ -254,7 +254,7 @@ export default function VideoPlayerPage() {
           <div className="space-y-3">
             <h3 className="font-semibold text-foreground text-sm">Up Next</h3>
             {upNextVideos.length === 0 ? (
-              <p className="text-sm text-muted-foreground">You've completed all videos! 🎉</p>
+              <p className="text-sm text-muted-foreground">You've completed all videos!</p>
             ) : (
               <div className="space-y-3">
                 {upNextVideos.map((rv, idx) => {

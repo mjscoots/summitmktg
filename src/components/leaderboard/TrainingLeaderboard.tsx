@@ -218,7 +218,7 @@ export function TrainingLeaderboard() {
         let accentClass = 'from-primary/15 to-primary/5 border-primary/20';
 
         if (rank === 1) {
-          motivationText = "You're #1! Keep dominating 🔥";
+          motivationText = "You're #1! Keep dominating.";
           motivationIcon = <Crown className="w-4 h-4 text-yellow-500" />;
           accentClass = 'from-yellow-500/15 to-yellow-500/5 border-yellow-500/20';
         } else if (rank <= 3) {

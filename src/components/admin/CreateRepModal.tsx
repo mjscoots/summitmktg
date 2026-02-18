@@ -94,7 +94,7 @@ export function CreateRepModal({ open, onOpenChange, managers, teams, onSuccess 
       if (data?.error) throw new Error(data.error);
 
       setCreatedPassword(password);
-      toast({ title: '✅ Account Created', description: `${firstName} ${lastName} has been added.` });
+      toast({ title: 'Account Created', description: `${firstName} ${lastName} has been added.` });
       onSuccess();
     } catch (err: any) {
       toast({ title: 'Failed to create account', description: err.message, variant: 'destructive' });

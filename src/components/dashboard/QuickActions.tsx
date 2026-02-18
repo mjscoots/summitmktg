@@ -86,7 +86,7 @@ export function QuickActions() {
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-            ⚡ Quick Actions
+            Quick Actions
           </span>
         </div>
         
