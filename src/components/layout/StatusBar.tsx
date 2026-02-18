@@ -1,6 +1,7 @@
-import { Flame, Zap } from 'lucide-react';
+import { Crown, Flame, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useStreak } from '@/hooks/useStreak';
+import { useAuth } from '@/hooks/useAuth';
 import { TrainingProgressBadge } from '@/components/layout/TrainingProgressBadge';
 import { cn } from '@/lib/utils';
 import {
@@ -11,6 +12,7 @@ import {
 
 export function StatusBar() {
   const { streakData } = useStreak();
+  const { role } = useAuth();
   const [momentum, setMomentum] = useState(0);
 
   useEffect(() => {
@@ -34,6 +36,13 @@ export function StatusBar() {
 
   return (
     <div className="flex items-center gap-2">
+      {/* Admin Badge */}
+      {role === 'admin' && (
+        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/15 text-primary border border-primary/30">
+          <Crown className="w-3 h-3" />
+          <span className="font-semibold uppercase tracking-wider text-[10px]">Admin</span>
+        </div>
+      )}
       {/* Streak Pill */}
       <div
         className={cn(
