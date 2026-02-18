@@ -125,7 +125,7 @@ export function NotificationBell() {
           )}
         </div>
 
-        {Notification.permission !== 'granted' && Notification.permission !== 'denied' && (
+        {typeof Notification !== 'undefined' && Notification.permission !== 'granted' && Notification.permission !== 'denied' && (
           <div className="p-3 border-t border-border bg-muted/50">
             <Button 
               variant="outline" 
