@@ -9,6 +9,7 @@ interface Straggler {
   full_name: string;
   email: string;
   created_at: string;
+  team_name: string | null;
   bootcamp_completed: boolean;
   phase_1_complete: boolean;
   phase_2_complete: boolean;
@@ -53,7 +54,7 @@ export function BootcampStragglers() {
       // Get profiles and bootcamp progress
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, full_name, email, created_at, status')
+        .select('user_id, full_name, email, created_at, status, teams:team_id(name)')
         .in('user_id', rookieIds)
         .eq('status', 'active');
 
@@ -76,6 +77,7 @@ export function BootcampStragglers() {
           full_name: p.full_name,
           email: p.email,
           created_at: p.created_at || '',
+          team_name: (p as any).teams?.name || null,
           bootcamp_completed: false,
           phase_1_complete: bp?.phase_1_complete || false,
           phase_2_complete: bp?.phase_2_complete || false,
@@ -147,7 +149,12 @@ export function BootcampStragglers() {
           return (
             <div key={s.email} className="flex items-center justify-between px-4 py-2.5">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{s.full_name}</p>
+                <p className="text-sm font-medium text-foreground truncate">
+                  {s.full_name}
+                  {s.team_name && (
+                    <span className="text-[10px] text-muted-foreground font-normal ml-1.5">· {s.team_name}</span>
+                  )}
+                </p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[10px] text-muted-foreground">{phases}/3 modules</span>
                   <div className="flex gap-0.5">
