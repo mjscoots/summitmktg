@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity } from 'lucide-react';
+import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity, TrendingUp, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
@@ -196,6 +196,64 @@ export function TrainingLeaderboard() {
 
   return (
     <div>
+      {/* ===== MOTIVATIONAL BANNER ===== */}
+      {(() => {
+        const myRank = entries.findIndex(e => e.user_id === user?.id);
+        if (myRank === -1) return null;
+        const me = entries[myRank];
+        const rank = myRank + 1;
+        const totalUsers = entries.length;
+        const topPct = Math.round((rank / totalUsers) * 100);
+        const pointsToNext = myRank > 0 ? entries[myRank - 1].totalPoints - me.totalPoints : 0;
+
+        let motivationText = '';
+        let motivationIcon: React.ReactNode = <TrendingUp className="w-4 h-4" />;
+        let accentClass = 'from-primary/15 to-primary/5 border-primary/20';
+
+        if (rank === 1) {
+          motivationText = "You're #1! Keep dominating 🔥";
+          motivationIcon = <Crown className="w-4 h-4 text-yellow-500" />;
+          accentClass = 'from-yellow-500/15 to-yellow-500/5 border-yellow-500/20';
+        } else if (rank <= 3) {
+          motivationText = `Only ${pointsToNext} pts behind #${rank - 1}. Push harder!`;
+          motivationIcon = <ArrowUp className="w-4 h-4 text-success" />;
+          accentClass = 'from-success/15 to-success/5 border-success/20';
+        } else if (topPct <= 50) {
+          motivationText = `Top ${topPct}%! ${pointsToNext} pts to move up.`;
+          motivationIcon = <TrendingUp className="w-4 h-4 text-primary" />;
+        } else {
+          motivationText = `Complete more lessons to climb the ranks!`;
+          motivationIcon = <Zap className="w-4 h-4 text-amber-500" />;
+          accentClass = 'from-amber-500/15 to-amber-500/5 border-amber-500/20';
+        }
+
+        return (
+          <div className={cn(
+            "mx-4 mt-4 p-3 rounded-xl border bg-gradient-to-r flex items-center gap-3",
+            accentClass
+          )}>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center">
+                <span className="text-sm font-bold text-primary">#{rank}</span>
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                {motivationIcon}
+                <span className="text-sm font-semibold text-foreground truncate">{motivationText}</span>
+              </div>
+              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
+                <span>{me.totalPoints.toLocaleString()} pts</span>
+                <span>·</span>
+                <span>{me.progressPct}% trained</span>
+                <span>·</span>
+                <span>{me.lessonsCompleted}/{me.totalLessons} lessons</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
         <div className="relative px-4 pt-8 pb-4 bg-gradient-to-b from-primary/5 via-muted/10 to-transparent border-b border-border/50 overflow-hidden">
