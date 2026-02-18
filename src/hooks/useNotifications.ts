@@ -57,12 +57,17 @@ export function useNotifications() {
           setUnreadCount(prev => prev + 1);
           
           // Show browser notification if permission granted
-          if (Notification.permission === 'granted') {
-            new Notification(newNotification.title, {
-              body: newNotification.message,
-              icon: '/favicon.png',
-              tag: newNotification.id
-            });
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            try {
+              new Notification(newNotification.title, {
+                body: newNotification.message,
+                icon: '/favicon.png',
+                tag: newNotification.id
+              });
+            } catch (err) {
+              // Some mobile browsers don't support constructing Notification
+              console.debug('Browser notification failed:', err);
+            }
           }
         }
       )
