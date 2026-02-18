@@ -142,6 +142,9 @@ export default function BootcampLock() {
           <p className="text-white/50 text-sm mb-2">
             Complete all 10 steps below to unlock full access to training, chat, calendar, and everything else.
           </p>
+          <p className="text-white/50 text-xs font-semibold mb-2">
+            ⚡ Most reps finish in under 15 minutes
+          </p>
           <p className="text-white/30 text-xs mb-6">
             {completedCount}/10 completed
           </p>
