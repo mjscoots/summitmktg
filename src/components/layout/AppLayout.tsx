@@ -9,7 +9,7 @@ import { StatusBar } from './StatusBar';
 import { AdminBadge } from '@/components/admin/AdminBadge';
 import { Mountain } from 'lucide-react';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
-import { FeedbackButton } from '@/components/dashboard/FeedbackButton';
+
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -61,7 +61,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <main className="flex-1">
               {children}
             </main>
-            <FeedbackButton />
+            
           </div>
         </div>
       </SidebarProvider>
