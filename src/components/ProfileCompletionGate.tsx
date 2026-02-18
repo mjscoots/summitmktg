@@ -140,6 +140,18 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         .eq('user_id', user.id);
 
       if (error) throw error;
+
+      // Post a welcome announcement in community chat
+      try {
+        await supabase.from('chat_messages').insert({
+          user_id: user.id,
+          is_ai: true,
+          content: `🎉 **Welcome to the team, ${fullName.trim()}!** They just completed their profile and are ready to get started. Let's give them a warm welcome! 🚀`,
+        });
+      } catch {
+        // Non-critical — don't block profile completion
+      }
+
       setIsComplete(true);
       toast.success('Profile complete! Welcome aboard.');
     } catch {
