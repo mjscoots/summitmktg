@@ -27,18 +27,16 @@ interface TrainingTilesProps {
 }
 
 // Courses that require Manager Manual to be completed first
-const LOCKED_UNTIL_MANAGER_MANUAL = ['learn-the-basics', 'recruiting-resources'];
+const LOCKED_UNTIL_MANAGER_MANUAL = ['management-basics'];
 
 // Courses that are "Coming Soon" - grayed out and not clickable
-const COMING_SOON_COURSES = ['management-basics'];
+const COMING_SOON_COURSES: string[] = [];
 
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'learn-your-pitch': <BookOpen className="w-6 h-6" />,
   'summer-sales-manual': <FileText className="w-6 h-6" />,
   'training-videos': <Video className="w-6 h-6" />,
   'management-basics': <Users className="w-6 h-6" />,
-  'learn-the-basics': <Users className="w-6 h-6" />,
-  'recruiting-resources': <Users className="w-6 h-6" />,
   'manager-manual': <GraduationCap className="w-6 h-6" />,
   'manager-videos': <Video className="w-6 h-6" />,
 };
@@ -54,20 +52,18 @@ const LESSON_COUNT_OVERRIDES: Record<string, number> = {
   'summer-sales-manual': 43,
 };
 
-// Course priority order (Learn Your Pitch first, Manager Manual before Recruiting Resources)
+// Course priority order (Manager Manual first, Recruiting Resources second, Manager Videos third)
 const COURSE_PRIORITY: Record<string, number> = {
   'learn-your-pitch': 1,
   'summer-sales-manual': 2,
   'training-videos': 3,
   'manager-manual': 1,
-  'learn-the-basics': 2, // Will be renamed to Recruiting Resources
-  'recruiting-resources': 2,
+  'management-basics': 2,
   'manager-videos': 3,
 };
 
 // Display name overrides
 const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
-  'learn-the-basics': 'Recruiting Resources',
   'management-basics': 'Recruiting Resources',
 };
 
