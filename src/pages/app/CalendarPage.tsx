@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight, Globe } from 'lucide-react';
-import { format, isFuture, isPast, isToday } from 'date-fns';
+import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight, Globe, List, LayoutGrid, ChevronLeft } from 'lucide-react';
+import { format, isFuture, isPast, isToday, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
 import { useUserTimezone } from '@/hooks/useUserTimezone';
 import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,123 @@ interface Attendance {
   };
 }
 
+function MonthView({
+  events,
+  currentMonth,
+  onMonthChange,
+  onEventClick,
+  timezone,
+  getEventTypeBadge,
+}: {
+  events: CalendarEvent[];
+  currentMonth: Date;
+  onMonthChange: (d: Date) => void;
+  onEventClick: (e: CalendarEvent) => void;
+  timezone: string;
+  getEventTypeBadge: (type: string | null) => React.ReactNode;
+}) {
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const calStart = startOfWeek(monthStart);
+  const calEnd = endOfWeek(monthEnd);
+  const days = eachDayOfInterval({ start: calStart, end: calEnd });
+
+  const eventTypeColors: Record<string, string> = {
+    training: 'bg-blue-400',
+    meeting: 'bg-purple-400',
+    deadline: 'bg-red-400',
+    call: 'bg-green-400',
+    general: 'bg-muted-foreground',
+  };
+
+  const getEventsForDay = (day: Date) =>
+    events.filter((e) => isSameDay(new Date(e.event_date), day));
+
+  return (
+    <div className="mb-8">
+      {/* Month nav */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => onMonthChange(subMonths(currentMonth, 1))}
+          className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <h2 className="text-lg font-semibold text-foreground">
+          {format(currentMonth, 'MMMM yyyy')}
+        </h2>
+        <button
+          onClick={() => onMonthChange(addMonths(currentMonth, 1))}
+          className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Day headers */}
+      <div className="grid grid-cols-7 mb-1">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+          <div key={d} className="text-center text-xs font-semibold text-muted-foreground py-2">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div className="grid grid-cols-7 border border-border rounded-lg overflow-hidden">
+        {days.map((day) => {
+          const dayEvents = getEventsForDay(day);
+          const inMonth = isSameMonth(day, currentMonth);
+          const today = isToday(day);
+
+          return (
+            <div
+              key={day.toISOString()}
+              className={cn(
+                "min-h-[90px] p-1.5 border-b border-r border-border last:border-r-0 transition-colors",
+                !inMonth && "bg-muted/30",
+                today && "bg-primary/5",
+              )}
+            >
+              <div className={cn(
+                "text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full",
+                today && "bg-primary text-primary-foreground",
+                !today && inMonth && "text-foreground",
+                !inMonth && "text-muted-foreground/40"
+              )}>
+                {format(day, 'd')}
+              </div>
+              <div className="space-y-0.5">
+                {dayEvents.slice(0, 3).map((event) => (
+                  <button
+                    key={event.id}
+                    onClick={() => onEventClick(event)}
+                    className={cn(
+                      "w-full text-left text-[10px] leading-tight font-medium px-1 py-0.5 rounded truncate transition-colors hover:opacity-80",
+                      event.event_type === 'training' && "bg-blue-500/15 text-blue-400",
+                      event.event_type === 'meeting' && "bg-purple-500/15 text-purple-400",
+                      event.event_type === 'deadline' && "bg-red-500/15 text-red-400",
+                      event.event_type === 'call' && "bg-green-500/15 text-green-400",
+                      (!event.event_type || event.event_type === 'general') && "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {event.title}
+                  </button>
+                ))}
+                {dayEvents.length > 3 && (
+                  <span className="text-[10px] text-muted-foreground px-1">
+                    +{dayEvents.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function CalendarPage() {
   const { role, user, profile } = useAuth();
   const { timezone } = useUserTimezone();
@@ -60,6 +177,8 @@ export default function CalendarPage() {
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'month'>('list');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const isManager = role === 'manager' || role === 'admin';
 
@@ -298,20 +417,58 @@ export default function CalendarPage() {
             </p>
           </div>
 
-          {isManager && (
-            <Button className="gap-2" onClick={() => setIsFormOpen(true)}>
-              <Plus className="w-4 h-4" />
-              Add Event
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* View Toggle */}
+            <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
+              <button
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                  viewMode === 'list' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <List className="w-4 h-4" />
+                List
+              </button>
+              <button
+                onClick={() => setViewMode('month')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                  viewMode === 'month' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <LayoutGrid className="w-4 h-4" />
+                Month
+              </button>
+            </div>
+
+            {isManager && (
+              <Button className="gap-2" onClick={() => setIsFormOpen(true)}>
+                <Plus className="w-4 h-4" />
+                Add Event
+              </Button>
+            )}
+          </div>
         </div>
 
-         {/* Weekly Outlook */}
-         <WeeklyOutlook 
-           events={upcomingEvents}
-           userTeamId={profile?.team_id || null}
-           onEventClick={(event) => setSelectedEvent(event)}
-         />
+        {viewMode === 'month' ? (
+          /* Month at a glance */
+          <MonthView
+            events={events}
+            currentMonth={currentMonth}
+            onMonthChange={setCurrentMonth}
+            onEventClick={(event) => setSelectedEvent(event)}
+            timezone={timezone}
+            getEventTypeBadge={getEventTypeBadge}
+          />
+        ) : (
+          <>
+            {/* Weekly Outlook */}
+            <WeeklyOutlook 
+              events={upcomingEvents}
+              userTeamId={profile?.team_id || null}
+              onEventClick={(event) => setSelectedEvent(event)}
+            />
 
         {/* Upcoming Events */}
         <div className="mb-8">
@@ -529,7 +686,8 @@ export default function CalendarPage() {
             </div>
           </div>
         )}
-
+        </>
+        )}
         {/* Manager Event Form */}
         <ManagerEventForm
           isOpen={isFormOpen}
