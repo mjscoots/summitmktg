@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { MessageReactions } from './MessageReactions';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 
 interface ChatMessage {
   id: string;
@@ -57,6 +58,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
 
   const scrollToBottom = useCallback((smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -163,6 +165,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const content = input.trim();
     const isAiCommand = content.startsWith('@coach');
     setInput('');
+    stopTyping();
     setIsSending(true);
     const currentReplyTo = replyingTo?.id || null;
     setReplyingTo(null);
@@ -515,6 +518,25 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           </div>
         )}
 
+        {/* Typing indicator */}
+        {typingUsers.length > 0 && (
+          <div className="px-4 py-1.5 flex items-center gap-2">
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {typingUsers.length === 1
+                ? `${typingUsers[0].fullName} is typing...`
+                : typingUsers.length === 2
+                  ? `${typingUsers[0].fullName} and ${typingUsers[1].fullName} are typing...`
+                  : `${typingUsers[0].fullName} and ${typingUsers.length - 1} others are typing...`
+              }
+            </span>
+          </div>
+        )}
+
         <div ref={messagesEndRef} className="h-6" />
       </div>
 
@@ -559,7 +581,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             ref={inputRef}
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => { setInput(e.target.value); onTyping(); }}
             onKeyDown={handleKeyDown}
             placeholder={replyingTo ? `Reply to ${getProfile(replyingTo).full_name}...` : "Message #general"}
             className="flex-1 bg-transparent text-foreground text-sm px-4 py-2.5 focus:outline-none placeholder:text-muted-foreground/50"
