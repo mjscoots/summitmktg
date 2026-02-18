@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight, Globe, List, LayoutGrid, ChevronLeft } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Check, X, Users, ChevronDown, ChevronUp, Pencil, Trash2, MapPin, Clock, ChevronRight, Globe, List, LayoutGrid, ChevronLeft, Video, Building2 } from 'lucide-react';
 import { format, isFuture, isPast, isToday, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
 import { useUserTimezone } from '@/hooks/useUserTimezone';
 import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
@@ -48,20 +48,85 @@ interface Attendance {
   };
 }
 
+const isRemoteLocation = (location: string | null) => {
+  if (!location) return false;
+  const lower = location.toLowerCase();
+  return lower.includes('zoom') || lower.includes('meet') || lower.includes('teams') || lower.includes('http') || lower.includes('virtual') || lower.includes('remote') || lower.includes('online') || lower.includes('webex');
+};
+
+function LocationBadge({ location }: { location: string | null }) {
+  const remote = isRemoteLocation(location);
+  if (!location) return null;
+  return (
+    <span className={cn(
+      "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase flex items-center gap-1",
+      remote
+        ? "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,65%)]"
+        : "bg-[hsl(25,90%,55%)]/15 text-[hsl(25,90%,60%)]"
+    )}>
+      {remote ? <Video className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
+      {remote ? 'Remote' : 'In Person'}
+    </span>
+  );
+}
+
+function CalendarLegend() {
+  return (
+    <div className="flex flex-wrap items-center gap-3 mb-6 px-1">
+      <span className="text-xs text-muted-foreground font-medium">Legend:</span>
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="w-2.5 h-2.5 rounded-full bg-[hsl(217,91%,60%)]" /> Training
+      </span>
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="w-2.5 h-2.5 rounded-full bg-[hsl(270,60%,55%)]" /> Meeting
+      </span>
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="w-2.5 h-2.5 rounded-full bg-[hsl(0,72%,51%)]" /> Deadline
+      </span>
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="w-2.5 h-2.5 rounded-full bg-[hsl(142,70%,45%)]" /> Team Call
+      </span>
+      <span className="mx-2 w-px h-4 bg-border" />
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Building2 className="w-3 h-3 text-[hsl(25,90%,60%)]" /> In Person
+      </span>
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Video className="w-3 h-3 text-[hsl(270,60%,65%)]" /> Remote
+      </span>
+    </div>
+  );
+}
+
+const eventAccentColor = (type: string | null) => {
+  switch (type) {
+    case 'training': return 'border-l-[hsl(217,91%,60%)]';
+    case 'meeting': return 'border-l-[hsl(270,60%,55%)]';
+    case 'deadline': return 'border-l-[hsl(0,72%,51%)]';
+    case 'call': return 'border-l-[hsl(142,70%,45%)]';
+    default: return 'border-l-muted-foreground';
+  }
+};
+
+const eventDotColor = (type: string | null) => {
+  switch (type) {
+    case 'training': return 'bg-[hsl(217,91%,60%)]';
+    case 'meeting': return 'bg-[hsl(270,60%,55%)]';
+    case 'deadline': return 'bg-[hsl(0,72%,51%)]';
+    case 'call': return 'bg-[hsl(142,70%,45%)]';
+    default: return 'bg-muted-foreground';
+  }
+};
+
 function MonthView({
   events,
   currentMonth,
   onMonthChange,
   onEventClick,
-  timezone,
-  getEventTypeBadge,
 }: {
   events: CalendarEvent[];
   currentMonth: Date;
   onMonthChange: (d: Date) => void;
   onEventClick: (e: CalendarEvent) => void;
-  timezone: string;
-  getEventTypeBadge: (type: string | null) => React.ReactNode;
 }) {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -69,19 +134,12 @@ function MonthView({
   const calEnd = endOfWeek(monthEnd);
   const days = eachDayOfInterval({ start: calStart, end: calEnd });
 
-  const eventTypeColors: Record<string, string> = {
-    training: 'bg-blue-400',
-    meeting: 'bg-purple-400',
-    deadline: 'bg-red-400',
-    call: 'bg-green-400',
-    general: 'bg-muted-foreground',
-  };
-
   const getEventsForDay = (day: Date) =>
     events.filter((e) => isSameDay(new Date(e.event_date), day));
 
   return (
     <div className="mb-8">
+      <CalendarLegend />
       {/* Month nav */}
       <div className="flex items-center justify-between mb-4">
         <button
@@ -121,9 +179,9 @@ function MonthView({
             <div
               key={day.toISOString()}
               className={cn(
-                "min-h-[90px] p-1.5 border-b border-r border-border last:border-r-0 transition-colors",
+                "min-h-[100px] p-1.5 border-b border-r border-border last:border-r-0 transition-colors",
                 !inMonth && "bg-muted/30",
-                today && "bg-primary/5",
+                today && "bg-primary/5 ring-1 ring-inset ring-primary/20",
               )}
             >
               <div className={cn(
@@ -135,22 +193,29 @@ function MonthView({
                 {format(day, 'd')}
               </div>
               <div className="space-y-0.5">
-                {dayEvents.slice(0, 3).map((event) => (
-                  <button
-                    key={event.id}
-                    onClick={() => onEventClick(event)}
-                    className={cn(
-                      "w-full text-left text-[10px] leading-tight font-medium px-1 py-0.5 rounded truncate transition-colors hover:opacity-80",
-                      event.event_type === 'training' && "bg-blue-500/15 text-blue-400",
-                      event.event_type === 'meeting' && "bg-purple-500/15 text-purple-400",
-                      event.event_type === 'deadline' && "bg-red-500/15 text-red-400",
-                      event.event_type === 'call' && "bg-green-500/15 text-green-400",
-                      (!event.event_type || event.event_type === 'general') && "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {event.title}
-                  </button>
-                ))}
+                {dayEvents.slice(0, 3).map((event) => {
+                  const remote = isRemoteLocation(event.location);
+                  return (
+                    <button
+                      key={event.id}
+                      onClick={() => onEventClick(event)}
+                      className={cn(
+                        "w-full text-left text-[10px] leading-tight font-medium px-1.5 py-0.5 rounded truncate transition-all hover:scale-[1.02] hover:shadow-sm flex items-center gap-1",
+                        eventDotColor(event.event_type).replace('bg-', 'text-').replace(']', '/90]'),
+                      )}
+                      style={{
+                        backgroundColor: `color-mix(in srgb, currentColor 12%, transparent)`,
+                      }}
+                    >
+                      {event.location && (
+                        remote
+                          ? <Video className="w-2.5 h-2.5 shrink-0" />
+                          : <Building2 className="w-2.5 h-2.5 shrink-0" />
+                      )}
+                      <span className="truncate">{event.title}</span>
+                    </button>
+                  );
+                })}
                 {dayEvents.length > 3 && (
                   <span className="text-[10px] text-muted-foreground px-1">
                     +{dayEvents.length - 3} more
@@ -458,8 +523,6 @@ export default function CalendarPage() {
             currentMonth={currentMonth}
             onMonthChange={setCurrentMonth}
             onEventClick={(event) => setSelectedEvent(event)}
-            timezone={timezone}
-            getEventTypeBadge={getEventTypeBadge}
           />
         ) : (
           <>
@@ -472,6 +535,7 @@ export default function CalendarPage() {
 
         {/* Upcoming Events */}
         <div className="mb-8">
+           <CalendarLegend />
            <h2 className="text-lg font-semibold text-foreground mb-4">All Upcoming Events</h2>
           {upcomingEvents.length === 0 ? (
             <div className="text-center py-12 bg-card rounded-lg border border-border">
@@ -506,19 +570,21 @@ export default function CalendarPage() {
                     key={event.id}
                     onClick={() => setSelectedEvent(event)}
                     className={cn(
-                      "p-5 rounded-lg border bg-card cursor-pointer transition-all hover:border-primary/30",
-                      isEventToday && "border-primary/50 bg-primary/5"
+                      "p-5 rounded-lg border border-l-4 bg-card cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5",
+                      eventAccentColor(event.event_type),
+                      isEventToday ? "border-t-primary/50 border-r-primary/50 border-b-primary/50 bg-primary/5 shadow-[0_0_15px_-5px_hsl(var(--primary)/0.2)]" : "hover:border-t-primary/30 hover:border-r-primary/30 hover:border-b-primary/30"
                     )}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           {isEventToday && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground uppercase">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground uppercase animate-pulse">
                               Today
                             </span>
                           )}
                           {getEventTypeBadge(event.event_type)}
+                          <LocationBadge location={event.location} />
                           {event.is_team_wide && (
                             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground uppercase flex items-center gap-1">
                               <Users className="w-3 h-3" />
@@ -527,7 +593,7 @@ export default function CalendarPage() {
                           )}
                         </div>
                         <h3 className="font-semibold text-foreground text-lg mt-2">{event.title}</h3>
-                        <div className="flex items-center gap-4 mt-2 text-sm">
+                        <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
                           <span className="flex items-center gap-1.5 text-primary font-medium">
                             <Clock className="w-4 h-4" />
                             {formatInTimezone(eventDate, timezone, 'EEEE, MMM d')} at {formatInTimezone(eventDate, timezone, 'h:mm a')}
@@ -542,7 +608,7 @@ export default function CalendarPage() {
                           )}
                         </div>
                         {event.description && (
-                          <p className="text-sm text-muted-foreground mt-3">{event.description}</p>
+                          <p className="text-sm text-muted-foreground mt-3 line-clamp-2">{event.description}</p>
                         )}
                       </div>
 
@@ -671,10 +737,11 @@ export default function CalendarPage() {
                 return (
                   <div
                     key={event.id}
-                    className="p-4 rounded-lg border border-border bg-card/50"
+                    className={cn("p-4 rounded-lg border border-l-4 bg-card/50", eventAccentColor(event.event_type))}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       {getEventTypeBadge(event.event_type)}
+                      <LocationBadge location={event.location} />
                     </div>
                     <h3 className="font-medium text-foreground">{event.title}</h3>
                     <p className="text-sm text-muted-foreground">
