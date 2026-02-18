@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus } from 'lucide-react';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { MessageReactions } from './MessageReactions';
 
 interface ChatMessage {
   id: string;
@@ -447,6 +448,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                     )}
                   </div>
                 </div>
+
+                {/* Reactions */}
+                <MessageReactions messageId={msg.id} profileMap={profileMap} />
               </div>
             </div>
           );
