@@ -44,6 +44,7 @@ import WeeklyOneOnOnesPage from "./pages/app/WeeklyOneOnOnesPage";
 import FormsPage from "./pages/app/FormsPage";
 import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
 import TrainingVideosPage from "./pages/app/TrainingVideosPage";
+import ManagerTrainingVideosPage from "./pages/app/ManagerTrainingVideosPage";
 import AdminTeamPage from "./pages/app/AdminTeamPage";
 import VideoPlayerPage from "./pages/app/VideoPlayerPage";
 import ChatPage from "./pages/app/ChatPage";
@@ -160,6 +161,13 @@ const queryClient = new QueryClient();
                <ProtectedRoute>
                  <BootcampGate>
                    <TrainingVideosPage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
+             <Route path="/app/training/manager-videos" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <ManagerTrainingVideosPage />
                  </BootcampGate>
                </ProtectedRoute>
              } />
