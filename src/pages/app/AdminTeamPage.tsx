@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList } from 'lucide-react';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import AdminFeedbackTab from '@/components/admin/AdminFeedbackTab';
+import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -512,7 +513,7 @@ export default function AdminTeamPage() {
           {/* ========== APPROVALS TAB ========== */}
           <TabsContent value="approvals">
             {loading ? (
-              <div className="text-center py-12 text-muted-foreground">Loading...</div>
+              <TableSkeleton columns={7} rows={3} />
             ) : pendingUsers.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <CheckCircle className="w-8 h-8 mx-auto mb-3 text-primary/40" />
@@ -567,7 +568,7 @@ export default function AdminTeamPage() {
             </div>
 
             {loading ? (
-              <div className="text-center py-12 text-muted-foreground">Loading...</div>
+              <TableSkeleton columns={7} rows={8} />
             ) : (
               <div className="border border-white/10 rounded-lg overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm">
