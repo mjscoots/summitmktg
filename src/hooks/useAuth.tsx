@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.warn('Auth loading timeout - forcing isLoading to false');
         setIsLoading(false);
       }
-    }, 8000);
+    }, 4000);
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

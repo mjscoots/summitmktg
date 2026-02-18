@@ -210,23 +210,44 @@ export default function AdminTeamPage() {
 
   // ============ APPROVAL HANDLERS ============
   const handleApprove = async (userId: string) => {
+    // Optimistic: move user from pending to approved list immediately
+    const approvedUser = pendingUsers.find(u => u.user_id === userId);
+    if (approvedUser) {
+      setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
+      setReps(prev => [{ ...approvedUser, status: 'active', approved: true }, ...prev]);
+    }
+    toast({ title: 'User Approved' });
     try {
       const { error } = await supabase.functions.invoke('admin-approve-user', { body: { action: 'approve', user_id: userId } });
       if (error) throw error;
-      toast({ title: 'User Approved' });
+      // Background refresh for consistency
       fetchData();
     } catch (err: any) {
+      // Revert on failure
+      if (approvedUser) {
+        setPendingUsers(prev => [approvedUser, ...prev]);
+        setReps(prev => prev.filter(u => u.user_id !== userId));
+      }
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
   const handleReject = async (userId: string) => {
+    // Optimistic: remove from pending immediately
+    const rejectedUser = pendingUsers.find(u => u.user_id === userId);
+    if (rejectedUser) {
+      setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
+    }
+    toast({ title: 'User Rejected' });
     try {
       const { error } = await supabase.functions.invoke('admin-approve-user', { body: { action: 'reject', user_id: userId } });
       if (error) throw error;
-      toast({ title: 'User Rejected' });
       fetchData();
     } catch (err: any) {
+      // Revert on failure
+      if (rejectedUser) {
+        setPendingUsers(prev => [rejectedUser, ...prev]);
+      }
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };

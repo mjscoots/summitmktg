@@ -102,34 +102,38 @@ export function useTeamData(): TeamData {
           return;
         }
 
-        // Get training progress for each member
-        const membersWithProgress = await Promise.all(
-          (membersData || []).map(async (member) => {
-            // Get total lessons (use a reasonable approximation)
-            const { count: totalLessons } = await supabase
-              .from('training_lessons')
-              .select('*', { count: 'exact', head: true })
-              .eq('is_active', true);
+        // Get training progress with batch queries instead of N+1
+        const memberUserIds = (membersData || []).map(m => m.user_id);
 
-            // Get completed lessons for this user
-            const { count: completedLessons } = await supabase
-              .from('lesson_progress')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', member.user_id)
-              .not('completed_at', 'is', null);
+        const [{ count: totalLessons }, { data: progressData }] = await Promise.all([
+          supabase
+            .from('training_lessons')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_active', true),
+          supabase
+            .from('lesson_progress')
+            .select('user_id')
+            .in('user_id', memberUserIds.length > 0 ? memberUserIds : ['__none__'])
+            .not('completed_at', 'is', null),
+        ]);
 
-            const total = totalLessons || 0;
-            const completed = completedLessons || 0;
-            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const total = totalLessons || 0;
+        // Count completions per user
+        const completionMap = new Map<string, number>();
+        (progressData || []).forEach(p => {
+          completionMap.set(p.user_id, (completionMap.get(p.user_id) || 0) + 1);
+        });
 
-            return {
-              ...member,
-              trainingProgress: progress,
-              totalLessons: total,
-              completedLessons: completed,
-            };
-          })
-        );
+        const membersWithProgress = (membersData || []).map(member => {
+          const completed = completionMap.get(member.user_id) || 0;
+          const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+          return {
+            ...member,
+            trainingProgress: progress,
+            totalLessons: total,
+            completedLessons: completed,
+          };
+        });
 
         setMembers(membersWithProgress);
       } catch (err) {
