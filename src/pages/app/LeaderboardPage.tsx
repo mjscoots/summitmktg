@@ -4,6 +4,7 @@ import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboar
 import { SigningsLeaderboard } from '@/components/leaderboard/SigningsLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { Trophy } from 'lucide-react';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 
 type LeaderboardTab = 'training' | 'streak';
@@ -19,6 +20,9 @@ export default function LeaderboardPage() {
   return (
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 py-6">
+        {/* Back Button */}
+        <PageBackButton to="/app" label="Dashboard" />
+
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-lg bg-success/15">

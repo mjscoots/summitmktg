@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Pencil, ExternalLink, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
 
@@ -53,6 +54,9 @@ export default function FormsPage() {
   return (
     <AppLayout>
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Back Button */}
+        <PageBackButton to="/app" label="Dashboard" />
+
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
