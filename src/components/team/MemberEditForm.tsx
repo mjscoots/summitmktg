@@ -320,20 +320,7 @@ export function MemberEditForm({
       if (formData.status !== (member.status === 'nlc' ? 'nlc' : 'active')) changes.push(`Status: ${member.status} → ${formData.status}`);
       if (formData.direct_manager?.full_name !== member.direct_manager) changes.push(`Manager: ${member.direct_manager || '—'} → ${formData.direct_manager?.full_name}`);
 
-      if (changes.length > 0) {
-        const { data: currentProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-          .single();
-
-        await supabase.from('user_notifications').insert({
-          user_id: member.user_id,
-          title: 'Your profile was updated',
-          message: `${getDisplayName(currentProfile?.full_name || 'A manager')} updated your profile:\n${changes.join('\n')}`,
-          link: '/app/profile',
-        });
-      }
+      // Profile update notification removed — only key events trigger notifications
 
       toast.success('Profile updated successfully!');
       onSave();

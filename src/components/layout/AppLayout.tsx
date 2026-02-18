@@ -8,6 +8,7 @@ import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { StatusBar } from './StatusBar';
 import { AdminBadge } from '@/components/admin/AdminBadge';
 import { Mountain } from 'lucide-react';
+import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { role } = useAuth();
   const isManager = role === 'manager' || role === 'admin';
+  useSmartNotifications();
 
   return (
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
