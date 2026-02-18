@@ -117,7 +117,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 .eq('is_active', true);
               
               if (isManagerVideoCourse) {
-                videoQuery = videoQuery.in('category', ['Advanced Training', 'Manager Training']);
+                videoQuery = videoQuery.in('category', ['Advanced Training', 'Manager Training', 'Zoom Trainings']);
               } else {
                 videoQuery = videoQuery.eq('is_required', true);
               }

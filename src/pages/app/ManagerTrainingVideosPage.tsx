@@ -15,7 +15,7 @@ import type { Database } from '@/integrations/supabase/types';
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
 // Manager video categories
-const MANAGER_CATEGORIES = ['All Videos', 'Advanced Training', 'Manager Training'];
+const MANAGER_CATEGORIES = ['All Videos', 'Advanced Training', 'Manager Training', 'Zoom Trainings'];
 
 export default function ManagerTrainingVideosPage() {
   const { user, role } = useAuth();
@@ -38,7 +38,7 @@ export default function ManagerTrainingVideosPage() {
           .from('training_videos')
           .select('*')
           .eq('is_active', true)
-          .in('category', ['Advanced Training', 'Manager Training'])
+          .in('category', ['Advanced Training', 'Manager Training', 'Zoom Trainings'])
           .order('display_order')
           .order('created_at', { ascending: false });
 
