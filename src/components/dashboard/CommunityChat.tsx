@@ -22,6 +22,7 @@ interface ProfileInfo {
   full_name: string;
   avatar_url: string | null;
   role?: string;
+  is_active_now?: boolean;
 }
 
 interface CommunityChatProps {
@@ -87,7 +88,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
       if (userIds.length > 0) {
         const [profilesRes, rolesRes] = await Promise.all([
-          supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', userIds),
+          supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now').in('user_id', userIds),
           supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
         ]);
 
@@ -99,6 +100,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           map[p.user_id] = {
             full_name: p.full_name,
             avatar_url: p.avatar_url,
+            is_active_now: p.is_active_now,
             role: roleMap[p.user_id],
           };
         });
@@ -123,7 +125,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
           if (!newMsg.is_ai && !profileMap[newMsg.user_id]) {
             const [pRes, rRes] = await Promise.all([
-              supabase.from('profiles').select('user_id, full_name, avatar_url').eq('user_id', newMsg.user_id).maybeSingle(),
+              supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now').eq('user_id', newMsg.user_id).maybeSingle(),
               supabase.from('user_roles').select('role').eq('user_id', newMsg.user_id).maybeSingle(),
             ]);
             if (pRes.data) {
@@ -132,6 +134,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 [pRes.data!.user_id]: {
                   full_name: pRes.data!.full_name,
                   avatar_url: pRes.data!.avatar_url,
+                  is_active_now: pRes.data!.is_active_now,
                   role: rRes.data?.role,
                 },
               }));
@@ -407,6 +410,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           avatarUrl={msgProfile.avatar_url}
                           fullName={msgProfile.full_name}
                           size="md"
+                          showOnline
+                          isOnline={msgProfile.is_active_now}
                         />
                       )
                     ) : (
