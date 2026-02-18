@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useBootcamp } from '@/hooks/useBootcamp';
+import { ProfileCompletionGate } from '@/components/ProfileCompletionGate';
 import { Loader2 } from 'lucide-react';
 
 interface BootcampGateProps {
@@ -8,8 +9,9 @@ interface BootcampGateProps {
 }
 
 /**
- * Wraps protected app routes to enforce bootcamp completion for rookies.
- * Managers/admins bypass automatically.
+ * Wraps protected app routes to enforce bootcamp completion for rookies,
+ * then profile completion for all users.
+ * Managers/admins bypass bootcamp automatically but still need profile.
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading } = useBootcamp();
@@ -32,5 +34,6 @@ export function BootcampGate({ children }: BootcampGateProps) {
     return <Navigate to="/bootcamp-lock" replace />;
   }
 
-  return <>{children}</>;
+  // After bootcamp is complete, enforce profile completion
+  return <ProfileCompletionGate>{children}</ProfileCompletionGate>;
 }
