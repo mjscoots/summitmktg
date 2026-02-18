@@ -34,7 +34,7 @@ export default function TrainingPage() {
         // For rookies: Learn Your Pitch + Summer Sales Manual
         // For managers: Manager Manual + Recruiting Resources (learn-the-basics)
         const requiredSlugs = isManager 
-          ? ['manager-manual', 'learn-the-basics']
+          ? ['manager-manual', 'management-basics']
           : ['learn-your-pitch', 'summer-sales-manual'];
 
         const { data: courses } = await supabase
