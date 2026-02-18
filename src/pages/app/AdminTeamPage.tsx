@@ -797,6 +797,7 @@ export default function AdminTeamPage() {
                   <div className="border border-white/10 rounded-lg divide-y divide-white/5">
                     {[
                       { key: 'bootcamp_required', label: 'Boot Camp Required', desc: 'Require rookies to complete Boot Camp before app access' },
+                      { key: 'bootcamp_skip_allowed', label: 'Allow Boot Camp Skip', desc: 'Show a "Skip for Now" button so reps can bypass boot camp temporarily' },
                       { key: 'approval_required', label: 'Approval Required', desc: 'Require admin approval for new sign-ups' },
                       { key: 'public_signups', label: 'Public Sign-Ups', desc: 'Allow new users to sign up from the login page' },
                       { key: 'maintenance_mode', label: 'Maintenance Mode', desc: 'Disable entire app for all non-admin users' },
