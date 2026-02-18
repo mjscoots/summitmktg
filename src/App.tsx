@@ -43,7 +43,7 @@ import Interview2Page from "./pages/app/Interview2Page";
 import Interview3Page from "./pages/app/Interview3Page";
 import WeeklyOneOnOnesPage from "./pages/app/WeeklyOneOnOnesPage";
 import FormsPage from "./pages/app/FormsPage";
-import AdminTrainingEditor from "./pages/app/AdminTrainingEditor";
+
 import TrainingVideosPage from "./pages/app/TrainingVideosPage";
 import ManagerTrainingVideosPage from "./pages/app/ManagerTrainingVideosPage";
 import AdminTeamPage from "./pages/app/AdminTeamPage";
@@ -268,12 +268,6 @@ const queryClient = new QueryClient();
             {/* Weekly 1:1's - redirect to forms */}
             <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />
             
-            {/* Admin Training Editor */}
-            <Route path="/app/admin/training" element={
-              <ProtectedRoute requiredRole="manager">
-                <AdminTrainingEditor />
-              </ProtectedRoute>
-            } />
 
             {/* Admin Team Management */}
             <Route path="/admin/team" element={

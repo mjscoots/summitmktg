@@ -73,7 +73,7 @@ export function QuickActions() {
       icon: <Settings className="w-4 h-4" />,
       label: 'Training CMS',
       shortLabel: 'CMS',
-      onClick: () => navigate('/app/admin/training'),
+      onClick: () => navigate('/app/admin'),
       adminOnly: true,
     },
   ];
