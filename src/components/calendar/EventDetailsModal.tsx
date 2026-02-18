@@ -23,7 +23,9 @@ import {
   RefreshCcw,
   ExternalLink,
   Pencil,
-  Trash2
+  Trash2,
+  Video,
+  Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -186,6 +188,21 @@ export function EventDetailsModal({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 {getEventTypeBadge(event.event_type)}
+                {event.location && (() => {
+                  const loc = event.location!.toLowerCase();
+                  const remote = loc.includes('zoom') || loc.includes('meet') || loc.includes('teams') || loc.includes('http') || loc.includes('virtual') || loc.includes('remote') || loc.includes('online');
+                  return (
+                    <span className={cn(
+                      "text-xs font-semibold px-2.5 py-1 rounded-full uppercase flex items-center gap-1",
+                      remote
+                        ? "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,65%)]"
+                        : "bg-[hsl(25,90%,55%)]/15 text-[hsl(25,90%,60%)]"
+                    )}>
+                      {remote ? <Video className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
+                      {remote ? 'Remote' : 'In Person'}
+                    </span>
+                  );
+                })()}
                 {event.is_team_wide && (
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-muted text-muted-foreground uppercase flex items-center gap-1">
                     <Users className="w-3 h-3" />
