@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useRookieView } from '@/contexts/RookieViewContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { AnnouncementsFeed } from '@/components/dashboard/AnnouncementsFeed';
@@ -12,14 +13,15 @@ import { Bell, Calendar, GraduationCap, Trophy } from 'lucide-react';
 
 export default function RookieDashboardPage() {
   const { role, isLoading } = useAuth();
+  const { isImpersonating } = useRookieView();
   const navigate = useNavigate();
 
-  // Redirect managers to their dashboard
+  // Redirect managers to their dashboard (unless impersonating)
   useEffect(() => {
-    if (!isLoading && (role === 'manager' || role === 'admin')) {
+    if (!isLoading && !isImpersonating && (role === 'manager' || role === 'admin')) {
       navigate('/app/manager', { replace: true });
     }
-  }, [role, isLoading, navigate]);
+  }, [role, isLoading, isImpersonating, navigate]);
 
   if (isLoading) {
     return (

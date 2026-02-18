@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { StatusBar } from './StatusBar';
 import { AdminBadge } from '@/components/admin/AdminBadge';
+import { ImpersonationBanner } from './ImpersonationBanner';
 import { Mountain } from 'lucide-react';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 
@@ -25,6 +26,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
       <SidebarProvider defaultOpen={true}>
         <AdminBadge />
+        <ImpersonationBanner />
         <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0">

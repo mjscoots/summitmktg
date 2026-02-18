@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -13,6 +14,7 @@ import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import AdminFeedbackTab from '@/components/admin/AdminFeedbackTab';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { useRookieView } from '@/contexts/RookieViewContext';
 import {
   Dialog,
   DialogContent,
@@ -85,6 +87,8 @@ const SUPER_ADMIN_EMAIL = 'mjscoots9@gmail.com';
 
 export default function AdminTeamPage() {
   const { role, profile } = useAuth();
+  const navigate = useNavigate();
+  const { startImpersonating } = useRookieView();
   const isAdmin = role === 'admin';
   const isSuperAdmin = profile?.email === SUPER_ADMIN_EMAIL;
   const [reps, setReps] = useState<RepRow[]>([]);
@@ -598,6 +602,7 @@ export default function AdminTeamPage() {
                         {isAdmin && (
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1">
+                              <button onClick={() => { startImpersonating({ user_id: rep.user_id, full_name: rep.full_name, email: rep.email }); navigate('/app/rookie'); }} className="p-1.5 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
                               <button onClick={() => openEditModal(rep)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
                               <button onClick={() => handleResetPassword(rep.email)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Reset Password"><RotateCcw className="w-3.5 h-3.5" /></button>
                               <button onClick={() => handleSendResetEmail(rep.email, rep.full_name)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Reset & Email"><Mail className="w-3.5 h-3.5" /></button>
