@@ -35,6 +35,7 @@ import { TeamNotificationBanners } from '@/components/team/TeamNotificationBanne
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 
 interface TeamPillar {
   name: string;
@@ -412,6 +413,7 @@ export default function TeamPage() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <PageBackButton to="/app" label="Dashboard" />
         <TeamNotificationBanners teamName="the team" roster={rosterForBanners} />
 
         {/* Header */}

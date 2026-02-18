@@ -3,8 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { Bell, Pin, Clock } from 'lucide-react';
+import { Bell, Pin, Clock, ChevronLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface Announcement {
   id: string;
@@ -17,6 +18,7 @@ interface Announcement {
 
 export default function AnnouncementsPage() {
   const { role } = useAuth();
+  const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -59,6 +61,15 @@ export default function AnnouncementsPage() {
         <DashboardHeader />
 
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate('/app')}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-4 -ml-1 transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Dashboard
+          </button>
+
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Bell className="w-6 h-6 text-primary" />

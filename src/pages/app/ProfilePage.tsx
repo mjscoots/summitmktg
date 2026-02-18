@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezones';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
@@ -212,6 +213,9 @@ export default function ProfilePage() {
   return (
     <AppLayout>
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+        {/* Back Button */}
+        <PageBackButton to="/app" label="Dashboard" />
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-foreground">My Profile</h1>
