@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 
 /**
  * Smart notification generator that creates in-app notifications for:
@@ -13,17 +14,18 @@ import { useAuth } from '@/hooks/useAuth';
  */
 export function useSmartNotifications() {
   const { user, role } = useAuth();
+  const { prefs, loaded } = useNotificationPreferences(user?.id);
   const hasCheckedRef = useRef(false);
   const isManager = role === 'manager' || role === 'admin';
 
   useEffect(() => {
-    if (!user?.id || hasCheckedRef.current) return;
+    if (!user?.id || hasCheckedRef.current || !loaded) return;
     hasCheckedRef.current = true;
 
-    // Run all checks in parallel
-    checkUnreadChatMessages();
-    checkLeaderboardChanges();
-    checkUpcomingEvents();
+    // Run checks based on preferences
+    if (prefs.chat_mentions) checkUnreadChatMessages();
+    if (prefs.leaderboard) checkLeaderboardChanges();
+    if (prefs.calendar_events) checkUpcomingEvents();
 
     // Only managers get new-rep-join notifications
     let cleanupSub: (() => void) | undefined;
@@ -34,7 +36,7 @@ export function useSmartNotifications() {
     return () => {
       cleanupSub?.();
     };
-  }, [user?.id, isManager]);
+  }, [user?.id, isManager, loaded, prefs]);
 
   // ─── 3. 10+ unread chat messages ────────────────────────────
   const checkUnreadChatMessages = async () => {

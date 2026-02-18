@@ -668,6 +668,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          bootcamp_reminders: boolean
+          calendar_events: boolean
+          chat_mentions: boolean
+          created_at: string
+          id: string
+          leaderboard: boolean
+          streak_milestones: boolean
+          training_quiz: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bootcamp_reminders?: boolean
+          calendar_events?: boolean
+          chat_mentions?: boolean
+          created_at?: string
+          id?: string
+          leaderboard?: boolean
+          streak_milestones?: boolean
+          training_quiz?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bootcamp_reminders?: boolean
+          calendar_events?: boolean
+          chat_mentions?: boolean
+          created_at?: string
+          id?: string
+          leaderboard?: boolean
+          streak_milestones?: boolean
+          training_quiz?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           approved: boolean | null

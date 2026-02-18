@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezones';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
+import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 
 export default function ProfilePage() {
   const { user, profile, role, isLoading: authLoading } = useAuth();
@@ -369,6 +370,11 @@ export default function ProfilePage() {
               )}
             </Button>
           </div>
+        </div>
+
+        {/* Notification Preferences */}
+        <div className="mb-6">
+          <NotificationPreferences />
         </div>
 
         {/* Change Password */}
