@@ -387,6 +387,7 @@ export type Database = {
           created_at: string
           id: string
           is_ai: boolean
+          reply_to: string | null
           user_id: string
         }
         Insert: {
@@ -394,6 +395,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_ai?: boolean
+          reply_to?: string | null
           user_id: string
         }
         Update: {
@@ -401,9 +403,18 @@ export type Database = {
           created_at?: string
           id?: string
           is_ai?: boolean
+          reply_to?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_reactions: {
         Row: {

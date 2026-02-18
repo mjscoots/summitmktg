@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight } from 'lucide-react';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ interface ChatMessage {
   content: string;
   is_ai: boolean;
   created_at: string;
+  reply_to: string | null;
 }
 
 interface ProfileInfo {
@@ -50,6 +51,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
@@ -161,12 +164,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const isAiCommand = content.startsWith('@coach');
     setInput('');
     setIsSending(true);
+    const currentReplyTo = replyingTo?.id || null;
+    setReplyingTo(null);
 
     try {
       const { error } = await supabase.from('chat_messages').insert({
         user_id: user.id,
         content: isAiCommand ? content.replace('@coach', '').trim() : content,
         is_ai: false,
+        reply_to: currentReplyTo,
       });
 
       if (error) throw error;
@@ -284,6 +290,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   // Discord-style grouping: same sender within 5 minutes
   const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
     if (!prev) return false;
+    if (curr.reply_to) return false; // replies always break grouping
     if (curr.is_ai !== prev.is_ai) return false;
     if (curr.user_id !== prev.user_id) return false;
     const diff = new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime();
@@ -346,15 +353,23 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
 
               <div
+                id={`msg-${msg.id}`}
                 className={cn(
                   "group/msg relative px-4 hover:bg-muted/30 transition-colors",
                   grouped ? "py-0.5" : "pt-3 pb-0.5",
                   isOwnMessage(msg) && "hover:bg-primary/5"
                 )}
               >
-                {/* Edit/Delete toolbar - Discord style floating */}
-                {(isOwnMessage(msg) || isAdmin) && !msg.is_ai && (
+                {/* Toolbar - Discord style floating */}
+                {!msg.is_ai && (
                   <div className="absolute -top-3 right-4 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border rounded-md shadow-lg px-0.5 py-0.5 z-10">
+                    <button
+                      onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }}
+                      className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
+                      title="Reply"
+                    >
+                      <Reply className="w-3.5 h-3.5" />
+                    </button>
                     {isOwnMessage(msg) && (
                       <button
                         onClick={() => { setEditingId(msg.id); setEditText(msg.content); }}
@@ -364,13 +379,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                     )}
-                    <button
-                      onClick={() => handleDelete(msg.id)}
-                      className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {(isOwnMessage(msg) || isAdmin) && (
+                      <button
+                        onClick={() => handleDelete(msg.id)}
+                        className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -399,6 +416,27 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
                   {/* Content column */}
                   <div className="flex-1 min-w-0">
+                    {/* Reply context */}
+                    {msg.reply_to && (() => {
+                      const parentMsg = messages.find(m => m.id === msg.reply_to);
+                      if (!parentMsg) return null;
+                      const parentProfile = getProfile(parentMsg);
+                      return (
+                        <div className="flex items-center gap-1.5 mb-1 text-xs cursor-pointer hover:text-foreground/80 transition-colors"
+                             onClick={() => {
+                               document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                             }}>
+                          <CornerDownRight className="w-3 h-3 text-muted-foreground/60 flex-shrink-0" />
+                          <span className={cn("font-semibold text-[11px]", parentMsg.is_ai ? 'text-primary' : getRoleColor(parentProfile.role))}>
+                            {parentProfile.full_name}
+                          </span>
+                          <span className="text-muted-foreground/60 truncate max-w-[200px]">
+                            {parentMsg.content}
+                          </span>
+                        </div>
+                      );
+                    })()}
+
                     {/* Name + timestamp header (non-grouped only) */}
                     {!grouped && (
                       <div className="flex items-baseline gap-2 mb-0.5">
@@ -494,13 +532,36 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Input - Discord style */}
       <div className="px-4 pb-4 pt-1 flex-shrink-0">
-        <div className="flex items-center gap-0 bg-muted/60 rounded-lg border border-border/50 focus-within:border-primary/40 transition-colors">
+        {/* Reply preview bar */}
+        {replyingTo && (
+          <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/40 rounded-t-lg border border-b-0 border-border/50 text-xs">
+            <Reply className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            <span className="text-muted-foreground">Replying to</span>
+            <span className="font-semibold text-foreground truncate">
+              {getProfile(replyingTo).full_name}
+            </span>
+            <span className="text-muted-foreground/60 truncate flex-1 max-w-[200px]">
+              {replyingTo.content}
+            </span>
+            <button
+              onClick={() => setReplyingTo(null)}
+              className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors ml-auto flex-shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+        <div className={cn(
+          "flex items-center gap-0 bg-muted/60 border border-border/50 focus-within:border-primary/40 transition-colors",
+          replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-lg"
+        )}>
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message #general"
+            placeholder={replyingTo ? `Reply to ${getProfile(replyingTo).full_name}...` : "Message #general"}
             className="flex-1 bg-transparent text-foreground text-sm px-4 py-2.5 focus:outline-none placeholder:text-muted-foreground/50"
             disabled={isSending || isAiLoading}
           />
