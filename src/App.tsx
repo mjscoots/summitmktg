@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,8 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
- import { RookieViewProvider } from "@/contexts/RookieViewContext";
- import { useActivityTracking } from "@/hooks/useActivityTracking";
+import { RookieViewProvider } from "@/contexts/RookieViewContext";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { toast } from "sonner";
 
 // Public pages
 import Index from "./pages/Index";
@@ -50,6 +53,31 @@ const queryClient = new QueryClient();
  function AppContent() {
    // Initialize activity tracking
    useActivityTracking();
+
+   // Global unhandled rejection handler - prevents silent black screens on mobile
+   useEffect(() => {
+     const handleRejection = (event: PromiseRejectionEvent) => {
+       console.error("Unhandled promise rejection:", event.reason);
+       // Don't show toast for auth refresh errors (expected on stale sessions)
+       const msg = String(event.reason?.message || event.reason || "");
+       if (!msg.includes("Refresh Token") && !msg.includes("JWT")) {
+         toast.error("Something went wrong. Please try refreshing.");
+       }
+       event.preventDefault();
+     };
+
+     const handleError = (event: ErrorEvent) => {
+       console.error("Unhandled error:", event.error);
+       event.preventDefault();
+     };
+
+     window.addEventListener("unhandledrejection", handleRejection);
+     window.addEventListener("error", handleError);
+     return () => {
+       window.removeEventListener("unhandledrejection", handleRejection);
+       window.removeEventListener("error", handleError);
+     };
+   }, []);
  
    return (
      <TooltipProvider>
@@ -249,13 +277,15 @@ const queryClient = new QueryClient();
  }
  
  const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <RookieViewProvider>
-         <AppContent />
-      </RookieViewProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RookieViewProvider>
+           <AppContent />
+        </RookieViewProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -99,20 +99,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    // Safety timeout: never stay in loading state forever (prevents black screen on mobile)
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && isLoading) {
+        console.warn('Auth loading timeout - forcing isLoading to false');
+        setIsLoading(false);
+      }
+    }, 8000);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
           // Defer database calls to avoid race conditions
           setTimeout(async () => {
-            const userProfile = await fetchProfile(session.user.id);
-            const userRole = await fetchUserRole(session.user.id);
-            setProfile(userProfile);
-            setRole(userRole);
-            setIsLoading(false);
+            try {
+              const userProfile = await fetchProfile(session.user.id);
+              const userRole = await fetchUserRole(session.user.id);
+              if (mounted) {
+                setProfile(userProfile);
+                setRole(userRole);
+                setIsLoading(false);
+              }
+            } catch (err) {
+              console.error('Error loading user data:', err);
+              if (mounted) setIsLoading(false);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -124,23 +142,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // THEN get the current session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        fetchProfile(session.user.id).then((userProfile) => {
-          fetchUserRole(session.user.id).then((userRole) => {
+        Promise.all([
+          fetchProfile(session.user.id),
+          fetchUserRole(session.user.id),
+        ]).then(([userProfile, userRole]) => {
+          if (mounted) {
             setProfile(userProfile);
             setRole(userRole);
             setIsLoading(false);
-          });
+          }
+        }).catch((err) => {
+          console.error('Error loading initial user data:', err);
+          if (mounted) setIsLoading(false);
         });
       } else {
         setIsLoading(false);
       }
+    }).catch((err) => {
+      console.error('Error getting session:', err);
+      if (mounted) setIsLoading(false);
     });
 
     return () => {
+      mounted = false;
+      clearTimeout(loadingTimeout);
       subscription.unsubscribe();
     };
   }, []);
