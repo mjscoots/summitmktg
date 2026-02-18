@@ -282,7 +282,7 @@ export default function TrainingCoursePage() {
                             ? "text-green-400 bg-green-500/10"
                             : "text-blue-400 bg-blue-500/10"
                       )}>
-                        {isModuleComplete ? '✓' : `Module ${moduleIndex + 1}`}
+                        {isModuleComplete ? '✓' : `Chapter ${moduleIndex + 1}`}
                       </span>
                       <h3 className={cn(
                         "font-semibold",

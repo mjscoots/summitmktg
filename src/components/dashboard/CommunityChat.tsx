@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, MessageSquare, Bot, Loader2, Pencil, Trash2, X, Check } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { Button } from '@/components/ui/button';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown } from 'lucide-react';
+import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ChatMessage {
   id: string;
@@ -19,6 +19,20 @@ interface CommunityChatProps {
   onNewMessage?: () => void;
 }
 
+function DateSeparator({ date }: { date: Date }) {
+  let label = format(date, 'EEEE, MMMM d');
+  if (isToday(date)) label = 'Today';
+  else if (isYesterday(date)) label = 'Yesterday';
+
+  return (
+    <div className="flex items-center justify-center my-3">
+      <span className="text-[10px] font-medium text-muted-foreground bg-muted/60 px-3 py-1 rounded-full">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -30,9 +44,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, string>>({});
+  const [showScrollDown, setShowScrollDown] = useState(false);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = useCallback((smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 100);
   }, []);
 
   // Fetch messages
@@ -49,7 +70,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         return;
       }
 
-      // Fetch profile names
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
@@ -78,7 +98,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         async (payload) => {
           const newMsg = payload.new as ChatMessage;
           
-          // Fetch name if needed
           if (!newMsg.is_ai && !profileMap[newMsg.user_id]) {
             const { data: p } = await supabase
               .from('profiles')
@@ -95,7 +114,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             return [...prev, newMsg];
           });
 
-          // Notify parent if message is from someone else
           if (newMsg.user_id !== user?.id) {
             onNewMessage?.();
           }
@@ -109,7 +127,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   }, [user?.id, onNewMessage, profileMap]);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(false);
   }, [messages, scrollToBottom]);
 
   const handleSend = async () => {
@@ -121,7 +139,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setIsSending(true);
 
     try {
-      // Insert chat message
       const { error } = await supabase.from('chat_messages').insert({
         user_id: user.id,
         content: isAiCommand ? content.replace('@coach', '').trim() : content,
@@ -130,7 +147,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       if (error) throw error;
 
-      // If AI command, get AI response
       if (isAiCommand) {
         setIsAiLoading(true);
         const userQuestion = content.replace('@coach', '').trim();
@@ -157,7 +173,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
           if (!response.ok) throw new Error('AI request failed');
 
-          // Parse streaming response to get full text
           const reader = response.body?.getReader();
           if (!reader) throw new Error('No response body');
 
@@ -190,7 +205,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             }
           }
 
-          // Insert AI response as chat message
           if (aiContent) {
             await supabase.from('chat_messages').insert({
               user_id: user.id,
@@ -243,135 +257,210 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const isOwnMessage = (msg: ChatMessage) => msg.user_id === user?.id && !msg.is_ai;
   const isAdmin = role === 'admin';
 
+  // Check if consecutive messages are from the same sender (for grouping)
+  const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
+    if (!prev) return false;
+    if (curr.is_ai !== prev.is_ai) return false;
+    if (curr.user_id !== prev.user_id) return false;
+    // Group within 2 minutes
+    const diff = new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime();
+    return diff < 2 * 60 * 1000;
+  };
+
   return (
-    <div className="bg-card rounded-lg border border-border/50 h-full flex flex-col">
-      {/* Header */}
-      <div className="p-3 border-b border-border/30 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold text-sm text-foreground">Team Chat</h2>
-          <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-            @coach for AI
-          </span>
+    <div className="h-full flex flex-col bg-background rounded-2xl overflow-hidden">
+      {/* Header - iMessage style */}
+      <div className="px-4 py-3 border-b border-border/40 bg-card/80 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="font-semibold text-foreground">Team Chat</h2>
         </div>
+        <p className="text-center text-[10px] text-muted-foreground mt-0.5">
+          Type <span className="font-mono text-primary">@coach</span> to ask the AI
+        </p>
       </div>
 
-      {/* Messages */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
+      {/* Messages - iMessage bubble style */}
+      <div 
+        ref={containerRef} 
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-3 min-h-0 relative"
+      >
         {messages.length === 0 && (
-          <div className="text-center py-8">
-            <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No messages yet</p>
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+              <Send className="w-7 h-7 text-primary" />
+            </div>
+            <p className="text-sm font-medium text-foreground">No messages yet</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Type <span className="font-mono text-primary">@coach</span> to ask the AI
+              Start a conversation with your team
             </p>
           </div>
         )}
 
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col ${isOwnMessage(msg) ? 'items-end' : 'items-start'} group/msg`}
-          >
-            <div className="flex items-center gap-1.5 mb-0.5">
-              {msg.is_ai && <Bot className="w-3 h-3 text-primary" />}
-              <span className={`text-[10px] font-medium ${
-                msg.is_ai ? 'text-primary' : 'text-muted-foreground'
-              }`}>
-                {getDisplayName(msg)}
-              </span>
-              <span className="text-[9px] text-muted-foreground/60">
-                {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-              </span>
-            </div>
+        {messages.map((msg, idx) => {
+          const prev = idx > 0 ? messages[idx - 1] : null;
+          const grouped = isSameSender(msg, prev);
+          const own = isOwnMessage(msg);
+          const showDate = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at));
 
-            {editingId === msg.id ? (
-              <div className="max-w-[85%] w-full flex gap-1.5">
-                <input
-                  type="text"
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }}
-                  className="flex-1 bg-muted text-foreground text-sm px-2.5 py-1.5 rounded-lg border border-primary/50 focus:outline-none"
-                  autoFocus
-                />
-                <button onClick={() => handleEdit(msg.id)} className="p-1 text-primary hover:bg-primary/10 rounded"><Check className="w-3.5 h-3.5" /></button>
-                <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:bg-muted rounded"><X className="w-3.5 h-3.5" /></button>
-              </div>
-            ) : (
-              <div className="relative max-w-[85%]">
-                <div className={`rounded-lg px-3 py-2 text-sm ${
-                  msg.is_ai
-                    ? 'bg-primary/10 border border-primary/20 text-foreground'
-                    : isOwnMessage(msg)
-                      ? 'bg-muted text-foreground'
-                      : 'bg-card border border-border text-foreground'
-                }`}>
-                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                </div>
-                {/* Edit/Delete controls */}
-                {(isOwnMessage(msg) || isAdmin) && !msg.is_ai && (
-                  <div className="absolute -top-1 right-0 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border rounded-md shadow-sm px-0.5 py-0.5">
-                    {isOwnMessage(msg) && (
-                      <button
-                        onClick={() => { setEditingId(msg.id); setEditText(msg.content); }}
-                        className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </button>
+          return (
+            <div key={msg.id}>
+              {showDate && <DateSeparator date={new Date(msg.created_at)} />}
+              
+              <div className={cn(
+                "flex flex-col group/msg",
+                own ? "items-end" : "items-start",
+                grouped ? "mt-0.5" : "mt-3"
+              )}>
+                {/* Sender name - only for non-grouped, non-own messages */}
+                {!grouped && !own && (
+                  <div className="flex items-center gap-1.5 mb-1 ml-1">
+                    {msg.is_ai && <Bot className="w-3 h-3 text-primary" />}
+                    <span className={cn(
+                      "text-[11px] font-semibold",
+                      msg.is_ai ? 'text-primary' : 'text-muted-foreground'
+                    )}>
+                      {getDisplayName(msg)}
+                    </span>
+                  </div>
+                )}
+
+                {editingId === msg.id ? (
+                  <div className="max-w-[75%] w-full flex gap-1.5">
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }}
+                      className="flex-1 bg-muted text-foreground text-sm px-3 py-2 rounded-2xl border border-primary/50 focus:outline-none"
+                      autoFocus
+                    />
+                    <button onClick={() => handleEdit(msg.id)} className="p-1.5 text-primary hover:bg-primary/10 rounded-full"><Check className="w-4 h-4" /></button>
+                    <button onClick={() => setEditingId(null)} className="p-1.5 text-muted-foreground hover:bg-muted rounded-full"><X className="w-4 h-4" /></button>
+                  </div>
+                ) : (
+                  <div className={cn("relative max-w-[75%] flex items-end gap-1", own ? "flex-row-reverse" : "flex-row")}>
+                    {/* Chat bubble */}
+                    <div className={cn(
+                      "px-3.5 py-2 text-sm leading-relaxed",
+                      // iMessage-style bubble shapes
+                      own
+                        ? cn(
+                            "bg-primary text-primary-foreground",
+                            grouped
+                              ? "rounded-2xl rounded-br-md"
+                              : "rounded-2xl rounded-br-md"
+                          )
+                        : msg.is_ai
+                          ? cn(
+                              "bg-accent/60 text-foreground border border-primary/20",
+                              grouped
+                                ? "rounded-2xl rounded-bl-md"
+                                : "rounded-2xl rounded-bl-md"
+                            )
+                          : cn(
+                              "bg-muted text-foreground",
+                              grouped
+                                ? "rounded-2xl rounded-bl-md"
+                                : "rounded-2xl rounded-bl-md"
+                            )
+                    )}>
+                      <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                    </div>
+
+                    {/* Timestamp on hover */}
+                    <span className="text-[9px] text-muted-foreground/50 opacity-0 group-hover/msg:opacity-100 transition-opacity flex-shrink-0 pb-1">
+                      {format(new Date(msg.created_at), 'h:mm a')}
+                    </span>
+
+                    {/* Edit/Delete controls */}
+                    {(isOwnMessage(msg) || isAdmin) && !msg.is_ai && (
+                      <div className={cn(
+                        "absolute -top-3 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border rounded-full shadow-lg px-1 py-0.5 z-10",
+                        own ? "left-0" : "right-0"
+                      )}>
+                        {isOwnMessage(msg) && (
+                          <button
+                            onClick={() => { setEditingId(msg.id); setEditText(msg.content); }}
+                            className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(msg.id)}
+                          className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     )}
-                    <button
-                      onClick={() => handleDelete(msg.id)}
-                      className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
 
         {isAiLoading && (
-          <div className="flex items-start gap-1.5">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <Bot className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-medium text-primary">Summit AI Coach</span>
+          <div className="flex items-start mt-3">
+            <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
             </div>
-            <Loader2 className="w-4 h-4 animate-spin text-primary ml-1" />
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-3 border-t border-border/30 flex-shrink-0">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Message team... (@coach for AI)"
-            className="flex-1 bg-muted text-foreground text-sm px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
-            disabled={isSending || isAiLoading}
-          />
-          <Button
+      {/* Scroll to bottom FAB */}
+      {showScrollDown && (
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
+          <button
+            onClick={() => scrollToBottom()}
+            className="bg-card border border-border shadow-lg rounded-full p-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Input - iMessage style */}
+      <div className="px-3 py-2 border-t border-border/40 bg-card/80 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-end gap-2">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="iMessage"
+              className="w-full bg-muted/60 text-foreground text-sm px-4 py-2.5 rounded-full border border-border/60 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground/50"
+              disabled={isSending || isAiLoading}
+            />
+          </div>
+          <button
             onClick={handleSend}
             disabled={!input.trim() || isSending || isAiLoading}
-            size="sm"
-            className="bg-primary hover:bg-primary/90"
+            className={cn(
+              "p-2.5 rounded-full transition-all flex-shrink-0",
+              input.trim()
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 scale-100"
+                : "bg-muted text-muted-foreground scale-95"
+            )}
           >
             {isSending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Send className="w-4 h-4" />
             )}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

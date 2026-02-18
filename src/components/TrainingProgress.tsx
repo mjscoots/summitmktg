@@ -98,7 +98,7 @@ const TrainingProgress = ({ role, userProgress, canSkip = false }: TrainingProgr
       {/* Module List */}
       <div className="space-y-2">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-          Training Modules
+          Training Chapters
         </p>
         {folders.map((folder, index) => {
           const { progress, isComplete, isLocked, isCurrent } = getFolderState(folder, index);
