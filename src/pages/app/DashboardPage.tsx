@@ -7,6 +7,7 @@ import { WeeklyScheduleExpanded } from '@/components/dashboard/WeeklyScheduleExp
 import { DailyChecklist } from '@/components/dashboard/DailyChecklist';
 import { MomentumMeter } from '@/components/dashboard/MomentumMeter';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
+import { BootcampStragglers } from '@/components/dashboard/BootcampStragglers';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
 import { QuickActions } from '@/components/dashboard/QuickActions';
@@ -107,10 +108,13 @@ import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
            </Card>
          )}
 
-         {/* Daily Checklist */}
-         <div className="mb-4">
-           <DailyChecklist />
-         </div>
+          {/* Bootcamp Stragglers (Manager only) */}
+          {isManager && <BootcampStragglers />}
+
+          {/* Daily Checklist */}
+          <div className="mb-4">
+            <DailyChecklist />
+          </div>
  
          {/* Community Announcements + Calendar - Side by side, equal height */}
          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[400px]">

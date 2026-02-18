@@ -24,11 +24,26 @@ export interface BootcampProgress {
   bootcamp_exempt: boolean;
 }
 
+export interface BootcampDeadlineInfo {
+  deadlineHours: number;
+  accountCreatedAt: string | null;
+  deadlineAt: Date | null;
+  hoursRemaining: number | null;
+  isOverdue: boolean;
+}
+
 export function useBootcamp() {
   const { user, role } = useAuth();
   const [progress, setProgress] = useState<BootcampProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [globalRequired, setGlobalRequired] = useState(true);
+  const [deadlineInfo, setDeadlineInfo] = useState<BootcampDeadlineInfo>({
+    deadlineHours: 48,
+    accountCreatedAt: null,
+    deadlineAt: null,
+    hoursRemaining: null,
+    isOverdue: false,
+  });
 
   const isBypassed = role === 'manager' || role === 'admin';
 
@@ -38,9 +53,11 @@ export function useBootcamp() {
       return;
     }
 
-    // Fetch global setting and user progress in parallel
-    const [settingsRes, progressRes] = await Promise.all([
+    // Fetch global setting, deadline setting, user profile created_at, and progress in parallel
+    const [settingsRes, deadlineRes, profileRes, progressRes] = await Promise.all([
       supabase.from('app_settings').select('value').eq('key', 'bootcamp_required').maybeSingle(),
+      supabase.from('app_settings').select('value').eq('key', 'bootcamp_deadline_hours').maybeSingle(),
+      supabase.from('profiles').select('created_at').eq('user_id', user.id).maybeSingle(),
       supabase.from('bootcamp_progress').select('*').eq('user_id', user.id).maybeSingle(),
     ]);
 
@@ -50,6 +67,23 @@ export function useBootcamp() {
     } else {
       setGlobalRequired(true);
     }
+
+    // Parse deadline setting
+    const deadlineHours = deadlineRes.data ? parseInt(deadlineRes.data.value || '48', 10) : 48;
+    const accountCreatedAt = profileRes.data?.created_at || null;
+    let deadlineAt: Date | null = null;
+    let hoursRemaining: number | null = null;
+    let isOverdue = false;
+
+    if (accountCreatedAt) {
+      deadlineAt = new Date(new Date(accountCreatedAt).getTime() + deadlineHours * 60 * 60 * 1000);
+      const now = new Date();
+      const msRemaining = deadlineAt.getTime() - now.getTime();
+      hoursRemaining = Math.max(0, msRemaining / (1000 * 60 * 60));
+      isOverdue = msRemaining <= 0;
+    }
+
+    setDeadlineInfo({ deadlineHours, accountCreatedAt, deadlineAt, hoursRemaining, isOverdue });
 
     const data = progressRes.data;
     const error = progressRes.error;
@@ -134,5 +168,6 @@ export function useBootcamp() {
     currentPhase,
     updatePhase,
     refetch: fetchProgress,
+    deadlineInfo,
   };
 }

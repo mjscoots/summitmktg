@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity } from 'lucide-react';
+import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TeamCard } from '@/components/team/TeamCard';
 import { PillarTreeView } from '@/components/team/PillarTreeView';
@@ -55,6 +55,7 @@ export default function MyTeamPage() {
 
   // Profiles with time/activity data for members view
   const [profilesRaw, setProfilesRaw] = useState<any[]>([]);
+  const [bootcampMap, setBootcampMap] = useState<Map<string, { completed: boolean; exempt: boolean; phases: number }>>(new Map());
 
   const isAdmin = role === 'admin';
   const isManagerRole = role === 'manager' || role === 'admin';
@@ -73,6 +74,22 @@ export default function MyTeamPage() {
 
       if (profilesError) throw profilesError;
       setProfilesRaw(profiles || []);
+
+      // Fetch bootcamp progress
+      const { data: bootcampData } = await supabase
+        .from('bootcamp_progress')
+        .select('user_id, bootcamp_completed, bootcamp_exempt, phase_1_complete, phase_2_complete, phase_3_complete');
+
+      const bMap = new Map<string, { completed: boolean; exempt: boolean; phases: number }>();
+      for (const b of bootcampData || []) {
+        bMap.set(b.user_id, {
+          completed: b.bootcamp_completed,
+          exempt: b.bootcamp_exempt,
+          phases: [b.phase_1_complete, b.phase_2_complete, b.phase_3_complete].filter(Boolean).length,
+        });
+      }
+      setBootcampMap(bMap);
+
       const { data: teamsData, error: teamsError } = await supabase
         .from('teams')
         .select('*')
@@ -467,6 +484,9 @@ export default function MyTeamPage() {
                       <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Role</th>
                       <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Team</th>
                       <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                        <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Bootcamp</span>
+                      </th>
+                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
                         <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Training</span>
                       </th>
                       <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
@@ -507,6 +527,19 @@ export default function MyTeamPage() {
                           </td>
                           <td className="px-4 py-3 text-muted-foreground">{getTeamNameById(member.team_id)}</td>
                           <td className="px-4 py-3">
+                            {(() => {
+                              const bc = bootcampMap.get(member.user_id);
+                              if (isMgr) return <span className="text-[10px] text-muted-foreground">N/A</span>;
+                              if (!bc) return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-destructive/15 text-destructive">Not Started</span>;
+                              if (bc.completed || bc.exempt) return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/15 text-green-400">✓ Done</span>;
+                              return (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-500">
+                                  {bc.phases}/3
+                                </span>
+                              );
+                            })()}
+                          </td>
+                          <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                                 <div
@@ -543,7 +576,7 @@ export default function MyTeamPage() {
                     })}
                     {flatMembers.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                        <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                           No members found
                         </td>
                       </tr>
