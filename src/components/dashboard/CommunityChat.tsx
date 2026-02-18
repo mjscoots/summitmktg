@@ -458,7 +458,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                     )}
-                    {(isOwnMessage(msg) || isAdmin) && (
+                    {(isOwnMessage(msg) || isManager) && (
                       <button
                         onClick={() => handleDelete(msg.id)}
                         className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
