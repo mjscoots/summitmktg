@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles } from 'lucide-react';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ interface ChatMessage {
   is_ai: boolean;
   created_at: string;
   reply_to: string | null;
+  channel: string;
 }
 
 interface ProfileInfo {
@@ -28,6 +29,15 @@ interface ProfileInfo {
 interface CommunityChatProps {
   onNewMessage?: () => void;
 }
+
+const CHANNELS = [
+  { id: 'general', label: 'General', icon: Hash, color: 'text-muted-foreground' },
+  { id: 'announcements', label: 'Announcements', icon: Megaphone, color: 'text-amber-500' },
+  { id: 'feedback', label: 'Feedback & Ideas', icon: Lightbulb, color: 'text-emerald-500' },
+  { id: 'ai-coach', label: 'AI Coach', icon: Sparkles, color: 'text-primary' },
+] as const;
+
+type ChannelId = typeof CHANNELS[number]['id'];
 
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
@@ -54,12 +64,17 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+  const [activeChannel, setActiveChannel] = useState<ChannelId>('general');
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const [showScrollDown, setShowScrollDown] = useState(false);
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
+  const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
+
+  const isManager = role === 'manager' || role === 'admin';
+  const isAdmin = role === 'admin';
 
   const scrollToBottom = useCallback((smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -71,14 +86,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setShowScrollDown(scrollHeight - scrollTop - clientHeight > 100);
   }, []);
 
-  // Fetch messages + profiles with avatars & roles
+  // Fetch messages + profiles
   useEffect(() => {
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(100);
+        .limit(200);
 
       if (error) {
         console.error('Error fetching messages:', error);
@@ -107,13 +122,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         setProfileMap(map);
       }
 
-      setMessages(data || []);
+      setMessages((data || []).map(m => ({ ...m, channel: m.channel || 'general' })));
     };
 
     fetchMessages();
   }, []);
 
-  // Subscribe to realtime
+  // Realtime
   useEffect(() => {
     const channel = supabase
       .channel('community-chat')
@@ -122,6 +137,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         { event: 'INSERT', schema: 'public', table: 'chat_messages' },
         async (payload) => {
           const newMsg = payload.new as ChatMessage;
+          if (!newMsg.channel) newMsg.channel = 'general';
 
           if (!newMsg.is_ai && !profileMap[newMsg.user_id]) {
             const [pRes, rRes] = await Promise.all([
@@ -146,6 +162,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             return [...prev, newMsg];
           });
 
+          // Mark channel as unread if not active
+          if (newMsg.user_id !== user?.id && newMsg.channel !== activeChannel) {
+            setUnreadChannels(prev => new Set([...prev, newMsg.channel as ChannelId]));
+          }
+
           if (newMsg.user_id !== user?.id) {
             onNewMessage?.();
           }
@@ -156,17 +177,32 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, onNewMessage, profileMap]);
+  }, [user?.id, onNewMessage, profileMap, activeChannel]);
 
+  // Scroll on channel change or new messages in active channel
+  const channelMessages = messages.filter(m => m.channel === activeChannel);
   useEffect(() => {
     scrollToBottom(false);
-  }, [messages, scrollToBottom]);
+  }, [channelMessages.length, activeChannel, scrollToBottom]);
+
+  // Clear unread when switching channels
+  const switchChannel = (ch: ChannelId) => {
+    setActiveChannel(ch);
+    setReplyingTo(null);
+    setEditingId(null);
+    setUnreadChannels(prev => {
+      const next = new Set(prev);
+      next.delete(ch);
+      return next;
+    });
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isSending || !user) return;
 
     const content = input.trim();
-    const isAiCommand = content.startsWith('@coach');
+    const sendChannel = activeChannel === 'ai-coach' ? 'ai-coach' : activeChannel;
+    const isAiChannel = activeChannel === 'ai-coach';
     setInput('');
     stopTyping();
     setIsSending(true);
@@ -176,17 +212,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     try {
       const { error } = await supabase.from('chat_messages').insert({
         user_id: user.id,
-        content: isAiCommand ? content.replace('@coach', '').trim() : content,
+        content,
         is_ai: false,
         reply_to: currentReplyTo,
+        channel: sendChannel,
       });
 
       if (error) throw error;
 
-      if (isAiCommand) {
+      if (isAiChannel) {
         setIsAiLoading(true);
-        const userQuestion = content.replace('@coach', '').trim();
-
         try {
           const { data: { session: currentSession } } = await supabase.auth.getSession();
           const accessToken = currentSession?.access_token;
@@ -202,7 +237,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
               },
               body: JSON.stringify({
-                messages: [{ role: 'user', content: userQuestion }],
+                messages: [{ role: 'user', content }],
               }),
             }
           );
@@ -246,6 +281,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               user_id: user.id,
               content: aiContent,
               is_ai: true,
+              channel: 'ai-coach',
             });
           }
         } catch (aiError) {
@@ -291,12 +327,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   };
 
   const isOwnMessage = (msg: ChatMessage) => msg.user_id === user?.id && !msg.is_ai;
-  const isAdmin = role === 'admin';
 
-  // Discord-style grouping: same sender within 5 minutes
   const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
     if (!prev) return false;
-    if (curr.reply_to) return false; // replies always break grouping
+    if (curr.reply_to) return false;
     if (curr.is_ai !== prev.is_ai) return false;
     if (curr.user_id !== prev.user_id) return false;
     const diff = new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime();
@@ -316,40 +350,79 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return null;
   };
 
+  const activeChannelConfig = CHANNELS.find(c => c.id === activeChannel)!;
+  const canPostInChannel = activeChannel !== 'announcements' || isManager;
+  const channelDescription: Record<ChannelId, string> = {
+    general: 'Team chat · open to everyone',
+    announcements: isManager ? 'Post updates for the team' : 'Read-only · updates from leadership',
+    feedback: 'Share ideas & suggestions',
+    'ai-coach': 'Ask the AI Coach anything',
+  };
+
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--card))] rounded-xl overflow-hidden border border-border/30">
-      {/* Channel header - Discord style */}
-      <div className="px-4 py-2.5 border-b border-border/50 bg-card flex-shrink-0 shadow-sm">
-        <div className="flex items-center gap-2">
-          <Hash className="w-5 h-5 text-muted-foreground" />
-          <h2 className="font-semibold text-foreground">general</h2>
-          <div className="h-4 w-px bg-border/60 mx-1" />
-          <p className="text-xs text-muted-foreground truncate">
-            Team chat · Type <span className="font-mono text-primary">@coach</span> for AI
-          </p>
-        </div>
+      {/* Channel tabs */}
+      <div className="flex items-center gap-0.5 px-2 pt-2 pb-0 border-b border-border/50 bg-card flex-shrink-0 overflow-x-auto">
+        {CHANNELS.map(ch => {
+          const Icon = ch.icon;
+          const isActive = activeChannel === ch.id;
+          const hasUnread = unreadChannels.has(ch.id);
+          return (
+            <button
+              key={ch.id}
+              onClick={() => switchChannel(ch.id)}
+              className={cn(
+                "relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-all whitespace-nowrap",
+                isActive
+                  ? "bg-background text-foreground border border-border/50 border-b-transparent -mb-px z-10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              )}
+            >
+              <Icon className={cn("w-3.5 h-3.5", isActive ? ch.color : "")} />
+              {ch.label}
+              {hasUnread && !isActive && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Messages area - Discord style */}
+      {/* Channel description bar */}
+      <div className="px-4 py-1.5 border-b border-border/30 bg-muted/20 flex-shrink-0">
+        <p className="text-[11px] text-muted-foreground">
+          {channelDescription[activeChannel]}
+        </p>
+      </div>
+
+      {/* Messages area */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto min-h-0 relative"
       >
-        {messages.length === 0 && (
+        {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-              <Hash className="w-8 h-8 text-muted-foreground" />
+              <activeChannelConfig.icon className={cn("w-8 h-8", activeChannelConfig.color)} />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-1">Welcome to #general!</h3>
+            <h3 className="text-xl font-bold text-foreground mb-1">
+              Welcome to #{activeChannelConfig.label}!
+            </h3>
             <p className="text-sm text-muted-foreground">
-              This is the start of the conversation. Say hi to your team!
+              {activeChannel === 'ai-coach'
+                ? 'Ask the AI Coach any question about sales, training, or strategy.'
+                : activeChannel === 'announcements'
+                  ? isManager ? 'Post important updates for the team here.' : 'Announcements from leadership will appear here.'
+                  : activeChannel === 'feedback'
+                    ? 'Share your ideas, suggestions, and feature requests.'
+                    : 'This is the start of the conversation. Say hi!'}
             </p>
           </div>
         )}
 
-        {messages.map((msg, idx) => {
-          const prev = idx > 0 ? messages[idx - 1] : null;
+        {channelMessages.map((msg, idx) => {
+          const prev = idx > 0 ? channelMessages[idx - 1] : null;
           const grouped = isSameSender(msg, prev);
           const showDate = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at));
           const msgProfile = getProfile(msg);
@@ -366,7 +439,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   isOwnMessage(msg) && "hover:bg-primary/5"
                 )}
               >
-                {/* Toolbar - Discord style floating */}
+                {/* Toolbar */}
                 {!msg.is_ai && (
                   <div className="absolute -top-3 right-4 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border rounded-md shadow-lg px-0.5 py-0.5 z-10">
                     <button
@@ -415,7 +488,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         />
                       )
                     ) : (
-                      /* Hover timestamp for grouped messages */
                       <span className="text-[10px] text-muted-foreground/0 group-hover/msg:text-muted-foreground/60 transition-colors w-10 text-right leading-[22px] tabular-nums">
                         {format(new Date(msg.created_at), 'h:mm')}
                       </span>
@@ -426,7 +498,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   <div className="flex-1 min-w-0">
                     {/* Reply context */}
                     {msg.reply_to && (() => {
-                      const parentMsg = messages.find(m => m.id === msg.reply_to);
+                      const parentMsg = channelMessages.find(m => m.id === msg.reply_to);
                       if (!parentMsg) return null;
                       const parentProfile = getProfile(parentMsg);
                       return (
@@ -445,7 +517,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                       );
                     })()}
 
-                    {/* Name + timestamp header (non-grouped only) */}
+                    {/* Name + timestamp header */}
                     {!grouped && (
                       <div className="flex items-baseline gap-2 mb-0.5">
                         <span className={cn(
@@ -502,7 +574,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           );
         })}
 
-        {isAiLoading && (
+        {isAiLoading && activeChannel === 'ai-coach' && (
           <div className="px-4 pt-3 pb-1">
             <div className="flex gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
@@ -557,59 +629,73 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         </div>
       )}
 
-      {/* Input - Discord style */}
-      <div className="px-4 pb-4 pt-1 flex-shrink-0">
-        {/* Reply preview bar */}
-        {replyingTo && (
-          <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/40 rounded-t-lg border border-b-0 border-border/50 text-xs">
-            <Reply className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-            <span className="text-muted-foreground">Replying to</span>
-            <span className="font-semibold text-foreground truncate">
-              {getProfile(replyingTo).full_name}
-            </span>
-            <span className="text-muted-foreground/60 truncate flex-1 max-w-[200px]">
-              {replyingTo.content}
-            </span>
+      {/* Input */}
+      {canPostInChannel ? (
+        <div className="px-4 pb-4 pt-1 flex-shrink-0">
+          {/* Reply preview */}
+          {replyingTo && (
+            <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/40 rounded-t-lg border border-b-0 border-border/50 text-xs">
+              <Reply className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+              <span className="text-muted-foreground">Replying to</span>
+              <span className="font-semibold text-foreground truncate">
+                {getProfile(replyingTo).full_name}
+              </span>
+              <span className="text-muted-foreground/60 truncate flex-1 max-w-[200px]">
+                {replyingTo.content}
+              </span>
+              <button
+                onClick={() => setReplyingTo(null)}
+                className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors ml-auto flex-shrink-0"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+          <div className={cn(
+            "flex items-center gap-0 bg-muted/60 border border-border/50 focus-within:border-primary/40 transition-colors",
+            replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-lg"
+          )}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => { setInput(e.target.value); onTyping(); }}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                replyingTo
+                  ? `Reply to ${getProfile(replyingTo).full_name}...`
+                  : activeChannel === 'ai-coach'
+                    ? 'Ask the AI Coach...'
+                    : `Message #${activeChannelConfig.label}`
+              }
+              className="flex-1 bg-transparent text-foreground text-sm px-4 py-2.5 focus:outline-none placeholder:text-muted-foreground/50"
+              disabled={isSending || isAiLoading}
+            />
             <button
-              onClick={() => setReplyingTo(null)}
-              className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors ml-auto flex-shrink-0"
+              onClick={handleSend}
+              disabled={!input.trim() || isSending || isAiLoading}
+              className={cn(
+                "p-2 mr-1 rounded-md transition-all flex-shrink-0",
+                input.trim()
+                  ? "text-primary hover:bg-primary/10"
+                  : "text-muted-foreground/30"
+              )}
             >
-              <X className="w-3.5 h-3.5" />
+              {isSending ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
             </button>
           </div>
-        )}
-        <div className={cn(
-          "flex items-center gap-0 bg-muted/60 border border-border/50 focus-within:border-primary/40 transition-colors",
-          replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-lg"
-        )}>
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => { setInput(e.target.value); onTyping(); }}
-            onKeyDown={handleKeyDown}
-            placeholder={replyingTo ? `Reply to ${getProfile(replyingTo).full_name}...` : "Message #general"}
-            className="flex-1 bg-transparent text-foreground text-sm px-4 py-2.5 focus:outline-none placeholder:text-muted-foreground/50"
-            disabled={isSending || isAiLoading}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isSending || isAiLoading}
-            className={cn(
-              "p-2 mr-1 rounded-md transition-all flex-shrink-0",
-              input.trim()
-                ? "text-primary hover:bg-primary/10"
-                : "text-muted-foreground/30"
-            )}
-          >
-            {isSending ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Send className="w-5 h-5" />
-            )}
-          </button>
         </div>
-      </div>
+      ) : (
+        <div className="px-4 py-3 flex-shrink-0 border-t border-border/30 bg-muted/20">
+          <p className="text-xs text-muted-foreground text-center">
+            Only managers can post in Announcements
+          </p>
+        </div>
+      )}
     </div>
   );
 }
