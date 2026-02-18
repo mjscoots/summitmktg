@@ -318,8 +318,8 @@ export default function LessonPage() {
           recordActivity();
           toast.success('Quiz passed — 100% correct!');
           
-          // Send notification to manager (fire and forget)
-          notifyManagerOfQuizCompletion(result.score, result.correct, result.total);
+          // Check if this completes 100% training — notify manager
+          notifyManagerOf100PercentCompletion();
         } else {
           toast.error(`You need 100% to pass. You got ${result.score}%`);
         }
@@ -330,57 +330,100 @@ export default function LessonPage() {
     }
   };
 
-  // Notify manager when quiz is passed
-  const notifyManagerOfQuizCompletion = async (score: number, correct: number, total: number) => {
-    if (!user || !lesson || !moduleInfo) return;
+  // Notify manager only when rep hits 100% training completion
+  const notifyManagerOf100PercentCompletion = async () => {
+    if (!user) return;
     
     try {
-      // Get user profile to find manager
+      // Check if user has now completed ALL training
+      const { data: courses } = await supabase
+        .from('training_courses')
+        .select('id, training_modules ( id, training_lessons ( id, is_active ) )')
+        .eq('is_active', true);
+
+      if (!courses) return;
+
+      const allLessonIds: string[] = [];
+      courses.forEach(c => c.training_modules?.forEach(m => m.training_lessons?.forEach(l => {
+        if (l.is_active) allLessonIds.push(l.id);
+      })));
+
+      if (allLessonIds.length === 0) return;
+
+      const { data: completed } = await supabase
+        .from('lesson_progress')
+        .select('lesson_id')
+        .eq('user_id', user.id)
+        .not('completed_at', 'is', null);
+
+      const completedIds = new Set(completed?.map(lp => lp.lesson_id) || []);
+      const isComplete = allLessonIds.every(id => completedIds.has(id));
+
+      if (!isComplete) return;
+
+      // Check if we already sent this notification
+      const { count: existing } = await supabase
+        .from('user_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .ilike('title', '%100% training%');
+
+      if (existing && existing > 0) return;
+
+      // Get user profile
       const { data: userProfile } = await supabase
         .from('profiles')
         .select('full_name, direct_manager, team_id')
         .eq('user_id', user.id)
         .single();
-      
-      if (!userProfile?.direct_manager) return;
-      
-      // Find manager's user_id
-      const { data: managerProfile } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('full_name', userProfile.direct_manager)
-        .single();
-      
-      if (!managerProfile) return;
-      
-      // Create notification for manager
+
+      if (!userProfile) return;
+
+      // Notify the rep themselves
       await supabase.from('user_notifications').insert({
-        user_id: managerProfile.user_id,
-        title: `🎓 ${userProfile.full_name} passed quiz`,
-        message: `${userProfile.full_name} completed "${lesson.title}" quiz with ${score}% (${correct}/${total} correct).`,
-        link: `/app/team`,
+        user_id: user.id,
+        title: '\u{1F389} 100% Training Complete!',
+        message: 'You crushed every single module. You are fully trained and ready to dominate.',
+        link: '/app/training',
       });
-      
-      // Also notify pillar leader if different from direct manager
-      if (userProfile.team_id) {
-        const { data: team } = await supabase
-          .from('teams')
-          .select('leader_id')
-          .eq('id', userProfile.team_id)
+
+      // Notify manager
+      if (userProfile.direct_manager) {
+        const { data: managerProfile } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('full_name', userProfile.direct_manager)
           .single();
-        
-        if (team?.leader_id && team.leader_id !== managerProfile.user_id) {
+
+        if (managerProfile) {
           await supabase.from('user_notifications').insert({
-            user_id: team.leader_id,
-            title: `🎓 ${userProfile.full_name} passed quiz`,
-            message: `${userProfile.full_name} completed "${lesson.title}" quiz with ${score}% (${correct}/${total} correct).`,
-            link: `/app/team`,
+            user_id: managerProfile.user_id,
+            title: `\u{1F3C6} ${userProfile.full_name} completed 100% training!`,
+            message: `${userProfile.full_name} has finished every training module. They are fully trained.`,
+            link: '/app/team',
           });
+        }
+
+        // Notify pillar leader if different
+        if (userProfile.team_id) {
+          const { data: team } = await supabase
+            .from('teams')
+            .select('leader_id')
+            .eq('id', userProfile.team_id)
+            .single();
+
+          if (team?.leader_id && team.leader_id !== managerProfile?.user_id) {
+            await supabase.from('user_notifications').insert({
+              user_id: team.leader_id,
+              title: `\u{1F3C6} ${userProfile.full_name} completed 100% training!`,
+              message: `${userProfile.full_name} has finished every training module. They are fully trained.`,
+              link: '/app/team',
+            });
+          }
         }
       }
     } catch (err) {
-      console.error('Failed to notify manager:', err);
-      // Don't fail the quiz submission if notification fails
+      console.debug('Training completion notification failed:', err);
     }
   };
 

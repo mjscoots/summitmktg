@@ -65,11 +65,20 @@ export function useStreak() {
           }
 
           if (result.milestone) {
-            // Extract milestone number from milestone text
             const milestoneMatch = result.milestone.match(/^(\d+)/);
             if (milestoneMatch) {
               setNewMilestone(parseInt(milestoneMatch[1]));
             }
+
+            // Create in-app notification for streak milestones
+            try {
+              await supabase.from('user_notifications').insert({
+                user_id: user.id,
+                title: `\u{1F525} ${result.milestone}`,
+                message: `You've logged in ${result.current_streak} days in a row. Keep the fire burning!`,
+                link: '/app/leaderboard',
+              });
+            } catch { /* ignore */ }
           }
         }
       } catch (err) {
