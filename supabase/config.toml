@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.check-bootcamp-overdue]
 verify_jwt = false
+
+[functions.bootcamp-reminders]
+verify_jwt = false
