@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.validate-signup]
 verify_jwt = false
+
+[functions.check-bootcamp-overdue]
+verify_jwt = false
