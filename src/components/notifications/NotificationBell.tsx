@@ -39,8 +39,15 @@ export function NotificationBell() {
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open && unreadCount > 0) {
+      markAllAsRead();
+    }
+  };
+
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button 
           className="relative p-2 rounded-lg hover:bg-muted transition-colors"
