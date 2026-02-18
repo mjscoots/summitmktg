@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bell, Check, CheckCheck, Calendar } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
+  const [justCleared, setJustCleared] = useState(false);
+  const prevCountRef = useRef(0);
   const navigate = useNavigate();
   const { 
     notifications, 
@@ -21,6 +23,16 @@ export function NotificationBell() {
     markAllAsRead,
     requestPushPermission 
   } = useNotifications();
+
+  // Detect when count drops to zero for the clear animation
+  useEffect(() => {
+    if (prevCountRef.current > 0 && unreadCount === 0) {
+      setJustCleared(true);
+      const timer = setTimeout(() => setJustCleared(false), 600);
+      return () => clearTimeout(timer);
+    }
+    prevCountRef.current = unreadCount;
+  }, [unreadCount]);
 
   const handleNotificationClick = async (notification: typeof notifications[0]) => {
     if (!notification.is_read) {
@@ -50,16 +62,25 @@ export function NotificationBell() {
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button 
-          className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+          className={cn(
+            "relative p-2 rounded-lg hover:bg-muted transition-colors",
+            justCleared && "animate-[bell-ring_0.5s_ease-in-out]"
+          )}
           aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : 'Notifications'}
         >
           <Bell className={cn(
-            "w-5 h-5 transition-colors",
-            unreadCount > 0 ? "text-primary" : "text-muted-foreground"
+            "w-5 h-5 transition-colors duration-300",
+            unreadCount > 0 ? "text-primary" : "text-muted-foreground",
+            justCleared && "text-primary"
           )} />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1 animate-in zoom-in-50 duration-200">
               {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+          {justCleared && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1 animate-out zoom-out-50 fade-out duration-500">
+              ✓
             </span>
           )}
         </button>
