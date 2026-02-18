@@ -86,13 +86,13 @@ export default function BootcampPhase2() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
-        <PhaseIndicator current={2} progress={progress} />
+        <PhaseIndicator current={9} progress={progress} />
 
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-10">
           <h1 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
             MOTIVATION
           </h1>
-          <p className="text-white/40 text-sm mb-6">MODULE 2</p>
+          <p className="text-white/40 text-sm mb-6">STEP 9</p>
 
           <p className="text-white/60 text-sm mb-6">
             Please record yourself on your phone reading the following questions out loud and answering them.
@@ -152,27 +152,28 @@ export default function BootcampPhase2() {
 }
 
 function PhaseIndicator({ current, progress }: { current: number; progress: any }) {
-  const labels = ['SUNBLOCK', 'MOTIVATION', 'COMMITMENT'];
+  const steps = [
+    { num: 8, label: 'SUNBLOCK', done: progress?.phase_1_complete },
+    { num: 9, label: 'MOTIVATION', done: progress?.phase_2_complete },
+    { num: 10, label: 'COMMITMENT', done: progress?.phase_3_complete },
+  ];
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
-      {[1, 2, 3].map((p, i) => {
-        const done = p === 1 ? progress?.phase_1_complete : p === 2 ? progress?.phase_2_complete : progress?.phase_3_complete;
-        return (
-          <div key={p} className="flex items-center">
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
-                  done ? 'bg-white text-black border-white' : p === current ? 'border-white text-white' : 'border-white/20 text-white/20'
-                }`}
-              >
-                {done ? <CheckCircle2 className="w-4 h-4" /> : p}
-              </div>
-              <span className={`text-[9px] mt-1 ${done || p === current ? 'text-white/60' : 'text-white/20'}`}>{labels[i]}</span>
+      {steps.map((s, i) => (
+        <div key={s.num} className="flex items-center">
+          <div className="flex flex-col items-center">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                s.done ? 'bg-white text-black border-white' : s.num === current ? 'border-white text-white' : 'border-white/20 text-white/20'
+              }`}
+            >
+              {s.done ? <CheckCircle2 className="w-4 h-4" /> : s.num}
             </div>
-            {i < 2 && <div className={`w-12 h-0.5 mx-1 mb-4 ${done ? 'bg-white' : 'bg-white/10'}`} />}
+            <span className={`text-[9px] mt-1 ${s.done || s.num === current ? 'text-white/60' : 'text-white/20'}`}>{s.label}</span>
           </div>
-        );
-      })}
+          {i < 2 && <div className={`w-12 h-0.5 mx-1 mb-4 ${s.done ? 'bg-white' : 'bg-white/10'}`} />}
+        </div>
+      ))}
     </div>
   );
 }
