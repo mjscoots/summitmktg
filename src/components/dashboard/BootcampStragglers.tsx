@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { AlertTriangle, Clock, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, Copy, Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface Straggler {
   full_name: string;
@@ -21,6 +22,7 @@ export function BootcampStragglers() {
   const [stragglers, setStragglers] = useState<Straggler[]>([]);
   const [deadlineHours, setDeadlineHours] = useState(48);
   const [isLoading, setIsLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin';
 
@@ -129,6 +131,21 @@ export function BootcampStragglers() {
   const phasesComplete = (s: Straggler) =>
     [s.phase_1_complete, s.phase_2_complete, s.phase_3_complete].filter(Boolean).length;
 
+  const copyToClipboard = () => {
+    const grouped: Record<string, string[]> = {};
+    for (const s of stragglers) {
+      const team = s.team_name || 'No Team';
+      if (!grouped[team]) grouped[team] = [];
+      grouped[team].push(s.full_name);
+    }
+    const text = Object.entries(grouped)
+      .map(([team, names]) => `${team}:\n${names.map(n => `  - ${n}`).join('\n')}`)
+      .join('\n\n');
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Card className="mb-4 border-destructive/30">
       <div className="p-3 border-b border-border/30">
@@ -137,9 +154,20 @@ export function BootcampStragglers() {
             <AlertTriangle className="w-4 h-4 text-destructive" />
             <h2 className="font-semibold text-sm text-foreground">Boot Camp Stragglers</h2>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {stragglers.length} incomplete{overdueCount > 0 && ` · ${overdueCount} overdue`}
-          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={copyToClipboard}
+              className="h-6 px-2 text-[10px] gap-1 text-muted-foreground"
+            >
+              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {copied ? 'Copied' : 'Copy List'}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {stragglers.length} incomplete{overdueCount > 0 && ` · ${overdueCount} overdue`}
+            </span>
+          </div>
         </div>
       </div>
       <div className="divide-y divide-border/20 max-h-64 overflow-y-auto">
