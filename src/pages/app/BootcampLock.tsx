@@ -71,7 +71,7 @@ const STEPS = [
 
 export default function BootcampLock() {
   const navigate = useNavigate();
-  const { progress, isLoading, isLocked, deadlineInfo } = useBootcamp();
+  const { progress, isLoading, isLocked, deadlineInfo, skipAllowed, skipBootcamp } = useBootcamp();
   const momentumDone = isMomentumComplete();
 
   useEffect(() => {
@@ -233,6 +233,19 @@ export default function BootcampLock() {
           >
             {completedCount > 0 ? 'CONTINUE BOOT CAMP' : 'START BOOT CAMP'}
           </Button>
+
+          {skipAllowed && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                skipBootcamp();
+                navigate('/app', { replace: true });
+              }}
+              className="w-full mt-3 text-white/40 hover:text-white/70 text-sm font-medium"
+            >
+              Skip for Now
+            </Button>
+          )}
         </div>
       </div>
     </div>

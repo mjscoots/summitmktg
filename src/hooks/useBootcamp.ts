@@ -37,6 +37,8 @@ export function useBootcamp() {
   const [progress, setProgress] = useState<BootcampProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [globalRequired, setGlobalRequired] = useState(true);
+  const [skipAllowed, setSkipAllowed] = useState(false);
+  const [skipped, setSkipped] = useState(false);
   const [deadlineInfo, setDeadlineInfo] = useState<BootcampDeadlineInfo>({
     deadlineHours: 48,
     accountCreatedAt: null,
@@ -54,9 +56,10 @@ export function useBootcamp() {
     }
 
     // Fetch global setting, deadline setting, user profile created_at, and progress in parallel
-    const [settingsRes, deadlineRes, profileRes, progressRes] = await Promise.all([
+    const [settingsRes, deadlineRes, skipRes, profileRes, progressRes] = await Promise.all([
       supabase.from('app_settings').select('value').eq('key', 'bootcamp_required').maybeSingle(),
       supabase.from('app_settings').select('value').eq('key', 'bootcamp_deadline_hours').maybeSingle(),
+      supabase.from('app_settings').select('value').eq('key', 'bootcamp_skip_allowed').maybeSingle(),
       supabase.from('profiles').select('created_at').eq('user_id', user.id).maybeSingle(),
       supabase.from('bootcamp_progress').select('*').eq('user_id', user.id).maybeSingle(),
     ]);
@@ -67,6 +70,9 @@ export function useBootcamp() {
     } else {
       setGlobalRequired(true);
     }
+
+    // Parse skip allowed setting
+    setSkipAllowed(skipRes.data?.value === 'true');
 
     // Parse deadline setting
     const deadlineHours = deadlineRes.data ? parseInt(deadlineRes.data.value || '48', 10) : 48;
@@ -148,7 +154,7 @@ export function useBootcamp() {
   };
 
   const isExempt = progress?.bootcamp_exempt === true;
-  const isLocked = !isBypassed && globalRequired && !isExempt && !isLoading && (!progress || !progress.bootcamp_completed);
+  const isLocked = !isBypassed && globalRequired && !isExempt && !skipped && !isLoading && (!progress || !progress.bootcamp_completed);
 
   const currentPhase = !progress
     ? 0
@@ -160,6 +166,8 @@ export function useBootcamp() {
     ? 3
     : 0;
 
+  const skipBootcamp = () => setSkipped(true);
+
   return {
     progress,
     isLoading,
@@ -169,5 +177,7 @@ export function useBootcamp() {
     updatePhase,
     refetch: fetchProgress,
     deadlineInfo,
+    skipAllowed,
+    skipBootcamp,
   };
 }
