@@ -1,22 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Define allowed origins for CORS
-const allowedOrigins = [
-  "https://summitmktg.lovable.app",
-  "https://id-preview--1257bd97-61e1-4ead-9de9-5dad7ab016d6.lovable.app",
-];
-
-function getCorsHeaders(origin: string | null): Record<string, string> {
-  const isAllowed = origin && allowedOrigins.some(allowed => 
-    origin === allowed || origin.endsWith('.lovable.app')
-  );
-  
-  return {
-    "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
 
 const ROOKIE_SYSTEM_PROMPT = `You are "Summit AI Coach." You coach door-to-door pest control reps (rookies + managers). Your style is direct, confident, high accountability, and motivating. Profanity is allowed. You do not validate objections emotionally; you redirect, build value, and move toward action.
 
@@ -85,8 +73,6 @@ interface Message {
 }
 
 serve(async (req) => {
-  const origin = req.headers.get("Origin");
-  const corsHeaders = getCorsHeaders(origin);
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -241,7 +227,7 @@ serve(async (req) => {
     console.error("AI coach error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...getCorsHeaders(null), "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
