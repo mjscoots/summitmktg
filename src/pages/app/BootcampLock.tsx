@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useBootcamp } from '@/hooks/useBootcamp';
-import { Lock, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Lock, CheckCircle2, Clock, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { isMomentumComplete } from './BootcampMomentum';
+import { cn } from '@/lib/utils';
 
 function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0, isOverdue: false });
@@ -54,9 +56,23 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
   );
 }
 
+const STEPS = [
+  { num: 1, title: 'Get Started', group: 'momentum' },
+  { num: 2, title: 'Revenue Goals', group: 'momentum' },
+  { num: 3, title: 'Your Why', group: 'momentum' },
+  { num: 4, title: 'Excitement', group: 'momentum' },
+  { num: 5, title: 'Commitment', group: 'momentum' },
+  { num: 6, title: '90-Day Vision', group: 'momentum' },
+  { num: 7, title: "You're Ready", group: 'momentum' },
+  { num: 8, title: 'Sunblock', group: 'phase' },
+  { num: 9, title: 'Motivation', group: 'phase' },
+  { num: 10, title: 'Final Commitment', group: 'phase' },
+];
+
 export default function BootcampLock() {
   const navigate = useNavigate();
-  const { progress, isLoading, isLocked, currentPhase, deadlineInfo } = useBootcamp();
+  const { progress, isLoading, isLocked, deadlineInfo } = useBootcamp();
+  const momentumDone = isMomentumComplete();
 
   useEffect(() => {
     if (!isLoading && !isLocked) {
@@ -72,16 +88,38 @@ export default function BootcampLock() {
     );
   }
 
-  const phases = [
-    { num: 1, title: 'Sunblock', done: progress?.phase_1_complete },
-    { num: 2, title: 'Motivation', done: progress?.phase_2_complete },
-    { num: 3, title: 'Final Commitment', done: progress?.phase_3_complete },
-  ];
-
-  const handleStart = () => {
-    if (currentPhase === 0) return;
-    navigate(`/bootcamp/phase-${currentPhase}`);
+  const getStepDone = (step: typeof STEPS[number]) => {
+    if (step.group === 'momentum') return momentumDone;
+    if (step.num === 8) return progress?.phase_1_complete;
+    if (step.num === 9) return progress?.phase_2_complete;
+    if (step.num === 10) return progress?.phase_3_complete;
+    return false;
   };
+
+  // Figure out where to go
+  const handleStart = () => {
+    if (!momentumDone) {
+      navigate('/bootcamp/momentum');
+    } else if (!progress?.phase_1_complete) {
+      navigate('/bootcamp/phase-1');
+    } else if (!progress?.phase_2_complete) {
+      navigate('/bootcamp/phase-2');
+    } else if (!progress?.phase_3_complete) {
+      navigate('/bootcamp/phase-3');
+    }
+  };
+
+  const currentStepNum = !momentumDone
+    ? 1
+    : !progress?.phase_1_complete
+      ? 8
+      : !progress?.phase_2_complete
+        ? 9
+        : !progress?.phase_3_complete
+          ? 10
+          : 10;
+
+  const completedCount = STEPS.filter(s => getStepDone(s)).length;
 
   return (
     <div className="min-h-screen bg-black relative flex items-center justify-center px-4">
@@ -95,8 +133,11 @@ export default function BootcampLock() {
             COMPLETE BOOT CAMP
           </h1>
 
-          <p className="text-white/50 text-sm mb-6">
-            Complete all three modules to unlock full access.
+          <p className="text-white/50 text-sm mb-2">
+            Complete all 10 steps to unlock full access.
+          </p>
+          <p className="text-white/30 text-xs mb-6">
+            {completedCount}/10 completed
           </p>
 
           {/* Countdown Timer */}
@@ -106,24 +147,69 @@ export default function BootcampLock() {
             </div>
           )}
 
-          <div className="space-y-3 mb-8 text-left">
-            {phases.map((p) => (
-              <div
-                key={p.num}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                  p.done
-                    ? 'bg-white/10 text-white'
-                    : 'bg-white/[0.02] text-white/40'
-                }`}
-              >
-                {p.done ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-                ) : (
-                  <Lock className="w-4 h-4 shrink-0" />
-                )}
-                <span className="text-sm font-semibold">Module {p.num} — {p.title}</span>
-              </div>
-            ))}
+          {/* Step list */}
+          <div className="space-y-2 mb-8 text-left">
+            {/* Momentum section */}
+            <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold px-2 mb-1 flex items-center gap-2">
+              <Zap className="w-3 h-3" /> Momentum Builder
+            </div>
+            {STEPS.filter(s => s.group === 'momentum').map(step => {
+              const done = getStepDone(step);
+              const isCurrent = step.num === currentStepNum;
+              return (
+                <div
+                  key={step.num}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-sm",
+                    done
+                      ? 'bg-white/10 text-white'
+                      : isCurrent
+                        ? 'bg-white/[0.06] text-white/80 border border-white/10'
+                        : 'bg-white/[0.02] text-white/25'
+                  )}
+                >
+                  {done ? (
+                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold shrink-0">
+                      {step.num}
+                    </span>
+                  )}
+                  <span className="font-semibold text-xs">{step.title}</span>
+                </div>
+              );
+            })}
+
+            {/* Phase section */}
+            <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold px-2 mt-4 mb-1 flex items-center gap-2">
+              <Lock className="w-3 h-3" /> Boot Camp Modules
+            </div>
+            {STEPS.filter(s => s.group === 'phase').map(step => {
+              const done = getStepDone(step);
+              const isCurrent = step.num === currentStepNum;
+              return (
+                <div
+                  key={step.num}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-sm",
+                    done
+                      ? 'bg-white/10 text-white'
+                      : isCurrent
+                        ? 'bg-white/[0.06] text-white/80 border border-white/10'
+                        : 'bg-white/[0.02] text-white/25'
+                  )}
+                >
+                  {done ? (
+                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold shrink-0">
+                      {step.num}
+                    </span>
+                  )}
+                  <span className="font-semibold text-xs">{step.title}</span>
+                </div>
+              );
+            })}
           </div>
 
           {/* Social proof */}
@@ -136,7 +222,7 @@ export default function BootcampLock() {
             size="lg"
             className="w-full bg-white text-black hover:bg-white/90 font-black text-base tracking-wide h-12"
           >
-            {currentPhase > 1 ? 'CONTINUE BOOT CAMP' : 'START BOOT CAMP'}
+            {completedCount > 0 ? 'CONTINUE BOOT CAMP' : 'START BOOT CAMP'}
           </Button>
         </div>
       </div>

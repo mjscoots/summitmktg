@@ -28,6 +28,7 @@ import TrainingPage from "./pages/app/TrainingPage";
 import BootcampLock from "./pages/app/BootcampLock";
 import BootcampPhase1 from "./pages/app/BootcampPhase1";
 import BootcampPhase2 from "./pages/app/BootcampPhase2";
+import BootcampMomentum from "./pages/app/BootcampMomentum";
 import BootcampPhase3 from "./pages/app/BootcampPhase3";
 import TrainingCoursePage from "./pages/app/TrainingCoursePage";
 import LessonPage from "./pages/app/LessonPage";
@@ -103,6 +104,11 @@ const queryClient = new QueryClient();
             <Route path="/bootcamp-lock" element={
               <ProtectedRoute>
                 <BootcampLock />
+              </ProtectedRoute>
+            } />
+            <Route path="/bootcamp/momentum" element={
+              <ProtectedRoute>
+                <BootcampMomentum />
               </ProtectedRoute>
             } />
             <Route path="/bootcamp/phase-1" element={
