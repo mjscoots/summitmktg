@@ -213,16 +213,26 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Delete related data first
+      // Delete related data first (order matters for foreign keys)
+      await supabaseAdmin.from("chat_messages").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("user_priority_tasks").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("event_notifications").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("calendar_event_assignees").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("calendar_attendance").delete().eq("user_id", user_id);
       await supabaseAdmin.from("bootcamp_progress").delete().eq("user_id", user_id);
       await supabaseAdmin.from("lesson_progress").delete().eq("user_id", user_id);
       await supabaseAdmin.from("video_progress").delete().eq("user_id", user_id);
-      await supabaseAdmin.from("user_roles").delete().eq("user_id", user_id);
       await supabaseAdmin.from("leaderboard_points").delete().eq("user_id", user_id);
       await supabaseAdmin.from("user_training_achievements").delete().eq("user_id", user_id);
       await supabaseAdmin.from("user_notifications").delete().eq("user_id", user_id);
-      await supabaseAdmin.from("calendar_attendance").delete().eq("user_id", user_id);
       await supabaseAdmin.from("streak_breaks").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", user_id);
+      // Nullify references in tables where the user isn't the owner
+      await supabaseAdmin.from("weekly_one_on_ones_manager").update({ manager_user_id: null }).eq("manager_user_id", user_id);
+      await supabaseAdmin.from("weekly_one_on_ones_rookie").update({ rookie_user_id: null }).eq("rookie_user_id", user_id);
+      await supabaseAdmin.from("rep_signups").update({ signed_by: null }).eq("signed_by", user_id);
+      await supabaseAdmin.from("team_resources").update({ added_by: null }).eq("added_by", user_id);
+      await supabaseAdmin.from("teams").update({ leader_id: null }).eq("leader_id", user_id);
       await supabaseAdmin.from("profiles").delete().eq("user_id", user_id);
 
       // Delete auth user
