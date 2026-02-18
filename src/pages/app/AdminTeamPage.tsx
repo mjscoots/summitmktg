@@ -11,7 +11,7 @@ import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2 } from 'lucide-react';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
-import AdminFeedbackTab from '@/components/admin/AdminFeedbackTab';
+
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
 import { toast } from '@/hooks/use-toast';
@@ -495,7 +495,7 @@ export default function AdminTeamPage() {
             <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Teams</TabsTrigger>
             <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Bootcamp Responses</TabsTrigger>
             <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Applications</TabsTrigger>
-            <TabsTrigger value="feedback" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Feedback</TabsTrigger>
+            
             <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
             </TabsTrigger>
@@ -509,10 +509,6 @@ export default function AdminTeamPage() {
             <AdminApplicationsTab />
           </TabsContent>
 
-          {/* ========== FEEDBACK TAB ========== */}
-          <TabsContent value="feedback">
-            <AdminFeedbackTab />
-          </TabsContent>
 
           {/* ========== TRAINING CMS TAB ========== */}
           <TabsContent value="training-cms" className="mt-0">
