@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker } from 'lucide-react';
+import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -72,6 +73,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
   const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
+  const [showStickers, setShowStickers] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
@@ -321,6 +323,21 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setMessages(prev => prev.filter(m => m.id !== msgId));
   };
 
+  const handleSendSticker = async (sticker: StickerType) => {
+    if (!user) return;
+    setShowStickers(false);
+    const content = `${STICKER_PREFIX}${sticker.id}`;
+    const { error } = await supabase.from('chat_messages').insert({
+      user_id: user.id,
+      content,
+      reply_to: replyingTo?.id || null,
+      channel: activeChannel,
+    });
+    if (error) { toast.error('Failed to send sticker'); return; }
+    setReplyingTo(null);
+    scrollToBottom();
+  };
+
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) return { full_name: 'Summit AI Coach', avatar_url: null, role: 'bot' };
     return profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
@@ -559,6 +576,19 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           </span>
                         </div>
                       </div>
+                    ) : isStickerMessage(msg.content) ? (
+                      (() => {
+                        const sticker = getStickerFromMessage(msg.content);
+                        return sticker ? (
+                          <img
+                            src={sticker.src}
+                            alt={sticker.label}
+                            className="w-32 h-32 object-contain rounded-lg"
+                          />
+                        ) : (
+                          <p className="text-sm text-foreground/90">[Unknown sticker]</p>
+                        );
+                      })()
                     ) : (
                       <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
                         {msg.content}
@@ -631,7 +661,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Input */}
       {canPostInChannel ? (
-        <div className="px-4 pb-4 pt-1 flex-shrink-0">
+        <div className="px-4 pb-4 pt-1 flex-shrink-0 relative">
+          {/* Sticker Picker */}
+          {showStickers && (
+            <StickerPicker
+              onSelect={handleSendSticker}
+              onClose={() => setShowStickers(false)}
+            />
+          )}
           {/* Reply preview */}
           {replyingTo && (
             <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/40 rounded-t-lg border border-b-0 border-border/50 text-xs">
@@ -671,6 +708,20 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               className="flex-1 bg-transparent text-foreground text-sm px-4 py-2.5 focus:outline-none placeholder:text-muted-foreground/50"
               disabled={isSending || isAiLoading}
             />
+            {activeChannel !== 'ai-coach' && (
+              <button
+                onClick={() => setShowStickers(!showStickers)}
+                className={cn(
+                  "p-2 rounded-md transition-all flex-shrink-0",
+                  showStickers
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                )}
+                title="Stickers"
+              >
+                <Sticker className="w-5 h-5" />
+              </button>
+            )}
             <button
               onClick={handleSend}
               disabled={!input.trim() || isSending || isAiLoading}
