@@ -235,7 +235,7 @@ export function CommandCenterHeader() {
             <ManagerMetrics 
               streak={streakData.currentStreak} 
               momentum={momentum}
-              lastTrainedAgo={streakData.lastActivityDate ? 'Today' : undefined}
+              lastTrainedAgo={streakData.lastLoginDate ? 'Today' : undefined}
             />
           </div>
         </div>
@@ -246,7 +246,7 @@ export function CommandCenterHeader() {
         <ManagerMetrics 
           streak={streakData.currentStreak} 
           momentum={momentum}
-          lastTrainedAgo={streakData.lastActivityDate ? 'Today' : undefined}
+          lastTrainedAgo={streakData.lastLoginDate ? 'Today' : undefined}
         />
       </div>
  

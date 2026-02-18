@@ -405,6 +405,42 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_login_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_login_date: string | null
+          longest_streak: number
+          streak_points_awarded: number
+          total_days_active: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_login_date?: string | null
+          longest_streak?: number
+          streak_points_awarded?: number
+          total_days_active?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_login_date?: string | null
+          longest_streak?: number
+          streak_points_awarded?: number
+          total_days_active?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_notifications: {
         Row: {
           created_at: string | null
@@ -1692,6 +1728,7 @@ export type Database = {
         Returns: boolean
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      record_daily_login: { Args: { _user_id: string }; Returns: Json }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string

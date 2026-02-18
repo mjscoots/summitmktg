@@ -70,7 +70,7 @@ export function TrainingLeaderboard() {
 
         const rookieIds = rookieRoles.map(r => r.user_id);
 
-        const [profilesRes, totalLessonsRes, progressRes] = await Promise.all([
+        const [profilesRes, totalLessonsRes, progressRes, streaksRes] = await Promise.all([
           supabase
             .from('profiles')
             .select('user_id, full_name, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
@@ -84,12 +84,19 @@ export function TrainingLeaderboard() {
             .from('lesson_progress')
             .select('user_id, lesson_id, quiz_score, completed_at')
             .in('user_id', rookieIds)
-            .not('completed_at', 'is', null)
+            .not('completed_at', 'is', null),
+          supabase
+            .from('daily_login_streaks')
+            .select('user_id, current_streak')
+            .in('user_id', rookieIds),
         ]);
 
         const profiles = profilesRes.data || [];
         const totalLessons = totalLessonsRes.count || 1;
         const progress = progressRes.data || [];
+        const streakMap = new Map(
+          (streaksRes.data || []).map(s => [s.user_id, s.current_streak])
+        );
 
         const userStats = new Map<string, { completed: number; quizScores: number[] }>();
         progress.forEach(p => {
@@ -111,7 +118,7 @@ export function TrainingLeaderboard() {
             ? Math.round(stats.quizScores.reduce((a, b) => a + b, 0) / stats.quizScores.length)
             : 0;
           const hoursThisWeek = Math.round((p.time_this_week_minutes || 0) / 60 * 10) / 10;
-          const streakDays = 0;
+          const streakDays = streakMap.get(p.user_id) || 0;
           const progressPct = Math.round((lessonsCompleted / totalLessons) * 100);
 
           // Check if active today
