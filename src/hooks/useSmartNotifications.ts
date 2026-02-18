@@ -26,9 +26,14 @@ export function useSmartNotifications() {
     checkUpcomingEvents();
 
     // Only managers get new-rep-join notifications
+    let cleanupSub: (() => void) | undefined;
     if (isManager) {
-      subscribeToNewUsers();
+      cleanupSub = subscribeToNewUsers();
     }
+
+    return () => {
+      cleanupSub?.();
+    };
   }, [user?.id, isManager]);
 
   // ─── 3. 10+ unread chat messages ────────────────────────────
