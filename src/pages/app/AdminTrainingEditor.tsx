@@ -68,7 +68,8 @@ interface QuizQuestion {
 
 type EditorView = 'courses' | 'lesson' | 'quiz' | 'videos';
 
-export default function AdminTrainingEditor() {
+/** Embeddable Training CMS content — no AppLayout wrapper */
+export function TrainingCMSContent({ embedded = false }: { embedded?: boolean }) {
   const navigate = useNavigate();
   const { role, user } = useAuth();
   
@@ -98,13 +99,13 @@ export default function AdminTrainingEditor() {
   const isAdmin = role === 'admin';
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (!isAdmin && !embedded) {
       toast.error('Admin access required');
       navigate('/app');
       return;
     }
     fetchCourses();
-  }, [isAdmin, navigate]);
+  }, [isAdmin, navigate, embedded]);
 
   const fetchCourses = async () => {
     setIsLoading(true);
@@ -174,7 +175,6 @@ export default function AdminTrainingEditor() {
   };
 
   const handleSelectCourse = (courseId: string) => {
-    // If the course is "Training Videos", show the video manager instead
     const course = courses.find(c => c.id === courseId);
     if (course?.slug === 'training-videos') {
       handleSelectTrainingVideos();
@@ -223,7 +223,6 @@ export default function AdminTrainingEditor() {
       
       toast.success('Lesson saved!');
       
-      // Update local state
       setLessons(prev => prev.map(l => 
         l.id === selectedLesson.id 
           ? { ...l, title: editingTitle, content: editingContent, video_url: editingVideoUrl, key_takeaways: editingTakeaways }
@@ -337,26 +336,20 @@ export default function AdminTrainingEditor() {
     });
   };
 
-  if (!isAdmin) {
-    return null;
-  }
-
   if (isLoading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      </AppLayout>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
     );
   }
 
   return (
-    <AppLayout>
-      <div className="flex h-[calc(100vh-60px)]">
-        {/* Left Sidebar - Course/Module/Lesson Tree */}
-        <div className="w-72 border-r border-border bg-card overflow-y-auto">
-          <div className="p-4 border-b border-border">
+    <div className={cn("flex", embedded ? "h-[calc(100vh-220px)] border border-border rounded-lg overflow-hidden" : "h-[calc(100vh-60px)]")}>
+      {/* Left Sidebar - Course/Module/Lesson Tree */}
+      <div className="w-72 border-r border-border bg-card overflow-y-auto">
+        <div className="p-4 border-b border-border">
+          {!embedded && (
             <button
               onClick={() => navigate('/app')}
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-3"
@@ -364,290 +357,302 @@ export default function AdminTrainingEditor() {
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm">Back to Dashboard</span>
             </button>
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Book className="w-5 h-5 text-primary" />
-              Training CMS
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <Crown className="w-3 h-3 text-primary" />
-              Admin Content Editor
-            </p>
-          </div>
-          
-          {/* Training Videos Link */}
-          <div className="p-2 border-b border-border">
-            <button
-              onClick={handleSelectTrainingVideos}
-              className={cn(
-                "w-full flex items-center gap-2 p-2 rounded-md text-left transition-colors",
-                editorView === 'videos'
-                  ? "bg-primary/10 text-primary"
-                  : "hover:bg-muted text-foreground"
-              )}
-            >
-              <Video className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm font-medium">Training Videos</span>
-            </button>
-          </div>
+          )}
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <Book className="w-5 h-5 text-primary" />
+            Training CMS
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <Crown className="w-3 h-3 text-primary" />
+            Admin Content Editor
+          </p>
+        </div>
+        
+        {/* Training Videos Link */}
+        <div className="p-2 border-b border-border">
+          <button
+            onClick={handleSelectTrainingVideos}
+            className={cn(
+              "w-full flex items-center gap-2 p-2 rounded-md text-left transition-colors",
+              editorView === 'videos'
+                ? "bg-primary/10 text-primary"
+                : "hover:bg-muted text-foreground"
+            )}
+          >
+            <Video className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm font-medium">Training Videos</span>
+          </button>
+        </div>
 
-          {/* Course List */}
-          <div className="p-2">
-            {courses.map(course => (
-              <div key={course.id} className="mb-2">
-                <button
-                  onClick={() => handleSelectCourse(course.id)}
-                  className={cn(
-                    "w-full flex items-center gap-2 p-2 rounded-md text-left transition-colors",
-                    selectedCourseId === course.id 
-                      ? "bg-primary/10 text-primary" 
-                      : "hover:bg-muted text-foreground"
-                  )}
-                >
-                  <Book className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-sm font-medium truncate">{course.title}</span>
-                </button>
-                
-                {/* Modules for selected course */}
-                {selectedCourseId === course.id && modules.length > 0 && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    {modules.map(module => (
-                      <div key={module.id}>
-                        <button
-                          onClick={() => toggleModule(module.id)}
-                          className={cn(
-                            "w-full flex items-center gap-1.5 p-1.5 rounded text-left transition-colors",
-                            "hover:bg-muted text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          {expandedModules.has(module.id) ? (
-                            <ChevronDown className="w-3 h-3" />
-                          ) : (
-                            <ChevronRight className="w-3 h-3" />
-                          )}
-                          <span className="text-xs truncate">{module.title}</span>
-                        </button>
-                        
-                        {/* Lessons */}
-                        {expandedModules.has(module.id) && (
-                          <div className="ml-4 mt-1 space-y-0.5">
-                            {lessons
-                              .filter(l => l.module_id === module.id)
-                              .map(lesson => (
-                                <button
-                                  key={lesson.id}
-                                  onClick={() => handleSelectLesson(lesson)}
-                                  className={cn(
-                                    "w-full flex items-center gap-1.5 p-1.5 rounded text-left transition-colors",
-                                    selectedLesson?.id === lesson.id
-                                      ? "bg-primary/10 text-primary"
-                                      : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                                  )}
-                                >
-                                  <FileText className="w-3 h-3 flex-shrink-0" />
-                                  <span className="text-xs truncate">{lesson.title}</span>
-                                </button>
-                              ))}
-                          </div>
+        {/* Course List */}
+        <div className="p-2">
+          {courses.map(course => (
+            <div key={course.id} className="mb-2">
+              <button
+                onClick={() => handleSelectCourse(course.id)}
+                className={cn(
+                  "w-full flex items-center gap-2 p-2 rounded-md text-left transition-colors",
+                  selectedCourseId === course.id 
+                    ? "bg-primary/10 text-primary" 
+                    : "hover:bg-muted text-foreground"
+                )}
+              >
+                <Book className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm font-medium truncate">{course.title}</span>
+              </button>
+              
+              {/* Modules for selected course */}
+              {selectedCourseId === course.id && modules.length > 0 && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {modules.map(module => (
+                    <div key={module.id}>
+                      <button
+                        onClick={() => toggleModule(module.id)}
+                        className={cn(
+                          "w-full flex items-center gap-1.5 p-1.5 rounded text-left transition-colors",
+                          "hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
-                      </div>
+                      >
+                        {expandedModules.has(module.id) ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                        <span className="text-xs truncate">{module.title}</span>
+                      </button>
+                      
+                      {/* Lessons */}
+                      {expandedModules.has(module.id) && (
+                        <div className="ml-4 mt-1 space-y-0.5">
+                          {lessons
+                            .filter(l => l.module_id === module.id)
+                            .map(lesson => (
+                              <button
+                                key={lesson.id}
+                                onClick={() => handleSelectLesson(lesson)}
+                                className={cn(
+                                  "w-full flex items-center gap-1.5 p-1.5 rounded text-left transition-colors",
+                                  selectedLesson?.id === lesson.id
+                                    ? "bg-primary/10 text-primary"
+                                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                )}
+                              >
+                                <FileText className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs truncate">{lesson.title}</span>
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Main Editor Area */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {editorView === 'videos' ? (
+          <div className="max-w-5xl mx-auto">
+            <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+              <TrainingVideosManager />
+            </Suspense>
+          </div>
+        ) : !selectedLesson ? (
+          <div className="text-center py-20 text-muted-foreground">
+            <Book className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>Select a lesson from the sidebar to edit</p>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Lesson Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-foreground">{selectedLesson.title}</h1>
+                <p className="text-sm text-muted-foreground">Editing lesson content and quiz</p>
+              </div>
+              <Button onClick={handleSaveLesson} disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                Save Changes
+              </Button>
+            </div>
+            
+            {/* Tab Buttons */}
+            <div className="flex gap-2 border-b border-border pb-2">
+              <button
+                onClick={() => setEditorView('lesson')}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium rounded-t-md transition-colors",
+                  editorView === 'lesson' 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <FileText className="w-4 h-4 inline mr-2" />
+                Content
+              </button>
+              <button
+                onClick={() => setEditorView('quiz')}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium rounded-t-md transition-colors",
+                  editorView === 'quiz' 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <HelpCircle className="w-4 h-4 inline mr-2" />
+                Quiz ({quizQuestions.length})
+              </button>
+            </div>
+            
+            {/* Lesson Content Editor */}
+            {editorView === 'lesson' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Lesson Title</label>
+                  <Input
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    placeholder="Enter lesson title..."
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 flex items-center gap-2">
+                    <Video className="w-4 h-4 text-primary" />
+                    Video URL (YouTube/Vimeo)
+                  </label>
+                  <Input
+                    value={editingVideoUrl}
+                    onChange={(e) => setEditingVideoUrl(e.target.value)}
+                    placeholder="https://youtube.com/watch?v=..."
+                  />
+                  {editingVideoUrl && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Video will appear at top of lesson
+                    </p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Lesson Content</label>
+                  <Suspense fallback={
+                    <div className="min-h-[400px] flex items-center justify-center bg-muted rounded-lg border">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    </div>
+                  }>
+                    <RichTextEditor
+                      value={editingContent}
+                      onChange={setEditingContent}
+                      placeholder="Enter lesson content with rich formatting..."
+                      minHeight="400px"
+                    />
+                  </Suspense>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Use the toolbar for formatting. Supports images, videos, and links.
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Key Takeaways</label>
+                  {editingTakeaways.map((takeaway, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <Input
+                        value={takeaway}
+                        onChange={(e) => {
+                          const newTakeaways = [...editingTakeaways];
+                          newTakeaways[index] = e.target.value;
+                          setEditingTakeaways(newTakeaways);
+                        }}
+                        placeholder={`Takeaway ${index + 1}`}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingTakeaways(prev => prev.filter((_, i) => i !== index))}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}<Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingTakeaways(prev => [...prev, ''])}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Takeaway
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            {/* Quiz Editor */}
+            {editorView === 'quiz' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {quizQuestions.length} question{quizQuestions.length !== 1 ? 's' : ''} • 100% required to pass
+                  </p>
+                  <Button onClick={handleAddQuestion} size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Question
+                  </Button>
+                </div>
+                
+                {quizQuestions.length === 0 ? (
+                  <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+                    <HelpCircle className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-3">No quiz questions yet</p>
+                    <Button onClick={handleAddQuestion}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add First Question
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {quizQuestions.map((question, index) => (
+                      <QuizQuestionEditor
+                        key={question.id}
+                        question={question}
+                        index={index}
+                        isEditing={editingQuestionId === question.id}
+                        onEdit={() => setEditingQuestionId(question.id)}
+                        onSave={handleSaveQuestion}
+                        onDelete={() => handleDeleteQuestion(question.id)}
+                        onCancel={() => setEditingQuestionId(null)}
+                        isSaving={isSaving}
+                      />
                     ))}
                   </div>
                 )}
               </div>
-            ))}
+            )}
           </div>
-        </div>
-        
-        {/* Main Editor Area */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {editorView === 'videos' ? (
-            <div className="max-w-5xl mx-auto">
-              <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
-                <TrainingVideosManager />
-              </Suspense>
-            </div>
-          ) : !selectedLesson ? (
-            <div className="text-center py-20 text-muted-foreground">
-              <Book className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Select a lesson from the sidebar to edit</p>
-            </div>
-          ) : (
-            <div className="max-w-4xl mx-auto space-y-6">
-              {/* Lesson Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">{selectedLesson.title}</h1>
-                  <p className="text-sm text-muted-foreground">Editing lesson content and quiz</p>
-                </div>
-                <Button onClick={handleSaveLesson} disabled={isSaving}>
-                  {isSaving ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Save className="w-4 h-4 mr-2" />
-                  )}
-                  Save Changes
-                </Button>
-              </div>
-              
-              {/* Tab Buttons */}
-              <div className="flex gap-2 border-b border-border pb-2">
-                <button
-                  onClick={() => setEditorView('lesson')}
-                  className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-t-md transition-colors",
-                    editorView === 'lesson' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <FileText className="w-4 h-4 inline mr-2" />
-                  Content
-                </button>
-                <button
-                  onClick={() => setEditorView('quiz')}
-                  className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-t-md transition-colors",
-                    editorView === 'quiz' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <HelpCircle className="w-4 h-4 inline mr-2" />
-                  Quiz ({quizQuestions.length})
-                </button>
-              </div>
-              
-              {/* Lesson Content Editor */}
-              {editorView === 'lesson' && (
-                <div className="space-y-4">
-                  {/* Title */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5">Lesson Title</label>
-                    <Input
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      placeholder="Enter lesson title..."
-                    />
-                  </div>
-                  
-                  {/* Video URL */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5 flex items-center gap-2">
-                      <Video className="w-4 h-4 text-primary" />
-                      Video URL (YouTube/Vimeo)
-                    </label>
-                    <Input
-                      value={editingVideoUrl}
-                      onChange={(e) => setEditingVideoUrl(e.target.value)}
-                      placeholder="https://youtube.com/watch?v=..."
-                    />
-                    {editingVideoUrl && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Video will appear at top of lesson
-                      </p>
-                    )}
-                  </div>
-                  
-                  {/* Content - Rich Text Editor */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5">Lesson Content</label>
-                    <Suspense fallback={
-                      <div className="min-h-[400px] flex items-center justify-center bg-muted rounded-lg border">
-                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                      </div>
-                    }>
-                      <RichTextEditor
-                        value={editingContent}
-                        onChange={setEditingContent}
-                        placeholder="Enter lesson content with rich formatting..."
-                        minHeight="400px"
-                      />
-                    </Suspense>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Use the toolbar for formatting. Supports images, videos, and links.
-                    </p>
-                  </div>
-                  
-                  {/* Key Takeaways */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5">Key Takeaways</label>
-                    {editingTakeaways.map((takeaway, index) => (
-                      <div key={index} className="flex gap-2 mb-2">
-                        <Input
-                          value={takeaway}
-                          onChange={(e) => {
-                            const newTakeaways = [...editingTakeaways];
-                            newTakeaways[index] = e.target.value;
-                            setEditingTakeaways(newTakeaways);
-                          }}
-                          placeholder={`Takeaway ${index + 1}`}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingTakeaways(prev => prev.filter((_, i) => i !== index))}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditingTakeaways(prev => [...prev, ''])}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Takeaway
-                    </Button>
-                  </div>
-                </div>
-              )}
-              
-              {/* Quiz Editor */}
-              {editorView === 'quiz' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      {quizQuestions.length} question{quizQuestions.length !== 1 ? 's' : ''} • 100% required to pass
-                    </p>
-                    <Button onClick={handleAddQuestion} size="sm">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Question
-                    </Button>
-                  </div>
-                  
-                  {quizQuestions.length === 0 ? (
-                    <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-border">
-                      <HelpCircle className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-muted-foreground mb-3">No quiz questions yet</p>
-                      <Button onClick={handleAddQuestion}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add First Question
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {quizQuestions.map((question, index) => (
-                        <QuizQuestionEditor
-                          key={question.id}
-                          question={question}
-                          index={index}
-                          isEditing={editingQuestionId === question.id}
-                          onEdit={() => setEditingQuestionId(question.id)}
-                          onSave={handleSaveQuestion}
-                          onDelete={() => handleDeleteQuestion(question.id)}
-                          onCancel={() => setEditingQuestionId(null)}
-                          isSaving={isSaving}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+/** Standalone page wrapper — keeps existing route working */
+export default function AdminTrainingEditor() {
+  const navigate = useNavigate();
+  const { role } = useAuth();
+  const isAdmin = role === 'admin';
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  return (
+    <AppLayout>
+      <TrainingCMSContent />
     </AppLayout>
   );
 }
