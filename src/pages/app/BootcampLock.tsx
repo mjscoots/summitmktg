@@ -130,11 +130,17 @@ export default function BootcampLock() {
           <Lock className="w-12 h-12 text-white/60 mx-auto mb-6" />
 
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-3">
-            COMPLETE BOOT CAMP
+            BOOT CAMP REQUIRED
           </h1>
 
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 mb-4">
+            <p className="text-red-400 text-sm font-semibold">
+              🔒 You must complete Boot Camp before you can access the app.
+            </p>
+          </div>
+
           <p className="text-white/50 text-sm mb-2">
-            Complete all 10 steps to unlock full access.
+            Complete all 10 steps below to unlock full access to training, chat, calendar, and everything else.
           </p>
           <p className="text-white/30 text-xs mb-6">
             {completedCount}/10 completed
