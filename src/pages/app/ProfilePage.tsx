@@ -54,7 +54,7 @@ export default function ProfilePage() {
           .select('timezone')
           .eq('user_id', profile.user_id)
           .single();
-        setTimezone((data as any)?.timezone || detectBrowserTimezone());
+        setTimezone((data as any)?.timezone || '');
       };
       fetchTimezone();
     }

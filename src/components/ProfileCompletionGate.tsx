@@ -31,7 +31,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
   // Form state
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [timezone, setTimezone] = useState(detectBrowserTimezone());
+  const [timezone, setTimezone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -51,7 +51,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         setProfileData(data as any);
         setFullName((data as any).full_name || '');
         setPhone((data as any).phone || '');
-        setTimezone((data as any).timezone || detectBrowserTimezone());
+        setTimezone((data as any).timezone || '');
         setAvatarUrl((data as any).avatar_url);
 
         // Check completeness
