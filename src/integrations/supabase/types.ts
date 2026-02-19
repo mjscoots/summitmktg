@@ -734,6 +734,7 @@ export type Database = {
           team_id: string | null
           time_this_week_minutes: number | null
           timezone: string | null
+          tour_completed: boolean | null
           updated_at: string | null
           user_id: string
           week_start: string | null
@@ -761,6 +762,7 @@ export type Database = {
           team_id?: string | null
           time_this_week_minutes?: number | null
           timezone?: string | null
+          tour_completed?: boolean | null
           updated_at?: string | null
           user_id: string
           week_start?: string | null
@@ -788,6 +790,7 @@ export type Database = {
           team_id?: string | null
           time_this_week_minutes?: number | null
           timezone?: string | null
+          tour_completed?: boolean | null
           updated_at?: string | null
           user_id?: string
           week_start?: string | null

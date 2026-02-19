@@ -16,6 +16,7 @@ import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
+import { GuidedTour } from '@/components/onboarding/GuidedTour';
  
  export default function DashboardPage() {
    const navigate = useNavigate();
@@ -131,8 +132,11 @@ import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
          </div>
        </div>
  
-       {/* AI Coach */}
-       <AICoachChat />
-     </AppLayout>
+        {/* AI Coach */}
+        <AICoachChat />
+        
+        {/* Guided tour for new users */}
+        <GuidedTour />
+      </AppLayout>
    );
  }

@@ -83,6 +83,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar
+      data-tour="sidebar"
       className={cn(
         'border-r border-border/20 bg-black transition-all duration-200',
         collapsed ? 'w-[52px]' : 'w-44'
@@ -117,6 +118,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.path}>
                     <button
+                      data-tour={item.label.toLowerCase()}
                       onClick={() => navigate(item.path)}
                       className={cn(
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
@@ -182,6 +184,7 @@ export function AppSidebar() {
       {/* Footer */}
       <SidebarFooter className="p-1.5 border-t border-border/10">
         <div
+          data-tour="profile"
           onClick={() => navigate('/app/profile')}
           className={cn(
             "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all duration-200",
