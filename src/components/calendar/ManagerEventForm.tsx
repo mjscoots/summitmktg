@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2 } from 'lucide-react';
+import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2, CalendarPlus, Clock, Type, Tag, Repeat, MapPinned, FileText, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RecurrenceSelector, DEFAULT_RECURRENCE, type RecurrenceSettings } from './RecurrenceSelector';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -50,15 +50,30 @@ interface ManagerEventFormProps {
 }
 
 const EVENT_TYPES = [
-  { value: 'general', label: 'General' },
-  { value: 'training', label: 'Training' },
-  { value: 'meeting', label: 'Meeting' },
-  { value: 'deadline', label: 'Deadline' },
-  { value: 'call', label: 'Team Call' },
+  { value: 'general', label: 'General', icon: '📋' },
+  { value: 'training', label: 'Training', icon: '📚' },
+  { value: 'meeting', label: 'Meeting', icon: '🤝' },
+  { value: 'deadline', label: 'Deadline', icon: '⏰' },
+  { value: 'call', label: 'Team Call', icon: '📞' },
 ];
 
 type AssignmentMode = 'entire_team' | 'managers_only' | 'rookies_only' | 'specific';
 type LocationMode = 'virtual' | 'in_person';
+
+// Step indicator component
+function StepSection({ icon: Icon, title, children, className }: { icon: any; title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn("space-y-3", className)}>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center w-6 h-6 rounded-md bg-primary/10">
+          <Icon className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEventFormProps) {
   const { user, profile } = useAuth();
@@ -137,7 +152,6 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
         setEndDate(endD.toISOString().split('T')[0]);
         setEndTime(endD.toTimeString().slice(0, 5));
       }
-      // Determine location mode
       const loc = event.location || '';
       if (loc && (loc.toLowerCase().includes('http') || loc.toLowerCase().includes('zoom') || loc.toLowerCase().includes('meet') || loc.toLowerCase().includes('teams'))) {
         setLocationMode('virtual');
@@ -236,7 +250,6 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
         eventId = data.id;
       }
 
-      // Handle assignees
       if (!isTeamWide && eventId) {
         await supabase.from('calendar_event_assignees').delete().eq('event_id', eventId);
         if (selectedMembers.length > 0) {
@@ -246,7 +259,6 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
         }
       }
 
-      // Send notifications
       const usersToNotify = isTeamWide ? teamMembers.map(r => r.user_id) : selectedMembers;
       if (usersToNotify.length > 0) {
         const { error: notifError } = await supabase.functions.invoke('send-calendar-notification', {
@@ -301,172 +313,210 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{event?.id ? 'Edit Event' : 'Create Event'}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto p-0 gap-0 border-border/50 bg-card">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-card border-b border-border/50 px-6 py-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2.5 text-lg">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+                <CalendarPlus className="w-4 h-4 text-primary" />
+              </div>
+              {event?.id ? 'Edit Event' : 'New Event'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Title *</label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Event title..." required />
-          </div>
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
+          
+          {/* ── Section 1: Basics ── */}
+          <StepSection icon={Type} title="Details">
+            <Input 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Event name" 
+              required 
+              className="h-11 text-base bg-background/50 border-border/40 focus:border-primary/50 transition-colors"
+            />
 
-          {/* Event Type */}
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Event Type</label>
-            <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
-              {EVENT_TYPES.map(type => (<option key={type.value} value={type.value}>{type.label}</option>))}
-            </select>
-          </div>
-
-          {/* Recurrence - moved up */}
-          <div>
-            <RecurrenceSelector value={recurrence} onChange={setRecurrence} />
-          </div>
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Start Date *</label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+            {/* Event type chips */}
+            <div className="flex flex-wrap gap-1.5">
+              {EVENT_TYPES.map(type => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => setEventType(type.value)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+                    eventType === type.value
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <span>{type.icon}</span>
+                  {type.label}
+                </button>
+              ))}
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5">End Date</label>
-              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-            </div>
-          </div>
 
-          {/* Time toggle */}
-          <div className="flex items-center justify-between py-1">
-            <Label className="text-sm font-medium">Set specific time</Label>
-            <Switch checked={includeTime} onCheckedChange={setIncludeTime} />
-          </div>
+            <Textarea 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)} 
+              placeholder="Add details (optional)" 
+              className="min-h-[72px] resize-none bg-background/50 border-border/40 focus:border-primary/50 transition-colors text-sm"
+            />
+          </StepSection>
 
-          {includeTime && (
+          <div className="border-t border-border/30" />
+
+          {/* ── Section 2: When ── */}
+          <StepSection icon={Clock} title="When">
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Start Time</label>
-                <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Start *</Label>
+                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">End Time</label>
-                <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">End</Label>
+                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-background/50 border-border/40" />
               </div>
             </div>
-          )}
 
-          {/* Timezone */}
-          {includeTime && (
-            <div>
-              <label className="block text-sm font-medium mb-1.5 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-primary" />
-                Timezone
-              </label>
-              <Select value={eventTimezone} onValueChange={setEventTimezone}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timezone (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMEZONES.map(tz => (<SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>))}
-                </SelectContent>
-              </Select>
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2.5">
+              <Label className="text-xs font-medium text-muted-foreground">Add specific time</Label>
+              <Switch checked={includeTime} onCheckedChange={setIncludeTime} />
             </div>
-          )}
 
-          {/* Location mode */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            {includeTime && (
+              <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Start time</Label>
+                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-background/50 border-border/40" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">End time</Label>
+                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="bg-background/50 border-border/40" />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Globe className="w-3 h-3" /> Timezone
+                  </Label>
+                  <Select value={eventTimezone} onValueChange={setEventTimezone}>
+                    <SelectTrigger className="bg-background/50 border-border/40">
+                      <SelectValue placeholder="Select timezone (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONES.map(tz => (<SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+
+            <RecurrenceSelector value={recurrence} onChange={setRecurrence} />
+          </StepSection>
+
+          <div className="border-t border-border/30" />
+
+          {/* ── Section 3: Where ── */}
+          <StepSection icon={MapPinned} title="Where">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => { setLocationMode('virtual'); setLocationDetail(''); }}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all",
+                  "flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all",
                   locationMode === 'virtual'
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border text-muted-foreground hover:border-primary/50"
+                    ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
                 )}
               >
-                <Video className="w-4 h-4" />
-                Virtual
+                <Video className="w-3.5 h-3.5" /> Virtual
               </button>
               <button
                 type="button"
                 onClick={() => { setLocationMode('in_person'); setLocationDetail(''); }}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all",
+                  "flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all",
                   locationMode === 'in_person'
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border text-muted-foreground hover:border-primary/50"
+                    ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
                 )}
               >
-                <MapPin className="w-4 h-4" />
-                In Person
+                <MapPin className="w-3.5 h-3.5" /> In Person
               </button>
             </div>
-            {locationMode === 'virtual' ? (
-              <div className="relative">
-                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  value={locationDetail}
-                  onChange={(e) => setLocationDetail(e.target.value)}
-                  placeholder="Paste meeting link (Zoom, Meet, etc.)"
-                  className="pl-10"
-                />
-              </div>
-            ) : (
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  value={locationDetail}
-                  onChange={(e) => setLocationDetail(e.target.value)}
-                  placeholder="Enter address"
-                  className="pl-10"
-                />
-              </div>
-            )}
-          </div>
+            <div className="relative">
+              {locationMode === 'virtual' ? (
+                <>
+                  <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                  <Input value={locationDetail} onChange={(e) => setLocationDetail(e.target.value)} placeholder="Paste meeting link..." className="pl-10 bg-background/50 border-border/40" />
+                </>
+              ) : (
+                <>
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                  <Input value={locationDetail} onChange={(e) => setLocationDetail(e.target.value)} placeholder="Enter address..." className="pl-10 bg-background/50 border-border/40" />
+                </>
+              )}
+            </div>
+          </StepSection>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Description</label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Event details..." className="min-h-[80px]" />
-          </div>
+          <div className="border-t border-border/30" />
 
-          {/* Assignment */}
-          <div className="border-t border-border pt-4">
-            <label className="block text-sm font-medium mb-3">Assign To</label>
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              <button type="button" onClick={() => selectAllByMode('entire_team')} className={cn("flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all", assignmentMode === 'entire_team' ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}>
-                <Users className="w-4 h-4" /> Everyone ({teamMembers.length})
-              </button>
-              <button type="button" onClick={() => selectAllByMode('managers_only')} className={cn("flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all", assignmentMode === 'managers_only' ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}>
-                <UserCheck className="w-4 h-4" /> Managers ({teamMembers.filter(m => m.role === 'manager' || m.role === 'admin').length})
-              </button>
-              <button type="button" onClick={() => selectAllByMode('rookies_only')} className={cn("flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all", assignmentMode === 'rookies_only' ? "border-success bg-success/10 text-success" : "border-border text-muted-foreground hover:border-success/50")}>
-                <User className="w-4 h-4" /> Rookies ({teamMembers.filter(m => m.role === 'rookie').length})
-              </button>
-              <button type="button" onClick={() => selectAllByMode('specific')} className={cn("flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm font-medium transition-all", assignmentMode === 'specific' ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}>
-                <User className="w-4 h-4" /> Select Specific
-              </button>
+          {/* ── Section 4: Who ── */}
+          <StepSection icon={UserPlus} title="Invite">
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { mode: 'entire_team' as AssignmentMode, icon: Users, label: 'Everyone', count: teamMembers.length },
+                { mode: 'managers_only' as AssignmentMode, icon: UserCheck, label: 'Managers', count: teamMembers.filter(m => m.role === 'manager' || m.role === 'admin').length },
+                { mode: 'rookies_only' as AssignmentMode, icon: User, label: 'Rookies', count: teamMembers.filter(m => m.role === 'rookie').length },
+                { mode: 'specific' as AssignmentMode, icon: Search, label: 'Custom', count: selectedMembers.length },
+              ].map(({ mode, icon: ModeIcon, label, count }) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => selectAllByMode(mode)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium transition-all",
+                    assignmentMode === mode
+                      ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                  )}
+                >
+                  <ModeIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{label}</span>
+                  <span className={cn(
+                    "ml-auto text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded-full",
+                    assignmentMode === mode ? "bg-primary/20" : "bg-muted"
+                  )}>{count}</span>
+                </button>
+              ))}
             </div>
 
             {assignmentMode === 'specific' && (
-              <div className="bg-muted/50 rounded-lg p-3 max-h-72 overflow-y-auto">
+              <div className="rounded-lg border border-border/40 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                <div className="p-2.5 bg-muted/20 border-b border-border/30">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
+                    <input
+                      type="text"
+                      placeholder="Search by name, email, or team..."
+                      value={memberSearch}
+                      onChange={(e) => setMemberSearch(e.target.value)}
+                      className="w-full pl-8 pr-3 py-2 text-xs bg-background/80 border border-border/40 rounded-md focus:outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+                </div>
+                
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+                  <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
                 ) : teamMembers.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">No members found</p>
+                  <p className="text-xs text-muted-foreground text-center py-8">No members found</p>
                 ) : (
                   <>
-                    <div className="relative mb-3">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <input type="text" placeholder="Search by name, email, or team..." value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary" />
-                    </div>
                     {uniqueTeams.length > 1 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3 pb-3 border-b border-border">
+                      <div className="flex flex-wrap gap-1 px-2.5 py-2 border-b border-border/20">
                         {uniqueTeams.slice(0, 4).map(teamName => (
                           <button key={teamName} type="button" onClick={() => {
                             const teamMemberIds = teamMembers.filter(m => m.team_name === teamName).map(m => m.user_id);
@@ -474,30 +524,32 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
                               const allSelected = teamMemberIds.every(id => prev.includes(id));
                               return allSelected ? prev.filter(id => !teamMemberIds.includes(id)) : [...new Set([...prev, ...teamMemberIds])];
                             });
-                          }} className="text-[10px] px-2 py-1 rounded-full bg-secondary text-secondary-foreground hover:bg-primary/20 transition-colors">
+                          }} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/60 text-secondary-foreground hover:bg-primary/20 transition-colors">
                             {teamName}
                           </button>
                         ))}
                       </div>
                     )}
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs text-muted-foreground">{filteredMembers.length} of {teamMembers.length} • {selectedMembers.length} selected</span>
+                    <div className="flex justify-between items-center px-2.5 py-1.5 bg-muted/10">
+                      <span className="text-[10px] text-muted-foreground">{filteredMembers.length} members · {selectedMembers.length} selected</span>
                       <div className="flex gap-2">
-                        <button type="button" onClick={() => setSelectedMembers([])} className="text-xs text-muted-foreground hover:text-foreground">Clear</button>
-                        <button type="button" onClick={() => setSelectedMembers(filteredMembers.map(m => m.user_id))} className="text-xs text-primary hover:underline">Select all</button>
+                        <button type="button" onClick={() => setSelectedMembers([])} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">Clear</button>
+                        <button type="button" onClick={() => setSelectedMembers(filteredMembers.map(m => m.user_id))} className="text-[10px] text-primary hover:text-primary/80 transition-colors">All</button>
                       </div>
                     </div>
-                    <div className="space-y-1">
+                    <div className="max-h-48 overflow-y-auto divide-y divide-border/10">
                       {filteredMembers.map((member) => (
-                        <label key={member.user_id} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer group">
-                          <Checkbox checked={selectedMembers.includes(member.user_id)} onCheckedChange={() => toggleMember(member.user_id)} />
+                        <label key={member.user_id} className="flex items-center gap-2.5 px-2.5 py-2 hover:bg-muted/30 cursor-pointer transition-colors">
+                          <Checkbox checked={selectedMembers.includes(member.user_id)} onCheckedChange={() => toggleMember(member.user_id)} className="shrink-0" />
                           <UserAvatar avatarUrl={member.avatar_url} fullName={member.full_name} size="sm" />
                           <div className="flex-1 min-w-0">
-                            <span className="text-sm truncate block">{member.full_name}</span>
+                            <span className="text-xs font-medium truncate block text-foreground">{member.full_name}</span>
                             {member.team_name && <span className="text-[10px] text-muted-foreground">{member.team_name}</span>}
                           </div>
-                          <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", member.role === 'rookie' ? "bg-success/10 text-success" : "bg-primary/10 text-primary")}>
-                            {member.role === 'rookie' ? 'Rookie' : 'Manager'}
+                          <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium",
+                            member.role === 'rookie' ? "bg-success/10 text-success" : "bg-primary/10 text-primary"
+                          )}>
+                            {member.role === 'rookie' ? 'Rookie' : 'Mgr'}
                           </span>
                         </label>
                       ))}
@@ -506,13 +558,19 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
                 )}
               </div>
             )}
-          </div>
+          </StepSection>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving...</>) : (event?.id ? 'Update Event' : 'Create Event')}
+          {/* ── Actions ── */}
+          <div className="sticky bottom-0 bg-card pt-3 pb-1 border-t border-border/30 -mx-6 px-6 flex gap-2">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1 h-10 text-sm">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSaving} className="flex-[2] h-10 text-sm font-semibold">
+              {isSaving ? (
+                <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving...</>
+              ) : (
+                event?.id ? 'Save Changes' : 'Create Event'
+              )}
             </Button>
           </div>
         </form>
