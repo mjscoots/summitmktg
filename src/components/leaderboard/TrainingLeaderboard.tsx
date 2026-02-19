@@ -22,6 +22,7 @@ const POINTS = {
 interface LeaderboardEntry {
   user_id: string;
   full_name: string;
+  nickname: string | null;
   avatar_url: string | null;
   lessonsCompleted: number;
   totalLessons: number;
@@ -38,6 +39,11 @@ interface LeaderboardEntry {
     quizPoints: number;
   };
   weeklyBadge: string | null;
+}
+
+/** Display name: nickname if available, otherwise first name */
+function displayName(entry: LeaderboardEntry) {
+  return entry.nickname || entry.full_name.split(' ')[0];
 }
 
 const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: string; check: (e: LeaderboardEntry, rank: number) => boolean }[] = [
@@ -73,7 +79,7 @@ export function TrainingLeaderboard() {
         const [profilesRes, totalLessonsRes, progressRes, streaksRes] = await Promise.all([
           supabase
             .from('profiles')
-            .select('user_id, full_name, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
+            .select('user_id, full_name, nickname, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
             .in('user_id', rookieIds)
             .not('status', 'eq', 'nlc'),
           supabase
@@ -121,7 +127,6 @@ export function TrainingLeaderboard() {
           const streakDays = streakMap.get(p.user_id) || 0;
           const progressPct = Math.round((lessonsCompleted / totalLessons) * 100);
 
-          // Check if active today
           const lastActive = p.last_active_at ? new Date(p.last_active_at) : null;
           const isActiveToday = lastActive ? lastActive >= today : false;
 
@@ -134,6 +139,7 @@ export function TrainingLeaderboard() {
           return {
             user_id: p.user_id,
             full_name: p.full_name,
+            nickname: (p as any).nickname || null,
             avatar_url: p.avatar_url,
             lessonsCompleted,
             totalLessons,
@@ -175,12 +181,6 @@ export function TrainingLeaderboard() {
     return WEEKLY_BADGES.find(b => b.id === badgeId) || null;
   };
 
-  const getProgressColor = (pct: number) => {
-    if (pct >= 80) return 'text-success';
-    if (pct >= 40) return 'text-primary';
-    return 'text-muted-foreground';
-  };
-
   if (isLoading) {
     return (
       <div className="p-6 text-center">
@@ -203,7 +203,7 @@ export function TrainingLeaderboard() {
 
   return (
     <div>
-      {/* ===== MOTIVATIONAL BANNER ===== */}
+      {/* ===== YOUR RANK BANNER ===== */}
       {(() => {
         const myRank = entries.findIndex(e => e.user_id === user?.id);
         if (myRank === -1) return null;
@@ -214,47 +214,35 @@ export function TrainingLeaderboard() {
         const pointsToNext = myRank > 0 ? entries[myRank - 1].totalPoints - me.totalPoints : 0;
 
         let motivationText = '';
-        let motivationIcon: React.ReactNode = <TrendingUp className="w-4 h-4" />;
         let accentClass = 'from-primary/15 to-primary/5 border-primary/20';
 
         if (rank === 1) {
-          motivationText = "You're #1! Keep dominating.";
-          motivationIcon = <Crown className="w-4 h-4 text-yellow-500" />;
+          motivationText = "👑 You're #1! Keep dominating.";
           accentClass = 'from-yellow-500/15 to-yellow-500/5 border-yellow-500/20';
         } else if (rank <= 3) {
-          motivationText = `Only ${pointsToNext} pts behind #${rank - 1}. Push harder!`;
-          motivationIcon = <ArrowUp className="w-4 h-4 text-success" />;
+          motivationText = `🔥 Only ${pointsToNext} pts behind #${rank - 1}!`;
           accentClass = 'from-success/15 to-success/5 border-success/20';
         } else if (topPct <= 50) {
-          motivationText = `Top ${topPct}%! ${pointsToNext} pts to move up.`;
-          motivationIcon = <TrendingUp className="w-4 h-4 text-primary" />;
+          motivationText = `📈 Top ${topPct}% — ${pointsToNext} pts to level up`;
         } else {
-          motivationText = `Complete more lessons to climb the ranks!`;
-          motivationIcon = <Zap className="w-4 h-4 text-amber-500" />;
+          motivationText = `⚡ Complete lessons to climb!`;
           accentClass = 'from-amber-500/15 to-amber-500/5 border-amber-500/20';
         }
 
         return (
           <div className={cn(
-            "mx-4 mt-4 p-3 rounded-xl border bg-gradient-to-r flex items-center gap-3",
+            "mx-4 mt-4 p-3.5 rounded-xl border bg-gradient-to-r flex items-center gap-3",
             accentClass
           )}>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center">
-                <span className="text-sm font-bold text-primary">#{rank}</span>
-              </div>
+            <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
+              <span className="text-sm font-black text-primary">#{rank}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                {motivationIcon}
-                <span className="text-sm font-semibold text-foreground truncate">{motivationText}</span>
-              </div>
+              <p className="text-sm font-semibold text-foreground truncate">{motivationText}</p>
               <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
-                <span>{me.totalPoints.toLocaleString()} pts</span>
+                <span className="font-semibold text-primary">{me.totalPoints.toLocaleString()} pts</span>
                 <span>·</span>
                 <span>{me.progressPct}% trained</span>
-                <span>·</span>
-                <span>{me.lessonsCompleted}/{me.totalLessons} lessons</span>
               </div>
             </div>
           </div>
@@ -263,22 +251,23 @@ export function TrainingLeaderboard() {
 
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
-        <div className="relative px-4 pt-8 pb-4 bg-gradient-to-b from-primary/5 via-muted/10 to-transparent border-b border-border/50 overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/10 rounded-full blur-3xl" />
+        <div className="relative px-4 pt-10 pb-6 overflow-hidden">
+          {/* Background glow */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/8 rounded-full blur-[60px]" />
 
-          <div className="relative flex items-end justify-center gap-3">
+          <div className="relative flex items-end justify-center gap-4">
             {/* 2nd Place */}
             <PodiumSlot
               entry={top3[1]}
               rank={2}
               animateIn={animateIn}
               delay="200ms"
-              ringClass="ring-2 ring-gray-400"
-              podiumH="h-16"
-              podiumBg="from-gray-500/20 to-gray-400/10"
-              podiumBorder="border-gray-400/20"
-              icon={<Medal className="w-5 h-5 text-gray-400" />}
-              rankBg="bg-gray-400"
+              podiumH="h-20"
+              podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent"
+              ringColor="ring-gray-400/60"
+              medalIcon={<Medal className="w-5 h-5 text-gray-400" />}
+              rankBg="bg-gradient-to-br from-gray-400 to-gray-500"
               onClick={() => setSelectedEntry(top3[1])}
             />
             {/* 1st Place */}
@@ -287,13 +276,12 @@ export function TrainingLeaderboard() {
               rank={1}
               animateIn={animateIn}
               delay="0ms"
-              ringClass="ring-4 ring-yellow-500 shadow-xl shadow-yellow-500/20 !w-16 !h-16"
-              podiumH="h-24"
-              podiumBg="from-yellow-500/20 to-yellow-400/5"
-              podiumBorder="border-yellow-500/30"
-              icon={<Trophy className="w-7 h-7 text-yellow-500" />}
-              rankBg="bg-yellow-500"
-              isCrown
+              podiumH="h-28"
+              podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent"
+              ringColor="ring-yellow-500/70"
+              medalIcon={<Trophy className="w-7 h-7 text-yellow-500" />}
+              rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
+              isChampion
               onClick={() => setSelectedEntry(top3[0])}
             />
             {/* 3rd Place */}
@@ -302,21 +290,20 @@ export function TrainingLeaderboard() {
               rank={3}
               animateIn={animateIn}
               delay="400ms"
-              ringClass="ring-2 ring-amber-600"
-              podiumH="h-12"
-              podiumBg="from-amber-600/20 to-amber-600/5"
-              podiumBorder="border-amber-600/20"
-              icon={<Award className="w-5 h-5 text-amber-600" />}
-              rankBg="bg-amber-600"
+              podiumH="h-14"
+              podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent"
+              ringColor="ring-amber-600/60"
+              medalIcon={<Award className="w-5 h-5 text-amber-600" />}
+              rankBg="bg-gradient-to-br from-amber-500 to-amber-700"
               onClick={() => setSelectedEntry(top3[2])}
             />
           </div>
         </div>
       )}
 
-      {/* Weekly Badges Row */}
+      {/* Weekly Badges */}
       {entries.some(e => e.weeklyBadge) && (
-        <div className="px-4 py-3 bg-muted/20 border-b border-border/50">
+        <div className="px-4 py-3 bg-muted/20 border-y border-border/30">
           <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">This Week's Badges</p>
           <div className="flex flex-wrap gap-2">
             {entries.filter(e => e.weeklyBadge).map(entry => {
@@ -329,7 +316,7 @@ export function TrainingLeaderboard() {
                   className="flex items-center gap-1.5 px-2.5 py-1 bg-card rounded-full border border-border/50 text-xs"
                 >
                   <BadgeIcon className={cn('w-3.5 h-3.5', badge.color)} />
-                  <span className="font-medium text-foreground">{entry.full_name.split(' ')[0]}</span>
+                  <span className="font-medium text-foreground">{displayName(entry)}</span>
                   <span className="text-muted-foreground">·</span>
                   <span className={cn('font-semibold', badge.color)}>{badge.label}</span>
                 </div>
@@ -340,7 +327,7 @@ export function TrainingLeaderboard() {
       )}
 
       {/* Full Leaderboard List */}
-      <div className="divide-y divide-border/50">
+      <div className="divide-y divide-border/30">
         {rest.map((entry, index) => {
           const isCurrentUser = entry.user_id === user?.id;
           const rank = index + 4;
@@ -351,16 +338,21 @@ export function TrainingLeaderboard() {
               key={entry.user_id}
               onClick={() => setSelectedEntry(entry)}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 transition-all cursor-pointer hover:bg-muted/30",
-                "animate-fade-in",
+                "flex items-center gap-3 px-4 py-3.5 transition-all cursor-pointer group",
+                "hover:bg-muted/20",
                 isCurrentUser && "bg-primary/5 border-l-2 border-l-primary"
               )}
-              style={{ animationDelay: `${index * 50}ms` }}
+              style={{ animationDelay: `${index * 30}ms` }}
             >
+              {/* Rank */}
               <div className="w-8 flex justify-center">
-                <span className="text-sm font-bold text-muted-foreground">{rank}</span>
+                <span className={cn(
+                  "text-sm font-bold tabular-nums",
+                  rank <= 5 ? "text-foreground" : "text-muted-foreground"
+                )}>{rank}</span>
               </div>
 
+              {/* Avatar */}
               <div className="relative">
                 <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" />
                 {entry.isActiveToday && (
@@ -368,36 +360,33 @@ export function TrainingLeaderboard() {
                 )}
               </div>
 
+              {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className={cn(
-                    "text-sm font-medium truncate",
+                    "text-sm font-semibold truncate",
                     isCurrentUser ? "text-primary" : "text-foreground"
                   )}>
-                    {entry.full_name}
-                    {isCurrentUser && <span className="text-xs ml-1 text-muted-foreground">(You)</span>}
+                    {displayName(entry)}
+                    {isCurrentUser && <span className="text-xs font-normal ml-1 text-muted-foreground">(You)</span>}
                   </p>
-                  {badge && (
-                    <badge.icon className={cn('w-3.5 h-3.5 flex-shrink-0', badge.color)} />
-                  )}
+                  {badge && <badge.icon className={cn('w-3.5 h-3.5 flex-shrink-0', badge.color)} />}
                 </div>
-                {/* Training progress bar */}
                 <div className="flex items-center gap-2 mt-1">
                   <Progress value={entry.progressPct} className="h-1.5 flex-1" />
-                  <span className={cn("text-[10px] font-semibold tabular-nums min-w-[32px] text-right", getProgressColor(entry.progressPct))}>
+                  <span className={cn(
+                    "text-[10px] font-bold tabular-nums min-w-[32px] text-right",
+                    entry.progressPct >= 80 ? "text-success" : entry.progressPct >= 40 ? "text-primary" : "text-muted-foreground"
+                  )}>
                     {entry.progressPct}%
                   </span>
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-0.5"><BookOpen className="w-3 h-3" /> {entry.lessonsCompleted}/{entry.totalLessons}</span>
-                  <span className="flex items-center gap-0.5"><Clock className="w-3 h-3" /> {entry.hoursThisWeek}h</span>
-                  <span className="flex items-center gap-0.5"><Target className="w-3 h-3" /> {entry.avgQuizScore}%</span>
-                </div>
               </div>
 
-              <div className="text-right">
-                <span className="text-lg font-bold text-primary">{entry.totalPoints.toLocaleString()}</span>
-                <p className="text-[10px] text-muted-foreground">pts</p>
+              {/* Points */}
+              <div className="text-right pl-2">
+                <span className="text-base font-black text-primary tabular-nums">{entry.totalPoints.toLocaleString()}</span>
+                <p className="text-[9px] text-muted-foreground font-medium">PTS</p>
               </div>
             </div>
           );
@@ -411,9 +400,9 @@ export function TrainingLeaderboard() {
             <DialogTitle className="flex items-center gap-3">
               <UserAvatar avatarUrl={selectedEntry?.avatar_url || null} fullName={selectedEntry?.full_name || ''} size="md" />
               <div>
-                <p>{selectedEntry?.full_name}</p>
+                <p className="text-lg">{selectedEntry ? displayName(selectedEntry) : ''}</p>
                 <p className="text-xs text-muted-foreground font-normal">
-                  Rank #{entries.findIndex(e => e.user_id === selectedEntry?.user_id) + 1}
+                  Rank #{entries.findIndex(e => e.user_id === selectedEntry?.user_id) + 1} · {selectedEntry?.totalPoints.toLocaleString()} pts
                 </p>
               </div>
             </DialogTitle>
@@ -428,7 +417,9 @@ export function TrainingLeaderboard() {
                     <GraduationCap className="w-4 h-4 text-primary" />
                     Training Progress
                   </span>
-                  <span className={cn("text-sm font-bold", getProgressColor(selectedEntry.progressPct))}>
+                  <span className={cn("text-sm font-bold",
+                    selectedEntry.progressPct >= 80 ? "text-success" : selectedEntry.progressPct >= 40 ? "text-primary" : "text-muted-foreground"
+                  )}>
                     {selectedEntry.progressPct}%
                   </span>
                 </div>
@@ -485,8 +476,8 @@ export function TrainingLeaderboard() {
               <div className="border-t border-border pt-4">
                 <div className="flex items-center justify-between">
                   <p className="text-lg font-bold">Total Score</p>
-                  <span className="text-2xl font-bold text-primary">
-                    {selectedEntry.totalPoints.toLocaleString()} pts
+                  <span className="text-2xl font-black text-primary">
+                    {selectedEntry.totalPoints.toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -498,15 +489,14 @@ export function TrainingLeaderboard() {
   );
 }
 
-// Podium slot sub-component
+// ── Podium slot sub-component ──
 function PodiumSlot({
-  entry, rank, animateIn, delay, ringClass, podiumH, podiumBg, podiumBorder, icon, rankBg, isCrown, onClick
+  entry, rank, animateIn, delay, podiumH, podiumGradient, ringColor, medalIcon, rankBg, isChampion, onClick
 }: {
   entry: LeaderboardEntry; rank: number; animateIn: boolean; delay: string;
-  ringClass: string; podiumH: string; podiumBg: string; podiumBorder: string;
-  icon: React.ReactNode; rankBg: string; isCrown?: boolean; onClick: () => void;
+  podiumH: string; podiumGradient: string; ringColor: string;
+  medalIcon: React.ReactNode; rankBg: string; isChampion?: boolean; onClick: () => void;
 }) {
-  const avatarSize = isCrown ? 'lg' : 'lg';
   return (
     <div
       className={cn(
@@ -515,14 +505,30 @@ function PodiumSlot({
       )}
       style={{ transitionDelay: delay }}
     >
+      {/* Avatar */}
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
-        <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size={avatarSize} className={cn(ringClass, "shadow-lg")} />
-        {isCrown ? (
-          <div className="absolute -top-2 -right-1 w-7 h-7 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
-            <Crown className="w-4 h-4 text-white" />
+        <div className={cn(
+          "rounded-full p-0.5",
+          isChampion ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600" : ""
+        )}>
+          <UserAvatar
+            avatarUrl={entry.avatar_url}
+            fullName={entry.full_name}
+            size="lg"
+            className={cn(
+              "shadow-lg",
+              !isChampion && ringColor,
+              !isChampion && "ring-2",
+              isChampion && "ring-0 !w-16 !h-16"
+            )}
+          />
+        </div>
+        {isChampion ? (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <Crown className="w-6 h-6 text-yellow-500 drop-shadow-lg" />
           </div>
         ) : (
-          <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md", rankBg)}>
+          <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md", rankBg)}>
             {rank}
           </div>
         )}
@@ -530,18 +536,32 @@ function PodiumSlot({
           <div className="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-card" />
         )}
       </div>
-      <p className={cn("font-semibold text-foreground mt-2 truncate", isCrown ? "text-sm max-w-[100px]" : "text-xs max-w-[80px]")}>
-        {entry.full_name.split(' ')[0]}
+
+      {/* Name */}
+      <p className={cn(
+        "font-bold text-foreground mt-2 truncate text-center",
+        isChampion ? "text-sm max-w-[100px]" : "text-xs max-w-[80px]"
+      )}>
+        {displayName(entry)}
       </p>
-      {/* Mini progress bar */}
-      <div className="w-16 mt-1">
-        <Progress value={entry.progressPct} className="h-1" />
-        <p className="text-[9px] text-muted-foreground text-center mt-0.5">{entry.progressPct}%</p>
-      </div>
-      <p className={cn("font-bold text-primary", isCrown ? "text-lg" : "text-sm")}>{entry.totalPoints.toLocaleString()}</p>
+
+      {/* Points */}
+      <p className={cn(
+        "font-black text-primary tabular-nums",
+        isChampion ? "text-xl" : "text-sm"
+      )}>
+        {entry.totalPoints.toLocaleString()}
+      </p>
+      <span className="text-[9px] text-muted-foreground font-semibold -mt-0.5">PTS</span>
+
       {/* Podium bar */}
-      <div className={cn("rounded-t-lg mt-1 border flex items-center justify-center", podiumH, podiumBorder, `bg-gradient-to-t ${podiumBg}`, isCrown ? "w-24" : "w-20")}>
-        {icon}
+      <div className={cn(
+        "rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2",
+        podiumH,
+        `bg-gradient-to-t ${podiumGradient}`,
+        isChampion ? "w-28" : "w-22"
+      )}>
+        {medalIcon}
       </div>
     </div>
   );
