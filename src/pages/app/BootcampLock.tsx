@@ -48,7 +48,7 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
         <span className="text-xs text-white/50 uppercase tracking-wide font-semibold">Time Remaining</span>
       </div>
       <div className="flex items-center justify-center gap-1 font-mono text-2xl font-bold text-white tracking-wider">
-        <span className={timeLeft.hours < 6 ? 'text-red-400' : timeLeft.hours < 24 ? 'text-yellow-400' : 'text-white'}>
+        <span className={timeLeft.hours < 1 && timeLeft.minutes < 10 ? 'text-red-400' : timeLeft.hours < 1 && timeLeft.minutes < 20 ? 'text-yellow-400' : 'text-white'}>
           {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
         </span>
       </div>
@@ -127,6 +127,10 @@ export default function BootcampLock() {
 
       <div className="relative z-10 w-full max-w-lg text-center">
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
+          <p className="text-blue-400 text-base font-black mb-4 bg-blue-500/15 border border-blue-500/30 rounded-xl px-5 py-3 inline-block shadow-lg shadow-blue-500/10">
+            ⚡ Most reps finish in under 15 minutes
+          </p>
+
           <Lock className="w-12 h-12 text-white/60 mx-auto mb-6" />
 
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-3">
@@ -141,9 +145,6 @@ export default function BootcampLock() {
 
           <p className="text-white/50 text-sm mb-2">
             Complete all 10 steps below to unlock full access to training, chat, calendar, and everything else.
-          </p>
-          <p className="text-blue-400 text-sm font-black mb-2 bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2.5 inline-block">
-            ⚡ Most reps finish in under 15 minutes
           </p>
           <p className="text-white/30 text-xs mb-6">
             {completedCount}/10 completed
