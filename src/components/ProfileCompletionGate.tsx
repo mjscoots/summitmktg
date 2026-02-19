@@ -32,6 +32,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [phone, setPhone] = useState('');
   const [timezone, setTimezone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     const checkProfile = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('full_name, phone, avatar_url, timezone')
+        .select('full_name, phone, avatar_url, timezone, nickname')
         .eq('user_id', user.id)
         .single();
 
@@ -54,6 +55,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         const nameParts = ((data as any).full_name || '').split(' ');
         setFirstName(nameParts[0] || '');
         setLastName(nameParts.slice(1).join(' ') || '');
+        setNickname((data as any).nickname || '');
         setPhone((data as any).phone || '');
         setTimezone((data as any).timezone || '');
         setAvatarUrl((data as any).avatar_url);
@@ -144,6 +146,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         full_name: fullName,
         updated_at: new Date().toISOString(),
       };
+      if (nickname.trim()) updateData.nickname = nickname.trim();
       if (phone.trim()) updateData.phone = phone.trim();
       if (avatarUrl) updateData.avatar_url = avatarUrl;
       if (timezone) updateData.timezone = timezone;
@@ -270,6 +273,17 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
                   placeholder="Doe"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Nickname <span className="text-muted-foreground font-normal">(shown on leaderboard)</span>
+              </label>
+              <Input
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="What do you go by?"
+              />
             </div>
 
             <div>

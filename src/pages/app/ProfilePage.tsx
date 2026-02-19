@@ -19,6 +19,7 @@ export default function ProfilePage() {
   
   // Profile state
   const [fullName, setFullName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
@@ -47,16 +48,17 @@ export default function ProfilePage() {
       setEmail(profile.email || '');
       setPhone(profile.phone || '');
       setAvatarUrl(profile.avatar_url);
-      // Fetch timezone from DB
-      const fetchTimezone = async () => {
+      // Fetch timezone + nickname from DB
+      const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone')
+          .select('timezone, nickname')
           .eq('user_id', profile.user_id)
           .single();
         setTimezone((data as any)?.timezone || '');
+        setNickname((data as any)?.nickname || '');
       };
-      fetchTimezone();
+      fetchExtra();
     }
   }, [profile]);
 
@@ -70,6 +72,7 @@ export default function ProfilePage() {
         .from('profiles')
         .update({
           full_name: fullName,
+          nickname: nickname || null,
           phone: phone,
           timezone: timezone,
           updated_at: new Date().toISOString(),
@@ -299,6 +302,17 @@ export default function ProfilePage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Your name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Nickname <span className="text-muted-foreground font-normal text-xs">(shown on leaderboard)</span>
+              </label>
+              <Input
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="What do you go by?"
               />
             </div>
 

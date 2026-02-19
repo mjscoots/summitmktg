@@ -9,10 +9,15 @@ import { useNavigate } from 'react-router-dom';
 interface StreakEntry {
   user_id: string;
   full_name: string;
+  nickname: string | null;
   avatar_url: string | null;
   streak: number;
   longest_streak: number;
   total_days: number;
+}
+
+function streakDisplayName(entry: StreakEntry) {
+  return entry.nickname || entry.full_name.split(' ')[0];
 }
 
 export function StreakLeaderboard() {
@@ -47,7 +52,7 @@ export function StreakLeaderboard() {
             .gt('current_streak', 0),
           supabase
             .from('profiles')
-            .select('user_id, full_name, avatar_url')
+            .select('user_id, full_name, nickname, avatar_url')
             .in('user_id', rookieIds)
             .not('status', 'eq', 'nlc'),
         ]);
@@ -63,6 +68,7 @@ export function StreakLeaderboard() {
             return {
               user_id: s.user_id,
               full_name: profile.full_name,
+              nickname: (profile as any).nickname || null,
               avatar_url: profile.avatar_url,
               streak: s.current_streak,
               longest_streak: s.longest_streak,
@@ -165,7 +171,7 @@ export function StreakLeaderboard() {
                   "text-xs font-medium text-center truncate w-full",
                   isCurrentUser ? "text-primary" : "text-foreground"
                 )}>
-                  {entry.full_name.split(' ')[0]}
+                  {streakDisplayName(entry)}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
                   <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
@@ -203,7 +209,7 @@ export function StreakLeaderboard() {
                     "text-sm font-medium truncate",
                     isCurrentUser ? "text-primary" : "text-foreground"
                   )}>
-                    {entry.full_name.split(' ').slice(0, 2).join(' ')}
+                    {streakDisplayName(entry)}
                     {isCurrentUser && <span className="text-xs ml-1 text-muted-foreground">(You)</span>}
                   </p>
                   <p className="text-[10px] text-muted-foreground">Best: {entry.longest_streak}d · {entry.total_days} total</p>
