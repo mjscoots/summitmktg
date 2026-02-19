@@ -98,7 +98,7 @@ export default function BootcampMomentum() {
   const navigate = useNavigate();
   const { progress, isLoading } = useBootcamp();
   const [currentStep, setCurrentStep] = useState(getStoredStep);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({ revenue_goal: '$200,000' });
   const [scaleValue, setScaleValue] = useState<number | null>(null);
 
   useEffect(() => {
