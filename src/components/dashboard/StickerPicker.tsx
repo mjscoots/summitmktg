@@ -17,6 +17,16 @@ export const SUMMIT_STICKERS: Sticker[] = [
   { id: 'summit', label: 'Summit!', src: '/stickers/summit.png' },
   { id: 'lol', label: 'LOL', src: '/stickers/lol.png' },
   { id: 'go-go-go', label: 'Go Go Go!', src: '/stickers/go-go-go.png' },
+  { id: 'grind-time', label: 'Grind Time', src: '/stickers/grind-time.png' },
+  { id: 'first-sale', label: 'First Sale!', src: '/stickers/first-sale.png' },
+  { id: 'beast-mode', label: 'Beast Mode', src: '/stickers/beast-mode.png' },
+  { id: 'send-it', label: 'Send It!', src: '/stickers/send-it.png' },
+  { id: 'no-days-off', label: 'No Days Off', src: '/stickers/no-days-off.png' },
+  { id: 'money-time', label: 'Money Time', src: '/stickers/money-time.png' },
+  { id: 'crushed-it', label: 'Crushed It!', src: '/stickers/crushed-it.png' },
+  { id: 'good-morning', label: 'Good Morning', src: '/stickers/good-morning.png' },
+  { id: 'hot-streak', label: 'Hot Streak', src: '/stickers/hot-streak.png' },
+  { id: 'game-day', label: 'Game Day', src: '/stickers/game-day.png' },
 ];
 
 export const STICKER_PREFIX = 'sticker:';

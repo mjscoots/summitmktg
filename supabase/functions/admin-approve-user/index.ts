@@ -214,6 +214,7 @@ Deno.serve(async (req) => {
       }
 
       // Delete owned data
+      await supabaseAdmin.from("chat_read_receipts").delete().eq("user_id", user_id);
       await supabaseAdmin.from("chat_reactions").delete().eq("user_id", user_id);
       await supabaseAdmin.from("chat_messages").delete().eq("user_id", user_id);
       await supabaseAdmin.from("user_priority_tasks").delete().eq("user_id", user_id);
