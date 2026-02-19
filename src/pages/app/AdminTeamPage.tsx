@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2 } from 'lucide-react';
+import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
@@ -113,6 +114,7 @@ export default function AdminTeamPage() {
   const [reassignTeamId, setReassignTeamId] = useState('');
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   // Bootcamp responses state
   const [bootcampData, setBootcampData] = useState<BootcampRow[]>([]);
@@ -480,9 +482,14 @@ export default function AdminTeamPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Manage approvals, users, teams & system</p>
           </div>
           {isAdmin && (
-            <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 bg-transparent border border-border text-foreground hover:bg-white/5 font-semibold text-xs">
-              <UserPlus className="w-3.5 h-3.5" /> CREATE REP
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" onClick={() => setDemoOpen(true)} className="gap-1.5 bg-transparent border border-primary/30 text-primary hover:bg-primary/10 font-semibold text-xs">
+                <Play className="w-3.5 h-3.5" /> DEMO
+              </Button>
+              <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 bg-transparent border border-border text-foreground hover:bg-white/5 font-semibold text-xs">
+                <UserPlus className="w-3.5 h-3.5" /> CREATE REP
+              </Button>
+            </div>
           )}
         </div>
 
@@ -853,6 +860,7 @@ export default function AdminTeamPage() {
 
         {/* Create Rep Modal */}
         <CreateRepModal open={createOpen} onOpenChange={setCreateOpen} managers={managers} teams={teamsSimple} onSuccess={fetchData} />
+        <BootcampDemoWalkthrough open={demoOpen} onOpenChange={setDemoOpen} />
 
         {/* Edit User Modal */}
         <Dialog open={!!editUser} onOpenChange={(open) => !open && setEditUser(null)}>
