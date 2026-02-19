@@ -142,12 +142,21 @@ export default function BootcampLock() {
           <p className="text-white/50 text-sm mb-2">
             Complete all 10 steps below to unlock full access to training, chat, calendar, and everything else.
           </p>
-          <p className="text-white/50 text-xs font-semibold mb-2">
+          <p className="text-blue-400 text-sm font-black mb-2 bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2.5 inline-block">
             ⚡ Most reps finish in under 15 minutes
           </p>
           <p className="text-white/30 text-xs mb-6">
             {completedCount}/10 completed
           </p>
+
+          {/* START button — prominent, above modules */}
+          <Button
+            onClick={handleStart}
+            size="lg"
+            className="w-full bg-white text-black hover:bg-white/90 font-black text-lg tracking-wide h-14 mb-6 shadow-lg shadow-white/10"
+          >
+            {completedCount > 0 ? 'CONTINUE BOOT CAMP' : 'START NOW'}
+          </Button>
 
           {/* Countdown Timer */}
           {deadlineInfo.deadlineAt && (
@@ -157,7 +166,7 @@ export default function BootcampLock() {
           )}
 
           {/* Step list */}
-          <div className="space-y-2 mb-8 text-left">
+          <div className="space-y-2 mb-6 text-left">
             {/* Momentum section */}
             <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold px-2 mb-1 flex items-center gap-2">
               <Zap className="w-3 h-3" /> Momentum Builder
@@ -220,19 +229,6 @@ export default function BootcampLock() {
               );
             })}
           </div>
-
-          {/* Social proof */}
-          <p className="text-white/30 text-xs mb-4">
-            Most reps complete boot camp in under 15 minutes
-          </p>
-
-          <Button
-            onClick={handleStart}
-            size="lg"
-            className="w-full bg-white text-black hover:bg-white/90 font-black text-base tracking-wide h-12"
-          >
-            {completedCount > 0 ? 'CONTINUE BOOT CAMP' : 'START BOOT CAMP'}
-          </Button>
 
           {skipAllowed && (
             <Button
