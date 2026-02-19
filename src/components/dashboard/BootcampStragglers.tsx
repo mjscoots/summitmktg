@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { AlertTriangle, Copy, Check } from 'lucide-react';
+import { AlertTriangle, Copy, Check, Send, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface Straggler {
   full_name: string;
@@ -20,9 +21,9 @@ interface Straggler {
 export function BootcampStragglers() {
   const { role } = useAuth();
   const [stragglers, setStragglers] = useState<Straggler[]>([]);
-  const [deadlineHours, setDeadlineHours] = useState(48);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin';
 
@@ -30,16 +31,6 @@ export function BootcampStragglers() {
     if (!isManager) return;
 
     const fetch = async () => {
-      // Get deadline setting
-      const { data: setting } = await supabase
-        .from('app_settings')
-        .select('value')
-        .eq('key', 'bootcamp_deadline_hours')
-        .maybeSingle();
-
-      const hours = setting?.value ? parseInt(setting.value, 10) : 48;
-      setDeadlineHours(hours);
-
       // Get rookies who haven't completed bootcamp
       const { data: rookieRoles } = await supabase
         .from('user_roles')
@@ -72,7 +63,6 @@ export function BootcampStragglers() {
       const result: Straggler[] = [];
       for (const p of profiles || []) {
         const bp = bootcampMap.get(p.user_id);
-        // Skip if completed or exempt
         if (bp?.bootcamp_completed || bp?.bootcamp_exempt) continue;
         
         result.push({
@@ -87,7 +77,7 @@ export function BootcampStragglers() {
         });
       }
 
-      // Sort by most overdue first
+      // Sort by oldest first
       result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       setStragglers(result);
       setIsLoading(false);
@@ -98,35 +88,36 @@ export function BootcampStragglers() {
 
   if (!isManager || isLoading || stragglers.length === 0) return null;
 
-  const getTimeStatus = (createdAt: string) => {
+  const getTimeSinceApproval = (createdAt: string) => {
     const created = new Date(createdAt);
-    const deadline = new Date(created.getTime() + deadlineHours * 60 * 60 * 1000);
     const now = new Date();
-    const msRemaining = deadline.getTime() - now.getTime();
-    const hoursRemaining = msRemaining / (1000 * 60 * 60);
-    const isOverdue = msRemaining <= 0;
+    const ms = now.getTime() - created.getTime();
+    const totalMinutes = Math.floor(ms / (1000 * 60));
+    const totalHours = Math.floor(ms / (1000 * 60 * 60));
+    const totalDays = Math.floor(ms / (1000 * 60 * 60 * 24));
 
-    if (isOverdue) {
-      const hoursOver = Math.abs(hoursRemaining);
-      return {
-        label: hoursOver < 24 ? `${Math.floor(hoursOver)}h overdue` : `${Math.floor(hoursOver / 24)}d overdue`,
-        color: 'text-red-400',
-        bgColor: 'bg-red-500/10',
-        isOverdue: true,
-      };
+    let label: string;
+    if (totalMinutes < 60) {
+      label = `${totalMinutes}m ago`;
+    } else if (totalHours < 24) {
+      label = `${totalHours}h ago`;
+    } else {
+      label = `${totalDays}d ago`;
     }
-    return {
-      label: hoursRemaining < 1 ? `${Math.floor(hoursRemaining * 60)}m left` : `${Math.floor(hoursRemaining)}h left`,
-      color: hoursRemaining < 12 ? 'text-yellow-400' : 'text-muted-foreground',
-      bgColor: hoursRemaining < 12 ? 'bg-yellow-500/10' : 'bg-muted/30',
-      isOverdue: false,
-    };
-  };
 
-  const overdueCount = stragglers.filter(s => {
-    const created = new Date(s.created_at);
-    return Date.now() > created.getTime() + deadlineHours * 60 * 60 * 1000;
-  }).length;
+    // Color coding based on how long
+    let color = 'text-muted-foreground';
+    let bgColor = 'bg-muted/30';
+    if (totalHours >= 24) {
+      color = 'text-red-400';
+      bgColor = 'bg-red-500/10';
+    } else if (totalHours >= 1) {
+      color = 'text-yellow-400';
+      bgColor = 'bg-yellow-500/10';
+    }
+
+    return { label, color, bgColor };
+  };
 
   const phasesComplete = (s: Straggler) =>
     [s.phase_1_complete, s.phase_2_complete, s.phase_3_complete].filter(Boolean).length;
@@ -144,6 +135,20 @@ export function BootcampStragglers() {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleAutoReminder = async () => {
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('bootcamp-reminders', { body: { force: true } });
+      if (error) throw error;
+      toast.success(`Reminders sent: ${data?.rep_emails_sent || 0} rep(s), ${data?.manager_emails_sent || 0} manager(s)`);
+    } catch (err: any) {
+      console.error('Error sending reminders:', err);
+      toast.error('Failed to send reminders');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -165,14 +170,14 @@ export function BootcampStragglers() {
               {copied ? 'Copied' : 'Copy List'}
             </Button>
             <span className="text-xs text-muted-foreground">
-              {stragglers.length} incomplete{overdueCount > 0 && ` · ${overdueCount} overdue`}
+              {stragglers.length} incomplete
             </span>
           </div>
         </div>
       </div>
       <div className="divide-y divide-border/20 max-h-64 overflow-y-auto">
         {stragglers.slice(0, 10).map((s) => {
-          const status = getTimeStatus(s.created_at);
+          const status = getTimeSinceApproval(s.created_at);
           const phases = phasesComplete(s);
           return (
             <div key={s.email} className="flex items-center justify-between px-4 py-2.5">
@@ -202,7 +207,6 @@ export function BootcampStragglers() {
                 'text-[10px] font-semibold px-2 py-0.5 rounded-full',
                 status.bgColor, status.color
               )}>
-                {status.isOverdue && <AlertTriangle className="w-2.5 h-2.5 inline mr-0.5" />}
                 {status.label}
               </span>
             </div>
@@ -213,6 +217,22 @@ export function BootcampStragglers() {
             +{stragglers.length - 10} more
           </div>
         )}
+      </div>
+      {/* Auto Send Reminder button */}
+      <div className="p-3 border-t border-border/30">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleAutoReminder}
+          disabled={sending}
+          className="w-full gap-2 text-xs font-semibold"
+        >
+          {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          {sending ? 'Sending Reminders...' : 'Auto Send Reminder'}
+        </Button>
+        <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
+          Emails all incomplete reps & notifies their managers
+        </p>
       </div>
     </Card>
   );

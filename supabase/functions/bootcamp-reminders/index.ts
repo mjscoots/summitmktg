@@ -11,6 +11,15 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Check if this is a manual trigger (skip rate limiting)
+  let forceRemind = false;
+  try {
+    if (req.method === "POST") {
+      const body = await req.clone().json().catch(() => ({}));
+      forceRemind = body?.force === true;
+    }
+  } catch { /* ignore */ }
+
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -29,7 +38,7 @@ Deno.serve(async (req) => {
       .eq("key", "bootcamp_deadline_hours")
       .maybeSingle();
 
-    const deadlineHours = setting?.value ? parseInt(setting.value, 10) : 24;
+    const deadlineHours = setting?.value ? parseFloat(setting.value) : 0.5;
 
     // Get incomplete bootcamp rookies
     const { data: rookieRoles } = await supabase
@@ -108,8 +117,7 @@ Deno.serve(async (req) => {
       const hoursRemaining = (deadlineAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
       // Check if rep needs reminder (every 1 hour)
-      const lastRepReminder = bp.last_rep_reminder_at ? new Date(bp.last_rep_reminder_at) : null;
-      const repReminderDue = !lastRepReminder || (now.getTime() - lastRepReminder.getTime()) >= 60 * 60 * 1000;
+      const repReminderDue = forceRemind || !lastRepReminder || (now.getTime() - lastRepReminder.getTime()) >= 60 * 60 * 1000;
 
       if (repReminderDue) {
         const isOverdue = hoursRemaining <= 0;
@@ -160,8 +168,7 @@ Deno.serve(async (req) => {
       if (profile.direct_manager) {
         const managerInfo = managerEmailMap.get(profile.direct_manager);
         if (managerInfo) {
-          const lastManagerReminder = bp.last_manager_reminder_at ? new Date(bp.last_manager_reminder_at) : null;
-          const managerReminderDue = !lastManagerReminder || (now.getTime() - lastManagerReminder.getTime()) >= 12 * 60 * 60 * 1000;
+          const managerReminderDue = forceRemind || !lastManagerReminder || (now.getTime() - lastManagerReminder.getTime()) >= 12 * 60 * 60 * 1000;
 
           if (managerReminderDue) {
             if (!managerReminders.has(profile.direct_manager)) {

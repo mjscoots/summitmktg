@@ -40,7 +40,7 @@ export function useBootcamp() {
   const [skipAllowed, setSkipAllowed] = useState(false);
   const [skipped, setSkipped] = useState(false);
   const [deadlineInfo, setDeadlineInfo] = useState<BootcampDeadlineInfo>({
-    deadlineHours: 48,
+    deadlineHours: 0.5,
     accountCreatedAt: null,
     deadlineAt: null,
     hoursRemaining: null,
@@ -75,7 +75,7 @@ export function useBootcamp() {
     setSkipAllowed(skipRes.data?.value === 'true');
 
     // Parse deadline setting
-    const deadlineHours = deadlineRes.data ? parseInt(deadlineRes.data.value || '48', 10) : 48;
+    const deadlineHours = deadlineRes.data ? parseFloat(deadlineRes.data.value || '0.5') : 0.5;
     const accountCreatedAt = profileRes.data?.created_at || null;
     let deadlineAt: Date | null = null;
     let hoursRemaining: number | null = null;
