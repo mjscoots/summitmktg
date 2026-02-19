@@ -1,11 +1,11 @@
 import { ReactNode, useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, Loader2, User, CheckCircle2, Phone, Globe, UserCheck } from 'lucide-react';
+import { Camera, Loader2, User, CheckCircle2, Phone, Globe, UserCheck, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TIMEZONES, detectBrowserTimezone } from '@/lib/timezones';
+import { TIMEZONES } from '@/lib/timezones';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -14,8 +14,8 @@ interface ProfileCompletionGateProps {
 }
 
 /**
- * Forces users to complete their profile (photo, phone, timezone, name)
- * before accessing the app. Managers/admins are also required.
+ * Prompts users to complete their profile (photo, phone, timezone, name)
+ * but allows skipping. Managers/admins can also skip.
  */
 export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) {
   const { user, profile, isLoading: authLoading } = useAuth();
@@ -27,9 +27,11 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
   } | null>(null);
   const [isChecking, setIsChecking] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
+  const [skipped, setSkipped] = useState(false);
 
   // Form state
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [timezone, setTimezone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -49,7 +51,9 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
       if (data) {
         setProfileData(data as any);
-        setFullName((data as any).full_name || '');
+        const nameParts = ((data as any).full_name || '').split(' ');
+        setFirstName(nameParts[0] || '');
+        setLastName(nameParts.slice(1).join(' ') || '');
         setPhone((data as any).phone || '');
         setTimezone((data as any).timezone || '');
         setAvatarUrl((data as any).avatar_url);
@@ -66,6 +70,12 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
       setIsChecking(false);
     };
 
+    // Check if user already skipped this session
+    const wasSkipped = sessionStorage.getItem(`profile_gate_skipped_${user.id}`);
+    if (wasSkipped) {
+      setSkipped(true);
+    }
+
     checkProfile();
   }, [user, authLoading]);
 
@@ -77,9 +87,16 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     );
   }
 
-  if (isComplete) {
+  if (isComplete || skipped) {
     return <>{children}</>;
   }
+
+  const handleSkip = () => {
+    if (user) {
+      sessionStorage.setItem(`profile_gate_skipped_${user.id}`, 'true');
+    }
+    setSkipped(true);
+  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -121,22 +138,22 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
   const handleSubmit = async () => {
     if (!user) return;
-    if (!fullName.trim()) { toast.error('Please enter your name'); return; }
-    if (!phone.trim()) { toast.error('Please enter your phone number'); return; }
-    if (!avatarUrl) { toast.error('Please upload a profile photo'); return; }
-    if (!timezone) { toast.error('Please select your timezone'); return; }
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    if (!fullName) { toast.error('Please enter your name'); return; }
 
     setIsSaving(true);
     try {
+      const updateData: any = {
+        full_name: fullName,
+        updated_at: new Date().toISOString(),
+      };
+      if (phone.trim()) updateData.phone = phone.trim();
+      if (avatarUrl) updateData.avatar_url = avatarUrl;
+      if (timezone) updateData.timezone = timezone;
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          full_name: fullName.trim(),
-          phone: phone.trim(),
-          avatar_url: avatarUrl,
-          timezone,
-          updated_at: new Date().toISOString(),
-        } as any)
+        .update(updateData)
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -146,10 +163,10 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         await supabase.from('chat_messages').insert({
           user_id: user.id,
           is_ai: true,
-          content: `🎉 **Welcome to the team, ${fullName.trim()}!** They just completed their profile and are ready to get started. Let's give them a warm welcome! 🚀`,
+          content: `🎉 **Welcome to the team, ${fullName}!** They just completed their profile and are ready to get started. Let's give them a warm welcome! 🚀`,
         });
       } catch {
-        // Non-critical — don't block profile completion
+        // Non-critical
       }
 
       setIsComplete(true);
@@ -161,9 +178,10 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     }
   };
 
+  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
   const fields = [
     { label: 'Profile Photo', done: !!avatarUrl },
-    { label: 'Full Name', done: !!fullName.trim() },
+    { label: 'Name', done: !!fullName },
     { label: 'Phone Number', done: !!phone.trim() },
     { label: 'Timezone', done: !!timezone },
   ];
@@ -234,20 +252,32 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
           {/* Fields */}
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Full Name <span className="text-destructive">*</span>
-              </label>
-              <Input
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your full name"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  First Name
+                </label>
+                <Input
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="John"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Last Name
+                </label>
+                <Input
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Doe"
+                />
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
-                Phone Number <span className="text-destructive">*</span>
+                Phone Number
               </label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -262,7 +292,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
-                Timezone <span className="text-destructive">*</span>
+                Timezone
               </label>
               <div className="relative">
                 <Select value={timezone} onValueChange={setTimezone}>
@@ -283,7 +313,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
           {/* Submit */}
           <Button
             onClick={handleSubmit}
-            disabled={isSaving || !fullName.trim() || !phone.trim() || !avatarUrl || !timezone}
+            disabled={isSaving || !fullName}
             size="lg"
             className="w-full mt-6 font-bold h-12"
           >
@@ -299,6 +329,14 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
               </>
             )}
           </Button>
+
+          {/* Skip */}
+          <button
+            onClick={handleSkip}
+            className="w-full mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Skip for now
+          </button>
         </div>
       </div>
     </div>

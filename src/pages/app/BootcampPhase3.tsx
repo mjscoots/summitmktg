@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircle2, Upload, Video, X } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const AGREEMENT_TEXT = `COMMITMENT AGREEMENT
@@ -41,10 +41,9 @@ I hold myself accountable for my results. I will not make excuses but instead fo
 By signing below, I acknowledge that I have read, understood, and agree to uphold all terms outlined in this commitment agreement.`;
 
 const COMPLETION_CHECKLIST = [
-  'I have recorded myself reading the full commitment agreement aloud',
-  'I have answered all sections clearly on video',
-  'I have uploaded my video',
-  'I have understood the commitment agreement',
+  'I have read and understood the full commitment agreement',
+  'I agree to uphold all terms outlined above',
+  'I am ready to commit fully to this opportunity',
 ];
 
 export default function BootcampPhase3() {
@@ -55,13 +54,11 @@ export default function BootcampPhase3() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSigned, setHasSigned] = useState(false);
 
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [checked, setChecked] = useState<boolean[]>(new Array(COMPLETION_CHECKLIST.length).fill(false));
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [signatureName, setSignatureName] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !progress?.phase_2_complete) {
@@ -128,23 +125,7 @@ export default function BootcampPhase3() {
     setHasSigned(false);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const validTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo'];
-    if (!validTypes.includes(file.type)) {
-      toast({ title: 'Invalid file type', description: 'Please upload MP4, MOV, WebM, or AVI', variant: 'destructive' });
-      return;
-    }
-    if (file.size > 1024 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Max 1GB', variant: 'destructive' });
-      return;
-    }
-    setVideoFile(file);
-  };
-
   const allReady =
-    videoFile &&
     checked.every(Boolean) &&
     startDate &&
     endDate &&
@@ -156,19 +137,9 @@ export default function BootcampPhase3() {
     setSubmitting(true);
 
     try {
-      setUploading(true);
-      const ext = videoFile.name.split('.').pop();
-      const path = `${user.id}/final-commitment.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('bootcamp-videos')
-        .upload(path, videoFile, { upsert: true });
-      if (uploadError) throw uploadError;
-      setUploading(false);
-
       const sigData = canvasRef.current?.toDataURL('image/png') || '';
 
       const success = await updatePhase(3, {
-        final_commitment_video_url: path,
         agreement_start_date: startDate,
         agreement_end_date: endDate,
         signature_name: signatureName,
@@ -181,7 +152,6 @@ export default function BootcampPhase3() {
       }
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
-      setUploading(false);
     }
     setSubmitting(false);
   };
@@ -254,32 +224,6 @@ export default function BootcampPhase3() {
             ))}
           </div>
 
-          {/* Video upload */}
-          <div className="mb-6">
-            <Label className="text-white/60 text-xs mb-2 block">Upload Final Commitment Video *</Label>
-            {videoFile ? (
-              <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
-                <Video className="w-5 h-5 text-white/60 shrink-0" />
-                <span className="text-sm text-white truncate flex-1">{videoFile.name}</span>
-                <button onClick={() => setVideoFile(null)} className="text-white/40 hover:text-white">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-white/10 rounded-lg p-8 cursor-pointer hover:border-white/20 transition-colors">
-                <Upload className="w-8 h-8 text-white/30" />
-                <span className="text-sm text-white/40">Click to upload video</span>
-                <span className="text-xs text-white/20">MP4, MOV, WebM, AVI · Max 1GB</span>
-                <input
-                  type="file"
-                  accept="video/mp4,video/quicktime,video/webm,video/x-msvideo"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
-
           {/* Signature section */}
           <div className="border-t border-white/10 pt-6 mb-6">
             <h2 className="text-lg font-black text-white mb-4">SIGNATURE</h2>
@@ -328,7 +272,7 @@ export default function BootcampPhase3() {
             size="lg"
             className="w-full bg-white text-black hover:bg-white/90 font-black text-base h-12 disabled:opacity-30"
           >
-            {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'COMPLETE FINAL COMMITMENT'}
+            {submitting ? 'Saving...' : 'COMPLETE FINAL COMMITMENT'}
           </Button>
         </div>
       </div>

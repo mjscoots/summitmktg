@@ -19,9 +19,9 @@ const AuthPage = () => {
   const [error, setError] = useState("");
 
   // Sign Up state
-  const [signupName, setSignupName] = useState("");
+  const [signupFirstName, setSignupFirstName] = useState("");
+  const [signupLastName, setSignupLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
-  const [signupPhone, setSignupPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupLevel, setSignupLevel] = useState<'rookie' | 'manager' | ''>('');
   const [signupTeam, setSignupTeam] = useState("");
@@ -74,7 +74,7 @@ const AuthPage = () => {
     e.preventDefault();
     setError("");
 
-    if (!signupName.trim() || !signupEmail.trim() || !signupPhone.trim() || !signupPassword.trim()) {
+    if (!signupFirstName.trim() || !signupLastName.trim() || !signupEmail.trim() || !signupPassword.trim()) {
       setError("All fields are required.");
       return;
     }
@@ -89,13 +89,12 @@ const AuthPage = () => {
       return;
     }
 
-
     setIsLoading(true);
 
     const selectedTeam = teams.find(t => t.id === signupTeam);
+    const fullName = `${signupFirstName.trim()} ${signupLastName.trim()}`;
 
-    const { error } = await signUp(signupEmail.trim(), signupPassword, signupName.trim(), {
-      phone: signupPhone.trim(),
+    const { error } = await signUp(signupEmail.trim(), signupPassword, fullName, {
       team_id: signupTeam,
       team_name: selectedTeam?.name || "",
       selected_role: signupLevel,
@@ -193,19 +192,20 @@ const AuthPage = () => {
               New accounts require admin approval before access is granted.
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Full Name *</label>
-              <input type="text" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="John Doe" className="input-field" required disabled={isLoading} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">First Name *</label>
+                <input type="text" value={signupFirstName} onChange={(e) => setSignupFirstName(e.target.value)} placeholder="John" className="input-field" required disabled={isLoading} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Last Name *</label>
+                <input type="text" value={signupLastName} onChange={(e) => setSignupLastName(e.target.value)} placeholder="Doe" className="input-field" required disabled={isLoading} />
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Email *</label>
               <input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Phone Number *</label>
-              <input type="tel" value={signupPhone} onChange={(e) => setSignupPhone(e.target.value)} placeholder="(555) 123-4567" className="input-field" required disabled={isLoading} />
             </div>
 
             <div>
@@ -236,7 +236,6 @@ const AuthPage = () => {
                 ))}
               </select>
             </div>
-
 
             <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
               {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Creating Account...</>) : "Create Account"}

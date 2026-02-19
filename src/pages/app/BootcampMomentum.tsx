@@ -25,8 +25,7 @@ const MOMENTUM_STEPS = [
     title: 'REVENUE GOALS',
     subtitle: 'Dream big',
     fields: [
-      { key: 'revenue_goal', label: "What's your revenue goal for year 1?", type: 'text', placeholder: '$50,000' },
-      { key: 'timeline', label: 'How quickly do you want to hit it?', type: 'text', placeholder: '6 months, 12 months...' },
+      { key: 'revenue_goal', label: "What's your revenue goal for the summer?", type: 'text', placeholder: '$200,000' },
     ],
   },
   {
