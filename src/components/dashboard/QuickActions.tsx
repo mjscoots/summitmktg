@@ -5,7 +5,6 @@ import {
   Calendar, 
   MessageSquare, 
   TrendingUp,
-  Settings,
   ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -68,13 +67,6 @@ export function QuickActions() {
       label: 'View Leaderboard',
       shortLabel: 'Leaders',
       onClick: () => navigate('/app/leaderboard'),
-    },
-    {
-      icon: <Settings className="w-4 h-4" />,
-      label: 'Training CMS',
-      shortLabel: 'CMS',
-      onClick: () => navigate('/app/admin'),
-      adminOnly: true,
     },
   ];
 

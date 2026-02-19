@@ -6,6 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -105,8 +107,7 @@ Deno.serve(async (req) => {
       managerEmailMap.set(m.full_name, { email: m.email, userId: m.user_id });
     });
 
-    // Track which managers need reminders (aggregate reps per manager)
-    const managerReminders = new Map<string, { managerEmail: string; managerName: string; reps: string[] }>();
+    const managerReminders = new Map<string, { managerEmail: string; managerName: string; managerId: string; reps: string[] }>();
 
     for (const profile of profiles) {
       const bp = bootcampMap.get(profile.user_id);
@@ -117,6 +118,7 @@ Deno.serve(async (req) => {
       const hoursRemaining = (deadlineAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
       // Check if rep needs reminder (every 1 hour)
+      const lastRepReminder = bp.last_rep_reminder_at ? new Date(bp.last_rep_reminder_at) : null;
       const repReminderDue = forceRemind || !lastRepReminder || (now.getTime() - lastRepReminder.getTime()) >= 60 * 60 * 1000;
 
       if (repReminderDue) {
@@ -162,12 +164,15 @@ Deno.serve(async (req) => {
         } catch (e) {
           console.error(`Error sending rep email to ${profile.email}:`, e);
         }
+        // Rate limit: max 2 req/sec on Resend free tier
+        await delay(600);
       }
 
       // Aggregate manager reminders (every 12 hours)
       if (profile.direct_manager) {
         const managerInfo = managerEmailMap.get(profile.direct_manager);
         if (managerInfo) {
+          const lastManagerReminder = bp.last_manager_reminder_at ? new Date(bp.last_manager_reminder_at) : null;
           const managerReminderDue = forceRemind || !lastManagerReminder || (now.getTime() - lastManagerReminder.getTime()) >= 12 * 60 * 60 * 1000;
 
           if (managerReminderDue) {
@@ -175,6 +180,7 @@ Deno.serve(async (req) => {
               managerReminders.set(profile.direct_manager, {
                 managerEmail: managerInfo.email,
                 managerName: profile.direct_manager,
+                managerId: managerInfo.userId,
                 reps: [],
               });
             }
@@ -190,7 +196,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Send aggregated manager emails
+    // Send aggregated manager emails + in-app notifications
+    let managerNotificationsSent = 0;
     for (const [, info] of managerReminders) {
       const repList = info.reps.map((r) => `<li>${r}</li>`).join("");
       const subject = `🚨 ${info.reps.length} rep(s) haven't completed boot camp`;
@@ -199,6 +206,7 @@ Deno.serve(async (req) => {
         <ul>${repList}</ul>
         <p>Please follow up with them to ensure they complete it promptly.</p>`;
 
+      // Send email
       try {
         const emailRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
@@ -222,13 +230,35 @@ Deno.serve(async (req) => {
       } catch (e) {
         console.error(`Error sending manager email to ${info.managerEmail}:`, e);
       }
+      // Rate limit: max 2 req/sec on Resend free tier
+      await delay(600);
+
+      // Create in-app notification for the manager/pillar leader
+      try {
+        const repNames = info.reps.length <= 3
+          ? info.reps.join(", ")
+          : `${info.reps.slice(0, 2).join(", ")} +${info.reps.length - 2} more`;
+
+        await supabase
+          .from("user_notifications")
+          .insert({
+            user_id: info.managerId,
+            title: "Boot Camp Reminder",
+            message: `${info.reps.length} rep(s) haven't completed boot camp: ${repNames}`,
+            link: "/app",
+          });
+        managerNotificationsSent++;
+      } catch (e) {
+        console.error(`Error creating notification for ${info.managerName}:`, e);
+      }
     }
 
     return new Response(
       JSON.stringify({
-        message: `Sent ${repEmailsSent} rep reminder(s) and ${managerEmailsSent} manager reminder(s)`,
+        message: `Sent ${repEmailsSent} rep email(s), ${managerEmailsSent} manager email(s), ${managerNotificationsSent} in-app notification(s)`,
         rep_emails_sent: repEmailsSent,
         manager_emails_sent: managerEmailsSent,
+        manager_notifications_sent: managerNotificationsSent,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
