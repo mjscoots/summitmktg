@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
+import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { MessageReactions } from './MessageReactions';
+import { ReadReceipts } from './ReadReceipts';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 
 interface ChatMessage {
@@ -74,7 +76,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
   const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
   const [showStickers, setShowStickers] = useState(false);
-
+  const [showGifs, setShowGifs] = useState(false);
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
 
@@ -364,6 +366,38 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     scrollToBottom();
   };
 
+  const handleSendGif = async (gifUrl: string) => {
+    if (!user) return;
+    setShowGifs(false);
+    const content = `${GIF_PREFIX}${gifUrl}`;
+    const { error } = await supabase.from('chat_messages').insert({
+      user_id: user.id,
+      content,
+      reply_to: replyingTo?.id || null,
+      channel: activeChannel,
+    });
+    if (error) { toast.error('Failed to send GIF'); return; }
+    setReplyingTo(null);
+    scrollToBottom();
+  };
+
+  // Mark visible messages as read
+  useEffect(() => {
+    if (!user || channelMessages.length === 0) return;
+    const lastMsg = channelMessages[channelMessages.length - 1];
+    if (!lastMsg || lastMsg.user_id === user.id) return;
+
+    // Mark the last message as read (batching for the most recent)
+    supabase.from('chat_read_receipts')
+      .upsert(
+        { message_id: lastMsg.id, user_id: user.id },
+        { onConflict: 'message_id,user_id' }
+      )
+      .then(({ error }) => {
+        if (error) console.error('Read receipt error:', error);
+      });
+  }, [channelMessages.length, user?.id]);
+
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) {
       if (msg.channel === 'ai-coach') return { full_name: 'AI Coach', avatar_url: null, role: 'bot' };
@@ -618,6 +652,20 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           <p className="text-sm text-foreground/90">[Unknown sticker]</p>
                         );
                       })()
+                    ) : isGifMessage(msg.content) ? (
+                      (() => {
+                        const gifUrl = getGifUrl(msg.content);
+                        return gifUrl ? (
+                          <img
+                            src={gifUrl}
+                            alt="GIF"
+                            className="max-w-[280px] rounded-lg"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <p className="text-sm text-foreground/90">[GIF unavailable]</p>
+                        );
+                      })()
                     ) : (
                       <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
                         {msg.content}
@@ -628,6 +676,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
                 {/* Reactions */}
                 <MessageReactions messageId={msg.id} profileMap={profileMap} />
+                {/* Read receipts - show on last message of each group */}
+                <ReadReceipts
+                  messageId={msg.id}
+                  profileMap={profileMap}
+                  isLastInGroup={
+                    idx === channelMessages.length - 1 ||
+                    !isSameSender(channelMessages[idx + 1], msg)
+                  }
+                />
               </div>
             </div>
           );
@@ -641,7 +698,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               </div>
               <div>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-sm font-semibold text-primary">Summit AI Coach</span>
+                  <span className="text-sm font-semibold text-primary">AI Coach</span>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary uppercase tracking-wider">BOT</span>
                 </div>
                 <div className="flex gap-1 py-1">
@@ -698,6 +755,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               onClose={() => setShowStickers(false)}
             />
           )}
+          {/* GIF Picker */}
+          {showGifs && (
+            <GifPicker
+              onSelect={handleSendGif}
+              onClose={() => setShowGifs(false)}
+            />
+          )}
           {/* Reply preview */}
           {replyingTo && (
             <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/40 rounded-t-lg border border-b-0 border-border/50 text-xs">
@@ -738,18 +802,32 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               disabled={isSending || isAiLoading}
             />
             {activeChannel !== 'ai-coach' && (
-              <button
-                onClick={() => setShowStickers(!showStickers)}
-                className={cn(
-                  "p-2 rounded-md transition-all flex-shrink-0",
-                  showStickers
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
-                )}
-                title="Stickers"
-              >
-                <Sticker className="w-5 h-5" />
-              </button>
+              <>
+                <button
+                  onClick={() => { setShowGifs(!showGifs); setShowStickers(false); }}
+                  className={cn(
+                    "p-2 rounded-md transition-all flex-shrink-0",
+                    showGifs
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                  )}
+                  title="GIFs"
+                >
+                  <Image className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => { setShowStickers(!showStickers); setShowGifs(false); }}
+                  className={cn(
+                    "p-2 rounded-md transition-all flex-shrink-0",
+                    showStickers
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                  )}
+                  title="Stickers"
+                >
+                  <Sticker className="w-5 h-5" />
+                </button>
+              </>
             )}
             <button
               onClick={handleSend}
