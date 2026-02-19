@@ -813,6 +813,7 @@ export default function AdminTeamPage() {
                       { key: 'approval_required', label: 'Approval Required', desc: 'Require admin approval for new sign-ups' },
                       { key: 'public_signups', label: 'Public Sign-Ups', desc: 'Allow new users to sign up from the login page' },
                       { key: 'maintenance_mode', label: 'Maintenance Mode', desc: 'Disable entire app for all non-admin users' },
+                      { key: 'demo_mode', label: 'Demo Mode', desc: 'Mask sensitive data (names, emails, phones) for safe presentations and demos' },
                     ].map(item => (
                       <div key={item.key} className="flex items-center justify-between px-4 py-4">
                         <div>
