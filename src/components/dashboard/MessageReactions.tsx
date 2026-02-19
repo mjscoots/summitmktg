@@ -5,10 +5,10 @@ import { SmilePlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const QUICK_EMOJIS = ['👍', '❤️', '😂', '🔥', '👀', '🎉', '💯', '👏'];
+const DEFAULT_EMOJIS = ['👍', '🔥', '😂', '❤️', '👏'];
 
-const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
-  { label: 'Frequent', emojis: ['👍', '❤️', '😂', '🔥', '👀', '🎉', '💯', '👏', '✅', '🙌'] },
+const ALL_EMOJIS: { label: string; emojis: string[] }[] = [
+  { label: 'Popular', emojis: ['👍', '🔥', '😂', '❤️', '👏', '💯', '🎉', '👀', '✅', '🙌', '🚀', '💪'] },
   { label: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '🤣', '😅', '😊', '😎', '🤩', '🥳', '😤', '😢', '🤔', '🫡', '🤝'] },
   { label: 'Gestures', emojis: ['👍', '👎', '👊', '✊', '🤞', '🫶', '💪', '🙏', '👋', '🤙', '✌️', '🫰'] },
   { label: 'Hearts', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '💔', '❤️‍🔥'] },
@@ -29,7 +29,7 @@ interface MessageReactionsProps {
 export function MessageReactions({ messageId, profileMap }: MessageReactionsProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
-  const [showPicker, setShowPicker] = useState(false);
+  const [showPicker, setShowPicker] = useState<'quick' | 'full' | false>(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
   // Fetch reactions for this message
@@ -198,7 +198,7 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
       {/* Add reaction button */}
       <div className="relative" ref={pickerRef}>
         <button
-          onClick={() => setShowPicker(!showPicker)}
+          onClick={() => setShowPicker(showPicker ? false : 'quick')}
           className={cn(
             "inline-flex items-center justify-center w-7 h-7 rounded-md border transition-all duration-150",
             "border-transparent text-muted-foreground/40",
@@ -210,25 +210,35 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
           <SmilePlus className="w-4 h-4" />
         </button>
 
-        {/* Emoji picker */}
-        {showPicker && (
-          <div className="absolute bottom-full mb-2 left-0 z-50 bg-card border border-border rounded-xl shadow-xl w-[280px] max-h-[320px] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
-            {/* Quick bar */}
-            <div className="flex gap-0.5 p-2 border-b border-border/50 bg-muted/30">
-              {QUICK_EMOJIS.map(emoji => (
+        {/* Quick 5 emoji bar */}
+        {showPicker === 'quick' && (
+          <div className="absolute bottom-full mb-2 left-0 z-50 bg-card border border-border rounded-xl shadow-xl animate-in fade-in-0 zoom-in-95 duration-150">
+            <div className="flex items-center gap-0.5 p-1.5">
+              {DEFAULT_EMOJIS.map(emoji => (
                 <button
                   key={emoji}
                   onClick={() => toggleReaction(emoji)}
-                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted text-lg transition-colors"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-lg transition-colors"
                 >
                   {emoji}
                 </button>
               ))}
+              <button
+                onClick={() => setShowPicker('full')}
+                className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground transition-colors ml-0.5 border-l border-border/50 pl-1"
+                title="More emojis"
+              >
+                <SmilePlus className="w-4 h-4" />
+              </button>
             </div>
+          </div>
+        )}
 
-            {/* Categories */}
-            <div className="overflow-y-auto max-h-[240px] p-2">
-              {EMOJI_CATEGORIES.map(cat => (
+        {/* Full emoji picker */}
+        {showPicker === 'full' && (
+          <div className="absolute bottom-full mb-2 left-0 z-50 bg-card border border-border rounded-xl shadow-xl w-[280px] max-h-[320px] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+            <div className="overflow-y-auto max-h-[280px] p-2">
+              {ALL_EMOJIS.map(cat => (
                 <div key={cat.label} className="mb-2">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-1">
                     {cat.label}

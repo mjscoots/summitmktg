@@ -102,10 +102,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image must be less than 2MB');
-      return;
-    }
+    // No file size limit - images are processed before upload
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;

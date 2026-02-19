@@ -123,10 +123,7 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
-      return;
-    }
+    // No file size limit - the crop dialog compresses to JPEG anyway
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;

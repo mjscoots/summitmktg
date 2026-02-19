@@ -214,6 +214,7 @@ Deno.serve(async (req) => {
       }
 
       // Delete owned data
+      await supabaseAdmin.from("chat_reactions").delete().eq("user_id", user_id);
       await supabaseAdmin.from("chat_messages").delete().eq("user_id", user_id);
       await supabaseAdmin.from("user_priority_tasks").delete().eq("user_id", user_id);
       await supabaseAdmin.from("event_notifications").delete().eq("user_id", user_id);
@@ -226,6 +227,8 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from("user_training_achievements").delete().eq("user_id", user_id);
       await supabaseAdmin.from("user_notifications").delete().eq("user_id", user_id);
       await supabaseAdmin.from("streak_breaks").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("daily_login_streaks").delete().eq("user_id", user_id);
+      await supabaseAdmin.from("notification_preferences").delete().eq("user_id", user_id);
       await supabaseAdmin.from("signup_logs").delete().eq("user_id", user_id);
       await supabaseAdmin.from("user_roles").delete().eq("user_id", user_id);
       // Delete 1:1 forms submitted by this user

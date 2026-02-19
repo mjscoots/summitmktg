@@ -212,85 +212,111 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setReplyingTo(null);
 
     try {
-      const { error } = await supabase.from('chat_messages').insert({
+      const { data: insertedMsg, error } = await supabase.from('chat_messages').insert({
         user_id: user.id,
         content,
         is_ai: false,
         reply_to: currentReplyTo,
         channel: sendChannel,
-      });
+      }).select('id').single();
 
       if (error) throw error;
 
       if (isAiChannel) {
-        setIsAiLoading(true);
-        try {
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          const accessToken = currentSession?.access_token;
-          if (!accessToken) throw new Error('Not authenticated');
+        // Check if this is the user's first message in ai-coach channel
+        const userAiMessages = messages.filter(m => m.channel === 'ai-coach' && m.user_id === user.id && !m.is_ai);
+        const isFirstMessage = userAiMessages.length === 0;
 
-          const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              },
-              body: JSON.stringify({
-                messages: [{ role: 'user', content }],
-              }),
-            }
-          );
+        // React with 🚀 to their message
+        if (insertedMsg?.id) {
+          await supabase.from('chat_reactions').insert({
+            message_id: insertedMsg.id,
+            user_id: user.id,
+            emoji: '🚀',
+          }).then(() => {
+            // The realtime subscription will pick up the reaction
+          });
+        }
 
-          if (!response.ok) throw new Error('AI request failed');
+        if (isFirstMessage) {
+          // Send a welcome greeting instead of calling AI
+          const greeting = `What's up! 🔥 Welcome to the AI Coach — I'm here to help you crush it on the doors. Ask me anything about your pitch, objections, closes, or daily game plan. Let's get after it!`;
+          await supabase.from('chat_messages').insert({
+            user_id: user.id,
+            content: greeting,
+            is_ai: true,
+            channel: 'ai-coach',
+          });
+        } else {
+          setIsAiLoading(true);
+          try {
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            const accessToken = currentSession?.access_token;
+            if (!accessToken) throw new Error('Not authenticated');
 
-          const reader = response.body?.getReader();
-          if (!reader) throw new Error('No response body');
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${accessToken}`,
+                  apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                },
+                body: JSON.stringify({
+                  messages: [{ role: 'user', content }],
+                }),
+              }
+            );
 
-          const decoder = new TextDecoder();
-          let aiContent = '';
-          let textBuffer = '';
+            if (!response.ok) throw new Error('AI request failed');
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            textBuffer += decoder.decode(value, { stream: true });
+            const reader = response.body?.getReader();
+            if (!reader) throw new Error('No response body');
 
-            let newlineIndex: number;
-            while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-              let line = textBuffer.slice(0, newlineIndex);
-              textBuffer = textBuffer.slice(newlineIndex + 1);
-              if (line.endsWith('\r')) line = line.slice(0, -1);
-              if (line.startsWith(':') || line.trim() === '') continue;
-              if (!line.startsWith('data: ')) continue;
-              const jsonStr = line.slice(6).trim();
-              if (jsonStr === '[DONE]') break;
-              try {
-                const parsed = JSON.parse(jsonStr);
-                const c = parsed.choices?.[0]?.delta?.content;
-                if (c) aiContent += c;
-              } catch {
-                textBuffer = line + '\n' + textBuffer;
-                break;
+            const decoder = new TextDecoder();
+            let aiContent = '';
+            let textBuffer = '';
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              textBuffer += decoder.decode(value, { stream: true });
+
+              let newlineIndex: number;
+              while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+                let line = textBuffer.slice(0, newlineIndex);
+                textBuffer = textBuffer.slice(newlineIndex + 1);
+                if (line.endsWith('\r')) line = line.slice(0, -1);
+                if (line.startsWith(':') || line.trim() === '') continue;
+                if (!line.startsWith('data: ')) continue;
+                const jsonStr = line.slice(6).trim();
+                if (jsonStr === '[DONE]') break;
+                try {
+                  const parsed = JSON.parse(jsonStr);
+                  const c = parsed.choices?.[0]?.delta?.content;
+                  if (c) aiContent += c;
+                } catch {
+                  textBuffer = line + '\n' + textBuffer;
+                  break;
+                }
               }
             }
-          }
 
-          if (aiContent) {
-            await supabase.from('chat_messages').insert({
-              user_id: user.id,
-              content: aiContent,
-              is_ai: true,
-              channel: 'ai-coach',
-            });
+            if (aiContent) {
+              await supabase.from('chat_messages').insert({
+                user_id: user.id,
+                content: aiContent,
+                is_ai: true,
+                channel: 'ai-coach',
+              });
+            }
+          } catch (aiError) {
+            console.error('AI error:', aiError);
+            toast.error('AI Coach is unavailable right now');
+          } finally {
+            setIsAiLoading(false);
           }
-        } catch (aiError) {
-          console.error('AI error:', aiError);
-          toast.error('AI Coach is unavailable right now');
-        } finally {
-          setIsAiLoading(false);
         }
       }
     } catch (error) {
@@ -339,7 +365,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   };
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
-    if (msg.is_ai) return { full_name: 'Summit AI Coach', avatar_url: null, role: 'bot' };
+    if (msg.is_ai) {
+      if (msg.channel === 'ai-coach') return { full_name: 'AI Coach', avatar_url: null, role: 'bot' };
+      return { full_name: 'Team Bot', avatar_url: null, role: 'bot' };
+    }
     return profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
   };
 
