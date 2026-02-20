@@ -149,31 +149,36 @@ export default function MyTeamPage() {
     return assignPillarsToRoster(visibleMembers, pillars);
   }, [visibleMembers, pillars]);
 
-  // Build pillar data with counts and ranking - ONLY count ACTIVE members for points
+  // Build pillar data with counts and ranking - use team_id from DB as source of truth
   const teamsWithRanking: TeamWithRanking[] = useMemo(() => {
+    // Count active members per team using DB team_id (source of truth)
+    const teamCounts = new Map<string, { managers: number; rookies: number }>();
+    pillars.forEach(p => teamCounts.set(p.id, { managers: 0, rookies: 0 }));
+
+    profilesRaw.forEach(p => {
+      if (p.status === 'nlc' || !p.team_id) return;
+      const counts = teamCounts.get(p.team_id);
+      if (!counts) return;
+      if (managerRoles.has(p.user_id)) {
+        counts.managers++;
+      } else {
+        counts.rookies++;
+      }
+    });
+
     const teams = pillars.map(p => {
-      // Get all members for this pillar (for display when NLC toggle is on)
-      const allMembers = enrichedRoster.filter(m => m.pillar === p.slug);
-      
-      // Filter to ACTIVE members only for point calculation (exclude NLC)
-      const activeMembers = allMembers.filter(m => m.status !== 'nlc');
-      
-      const managerCount = activeMembers.filter(m => 
-        isManager(enrichedRoster, m.full_name) || m.role === 'manager'
-      ).length;
-      const rookieCount = activeMembers.length - managerCount;
-      
-      // Points: managers = 2, rookies = 1 (NLC = 0, excluded above)
-      const points = (managerCount * 2) + (rookieCount * 1);
-      
+      const counts = teamCounts.get(p.id) || { managers: 0, rookies: 0 };
+      const totalMembers = counts.managers + counts.rookies;
+      const points = (counts.managers * 2) + (counts.rookies * 1);
+
       return {
         id: p.id,
         name: p.name,
         slug: p.slug,
         logo_url: p.logo_url,
-        totalMembers: activeMembers.length, // Only show active count on cards
-        managerCount,
-        rookieCount,
+        totalMembers,
+        managerCount: counts.managers,
+        rookieCount: counts.rookies,
         points,
         rank: 0,
       };
@@ -186,7 +191,7 @@ export default function MyTeamPage() {
     });
 
     return teams;
-  }, [pillars, enrichedRoster]);
+  }, [pillars, profilesRaw, managerRoles]);
 
   // Filter teams by search
   const filteredTeams = useMemo(() => {
@@ -233,8 +238,8 @@ export default function MyTeamPage() {
     return buildTree(enrichedRoster, ownerName);
   }, [selectedPillarData, enrichedRoster]);
 
-  // Total active members (NLC excluded)
-  const totalActiveMembers = enrichedRoster.length;
+  // Total active members (NLC excluded) - use DB team_id source of truth
+  const totalActiveMembers = profilesRaw.filter(p => p.status !== 'nlc').length;
 
   // Calculate total team time this week
   const totalTeamTimeMinutes = teamsWithRanking.reduce((sum, t) => sum, 0);
