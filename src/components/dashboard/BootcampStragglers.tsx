@@ -19,18 +19,19 @@ interface Straggler {
 }
 
 export function BootcampStragglers() {
-  const { role } = useAuth();
+  const { user, role, profile } = useAuth();
   const [stragglers, setStragglers] = useState<Straggler[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin';
+  const isAdmin = role === 'admin';
 
   useEffect(() => {
-    if (!isManager) return;
+    if (!isManager || !user?.id) return;
 
-    const fetch = async () => {
+    const fetchStragglers = async () => {
       // Get rookies who haven't completed bootcamp
       const { data: rookieRoles } = await supabase
         .from('user_roles')
@@ -47,7 +48,7 @@ export function BootcampStragglers() {
       // Get profiles and bootcamp progress
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, full_name, email, created_at, status, teams:team_id(name)')
+        .select('user_id, full_name, email, created_at, status, team_id, teams:team_id(name)')
         .in('user_id', rookieIds)
         .eq('status', 'active');
 
@@ -60,10 +61,39 @@ export function BootcampStragglers() {
         (bootcampData || []).map(b => [b.user_id, b])
       );
 
+      // Determine which team IDs this manager/pillar can see
+      let allowedTeamIds: Set<string> | null = null; // null = see all (admin)
+      
+      if (!isAdmin) {
+        // For managers: get teams they lead + their own team
+        const teamIds = new Set<string>();
+        
+        // Check if they're a pillar leader
+        const { data: ledTeams } = await supabase
+          .from('teams')
+          .select('id')
+          .eq('leader_id', user.id);
+        
+        ledTeams?.forEach(t => teamIds.add(t.id));
+        
+        // Also include their own team
+        if (profile?.team_id) {
+          teamIds.add(profile.team_id);
+        }
+        
+        allowedTeamIds = teamIds;
+      }
+
       const result: Straggler[] = [];
       for (const p of profiles || []) {
         const bp = bootcampMap.get(p.user_id);
         if (bp?.bootcamp_completed || bp?.bootcamp_exempt) continue;
+        
+        // Filter by team for non-admin managers
+        const profileTeamId = (p as any).team_id;
+        if (allowedTeamIds !== null) {
+          if (!profileTeamId || !allowedTeamIds.has(profileTeamId)) continue;
+        }
         
         result.push({
           full_name: p.full_name,
@@ -83,8 +113,8 @@ export function BootcampStragglers() {
       setIsLoading(false);
     };
 
-    fetch();
-  }, [isManager]);
+    fetchStragglers();
+  }, [isManager, isAdmin, user?.id, profile?.team_id]);
 
   if (!isManager || isLoading || stragglers.length === 0) return null;
 
