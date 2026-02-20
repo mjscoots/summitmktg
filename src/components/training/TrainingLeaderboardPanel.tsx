@@ -21,51 +21,34 @@ const BADGE_ICONS: Record<string, React.ReactNode> = {
 };
 
 export function TrainingLeaderboardPanel() {
-  const { user, role } = useAuth();
+  const { user } = useAuth();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isManager = role === 'manager' || role === 'admin';
+  // Show all rookies regardless of viewer role
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       if (!user?.id) return;
 
       try {
-        // Get profiles (rookies visible to everyone, full list for managers)
-        let profiles: { user_id: string; full_name: string }[] = [];
+        // Get all rookie profiles for leaderboard (consistent with Training tab)
+        const { data: rookieRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'rookie');
 
-        if (isManager) {
-          const { data: myProfile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('user_id', user.id)
-            .maybeSingle();
+        if (!rookieRoles || rookieRoles.length === 0) { setIsLoading(false); return; }
 
-          if (myProfile) {
-            const { data: downline } = await supabase
-              .rpc('get_user_downline', { _manager_name: myProfile.full_name });
-            profiles = (downline || [])
-              .filter(d => d.role === 'rookie')
-              .map(d => ({ user_id: d.user_id, full_name: d.full_name }));
-          }
-        } else {
-          // Rookies see their team peers
-          const { data: myProfile } = await supabase
-            .from('profiles')
-            .select('team_id')
-            .eq('user_id', user.id)
-            .maybeSingle();
+        const rookieIds = rookieRoles.map(r => r.user_id);
 
-          if (myProfile?.team_id) {
-            const { data: teamMembers } = await supabase
-              .from('profiles')
-              .select('user_id, full_name')
-              .eq('team_id', myProfile.team_id)
-              .neq('status', 'nlc');
-            profiles = teamMembers || [];
-          }
-        }
+        const { data: allProfiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', rookieIds)
+          .not('status', 'eq', 'nlc');
+
+        const profiles = allProfiles || [];
 
         if (profiles.length === 0) { setIsLoading(false); return; }
 
@@ -113,7 +96,7 @@ export function TrainingLeaderboardPanel() {
     };
 
     fetchLeaderboard();
-  }, [user?.id, isManager]);
+  }, [user?.id]);
 
   if (isLoading) {
     return <div className="bg-card rounded-xl border border-border p-5 animate-pulse h-40" />;
