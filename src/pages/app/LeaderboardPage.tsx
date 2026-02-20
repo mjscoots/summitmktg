@@ -3,11 +3,12 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { SigningsLeaderboard } from '@/components/leaderboard/SigningsLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
+import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
 import { Trophy } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 
-type LeaderboardTab = 'training' | 'streak';
+type LeaderboardTab = 'training' | 'streak' | 'completion';
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('training');
@@ -15,6 +16,7 @@ export default function LeaderboardPage() {
   const tabs: { id: LeaderboardTab; label: string }[] = [
     { id: 'training', label: 'Training' },
     { id: 'streak', label: 'Streak' },
+    { id: 'completion', label: 'Completion' },
   ];
 
   return (
@@ -58,6 +60,7 @@ export default function LeaderboardPage() {
         <div className="bg-card rounded-lg border border-border/50">
           {activeTab === 'training' && <TrainingLeaderboard />}
           {activeTab === 'streak' && <StreakLeaderboard />}
+          {activeTab === 'completion' && <TrainingLeaderboardPanel />}
         </div>
       </main>
     </AppLayout>
