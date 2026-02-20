@@ -88,7 +88,7 @@ export function TrainingLeaderboard() {
             .not('status', 'eq', 'nlc'),
           supabase
             .from('lesson_progress')
-            .select('user_id, lesson_id, quiz_score, completed_at')
+            .select('user_id, lesson_id, quiz_score, quiz_passed, completed_at')
             .in('user_id', rookieIds)
             .not('completed_at', 'is', null),
           supabase
@@ -115,8 +115,11 @@ export function TrainingLeaderboard() {
           if (!trainingItems.lessonIds.has(p.lesson_id)) return;
           const existing = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
           existing.completed++;
+          // Use recorded quiz_score if available; if quiz was passed but score is null (legacy), default to 100
           if (p.quiz_score !== null && p.quiz_score !== undefined) {
             existing.quizScores.push(p.quiz_score);
+          } else if (p.quiz_passed) {
+            existing.quizScores.push(100);
           }
           userStats.set(p.user_id, existing);
         });
