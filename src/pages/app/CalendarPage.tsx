@@ -247,6 +247,7 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const isManager = role === 'manager' || role === 'admin';
+  const isAdmin = role === 'admin';
 
   const fetchEvents = async () => {
     if (!user) return;
@@ -567,7 +568,7 @@ export default function CalendarPage() {
                 const attending = eventAttendance.filter(a => a.status === 'attending');
                 const notAttending = eventAttendance.filter(a => a.status === 'not_attending');
                 const isExpanded = expandedEvent === event.id;
-                const canEdit = isManager && event.manager_id === user?.id;
+                const canEdit = isAdmin || (isManager && event.manager_id === user?.id);
 
                 return (
                   <div
@@ -805,7 +806,7 @@ export default function CalendarPage() {
               setSelectedEvent(null);
               setDeleteEventId(eventId);
             }}
-            canEdit={isManager && selectedEvent.manager_id === user?.id}
+            canEdit={isAdmin || (isManager && selectedEvent.manager_id === user?.id)}
           />
         )}
       </main>
