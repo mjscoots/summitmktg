@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -8,13 +8,14 @@ function getLastRead(): string {
   return localStorage.getItem(LAST_READ_KEY) || new Date(0).toISOString();
 }
 
-export function markChatRead() {
-  localStorage.setItem(LAST_READ_KEY, new Date().toISOString());
-}
-
 export function useUnreadChat() {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const markRead = useCallback(() => {
+    localStorage.setItem(LAST_READ_KEY, new Date().toISOString());
+    setUnreadCount(0);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -34,7 +35,6 @@ export function useUnreadChat() {
 
     fetchUnread();
 
-    // Listen for new messages in realtime
     const channel = supabase
       .channel('unread-chat')
       .on(
@@ -53,5 +53,5 @@ export function useUnreadChat() {
     };
   }, [user]);
 
-  return unreadCount;
+  return { unreadCount, markRead };
 }
