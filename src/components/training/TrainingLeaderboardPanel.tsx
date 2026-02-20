@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Trophy, Shield, Award, Star, Mountain } from 'lucide-react';
-import { getReachableRookieLessonIds, getCompletedLessonCounts } from '@/lib/trainingProgressCalc';
+import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 
 interface LeaderboardEntry {
   userId: string;
@@ -69,14 +69,14 @@ export function TrainingLeaderboardPanel() {
 
         if (profiles.length === 0) { setIsLoading(false); return; }
 
-        // Use shared canonical lesson calculation
-        const reachableLessonIds = await getReachableRookieLessonIds();
-        const totalItems = reachableLessonIds.size;
+        // Use shared canonical training item calculation (lessons + videos)
+        const trainingItems = await getReachableRookieTrainingItems();
+        const totalItems = trainingItems.totalCount;
 
         const userIds = profiles.map(p => p.user_id);
         
-        // Use shared completion counting
-        const completedCounts = await getCompletedLessonCounts(userIds, reachableLessonIds);
+        // Use shared completion counting (lessons + videos)
+        const completedCounts = await getCompletedTrainingCounts(userIds, trainingItems);
 
         // Get all achievements
         const { data: allAchievements } = await supabase

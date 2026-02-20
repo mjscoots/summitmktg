@@ -112,7 +112,7 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
                 .from('lesson_progress')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
-                .eq('quiz_passed', true)
+                .not('completed_at', 'is', null)
                 .in('lesson_id', lessonIds);
 
               completedItems += completedCount || 0;

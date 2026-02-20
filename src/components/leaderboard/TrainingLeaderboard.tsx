@@ -5,7 +5,7 @@ import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Cr
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
-import { getReachableRookieLessonIds } from '@/lib/trainingProgressCalc';
+import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 import {
   Dialog,
   DialogContent,
@@ -77,10 +77,10 @@ export function TrainingLeaderboard() {
 
         const rookieIds = rookieRoles.map(r => r.user_id);
 
-        // Use shared canonical lesson calculation
-        const reachableLessonIds = await getReachableRookieLessonIds();
+        // Use shared canonical training item calculation (lessons + required videos)
+        const trainingItems = await getReachableRookieTrainingItems();
 
-        const [profilesRes, progressRes, streaksRes] = await Promise.all([
+        const [profilesRes, progressRes, videoProgressRes, streaksRes] = await Promise.all([
           supabase
             .from('profiles')
             .select('user_id, full_name, nickname, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
@@ -92,28 +92,41 @@ export function TrainingLeaderboard() {
             .in('user_id', rookieIds)
             .not('completed_at', 'is', null),
           supabase
+            .from('video_progress')
+            .select('user_id, video_id')
+            .in('user_id', rookieIds)
+            .eq('watched', true),
+          supabase
             .from('daily_login_streaks')
             .select('user_id, current_streak')
             .in('user_id', rookieIds),
         ]);
 
         const profiles = profilesRes.data || [];
-        const totalLessons = reachableLessonIds.size || 1;
+        const totalItems = trainingItems.totalCount || 1;
         const progressData = progressRes.data || [];
+        const videoProgressData = videoProgressRes.data || [];
         const streakMap = new Map(
           (streaksRes.data || []).map(s => [s.user_id, s.current_streak])
         );
 
         const userStats = new Map<string, { completed: number; quizScores: number[] }>();
         progressData.forEach(p => {
-          // Only count lessons that are in reachable courses
-          if (!reachableLessonIds.has(p.lesson_id)) return;
+          if (!trainingItems.lessonIds.has(p.lesson_id)) return;
           const existing = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
           existing.completed++;
           if (p.quiz_score !== null && p.quiz_score !== undefined) {
             existing.quizScores.push(p.quiz_score);
           }
           userStats.set(p.user_id, existing);
+        });
+
+        // Count watched required videos per user
+        videoProgressData.forEach(vp => {
+          if (!trainingItems.videoIds.has(vp.video_id)) return;
+          const existing = userStats.get(vp.user_id) || { completed: 0, quizScores: [] };
+          existing.completed++;
+          userStats.set(vp.user_id, existing);
         });
 
         const today = new Date();
@@ -127,7 +140,7 @@ export function TrainingLeaderboard() {
             : 0;
           const hoursThisWeek = Math.round((p.time_this_week_minutes || 0) / 60 * 10) / 10;
           const streakDays = streakMap.get(p.user_id) || 0;
-          const progressPct = Math.round((lessonsCompleted / totalLessons) * 100);
+          const progressPct = Math.round((lessonsCompleted / totalItems) * 100);
 
           const lastActive = p.last_active_at ? new Date(p.last_active_at) : null;
           const isActiveToday = lastActive ? lastActive >= today : false;
@@ -144,7 +157,7 @@ export function TrainingLeaderboard() {
             nickname: (p as any).nickname || null,
             avatar_url: p.avatar_url,
             lessonsCompleted,
-            totalLessons,
+            totalLessons: totalItems,
             streakDays,
             hoursThisWeek,
             avgQuizScore,
