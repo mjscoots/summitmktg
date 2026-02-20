@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Trophy, Shield, Award, Star, Mountain } from 'lucide-react';
+import { getReachableRookieLessonIds, getCompletedLessonCounts } from '@/lib/trainingProgressCalc';
 
 interface LeaderboardEntry {
   userId: string;
@@ -68,94 +69,38 @@ export function TrainingLeaderboardPanel() {
 
         if (profiles.length === 0) { setIsLoading(false); return; }
 
-        // Get course structure for progress calc
-        const slugs = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
-        const { data: courses } = await supabase
-          .from('training_courses')
-          .select('id, slug')
-          .eq('is_active', true)
-          .in('slug', slugs);
+        // Use shared canonical lesson calculation
+        const reachableLessonIds = await getReachableRookieLessonIds();
+        const totalItems = reachableLessonIds.size;
 
-        if (!courses) { setIsLoading(false); return; }
-
-        // Get lesson IDs
-        let allLessonIds: string[] = [];
-        for (const course of courses) {
-          if (course.slug === 'training-videos') continue;
-          const { data: modules } = await supabase
-            .from('training_modules')
-            .select('id')
-            .eq('course_id', course.id)
-            .eq('is_active', true);
-          const moduleIds = modules?.map(m => m.id) || [];
-          if (moduleIds.length === 0) continue;
-          const { data: lessons } = await supabase
-            .from('training_lessons')
-            .select('id')
-            .in('module_id', moduleIds)
-            .eq('is_active', true);
-          allLessonIds = allLessonIds.concat(lessons?.map(l => l.id) || []);
-        }
-
-        const { count: totalVideos } = await supabase
-          .from('training_videos')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('is_required', true);
-
-        const totalItems = allLessonIds.length + (totalVideos || 0);
-
-        // Get required video IDs for accurate counting
-        const { data: requiredVideosList } = await supabase
-          .from('training_videos')
-          .select('id')
-          .eq('is_active', true)
-          .eq('is_required', true);
-        const requiredVideoIds = new Set((requiredVideosList || []).map(v => v.id));
+        const userIds = profiles.map(p => p.user_id);
+        
+        // Use shared completion counting
+        const completedCounts = await getCompletedLessonCounts(userIds, reachableLessonIds);
 
         // Get all achievements
-        const userIds = profiles.map(p => p.user_id);
         const { data: allAchievements } = await supabase
           .from('user_training_achievements')
           .select('user_id, badge_type')
           .in('user_id', userIds);
 
         // Build entries
-        const leaderboard: LeaderboardEntry[] = await Promise.all(
-          profiles.map(async (p) => {
-            const { data: lessonProg } = await supabase
-              .from('lesson_progress')
-              .select('lesson_id')
-              .eq('user_id', p.user_id)
-              .eq('quiz_passed', true);
+        const leaderboard: LeaderboardEntry[] = profiles.map(p => {
+          const totalDone = completedCounts.get(p.user_id) || 0;
+          const globalPercent = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
 
-            const completedLessonIds = new Set(lessonProg?.map(lp => lp.lesson_id) || []);
-            const lessonsDone = allLessonIds.filter(id => completedLessonIds.has(id)).length;
+          const badges = (allAchievements || [])
+            .filter(a => a.user_id === p.user_id && ['bronze', 'silver', 'gold', 'summit'].includes(a.badge_type))
+            .map(a => a.badge_type);
 
-            const { data: videoProg } = await supabase
-              .from('video_progress')
-              .select('video_id')
-              .eq('user_id', p.user_id)
-              .eq('watched', true);
-
-            const videosDone = (videoProg || []).filter(vp => requiredVideoIds.has(vp.video_id)).length;
-
-            const totalDone = lessonsDone + videosDone;
-            const globalPercent = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
-
-            const badges = (allAchievements || [])
-              .filter(a => a.user_id === p.user_id && ['bronze', 'silver', 'gold', 'summit'].includes(a.badge_type))
-              .map(a => a.badge_type);
-
-            return {
-              userId: p.user_id,
-              name: p.full_name,
-              globalPercent,
-              completedCount: totalDone,
-              badges,
-            };
-          })
-        );
+          return {
+            userId: p.user_id,
+            name: p.full_name,
+            globalPercent,
+            completedCount: totalDone,
+            badges,
+          };
+        });
 
         // Sort by completion % desc
         leaderboard.sort((a, b) => b.globalPercent - a.globalPercent);

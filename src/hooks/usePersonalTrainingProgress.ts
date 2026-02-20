@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { getReachableRookieLessonIds } from '@/lib/trainingProgressCalc';
 
 interface CourseProgress {
   courseId: string;
@@ -33,7 +34,7 @@ export function usePersonalTrainingProgress() {
     }
 
     try {
-      const isManager = role === 'manager' || role === 'admin';
+      const isManagerRole = role === 'manager' || role === 'admin';
       
       // Fetch all courses with their lessons based on role
       const { data: courses } = await supabase
@@ -45,6 +46,7 @@ export function usePersonalTrainingProgress() {
           target_role,
           training_modules (
             id,
+            is_active,
             training_lessons (
               id,
               is_active
@@ -60,19 +62,18 @@ export function usePersonalTrainingProgress() {
       }
 
       // Filter courses based on role
-      // Rookies see: rookie courses only
-      // Managers see: rookie + manager courses
       const relevantCourses = courses.filter(course => {
-        if (isManager) {
-          return course.target_role === 'rookie' || course.target_role === 'manager';
+        if (isManagerRole) {
+          return course.target_role === 'rookie' || course.target_role === 'manager' || course.target_role === null;
         }
         return course.target_role === 'rookie' || course.target_role === null;
       });
 
-      // Get all active lesson IDs from these courses
+      // Get all active lesson IDs from these courses (filter modules by is_active too)
       const allLessonIds: string[] = [];
       relevantCourses.forEach(course => {
         course.training_modules?.forEach(module => {
+          if (!(module as any).is_active) return; // Skip inactive modules
           module.training_lessons?.forEach(lesson => {
             if (lesson.is_active) {
               allLessonIds.push(lesson.id);
@@ -98,6 +99,7 @@ export function usePersonalTrainingProgress() {
         let completedCount = 0;
 
         course.training_modules?.forEach(module => {
+          if (!(module as any).is_active) return; // Skip inactive modules
           module.training_lessons?.forEach(lesson => {
             if (lesson.is_active) {
               totalLessons++;
@@ -119,11 +121,9 @@ export function usePersonalTrainingProgress() {
       });
 
       // Calculate overall progress
-      // For managers: weight rookie training 60%, manager training 40%
-      // For rookies: equal weight across all courses
       let overallProgress = 0;
 
-      if (isManager) {
+      if (isManagerRole) {
         const rookieCourses = courseProgress.filter(c => {
           const course = relevantCourses.find(rc => rc.id === c.courseId);
           return course?.target_role === 'rookie' || course?.target_role === null;
@@ -133,27 +133,23 @@ export function usePersonalTrainingProgress() {
           return course?.target_role === 'manager';
         });
 
-        // Calculate rookie average (60% weight)
         const rookieTotal = rookieCourses.reduce((sum, c) => sum + c.totalLessons, 0);
         const rookieCompleted = rookieCourses.reduce((sum, c) => sum + c.completedLessons, 0);
         const rookieProgress = rookieTotal > 0 ? (rookieCompleted / rookieTotal) * 100 : 0;
 
-        // Calculate manager average (40% weight)
         const managerTotal = managerCourses.reduce((sum, c) => sum + c.totalLessons, 0);
         const managerCompleted = managerCourses.reduce((sum, c) => sum + c.completedLessons, 0);
         const managerProgress = managerTotal > 0 ? (managerCompleted / managerTotal) * 100 : 0;
 
-        // If there are no manager courses yet, just use rookie progress
         if (managerTotal === 0) {
           overallProgress = Math.round(rookieProgress);
         } else {
           overallProgress = Math.round((rookieProgress * 0.6) + (managerProgress * 0.4));
         }
       } else {
-        // Rookie: equal weight across all courses
         const totalLessons = courseProgress.reduce((sum, c) => sum + c.totalLessons, 0);
-        const completedLessons = courseProgress.reduce((sum, c) => sum + c.completedLessons, 0);
-        overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+        const completedTotal = courseProgress.reduce((sum, c) => sum + c.completedLessons, 0);
+        overallProgress = totalLessons > 0 ? Math.round((completedTotal / totalLessons) * 100) : 0;
       }
 
       setProgress({
@@ -171,7 +167,6 @@ export function usePersonalTrainingProgress() {
   useEffect(() => {
     calculateProgress();
 
-    // Subscribe to lesson progress changes for real-time updates
     if (!user?.id) return;
 
     const channel = supabase
