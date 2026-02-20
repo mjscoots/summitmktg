@@ -33,14 +33,16 @@ export function useStreak() {
 
     const recordLogin = async () => {
       try {
+        console.debug('[Streak] Recording daily login for', user.id);
         const { data, error } = await supabase.rpc('record_daily_login', {
           _user_id: user.id,
         });
 
         if (error) {
-          console.error('Streak recording error:', error);
+          console.error('[Streak] Recording error:', error);
           return;
         }
+        console.debug('[Streak] Result:', data);
 
         const result = data as {
           current_streak: number;
