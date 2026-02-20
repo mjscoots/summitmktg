@@ -11,6 +11,20 @@ import { UserAvatar } from '@/components/shared/UserAvatar';
 import { MessageReactions } from './MessageReactions';
 import { ReadReceipts } from './ReadReceipts';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+/** Render text with clickable links */
+function renderWithLinks(text: string) {
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) =>
+    urlRegex.test(part) ? (
+      <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 break-all">
+        {part}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
 
 interface ChatMessage {
   id: string;
@@ -668,7 +682,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                       })()
                     ) : (
                       <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
-                        {msg.content}
+                        {renderWithLinks(msg.content)}
                       </p>
                     )}
                   </div>
