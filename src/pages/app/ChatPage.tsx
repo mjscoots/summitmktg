@@ -2,13 +2,16 @@ import { useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityChat } from '@/components/dashboard/CommunityChat';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { markChatRead } from '@/hooks/useUnreadChat';
+import { useUnreadChat } from '@/hooks/useUnreadChat';
 
 export default function ChatPage() {
+  const { markRead } = useUnreadChat();
+
   useEffect(() => {
-    markChatRead();
-    return () => { markChatRead(); };
-  }, []);
+    markRead();
+    return () => { markRead(); };
+  }, [markRead]);
+
   return (
     <AppLayout>
       <div className="h-[calc(100vh-56px)] flex flex-col px-0 sm:px-4 sm:py-3">

@@ -53,7 +53,7 @@ export function AppSidebar() {
   const { role, profile, signOut } = useAuth();
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
-  const unreadChat = useUnreadChat();
+  const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
 
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
@@ -121,7 +121,10 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.path}>
                     <button
                       data-tour={item.label.toLowerCase()}
-                      onClick={() => navigate(item.path)}
+                      onClick={() => {
+                        if (item.label === 'Chat') markChatRead();
+                        navigate(item.path);
+                      }}
                       className={cn(
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
                         active 
