@@ -73,10 +73,12 @@ export function CommandCenterHeader() {
        try {
          // Get active users (active in last 5 minutes)
          // Get all active users count  
-         const { data: activeProfiles } = await supabase
-           .from('profiles')
-           .select('user_id')
-           .eq('is_active_now', true);
+          // Use last_active_at within 5 minutes instead of stale is_active_now boolean
+          const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+          const { data: activeProfiles } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .gte('last_active_at', fiveMinAgo);
  
          // Get roles for active users
          const activeUserIds = activeProfiles?.map(p => p.user_id) || [];
