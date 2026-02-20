@@ -18,13 +18,37 @@ export function useTrainingProgress(userIds: string[]) {
     const fetchProgress = async () => {
       setIsLoading(true);
       try {
-        // Get total lesson count
-        const { count: totalLessons } = await supabase
-          .from('training_lessons')
-          .select('*', { count: 'exact', head: true })
+        // Get lessons only from active courses → active modules → active lessons
+        // This avoids counting orphaned lessons not reachable through the course tree
+        const { data: courses } = await supabase
+          .from('training_courses')
+          .select(`
+            id,
+            target_role,
+            training_modules (
+              id,
+              training_lessons (
+                id
+              )
+            )
+          `)
           .eq('is_active', true);
 
-        // Get completed lessons per user
+        // Collect all reachable lesson IDs (only from rookie/null-targeted courses)
+        const reachableLessonIds = new Set<string>();
+        (courses || []).forEach(course => {
+          // Only count rookie-accessible courses (target_role is null or 'rookie')
+          if (course.target_role !== null && course.target_role !== 'rookie') return;
+          course.training_modules?.forEach(mod => {
+            mod.training_lessons?.forEach(lesson => {
+              reachableLessonIds.add(lesson.id);
+            });
+          });
+        });
+
+        const totalLessons = reachableLessonIds.size;
+
+        // Get completed lessons per user (only counting reachable lessons)
         const { data: lessonProgress } = await supabase
           .from('lesson_progress')
           .select('user_id, lesson_id, completed_at')
@@ -33,23 +57,25 @@ export function useTrainingProgress(userIds: string[]) {
 
         // Build progress map
         const progressMap = new Map<string, MemberTrainingProgress>();
-        const total = totalLessons || 0;
 
         // Initialize all users with 0 progress
         userIds.forEach(userId => {
           progressMap.set(userId, {
             user_id: userId,
             completed: 0,
-            total,
+            total: totalLessons,
             percentage: 0,
           });
         });
 
-        // Count completed lessons per user
+        // Count completed lessons per user (only reachable ones)
         if (lessonProgress) {
           const completedByUser = new Map<string, Set<string>>();
           
           lessonProgress.forEach(lp => {
+            // Only count if the lesson is in a reachable course
+            if (!reachableLessonIds.has(lp.lesson_id)) return;
+            
             if (!completedByUser.has(lp.user_id)) {
               completedByUser.set(lp.user_id, new Set());
             }
@@ -61,8 +87,8 @@ export function useTrainingProgress(userIds: string[]) {
             progressMap.set(userId, {
               user_id: userId,
               completed,
-              total,
-              percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
+              total: totalLessons,
+              percentage: totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0,
             });
           });
         }

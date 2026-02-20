@@ -76,16 +76,31 @@ export function TrainingLeaderboard() {
 
         const rookieIds = rookieRoles.map(r => r.user_id);
 
-        const [profilesRes, totalLessonsRes, progressRes, streaksRes] = await Promise.all([
+        // Get reachable lesson IDs (only rookie-accessible courses)
+        const { data: coursesData } = await supabase
+          .from('training_courses')
+          .select(`
+            id, target_role,
+            training_modules ( id, training_lessons ( id ) )
+          `)
+          .eq('is_active', true);
+
+        const reachableLessonIds = new Set<string>();
+        (coursesData || []).forEach(course => {
+          if (course.target_role !== null && course.target_role !== 'rookie') return;
+          course.training_modules?.forEach(mod => {
+            mod.training_lessons?.forEach(lesson => {
+              reachableLessonIds.add(lesson.id);
+            });
+          });
+        });
+
+        const [profilesRes, progressRes, streaksRes] = await Promise.all([
           supabase
             .from('profiles')
             .select('user_id, full_name, nickname, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
             .in('user_id', rookieIds)
             .not('status', 'eq', 'nlc'),
-          supabase
-            .from('training_lessons')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_active', true),
           supabase
             .from('lesson_progress')
             .select('user_id, lesson_id, quiz_score, completed_at')
@@ -98,14 +113,16 @@ export function TrainingLeaderboard() {
         ]);
 
         const profiles = profilesRes.data || [];
-        const totalLessons = totalLessonsRes.count || 1;
-        const progress = progressRes.data || [];
+        const totalLessons = reachableLessonIds.size || 1;
+        const progressData = progressRes.data || [];
         const streakMap = new Map(
           (streaksRes.data || []).map(s => [s.user_id, s.current_streak])
         );
 
         const userStats = new Map<string, { completed: number; quizScores: number[] }>();
-        progress.forEach(p => {
+        progressData.forEach(p => {
+          // Only count lessons that are in reachable courses
+          if (!reachableLessonIds.has(p.lesson_id)) return;
           const existing = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
           existing.completed++;
           if (p.quiz_score !== null && p.quiz_score !== undefined) {
