@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getReachableRookieLessonIds, getCompletedLessonCounts } from '@/lib/trainingProgressCalc';
+import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 
 export interface MemberTrainingProgress {
   user_id: string;
@@ -18,9 +18,9 @@ export function useTrainingProgress(userIds: string[]) {
     const fetchProgress = async () => {
       setIsLoading(true);
       try {
-        const reachableLessonIds = await getReachableRookieLessonIds();
-        const totalLessons = reachableLessonIds.size;
-        const completedCounts = await getCompletedLessonCounts(userIds, reachableLessonIds);
+        const items = await getReachableRookieTrainingItems();
+        const totalItems = items.totalCount;
+        const completedCounts = await getCompletedTrainingCounts(userIds, items);
 
         const progressMap = new Map<string, MemberTrainingProgress>();
 
@@ -29,8 +29,8 @@ export function useTrainingProgress(userIds: string[]) {
           progressMap.set(userId, {
             user_id: userId,
             completed,
-            total: totalLessons,
-            percentage: totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0,
+            total: totalItems,
+            percentage: totalItems > 0 ? Math.round((completed / totalItems) * 100) : 0,
           });
         });
 
