@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { useUnreadChat } from '@/hooks/useUnreadChat';
 
 interface NavItem {
   label: string;
@@ -52,6 +53,7 @@ export function AppSidebar() {
   const { role, profile, signOut } = useAuth();
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
+  const unreadChat = useUnreadChat();
 
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
@@ -136,6 +138,14 @@ export function AppSidebar() {
                       />
                       {!collapsed && (
                         <span className="text-[13px] font-medium">{item.label}</span>
+                      )}
+                      {item.label === 'Chat' && unreadChat > 0 && (
+                        <span className={cn(
+                          "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
+                          collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
+                        )}>
+                          {unreadChat > 99 ? '99+' : unreadChat}
+                        </span>
                       )}
                     </button>
                   </SidebarMenuItem>
