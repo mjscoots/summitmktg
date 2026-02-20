@@ -5,6 +5,7 @@ import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Cr
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
+import { getReachableRookieLessonIds } from '@/lib/trainingProgressCalc';
 import {
   Dialog,
   DialogContent,
@@ -76,24 +77,8 @@ export function TrainingLeaderboard() {
 
         const rookieIds = rookieRoles.map(r => r.user_id);
 
-        // Get reachable lesson IDs (only rookie-accessible courses)
-        const { data: coursesData } = await supabase
-          .from('training_courses')
-          .select(`
-            id, target_role,
-            training_modules ( id, training_lessons ( id ) )
-          `)
-          .eq('is_active', true);
-
-        const reachableLessonIds = new Set<string>();
-        (coursesData || []).forEach(course => {
-          if (course.target_role !== null && course.target_role !== 'rookie') return;
-          course.training_modules?.forEach(mod => {
-            mod.training_lessons?.forEach(lesson => {
-              reachableLessonIds.add(lesson.id);
-            });
-          });
-        });
+        // Use shared canonical lesson calculation
+        const reachableLessonIds = await getReachableRookieLessonIds();
 
         const [profilesRes, progressRes, streaksRes] = await Promise.all([
           supabase
