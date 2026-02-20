@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
-import { ArrowLeft, CheckCircle2, Search, User, FileCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Search, User, FileCheck, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -29,14 +29,72 @@ interface FormData {
   interviewerName: string;
   teamId: string;
   reportsTo: ManagerOption | null;
-  dreamScenario: string;
-  identityQuestion: string;
-  futurePacing: string;
-  confidenceScale: string;
-  commitmentLevel: string;
+  beforeQuestions: string;
+  prosList: string;
+  consList: string;
+  hopingToGet: string;
+  howWellWouldYouDo: string;
+  revenueRange: string;
+  whatWithMoney: string;
+  payScaleRecall: string;
+  whatSeparatesYou: string;
+  competitive: string;
+  handleFeedback: string;
+  coreQualities: string;
+  readinessScale: string;
+  bringToTen: string;
+  offerStatement: string;
+  oneOnOneTime: string;
+  onboardingDone: boolean;
+  afterOnboardingDone: boolean;
+  sentIntroDone: boolean;
+  otherQuestionsDone: boolean;
   notes: string;
   outcome: 'contract_signed' | 'contract_sent_unsigned' | '';
 }
+
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="pt-6 pb-2 border-t border-border/50 first:border-t-0 first:pt-0">
+      <h2 className="text-base font-bold text-foreground">{children}</h2>
+    </div>
+  );
+}
+
+function ScriptTip({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-2 p-3 bg-primary/5 border border-primary/10 rounded-lg text-xs text-muted-foreground leading-relaxed">
+      <Info className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function ChecklistItem({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      className={cn(
+        "flex items-center gap-3 w-full text-left p-3 rounded-lg border transition-all",
+        checked
+          ? "bg-success/10 border-success/30 text-foreground"
+          : "bg-background border-border hover:border-primary/30 text-muted-foreground"
+      )}
+    >
+      <div className={cn(
+        "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all",
+        checked ? "bg-success border-success" : "border-border"
+      )}>
+        {checked && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+      </div>
+      <span className="text-sm font-medium">{label}</span>
+    </button>
+  );
+}
+
+const inputClass = "w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all";
+const textareaClass = `${inputClass} resize-none`;
 
 export default function Interview3Page() {
   const navigate = useNavigate();
@@ -54,11 +112,26 @@ export default function Interview3Page() {
     interviewerName: profile?.full_name || '',
     teamId: '__none__',
     reportsTo: null,
-    dreamScenario: '',
-    identityQuestion: '',
-    futurePacing: '',
-    confidenceScale: '',
-    commitmentLevel: '',
+    beforeQuestions: '',
+    prosList: '',
+    consList: '',
+    hopingToGet: '',
+    howWellWouldYouDo: '',
+    revenueRange: '',
+    whatWithMoney: '',
+    payScaleRecall: '',
+    whatSeparatesYou: '',
+    competitive: '',
+    handleFeedback: '',
+    coreQualities: '',
+    readinessScale: '',
+    bringToTen: '',
+    offerStatement: '',
+    oneOnOneTime: '',
+    onboardingDone: false,
+    afterOnboardingDone: false,
+    sentIntroDone: false,
+    otherQuestionsDone: false,
     notes: '',
     outcome: '',
   });
@@ -146,7 +219,7 @@ export default function Interview3Page() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const handleChange = (field: keyof FormData, value: string) => {
+  const handleChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -166,7 +239,6 @@ export default function Interview3Page() {
 
     const hasTeam = formData.teamId !== '__none__';
 
-    // If team selected but no manager, warn
     if (hasTeam && !formData.reportsTo) {
       toast.error('Please select a Direct Manager for this recruit');
       return;
@@ -174,7 +246,6 @@ export default function Interview3Page() {
 
     setIsSubmitting(true);
     try {
-      // Save interview to localStorage
       const stored = localStorage.getItem('summit_interview_responses');
       const responses = stored ? JSON.parse(stored) : [];
 
@@ -187,11 +258,26 @@ export default function Interview3Page() {
         interviewer: formData.interviewerName,
         submitted: new Date().toISOString(),
         data: {
-          'Dream Scenario': formData.dreamScenario,
-          'Identity Question': formData.identityQuestion,
-          'Future Pacing': formData.futurePacing,
-          'Confidence Scale (1-10)': formData.confidenceScale,
-          'Commitment Level': formData.commitmentLevel,
+          'Before Questions': formData.beforeQuestions,
+          '3-5 Pros': formData.prosList,
+          'Cons': formData.consList,
+          'Hoping to Get': formData.hopingToGet,
+          'How Well Would You Do': formData.howWellWouldYouDo,
+          'Revenue Range': formData.revenueRange,
+          'What With Money': formData.whatWithMoney,
+          'Pay Scale Recall': formData.payScaleRecall,
+          'What Separates You': formData.whatSeparatesYou,
+          'Competitive': formData.competitive,
+          'Handle Feedback': formData.handleFeedback,
+          'Core Qualities': formData.coreQualities,
+          'Readiness Scale (1-10)': formData.readinessScale,
+          'Bring to 10': formData.bringToTen,
+          'Offer Statement': formData.offerStatement,
+          '1:1 Training Time': formData.oneOnOneTime,
+          'Onboarding Done': formData.onboardingDone ? 'Yes' : 'No',
+          'After Onboarding Done': formData.afterOnboardingDone ? 'Yes' : 'No',
+          'Sent Intro': formData.sentIntroDone ? 'Yes' : 'No',
+          'Other Questions Done': formData.otherQuestionsDone ? 'Yes' : 'No',
           'Final Outcome': formData.outcome === 'contract_signed' ? 'Contract Signed' : 'Contract Sent - Unsigned',
           'Team Assignment': hasTeam ? `${teamName} → ${formData.reportsTo?.full_name}` : 'Not assigned',
           'Notes': formData.notes,
@@ -202,7 +288,6 @@ export default function Interview3Page() {
 
       // Handle team assignment — create profile if team + manager selected
       if (hasTeam && formData.reportsTo) {
-        // Insert rep signup record
         await supabase.from('rep_signups').insert({
           rep_name: formData.recruitName,
           rep_email: 'pending@summit.com',
@@ -212,7 +297,6 @@ export default function Interview3Page() {
           source: 'interview3',
         });
 
-        // Send notifications to assigned manager
         const notifPromises = [];
 
         notifPromises.push(
@@ -298,48 +382,204 @@ export default function Interview3Page() {
                   <span className="text-white font-bold text-lg">3</span>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">Interview 3</h1>
-                  <p className="text-muted-foreground text-sm">Final decision — closing the deal</p>
+                  <h1 className="text-xl font-bold text-foreground">The Academy: Third Interview Call</h1>
+                  <p className="text-muted-foreground text-sm">Final interview and potential offer</p>
                 </div>
               </div>
             </div>
 
             {/* Form */}
             <div className="max-w-2xl space-y-6">
-              {/* Row 1: Names */}
+              <ScriptTip>
+                If the sales representative can start in the next 3 weeks you can skip most of this interview and just go straight to having them sign the contract and after.
+                <br /><br />
+                Our goal is to get people on blitzes within 2 weeks. Some people will take longer and will only want to do 1-2 trainings a week. Some will want to do 3-4. Make sure they understand that after they finish training 2, we'll book their flight out to a blitz so they can start making money.
+                <br /><br />
+                <strong>Pull-back technique:</strong> If at any point they say "I need to think about it" or "I need to talk with my parents," use a pull back: <em>"That's okay, after going through this I don't think this will work out, I think we'll take someone else."</em> See how they react. People that are successful in sales are decisive and creative.
+              </ScriptTip>
+
+              {/* Names */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Recruit Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.recruitName}
-                    onChange={(e) => handleChange('recruitName', e.target.value)}
-                    placeholder="Enter recruit name"
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                  />
+                  <label className="block text-sm font-medium text-foreground mb-2">Name of Recruit *</label>
+                  <input type="text" value={formData.recruitName} onChange={(e) => handleChange('recruitName', e.target.value)} placeholder="Enter recruit name" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Interviewer Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.interviewerName}
-                    onChange={(e) => handleChange('interviewerName', e.target.value)}
-                    placeholder="Your name"
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                  />
+                  <label className="block text-sm font-medium text-foreground mb-2">Name of Interviewer *</label>
+                  <input type="text" value={formData.interviewerName} onChange={(e) => handleChange('interviewerName', e.target.value)} placeholder="Your name" className={inputClass} />
                 </div>
               </div>
 
-              {/* Row 2: Team + Direct Manager */}
+              {/* Intro */}
+              <ScriptTip>
+                By this time you've already learned a lot about pest control. You understand why we are growing so much, why we're looking to develop more salesmen and managers. You should understand pay, hours, typical day to day life and housing. Today we're going to see if this will be a good fit for you and us. Let's get started.
+              </ScriptTip>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Before we get started do you have any questions? *</label>
+                <textarea value={formData.beforeQuestions} onChange={(e) => handleChange('beforeQuestions', e.target.value)} placeholder="Record their questions..." rows={3} className={textareaClass} />
+              </div>
+
+              {/* Interview Questions */}
+              <SectionHeader>Interview Questions</SectionHeader>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">What are 3-5 pros of getting the internship or job? *</label>
+                <textarea value={formData.prosList} onChange={(e) => handleChange('prosList', e.target.value)} placeholder="Record their pros..." rows={3} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Any cons you can think of? *</label>
+                <textarea value={formData.consList} onChange={(e) => handleChange('consList', e.target.value)} placeholder="Record their cons..." rows={3} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">What are you hoping to get out of this position? *</label>
+                <p className="text-xs text-muted-foreground mb-2">(Money, Travel, Experience)</p>
+                <textarea value={formData.hopingToGet} onChange={(e) => handleChange('hopingToGet', e.target.value)} placeholder="Record their response..." rows={3} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">How well do you feel you would do at something like this? What makes you say that? *</label>
+                <textarea value={formData.howWellWouldYouDo} onChange={(e) => handleChange('howWellWouldYouDo', e.target.value)} placeholder="Record their response..." rows={3} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">If 75k revenue is low and 350k revenue is high, where do you see yourself? *</label>
+                <textarea value={formData.revenueRange} onChange={(e) => handleChange('revenueRange', e.target.value)} placeholder="Record their response..." rows={2} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">What would you do with that kind of money? *</label>
+                <textarea value={formData.whatWithMoney} onChange={(e) => handleChange('whatWithMoney', e.target.value)} placeholder="Record their response..." rows={2} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Do you remember how much that was on the pay scale? *</label>
+                <p className="text-xs text-muted-foreground mb-2">They will probably say no. (Send them the pay scale and do the math)</p>
+                <textarea value={formData.payScaleRecall} onChange={(e) => handleChange('payScaleRecall', e.target.value)} placeholder="Record their response..." rows={2} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">What separates you from the others we're considering hiring for the position? *</label>
+                <textarea value={formData.whatSeparatesYou} onChange={(e) => handleChange('whatSeparatesYou', e.target.value)} placeholder="Record their response..." rows={3} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Would you consider yourself a competitive person? *</label>
+                <p className="text-xs text-muted-foreground mb-2">(Bring up competitive nature of the summer and incentives.)</p>
+                <textarea value={formData.competitive} onChange={(e) => handleChange('competitive', e.target.value)} placeholder="Record their response..." rows={2} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">How well do you handle feedback? *</label>
+                <textarea value={formData.handleFeedback} onChange={(e) => handleChange('handleFeedback', e.target.value)} placeholder="Record their response..." rows={2} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  The Academy looks for 2 core qualities in every representative: Coachability, and Work Ethic. Knowing our company core qualities, do you feel like this would be a good fit for you? Why? *
+                </label>
+                <textarea value={formData.coreQualities} onChange={(e) => handleChange('coreQualities', e.target.value)} placeholder="Record their response..." rows={3} className={textareaClass} />
+              </div>
+
+              {/* Readiness Scale */}
+              <SectionHeader>Readiness Assessment</SectionHeader>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  On a scale of 1-10, how ready are you to get started? What makes you have that much confidence in yourself that you would succeed? *
+                </label>
+                <p className="text-xs text-muted-foreground mb-3">(Watch as you see their pattern of thinking interrupted.)</p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => handleChange('readinessScale', String(n))}
+                      className={cn(
+                        "w-10 h-10 rounded-lg font-bold text-sm transition-all border",
+                        formData.readinessScale === String(n)
+                          ? "bg-primary text-white border-primary"
+                          : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                      )}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  What would need to happen to bring you up to a 10? Is there anything else? *
+                </label>
+                <ScriptTip>
+                  Make it a final objection. <em>"Awesome so it sounds like you're as sure as you can be and you just need some hands on experience now."</em>
+                </ScriptTip>
+                <textarea value={formData.bringToTen} onChange={(e) => handleChange('bringToTen', e.target.value)} placeholder="Record their response..." rows={3} className={cn(textareaClass, "mt-2")} />
+              </div>
+
+              {/* Offer Statement */}
+              <SectionHeader>Offer Statement</SectionHeader>
+
+              <ScriptTip>
+                <strong>Say this:</strong> "It sounds like your pros outweigh your cons, your goals align with the company and what we're trying to accomplish. Before we go any further, if I offer you the position would you be able to attend trainings on Wednesday at 7 PM EST. One important clarification. The company invests roughly $8,000 per rep, covering training, onboarding, and summer housing. That investment is protected by a minimum three-week commitment. If someone shows up, follows expectations—no drinking on the job, no smoking before morning meetings—and still decides it's not a fit within those three weeks, they owe nothing. If someone fails to commit or becomes a problem, we still don't charge the full amount. The only cost passed on is housing, capped at $2,500. Understanding that lack of a three-week commitment may result in a housing charge, are you prepared to move forward and take this seriously? Only do this next part if they are 100% able to come: Great! I'd officially like to offer you the position! Congratulations, I'll go over your onboarding forms now."
+              </ScriptTip>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Offer Statement Response *</label>
+                <textarea value={formData.offerStatement} onChange={(e) => handleChange('offerStatement', e.target.value)} placeholder="Record their response to the offer..." rows={3} className={textareaClass} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">What day and time do you want to do your 1 on 1 trainings? *</label>
+                <input type="text" value={formData.oneOnOneTime} onChange={(e) => handleChange('oneOnOneTime', e.target.value)} placeholder="e.g. Tuesdays at 6pm EST" className={inputClass} />
+              </div>
+
+              {/* Onboarding Checklist */}
+              <SectionHeader>Onboarding Overview</SectionHeader>
+
+              <ScriptTip>
+                Walk them through: 1099 contractor status, conduct expectations, professional appearance, non-compete clause, incentives and trips, pay structure, $2,500 scholarship requirements. Mute while they review agreement.
+              </ScriptTip>
+
+              <ChecklistItem
+                checked={formData.onboardingDone}
+                onChange={() => handleChange('onboardingDone', !formData.onboardingDone)}
+                label="Onboarding overview completed"
+              />
+
+              <SectionHeader>After Onboarding / Agreement Signed</SectionHeader>
+
+              <ScriptTip>
+                Congratulations—we're excited to work with you. If available to knock soon, aim for blitz within 2 weeks. Send them: pitch (memorize before first training), training course link, script, questionnaire, and 1:1 time. Expectations: Practice with another intern every other day, complete weekly training forms with 70%+ completion, memorize basic pitch within 1 week, submit pitch video after full training.
+              </ScriptTip>
+
+              <div className="space-y-2">
+                <ChecklistItem
+                  checked={formData.afterOnboardingDone}
+                  onChange={() => handleChange('afterOnboardingDone', !formData.afterOnboardingDone)}
+                  label="Post-onboarding materials sent"
+                />
+                <ChecklistItem
+                  checked={formData.sentIntroDone}
+                  onChange={() => handleChange('sentIntroDone', !formData.sentIntroDone)}
+                  label="Intro sent to the team"
+                />
+                <ChecklistItem
+                  checked={formData.otherQuestionsDone}
+                  onChange={() => handleChange('otherQuestionsDone', !formData.otherQuestionsDone)}
+                  label="Any other questions answered — told them to have a great day"
+                />
+              </div>
+
+              {/* Team + Manager Assignment */}
+              <SectionHeader>Team Assignment</SectionHeader>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Assign to Team
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Assign to Team</label>
                   <Select
                     value={formData.teamId}
                     onValueChange={(v) => {
@@ -363,9 +603,7 @@ export default function Interview3Page() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Direct Manager
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Direct Manager</label>
                   {!hasTeam ? (
                     <div className="px-4 py-2.5 bg-muted/30 border border-border rounded-lg text-sm text-muted-foreground">
                       Select a team first
@@ -383,13 +621,7 @@ export default function Interview3Page() {
                               <p className="text-xs text-muted-foreground">{formData.reportsTo.role} • {formData.reportsTo.team_name}</p>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, reportsTo: null }))}
-                            className="text-xs text-muted-foreground hover:text-foreground"
-                          >
-                            Change
-                          </button>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, reportsTo: null }))} className="text-xs text-muted-foreground hover:text-foreground">Change</button>
                         </div>
                       ) : (
                         <div className="relative">
@@ -429,9 +661,7 @@ export default function Interview3Page() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="font-medium text-foreground truncate">{m.full_name}</p>
-                                      <p className="text-xs text-muted-foreground truncate">
-                                        {m.role} • {m.team_name || 'No team'}
-                                      </p>
+                                      <p className="text-xs text-muted-foreground truncate">{m.role} • {m.team_name || 'No team'}</p>
                                     </div>
                                   </button>
                                 </li>
@@ -445,109 +675,15 @@ export default function Interview3Page() {
                 </div>
               </div>
 
-              {/* Psychology-Driven Questions */}
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Imagine you're 3 months into the summer. You've crushed it. What does that version of your life look like?
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Future-pacing: Get them to visualize success
-                  </p>
-                  <textarea
-                    value={formData.dreamScenario}
-                    onChange={(e) => handleChange('dreamScenario', e.target.value)}
-                    placeholder="Record their vision..."
-                    rows={3}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    What type of person do you see yourself becoming? Not just this summer—in life?
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Identity-based: Connect the opportunity to who they want to be
-                  </p>
-                  <textarea
-                    value={formData.identityQuestion}
-                    onChange={(e) => handleChange('identityQuestion', e.target.value)}
-                    placeholder="Record their response..."
-                    rows={3}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    What are you most excited about starting?
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Dopamine trigger: End with anticipation, not doubt
-                  </p>
-                  <textarea
-                    value={formData.futurePacing}
-                    onChange={(e) => handleChange('futurePacing', e.target.value)}
-                    placeholder="Record their excitement..."
-                    rows={3}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Readiness Scale (1-10)
-                    </label>
-                    <select
-                      value={formData.confidenceScale}
-                      onChange={(e) => handleChange('confidenceScale', e.target.value)}
-                      className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                    >
-                      <option value="">Select...</option>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                        <option key={n} value={n}>{n}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Commitment Level
-                    </label>
-                    <select
-                      value={formData.commitmentLevel}
-                      onChange={(e) => handleChange('commitmentLevel', e.target.value)}
-                      className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                    >
-                      <option value="">Select...</option>
-                      <option value="all-in">All-in — ready to go</option>
-                      <option value="committed">Committed with minor concerns</option>
-                      <option value="interested">Interested but needs more info</option>
-                      <option value="hesitant">Hesitant — red flags present</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
+              {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Additional Notes
-                </label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => handleChange('notes', e.target.value)}
-                  placeholder="Any other observations..."
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none"
-                />
+                <label className="block text-sm font-medium text-foreground mb-2">Additional Notes</label>
+                <textarea value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} placeholder="Any other observations..." rows={3} className={textareaClass} />
               </div>
 
               {/* Outcome */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-3">
-                  Final Outcome *
-                </label>
+                <label className="block text-sm font-medium text-foreground mb-3">Final Outcome *</label>
                 <div className="flex gap-3">
                   <button
                     type="button"
