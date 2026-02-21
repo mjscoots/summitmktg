@@ -31,6 +31,7 @@ export function AICoachChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingChat, setIsSendingChat] = useState(false);
   const [hasNewChat, setHasNewChat] = useState(false);
   const [chatPreview, setChatPreview] = useState<ChatPreview[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -132,7 +133,7 @@ export function AICoachChat() {
   }, [user?.id, isOpen]);
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || isSendingChat) return;
 
     if (activeTab === 'chat') {
       // Send to community chat
@@ -140,6 +141,7 @@ export function AICoachChat() {
       const content = input.trim();
       const isAiCommand = content.startsWith('@coach');
       setInput('');
+      setIsSendingChat(true);
 
       try {
         await supabase.from('chat_messages').insert({
@@ -186,7 +188,7 @@ export function AICoachChat() {
             }
           }
         }
-      } catch { toast.error('Failed to send'); }
+      } catch { toast.error('Failed to send'); } finally { setIsSendingChat(false); }
       return;
     }
 
@@ -438,11 +440,11 @@ export function AICoachChat() {
                     : "Message team... (@coach for AI)"
                   }
                   className="flex-1 bg-muted text-foreground text-sm px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
-                  disabled={isLoading}
+                  disabled={isLoading || isSendingChat}
                 />
                 <Button
                   onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
+                  disabled={!input.trim() || isLoading || isSendingChat}
                   size="sm"
                   className={isManager ? 'bg-blue-600 hover:bg-blue-500' : 'bg-green-600 hover:bg-green-500'}
                 >
