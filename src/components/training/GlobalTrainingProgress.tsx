@@ -28,100 +28,84 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
         const managerSlugs = ['manager-manual', 'learn-the-basics', 'recruiting-resources', 'manager-videos'];
         const targetSlugs = filterRole === 'manager' ? managerSlugs : rookieSlugs;
 
-        const { data: courses } = await supabase
-          .from('training_courses')
-          .select('id, slug')
-          .eq('is_active', true)
-          .in('slug', targetSlugs);
+        // Batch: fetch courses, all videos, and user progress in parallel
+        const [coursesRes, requiredVideosRes, bonusVideosRes, watchedRes] = await Promise.all([
+          supabase
+            .from('training_courses')
+            .select(`
+              id, slug,
+              training_modules!inner (
+                id,
+                is_active,
+                training_lessons (id)
+              )
+            `)
+            .eq('is_active', true)
+            .in('slug', targetSlugs),
+          supabase
+            .from('training_videos')
+            .select('id')
+            .eq('is_active', true)
+            .eq('is_required', true),
+          supabase
+            .from('training_videos')
+            .select('id')
+            .eq('is_active', true)
+            .eq('is_required', false),
+          supabase
+            .from('video_progress')
+            .select('video_id')
+            .eq('user_id', user.id)
+            .eq('watched', true),
+        ]);
 
-        if (!courses) { setIsLoading(false); return; }
+        const courses = coursesRes.data || [];
+        const requiredVideos = requiredVideosRes.data || [];
+        const bonusVideos = bonusVideosRes.data || [];
+        const watchedIds = new Set((watchedRes.data || []).map(w => w.video_id));
 
-        let totalItems = 0;
-        let completedItems = 0;
-        let bonusTotal = 0;
-        let bonusCompleted = 0;
+        // Collect all lesson IDs from non-video courses
+        const allLessonIds: string[] = [];
+        const videoSlugs = ['training-videos', 'manager-videos'];
 
         for (const course of courses) {
-          const isVideo = ['training-videos', 'manager-videos'].includes(course.slug);
-
-          if (isVideo) {
-            // Required videos only
-            const { count: requiredCount } = await supabase
-              .from('training_videos')
-              .select('*', { count: 'exact', head: true })
-              .eq('is_active', true)
-              .eq('is_required', true);
-
-            // Bonus videos
-            const { count: bonusCount } = await supabase
-              .from('training_videos')
-              .select('*', { count: 'exact', head: true })
-              .eq('is_active', true)
-              .eq('is_required', false);
-
-            // Get all watched video IDs
-            const { data: watchedData } = await supabase
-              .from('video_progress')
-              .select('video_id')
-              .eq('user_id', user.id)
-              .eq('watched', true);
-
-            const watchedIds = new Set((watchedData || []).map(w => w.video_id));
-
-            // Get required video IDs to check which watched ones are required
-            const { data: requiredVideos } = await supabase
-              .from('training_videos')
-              .select('id')
-              .eq('is_active', true)
-              .eq('is_required', true);
-
-            const { data: bonusVideos } = await supabase
-              .from('training_videos')
-              .select('id')
-              .eq('is_active', true)
-              .eq('is_required', false);
-
-            const requiredWatched = (requiredVideos || []).filter(v => watchedIds.has(v.id)).length;
-            const bonusWatched = (bonusVideos || []).filter(v => watchedIds.has(v.id)).length;
-
-            totalItems += requiredCount || 0;
-            completedItems += requiredWatched;
-            bonusTotal += bonusCount || 0;
-            bonusCompleted += bonusWatched;
-          } else {
-            const { data: modules } = await supabase
-              .from('training_modules')
-              .select('id')
-              .eq('course_id', course.id)
-              .eq('is_active', true);
-
-            const moduleIds = modules?.map(m => m.id) || [];
-            if (moduleIds.length === 0) continue;
-
-            const { data: lessons } = await supabase
-              .from('training_lessons')
-              .select('id')
-              .in('module_id', moduleIds)
-              .eq('is_active', true);
-
-            const lessonIds = lessons?.map(l => l.id) || [];
-            totalItems += lessonIds.length;
-
-            if (lessonIds.length > 0) {
-              const { count: completedCount } = await supabase
-                .from('lesson_progress')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .not('completed_at', 'is', null)
-                .in('lesson_id', lessonIds);
-
-              completedItems += completedCount || 0;
+          if (videoSlugs.includes(course.slug)) continue;
+          for (const mod of course.training_modules || []) {
+            if (!(mod as { is_active: boolean }).is_active) continue;
+            for (const lesson of (mod as { training_lessons: { id: string }[] }).training_lessons || []) {
+              allLessonIds.push(lesson.id);
             }
           }
         }
 
+        // Batch: fetch lesson completion counts
+        let completedLessons = 0;
+        if (allLessonIds.length > 0) {
+          const { count } = await supabase
+            .from('lesson_progress')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .not('completed_at', 'is', null)
+            .in('lesson_id', allLessonIds);
+          completedLessons = count || 0;
+        }
+
+        // Count video completions
+        const hasVideoSlug = courses.some(c => videoSlugs.includes(c.slug));
+        const requiredWatched = hasVideoSlug ? requiredVideos.filter(v => watchedIds.has(v.id)).length : 0;
+        const bonusWatched = hasVideoSlug ? bonusVideos.filter(v => watchedIds.has(v.id)).length : 0;
+
+        const totalItems = allLessonIds.length + (hasVideoSlug ? requiredVideos.length : 0);
+        const completedItems = completedLessons + requiredWatched;
         const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-        setData({ totalItems, completedItems, percentage, bonusTotal, bonusCompleted });
+
+        setData({
+          totalItems,
+          completedItems,
+          percentage,
+          bonusTotal: hasVideoSlug ? bonusVideos.length : 0,
+          bonusCompleted: bonusWatched,
+        });
       } catch (err) {
         console.error('Error fetching global progress:', err);
       } finally {
@@ -144,8 +128,8 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
     <>
       <div className={cn(
         "mb-4 p-5 bg-card rounded-xl border transition-all",
-        isComplete 
-          ? "border-success/50 shadow-[0_0_30px_-10px_rgba(34,197,94,0.3)]" 
+        isComplete
+          ? "border-success/50 shadow-[0_0_30px_-10px_rgba(34,197,94,0.3)]"
           : "border-border"
       )}>
         <div className="flex items-center justify-between mb-3">

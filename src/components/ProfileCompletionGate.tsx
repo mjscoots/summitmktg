@@ -142,7 +142,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
     setIsSaving(true);
     try {
-      const updateData: any = {
+      const updateData: Record<string, string> = {
         full_name: fullName,
         updated_at: new Date().toISOString(),
       };

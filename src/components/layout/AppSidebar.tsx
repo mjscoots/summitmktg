@@ -19,8 +19,9 @@ import { useUnreadChat } from '@/hooks/useUnreadChat';
 interface NavItem {
   label: string;
   path: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   iconColor?: string; // custom color for the icon when NOT active
+  requiredRole?: 'manager' | 'admin';
 }
 
 // Primary nav items (top section)
@@ -43,8 +44,8 @@ const managerNavItems: NavItem[] = [
 
 // Bottom admin items (above footer)
 const bottomNavItems: NavItem[] = [
-  { label: 'Team', path: '/app/team', icon: Users, requiredRole: 'manager' as any } as any,
-  { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' as any } as any,
+  { label: 'Team', path: '/app/team', icon: Users, requiredRole: 'manager' },
+  { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' },
 ];
 
 export function AppSidebar() {
@@ -77,7 +78,7 @@ export function AppSidebar() {
 
   const navItems = isManager ? managerNavItems : rookieNavItems;
 
-  const visibleBottomItems = (bottomNavItems as any[]).filter((item: any) => {
+  const visibleBottomItems = bottomNavItems.filter((item) => {
     if (item.requiredRole === 'admin') return isAdmin;
     if (item.requiredRole === 'manager') return isManager;
     return true;
@@ -167,7 +168,7 @@ export function AppSidebar() {
             <Separator className="mb-2 bg-white/5" />
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0.5">
-                {visibleBottomItems.map((item: any) => {
+                {visibleBottomItems.map((item) => {
                   const active = isActive(item.path);
                   return (
                     <SidebarMenuItem key={item.path}>

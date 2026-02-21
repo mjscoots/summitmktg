@@ -61,7 +61,7 @@ type AssignmentMode = 'entire_team' | 'managers_only' | 'rookies_only' | 'specif
 type LocationMode = 'virtual' | 'in_person';
 
 // Step indicator component
-function StepSection({ icon: Icon, title, children, className }: { icon: any; title: string; children: React.ReactNode; className?: string }) {
+function StepSection({ icon: Icon, title, children, className }: { icon: React.ComponentType<{ className?: string }>; title: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center gap-2">
@@ -121,13 +121,13 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
           roleMap = (roles || []).reduce((acc, r) => { acc[r.user_id] = r.role; return acc; }, {} as Record<string, string>);
         }
 
-        setTeamMembers((data || []).map((d: any) => ({
+        setTeamMembers((data || []).map((d) => ({
           user_id: d.user_id,
           full_name: d.full_name,
           email: d.email,
           role: roleMap[d.user_id] || 'rookie',
           avatar_url: d.avatar_url,
-          team_name: d.teams?.name || 'No Team',
+          team_name: (d.teams as { name: string } | null)?.name || 'No Team',
         })));
       } catch (err) { console.error('Error fetching members:', err); }
       setIsLoading(false);

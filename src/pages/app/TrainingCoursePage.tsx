@@ -70,11 +70,16 @@ export default function TrainingCoursePage() {
 
         setCourse(courseData);
 
+        // Fetch modules with nested lessons in a single query
         const { data: modulesData, error: modulesError } = await supabase
           .from('training_modules')
-          .select('*')
+          .select(`
+            id, title, description, display_order,
+            training_lessons (id, title, display_order)
+          `)
           .eq('course_id', courseData.id)
           .eq('is_active', true)
+          .eq('training_lessons.is_active', true)
           .order('display_order');
 
         if (modulesError) {
@@ -82,42 +87,35 @@ export default function TrainingCoursePage() {
           return;
         }
 
-        const modulesWithLessons = await Promise.all(
-          (modulesData || []).map(async (module) => {
-            const { data: lessonsData } = await supabase
-              .from('training_lessons')
-              .select('id, title, display_order')
-              .eq('module_id', module.id)
-              .eq('is_active', true)
-              .order('display_order');
-
-            const lessonIds = (lessonsData || []).map(l => l.id);
-            let progressMap = new Map();
-
-            if (lessonIds.length > 0) {
-              const { data: progressData } = await supabase
-                .from('lesson_progress')
-                .select('lesson_id, completed_at, quiz_passed')
-                .eq('user_id', user.id)
-                .in('lesson_id', lessonIds);
-
-              progressMap = new Map(
-                (progressData || []).map(p => [p.lesson_id, p])
-              );
-            }
-
-            const lessons = (lessonsData || []).map(lesson => ({
-              ...lesson,
-              completed: progressMap.has(lesson.id) && progressMap.get(lesson.id).completed_at,
-              quiz_passed: progressMap.has(lesson.id) && progressMap.get(lesson.id).quiz_passed,
-            }));
-
-            return {
-              ...module,
-              lessons,
-            };
-          })
+        // Collect all lesson IDs and batch-fetch progress in one query
+        const allLessonIds = (modulesData || []).flatMap(
+          m => (m.training_lessons || []).map(l => l.id)
         );
+
+        let progressMap = new Map<string, { completed_at: string | null; quiz_passed: boolean }>();
+        if (allLessonIds.length > 0) {
+          const { data: progressData } = await supabase
+            .from('lesson_progress')
+            .select('lesson_id, completed_at, quiz_passed')
+            .eq('user_id', user.id)
+            .in('lesson_id', allLessonIds);
+
+          progressMap = new Map(
+            (progressData || []).map(p => [p.lesson_id, p])
+          );
+        }
+
+        const modulesWithLessons = (modulesData || []).map(module => {
+          const sortedLessons = [...(module.training_lessons || [])].sort(
+            (a, b) => a.display_order - b.display_order
+          );
+          const lessons = sortedLessons.map(lesson => ({
+            ...lesson,
+            completed: progressMap.has(lesson.id) && !!progressMap.get(lesson.id)!.completed_at,
+            quiz_passed: progressMap.has(lesson.id) && !!progressMap.get(lesson.id)!.quiz_passed,
+          }));
+          return { ...module, lessons };
+        });
 
         setModules(modulesWithLessons);
 

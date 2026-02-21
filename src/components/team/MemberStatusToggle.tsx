@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronDown, AlertTriangle, Users } from 'lucide-react';
- import { useQueryClient } from '@tanstack/react-query';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,7 +45,6 @@ export function MemberStatusToggle({
   onStatusChange,
   size = 'sm',
 }: MemberStatusToggleProps) {
-   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -83,11 +81,6 @@ export function MemberStatusToggle({
         .eq('user_id', member.user_id);
 
       if (error) throw error;
-
-       // Invalidate all team-related queries to force immediate refresh
-       queryClient.invalidateQueries({ queryKey: ['team'] });
-       queryClient.invalidateQueries({ queryKey: ['profiles'] });
-       queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
 
       toast.success(
         confirmDialog.targetStatus === 'nlc'

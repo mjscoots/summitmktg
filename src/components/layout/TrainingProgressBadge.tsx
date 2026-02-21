@@ -88,7 +88,15 @@ export function TrainingProgressBadge({ variant = 'compact' }: TrainingProgressB
   );
 }
 
-function ProgressTooltipContent({ progress }: { progress: { overall: number; courses: any[]; isComplete: boolean } }) {
+interface CourseProgress {
+  courseId: string;
+  courseTitle: string;
+  percentage: number;
+  completedLessons: number;
+  totalLessons: number;
+}
+
+function ProgressTooltipContent({ progress }: { progress: { overall: number; courses: CourseProgress[]; isComplete: boolean } }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
