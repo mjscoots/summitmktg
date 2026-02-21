@@ -64,9 +64,8 @@ export function useNotifications() {
                 icon: '/favicon.png',
                 tag: newNotification.id
               });
-            } catch (err) {
+            } catch {
               // Some mobile browsers don't support constructing Notification
-              console.debug('Browser notification failed:', err);
             }
           }
         }

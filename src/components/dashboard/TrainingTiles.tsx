@@ -102,106 +102,77 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           );
         }
 
-        const coursesWithProgress = await Promise.all(
-          filteredCourses.map(async (course) => {
-            const isVideoCourse = VIDEO_COURSES.includes(course.slug);
+        // Batch fetch: courses with nested modules/lessons, videos, and user progress
+        const courseIds = filteredCourses.map(c => c.id);
+        const videoCourseIds = filteredCourses.filter(c => VIDEO_COURSES.includes(c.slug)).map(c => c.id);
+        const lessonCourseIds = filteredCourses.filter(c => !VIDEO_COURSES.includes(c.slug)).map(c => c.id);
 
-            // Video courses: count from training_videos + video_progress
-            if (isVideoCourse) {
-              // Manager videos only count Advanced Training + Manager Training categories
-              const isManagerVideoCourse = course.slug === 'manager-videos';
-              
-              let videoQuery = supabase
-                .from('training_videos')
-                .select('id')
-                .eq('is_active', true);
-              
-              if (isManagerVideoCourse) {
-                videoQuery = videoQuery.in('category', ['Advanced Training', 'Manager Training', 'Zoom Trainings']);
-              } else {
-                videoQuery = videoQuery.eq('is_required', true);
-              }
+        // Parallel batch queries
+        const [courseLessonsRes, requiredVideosRes, managerVideosRes, watchedRes, lessonProgressRes] = await Promise.all([
+          // Get all modules+lessons for lesson-based courses in one nested query
+          lessonCourseIds.length > 0
+            ? supabase
+                .from('training_modules')
+                .select('id, course_id, training_lessons (id)')
+                .in('course_id', lessonCourseIds)
+                .eq('is_active', true)
+                .eq('training_lessons.is_active', true)
+            : Promise.resolve({ data: [] }),
+          // Required (rookie) videos
+          supabase.from('training_videos').select('id').eq('is_active', true).eq('is_required', true),
+          // Manager videos by category
+          supabase.from('training_videos').select('id').eq('is_active', true).in('category', ['Advanced Training', 'Manager Training', 'Zoom Trainings']),
+          // All watched videos for this user
+          supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
+          // All lesson progress for this user
+          supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id).not('completed_at', 'is', null),
+        ]);
 
-              const { data: relevantVideos } = await videoQuery;
-              const relevantIds = new Set((relevantVideos || []).map(v => v.id));
-              const totalLessons = relevantIds.size;
+        // Build lesson ID sets per course
+        const courseLessonMap = new Map<string, string[]>();
+        ((courseLessonsRes as { data: { id: string; course_id: string; training_lessons: { id: string }[] }[] | null }).data || []).forEach(mod => {
+          const existing = courseLessonMap.get(mod.course_id) || [];
+          (mod.training_lessons || []).forEach(l => existing.push(l.id));
+          courseLessonMap.set(mod.course_id, existing);
+        });
 
-              const { data: watchedData } = await supabase
-                .from('video_progress')
-                .select('video_id')
-                .eq('user_id', user.id)
-                .eq('watched', true);
+        const completedLessonIds = new Set((lessonProgressRes.data || []).map(lp => lp.lesson_id));
+        const watchedVideoIds = new Set((watchedRes.data || []).map(w => w.video_id));
+        const requiredVideoIds = new Set((requiredVideosRes.data || []).map(v => v.id));
+        const managerVideoIds = new Set((managerVideosRes.data || []).map(v => v.id));
 
-              const completedLessons = (watchedData || []).filter(w => relevantIds.has(w.video_id)).length;
+        const coursesWithProgress = filteredCourses.map(course => {
+          const isVideoCourse = VIDEO_COURSES.includes(course.slug);
 
-              const progress = totalLessons > 0
-                ? Math.round((completedLessons / totalLessons) * 100)
-                : 0;
-
-              return {
-                ...course,
-                progress,
-                totalLessons,
-                completedLessons,
-              };
-            }
-
-            // Regular courses: count from training_lessons + lesson_progress
-            const { data: modules } = await supabase
-              .from('training_modules')
-              .select('id')
-              .eq('course_id', course.id)
-              .eq('is_active', true);
-
-            const moduleIds = modules?.map(m => m.id) || [];
-
-            let totalLessons = 0;
+          if (isVideoCourse) {
+            const relevantIds = course.slug === 'manager-videos' ? managerVideoIds : requiredVideoIds;
+            const totalLessons = relevantIds.size;
             let completedLessons = 0;
-
-            if (moduleIds.length > 0) {
-              const { count: lessonCount } = await supabase
-                .from('training_lessons')
-                .select('*', { count: 'exact', head: true })
-                .in('module_id', moduleIds)
-                .eq('is_active', true);
-
-              totalLessons = lessonCount || 0;
-
-              const { data: lessonIds } = await supabase
-                .from('training_lessons')
-                .select('id')
-                .in('module_id', moduleIds)
-                .eq('is_active', true);
-
-              if (lessonIds && lessonIds.length > 0) {
-                const { count: completedCount } = await supabase
-                  .from('lesson_progress')
-                  .select('*', { count: 'exact', head: true })
-                  .eq('user_id', user.id)
-                  .eq('quiz_passed', true)
-                  .in('lesson_id', lessonIds.map(l => l.id));
-
-                completedLessons = completedCount || 0;
-              }
-            }
-
-            // Apply lesson count overrides
-            if (LESSON_COUNT_OVERRIDES[course.slug]) {
-              totalLessons = LESSON_COUNT_OVERRIDES[course.slug];
-            }
-
-            const progress = totalLessons > 0 
-              ? Math.round((completedLessons / totalLessons) * 100) 
-              : 0;
+            relevantIds.forEach(id => { if (watchedVideoIds.has(id)) completedLessons++; });
 
             return {
               ...course,
-              progress,
+              progress: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
               totalLessons,
               completedLessons,
             };
-          })
-        );
+          }
+
+          const lessonIds = courseLessonMap.get(course.id) || [];
+          let totalLessons = lessonIds.length;
+          const completedLessons = lessonIds.filter(id => completedLessonIds.has(id)).length;
+
+          if (LESSON_COUNT_OVERRIDES[course.slug]) {
+            totalLessons = LESSON_COUNT_OVERRIDES[course.slug];
+          }
+
+          return {
+            ...course,
+            progress: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
+            totalLessons,
+            completedLessons,
+          };
+        });
 
         // Sort by priority
         coursesWithProgress.sort((a, b) => 

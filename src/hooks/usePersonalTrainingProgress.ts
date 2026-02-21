@@ -1,7 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { getReachableRookieLessonIds } from '@/lib/trainingProgressCalc';
+
+interface ModuleWithLessons {
+  id: string;
+  is_active: boolean;
+  training_lessons: { id: string; is_active: boolean }[] | null;
+}
+
+interface CourseWithModules {
+  id: string;
+  slug: string;
+  title: string;
+  target_role: string | null;
+  training_modules: ModuleWithLessons[] | null;
+}
 
 interface CourseProgress {
   courseId: string;
@@ -35,31 +48,58 @@ export function usePersonalTrainingProgress() {
 
     try {
       const isManagerRole = role === 'manager' || role === 'admin';
-      
-      // Fetch all courses with their lessons based on role
-      const { data: courses } = await supabase
-        .from('training_courses')
-        .select(`
-          id,
-          slug,
-          title,
-          target_role,
-          training_modules (
-            id,
-            is_active,
-            training_lessons (
-              id,
-              is_active
-            )
-          )
-        `)
-        .eq('is_active', true)
-        .order('display_order');
 
+      // Fetch courses, lesson progress, required videos, and video progress in parallel
+      const [coursesRes, lessonProgressRes, requiredVideosRes, videoProgressRes] = await Promise.all([
+        supabase
+          .from('training_courses')
+          .select(`
+            id, slug, title, target_role,
+            training_modules (
+              id, is_active,
+              training_lessons ( id, is_active )
+            )
+          `)
+          .eq('is_active', true)
+          .order('display_order'),
+        supabase
+          .from('lesson_progress')
+          .select('lesson_id')
+          .eq('user_id', user.id)
+          .not('completed_at', 'is', null),
+        supabase
+          .from('training_videos')
+          .select('id')
+          .eq('is_active', true)
+          .eq('is_required', true),
+        supabase
+          .from('video_progress')
+          .select('video_id')
+          .eq('user_id', user.id)
+          .eq('watched', true),
+      ]);
+
+      const courses = coursesRes.data as CourseWithModules[] | null;
       if (!courses) {
         setIsLoading(false);
         return;
       }
+
+      const completedLessonIds = new Set(
+        lessonProgressRes.data?.map(lp => lp.lesson_id) || []
+      );
+      const requiredVideoIds = new Set(
+        requiredVideosRes.data?.map(v => v.id) || []
+      );
+      const watchedVideoIds = new Set(
+        videoProgressRes.data?.map(vp => vp.video_id) || []
+      );
+
+      // Count watched required videos
+      let completedVideoCount = 0;
+      requiredVideoIds.forEach(id => {
+        if (watchedVideoIds.has(id)) completedVideoCount++;
+      });
 
       // Filter courses based on role
       const relevantCourses = courses.filter(course => {
@@ -69,37 +109,13 @@ export function usePersonalTrainingProgress() {
         return course.target_role === 'rookie' || course.target_role === null;
       });
 
-      // Get all active lesson IDs from these courses (filter modules by is_active too)
-      const allLessonIds: string[] = [];
-      relevantCourses.forEach(course => {
-        course.training_modules?.forEach(module => {
-          if (!(module as any).is_active) return; // Skip inactive modules
-          module.training_lessons?.forEach(lesson => {
-            if (lesson.is_active) {
-              allLessonIds.push(lesson.id);
-            }
-          });
-        });
-      });
-
-      // Fetch user's completed lessons
-      const { data: completedLessons } = await supabase
-        .from('lesson_progress')
-        .select('lesson_id')
-        .eq('user_id', user.id)
-        .not('completed_at', 'is', null);
-
-      const completedLessonIds = new Set(
-        completedLessons?.map(lp => lp.lesson_id) || []
-      );
-
-      // Calculate progress per course
+      // Calculate progress per course (lesson-based)
       const courseProgress: CourseProgress[] = relevantCourses.map(course => {
         let totalLessons = 0;
         let completedCount = 0;
 
         course.training_modules?.forEach(module => {
-          if (!(module as any).is_active) return; // Skip inactive modules
+          if (!module.is_active) return;
           module.training_lessons?.forEach(lesson => {
             if (lesson.is_active) {
               totalLessons++;
@@ -120,7 +136,7 @@ export function usePersonalTrainingProgress() {
         };
       });
 
-      // Calculate overall progress
+      // Calculate overall progress including required videos
       let overallProgress = 0;
 
       if (isManagerRole) {
@@ -133,8 +149,11 @@ export function usePersonalTrainingProgress() {
           return course?.target_role === 'manager';
         });
 
-        const rookieTotal = rookieCourses.reduce((sum, c) => sum + c.totalLessons, 0);
-        const rookieCompleted = rookieCourses.reduce((sum, c) => sum + c.completedLessons, 0);
+        // Rookie progress includes required videos (matching canonical calc)
+        const rookieLessonTotal = rookieCourses.reduce((sum, c) => sum + c.totalLessons, 0);
+        const rookieLessonCompleted = rookieCourses.reduce((sum, c) => sum + c.completedLessons, 0);
+        const rookieTotal = rookieLessonTotal + requiredVideoIds.size;
+        const rookieCompleted = rookieLessonCompleted + completedVideoCount;
         const rookieProgress = rookieTotal > 0 ? (rookieCompleted / rookieTotal) * 100 : 0;
 
         const managerTotal = managerCourses.reduce((sum, c) => sum + c.totalLessons, 0);
@@ -147,9 +166,12 @@ export function usePersonalTrainingProgress() {
           overallProgress = Math.round((rookieProgress * 0.6) + (managerProgress * 0.4));
         }
       } else {
+        // Rookie overall: lessons + required videos (matching canonical calc)
         const totalLessons = courseProgress.reduce((sum, c) => sum + c.totalLessons, 0);
         const completedTotal = courseProgress.reduce((sum, c) => sum + c.completedLessons, 0);
-        overallProgress = totalLessons > 0 ? Math.round((completedTotal / totalLessons) * 100) : 0;
+        const total = totalLessons + requiredVideoIds.size;
+        const completed = completedTotal + completedVideoCount;
+        overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
       }
 
       setProgress({

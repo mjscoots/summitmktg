@@ -25,146 +25,99 @@ export default function TrainingPage() {
   
   const isManager = role === 'manager' || role === 'admin';
 
-  // Check if required sections are complete to unlock AI Coach
+  // Combined: check AI Coach unlock, Manager Manual completion, and lesson count
   useEffect(() => {
-    const checkRequiredProgress = async () => {
+    const checkProgress = async () => {
       if (!user) return;
 
       try {
-        // For rookies: Learn Your Pitch + Summer Sales Manual
-        // For managers: Manager Manual + Recruiting Resources (learn-the-basics)
-        const requiredSlugs = isManager 
+        // AI Coach unlock requires completing specific courses
+        const aiCoachSlugs = isManager
           ? ['manager-manual', 'management-basics']
           : ['learn-your-pitch', 'summer-sales-manual'];
+        // Include manager-manual for the lock check too
+        const allSlugs = isManager
+          ? [...new Set([...aiCoachSlugs, 'manager-manual'])]
+          : aiCoachSlugs;
 
-        const { data: courses } = await supabase
-          .from('training_courses')
-          .select('id, slug')
-          .in('slug', requiredSlugs)
-          .eq('is_active', true);
+        // Single nested query for all required courses with their lessons
+        const [coursesRes, lessonCountRes] = await Promise.all([
+          supabase
+            .from('training_courses')
+            .select(`
+              id, slug,
+              training_modules!inner (
+                id, is_active,
+                training_lessons (id)
+              )
+            `)
+            .in('slug', allSlugs)
+            .eq('is_active', true),
+          supabase
+            .from('lesson_progress')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .not('completed_at', 'is', null),
+        ]);
 
-        if (!courses || courses.length < 2) {
+        setLessonsCompleted(lessonCountRes.count || 0);
+
+        const courses = coursesRes.data || [];
+        if (courses.length === 0) {
           setAiCoachUnlocked(false);
+          setManagerManualComplete(false);
           return;
         }
 
-        let allComplete = true;
+        // Collect all lesson IDs across all required courses
+        const allLessonIds: string[] = [];
+        const courseLessonMap = new Map<string, string[]>();
 
-        for (const course of courses) {
-          const { data: modules } = await supabase
-            .from('training_modules')
-            .select('id')
-            .eq('course_id', course.id)
-            .eq('is_active', true);
+        courses.forEach(course => {
+          const lessonIds: string[] = [];
+          (course.training_modules || []).forEach(mod => {
+            if (!(mod as { is_active: boolean }).is_active) return;
+            ((mod as { training_lessons: { id: string }[] }).training_lessons || []).forEach(l => {
+              lessonIds.push(l.id);
+              allLessonIds.push(l.id);
+            });
+          });
+          courseLessonMap.set(course.slug, lessonIds);
+        });
 
-          const moduleIds = modules?.map(m => m.id) || [];
-          if (moduleIds.length === 0) continue;
-
-          const { data: lessons } = await supabase
-            .from('training_lessons')
-            .select('id')
-            .in('module_id', moduleIds)
-            .eq('is_active', true);
-
-          const lessonIds = lessons?.map(l => l.id) || [];
-          if (lessonIds.length === 0) continue;
-
+        // Single batch query for all lesson progress
+        let completedIds = new Set<string>();
+        if (allLessonIds.length > 0) {
           const { data: progress } = await supabase
             .from('lesson_progress')
             .select('lesson_id')
             .eq('user_id', user.id)
-            .in('lesson_id', lessonIds)
+            .in('lesson_id', allLessonIds)
             .not('completed_at', 'is', null);
-
-          if ((progress?.length || 0) < lessonIds.length) {
-            allComplete = false;
-            break;
-          }
+          completedIds = new Set((progress || []).map(p => p.lesson_id));
         }
 
-        setAiCoachUnlocked(allComplete);
+        // Check AI Coach unlock (all required courses must be 100%)
+        const aiCoachComplete = aiCoachSlugs.every(slug => {
+          const lessonIds = courseLessonMap.get(slug) || [];
+          return lessonIds.length > 0 && lessonIds.every(id => completedIds.has(id));
+        });
+        setAiCoachUnlocked(aiCoachComplete);
+
+        // Check Manager Manual completion (for Recruiting Resources lock)
+        if (isManager) {
+          const manualLessons = courseLessonMap.get('manager-manual') || [];
+          setManagerManualComplete(
+            manualLessons.length > 0 && manualLessons.every(id => completedIds.has(id))
+          );
+        }
       } catch (err) {
         console.error('Error checking progress:', err);
       }
     };
 
-    checkRequiredProgress();
+    checkProgress();
   }, [user, isManager]);
-
-  // Check if Manager Manual is complete (for Recruiting Resources lock)
-  useEffect(() => {
-    const checkManagerManualProgress = async () => {
-      if (!user || !isManager) return;
-
-      try {
-        const { data: course } = await supabase
-          .from('training_courses')
-          .select('id')
-          .eq('slug', 'manager-manual')
-          .eq('is_active', true)
-          .maybeSingle();
-
-        if (!course) {
-          setManagerManualComplete(false);
-          return;
-        }
-
-        const { data: modules } = await supabase
-          .from('training_modules')
-          .select('id')
-          .eq('course_id', course.id)
-          .eq('is_active', true);
-
-        const moduleIds = modules?.map(m => m.id) || [];
-        if (moduleIds.length === 0) {
-          setManagerManualComplete(false);
-          return;
-        }
-
-        const { data: lessons } = await supabase
-          .from('training_lessons')
-          .select('id')
-          .in('module_id', moduleIds)
-          .eq('is_active', true);
-
-        const lessonIds = lessons?.map(l => l.id) || [];
-        if (lessonIds.length === 0) {
-          setManagerManualComplete(false);
-          return;
-        }
-
-        const { data: progress } = await supabase
-          .from('lesson_progress')
-          .select('lesson_id')
-          .eq('user_id', user.id)
-          .in('lesson_id', lessonIds)
-          .not('completed_at', 'is', null);
-
-        setManagerManualComplete((progress?.length || 0) >= lessonIds.length);
-      } catch (err) {
-        console.error('Error checking manager manual progress:', err);
-      }
-    };
-
-    checkManagerManualProgress();
-  }, [user, isManager]);
-
-  // Fetch user's lesson completion count
-  useEffect(() => {
-    const fetchProgress = async () => {
-      if (!user) return;
-
-      const { count } = await supabase
-        .from('lesson_progress')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .not('completed_at', 'is', null);
-
-      setLessonsCompleted(count || 0);
-    };
-
-    fetchProgress();
-  }, [user]);
 
   if (isLoading) {
     return (

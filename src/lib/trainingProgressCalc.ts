@@ -28,11 +28,17 @@ export async function getReachableRookieTrainingItems(): Promise<RookieTrainingI
     `)
     .eq('is_active', true);
 
+  interface ModuleResult {
+    id: string;
+    is_active: boolean;
+    training_lessons: { id: string }[] | null;
+  }
+
   const lessonIds = new Set<string>();
   (courses || []).forEach(course => {
     if (course.target_role !== null && course.target_role !== 'rookie') return;
-    course.training_modules?.forEach(mod => {
-      if (!(mod as any).is_active) return;
+    (course.training_modules as ModuleResult[] | null)?.forEach(mod => {
+      if (!mod.is_active) return;
       mod.training_lessons?.forEach(lesson => {
         lessonIds.add(lesson.id);
       });
