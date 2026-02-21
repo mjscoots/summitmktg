@@ -19,7 +19,7 @@ import { useUnreadChat } from '@/hooks/useUnreadChat';
 interface NavItem {
   label: string;
   path: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
   iconColor?: string; // custom color for the icon when NOT active
   requiredRole?: 'manager' | 'admin';
 }
