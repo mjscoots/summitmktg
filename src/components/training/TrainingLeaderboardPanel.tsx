@@ -8,9 +8,14 @@ import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/l
 interface LeaderboardEntry {
   userId: string;
   name: string;
+  nickname: string | null;
   globalPercent: number;
   completedCount: number;
   badges: string[];
+}
+
+function displayName(entry: LeaderboardEntry) {
+  return entry.nickname || entry.name.split(' ')[0];
 }
 
 const BADGE_ICONS: Record<string, React.ReactNode> = {
@@ -44,7 +49,7 @@ export function TrainingLeaderboardPanel() {
 
         const { data: allProfiles } = await supabase
           .from('profiles')
-          .select('user_id, full_name')
+          .select('user_id, full_name, nickname')
           .in('user_id', rookieIds)
           .not('status', 'eq', 'nlc');
 
@@ -79,6 +84,7 @@ export function TrainingLeaderboardPanel() {
           return {
             userId: p.user_id,
             name: p.full_name,
+            nickname: (p as any).nickname || null,
             globalPercent,
             completedCount: totalDone,
             badges,
@@ -143,7 +149,7 @@ export function TrainingLeaderboardPanel() {
                     "text-sm font-semibold truncate",
                     isCurrentUser ? "text-primary" : "text-foreground"
                   )}>
-                    {entry.name}
+                    {displayName(entry)}
                     {isCurrentUser && <span className="text-xs font-normal text-muted-foreground ml-1">(You)</span>}
                   </span>
                   <div className="flex items-center gap-0.5">
