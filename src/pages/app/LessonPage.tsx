@@ -215,17 +215,41 @@ export default function LessonPage() {
 
         setLesson(lessonData);
 
-        // Fetch module info
-        const { data: moduleData } = await supabase
-          .from('training_modules')
-          .select('id, title, course_id, display_order')
-          .eq('id', lessonData.module_id)
-          .maybeSingle();
+        // Run independent queries in parallel for faster page loads
+        const [moduleResult, siblingsResult, questionsResult, progressResult] = await Promise.all([
+          // Fetch module info
+          supabase
+            .from('training_modules')
+            .select('id, title, course_id, display_order')
+            .eq('id', lessonData.module_id)
+            .maybeSingle(),
+          // Fetch sibling lessons in this module
+          supabase
+            .from('training_lessons')
+            .select('id, title, display_order')
+            .eq('module_id', lessonData.module_id)
+            .eq('is_active', true)
+            .order('display_order'),
+          // Fetch quiz questions
+          supabase
+            .from('quiz_questions_safe')
+            .select('id, question_text, question_type, options, display_order')
+            .eq('lesson_id', lessonId)
+            .order('display_order'),
+          // Check existing progress
+          supabase
+            .from('lesson_progress')
+            .select('quiz_passed')
+            .eq('user_id', user.id)
+            .eq('lesson_id', lessonId)
+            .maybeSingle(),
+        ]);
 
+        const moduleData = moduleResult.data;
         if (moduleData) {
           setModuleInfo(moduleData);
 
-          // Fetch all modules for this course (to determine last module)
+          // Fetch all modules for this course (depends on module data)
           const { data: allModulesData } = await supabase
             .from('training_modules')
             .select('id, title, display_order')
@@ -238,40 +262,17 @@ export default function LessonPage() {
           }
         }
 
-        // Fetch sibling lessons in this module
-        const { data: siblingsData } = await supabase
-          .from('training_lessons')
-          .select('id, title, display_order')
-          .eq('module_id', lessonData.module_id)
-          .eq('is_active', true)
-          .order('display_order');
-
-        if (siblingsData) {
-          setSiblingLessons(siblingsData);
+        if (siblingsResult.data) {
+          setSiblingLessons(siblingsResult.data);
         }
 
-        // Fetch quiz questions
-        const { data: questionsData } = await supabase
-          .from('quiz_questions_safe')
-          .select('id, question_text, question_type, options, display_order')
-          .eq('lesson_id', lessonId)
-          .order('display_order');
-
-        if (questionsData && questionsData.length > 0) {
-          setQuestions(questionsData as QuizQuestion[]);
+        if (questionsResult.data && questionsResult.data.length > 0) {
+          setQuestions(questionsResult.data as QuizQuestion[]);
         } else {
           setQuestions([]);
         }
 
-        // Check existing progress
-        const { data: progressData } = await supabase
-          .from('lesson_progress')
-          .select('quiz_passed')
-          .eq('user_id', user.id)
-          .eq('lesson_id', lessonId)
-          .maybeSingle();
-
-        if (progressData?.quiz_passed) {
+        if (progressResult.data?.quiz_passed) {
           setLessonCompleted(true);
         }
         
@@ -423,7 +424,7 @@ export default function LessonPage() {
         }
       }
     } catch (err) {
-      console.debug('Training completion notification failed:', err);
+      // Training completion notification failed silently
     }
   };
 

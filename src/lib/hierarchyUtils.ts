@@ -91,11 +91,9 @@ export const HARD_CODED_ADMIN_NORMALIZED: string[] = HARD_CODED_ADMINS.map(n => 
  */
 export function isHardCodedAdmin(name: string | null | undefined): boolean {
   if (!name) return false;
-  const normalized = name.toLowerCase().trim();
-  return HARD_CODED_ADMIN_NORMALIZED.some(admin => 
-    normalized === admin || 
-    normalized.includes(admin) || 
-    admin.includes(normalized)
+  const normalized = normalizeName(name);
+  return HARD_CODED_ADMIN_NORMALIZED.some(admin =>
+    normalized === admin
   );
 }
 

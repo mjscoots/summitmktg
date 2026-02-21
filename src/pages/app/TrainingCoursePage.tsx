@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Progress } from '@/components/ui/progress';
 import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

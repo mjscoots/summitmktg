@@ -105,23 +105,48 @@ export function useTeamData(): TeamData {
         // Get training progress with batch queries instead of N+1
         const memberUserIds = (membersData || []).map(m => m.user_id);
 
-        const [{ count: totalLessons }, { data: progressData }] = await Promise.all([
-          supabase
-            .from('training_lessons')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_active', true),
-          supabase
-            .from('lesson_progress')
-            .select('user_id')
-            .in('user_id', memberUserIds.length > 0 ? memberUserIds : ['__none__'])
-            .not('completed_at', 'is', null),
-        ]);
+        // Get reachable lesson IDs from active rookie courses only
+        const { data: courses } = await supabase
+          .from('training_courses')
+          .select(`
+            id,
+            target_role,
+            training_modules (
+              id,
+              training_lessons (
+                id,
+                is_active
+              )
+            )
+          `)
+          .eq('is_active', true);
 
-        const total = totalLessons || 0;
-        // Count completions per user
+        const reachableLessonIds = new Set<string>();
+        (courses || []).forEach(course => {
+          // Only count rookie-accessible courses (target_role is null or 'rookie')
+          if (course.target_role !== null && course.target_role !== 'rookie') return;
+          course.training_modules?.forEach(mod => {
+            mod.training_lessons?.forEach(lesson => {
+              if ((lesson as any).is_active !== false) {
+                reachableLessonIds.add(lesson.id);
+              }
+            });
+          });
+        });
+
+        const { data: progressData } = await supabase
+          .from('lesson_progress')
+          .select('user_id, lesson_id')
+          .in('user_id', memberUserIds.length > 0 ? memberUserIds : ['__none__'])
+          .not('completed_at', 'is', null);
+
+        const total = reachableLessonIds.size;
+        // Count completions per user (only reachable lessons)
         const completionMap = new Map<string, number>();
         (progressData || []).forEach(p => {
-          completionMap.set(p.user_id, (completionMap.get(p.user_id) || 0) + 1);
+          if (reachableLessonIds.has(p.lesson_id)) {
+            completionMap.set(p.user_id, (completionMap.get(p.user_id) || 0) + 1);
+          }
         });
 
         const membersWithProgress = (membersData || []).map(member => {

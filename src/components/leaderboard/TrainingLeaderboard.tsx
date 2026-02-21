@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity, TrendingUp, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';

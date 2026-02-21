@@ -271,7 +271,7 @@ const queryClient = new QueryClient();
 
             {/* Admin Team Management */}
             <Route path="/admin/team" element={
-              <ProtectedRoute requiredRole="manager">
+              <ProtectedRoute requiredRole="admin">
                 <AdminTeamPage />
               </ProtectedRoute>
             } />

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
-import { BookOpen, Users, Sparkles, Bot, Lock, ChevronLeft } from 'lucide-react';
+import { BookOpen, Users, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
 import { cn } from '@/lib/utils';

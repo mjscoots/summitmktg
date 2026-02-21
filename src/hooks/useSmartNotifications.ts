@@ -81,7 +81,7 @@ export function useSmartNotifications() {
         }
       }
     } catch (err) {
-      console.debug('Chat notification check failed:', err);
+      console.error('Chat notification check failed:', err);
     }
   };
 
@@ -119,7 +119,7 @@ export function useSmartNotifications() {
         }
       }
     } catch (err) {
-      console.debug('Leaderboard notification check failed:', err);
+      console.error('Leaderboard notification check failed:', err);
     }
   };
 
@@ -158,7 +158,7 @@ export function useSmartNotifications() {
         }
       }
     } catch (err) {
-      console.debug('Calendar notification check failed:', err);
+      console.error('Calendar notification check failed:', err);
     }
   };
 

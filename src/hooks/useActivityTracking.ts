@@ -22,7 +22,7 @@
          await supabase.rpc('update_user_activity', { _user_id: user.id });
        } catch (err) {
          // Silent fail - activity tracking is non-critical
-         console.debug('Activity update failed:', err);
+         // Silent fail - activity tracking is non-critical
        }
      };
  
