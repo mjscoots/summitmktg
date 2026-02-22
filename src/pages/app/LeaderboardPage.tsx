@@ -6,6 +6,7 @@ import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
 import { Trophy } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
 import { cn } from '@/lib/utils';
 
 type LeaderboardTab = 'training' | 'streak' | 'completion';
@@ -24,6 +25,9 @@ export default function LeaderboardPage() {
       <main className="max-w-3xl mx-auto px-4 py-6">
         {/* Back Button */}
         <PageBackButton to="/app" label="Dashboard" />
+
+        {/* Elite System Progress */}
+        <EliteProgressBar />
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">

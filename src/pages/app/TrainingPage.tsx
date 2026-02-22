@@ -8,6 +8,7 @@ import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { BookOpen, Users, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
+import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -146,7 +147,10 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          {/* Streak Display - Large and prominent */}
+          {/* Elite System Progress */}
+          <EliteProgressBar />
+
+          {/* Streak Display */}
           <div className="mb-6">
             <StreakDisplay variant="large" />
           </div>
@@ -194,7 +198,10 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          {/* Streak Display - Large and prominent */}
+          {/* Elite System Progress */}
+          <EliteProgressBar />
+
+          {/* Streak Display */}
           <div className="mb-6">
             <StreakDisplay variant="large" />
           </div>
