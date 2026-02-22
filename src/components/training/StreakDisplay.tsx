@@ -56,9 +56,9 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-6",
+        "flex flex-col items-center justify-center py-3",
         "bg-gradient-to-br from-warning/15 via-warning/10 to-warning/5",
-        "rounded-2xl border border-warning/25",
+        "rounded-xl border border-warning/25",
         "relative overflow-hidden",
         className
       )}
@@ -67,16 +67,16 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
       <div className="absolute inset-0 bg-gradient-radial from-warning/20 to-transparent opacity-50" />
       
       {/* Main content */}
-      <div className="relative z-10 flex items-center gap-3">
-        <Flame className="w-8 h-8 text-warning animate-pulse" />
-        <span className="font-black text-5xl text-warning">
+      <div className="relative z-10 flex items-center gap-2">
+        <Flame className="w-5 h-5 text-warning animate-pulse" />
+        <span className="font-black text-2xl text-warning">
           Day {streakCount}
         </span>
-        <Flame className="w-8 h-8 text-warning animate-pulse" />
+        <Flame className="w-5 h-5 text-warning animate-pulse" />
       </div>
 
       {/* Short motivational text */}
-      <p className="relative z-10 text-sm text-warning/80 mt-2 font-medium">
+      <p className="relative z-10 text-xs text-warning/80 mt-1 font-medium">
         {streakCount === 1 ? "You showed up. That's everything." : "Keep it going!"}
       </p>
     </div>
