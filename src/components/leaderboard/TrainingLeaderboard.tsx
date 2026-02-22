@@ -221,7 +221,7 @@ export function TrainingLeaderboard() {
 
   return (
     <div>
-      {/* ===== YOUR RANK BANNER ===== */}
+      {/* ===== YOUR RANK + RIVAL SYSTEM ===== */}
       {(() => {
         const myRank = entries.findIndex(e => e.user_id === user?.id);
         if (myRank === -1) return null;
@@ -230,39 +230,68 @@ export function TrainingLeaderboard() {
         const totalUsers = entries.length;
         const topPct = Math.round((rank / totalUsers) * 100);
         const pointsToNext = myRank > 0 ? entries[myRank - 1].totalPoints - me.totalPoints : 0;
+        const rival = myRank > 0 ? entries[myRank - 1] : null;
+        const chaser = myRank < entries.length - 1 ? entries[myRank + 1] : null;
+        const chaserGap = chaser ? me.totalPoints - chaser.totalPoints : 0;
 
-        let motivationText = '';
         let accentClass = 'from-primary/15 to-primary/5 border-primary/20';
-
-        if (rank === 1) {
-          motivationText = "👑 You're #1! Keep dominating.";
-          accentClass = 'from-yellow-500/15 to-yellow-500/5 border-yellow-500/20';
-        } else if (rank <= 3) {
-          motivationText = `🔥 Only ${pointsToNext} pts behind #${rank - 1}!`;
-          accentClass = 'from-success/15 to-success/5 border-success/20';
-        } else if (topPct <= 50) {
-          motivationText = `📈 Top ${topPct}% — ${pointsToNext} pts to level up`;
-        } else {
-          motivationText = `⚡ Complete lessons to climb!`;
-          accentClass = 'from-amber-500/15 to-amber-500/5 border-amber-500/20';
-        }
+        if (rank === 1) accentClass = 'from-yellow-500/15 to-yellow-500/5 border-yellow-500/20';
+        else if (rank <= 3) accentClass = 'from-success/15 to-success/5 border-success/20';
+        else if (topPct > 50) accentClass = 'from-amber-500/15 to-amber-500/5 border-amber-500/20';
 
         return (
-          <div className={cn(
-            "mx-4 mt-4 p-3.5 rounded-xl border bg-gradient-to-r flex items-center gap-3",
-            accentClass
-          )}>
-            <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
-              <span className="text-sm font-black text-primary">#{rank}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{motivationText}</p>
-              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
-                <span className="font-semibold text-primary">{me.totalPoints.toLocaleString()} pts</span>
-                <span>·</span>
-                <span>{me.progressPct}% trained</span>
+          <div className="mx-4 mt-4 space-y-2">
+            {/* Rank card */}
+            <div className={cn(
+              "p-3.5 rounded-xl border bg-gradient-to-r flex items-center gap-3",
+              accentClass
+            )}>
+              <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
+                <span className="text-sm font-black text-primary">#{rank}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {rank === 1 ? "👑 You're #1! Keep dominating." : `Top ${topPct}% — ${me.totalPoints.toLocaleString()} pts`}
+                </p>
+                <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
+                  <span className="font-semibold text-primary">{me.progressPct}% trained</span>
+                  {me.streakDays > 0 && (
+                    <>
+                      <span>·</span>
+                      <span className="flex items-center gap-0.5">
+                        <Flame className={cn("w-3 h-3", me.streakDays >= 7 ? "text-orange-500" : "text-orange-400/70")} />
+                        {me.streakDays}d streak
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Rival callout */}
+            {rival && pointsToNext > 0 && (
+              <div className="p-3 rounded-xl border border-destructive/20 bg-gradient-to-r from-destructive/8 to-transparent flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-destructive/10">
+                  <Target className="w-4 h-4 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-foreground">
+                    You're <span className="text-destructive">{pointsToNext.toLocaleString()} pts</span> behind {displayName(rival)}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Complete 1 lesson to close the gap</p>
+                </div>
+              </div>
+            )}
+
+            {/* Chaser warning */}
+            {chaser && chaserGap < 200 && chaserGap > 0 && (
+              <div className="p-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 flex items-center gap-2">
+                <Flame className="w-3.5 h-3.5 text-amber-500" />
+                <p className="text-[11px] text-amber-400 font-medium">
+                  {displayName(chaser)} is <span className="font-bold">{chaserGap} pts</span> behind and gaining
+                </p>
+              </div>
+            )}
           </div>
         );
       })()}
