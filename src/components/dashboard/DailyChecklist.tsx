@@ -1,213 +1,401 @@
- import { useState, useEffect, useRef } from 'react';
- import { CheckSquare, Plus, Square, CheckCircle } from 'lucide-react';
- import { cn } from '@/lib/utils';
- import { useAuth } from '@/hooks/useAuth';
- 
- interface ChecklistItem {
-   id: string;
-   text: string;
-   completed: boolean;
-   isRolledOver: boolean;
-   createdAt: string;
- }
- 
- const STORAGE_KEY = 'summit_daily_checklist';
- 
- export function DailyChecklist() {
-   const { user } = useAuth();
-   const [items, setItems] = useState<ChecklistItem[]>([]);
-   const [newItemText, setNewItemText] = useState('');
-   const inputRef = useRef<HTMLInputElement>(null);
-   const newItemInputRef = useRef<HTMLInputElement>(null);
- 
-   // Load items from localStorage on mount
-   useEffect(() => {
-     if (!user) return;
-     
-     const stored = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
-     if (stored) {
-       try {
-         const parsed = JSON.parse(stored);
-         const today = new Date().toDateString();
-         const storedDate = parsed.date;
-         
-         if (storedDate === today) {
-           // Same day, load items as-is
-           setItems(parsed.items || []);
-         } else {
-           // New day - roll over incomplete items
-           const incompleteItems = (parsed.items || [])
-             .filter((item: ChecklistItem) => !item.completed)
-             .map((item: ChecklistItem) => ({
-               ...item,
-               isRolledOver: true,
-             }));
-           setItems(incompleteItems);
-           // Save immediately with new date
-           saveItems(incompleteItems);
-         }
-       } catch {
-         setItems([]);
-       }
-     }
-   }, [user]);
- 
-   const saveItems = (newItems: ChecklistItem[]) => {
-     if (!user) return;
-     localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify({
-       date: new Date().toDateString(),
-       items: newItems,
-     }));
-   };
- 
-   const addItem = (text: string) => {
-     if (!text.trim()) return;
-     
-     const newItem: ChecklistItem = {
-       id: crypto.randomUUID(),
-       text: text.trim(),
-       completed: false,
-       isRolledOver: false,
-       createdAt: new Date().toISOString(),
-     };
-     
-     const newItems = [...items, newItem];
-     setItems(newItems);
-     saveItems(newItems);
-     setNewItemText('');
-   };
- 
-   const toggleItem = (id: string) => {
-     const newItems = items.map(item => 
-       item.id === id ? { ...item, completed: !item.completed, isRolledOver: false } : item
-     );
-     // Sort: incomplete rolled-over first, then incomplete, then completed
-     newItems.sort((a, b) => {
-       if (a.completed !== b.completed) return a.completed ? 1 : -1;
-       if (a.isRolledOver !== b.isRolledOver) return a.isRolledOver ? -1 : 1;
-       return 0;
-     });
-     setItems(newItems);
-     saveItems(newItems);
-   };
- 
-   const updateItemText = (id: string, text: string) => {
-     const newItems = items.map(item => 
-       item.id === id ? { ...item, text } : item
-     );
-     setItems(newItems);
-     saveItems(newItems);
-   };
- 
-   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id?: string) => {
-     if (e.key === 'Enter') {
-       e.preventDefault();
-       if (id) {
-         // Editing existing item - create new item below
-         addItem('');
-         setTimeout(() => newItemInputRef.current?.focus(), 0);
-       } else {
-         // New item input
-         addItem(newItemText);
-       }
-     }
-   };
- 
-   const removeItem = (id: string) => {
-     const newItems = items.filter(item => item.id !== id);
-     setItems(newItems);
-     saveItems(newItems);
-   };
- 
-  // Filter out completed items (they disappear when checked)
-  // Sort remaining: rolled-over incomplete first, then others
-  const sortedItems = [...items]
-    .filter(item => !item.completed)
-    .sort((a, b) => {
-      if (a.isRolledOver !== b.isRolledOver) return a.isRolledOver ? -1 : 1;
-      return 0;
-    });
- 
-   const completedCount = items.filter(i => i.completed).length;
-   const totalCount = items.length;
- 
-   return (
-     <div className="bg-card rounded-lg border border-border/50 relative overflow-hidden">
-       {/* Blue accent line on left */}
-       <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary/40" />
-       
-       <div className="p-4 border-b border-border/30 flex items-center justify-between">
-         <div className="flex items-center gap-2">
-           <CheckSquare className="w-4 h-4 text-primary" />
-           <div>
-             <h2 className="font-semibold text-sm text-foreground">Today's Priorities</h2>
-             <p className="text-[10px] text-muted-foreground">to-do list</p>
-           </div>
+import { useState, useEffect, useRef } from 'react';
+import { Swords, Plus, Square, CheckCircle, Flame, Clock, AlertTriangle, BookOpen, Phone, ClipboardList, Target } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+
+interface ChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  isRolledOver: boolean;
+  isAutoGenerated: boolean;
+  priority: 'critical' | 'high' | 'normal';
+  createdAt: string;
+}
+
+const STORAGE_KEY = 'summit_daily_warplan';
+
+// Auto-generated daily missions
+const DAILY_MISSIONS: Omit<ChecklistItem, 'id' | 'completed' | 'isRolledOver' | 'createdAt'>[] = [
+  { text: 'Complete 1 training lesson', isAutoGenerated: true, priority: 'critical' },
+  { text: 'Watch a training video', isAutoGenerated: true, priority: 'high' },
+  { text: 'Attend scheduled call', isAutoGenerated: true, priority: 'high' },
+  { text: 'Submit required form', isAutoGenerated: true, priority: 'normal' },
+];
+
+export function DailyChecklist() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [items, setItems] = useState<ChecklistItem[]>([]);
+  const [newItemText, setNewItemText] = useState('');
+  const newItemInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if it's past 6PM local time
+  const now = new Date();
+  const isPast6PM = now.getHours() >= 18;
+  const isPast3PM = now.getHours() >= 15;
+
+  useEffect(() => {
+    if (!user) return;
+
+    const stored = localStorage.getItem(`${STORAGE_KEY}_${user.id}`);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        const today = new Date().toDateString();
+
+        if (parsed.date === today) {
+          setItems(parsed.items || []);
+        } else {
+          // New day — roll over incomplete, add fresh missions
+          const incompleteItems = (parsed.items || [])
+            .filter((item: ChecklistItem) => !item.completed && !item.isAutoGenerated)
+            .map((item: ChecklistItem) => ({ ...item, isRolledOver: true }));
+
+          const freshMissions = DAILY_MISSIONS.map(m => ({
+            ...m,
+            id: crypto.randomUUID(),
+            completed: false,
+            isRolledOver: false,
+            createdAt: new Date().toISOString(),
+          }));
+
+          const allItems = [...freshMissions, ...incompleteItems];
+          setItems(allItems);
+          saveItems(allItems);
+        }
+      } catch {
+        seedMissions();
+      }
+    } else {
+      seedMissions();
+    }
+  }, [user]);
+
+  const seedMissions = () => {
+    const freshMissions = DAILY_MISSIONS.map(m => ({
+      ...m,
+      id: crypto.randomUUID(),
+      completed: false,
+      isRolledOver: false,
+      createdAt: new Date().toISOString(),
+    }));
+    setItems(freshMissions);
+    saveItems(freshMissions);
+  };
+
+  const saveItems = (newItems: ChecklistItem[]) => {
+    if (!user) return;
+    localStorage.setItem(`${STORAGE_KEY}_${user.id}`, JSON.stringify({
+      date: new Date().toDateString(),
+      items: newItems,
+    }));
+  };
+
+  const addItem = (text: string) => {
+    if (!text.trim()) return;
+    const newItem: ChecklistItem = {
+      id: crypto.randomUUID(),
+      text: text.trim(),
+      completed: false,
+      isRolledOver: false,
+      isAutoGenerated: false,
+      priority: 'normal',
+      createdAt: new Date().toISOString(),
+    };
+    const newItems = [...items, newItem];
+    setItems(newItems);
+    saveItems(newItems);
+    setNewItemText('');
+  };
+
+  const toggleItem = (id: string) => {
+    const newItems = items.map(item =>
+      item.id === id ? { ...item, completed: !item.completed, isRolledOver: false } : item
+    );
+    setItems(newItems);
+    saveItems(newItems);
+  };
+
+  const updateItemText = (id: string, text: string) => {
+    const newItems = items.map(item =>
+      item.id === id ? { ...item, text } : item
+    );
+    setItems(newItems);
+    saveItems(newItems);
+  };
+
+  const removeItem = (id: string) => {
+    const newItems = items.filter(item => item.id !== id);
+    setItems(newItems);
+    saveItems(newItems);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id?: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (id) {
+        setTimeout(() => newItemInputRef.current?.focus(), 0);
+      } else {
+        addItem(newItemText);
+      }
+    }
+  };
+
+  // Separate items
+  const activeItems = items.filter(i => !i.completed);
+  const criticalItems = activeItems.filter(i => i.priority === 'critical' || i.isRolledOver);
+  const normalItems = activeItems.filter(i => i.priority !== 'critical' && !i.isRolledOver);
+  const completedCount = items.filter(i => i.completed).length;
+  const totalCount = items.length;
+  const completionPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  // Task streak — count consecutive days with all tasks done
+  const taskStreakKey = `summit_task_streak_${user?.id}`;
+  const [taskStreak, setTaskStreak] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const stored = localStorage.getItem(taskStreakKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (parsed.lastCompleteDate === new Date().toDateString()) {
+          setTaskStreak(parsed.streak);
+        } else if (parsed.lastCompleteDate === yesterday.toDateString()) {
+          setTaskStreak(parsed.streak);
+        } else {
+          setTaskStreak(0);
+        }
+      } catch { setTaskStreak(0); }
+    }
+  }, [user]);
+
+  // Update streak when all done
+  useEffect(() => {
+    if (!user || totalCount === 0) return;
+    if (completedCount === totalCount) {
+      const today = new Date().toDateString();
+      const stored = localStorage.getItem(taskStreakKey);
+      let newStreak = 1;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.lastCompleteDate !== today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            newStreak = parsed.lastCompleteDate === yesterday.toDateString() ? parsed.streak + 1 : 1;
+          } else {
+            return; // Already recorded today
+          }
+        } catch { /* ignore */ }
+      }
+      localStorage.setItem(taskStreakKey, JSON.stringify({ streak: newStreak, lastCompleteDate: today }));
+      setTaskStreak(newStreak);
+    }
+  }, [completedCount, totalCount, user]);
+
+  const getPriorityIcon = (item: ChecklistItem) => {
+    if (item.text.toLowerCase().includes('training') || item.text.toLowerCase().includes('lesson')) return <BookOpen className="w-3.5 h-3.5" />;
+    if (item.text.toLowerCase().includes('call') || item.text.toLowerCase().includes('attend')) return <Phone className="w-3.5 h-3.5" />;
+    if (item.text.toLowerCase().includes('form') || item.text.toLowerCase().includes('submit')) return <ClipboardList className="w-3.5 h-3.5" />;
+    if (item.text.toLowerCase().includes('video') || item.text.toLowerCase().includes('watch')) return <Target className="w-3.5 h-3.5" />;
+    return null;
+  };
+
+  const noTasksCompleted = completedCount === 0;
+  const showUrgencyPulse = isPast6PM && noTasksCompleted;
+
+  return (
+    <div className={cn(
+      "bg-card rounded-xl border overflow-hidden transition-all",
+      showUrgencyPulse
+        ? "border-destructive/50 shadow-[0_0_20px_-5px_hsl(var(--destructive)/0.3)] animate-pulse"
+        : "border-border/50"
+    )}>
+      {/* Header */}
+      <div className="p-4 border-b border-border/30 bg-gradient-to-r from-card to-muted/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-destructive/10">
+              <Swords className="w-4 h-4 text-destructive" />
+            </div>
+            <div>
+              <h2 className="font-black text-sm text-foreground tracking-tight">DAILY WAR PLAN</h2>
+              <p className="text-[10px] text-muted-foreground">Crush it or get crushed</p>
+            </div>
           </div>
-         {totalCount > 0 && (
-           <span className="text-[10px] text-muted-foreground/70">
-             {completedCount} / {totalCount} completed
-           </span>
-         )}
-       </div>
-       
-       <div className="p-4 space-y-2">
-         {sortedItems.map((item) => (
-           <div 
-             key={item.id}
-             className={cn(
-               "flex items-start gap-2.5 p-2.5 rounded-md transition-all group",
-               item.isRolledOver && !item.completed && "bg-primary/8 border-l-2 border-l-primary border border-primary/20",
-               item.completed && "opacity-40"
-             )}
-           >
-             <button
-               onClick={() => toggleItem(item.id)}
-               className="flex-shrink-0 mt-0.5 transition-transform hover:scale-110"
-             >
-               {item.completed ? (
-                 <CheckCircle className="w-4 h-4 text-success" />
-               ) : (
-                 <Square className="w-4 h-4 text-muted-foreground/60 hover:text-primary transition-colors" />
-               )}
-             </button>
-             <input
-               type="text"
-               value={item.text}
-               onChange={(e) => updateItemText(item.id, e.target.value)}
-               onKeyDown={(e) => handleKeyDown(e, item.id)}
-               onBlur={() => {
-                 if (!item.text.trim()) removeItem(item.id);
-               }}
-               placeholder="Task..."
-               className={cn(
-                 "flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/50",
-                 item.completed && "line-through text-muted-foreground/60",
-                 item.isRolledOver && !item.completed && "text-primary font-medium"
-               )}
-             />
-             {item.isRolledOver && !item.completed && (
-               <span className="text-[9px] text-primary/80 font-medium px-1.5 py-0.5 rounded bg-primary/10">
-                 ROLLOVER
-               </span>
-             )}
-           </div>
-         ))}
-         
-         {/* Add new item */}
-         <div className="flex items-center gap-2.5 p-2.5 rounded-md hover:bg-muted/30 transition-colors border border-dashed border-border/30">
-           <Plus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-           <input
-             ref={newItemInputRef}
-             type="text"
-             value={newItemText}
-             onChange={(e) => setNewItemText(e.target.value)}
-             onKeyDown={(e) => handleKeyDown(e)}
-             placeholder="Add a task..."
-             className="flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/40"
-           />
-         </div>
-       </div>
-     </div>
-   );
- }
+          <div className="flex items-center gap-3">
+            {/* Task streak */}
+            {taskStreak > 0 && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                <Flame className={cn("w-3.5 h-3.5 text-orange-500", taskStreak >= 3 && "animate-pulse")} />
+                <span className="text-[10px] font-bold text-orange-500">{taskStreak}d</span>
+              </div>
+            )}
+            {/* Progress */}
+            <div className="text-right">
+              <span className={cn(
+                "text-xs font-bold tabular-nums",
+                completionPct === 100 ? "text-success" : completionPct >= 50 ? "text-primary" : "text-muted-foreground"
+              )}>
+                {completedCount}/{totalCount}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
+          <div
+            className={cn(
+              "h-full rounded-full transition-all duration-500",
+              completionPct === 100
+                ? "bg-success"
+                : completionPct >= 50
+                  ? "bg-primary"
+                  : "bg-destructive/70"
+            )}
+            style={{ width: `${completionPct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Urgency Warning */}
+      {showUrgencyPulse && (
+        <div className="px-4 py-2.5 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-destructive" />
+          <p className="text-xs font-bold text-destructive">No tasks completed — time is running out!</p>
+        </div>
+      )}
+
+      {/* 3PM warning for critical tasks */}
+      {isPast3PM && !isPast6PM && criticalItems.length > 0 && (
+        <div className="px-4 py-2 bg-amber-500/8 border-b border-amber-500/15 flex items-center gap-2">
+          <Clock className="w-3.5 h-3.5 text-amber-500" />
+          <p className="text-[11px] font-medium text-amber-400">
+            {criticalItems.length} critical task{criticalItems.length > 1 ? 's' : ''} still open past 3PM
+          </p>
+        </div>
+      )}
+
+      <div className="p-3 space-y-1">
+        {/* Critical / Rollover items first */}
+        {criticalItems.map((item) => {
+          const icon = getPriorityIcon(item);
+          return (
+            <div
+              key={item.id}
+              className={cn(
+                "flex items-start gap-2.5 p-2.5 rounded-lg transition-all group",
+                item.isRolledOver
+                  ? "bg-primary/8 border border-primary/20"
+                  : "bg-destructive/5 border border-destructive/15"
+              )}
+            >
+              <button
+                onClick={() => toggleItem(item.id)}
+                className="flex-shrink-0 mt-0.5 transition-transform hover:scale-110"
+              >
+                <Square className={cn(
+                  "w-4 h-4 transition-colors",
+                  item.isRolledOver ? "text-primary/60 hover:text-primary" : "text-destructive/60 hover:text-destructive"
+                )} />
+              </button>
+              {icon && (
+                <span className={cn(
+                  "mt-0.5 flex-shrink-0",
+                  item.isRolledOver ? "text-primary/60" : "text-destructive/60"
+                )}>
+                  {icon}
+                </span>
+              )}
+              <input
+                type="text"
+                value={item.text}
+                onChange={(e) => updateItemText(item.id, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, item.id)}
+                onBlur={() => { if (!item.text.trim() && !item.isAutoGenerated) removeItem(item.id); }}
+                className={cn(
+                  "flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/50",
+                  item.isRolledOver ? "text-primary font-medium" : "text-foreground font-medium"
+                )}
+                readOnly={item.isAutoGenerated}
+              />
+              {item.isRolledOver && (
+                <span className="text-[9px] text-primary/80 font-bold px-1.5 py-0.5 rounded bg-primary/10 uppercase tracking-wider">
+                  Rollover
+                </span>
+              )}
+              {item.priority === 'critical' && !item.isRolledOver && (
+                <span className="text-[9px] text-destructive font-bold px-1.5 py-0.5 rounded bg-destructive/10 uppercase tracking-wider">
+                  Must Do
+                </span>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Normal items */}
+        {normalItems.map((item) => {
+          const icon = getPriorityIcon(item);
+          return (
+            <div
+              key={item.id}
+              className="flex items-start gap-2.5 p-2.5 rounded-lg transition-all group hover:bg-muted/30"
+            >
+              <button
+                onClick={() => toggleItem(item.id)}
+                className="flex-shrink-0 mt-0.5 transition-transform hover:scale-110"
+              >
+                <Square className="w-4 h-4 text-muted-foreground/60 hover:text-primary transition-colors" />
+              </button>
+              {icon && <span className="mt-0.5 flex-shrink-0 text-muted-foreground/40">{icon}</span>}
+              <input
+                type="text"
+                value={item.text}
+                onChange={(e) => updateItemText(item.id, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, item.id)}
+                onBlur={() => { if (!item.text.trim() && !item.isAutoGenerated) removeItem(item.id); }}
+                className="flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/50 text-foreground"
+                readOnly={item.isAutoGenerated}
+              />
+              {item.isAutoGenerated && (
+                <span className="text-[9px] text-muted-foreground/60 font-medium px-1.5 py-0.5 rounded bg-muted/50 uppercase tracking-wider">
+                  Mission
+                </span>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Completed items (collapsed) */}
+        {completedCount > 0 && (
+          <div className="pt-1 border-t border-border/20 mt-2">
+            <p className="text-[10px] text-success/60 font-medium mb-1 flex items-center gap-1">
+              <CheckCircle className="w-3 h-3" />
+              {completedCount} completed
+            </p>
+          </div>
+        )}
+
+        {/* Add new item */}
+        <div className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-muted/30 transition-colors border border-dashed border-border/30">
+          <Plus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <input
+            ref={newItemInputRef}
+            type="text"
+            value={newItemText}
+            onChange={(e) => setNewItemText(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e)}
+            placeholder="Add a war task..."
+            className="flex-1 bg-transparent text-sm border-none outline-none placeholder:text-muted-foreground/40"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

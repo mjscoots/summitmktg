@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamData } from '@/hooks/useTeamData';
-import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Clock, Flame } from 'lucide-react';
+import { Phone, Calendar, ChevronRight, AlertTriangle, Loader2, Clock, Flame, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
@@ -100,11 +100,17 @@ export function TodaysPriorities() {
   });
 
   return (
-    <div className="bg-card rounded-lg border border-border/50">
-      <div className="p-3 border-b border-border/30">
-        <h2 className="font-semibold text-sm text-foreground">
-          Today's Priorities {teamName ? `- ${teamName}` : ''}
-        </h2>
+    <div className="bg-card rounded-xl border border-border/50">
+      <div className="p-3 border-b border-border/30 flex items-center gap-2.5">
+        <div className="p-1.5 rounded-lg bg-destructive/10">
+          <Swords className="w-4 h-4 text-destructive" />
+        </div>
+        <div>
+          <h2 className="font-black text-sm text-foreground tracking-tight">
+            DAILY WAR PLAN {teamName ? `— ${teamName}` : ''}
+          </h2>
+          <p className="text-[10px] text-muted-foreground">Lead with pressure. Sign with purpose.</p>
+        </div>
       </div>
       <div className="p-2 space-y-1">
         {priorities.map((item) => (
