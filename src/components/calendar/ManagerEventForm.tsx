@@ -47,6 +47,7 @@ interface ManagerEventFormProps {
   onClose: () => void;
   onSave: () => void;
   event?: CalendarEvent | null;
+  prefillDate?: string | null;
 }
 
 const EVENT_TYPES = [
@@ -75,7 +76,7 @@ function StepSection({ icon: Icon, title, children, className }: { icon: React.C
   );
 }
 
-export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEventFormProps) {
+export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }: ManagerEventFormProps) {
   const { user, profile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -166,8 +167,12 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event }: ManagerEven
       setAssignmentMode(event.is_team_wide ? 'entire_team' : 'specific');
     } else {
       resetForm();
+      // Apply prefill date when creating new event
+      if (prefillDate) {
+        setStartDate(prefillDate);
+      }
     }
-  }, [event]);
+  }, [event, prefillDate]);
 
   const resetForm = () => {
     setTitle('');
