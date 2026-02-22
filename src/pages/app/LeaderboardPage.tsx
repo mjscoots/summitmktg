@@ -7,7 +7,7 @@ import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderbo
 import { QuizLeaderboard } from '@/components/leaderboard/QuizLeaderboard';
 import { Trophy, Flame, Target, UserPlus, GraduationCap, Swords } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
+
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -32,7 +32,7 @@ export default function LeaderboardPage() {
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Dashboard" />
-        <EliteProgressBar />
+
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
