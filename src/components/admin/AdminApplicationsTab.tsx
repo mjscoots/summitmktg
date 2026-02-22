@@ -3,8 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText } from 'lucide-react';
+import { Search, FileText, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 
 interface Application {
   id: string;
@@ -26,6 +31,19 @@ export default function AdminApplicationsTab() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'rookie' | 'veteran'>('rookie');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    const { error } = await supabase.from('applications').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to delete application', variant: 'destructive' });
+    } else {
+      setApplications(prev => prev.filter(a => a.id !== id));
+      toast({ title: 'Deleted', description: 'Application removed' });
+    }
+    setDeletingId(null);
+  };
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -108,6 +126,7 @@ export default function AdminApplicationsTab() {
                 )}
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Date</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -134,6 +153,27 @@ export default function AdminApplicationsTab() {
                   </td>
                   <td className="px-4 py-3 text-white/40 text-xs">
                     {app.created_at ? format(new Date(app.created_at), 'MMM d, yyyy') : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors" disabled={deletingId === app.id}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete application?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Remove <span className="font-medium text-foreground">{app.full_name}</span>'s application. This cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(app.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </td>
                 </tr>
               ))}
