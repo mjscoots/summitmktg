@@ -63,15 +63,6 @@ export async function getReachableRookieTrainingItems(): Promise<RookieTrainingI
 }
 
 /**
- * Backwards-compatible alias – returns lesson IDs only.
- * Prefer getReachableRookieTrainingItems() for full counts.
- */
-export async function getReachableRookieLessonIds(): Promise<Set<string>> {
-  const items = await getReachableRookieTrainingItems();
-  return items.lessonIds;
-}
-
-/**
  * Count completed items (lessons + videos) for given user IDs.
  */
 export async function getCompletedTrainingCounts(
@@ -116,33 +107,3 @@ export async function getCompletedTrainingCounts(
   return counts;
 }
 
-/**
- * Legacy alias for lesson-only counting.
- */
-export async function getCompletedLessonCounts(
-  userIds: string[],
-  reachableLessonIds: Set<string>
-): Promise<Map<string, number>> {
-  if (userIds.length === 0) return new Map();
-
-  const { data: lessonProgress } = await supabase
-    .from('lesson_progress')
-    .select('user_id, lesson_id')
-    .in('user_id', userIds)
-    .not('completed_at', 'is', null);
-
-  const seen = new Map<string, Set<string>>();
-
-  (lessonProgress || []).forEach(lp => {
-    if (!reachableLessonIds.has(lp.lesson_id)) return;
-    if (!seen.has(lp.user_id)) seen.set(lp.user_id, new Set());
-    seen.get(lp.user_id)!.add(lp.lesson_id);
-  });
-
-  const counts = new Map<string, number>();
-  seen.forEach((lessons, userId) => {
-    counts.set(userId, lessons.size);
-  });
-
-  return counts;
-}

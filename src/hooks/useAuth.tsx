@@ -100,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let initialLoadDone = false;
 
     // Safety timeout: never stay in loading state forever (prevents black screen on mobile)
     const loadingTimeout = setTimeout(() => {
@@ -109,6 +110,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 4000);
 
+    const loadUserData = async (userId: string) => {
+      try {
+        const [userProfile, userRole] = await Promise.all([
+          fetchProfile(userId),
+          fetchUserRole(userId),
+        ]);
+        if (mounted) {
+          setProfile(userProfile);
+          setRole(userRole);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Error loading user data:', err);
+        if (mounted) setIsLoading(false);
+      }
+    };
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -117,21 +135,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Defer database calls to avoid race conditions
-          setTimeout(async () => {
-            try {
-              const userProfile = await fetchProfile(session.user.id);
-              const userRole = await fetchUserRole(session.user.id);
-              if (mounted) {
-                setProfile(userProfile);
-                setRole(userRole);
-                setIsLoading(false);
-              }
-            } catch (err) {
-              console.error('Error loading user data:', err);
-              if (mounted) setIsLoading(false);
-            }
-          }, 0);
+          // Skip if getSession already handled the initial load
+          if (event === 'INITIAL_SESSION' && initialLoadDone) return;
+          // Defer to avoid Supabase internal deadlock
+          setTimeout(() => { if (mounted) loadUserData(session.user.id); }, 0);
         } else {
           setProfile(null);
           setRole('rookie');
@@ -140,26 +147,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN get the current session
+    // THEN get the current session (races with INITIAL_SESSION event)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
+      initialLoadDone = true;
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        Promise.all([
-          fetchProfile(session.user.id),
-          fetchUserRole(session.user.id),
-        ]).then(([userProfile, userRole]) => {
-          if (mounted) {
-            setProfile(userProfile);
-            setRole(userRole);
-            setIsLoading(false);
-          }
-        }).catch((err) => {
-          console.error('Error loading initial user data:', err);
-          if (mounted) setIsLoading(false);
-        });
+        loadUserData(session.user.id);
       } else {
         setIsLoading(false);
       }

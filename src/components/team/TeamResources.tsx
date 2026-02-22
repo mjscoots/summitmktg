@@ -14,7 +14,8 @@
  import { Plus, Video, FileText, Link2, FileCode, Pencil, Trash2, ExternalLink, Loader2 } from 'lucide-react';
  import { toast } from 'sonner';
  import { cn } from '@/lib/utils';
- 
+ import { sanitizeUrl } from '@/lib/sanitizeUrl';
+
  interface Resource {
    id: string;
    resource_name: string;
@@ -216,7 +217,7 @@
                </div>
                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                  <a
-                   href={resource.resource_url}
+                   href={sanitizeUrl(resource.resource_url)}
                    target="_blank"
                    rel="noopener noreferrer"
                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"

@@ -13,15 +13,17 @@ import { UserAvatar } from '@/components/shared/UserAvatar';
 import { MessageReactions } from './MessageReactions';
 import { ReadReceipts } from './ReadReceipts';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
 /** Render text with clickable links */
 function renderWithLinks(text: string) {
   const urlRegex = /(https?:\/\/[^\s<]+)/g;
   const parts = text.split(urlRegex);
   return parts.map((part, i) => {
-    // Use a fresh regex for each test to avoid lastIndex issues
     if (/^https?:\/\//.test(part)) {
+      const safe = sanitizeUrl(part);
+      if (safe === '#') return <span key={i}>{part}</span>;
       return (
-        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 break-all">
+        <a key={i} href={safe} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 break-all">
           {part}
         </a>
       );

@@ -86,7 +86,7 @@ interface BootcampRow {
   signature_data: string | null;
 }
 
-const SUPER_ADMIN_EMAIL = 'mjscoots9@gmail.com';
+const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || '';
 
 export default function AdminTeamPage() {
   const { role, profile } = useAuth();

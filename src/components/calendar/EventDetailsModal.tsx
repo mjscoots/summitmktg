@@ -28,6 +28,7 @@ import {
   Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
 
 interface CalendarEvent {
   id: string;
@@ -139,8 +140,8 @@ export function EventDetailsModal({
 
   const isUrl = (str: string) => {
     try {
-      new URL(str);
-      return true;
+      const parsed = new URL(str);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
     } catch {
       return false;
     }
@@ -249,9 +250,9 @@ export function EventDetailsModal({
               <div className="flex-1">
                 <p className="text-sm font-medium text-foreground">Location</p>
                 {isUrl(event.location) ? (
-                  <a 
-                    href={event.location} 
-                    target="_blank" 
+                  <a
+                    href={sanitizeUrl(event.location)}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-primary hover:underline flex items-center gap-1.5"
                   >
