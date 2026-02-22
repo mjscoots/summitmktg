@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
+import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
  
  export default function DashboardPage() {
    const navigate = useNavigate();
@@ -39,8 +40,11 @@ import { GuidedTour } from '@/components/onboarding/GuidedTour';
  
    return (
      <AppLayout>
-       <div className="max-w-5xl mx-auto px-4 py-6">
-         {/* Manager gets Command Center, Rookies get simple greeting */}
+        <div className="max-w-5xl mx-auto px-4 py-6">
+          {/* Elite System Progress */}
+          <EliteProgressBar />
+
+          {/* Manager gets Command Center, Rookies get simple greeting */}
          {isManager ? (
            <CommandCenterHeader />
          ) : (
