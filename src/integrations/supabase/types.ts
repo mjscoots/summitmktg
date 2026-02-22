@@ -427,6 +427,7 @@ export type Database = {
           created_at: string
           id: string
           is_ai: boolean
+          is_pinned: boolean
           reply_to: string | null
           user_id: string
         }
@@ -436,6 +437,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_ai?: boolean
+          is_pinned?: boolean
           reply_to?: string | null
           user_id: string
         }
@@ -445,6 +447,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_ai?: boolean
+          is_pinned?: boolean
           reply_to?: string | null
           user_id?: string
         }
@@ -452,6 +455,76 @@ export type Database = {
           {
             foreignKeyName: "chat_messages_reply_to_fkey"
             columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_index: number
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_index: number
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_index?: number
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "chat_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_polls: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_closed: boolean
+          message_id: string
+          options: Json
+          question: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_closed?: boolean
+          message_id: string
+          options?: Json
+          question: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_closed?: boolean
+          message_id?: string
+          options?: Json
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_polls_message_id_fkey"
+            columns: ["message_id"]
             isOneToOne: false
             referencedRelation: "chat_messages"
             referencedColumns: ["id"]

@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3 } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
+import { ChatPoll, PollCreator } from './ChatPoll';
+import { ChatImageUpload, isImageMessage, isFileMessage, getImageUrl, getFileInfo, ChatImage, ChatFile } from './ChatImageUpload';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -36,6 +38,7 @@ interface ChatMessage {
   created_at: string;
   reply_to: string | null;
   channel: string;
+  is_pinned: boolean;
 }
 
 interface ProfileInfo {
@@ -93,6 +96,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
   const [showStickers, setShowStickers] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
+  const [showPollCreator, setShowPollCreator] = useState(false);
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
 
@@ -142,7 +146,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         setProfileMap(map);
       }
 
-      setMessages((data || []).map(m => ({ ...m, channel: m.channel || 'general' })));
+      setMessages((data || []).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
     };
 
     fetchMessages();
@@ -190,6 +194,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           if (newMsg.user_id !== user?.id) {
             onNewMessage?.();
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'chat_messages' },
+        (payload) => {
+          const updated = payload.new as ChatMessage;
+          setMessages(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated, channel: updated.channel || 'general' } : m));
         }
       )
       .subscribe();
@@ -367,6 +379,45 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setMessages(prev => prev.filter(m => m.id !== msgId));
   };
 
+  const handlePin = async (msgId: string, currentlyPinned: boolean) => {
+    const { error } = await supabase.from('chat_messages').update({ is_pinned: !currentlyPinned }).eq('id', msgId);
+    if (error) { toast.error('Failed to update pin'); return; }
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, is_pinned: !currentlyPinned } : m));
+    toast.success(currentlyPinned ? 'Message unpinned' : 'Message pinned');
+  };
+
+  const handleSendFile = async (content: string) => {
+    if (!user) return;
+    const { error } = await supabase.from('chat_messages').insert({
+      user_id: user.id,
+      content,
+      reply_to: replyingTo?.id || null,
+      channel: activeChannel,
+    });
+    if (error) { toast.error('Failed to send'); return; }
+    setReplyingTo(null);
+    scrollToBottom();
+  };
+
+  const handleCreatePoll = async (question: string, options: string[]) => {
+    if (!user) return;
+    setShowPollCreator(false);
+    const pollContent = `📊 Poll: ${question}`;
+    const { data: msg, error } = await supabase.from('chat_messages').insert({
+      user_id: user.id,
+      content: pollContent,
+      channel: activeChannel,
+    }).select('id').single();
+    if (error || !msg) { toast.error('Failed to create poll'); return; }
+    await supabase.from('chat_polls').insert({
+      message_id: msg.id,
+      question,
+      options,
+      created_by: user.id,
+    });
+    scrollToBottom();
+  };
+
   const handleSendSticker = async (sticker: StickerType) => {
     if (!user) return;
     setShowStickers(false);
@@ -491,7 +542,27 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         </p>
       </div>
 
-      {/* Messages area */}
+      {/* Pinned messages banner */}
+      {(() => {
+        const pinned = channelMessages.filter(m => m.is_pinned);
+        if (pinned.length === 0) return null;
+        const lastPinned = pinned[pinned.length - 1];
+        const pinProfile = getProfile(lastPinned);
+        return (
+          <button
+            onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+            className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left"
+          >
+            <Pin className="w-3 h-3 text-amber-500 flex-shrink-0" />
+            <span className="text-[11px] font-semibold text-amber-500">{pinProfile.full_name}:</span>
+            <span className="text-[11px] text-muted-foreground truncate">{lastPinned.content}</span>
+            {pinned.length > 1 && (
+              <span className="text-[10px] text-muted-foreground/60 ml-auto flex-shrink-0">+{pinned.length - 1} more</span>
+            )}
+          </button>
+        );
+      })()}
+
       <div
         ref={containerRef}
         onScroll={handleScroll}
@@ -532,7 +603,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 className={cn(
                   "group/msg relative px-4 hover:bg-muted/30 transition-colors",
                   grouped ? "py-0.5" : "pt-3 pb-0.5",
-                  isOwnMessage(msg) && "hover:bg-primary/5"
+                  isOwnMessage(msg) && "hover:bg-primary/5",
+                  msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40"
                 )}
               >
                 {/* Toolbar */}
@@ -552,6 +624,20 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         title="Edit"
                       >
                         <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {isManager && (
+                      <button
+                        onClick={() => handlePin(msg.id, msg.is_pinned)}
+                        className={cn(
+                          "p-1.5 rounded transition-colors",
+                          msg.is_pinned
+                            ? "text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        )}
+                        title={msg.is_pinned ? "Unpin" : "Pin"}
+                      >
+                        {msg.is_pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
                       </button>
                     )}
                     {(isOwnMessage(msg) || isManager) && (
@@ -682,6 +768,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           <p className="text-sm text-foreground/90">[GIF unavailable]</p>
                         );
                       })()
+                    ) : isImageMessage(msg.content) ? (
+                      <ChatImage url={getImageUrl(msg.content)} />
+                    ) : isFileMessage(msg.content) ? (
+                      (() => {
+                        const info = getFileInfo(msg.content);
+                        return info ? <ChatFile info={info} /> : <p className="text-sm text-foreground/90">[File unavailable]</p>;
+                      })()
+                    ) : msg.content.startsWith('📊 Poll:') ? (
+                      <div>
+                        <p className="text-sm text-foreground/90 leading-relaxed">{renderWithLinks(msg.content)}</p>
+                        <ChatPoll messageId={msg.id} profileMap={profileMap} />
+                      </div>
                     ) : (
                       <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
                         {renderWithLinks(msg.content)}
@@ -778,6 +876,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               onClose={() => setShowGifs(false)}
             />
           )}
+          {/* Poll Creator */}
+          {showPollCreator && (
+            <PollCreator
+              onSubmit={handleCreatePoll}
+              onClose={() => setShowPollCreator(false)}
+            />
+          )}
           {/* Reply preview */}
           {replyingTo && (
             <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/40 rounded-t-lg border border-b-0 border-border/50 text-xs">
@@ -819,8 +924,21 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             />
             {activeChannel !== 'ai-coach' && (
               <>
+                <ChatImageUpload onSend={handleSendFile} />
                 <button
-                  onClick={() => { setShowGifs(!showGifs); setShowStickers(false); }}
+                  onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); setShowStickers(false); }}
+                  className={cn(
+                    "p-2 rounded-md transition-all flex-shrink-0",
+                    showPollCreator
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
+                  )}
+                  title="Create Poll"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => { setShowGifs(!showGifs); setShowStickers(false); setShowPollCreator(false); }}
                   className={cn(
                     "p-2 rounded-md transition-all flex-shrink-0",
                     showGifs
@@ -832,7 +950,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   <Image className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => { setShowStickers(!showStickers); setShowGifs(false); }}
+                  onClick={() => { setShowStickers(!showStickers); setShowGifs(false); setShowPollCreator(false); }}
                   className={cn(
                     "p-2 rounded-md transition-all flex-shrink-0",
                     showStickers
