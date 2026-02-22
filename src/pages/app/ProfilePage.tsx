@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2 } from 'lucide-react';
+import { TierBadge, getTierBorderClass } from '@/components/shared/TierBadge';
+import { useEliteTier } from '@/hooks/useEliteTier';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -41,6 +43,7 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isManager = role === 'manager' || role === 'admin';
+  const { systemPct, tier } = useEliteTier();
 
   useEffect(() => {
     if (profile) {
@@ -236,12 +239,16 @@ export default function ProfilePage() {
                 <img 
                   src={avatarUrl} 
                   alt="Profile" 
-                  className="w-20 h-20 rounded-full object-cover border-2 border-primary/30"
+                  className={cn(
+                    "w-20 h-20 rounded-full object-cover",
+                    getTierBorderClass(systemPct) || "border-2 border-primary/30"
+                  )}
                 />
               ) : (
                 <div className={cn(
                   "w-20 h-20 rounded-full flex items-center justify-center",
-                  isManager ? "bg-blue-500/15" : "bg-green-500/15"
+                  isManager ? "bg-blue-500/15" : "bg-green-500/15",
+                  getTierBorderClass(systemPct)
                 )}>
                   <User className={cn(
                     "w-8 h-8",
@@ -262,13 +269,26 @@ export default function ProfilePage() {
               </label>
             </div>
             <div>
-              <h2 className="font-semibold text-foreground">{fullName || 'User'}</h2>
-              <span className={cn(
-                "text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                isManager ? "bg-blue-500/15 text-blue-400" : "bg-green-500/15 text-green-400"
-              )}>
-                {isManager ? 'MANAGER' : 'ROOKIE'}
-              </span>
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-foreground">{fullName || 'User'}</h2>
+                <TierBadge percentage={systemPct} size="sm" />
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={cn(
+                  "text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
+                  isManager ? "bg-blue-500/15 text-blue-400" : "bg-green-500/15 text-green-400"
+                )}>
+                  {isManager ? 'MANAGER' : 'ROOKIE'}
+                </span>
+                {tier && (
+                  <span className={cn(
+                    "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest",
+                    tier.bg, tier.color
+                  )}>
+                    {tier.name} TIER
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Click the camera icon to upload a new photo
               </p>

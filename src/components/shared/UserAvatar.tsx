@@ -1,5 +1,6 @@
  import { useMemo } from 'react';
  import { cn } from '@/lib/utils';
+ import { getTierBorderClass } from '@/components/shared/TierBadge';
  
 interface UserAvatarProps {
   avatarUrl?: string | null;
@@ -8,6 +9,7 @@ interface UserAvatarProps {
   className?: string;
   showOnline?: boolean;
   isOnline?: boolean;
+  tierPct?: number;
 }
  
  // Generate a consistent color based on name hash
@@ -61,9 +63,10 @@ const dotSizeClasses = {
   lg: 'w-3 h-3 border-2',
 };
 
-export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline }: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, tierPct }: UserAvatarProps) {
   const initials = useMemo(() => getInitials(fullName), [fullName]);
   const bgColor = useMemo(() => getColorFromName(fullName), [fullName]);
+  const tierBorder = tierPct != null ? getTierBorderClass(tierPct) : '';
 
   const onlineDot = showOnline ? (
     <span className={cn(
@@ -78,6 +81,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
       <div className={cn(
         'relative rounded-full overflow-visible flex-shrink-0',
         sizeClasses[size],
+        tierBorder,
         className
       )}>
         <img 
@@ -95,6 +99,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
       'relative rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium',
       sizeClasses[size],
       bgColor,
+      tierBorder,
       className
     )}>
       {initials}
