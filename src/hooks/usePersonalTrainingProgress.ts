@@ -95,6 +95,16 @@ export function usePersonalTrainingProgress() {
         videoProgressRes.data?.map(vp => vp.video_id) || []
       );
 
+      console.log('Video Progress Debug:', {
+        userId: user.id,
+        videoProgressRaw: videoProgressRes.data,
+        videoProgressError: videoProgressRes.error,
+        watchedVideoIdsCount: watchedVideoIds.size,
+        requiredVideoIdsCount: requiredVideoIds.size,
+        requiredVideoIdsSample: Array.from(requiredVideoIds).slice(0, 3),
+        watchedVideoIdsSample: Array.from(watchedVideoIds).slice(0, 3),
+      });
+
       // Count watched required videos
       let completedVideoCount = 0;
       requiredVideoIds.forEach(id => {
