@@ -3,8 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft } from 'lucide-react';
+import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 interface Module {
   id: string;
@@ -43,6 +48,14 @@ export default function TrainingCoursePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [overallProgress, setOverallProgress] = useState(0);
 
+  // Admin quick-edit state
+  const [editingLesson, setEditingLesson] = useState<{ id: string; title: string; content: string; video_url: string } | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editVideoUrl, setEditVideoUrl] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const isAdmin = role === 'admin';
   const isManager = role === 'manager' || role === 'admin';
   const isRookieCourse = course ? (ROOKIE_COURSES.includes(course.slug) || course.target_role === null) : true;
   const accentColor = isRookieCourse ? 'green' : 'blue';
@@ -134,6 +147,44 @@ export default function TrainingCoursePage() {
 
     fetchCourseData();
   }, [courseSlug, user, navigate]);
+
+  const handleEditLesson = async (lessonId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { data } = await supabase
+      .from('training_lessons')
+      .select('id, title, content, video_url')
+      .eq('id', lessonId)
+      .single();
+    if (data) {
+      setEditingLesson({ id: data.id, title: data.title, content: data.content, video_url: data.video_url || '' });
+      setEditTitle(data.title);
+      setEditContent(data.content);
+      setEditVideoUrl(data.video_url || '');
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingLesson) return;
+    setIsSavingEdit(true);
+    try {
+      const { error } = await supabase
+        .from('training_lessons')
+        .update({ title: editTitle.trim(), content: editContent, video_url: editVideoUrl.trim() || null })
+        .eq('id', editingLesson.id);
+      if (error) throw error;
+      // Update local state
+      setModules(prev => prev.map(m => ({
+        ...m,
+        lessons: m.lessons.map(l => l.id === editingLesson.id ? { ...l, title: editTitle.trim() } : l)
+      })));
+      setEditingLesson(null);
+      toast.success('Lesson updated');
+    } catch {
+      toast.error('Failed to save');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -376,14 +427,25 @@ export default function TrainingCoursePage() {
                             {lesson.title}
                           </span>
                         </div>
-                        {!isLessonLocked && (
-                          <ChevronRight className={cn(
-                            "w-4 h-4",
-                            isCurrentLesson 
-                              ? isRookieCourse ? "text-green-400" : "text-blue-400"
-                              : "text-muted-foreground"
-                          )} />
-                        )}
+                        <div className="flex items-center gap-1">
+                          {isAdmin && (
+                            <button
+                              onClick={(e) => handleEditLesson(lesson.id, e)}
+                              className="p-1 rounded border border-border bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                              title="Edit lesson"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                          )}
+                          {!isLessonLocked && (
+                            <ChevronRight className={cn(
+                              "w-4 h-4",
+                              isCurrentLesson 
+                                ? isRookieCourse ? "text-green-400" : "text-blue-400"
+                                : "text-muted-foreground"
+                            )} />
+                          )}
+                        </div>
                       </button>
                     );
                   })}
@@ -393,6 +455,40 @@ export default function TrainingCoursePage() {
           })}
         </div>
       </main>
+
+      {/* Admin Quick Edit Modal */}
+      <Dialog open={!!editingLesson} onOpenChange={(open) => !open && setEditingLesson(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-base">Edit Lesson</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Title</label>
+              <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Video URL</label>
+              <Input value={editVideoUrl} onChange={(e) => setEditVideoUrl(e.target.value)} placeholder="https://..." />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Content (Markdown)</label>
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={12}
+                className="font-mono text-xs"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setEditingLesson(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleSaveEdit} disabled={isSavingEdit || !editTitle.trim()}>
+                {isSavingEdit ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
