@@ -764,7 +764,7 @@ export default function LessonPage() {
             )}
 
             {/* Quiz Section - Only show if has quiz and not complete */}
-            {questions.length > 0 && !lessonCompleted && !isQuizOptional && scrollUnlocked && (
+            {questions.length > 0 && !lessonCompleted && !isQuizOptional && (
               <div className="mb-4">
                 <Button
                   onClick={() => setShowQuiz(true)}
