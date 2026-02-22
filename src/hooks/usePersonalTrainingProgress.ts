@@ -136,6 +136,22 @@ export function usePersonalTrainingProgress() {
         };
       });
 
+      // Debug logging
+      const totalLessonsDebug = courseProgress.reduce((sum, c) => sum + c.totalLessons, 0);
+      const completedLessonsDebug = courseProgress.reduce((sum, c) => sum + c.completedLessons, 0);
+      console.log('Training Progress Debug:', {
+        role,
+        isManagerRole,
+        coursesFound: relevantCourses.length,
+        courseDetails: courseProgress.map(c => ({ slug: c.courseSlug, total: c.totalLessons, completed: c.completedLessons, pct: c.percentage })),
+        activeLessons: totalLessonsDebug,
+        completedLessons: completedLessonsDebug,
+        requiredVideos: requiredVideoIds.size,
+        watchedRequiredVideos: completedVideoCount,
+        totalItems: totalLessonsDebug + requiredVideoIds.size,
+        totalCompleted: completedLessonsDebug + completedVideoCount,
+      });
+
       // Calculate overall progress including required videos
       let overallProgress = 0;
 
@@ -173,6 +189,8 @@ export function usePersonalTrainingProgress() {
         const completed = completedTotal + completedVideoCount;
         overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
       }
+
+      console.log('Training Progress Result:', { overallProgress, isComplete: overallProgress === 100 });
 
       setProgress({
         overall: overallProgress,
