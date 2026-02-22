@@ -158,13 +158,24 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
       if (error) throw error;
 
-      // Post a welcome announcement in community chat
+      // Post a welcome announcement in community chat (only if none exists yet)
       try {
-        await supabase.from('chat_messages').insert({
-          user_id: user.id,
-          is_ai: true,
-          content: `🎉 **Welcome to the team, ${fullName}!** They just completed their profile and are ready to get started. Let's give them a warm welcome! 🚀`,
-        });
+        const welcomeContent = `🎉 **Welcome to the team, ${fullName}!** They just completed their profile and are ready to get started. Let's give them a warm welcome! 🚀`;
+        const { data: existing } = await supabase
+          .from('chat_messages')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('is_ai', true)
+          .ilike('content', '%Welcome to the team%')
+          .limit(1);
+
+        if (!existing?.length) {
+          await supabase.from('chat_messages').insert({
+            user_id: user.id,
+            is_ai: true,
+            content: welcomeContent,
+          });
+        }
       } catch {
         // Non-critical
       }
