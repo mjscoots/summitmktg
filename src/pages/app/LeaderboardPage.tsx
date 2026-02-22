@@ -1,38 +1,27 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
-import { SigningsLeaderboard } from '@/components/leaderboard/SigningsLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
-import { QuizLeaderboard } from '@/components/leaderboard/QuizLeaderboard';
-import { Trophy, Flame, Target, UserPlus, GraduationCap, Swords } from 'lucide-react';
+import { Trophy, Flame, GraduationCap, Swords } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
 
-type LeaderboardTab = 'training' | 'streak' | 'completion' | 'quiz' | 'signings';
+type LeaderboardTab = 'training' | 'streak' | 'completion';
 
-const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy; managerOnly?: boolean }[] = [
-  { id: 'training', label: 'XP', icon: Trophy },
+const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
+  { id: 'training', label: 'Overall', icon: Trophy },
   { id: 'streak', label: 'Streak', icon: Flame },
-  { id: 'quiz', label: 'Quiz', icon: Target },
   { id: 'completion', label: 'Progress', icon: GraduationCap },
-  { id: 'signings', label: 'Signings', icon: UserPlus, managerOnly: true },
 ];
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('training');
-  const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
-
-  const visibleTabs = TABS.filter(t => !t.managerOnly || isManager);
 
   return (
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Dashboard" />
-
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -49,7 +38,7 @@ export default function LeaderboardPage() {
         {/* Tab Bar */}
         <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">
           <div className="flex">
-            {visibleTabs.map((tab) => {
+            {TABS.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
@@ -77,9 +66,7 @@ export default function LeaderboardPage() {
         <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
           {activeTab === 'training' && <TrainingLeaderboard />}
           {activeTab === 'streak' && <StreakLeaderboard />}
-          {activeTab === 'quiz' && <QuizLeaderboard />}
           {activeTab === 'completion' && <TrainingLeaderboardPanel />}
-          {activeTab === 'signings' && <SigningsLeaderboard />}
         </div>
       </main>
     </AppLayout>
