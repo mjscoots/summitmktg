@@ -450,22 +450,28 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     scrollToBottom();
   };
 
-  // Mark visible messages as read
+  // Mark visible messages as read — track the last few messages from other users
   useEffect(() => {
     if (!user || channelMessages.length === 0) return;
-    const lastMsg = channelMessages[channelMessages.length - 1];
-    if (!lastMsg || lastMsg.user_id === user.id) return;
 
-    // Mark the last message as read (batching for the most recent)
+    // Get the last 5 messages from OTHER users to mark as read
+    const otherMessages = channelMessages
+      .filter(m => m.user_id !== user.id && !m.is_ai)
+      .slice(-5);
+
+    if (otherMessages.length === 0) return;
+
+    const receipts = otherMessages.map(m => ({
+      message_id: m.id,
+      user_id: user.id,
+    }));
+
     supabase.from('chat_read_receipts')
-      .upsert(
-        { message_id: lastMsg.id, user_id: user.id },
-        { onConflict: 'message_id,user_id' }
-      )
+      .upsert(receipts, { onConflict: 'message_id,user_id' })
       .then(({ error }) => {
         if (error) console.error('Read receipt error:', error);
       });
-  }, [channelMessages.length, user?.id]);
+  }, [channelMessages.length, user?.id, activeChannel]);
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) {
