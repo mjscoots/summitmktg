@@ -498,10 +498,18 @@ export default function AdminTeamPage() {
             <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full">{pendingUsers.length}</span>}
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Users</TabsTrigger>
-            <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Teams</TabsTrigger>
-            <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Bootcamp Responses</TabsTrigger>
-            <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Applications</TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Users <span className="ml-1.5 text-[10px] text-muted-foreground">{reps.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Teams <span className="ml-1.5 text-[10px] text-muted-foreground">{teams.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Bootcamp <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Applications
+            </TabsTrigger>
             
             <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
