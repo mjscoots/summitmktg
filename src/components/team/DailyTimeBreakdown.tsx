@@ -41,16 +41,16 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
       setIsLoading(true);
       const { start, end } = getWeekRange();
       try {
-        const { data, error } = await supabase
-          .from('daily_training_time')
+        const { data, error } = await (supabase
+          .from('daily_training_time' as any)
           .select('date, total_minutes, training_minutes, video_minutes, lesson_minutes')
           .eq('user_id', userId)
           .gte('date', start)
           .lte('date', end)
-          .order('date');
+          .order('date') as any);
 
         if (!error && data) {
-          setRows(data);
+          setRows(data as DailyTimeRow[]);
         }
       } catch {
         // Silent fail

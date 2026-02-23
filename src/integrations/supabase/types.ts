@@ -592,42 +592,6 @@ export type Database = {
           },
         ]
       }
-      daily_training_time: {
-        Row: {
-          id: string
-          user_id: string
-          date: string
-          training_minutes: number
-          video_minutes: number
-          lesson_minutes: number
-          total_minutes: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          date?: string
-          training_minutes?: number
-          video_minutes?: number
-          lesson_minutes?: number
-          total_minutes?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          date?: string
-          training_minutes?: number
-          video_minutes?: number
-          lesson_minutes?: number
-          total_minutes?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       daily_login_streaks: {
         Row: {
           created_at: string
@@ -661,6 +625,42 @@ export type Database = {
           total_days_active?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      daily_training_time: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          lesson_minutes: number
+          total_minutes: number
+          training_minutes: number
+          updated_at: string
+          user_id: string
+          video_minutes: number
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          lesson_minutes?: number
+          total_minutes?: number
+          training_minutes?: number
+          updated_at?: string
+          user_id: string
+          video_minutes?: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          lesson_minutes?: number
+          total_minutes?: number
+          training_minutes?: number
+          updated_at?: string
+          user_id?: string
+          video_minutes?: number
         }
         Relationships: []
       }
@@ -2043,7 +2043,7 @@ export type Database = {
       mark_inactive_users: { Args: never; Returns: undefined }
       record_daily_login: { Args: { _user_id: string }; Returns: Json }
       record_daily_time: {
-        Args: { _user_id: string; _category: string }
+        Args: { _category: string; _user_id: string }
         Returns: undefined
       }
       set_access_code: {
