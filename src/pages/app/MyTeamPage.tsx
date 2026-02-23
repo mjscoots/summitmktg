@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck } from 'lucide-react';
+import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck, X, ChevronDown } from 'lucide-react';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Button } from '@/components/ui/button';
 import { TeamCard } from '@/components/team/TeamCard';
@@ -51,6 +51,9 @@ export default function MyTeamPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
   const [memberSearch, setMemberSearch] = useState('');
+  const [selectedTeamFilter, setSelectedTeamFilter] = useState<string>(() => {
+    try { return sessionStorage.getItem('team-filter') || 'all'; } catch { return 'all'; }
+  });
   const [selectedMemberProfile, setSelectedMemberProfile] = useState<TeamMember | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
@@ -321,8 +324,17 @@ export default function MyTeamPage() {
   };
 
   // Build flat sorted members list for Members view
+  // Persist team filter to sessionStorage
+  useEffect(() => {
+    try { sessionStorage.setItem('team-filter', selectedTeamFilter); } catch {}
+  }, [selectedTeamFilter]);
+
   const flatMembers = useMemo(() => {
     let members = profilesRaw.filter(p => p.status !== 'nlc');
+    // Team filter
+    if (selectedTeamFilter !== 'all') {
+      members = members.filter(m => m.team_id === selectedTeamFilter);
+    }
     if (memberSearch) {
       const q = memberSearch.toLowerCase();
       members = members.filter(m =>
@@ -340,7 +352,7 @@ export default function MyTeamPage() {
       }
       return a.full_name.localeCompare(b.full_name);
     });
-  }, [profilesRaw, memberSearch, managerRoles, getProgress]);
+  }, [profilesRaw, memberSearch, selectedTeamFilter, managerRoles, getProgress]);
 
   const handleMemberClick = useCallback((profile: any) => {
     const member: TeamMember = {
@@ -516,15 +528,49 @@ export default function MyTeamPage() {
         {/* ===== MEMBERS VIEW ===== */}
         {viewMode === 'members' && (
           <>
-            <div className="relative mb-6 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                placeholder="Search by name or email..."
-                value={memberSearch}
-                onChange={(e) => setMemberSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-muted/30 border border-border/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
-              />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  placeholder="Search by name or email..."
+                  value={memberSearch}
+                  onChange={(e) => setMemberSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm bg-muted/30 border border-border/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <select
+                    value={selectedTeamFilter}
+                    onChange={(e) => setSelectedTeamFilter(e.target.value)}
+                    className="appearance-none pl-3 pr-8 py-2 text-sm bg-card border border-border/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground cursor-pointer"
+                  >
+                    <option value="all">All Teams</option>
+                    {pillars.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
+                {selectedTeamFilter !== 'all' && (
+                  <button
+                    onClick={() => setSelectedTeamFilter('all')}
+                    className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+                    title="Clear filter"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
+
+            <p className="text-xs text-muted-foreground mb-4">
+              Showing <span className="font-semibold text-foreground">{flatMembers.length}</span> members
+              {selectedTeamFilter !== 'all' && (
+                <> from <span className="font-semibold text-foreground">{pillars.find(p => p.id === selectedTeamFilter)?.name}</span></>
+              )}
+            </p>
 
             {isLoading ? (
               <div className="text-center py-12">
