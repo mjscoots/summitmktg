@@ -8,15 +8,15 @@
   :root {
     /* Dark premium base */
     --background: 220 15% 4%;
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 100%;
 
     /* Card - slightly elevated */
     --card: 220 13% 8%;
-    --card-foreground: 0 0% 98%;
+    --card-foreground: 0 0% 100%;
 
     /* Popover */
     --popover: 220 13% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover-foreground: 0 0% 100%;
 
     /* Primary - Blue accent */
     --primary: 217 91% 60%;
@@ -24,11 +24,11 @@
 
     /* Secondary - Dark panel */
     --secondary: 220 14% 12%;
-    --secondary-foreground: 0 0% 85%;
+    --secondary-foreground: 0 0% 90%;
 
     /* Muted - Subtle dark */
     --muted: 220 14% 14%;
-    --muted-foreground: 220 10% 50%;
+    --muted-foreground: 220 10% 58%;
 
     /* Accent - Blue */
     --accent: 217 91% 60%;
@@ -47,7 +47,7 @@
     --warning-foreground: 0 0% 0%;
 
     /* Borders - Very subtle */
-    --border: 220 13% 15%;
+    --border: 220 13% 18%;
     --input: 220 14% 10%;
     --ring: 217 91% 60%;
 
@@ -61,12 +61,12 @@
 
     /* Sidebar - Premium dark */
     --sidebar-background: 220 16% 3%;
-    --sidebar-foreground: 0 0% 85%;
+    --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 10%;
-    --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 220 13% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 220 13% 14%;
     --sidebar-ring: 217 91% 60%;
   }
 
@@ -100,6 +100,9 @@
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 15px;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: 0 1px 3px hsl(0 0% 0% / 0.4);
   }
 
   h1, h2, h3, h4, h5, h6 {
