@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil } from 'lucide-react';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -218,14 +219,11 @@ export default function TrainingCoursePage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        {/* Back button */}
-        <button
-          onClick={() => navigate('/app/training')}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Training
-        </button>
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={[
+          { label: 'Training', to: '/app/training' },
+          { label: course.title },
+        ]} />
 
         {/* Course Header */}
         <div className="mb-8">

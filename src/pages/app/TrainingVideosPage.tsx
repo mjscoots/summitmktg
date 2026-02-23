@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Video, ChevronLeft, Loader2, Film, Star } from 'lucide-react';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
@@ -115,15 +116,10 @@ export default function TrainingVideosPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/app/training')}
-          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground gap-1.5"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Training
-        </Button>
+        <Breadcrumbs items={[
+          { label: 'Training', to: '/app/training' },
+          { label: 'Videos' },
+        ]} />
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">

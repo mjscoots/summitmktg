@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, CheckCircle, Loader2, Video, Play } from 'lucide-react';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getVideoThumbnailUrl } from '@/lib/videoUtils';
@@ -181,15 +182,11 @@ export default function VideoPlayerPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/app/training/videos')}
-          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground gap-1.5"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Videos
-        </Button>
+        <Breadcrumbs items={[
+          { label: 'Training', to: '/app/training' },
+          { label: 'Videos', to: '/app/training/videos' },
+          { label: video.title },
+        ]} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Video Area */}
