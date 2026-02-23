@@ -2,18 +2,16 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Search, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// GIPHY public beta key (publishable)
-const GIPHY_API_KEY = 'dc6zaTOxFJmzC';
-const GIPHY_SEARCH_URL = 'https://api.giphy.com/v1/gifs/search';
-const GIPHY_TRENDING_URL = 'https://api.giphy.com/v1/gifs/trending';
+const TENOR_API_KEY = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ'; // Google's public Tenor API key
+const TENOR_SEARCH_URL = 'https://tenor.googleapis.com/v2/search';
+const TENOR_FEATURED_URL = 'https://tenor.googleapis.com/v2/featured';
 
 interface GifResult {
   id: string;
   title: string;
-  images: {
-    fixed_height_small: { url: string; width: string; height: string };
-    fixed_height: { url: string; width: string; height: string };
-    original: { url: string };
+  media_formats: {
+    tinygif: { url: string };
+    gif: { url: string };
   };
 }
 
@@ -43,21 +41,29 @@ export function GifPicker({ onSelect, onClose }: GifPickerProps) {
   const fetchGifs = useCallback(async (searchQuery: string) => {
     setLoading(true);
     try {
-      const url = searchQuery.trim()
-        ? `${GIPHY_SEARCH_URL}?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(searchQuery)}&limit=20&rating=pg-13`
-        : `${GIPHY_TRENDING_URL}?api_key=${GIPHY_API_KEY}&limit=20&rating=pg-13`;
-      
-      const res = await fetch(url);
+      const baseUrl = searchQuery.trim() ? TENOR_SEARCH_URL : TENOR_FEATURED_URL;
+      const params = new URLSearchParams({
+        key: TENOR_API_KEY,
+        client_key: 'summit_app',
+        limit: '20',
+        media_filter: 'tinygif,gif',
+        contentfilter: 'medium',
+      });
+      if (searchQuery.trim()) {
+        params.set('q', searchQuery.trim());
+      }
+
+      const res = await fetch(`${baseUrl}?${params}`);
       const data = await res.json();
-      setResults(data.data || []);
+      setResults(data.results || []);
     } catch (err) {
-      console.error('GIPHY fetch error:', err);
+      console.error('Tenor fetch error:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Load trending on mount
+  // Load featured on mount
   useEffect(() => {
     fetchGifs('');
     inputRef.current?.focus();
@@ -116,12 +122,12 @@ export function GifPicker({ onSelect, onClose }: GifPickerProps) {
           results.map((gif) => (
             <button
               key={gif.id}
-              onClick={() => onSelect(gif.images.fixed_height.url)}
+              onClick={() => onSelect(gif.media_formats.gif?.url || gif.media_formats.tinygif?.url)}
               className="rounded-lg overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all group"
               title={gif.title}
             >
               <img
-                src={gif.images.fixed_height_small.url}
+                src={gif.media_formats.tinygif?.url}
                 alt={gif.title}
                 className="w-full h-auto object-cover group-hover:scale-105 transition-transform"
                 loading="lazy"
@@ -131,9 +137,9 @@ export function GifPicker({ onSelect, onClose }: GifPickerProps) {
         )}
       </div>
 
-      {/* GIPHY attribution */}
+      {/* Tenor attribution */}
       <div className="px-3 py-1.5 border-t border-border/30 flex items-center justify-end">
-        <span className="text-[9px] text-muted-foreground/50">Powered by GIPHY</span>
+        <span className="text-[9px] text-muted-foreground/50">Powered by Tenor</span>
       </div>
     </div>
   );
