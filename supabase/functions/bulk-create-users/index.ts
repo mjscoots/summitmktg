@@ -26,6 +26,7 @@ interface UserData {
   direct_manager: string;
   team_name: string;
   password?: string;
+  onboarding_status?: string;
 }
 
 serve(async (req) => {
@@ -155,6 +156,13 @@ serve(async (req) => {
         }
 
         if (authUser?.user) {
+          // Update onboarding_status if provided
+          if (userData.onboarding_status) {
+            await supabaseAdmin
+              .from("profiles")
+              .update({ onboarding_status: userData.onboarding_status })
+              .eq("user_id", authUser.user.id);
+          }
           results.success.push(userData.email);
         }
       } catch (error) {
