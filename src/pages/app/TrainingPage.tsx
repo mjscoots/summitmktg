@@ -9,7 +9,6 @@ import { BookOpen, Users, Bot, Lock, ChevronLeft } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
-import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -148,8 +147,7 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          {/* Elite System Progress */}
-          <EliteProgressBar />
+          {/* Streak Display */}
 
           {/* Streak Display */}
           <div className="mb-6">
@@ -199,8 +197,7 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          {/* Elite System Progress */}
-          <EliteProgressBar />
+          {/* Streak Display */}
 
           {/* Streak Display */}
           <div className="mb-6">
