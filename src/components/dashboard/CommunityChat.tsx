@@ -703,7 +703,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   !grouped && activeChannel !== 'ai-coach' && "border-b border-border/20",
                   isOwnMessage(msg) && "hover:bg-primary/5",
                   msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40",
-                  postOfTheDayId === msg.id && "post-of-the-day"
+                  postOfTheDayId === msg.id && "post-of-the-day",
+                  msg.is_ai && !grouped && (msg.content.includes('NEW CLOSER') || msg.content.includes('DEAL ALERT') || msg.content.includes('BOOTCAMP COMPLETE') || msg.content.includes('FULLY CERTIFIED') || msg.content.includes('Welcome to the team')) && "bot-msg-glow my-1"
                 )}
               >
                 {/* Post of the Day badge */}
