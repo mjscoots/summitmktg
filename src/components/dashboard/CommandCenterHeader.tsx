@@ -4,9 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 interface Stats {
-  activeManagers: number;
-  activeRookies: number;
-  totalActive: number;
+  managerCount: number;
+  rookieCount: number;
+  totalReps: number;
   trainingCompletion: number;
 }
 
@@ -59,124 +59,106 @@ function AnimatedValue({ value, suffix = '' }: AnimatedValueProps) {
 export function CommandCenterHeader() {
   const { profile } = useAuth();
   const [stats, setStats] = useState<Stats>({
-    activeManagers: 0,
-    activeRookies: 0,
-    totalActive: 0,
+    managerCount: 0,
+    rookieCount: 0,
+    totalReps: 0,
     trainingCompletion: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
- 
-   useEffect(() => {
-     const fetchStats = async () => {
-       try {
-         // Get active users (active in last 5 minutes)
-         // Get all active users count  
-          // Use last_active_at within 5 minutes instead of stale is_active_now boolean
-          const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-          const { data: activeProfiles } = await supabase
-            .from('profiles')
-            .select('user_id')
-            .gte('last_active_at', fiveMinAgo);
- 
-         // Get roles for active users
-         const activeUserIds = activeProfiles?.map(p => p.user_id) || [];
-         
-         let managers = 0;
-         let rookies = 0;
-         
-         if (activeUserIds.length > 0) {
-           const { data: roles } = await supabase
-             .from('user_roles')
-             .select('user_id, role')
-             .in('user_id', activeUserIds);
-           
-           const roleMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
-           
-           activeUserIds.forEach(userId => {
-             const role = roleMap.get(userId);
-             if (role === 'manager' || role === 'admin') {
-               managers++;
-             } else {
-               rookies++;
-             }
-           });
-         }
- 
-         // Get rookie training completion
-         const { data: rookieProfiles } = await supabase
-           .from('user_roles')
-           .select('user_id')
-           .eq('role', 'rookie');
- 
-         const rookieUserIds = rookieProfiles?.map(r => r.user_id) || [];
-         let completionTotal = 0;
-         let rookieCount = rookieUserIds.length;
- 
-         if (rookieUserIds.length > 0) {
-           // Get total required lessons (from Learn Your Pitch + Summer Sales Manual)
-           const { data: courses } = await supabase
-             .from('training_courses')
-             .select('id')
-             .in('slug', ['learn-your-pitch', 'summer-sales-manual'])
-             .eq('is_active', true);
- 
-           const courseIds = courses?.map(c => c.id) || [];
-           
-           if (courseIds.length > 0) {
-             const { data: modules } = await supabase
-               .from('training_modules')
-               .select('id')
-               .in('course_id', courseIds)
-               .eq('is_active', true);
- 
-             const moduleIds = modules?.map(m => m.id) || [];
-             
-             if (moduleIds.length > 0) {
-               const { count: totalLessons } = await supabase
-                 .from('training_lessons')
-                 .select('*', { count: 'exact', head: true })
-                 .in('module_id', moduleIds)
-                 .eq('is_active', true);
- 
-               // For each rookie, get their completion percentage
-               for (const userId of rookieUserIds.slice(0, 50)) { // Limit to prevent timeout
-                 const { count: completed } = await supabase
-                   .from('lesson_progress')
-                   .select('*', { count: 'exact', head: true })
-                   .eq('user_id', userId)
-                   .not('completed_at', 'is', null);
- 
-                 if (totalLessons && totalLessons > 0) {
-                   completionTotal += Math.min(100, Math.round(((completed || 0) / totalLessons) * 100));
-                 }
-               }
-             }
-           }
-         }
- 
-         const avgCompletion = rookieCount > 0 ? Math.round(completionTotal / Math.min(rookieCount, 50)) : 0;
- 
-         setStats({
-           activeManagers: managers,
-           activeRookies: rookies,
-           totalActive: activeUserIds.length,
-           trainingCompletion: avgCompletion,
-         });
-       } catch (err) {
-         console.error('Error fetching stats:', err);
-       } finally {
-         setIsLoading(false);
-       }
-     };
- 
-     fetchStats();
-     
-     // Refresh every 30 seconds
-     const interval = setInterval(fetchStats, 30000);
-     return () => clearInterval(interval);
-   }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!profile?.full_name) return;
+      try {
+        // Get full downline using RPC
+        const { data: downline } = await supabase
+          .rpc('get_user_downline', { _manager_name: profile.full_name });
+
+        const members = downline || [];
+        let managers = 0;
+        let rookies = 0;
+
+        members.forEach((m: any) => {
+          if (m.role === 'manager' || m.role === 'admin') {
+            managers++;
+          } else {
+            rookies++;
+          }
+        });
+
+        // Get rookie training completion for downline rookies
+        const rookieUserIds = members.filter((m: any) => m.role === 'rookie').map((m: any) => m.user_id);
+        let avgCompletion = 0;
+
+        if (rookieUserIds.length > 0) {
+          const { data: courses } = await supabase
+            .from('training_courses')
+            .select('id')
+            .in('slug', ['learn-your-pitch', 'summer-sales-manual'])
+            .eq('is_active', true);
+
+          const courseIds = courses?.map(c => c.id) || [];
+          
+          if (courseIds.length > 0) {
+            const { data: modules } = await supabase
+              .from('training_modules')
+              .select('id')
+              .in('course_id', courseIds)
+              .eq('is_active', true);
+
+            const moduleIds = modules?.map(m => m.id) || [];
+            
+            if (moduleIds.length > 0) {
+              const { count: totalLessons } = await supabase
+                .from('training_lessons')
+                .select('*', { count: 'exact', head: true })
+                .in('module_id', moduleIds)
+                .eq('is_active', true);
+
+              if (totalLessons && totalLessons > 0) {
+                // Batch fetch all progress
+                const { data: progressData } = await supabase
+                  .from('lesson_progress')
+                  .select('user_id')
+                  .in('user_id', rookieUserIds)
+                  .not('completed_at', 'is', null);
+
+                const completionMap = new Map<string, number>();
+                (progressData || []).forEach((p: any) => {
+                  completionMap.set(p.user_id, (completionMap.get(p.user_id) || 0) + 1);
+                });
+
+                let completionTotal = 0;
+                rookieUserIds.forEach((uid: string) => {
+                  const completed = completionMap.get(uid) || 0;
+                  completionTotal += Math.min(100, Math.round((completed / totalLessons) * 100));
+                });
+                avgCompletion = Math.round(completionTotal / rookieUserIds.length);
+              }
+            }
+          }
+        }
+
+        setStats({
+          managerCount: managers,
+          rookieCount: rookies,
+          totalReps: members.length,
+          trainingCompletion: avgCompletion,
+        });
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+    
+    const interval = setInterval(fetchStats, 60000);
+    return () => clearInterval(interval);
+  }, [profile?.full_name]);
  
   return (
     <div className="mb-6">
@@ -223,15 +205,15 @@ export function CommandCenterHeader() {
       <div className="flex items-center justify-center flex-wrap gap-4 md:gap-6 text-sm py-2 border-b border-border/30">
         <StatusItem 
           icon={<Users className="w-3.5 h-3.5" />}
-          label="Active Managers"
-          value={stats.activeManagers}
+          label="Managers"
+          value={stats.managerCount}
           isLoading={isLoading}
         />
         <Divider />
         <StatusItem 
           icon={<UserCheck className="w-3.5 h-3.5" />}
-          label="Active Rookies"
-          value={stats.activeRookies}
+          label="Rookies"
+          value={stats.rookieCount}
           isLoading={isLoading}
         />
         <Divider />
