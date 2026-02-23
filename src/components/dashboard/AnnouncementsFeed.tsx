@@ -113,6 +113,18 @@ export function AnnouncementsFeed() {
         return;
       }
 
+      // Also post to chat announcements channel so it appears in community chat
+      try {
+        if (user?.id) {
+          await supabase.from('chat_messages').insert({
+            user_id: user.id,
+            content: `📢 **${newTitle.trim()}**\n\n${newContent.trim()}`,
+            is_ai: true,
+            channel: 'announcements',
+          });
+        }
+      } catch { /* non-critical */ }
+
       toast.success('Announcement posted!');
       setNewTitle('');
       setNewContent('');

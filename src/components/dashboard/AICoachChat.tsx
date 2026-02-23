@@ -136,58 +136,18 @@ export function AICoachChat() {
     if (!input.trim() || isLoading || isSendingChat) return;
 
     if (activeTab === 'chat') {
-      // Send to community chat
+      // Send to community chat (no @coach AI commands — AI coach is private)
       if (!user) return;
       const content = input.trim();
-      const isAiCommand = content.startsWith('@coach');
       setInput('');
       setIsSendingChat(true);
 
       try {
         await supabase.from('chat_messages').insert({
           user_id: user.id,
-          content: isAiCommand ? content.replace('@coach', '').trim() : content,
+          content,
           is_ai: false,
         });
-
-        if (isAiCommand) {
-          const userQuestion = content.replace('@coach', '').trim();
-          const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-              },
-              body: JSON.stringify({ messages: [{ role: 'user', content: userQuestion }] }),
-            }
-          );
-          if (response.ok && response.body) {
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let aiContent = '';
-            let textBuffer = '';
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              textBuffer += decoder.decode(value, { stream: true });
-              let idx: number;
-              while ((idx = textBuffer.indexOf('\n')) !== -1) {
-                let line = textBuffer.slice(0, idx);
-                textBuffer = textBuffer.slice(idx + 1);
-                if (line.endsWith('\r')) line = line.slice(0, -1);
-                if (!line.startsWith('data: ')) continue;
-                const json = line.slice(6).trim();
-                if (json === '[DONE]') break;
-                try { const p = JSON.parse(json); const c = p.choices?.[0]?.delta?.content; if (c) aiContent += c; } catch { textBuffer = line + '\n' + textBuffer; break; }
-              }
-            }
-            if (aiContent) {
-              await supabase.from('chat_messages').insert({ user_id: user.id, content: aiContent, is_ai: true });
-            }
-          }
-        }
       } catch { toast.error('Failed to send'); } finally { setIsSendingChat(false); }
       return;
     }

@@ -98,6 +98,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
   const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
+  const [localAiMessages, setLocalAiMessages] = useState<ChatMessage[]>([]);
   const [showStickers, setShowStickers] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
@@ -217,7 +218,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   }, [user?.id, onNewMessage, profileMap, activeChannel]);
 
   // Scroll on channel change or new messages in active channel
-  const channelMessages = messages.filter(m => m.channel === activeChannel);
+  const channelMessages = activeChannel === 'ai-coach' 
+    ? localAiMessages 
+    : messages.filter(m => m.channel === activeChannel);
   useEffect(() => {
     scrollToBottom(false);
   }, [channelMessages.length, activeChannel, scrollToBottom]);
@@ -238,7 +241,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     if (!input.trim() || isSending || !user) return;
 
     const content = input.trim();
-    const sendChannel = activeChannel === 'ai-coach' ? 'ai-coach' : activeChannel;
     const isAiChannel = activeChannel === 'ai-coach';
     setInput('');
     stopTyping();
@@ -247,32 +249,32 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setReplyingTo(null);
 
     try {
-      const { data: insertedMsg, error } = await supabase.from('chat_messages').insert({
-        user_id: user.id,
-        content,
-        is_ai: false,
-        reply_to: currentReplyTo,
-        channel: sendChannel,
-      }).select('id').single();
-
-      if (error) throw error;
-
       if (isAiChannel) {
+        // AI Coach is private — messages stay in local state only
+        const localUserMsg: ChatMessage = {
+          id: `local-${Date.now()}`,
+          user_id: user.id,
+          content,
+          is_ai: false,
+          channel: 'ai-coach',
+          created_at: new Date().toISOString(),
+          reply_to: null,
+          is_pinned: false,
+        };
+        setLocalAiMessages(prev => [...prev, localUserMsg]);
+
         setIsAiLoading(true);
         try {
           const { data: { session: currentSession } } = await supabase.auth.getSession();
           const accessToken = currentSession?.access_token;
           if (!accessToken) throw new Error('Not authenticated');
 
-          // Build conversation history from recent ai-coach messages for context
-          const recentAiMessages = messages
-            .filter(m => m.channel === 'ai-coach')
+          const recentAiMessages = localAiMessages
             .slice(-10)
             .map(m => ({
               role: m.is_ai ? 'assistant' as const : 'user' as const,
               content: m.content,
             }));
-          // Add current message
           recentAiMessages.push({ role: 'user', content });
 
           const response = await fetch(
@@ -284,65 +286,56 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 Authorization: `Bearer ${accessToken}`,
                 apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
               },
-              body: JSON.stringify({
-                messages: recentAiMessages,
-              }),
+              body: JSON.stringify({ messages: recentAiMessages }),
             }
           );
 
-            if (!response.ok) throw new Error('AI request failed');
+          if (!response.ok) throw new Error('AI request failed');
 
-            const reader = response.body?.getReader();
-            if (!reader) throw new Error('No response body');
+          const reader = response.body?.getReader();
+          if (!reader) throw new Error('No response body');
 
-            const decoder = new TextDecoder();
-            let aiContent = '';
-            let textBuffer = '';
+          const decoder = new TextDecoder();
+          let aiContent = '';
+          let textBuffer = '';
 
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              textBuffer += decoder.decode(value, { stream: true });
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            textBuffer += decoder.decode(value, { stream: true });
 
-              let newlineIndex: number;
-              while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-                let line = textBuffer.slice(0, newlineIndex);
-                textBuffer = textBuffer.slice(newlineIndex + 1);
-                if (line.endsWith('\r')) line = line.slice(0, -1);
-                if (line.startsWith(':') || line.trim() === '') continue;
-                if (!line.startsWith('data: ')) continue;
-                const jsonStr = line.slice(6).trim();
-                if (jsonStr === '[DONE]') break;
-                try {
-                  const parsed = JSON.parse(jsonStr);
-                  const c = parsed.choices?.[0]?.delta?.content;
-                  if (c) aiContent += c;
-                } catch {
-                  textBuffer = line + '\n' + textBuffer;
-                  break;
-                }
+            let newlineIndex: number;
+            while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+              let line = textBuffer.slice(0, newlineIndex);
+              textBuffer = textBuffer.slice(newlineIndex + 1);
+              if (line.endsWith('\r')) line = line.slice(0, -1);
+              if (line.startsWith(':') || line.trim() === '') continue;
+              if (!line.startsWith('data: ')) continue;
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === '[DONE]') break;
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const c = parsed.choices?.[0]?.delta?.content;
+                if (c) aiContent += c;
+              } catch {
+                textBuffer = line + '\n' + textBuffer;
+                break;
               }
             }
+          }
 
           if (aiContent) {
-            // Prevent duplicate bot messages by checking if this exact content was just posted
-            const { data: existing } = await supabase
-              .from('chat_messages')
-              .select('id')
-              .eq('is_ai', true)
-              .eq('channel', 'ai-coach')
-              .eq('content', aiContent)
-              .gte('created_at', new Date(Date.now() - 30000).toISOString())
-              .limit(1);
-
-            if (!existing?.length) {
-              await supabase.from('chat_messages').insert({
-                user_id: user.id,
-                content: aiContent,
-                is_ai: true,
-                channel: 'ai-coach',
-              });
-            }
+            const localAiMsg: ChatMessage = {
+              id: `local-ai-${Date.now()}`,
+              user_id: user.id,
+              content: aiContent,
+              is_ai: true,
+              channel: 'ai-coach',
+              created_at: new Date().toISOString(),
+              reply_to: null,
+              is_pinned: false,
+            };
+            setLocalAiMessages(prev => [...prev, localAiMsg]);
           }
         } catch (aiError) {
           console.error('AI error:', aiError);
@@ -350,6 +343,17 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         } finally {
           setIsAiLoading(false);
         }
+      } else {
+        // Regular channel — save to DB
+        const { error } = await supabase.from('chat_messages').insert({
+          user_id: user.id,
+          content,
+          is_ai: false,
+          reply_to: currentReplyTo,
+          channel: activeChannel,
+        }).select('id').single();
+
+        if (error) throw error;
       }
     } catch (error) {
       console.error('Send error:', error);
