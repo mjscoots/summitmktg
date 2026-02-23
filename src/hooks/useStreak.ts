@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { postBotShoutout } from '@/lib/botShoutout';
 
 interface StreakData {
   currentStreak: number;
@@ -80,6 +81,18 @@ export function useStreak() {
                 link: '/app/leaderboard',
               });
             } catch { /* ignore */ }
+
+            // Post bot shoutout in community chat for big streaks (7+)
+            if (result.current_streak >= 7) {
+              const { data: prof } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('user_id', user.id)
+                .single();
+              if (prof?.full_name) {
+                postBotShoutout(user.id, prof.full_name, 'streak', result.current_streak);
+              }
+            }
           }
         }
       } catch (err) {

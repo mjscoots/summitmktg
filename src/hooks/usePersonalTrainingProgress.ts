@@ -202,6 +202,21 @@ export function usePersonalTrainingProgress() {
 
       console.log('Training Progress Result:', { overallProgress, isComplete: overallProgress === 100 });
 
+      // Post bot shoutout when training hits 100%
+      if (overallProgress === 100 && user?.id) {
+        try {
+          const { data: prof } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('user_id', user.id)
+            .single();
+          if (prof?.full_name) {
+            const { postBotShoutout } = await import('@/lib/botShoutout');
+            postBotShoutout(user.id, prof.full_name, 'training');
+          }
+        } catch { /* non-critical */ }
+      }
+
       setProgress({
         overall: overallProgress,
         courses: courseProgress,
