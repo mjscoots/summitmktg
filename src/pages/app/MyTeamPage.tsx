@@ -498,7 +498,7 @@ export default function MyTeamPage() {
               <PillarTreeView
                 pillar={selectedPillarData}
                 tree={selectedTree}
-                roster={enrichedRoster}
+                roster={enrichedRoster.filter(m => m.pillar === selectedPillar)}
                 onBack={() => setSelectedPillar(null)}
                 logoUrl={pillars.find(p => p.slug === selectedPillar)?.logo_url}
                 onDataChange={() => fetchData()}
