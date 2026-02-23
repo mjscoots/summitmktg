@@ -1,20 +1,23 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { useOneOnOnePrep, PrepRep } from '@/hooks/useOneOnOnePrep';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { createTasksFromRookieForm } from '@/hooks/usePriorityTasks';
+import { createTasksFromRookieForm, createTasksFromManagerForm } from '@/hooks/usePriorityTasks';
 import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList';
 import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
+import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ArrowLeft, ArrowRight, Save, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const DRAFT_PREFIX = 'one-on-one-draft-';
+const MGR_DRAFT_PREFIX = 'one-on-one-mgr-draft-';
 
 export interface PrepFormData {
   week_description: string;
@@ -37,16 +40,22 @@ const initialFormData: PrepFormData = {
 export default function OneOnOnePrepPage() {
   const { user, profile } = useAuth();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const mode = (searchParams.get('mode') === 'manager' ? 'manager' : 'rookie') as 'rookie' | 'manager';
+
   const {
     reps, needsAttention, onTrack, teamName,
     loading, lastMonday, lastSunday, refresh,
-  } = useOneOnOnePrep();
+  } = useOneOnOnePrep(mode);
 
   const [selectedRepId, setSelectedRepId] = useState<string | null>(null);
   const [completedRepIds, setCompletedRepIds] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState<PrepFormData>(initialFormData);
+  const [mgrFormData, setMgrFormData] = useState<ManagerPrepFormData>(initialManagerPrepFormData);
   const [submitting, setSubmitting] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'data' | 'form'>('data');
+
+  const draftPrefix = mode === 'manager' ? MGR_DRAFT_PREFIX : DRAFT_PREFIX;
 
   const selectedRep = reps.find(r => r.user_id === selectedRepId) || null;
   const currentIndex = selectedRep ? reps.indexOf(selectedRep) : -1;
@@ -56,27 +65,36 @@ export default function OneOnOnePrepPage() {
   // Load draft on rep selection
   useEffect(() => {
     if (!selectedRepId) return;
-    const draft = localStorage.getItem(DRAFT_PREFIX + selectedRepId);
+    const draft = localStorage.getItem(draftPrefix + selectedRepId);
     if (draft) {
       try {
-        setFormData(JSON.parse(draft));
-      } catch { setFormData(initialFormData); }
+        const parsed = JSON.parse(draft);
+        if (mode === 'manager') setMgrFormData(parsed);
+        else setFormData(parsed);
+      } catch {
+        if (mode === 'manager') setMgrFormData(initialManagerPrepFormData);
+        else setFormData(initialFormData);
+      }
     } else {
-      setFormData(initialFormData);
+      if (mode === 'manager') setMgrFormData(initialManagerPrepFormData);
+      else setFormData(initialFormData);
     }
-  }, [selectedRepId]);
+  }, [selectedRepId, mode]);
 
   // Auto-save draft every 30s
   useEffect(() => {
     if (!selectedRepId) return;
+    const data = mode === 'manager' ? mgrFormData : formData;
     const interval = setInterval(() => {
-      const hasContent = Object.values(formData).some(v => v.trim().length > 0);
+      const hasContent = Object.values(data).some(v =>
+        typeof v === 'string' ? v.trim().length > 0 : Array.isArray(v) ? v.length > 0 : false
+      );
       if (hasContent) {
-        localStorage.setItem(DRAFT_PREFIX + selectedRepId, JSON.stringify(formData));
+        localStorage.setItem(draftPrefix + selectedRepId, JSON.stringify(data));
       }
     }, 30000);
     return () => clearInterval(interval);
-  }, [selectedRepId, formData]);
+  }, [selectedRepId, formData, mgrFormData, mode]);
 
   const handleSelectRep = (userId: string) => {
     setSelectedRepId(userId);
@@ -85,9 +103,8 @@ export default function OneOnOnePrepPage() {
 
   const handleBack = () => setSelectedRepId(null);
 
-  const handleSubmit = async () => {
+  const handleSubmitRookie = async () => {
     if (!user?.id || !selectedRep || !profile) return;
-    // Validate
     const required = ['week_description', 'big_win', 'completed_challenge', 'upcoming_activities', 'pitch_work_needed', 'weekly_mission'] as const;
     for (const field of required) {
       if (!formData[field].trim()) {
@@ -98,9 +115,7 @@ export default function OneOnOnePrepPage() {
 
     setSubmitting(true);
     try {
-      // Get team name for the rep
       let teamNameForForm = selectedRep.team_name || teamName || '';
-      
       const { data: submission, error } = await supabase
         .from('weekly_one_on_ones_rookie')
         .insert({
@@ -122,30 +137,15 @@ export default function OneOnOnePrepPage() {
 
       if (error) throw error;
 
-      // Create priority tasks
       const tasksCreated = await createTasksFromRookieForm(
-        selectedRep.user_id,
-        submission.id,
-        user.id,
-        formData.pitch_work_needed,
-        formData.weekly_mission
+        selectedRep.user_id, submission.id, user.id,
+        formData.pitch_work_needed, formData.weekly_mission
       );
 
-      // Clear draft
-      localStorage.removeItem(DRAFT_PREFIX + selectedRepId);
-
-      // Mark completed
+      localStorage.removeItem(draftPrefix + selectedRepId);
       setCompletedRepIds(prev => new Set([...prev, selectedRep.user_id]));
-
       toast.success(`1:1 submitted for ${selectedRep.full_name}! ${tasksCreated} tasks created.`);
-
-      // Auto-advance
-      if (nextRep) {
-        setSelectedRepId(nextRep.user_id);
-      } else {
-        setSelectedRepId(null);
-        toast.success('🎉 All 1:1s completed!');
-      }
+      advanceToNext();
     } catch (err) {
       console.error('Error submitting 1:1:', err);
       toast.error('Failed to submit. Please try again.');
@@ -154,11 +154,81 @@ export default function OneOnOnePrepPage() {
     }
   };
 
+  const handleSubmitManager = async () => {
+    if (!user?.id || !selectedRep || !profile) return;
+    const required = ['rep_relationship', 'obstacles_encountered', 'obstacles_review', 'completed_mission', 'weekly_mission', 'recruit_goal', 'gethawx_review', 'training_progress_check', 'interview_forms_check', 'upcoming_events', 'manager_improvement'] as const;
+    for (const field of required) {
+      if (!mgrFormData[field].trim()) {
+        toast.error('Please fill out all fields');
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    try {
+      let teamNameForForm = selectedRep.team_name || teamName || '';
+      const { data: submission, error } = await supabase
+        .from('weekly_one_on_ones_manager')
+        .insert({
+          manager_name: selectedRep.full_name,
+          manager_user_id: selectedRep.user_id,
+          interviewer_name: profile.full_name,
+          team: teamNameForForm,
+          rep_relationship: mgrFormData.rep_relationship,
+          obstacles_encountered: mgrFormData.obstacles_encountered,
+          obstacles_review: mgrFormData.obstacles_review,
+          completed_mission: mgrFormData.completed_mission,
+          weekly_mission: mgrFormData.weekly_mission,
+          recruit_goal: mgrFormData.recruit_goal,
+          gethawx_review: mgrFormData.gethawx_review,
+          training_progress_check: mgrFormData.training_progress_check,
+          interview_forms_check: mgrFormData.interview_forms_check,
+          upcoming_events: mgrFormData.upcoming_events,
+          team_development: mgrFormData.team_development,
+          system_utilization_rating: mgrFormData.system_utilization_rating,
+          manager_improvement: mgrFormData.manager_improvement,
+          submitted_by: user.id,
+          submitted_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+
+      if (error) throw error;
+
+      const tasksCreated = await createTasksFromManagerForm(
+        selectedRep.user_id, submission.id, user.id,
+        mgrFormData.weekly_mission, mgrFormData.recruit_goal
+      );
+
+      localStorage.removeItem(draftPrefix + selectedRepId);
+      setCompletedRepIds(prev => new Set([...prev, selectedRep.user_id]));
+      toast.success(`Manager 1:1 submitted for ${selectedRep.full_name}! ${tasksCreated} tasks created.`);
+      advanceToNext();
+    } catch (err) {
+      console.error('Error submitting manager 1:1:', err);
+      toast.error('Failed to submit. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const advanceToNext = () => {
+    if (nextRep) {
+      setSelectedRepId(nextRep.user_id);
+    } else {
+      setSelectedRepId(null);
+      toast.success('🎉 All 1:1s completed!');
+    }
+  };
+
   const saveDraft = () => {
     if (!selectedRepId) return;
-    localStorage.setItem(DRAFT_PREFIX + selectedRepId, JSON.stringify(formData));
+    const data = mode === 'manager' ? mgrFormData : formData;
+    localStorage.setItem(draftPrefix + selectedRepId, JSON.stringify(data));
     toast.success('Draft saved');
   };
+
+  const modeLabel = mode === 'manager' ? 'Manager' : 'Rookie';
 
   if (!selectedRep) {
     return (
@@ -166,7 +236,7 @@ export default function OneOnOnePrepPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="mb-6">
             <h1 className="text-xl font-bold text-foreground">
-              Monday 1:1 Prep — {teamName}
+              {modeLabel} 1:1 Prep — {teamName}
             </h1>
             <p className="text-sm text-muted-foreground">
               Week of {format(lastMonday, 'MMM d')} – {format(lastSunday, 'MMM d, yyyy')}
@@ -246,14 +316,25 @@ export default function OneOnOnePrepPage() {
               ? mobilePanel === 'form' ? 'w-full' : 'hidden'
               : ''
           )}>
-            <PrepForm
-              rep={selectedRep}
-              formData={formData}
-              setFormData={setFormData}
-              onSubmit={handleSubmit}
-              submitting={submitting}
-              nextRepName={nextRep?.full_name}
-            />
+            {mode === 'manager' ? (
+              <ManagerPrepForm
+                rep={selectedRep}
+                formData={mgrFormData}
+                setFormData={setMgrFormData}
+                onSubmit={handleSubmitManager}
+                submitting={submitting}
+                nextRepName={nextRep?.full_name}
+              />
+            ) : (
+              <PrepForm
+                rep={selectedRep}
+                formData={formData}
+                setFormData={setFormData}
+                onSubmit={handleSubmitRookie}
+                submitting={submitting}
+                nextRepName={nextRep?.full_name}
+              />
+            )}
           </div>
         </div>
 
