@@ -49,6 +49,7 @@ const ManagerTrainingVideosPage = lazy(() => import("./pages/app/ManagerTraining
 const AdminTeamPage = lazy(() => import("./pages/app/AdminTeamPage"));
 const VideoPlayerPage = lazy(() => import("./pages/app/VideoPlayerPage"));
 const ChatPage = lazy(() => import("./pages/app/ChatPage"));
+const LinksPage = lazy(() => import("./pages/app/LinksPage"));
 
 function LazyFallback() {
   return (
@@ -239,8 +240,17 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Calendar */}
-              <Route path="/app/calendar" element={
+               {/* Links */}
+               <Route path="/app/links" element={
+                 <ProtectedRoute>
+                   <BootcampGate>
+                     <LinksPage />
+                   </BootcampGate>
+                 </ProtectedRoute>
+               } />
+
+               {/* Calendar */}
+               <Route path="/app/calendar" element={
                 <ProtectedRoute>
                   <BootcampGate>
                     <CalendarPage />

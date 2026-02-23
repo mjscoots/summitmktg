@@ -18,6 +18,7 @@ import { Card } from '@/components/ui/card';
 import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
+import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
  
  export default function DashboardPage() {
    const navigate = useNavigate();
@@ -41,8 +42,11 @@ import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
    return (
      <AppLayout>
         <div className="max-w-5xl mx-auto px-4 py-6">
-          {/* Elite System Progress */}
-          <EliteProgressBar />
+           {/* Onboarding Alert */}
+           <OnboardingAlert />
+
+           {/* Elite System Progress */}
+           <EliteProgressBar />
 
           {/* Manager gets Command Center, Rookies get simple greeting */}
          {isManager ? (
