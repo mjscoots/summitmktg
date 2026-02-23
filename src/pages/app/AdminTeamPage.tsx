@@ -9,13 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
 const LazyRosterSync = lazy(() => import('@/components/admin/RosterSyncTab'));
+const LazyMassImport = lazy(() => import('@/components/admin/MassImportTab'));
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -129,7 +130,7 @@ export default function AdminTeamPage() {
     setLoading(true);
 
     const [profilesRes, bootcampRes, roleRes, teamsRes, settingsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('*'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('teams').select('id, name, slug, created_at, leader_id').order('name'),
@@ -518,6 +519,9 @@ export default function AdminTeamPage() {
             <TabsTrigger value="roster-sync" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster Sync
             </TabsTrigger>
+            <TabsTrigger value="mass-import" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Upload className="w-3.5 h-3.5 mr-1" /> Mass Import
+            </TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
             )}
@@ -823,8 +827,20 @@ export default function AdminTeamPage() {
           <TabsContent value="roster-sync">
             <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
               <LazyRosterSync
-                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status }))}
+                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url }))}
                 managers={managers}
+                onRefresh={fetchData}
+              />
+            </Suspense>
+          </TabsContent>
+
+          {/* ========== MASS IMPORT TAB ========== */}
+          <TabsContent value="mass-import">
+            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyMassImport
+                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email }))}
+                managers={managers}
+                teams={teamsSimple}
                 onRefresh={fetchData}
               />
             </Suspense>
