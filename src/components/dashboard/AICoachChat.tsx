@@ -59,6 +59,23 @@ export function AICoachChat() {
     }
   }, [isOpen, isMinimized, activeTab]);
 
+  // Load previous AI coach conversations on mount
+  useEffect(() => {
+    if (!user) return;
+    const loadHistory = async () => {
+      const { data } = await supabase
+        .from('ai_coach_conversations')
+        .select('role, content')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(50);
+      if (data?.length) {
+        setMessages(data.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })));
+      }
+    };
+    loadHistory();
+  }, [user]);
+
   // Fetch recent chat messages for preview
   useEffect(() => {
     const fetchRecent = async () => {
@@ -169,7 +186,10 @@ export function AICoachChat() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: [...messages, userMessage] }),
+          body: JSON.stringify({ 
+            messages: [...messages, userMessage],
+            save_messages: { user: userMessage.content },
+          }),
         }
       );
 
@@ -215,6 +235,15 @@ export function AICoachChat() {
             break;
           }
         }
+      }
+
+      // Save assistant response to conversation history
+      if (assistantContent && user) {
+        supabase.from('ai_coach_conversations').insert({
+          user_id: user.id,
+          role: 'assistant',
+          content: assistantContent.slice(0, 2000),
+        }).then(() => {});
       }
     } catch (error) {
       console.error('AI Coach error:', error);
