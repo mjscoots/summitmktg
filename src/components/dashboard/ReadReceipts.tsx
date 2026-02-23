@@ -26,6 +26,23 @@ interface ReadReceiptsProps {
 export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadReceiptsProps) {
   const { user } = useAuth();
   const [receipts, setReceipts] = useState<ReadReceipt[]>([]);
+  const [allProfiles, setAllProfiles] = useState<Record<string, ProfileInfo>>({});
+
+  // Fetch ALL active profiles for accurate "Not Seen" count
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .neq('status', 'nlc');
+      if (data) {
+        const map: Record<string, ProfileInfo> = {};
+        data.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+        setAllProfiles(map);
+      }
+    };
+    fetchAll();
+  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -62,14 +79,17 @@ export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadRecei
     return () => { supabase.removeChannel(channel); };
   }, [messageId, user?.id]);
 
-  // Compute "not seen" users from profileMap minus receipts minus self
+  // Merge profileMap + allProfiles for lookups, use allProfiles for "not seen"
+  const mergedProfiles = useMemo(() => ({ ...allProfiles, ...profileMap }), [allProfiles, profileMap]);
+
+  // Compute "not seen" users from ALL active profiles minus receipts minus self
   const notSeenUsers = useMemo(() => {
     const seenIds = new Set(receipts.map(r => r.user_id));
-    return Object.entries(profileMap)
+    return Object.entries(allProfiles)
       .filter(([uid]) => uid !== user?.id && !seenIds.has(uid))
       .map(([uid, p]) => ({ user_id: uid, full_name: p.full_name, avatar_url: p.avatar_url }))
       .sort((a, b) => a.full_name.localeCompare(b.full_name));
-  }, [profileMap, receipts, user?.id]);
+  }, [allProfiles, receipts, user?.id]);
 
   if (!isLastInGroup || receipts.length === 0) return null;
 
@@ -85,7 +105,7 @@ export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadRecei
           </span>
           <div className="flex -space-x-1.5">
             {displayReceipts.map(r => {
-              const p = profileMap[r.user_id];
+              const p = mergedProfiles[r.user_id];
               return (
                 <div
                   key={r.user_id}
@@ -133,7 +153,7 @@ export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadRecei
                 <div className="px-3 py-3 text-xs text-muted-foreground text-center">No one yet</div>
               )}
               {receipts.map(r => {
-                const p = profileMap[r.user_id];
+                const p = mergedProfiles[r.user_id];
                 return (
                   <div key={r.user_id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted/40">
                     <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
