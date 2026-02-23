@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 
 const AGREEMENT_TEXT = `COMMITMENT AGREEMENT
 
@@ -167,6 +168,10 @@ export default function BootcampPhase3() {
   return (
     <div className="min-h-screen bg-black px-4 py-12">
       <div className="w-full max-w-2xl mx-auto">
+        <Breadcrumbs items={[
+          { label: 'Bootcamp', to: '/bootcamp/momentum' },
+          { label: 'Phase 3' },
+        ]} />
         <PhaseIndicator current={10} progress={progress} />
 
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-10">
