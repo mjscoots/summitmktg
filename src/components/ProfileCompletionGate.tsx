@@ -160,26 +160,6 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
       if (error) throw error;
 
-      // Post a welcome announcement in community chat (only if none exists yet)
-      try {
-        const { data: existing } = await supabase
-          .from('chat_messages')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('is_ai', true)
-          .ilike('content', '%Welcome%to the team%')
-          .limit(1);
-
-        if (!existing?.length) {
-          await supabase.from('chat_messages').insert({
-            user_id: user.id,
-            is_ai: true,
-            content: `👋 Welcome **${fullName}** to the team! 🚀`,
-          });
-        }
-      } catch {
-        // Non-critical
-      }
 
       setIsComplete(true);
       toast.success('Profile complete! Welcome aboard.');

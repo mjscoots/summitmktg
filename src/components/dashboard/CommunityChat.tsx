@@ -159,6 +159,25 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       }
 
       setMessages((data || []).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
+
+      // Welcome bot message on very first chat visit
+      if (user) {
+        const userMessages = (data || []).filter(m => m.user_id === user.id);
+        const hasAnyActivity = userMessages.length > 0;
+        if (!hasAnyActivity) {
+          const alreadyWelcomed = sessionStorage.getItem(`chat_welcomed_${user.id}`);
+          if (!alreadyWelcomed) {
+            sessionStorage.setItem(`chat_welcomed_${user.id}`, 'true');
+            const name = profile?.full_name || 'there';
+            supabase.from('chat_messages').insert({
+              user_id: user.id,
+              is_ai: true,
+              content: `🚀 **NEW CLOSER ENTERED THE BUILDING**\n${name} just joined the team. Let's see what they're made of. 💪`,
+              channel: 'general',
+            }).then(() => {});
+          }
+        }
+      }
     };
 
     fetchMessages();
