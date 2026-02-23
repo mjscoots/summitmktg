@@ -4,7 +4,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { Shield, Award, Star, Mountain, ChevronDown, ChevronUp, Flame, BookOpen, Target, Zap } from 'lucide-react';
+import { Shield, Award, Star, Mountain, ChevronDown, ChevronUp, Flame, BookOpen, Zap } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -62,30 +62,16 @@ export function EliteProgressBar() {
   const { streakData } = useStreak();
   const { user, role } = useAuth();
   const [expanded, setExpanded] = useState(false);
-  const [bootcampPct, setBootcampPct] = useState(0);
   const [formsPct, setFormsPct] = useState(0);
   const [animatedPct, setAnimatedPct] = useState(0);
   const prevPctRef = useRef(0);
 
-  // Fetch bootcamp & forms completion
+  // Fetch forms completion
   useEffect(() => {
     const fetchExtras = async () => {
       if (!user?.id) return;
 
-      const [bootcampRes, formsRes] = await Promise.all([
-        supabase.from('bootcamp_progress').select('phase_1_complete, phase_2_complete, phase_3_complete, bootcamp_completed').eq('user_id', user.id).maybeSingle(),
-        supabase.from('user_priority_tasks').select('id, is_completed').eq('user_id', user.id).eq('is_active', true),
-      ]);
-
-      // Bootcamp %
-      if (bootcampRes.data) {
-        const bp = bootcampRes.data;
-        if (bp.bootcamp_completed) setBootcampPct(100);
-        else {
-          const phases = [bp.phase_1_complete, bp.phase_2_complete, bp.phase_3_complete].filter(Boolean).length;
-          setBootcampPct(Math.round((phases / 3) * 100));
-        }
-      }
+      const formsRes = await supabase.from('user_priority_tasks').select('id, is_completed').eq('user_id', user.id).eq('is_active', true);
 
       // Forms %
       const tasks = formsRes.data || [];
@@ -93,7 +79,7 @@ export function EliteProgressBar() {
         const completed = tasks.filter(t => t.is_completed).length;
         setFormsPct(Math.round((completed / tasks.length) * 100));
       } else {
-        setFormsPct(100); // No tasks = nothing to do
+        setFormsPct(100);
       }
     };
 
@@ -104,12 +90,11 @@ export function EliteProgressBar() {
   const trainingPct = progress.overall;
   const streakPct = Math.min(streakData.currentStreak * 10, 100); // 10 days = 100%
 
-  // Weighted system completion
+  // Weighted system completion (Training 60%, Forms 20%, Streak 20%)
   const systemPct = Math.round(
-    trainingPct * 0.50 +
-    bootcampPct * 0.20 +
-    formsPct * 0.15 +
-    streakPct * 0.15
+    trainingPct * 0.60 +
+    formsPct * 0.20 +
+    streakPct * 0.20
   );
 
   // Animate the bar
@@ -144,7 +129,6 @@ export function EliteProgressBar() {
 
   const breakdown: BreakdownItem[] = [
     { label: 'Training', value: trainingPct, icon: <BookOpen className="w-3.5 h-3.5" />, color: 'text-success' },
-    { label: 'Bootcamp', value: bootcampPct, icon: <Target className="w-3.5 h-3.5" />, color: 'text-primary' },
     { label: 'Forms', value: formsPct, icon: <Zap className="w-3.5 h-3.5" />, color: 'text-yellow-400' },
     { label: 'Streak', value: streakPct, icon: <Flame className="w-3.5 h-3.5" />, color: 'text-orange-400' },
   ];
@@ -239,7 +223,7 @@ export function EliteProgressBar() {
       {/* Expanded breakdown */}
       {expanded && (
         <div className="px-4 pb-3 pt-1 border-t border-border/30 animate-fade-in">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {breakdown.map(item => (
               <div key={item.label} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
                 <div className={cn("flex-shrink-0", item.color)}>{item.icon}</div>
