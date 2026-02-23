@@ -440,15 +440,26 @@ Deno.serve(async (req) => {
           await delay(600);
         }
 
-        // Create in-app notification for pillar
-        if (user.pillar_leader) {
-          await supabase.from("user_notifications").insert({
-            user_id: user.pillar_leader.user_id,
-            title: "Team Inactivity Alert",
-            message: `${user.full_name} has been inactive for ${dayCount} days`,
-            link: "/app/team",
-          });
-          notificationsCreated++;
+        // Create in-app notification for pillar (skip if pillar IS the inactive user)
+        if (user.pillar_leader && user.pillar_leader.user_id !== user.user_id) {
+          // Dedup: skip if a similar notification was already created today
+          const todayStr = new Date().toISOString().split("T")[0];
+          const { count: existingNotif } = await supabase
+            .from("user_notifications")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.pillar_leader.user_id)
+            .ilike("message", `%${user.full_name}%inactive%`)
+            .gt("created_at", todayStr);
+
+          if (!existingNotif || existingNotif === 0) {
+            await supabase.from("user_notifications").insert({
+              user_id: user.pillar_leader.user_id,
+              title: "Team Inactivity Alert",
+              message: `${user.full_name} has been inactive for ${dayCount} days`,
+              link: "/app/team",
+            });
+            notificationsCreated++;
+          }
         }
 
         // Mark day 3 sent
@@ -521,15 +532,25 @@ Deno.serve(async (req) => {
           await delay(600);
         }
 
-        // Update in-app notification
-        if (user.pillar_leader) {
-          await supabase.from("user_notifications").insert({
-            user_id: user.pillar_leader.user_id,
-            title: "Team Inactivity Alert",
-            message: `${user.full_name} still inactive (${dayCount} days) - follow-up sent`,
-            link: "/app/team",
-          });
-          notificationsCreated++;
+        // Update in-app notification (skip self-notification)
+        if (user.pillar_leader && user.pillar_leader.user_id !== user.user_id) {
+          const todayStr = new Date().toISOString().split("T")[0];
+          const { count: existingNotif } = await supabase
+            .from("user_notifications")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.pillar_leader.user_id)
+            .ilike("message", `%${user.full_name}%inactive%`)
+            .gt("created_at", todayStr);
+
+          if (!existingNotif || existingNotif === 0) {
+            await supabase.from("user_notifications").insert({
+              user_id: user.pillar_leader.user_id,
+              title: "Team Inactivity Alert",
+              message: `${user.full_name} still inactive (${dayCount} days) - follow-up sent`,
+              link: "/app/team",
+            });
+            notificationsCreated++;
+          }
         }
 
         // Mark day 4 sent
