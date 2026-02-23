@@ -33,24 +33,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Dedupe: check if we already posted today
+    // Delete any existing accountability posts from today so we always get fresh data
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const { data: existingToday } = await supabase
+    await supabase
       .from("chat_messages")
-      .select("id")
+      .delete()
       .eq("is_ai", true)
       .eq("channel", "general")
       .ilike("content", "%DAILY ACCOUNTABILITY%")
-      .gte("created_at", todayStart.toISOString())
-      .limit(1);
-
-    if (existingToday?.length) {
-      return new Response(
-        JSON.stringify({ message: "Already posted today", posted: false }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+      .gte("created_at", todayStart.toISOString());
 
     // Fetch all rookies
     const { data: rookieRoles } = await supabase
@@ -115,20 +107,20 @@ Deno.serve(async (req) => {
     const sections: string[] = [];
 
     if (bootcampIncomplete.length > 0) {
-      const names = bootcampIncomplete.slice(0, 15).join(", ");
-      const extra = bootcampIncomplete.length > 15 ? ` (+${bootcampIncomplete.length - 15} more)` : "";
+      const names = bootcampIncomplete.slice(0, 30).join(", ");
+      const extra = bootcampIncomplete.length > 30 ? ` (+${bootcampIncomplete.length - 30} more)` : "";
       sections.push(`🏔️ **BOOT CAMP INCOMPLETE** (${bootcampIncomplete.length})\n${names}${extra}`);
     }
 
     if (notOnboarded.length > 0) {
-      const names = notOnboarded.slice(0, 15).join(", ");
-      const extra = notOnboarded.length > 15 ? ` (+${notOnboarded.length - 15} more)` : "";
+      const names = notOnboarded.slice(0, 30).join(", ");
+      const extra = notOnboarded.length > 30 ? ` (+${notOnboarded.length - 30} more)` : "";
       sections.push(`📋 **NOT ONBOARDED** (${notOnboarded.length})\n${names}${extra}`);
     }
 
     if (inactive.length > 0) {
-      const names = inactive.slice(0, 15).join(", ");
-      const extra = inactive.length > 15 ? ` (+${inactive.length - 15} more)` : "";
+      const names = inactive.slice(0, 30).join(", ");
+      const extra = inactive.length > 30 ? ` (+${inactive.length - 30} more)` : "";
       sections.push(`👻 **GHOST MODE — 3+ DAYS INACTIVE** (${inactive.length})\n${names}${extra}`);
     }
 
