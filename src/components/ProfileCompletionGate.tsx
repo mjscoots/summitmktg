@@ -35,7 +35,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
   const [nickname, setNickname] = useState('');
   const [phone, setPhone] = useState('');
   const [timezone, setTimezone] = useState('');
-  const [revenueGoal, setRevenueGoal] = useState('');
+  
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,7 +47,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     const checkProfile = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('full_name, phone, avatar_url, timezone, nickname, revenue_goal')
+        .select('full_name, phone, avatar_url, timezone, nickname')
         .eq('user_id', user.id)
         .single();
 
@@ -59,14 +59,13 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         setNickname((data as any).nickname || '');
         setPhone((data as any).phone || '');
         setTimezone((data as any).timezone || '');
-        setRevenueGoal((data as any).revenue_goal ? String((data as any).revenue_goal) : '');
+        
         setAvatarUrl((data as any).avatar_url);
 
         const complete = !!(
           (data as any).full_name?.trim() &&
           (data as any).phone?.trim() &&
-          (data as any).avatar_url &&
-          (data as any).revenue_goal
+          (data as any).avatar_url
         );
         setIsComplete(complete);
       }
@@ -151,7 +150,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
       if (phone.trim()) updateData.phone = phone.trim();
       if (avatarUrl) updateData.avatar_url = avatarUrl;
       if (timezone) updateData.timezone = timezone;
-      if (revenueGoal) (updateData as any).revenue_goal = parseInt(revenueGoal, 10);
+      
 
       const { error } = await supabase
         .from('profiles')
@@ -175,7 +174,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     { label: 'Profile Photo', done: !!avatarUrl },
     { label: 'Name', done: !!fullName },
     { label: 'Phone Number', done: !!phone.trim() },
-    { label: 'Revenue Goal', done: !!revenueGoal.trim() },
+    
   ];
   const completedCount = fields.filter(f => f.done).length;
   const totalFields = fields.length;
@@ -294,30 +293,13 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Revenue Goal <span className="text-destructive">*</span>
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                <Input
-                  type="number"
-                  value={revenueGoal}
-                  onChange={(e) => setRevenueGoal(e.target.value)}
-                  placeholder="50000"
-                  className="pl-8"
-                  min="0"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Your personal revenue target</p>
-            </div>
 
           </div>
 
           {/* Submit */}
           <Button
             onClick={handleSubmit}
-            disabled={isSaving || !fullName || !revenueGoal.trim()}
+            disabled={isSaving || !fullName}
             size="lg"
             className="w-full mt-6 font-bold h-12"
           >

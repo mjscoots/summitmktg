@@ -58,7 +58,7 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
 
 const STEPS = [
   { num: 1, title: 'Get Started', group: 'momentum' },
-  { num: 2, title: 'Revenue Goals', group: 'momentum' },
+  { num: 2, title: 'Your Goals', group: 'momentum' },
   { num: 3, title: 'Your Why', group: 'momentum' },
   { num: 4, title: 'Excitement', group: 'momentum' },
   { num: 5, title: 'Commitment', group: 'momentum' },

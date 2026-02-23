@@ -26,7 +26,7 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
   const [timezone, setTimezone] = useState<string>('auto');
-  const [revenueGoal, setRevenueGoal] = useState('');
+  
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   // Password change state
@@ -56,13 +56,13 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname, revenue_goal')
+          .select('timezone, nickname')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
         setTimezone(dbTz || 'auto');
         setNickname((data as any)?.nickname || '');
-        setRevenueGoal((data as any)?.revenue_goal ? String((data as any).revenue_goal) : '');
+        
       };
       fetchExtra();
     }
@@ -81,7 +81,7 @@ export default function ProfilePage() {
           nickname: nickname || null,
           phone: phone,
           timezone: timezone === 'auto' ? null : timezone,
-          revenue_goal: revenueGoal ? parseInt(revenueGoal, 10) : null,
+          
           updated_at: new Date().toISOString(),
         } as any)
         .eq('user_id', user.id);
@@ -388,23 +388,6 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Revenue Goal <span className="text-destructive">*</span>
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                <Input
-                  type="number"
-                  value={revenueGoal}
-                  onChange={(e) => setRevenueGoal(e.target.value)}
-                  placeholder="50000"
-                  className="pl-8"
-                  min="0"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Your personal revenue target</p>
-            </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
