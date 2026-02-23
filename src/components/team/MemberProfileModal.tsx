@@ -8,7 +8,9 @@ import {
   UserCheck, 
   GraduationCap, 
   Users,
-  Pencil
+  Pencil,
+  Shield,
+  Sun
 } from 'lucide-react';
 import {
   Dialog,
@@ -57,6 +59,7 @@ export function MemberProfileModal({
   const { profile, role: currentUserRole, user } = useAuth();
   const [localPillars, setLocalPillars] = useState<{ id: string; name: string; slug: string }[]>(pillars);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [onboardingStatus, setOnboardingStatus] = useState<string | null>(null);
 
   // Fetch pillars if not provided
   useEffect(() => {
@@ -76,7 +79,22 @@ export function MemberProfileModal({
   useEffect(() => {
     if (!open) {
       setIsEditMode(false);
+      setOnboardingStatus(null);
     }
+  }, [open, member?.user_id]);
+
+  // Fetch onboarding status
+  useEffect(() => {
+    if (!open || !member) return;
+    const fetchStatus = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('onboarding_status')
+        .eq('user_id', member.user_id)
+        .single();
+      if (data) setOnboardingStatus(data.onboarding_status);
+    };
+    fetchStatus();
   }, [open, member?.user_id]);
 
   const effectivePillars = pillars.length > 0 ? pillars : localPillars;
@@ -243,6 +261,38 @@ export function MemberProfileModal({
                       style={{ width: `${progress.percentage}%` }}
                     />
                   </div>
+                </div>
+              )}
+
+              {/* Onboarding Status */}
+              {!isNLC && (
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <Sun className={cn(
+                    "w-5 h-5 flex-shrink-0",
+                    progress.percentage >= 100 ? "text-warning" :
+                    onboardingStatus === 'onboarded' ? "text-primary" :
+                    "text-muted-foreground"
+                  )} />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Onboarding Status</p>
+                    <p className={cn(
+                      "text-sm font-medium",
+                      progress.percentage >= 100 ? "text-warning" :
+                      onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready' ? "text-primary" :
+                      "text-destructive"
+                    )}>
+                      {progress.percentage >= 100 
+                        ? '☀️ Summer Ready' 
+                        : onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready'
+                          ? 'Onboarded'
+                          : 'Not Onboarded'}
+                    </p>
+                  </div>
+                  {progress.percentage >= 100 && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/15 text-warning">
+                      100% TRAINING
+                    </span>
+                  )}
                 </div>
               )}
 
