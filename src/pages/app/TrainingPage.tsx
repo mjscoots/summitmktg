@@ -6,6 +6,7 @@ import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { BookOpen, Users, Bot, Lock, ChevronLeft } from 'lucide-react';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
 import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
@@ -135,7 +136,7 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="max-w-5xl mx-auto px-4 py-6">
-          {/* Hero Background Header */}
+          <PageBackButton to="/app" label="Dashboard" />
           <div className="relative h-40 rounded-xl overflow-hidden mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-success/30 via-success/20 to-success/10" />
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
@@ -186,7 +187,7 @@ export default function TrainingPage() {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Hero Background Header - Green to Blue gradient */}
+          <PageBackButton to="/app" label="Dashboard" />
           <div className="relative h-40 rounded-xl overflow-hidden mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-success/30 via-success/15 to-primary/30" />
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
@@ -272,7 +273,7 @@ export default function TrainingPage() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 py-6">
-        {/* Hero Background Header */}
+        <PageBackButton to="/app" label="Dashboard" />
         <div className="relative h-40 rounded-xl overflow-hidden mb-6">
           <div className={cn(
             "absolute inset-0",

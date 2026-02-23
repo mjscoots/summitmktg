@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { Bell, Pin, Clock, ChevronLeft } from 'lucide-react';
+import { Bell, Pin, Clock } from 'lucide-react';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -61,14 +62,7 @@ export default function AnnouncementsPage() {
         <DashboardHeader />
 
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate('/app')}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-4 -ml-1 transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Dashboard
-          </button>
+          <PageBackButton to="/app" label="Dashboard" />
 
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
