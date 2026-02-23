@@ -130,7 +130,7 @@ export default function AdminTeamPage() {
     setLoading(true);
 
     const [profilesRes, bootcampRes, roleRes, teamsRes, settingsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url, onboarding_status').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('*'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('teams').select('id, name, slug, created_at, leader_id').order('name'),
@@ -827,7 +827,7 @@ export default function AdminTeamPage() {
           <TabsContent value="roster-sync">
             <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
               <LazyRosterSync
-                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url }))}
+                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status }))}
                 managers={managers}
                 onRefresh={fetchData}
               />

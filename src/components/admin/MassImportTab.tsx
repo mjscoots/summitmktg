@@ -31,6 +31,7 @@ interface ParsedUser {
   role: 'rookie' | 'manager';
   direct_manager: string;
   team_name: string;
+  onboarding_status: string;
   alreadyExists: boolean;
   matchedName?: string;
 }
@@ -40,16 +41,11 @@ function parseInput(text: string, existingProfiles: { full_name: string }[]): Pa
   const parsed: ParsedUser[] = [];
 
   for (const line of lines) {
-    // Try to parse various formats:
-    // "Name | Manager: Manager Name | Status: X"
-    // "Name, email@example.com, phone, manager"
-    // "1. Full Name | Manager: Manager Name | Status: Status"
-    // Or just plain name per line
-
     let full_name = '';
     let email = '';
     let phone = '';
     let direct_manager = '';
+    let onboarding_status = 'pending';
 
     // Check numbered format: "1. Name | Manager: ..."
     const numberedMatch = line.match(/^\d+\.\s*(.+)/);
@@ -62,7 +58,16 @@ function parseInput(text: string, existingProfiles: { full_name: string }[]): Pa
         if (part.toLowerCase().startsWith('manager:')) {
           direct_manager = part.replace(/^manager:\s*/i, '').trim();
         }
-        // Ignore status and other fields
+        if (part.toLowerCase().startsWith('status:')) {
+          const rawStatus = part.replace(/^status:\s*/i, '').trim();
+          const statusMap: Record<string, string> = {
+            'summer ready': 'summer_ready',
+            'onboarded': 'onboarded',
+            'contract signed': 'contract_signed',
+            'info added': 'info_added',
+          };
+          onboarding_status = statusMap[rawStatus.toLowerCase()] || 'pending';
+        }
       }
     } else if (cleanLine.includes(',')) {
       const parts = cleanLine.split(',').map(p => p.trim());
@@ -106,6 +111,7 @@ function parseInput(text: string, existingProfiles: { full_name: string }[]): Pa
       role: 'rookie',
       direct_manager,
       team_name: '',
+      onboarding_status,
       alreadyExists,
       matchedName,
     });
@@ -154,6 +160,7 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
         role: u.role,
         direct_manager: u.direct_manager || defaultManager,
         team_name: u.team_name || defaultTeam,
+        onboarding_status: u.onboarding_status,
       }));
 
       const { data, error } = await supabase.functions.invoke('bulk-create-users', {
@@ -286,6 +293,9 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
                     <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <Badge variant="outline" className="text-[9px] h-4">{user.role}</Badge>
+                  <Badge variant="outline" className={`text-[9px] h-4 ${user.onboarding_status === 'summer_ready' ? 'text-green-400 border-green-500/30' : user.onboarding_status === 'onboarded' ? 'text-blue-400 border-blue-500/30' : user.onboarding_status === 'contract_signed' ? 'text-amber-400 border-amber-500/30' : 'text-muted-foreground'}`}>
+                    {(user.onboarding_status || 'pending').replace(/_/g, ' ')}
+                  </Badge>
                 </div>
                 {user.direct_manager && (
                   <p className="text-[10px] text-muted-foreground ml-10 truncate">

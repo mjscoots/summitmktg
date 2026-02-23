@@ -825,6 +825,7 @@ export type Database = {
           is_active_now: boolean | null
           last_active_at: string | null
           nickname: string | null
+          onboarding_status: string | null
           organization: string | null
           otp_verified: boolean | null
           password_changed: boolean | null
@@ -854,6 +855,7 @@ export type Database = {
           is_active_now?: boolean | null
           last_active_at?: string | null
           nickname?: string | null
+          onboarding_status?: string | null
           organization?: string | null
           otp_verified?: boolean | null
           password_changed?: boolean | null
@@ -883,6 +885,7 @@ export type Database = {
           is_active_now?: boolean | null
           last_active_at?: string | null
           nickname?: string | null
+          onboarding_status?: string | null
           organization?: string | null
           otp_verified?: boolean | null
           password_changed?: boolean | null
