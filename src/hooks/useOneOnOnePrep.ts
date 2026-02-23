@@ -68,32 +68,34 @@ export function useOneOnOnePrep(filterRole: 'rookie' | 'manager' = 'rookie') {
     setLoading(true);
     try {
       // 1. Get team info and members
-      let teamId = profile?.team_id;
-      let isPillarOwner = false;
       let tName = '';
 
-      if (teamId) {
+      if (profile?.team_id) {
         const { data: team } = await supabase
           .from('teams')
-          .select('id, name, leader_id')
-          .eq('id', teamId)
+          .select('id, name')
+          .eq('id', profile.team_id)
           .maybeSingle();
         if (team) {
-          isPillarOwner = team.leader_id === user!.id;
           tName = team.name;
         }
       }
 
-      let query = supabase
+      if (!profile?.full_name) {
+        setReps([]);
+        setLoading(false);
+        return;
+      }
+
+      // Always use direct_manager to show only direct reports
+      const query = supabase
         .from('profiles')
         .select('user_id, full_name, email, avatar_url, team_id, status, last_active_at')
         .neq('status', 'nlc')
-        .neq('user_id', user!.id); // exclude self
+        .neq('user_id', user!.id)
+        .eq('direct_manager', profile.full_name);
 
-      if (isPillarOwner && teamId) {
-        query = query.eq('team_id', teamId);
-      } else if (profile?.full_name) {
-        query = query.eq('direct_manager', profile.full_name);
+      if (!tName) {
         tName = `${profile.full_name.split(' ')[0]}'s Team`;
       }
 
