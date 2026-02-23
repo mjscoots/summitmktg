@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Users, AlertTriangle, Search, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,56 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
+
+  // Fetch daily training time for the week
+  useEffect(() => {
+    const fetchDailyTime = async () => {
+      try {
+        const now = new Date();
+        const day = now.getDay();
+        const diffToMon = day === 0 ? -6 : 1 - day;
+        const monday = new Date(now);
+        monday.setDate(now.getDate() + diffToMon);
+        monday.setHours(0, 0, 0, 0);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        const fmt = (d: Date) => d.toISOString().split('T')[0];
+
+        const { data } = await (supabase
+          .from('daily_training_time' as any)
+          .select('user_id, date, total_minutes')
+          .gte('date', fmt(monday))
+          .lte('date', fmt(sunday)) as any);
+
+        if (data) {
+          const byUser = new Map<string, any[]>();
+          (data as any[]).forEach((r: any) => {
+            if (!byUser.has(r.user_id)) byUser.set(r.user_id, []);
+            byUser.get(r.user_id)!.push(r);
+          });
+
+          const map = new Map<string, { days: { minutes: number }[]; totalMinutes: number }>();
+          byUser.forEach((userRows, userId) => {
+            const days: { minutes: number }[] = [];
+            let total = 0;
+            for (let i = 0; i < 7; i++) {
+              const d = new Date(monday);
+              d.setDate(monday.getDate() + i);
+              const dateStr = d.toISOString().split('T')[0];
+              const match = userRows.find((r: any) => r.date === dateStr);
+              const mins = match?.total_minutes ?? 0;
+              days.push({ minutes: mins });
+              total += mins;
+            }
+            map.set(userId, { days, totalMinutes: total });
+          });
+          setDailyTimeMap(map);
+        }
+      } catch { /* silent */ }
+    };
+    fetchDailyTime();
+  }, []);
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
@@ -265,6 +316,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
             isRoot={true}
             getProgress={getProgress}
             onMemberClick={handleMemberClick}
+            dailyTimeMap={dailyTimeMap}
           />
         ) : (
           <div className="text-center py-8">

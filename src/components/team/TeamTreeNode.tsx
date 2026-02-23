@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { ChevronRight, ChevronDown, User, Crown, AlertTriangle, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
- import { UserAvatar } from '@/components/shared/UserAvatar';
- import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
+import { UserAvatar } from '@/components/shared/UserAvatar';
+import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
+import { MiniWeekChart } from './MiniWeekChart';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 import { getStatusInfo, getDisplayName } from '@/lib/hierarchyUtils';
 import type { MemberTrainingProgress } from '@/hooks/useTrainingProgress';
@@ -14,6 +15,7 @@ interface TeamTreeNodeProps {
   depth?: number;
   getProgress?: (userId: string) => MemberTrainingProgress;
   onMemberClick?: (member: TeamMember) => void;
+  dailyTimeMap?: Map<string, { days: { minutes: number }[]; totalMinutes: number }>;
 }
 
 export function TeamTreeNode({ 
@@ -23,6 +25,7 @@ export function TeamTreeNode({
   depth = 0, 
   getProgress,
   onMemberClick,
+  dailyTimeMap,
 }: TeamTreeNodeProps) {
   const [expanded, setExpanded] = useState(isRoot || depth < 2);
   const hasChildren = member.children && member.children.length > 0;
@@ -159,6 +162,13 @@ export function TeamTreeNode({
                />
              )}
            </div>
+           {/* Mini week chart */}
+           {!isNLC && dailyTimeMap && (
+             <MiniWeekChart
+               days={dailyTimeMap.get(member.user_id)?.days ?? Array(7).fill({ minutes: 0 })}
+               totalMinutes={dailyTimeMap.get(member.user_id)?.totalMinutes ?? 0}
+             />
+           )}
         </div>
 
         {/* Badges */}
@@ -195,6 +205,7 @@ export function TeamTreeNode({
               depth={depth + 1}
               getProgress={getProgress}
               onMemberClick={onMemberClick}
+              dailyTimeMap={dailyTimeMap}
             />
           ))}
         </div>
