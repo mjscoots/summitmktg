@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Users, AlertTriangle, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Users, AlertTriangle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TeamTreeNode } from './TeamTreeNode';
@@ -25,7 +25,6 @@ interface PillarTreeViewProps {
 
 export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataChange }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
 
@@ -86,29 +85,6 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
   const { getProgress } = useTrainingProgress(userIds);
 
-  // Build pyramid summary
-  const getPyramidLevels = () => {
-    if (!tree) return [];
-    
-    const levels: { level: number; members: TeamMember[] }[] = [];
-    
-    const traverse = (node: TeamMember, level: number) => {
-      if (!levels[level]) {
-        levels[level] = { level, members: [] };
-      }
-      levels[level].members.push(node);
-      
-      if (node.children) {
-        node.children.forEach(child => traverse(child, level + 1));
-      }
-    };
-    
-    traverse(tree, 0);
-    return levels;
-  };
-
-  const pyramidLevels = getPyramidLevels();
-
   // Filter tree based on search
   const filterTree = (node: TeamMember, query: string): TeamMember | null => {
     if (!query) return node;
@@ -132,18 +108,8 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
 
   const displayTree = searchQuery && tree ? filterTree(tree, searchQuery) : tree;
 
-  // Toggle level expansion
-  const toggleLevel = (level: number) => {
-    setExpandedLevels(prev => {
-      const next = new Set(prev);
-      if (next.has(level)) {
-        next.delete(level);
-      } else {
-        next.add(level);
-      }
-      return next;
-    });
-  };
+
+
 
   // Handle member click for profile modal
   const handleMemberClick = (member: TeamMember) => {
@@ -199,98 +165,6 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
-        </div>
-      </div>
-
-      {/* Team Structure Summary */}
-      <div className="bg-card rounded-xl border border-border/50 p-4">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">Team Structure</h3>
-        <div className="space-y-2">
-          {pyramidLevels.map((level, idx) => {
-            const isExpanded = expandedLevels.has(idx);
-            const levelManagers = level.members.filter(m => m.children && m.children.length > 0);
-            const levelRookies = level.members.filter(m => !m.children || m.children.length === 0);
-            const nlcInLevel = level.members.filter(m => m.status === 'nlc' || m.isNLC).length;
-            
-            return (
-              <div key={idx} className="space-y-1">
-                <button
-                  onClick={() => toggleLevel(idx)}
-                  className={cn(
-                    "w-full flex items-center justify-between gap-2 px-4 py-2 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors",
-                    idx === 0 && "bg-primary/10 border border-primary/20"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                    )}
-                    <span className="text-sm font-medium text-foreground">
-                      {level.members.length} {level.members.length === 1 ? 'member' : 'members'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {levelManagers.length > 0 && (
-                      <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-full">
-                        {levelManagers.length} mgr
-                      </span>
-                    )}
-                    {levelRookies.length > 0 && (
-                      <span className="bg-success/15 text-success px-2 py-0.5 rounded-full">
-                        {levelRookies.length} rookie
-                      </span>
-                    )}
-                    {nlcInLevel > 0 && (
-                      <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                        {nlcInLevel} NLC
-                      </span>
-                    )}
-                  </div>
-                </button>
-                
-                {isExpanded && (
-                  <div className="ml-8 flex flex-wrap gap-2">
-                    {level.members
-                      .slice()
-                      .sort((a, b) => {
-                        // Managers first by team size, then alphabetical
-                        const aIsManager = a.children && a.children.length > 0;
-                        const bIsManager = b.children && b.children.length > 0;
-                        if (aIsManager && !bIsManager) return -1;
-                        if (!aIsManager && bIsManager) return 1;
-                        if (aIsManager && bIsManager) {
-                          const diff = b.children!.length - a.children!.length;
-                          if (diff !== 0) return diff;
-                        }
-                        return getDisplayName(a.full_name).localeCompare(getDisplayName(b.full_name));
-                      })
-                      .map(member => {
-                        const isNLC = member.status === 'nlc' || member.isNLC;
-                        const isMgr = member.children && member.children.length > 0;
-                        return (
-                          <button 
-                            key={member.id}
-                            onClick={() => handleMemberClick(member)}
-                            className={cn(
-                              "text-xs px-2 py-1 rounded-full transition-colors cursor-pointer",
-                              isNLC
-                                ? "bg-muted text-muted-foreground opacity-50 hover:opacity-75"
-                                : isMgr
-                                  ? "bg-primary/10 text-primary hover:bg-primary/20"
-                                  : "bg-success/10 text-success hover:bg-success/20"
-                            )}
-                          >
-                            <span>{getDisplayName(member.full_name)}</span>
-                          </button>
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
       </div>
 
