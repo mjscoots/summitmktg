@@ -3,6 +3,7 @@ import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { useAuth } from '@/hooks/useAuth';
 import { GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 
 export default function ProgressPage() {
   const { role } = useAuth();
@@ -11,6 +12,8 @@ export default function ProgressPage() {
   return (
     <AppLayout>
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <PageBackButton to="/app" label="Dashboard" />
+
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <GraduationCap className={cn(

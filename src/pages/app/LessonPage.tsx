@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -621,14 +622,12 @@ export default function LessonPage() {
           </div>
         )}
 
-        {/* Back button */}
-        <button
-          onClick={() => navigate(`/app/training/${courseSlug}`)}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-3"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm">Back to Course</span>
-        </button>
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={[
+          { label: 'Training', to: '/app/training' },
+          { label: moduleInfo?.title || 'Course', to: `/app/training/${courseSlug}` },
+          { label: lesson.title },
+        ]} />
 
         {/* Lesson Header */}
         <header className="mb-4">
