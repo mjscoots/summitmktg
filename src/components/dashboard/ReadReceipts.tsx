@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Eye } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { format } from 'date-fns';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface ReadReceipt {
   user_id: string;
@@ -62,6 +62,15 @@ export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadRecei
     return () => { supabase.removeChannel(channel); };
   }, [messageId, user?.id]);
 
+  // Compute "not seen" users from profileMap minus receipts minus self
+  const notSeenUsers = useMemo(() => {
+    const seenIds = new Set(receipts.map(r => r.user_id));
+    return Object.entries(profileMap)
+      .filter(([uid]) => uid !== user?.id && !seenIds.has(uid))
+      .map(([uid, p]) => ({ user_id: uid, full_name: p.full_name, avatar_url: p.avatar_url }))
+      .sort((a, b) => a.full_name.localeCompare(b.full_name));
+  }, [profileMap, receipts, user?.id]);
+
   if (!isLastInGroup || receipts.length === 0) return null;
 
   const displayReceipts = receipts.slice(0, 5);
@@ -99,43 +108,79 @@ export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadRecei
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-56 p-0"
+        className="w-64 p-0"
         align="start"
         side="top"
         sideOffset={4}
       >
-        <div className="px-3 py-2 border-b border-border/50">
-          <div className="flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs font-semibold text-foreground">
-              Seen by {receipts.length}
-            </span>
+        <Tabs defaultValue="seen" className="w-full">
+          <div className="px-3 py-2 border-b border-border/50">
+            <TabsList className="w-full h-7 p-0.5 bg-muted/50">
+              <TabsTrigger value="seen" className="flex-1 h-6 text-[11px] gap-1 data-[state=active]:bg-background">
+                <Eye className="w-3 h-3" />
+                Seen ({receipts.length})
+              </TabsTrigger>
+              <TabsTrigger value="not-seen" className="flex-1 h-6 text-[11px] gap-1 data-[state=active]:bg-background">
+                <EyeOff className="w-3 h-3" />
+                Not Seen ({notSeenUsers.length})
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </div>
-        <div className="max-h-48 overflow-y-auto py-1">
-          {receipts.map(r => {
-            const p = profileMap[r.user_id];
-            return (
-              <div key={r.user_id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted/40">
-                <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-                  <UserAvatar
-                    avatarUrl={p?.avatar_url || null}
-                    fullName={p?.full_name || '?'}
-                    size="xs"
-                  />
+
+          <TabsContent value="seen" className="mt-0">
+            <div className="max-h-48 overflow-y-auto py-1">
+              {receipts.length === 0 && (
+                <div className="px-3 py-3 text-xs text-muted-foreground text-center">No one yet</div>
+              )}
+              {receipts.map(r => {
+                const p = profileMap[r.user_id];
+                return (
+                  <div key={r.user_id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted/40">
+                    <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                      <UserAvatar
+                        avatarUrl={p?.avatar_url || null}
+                        fullName={p?.full_name || '?'}
+                        size="xs"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-medium text-foreground truncate block">
+                        {p?.full_name || 'Someone'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground/60 flex-shrink-0">
+                      {format(new Date(r.read_at), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="not-seen" className="mt-0">
+            <div className="max-h-48 overflow-y-auto py-1">
+              {notSeenUsers.length === 0 && (
+                <div className="px-3 py-3 text-xs text-muted-foreground text-center">Everyone has seen it</div>
+              )}
+              {notSeenUsers.map(u => (
+                <div key={u.user_id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted/40">
+                  <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                    <UserAvatar
+                      avatarUrl={u.avatar_url || null}
+                      fullName={u.full_name}
+                      size="xs"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-medium text-foreground truncate block">
+                      {u.full_name}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-xs font-medium text-foreground truncate block">
-                    {p?.full_name || 'Someone'}
-                  </span>
-                </div>
-                <span className="text-[10px] text-muted-foreground/60 flex-shrink-0">
-                  {format(new Date(r.read_at), 'h:mm a')}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </PopoverContent>
     </Popover>
   );
