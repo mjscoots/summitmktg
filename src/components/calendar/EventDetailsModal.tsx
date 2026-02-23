@@ -5,27 +5,15 @@ import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
+  Dialog, DialogContent, DialogHeader, DialogTitle 
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { AddToCalendarButton } from '@/components/calendar/AddToCalendarButton';
 import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  User, 
-  FileText, 
-  RefreshCcw,
-  ExternalLink,
-  Pencil,
-  Trash2,
-  Video,
-  Building2
+  Calendar, Clock, MapPin, Users, User, FileText, RefreshCcw,
+  ExternalLink, Pencil, Trash2, Video, Building2,
+  TrendingUp, Trophy, Star, Shield, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
@@ -61,13 +49,16 @@ interface EventDetailsModalProps {
   canEdit?: boolean;
 }
 
+const EVENT_CATEGORY_MAP: Record<string, string> = {
+  call: 'mandatory',
+  deadline: 'mandatory',
+  training: 'training',
+  meeting: 'revenue',
+  general: 'optional',
+};
+
 export function EventDetailsModal({ 
-  event, 
-  isOpen, 
-  onClose, 
-  onEdit, 
-  onDelete,
-  canEdit = false 
+  event, isOpen, onClose, onEdit, onDelete, canEdit = false 
 }: EventDetailsModalProps) {
   const { profile } = useAuth();
   const { timezone } = useUserTimezone();
@@ -75,14 +66,14 @@ export function EventDetailsModal({
   const [creator, setCreator] = useState<{ full_name: string; avatar_url: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const category = EVENT_CATEGORY_MAP[event.event_type || 'general'] || 'optional';
+  const isMandatory = category === 'mandatory' || category === 'training';
+
   useEffect(() => {
     if (!isOpen) return;
-    
     const fetchDetails = async () => {
       setIsLoading(true);
-      
       try {
-        // Fetch assigned attendees
         const { data: assignees } = await supabase
           .from('calendar_event_assignees')
           .select('user_id')
@@ -90,19 +81,15 @@ export function EventDetailsModal({
 
         if (assignees && assignees.length > 0) {
           const userIds = assignees.map(a => a.user_id);
-          
           const { data: profiles } = await supabase
             .from('profiles')
             .select('user_id, full_name, avatar_url')
             .in('user_id', userIds);
-
           const { data: roles } = await supabase
             .from('user_roles')
             .select('user_id, role')
             .in('user_id', userIds);
-
           const roleMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
-
           setAttendees((profiles || []).map(p => ({
             user_id: p.user_id,
             full_name: p.full_name,
@@ -113,17 +100,13 @@ export function EventDetailsModal({
           setAttendees([]);
         }
 
-        // Fetch creator
         if (event.created_by) {
           const { data: creatorProfile } = await supabase
             .from('profiles')
             .select('full_name, avatar_url')
             .eq('user_id', event.created_by)
             .single();
-
-          if (creatorProfile) {
-            setCreator(creatorProfile);
-          }
+          if (creatorProfile) setCreator(creatorProfile);
         }
       } catch (err) {
         console.error('Error fetching event details:', err);
@@ -131,7 +114,6 @@ export function EventDetailsModal({
         setIsLoading(false);
       }
     };
-
     fetchDetails();
   }, [event.id, event.created_by, event.is_team_wide, isOpen]);
 
@@ -142,41 +124,32 @@ export function EventDetailsModal({
     try {
       const parsed = new URL(str);
       return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-    } catch {
-      return false;
-    }
+    } catch { return false; }
   };
 
   const getRecurrenceText = () => {
     if (!event.recurrence_type) return null;
-    
     const interval = event.recurrence_interval || 1;
     switch (event.recurrence_type) {
-      case 'daily':
-        return interval === 1 ? 'Repeats daily' : `Repeats every ${interval} days`;
-      case 'weekly':
-        return interval === 1 ? 'Repeats weekly' : `Repeats every ${interval} weeks`;
-      case 'biweekly':
-        return 'Repeats every 2 weeks';
-      case 'monthly':
-        return interval === 1 ? 'Repeats monthly' : `Repeats every ${interval} months`;
-      default:
-        return 'Recurring event';
+      case 'daily': return interval === 1 ? 'Repeats daily' : `Every ${interval} days`;
+      case 'weekly': return interval === 1 ? 'Repeats weekly' : `Every ${interval} weeks`;
+      case 'biweekly': return 'Every 2 weeks';
+      case 'monthly': return interval === 1 ? 'Repeats monthly' : `Every ${interval} months`;
+      default: return 'Recurring';
     }
   };
 
-  const getEventTypeBadge = (type: string | null) => {
-    const types: Record<string, { label: string; class: string }> = {
-      training: { label: 'Training', class: 'bg-blue-500/15 text-blue-400' },
-      meeting: { label: 'Meeting', class: 'bg-purple-500/15 text-purple-400' },
-      deadline: { label: 'Deadline', class: 'bg-red-500/15 text-red-400' },
-      call: { label: 'Team Call', class: 'bg-green-500/15 text-green-400' },
-      general: { label: 'General', class: 'bg-muted text-muted-foreground' },
+  const getCategoryBadge = () => {
+    const styles: Record<string, { label: string; class: string }> = {
+      mandatory: { label: 'MANDATORY', class: 'bg-red-500/15 text-red-400 ring-1 ring-red-500/20' },
+      training: { label: 'TRAINING', class: 'bg-blue-500/15 text-blue-400' },
+      revenue: { label: 'REVENUE / 1-ON-1', class: 'bg-purple-500/15 text-purple-400' },
+      optional: { label: 'OPTIONAL', class: 'bg-yellow-500/15 text-yellow-400' },
     };
-    const eventType = types[type || 'general'] || types.general;
+    const s = styles[category] || styles.optional;
     return (
-      <span className={cn('text-xs font-semibold px-2.5 py-1 rounded-full uppercase', eventType.class)}>
-        {eventType.label}
+      <span className={cn('text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider', s.class)}>
+        {s.label}
       </span>
     );
   };
@@ -188,13 +161,13 @@ export function EventDetailsModal({
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                {getEventTypeBadge(event.event_type)}
+                {getCategoryBadge()}
                 {event.location && (() => {
                   const loc = event.location!.toLowerCase();
                   const remote = loc.includes('zoom') || loc.includes('meet') || loc.includes('teams') || loc.includes('http') || loc.includes('virtual') || loc.includes('remote') || loc.includes('online');
                   return (
                     <span className={cn(
-                      "text-xs font-semibold px-2.5 py-1 rounded-full uppercase flex items-center gap-1",
+                      "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase flex items-center gap-1",
                       remote
                         ? "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,65%)]"
                         : "bg-[hsl(25,90%,55%)]/15 text-[hsl(25,90%,60%)]"
@@ -205,9 +178,8 @@ export function EventDetailsModal({
                   );
                 })()}
                 {event.is_team_wide && (
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-muted text-muted-foreground uppercase flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    Team-Wide
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground uppercase flex items-center gap-1">
+                    <Users className="w-3 h-3" /> Team-Wide
                   </span>
                 )}
               </div>
@@ -234,8 +206,7 @@ export function EventDetailsModal({
               </p>
               {getRecurrenceText() && (
                 <p className="text-xs text-primary flex items-center gap-1.5 mt-1">
-                  <RefreshCcw className="w-3 h-3" />
-                  {getRecurrenceText()}
+                  <RefreshCcw className="w-3 h-3" /> {getRecurrenceText()}
                 </p>
               )}
             </div>
@@ -250,12 +221,8 @@ export function EventDetailsModal({
               <div className="flex-1">
                 <p className="text-sm font-medium text-foreground">Location</p>
                 {isUrl(event.location) ? (
-                  <a
-                    href={sanitizeUrl(event.location)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-1.5"
-                  >
+                  <a href={sanitizeUrl(event.location)} target="_blank" rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline flex items-center gap-1.5">
                     {event.location.includes('zoom') ? 'Join Zoom Meeting' : 'Open Link'}
                     <ExternalLink className="w-3 h-3" />
                   </a>
@@ -279,6 +246,29 @@ export function EventDetailsModal({
             </div>
           )}
 
+          {/* ═══ Behavioral Reinforcement Section ═══ */}
+          {isMandatory && (
+            <div className="rounded-lg border border-primary/20 bg-primary/[0.03] p-4">
+              <h4 className="text-xs font-black text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                Attending this event increases:
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { icon: Trophy, label: 'Leaderboard Eligibility', color: 'text-yellow-400' },
+                  { icon: Star, label: 'Bonus Eligibility', color: 'text-purple-400' },
+                  { icon: Shield, label: 'Top 5 Room Selection', color: 'text-emerald-400' },
+                  { icon: TrendingUp, label: 'Execution Score', color: 'text-primary' },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center gap-2 text-xs">
+                    <item.icon className={cn("w-3.5 h-3.5 shrink-0", item.color)} />
+                    <span className="text-muted-foreground font-medium">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Attendees */}
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-muted">
@@ -297,15 +287,9 @@ export function EventDetailsModal({
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {attendees.slice(0, 8).map(attendee => (
-                    <div 
-                      key={attendee.user_id}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted/50 border border-border/50"
-                    >
-                      <UserAvatar 
-                        avatarUrl={attendee.avatar_url} 
-                        fullName={attendee.full_name} 
-                        size="sm" 
-                      />
+                    <div key={attendee.user_id}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted/50 border border-border/50">
+                      <UserAvatar avatarUrl={attendee.avatar_url} fullName={attendee.full_name} size="sm" />
                       <div>
                         <p className="text-xs font-medium text-foreground">{attendee.full_name}</p>
                         <p className="text-[10px] text-muted-foreground capitalize">{attendee.role}</p>
@@ -349,38 +333,22 @@ export function EventDetailsModal({
           />
           
           {canEdit && onEdit && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                onClose();
-                onEdit(event);
-              }}
-              className="gap-1.5"
-            >
-              <Pencil className="w-4 h-4" />
-              Edit
+            <Button variant="outline" size="sm"
+              onClick={() => { onClose(); onEdit(event); }}
+              className="gap-1.5">
+              <Pencil className="w-4 h-4" /> Edit
             </Button>
           )}
           
           {canEdit && onDelete && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                onClose();
-                onDelete(event.id);
-              }}
-              className="gap-1.5 text-red-400 hover:text-red-400 hover:bg-red-500/10"
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete
+            <Button variant="outline" size="sm"
+              onClick={() => { onClose(); onDelete(event.id); }}
+              className="gap-1.5 text-red-400 hover:text-red-400 hover:bg-red-500/10">
+              <Trash2 className="w-4 h-4" /> Delete
             </Button>
           )}
           
-          <Button variant="ghost" size="sm" onClick={onClose} className="ml-auto">
-            Close
-          </Button>
+          <Button variant="ghost" size="sm" onClick={onClose} className="ml-auto">Close</Button>
         </div>
       </DialogContent>
     </Dialog>
