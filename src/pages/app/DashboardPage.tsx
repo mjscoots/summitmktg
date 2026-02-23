@@ -45,9 +45,6 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
            {/* Onboarding Alert */}
            <OnboardingAlert />
 
-           {/* Elite System Progress */}
-           <EliteProgressBar />
-
           {/* Manager gets Command Center, Rookies get simple greeting */}
          {isManager ? (
            <CommandCenterHeader />
@@ -67,6 +64,9 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
              </div>
            </div>
          )}
+
+           {/* Elite System Progress - below command center */}
+           <EliteProgressBar />
 
         {/* Quick Actions (Manager) or Primary CTA (Rookie) */}
         {isManager ? (
