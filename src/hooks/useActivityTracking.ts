@@ -40,7 +40,7 @@ export function useActivityTracking() {
       try {
         const category = getRouteCategory();
         // Record daily time (handles time increment + profiles.time_this_week_minutes)
-        await supabase.rpc('record_daily_time', {
+        await (supabase.rpc as any)('record_daily_time', {
           _user_id: user.id,
           _category: category,
         });
