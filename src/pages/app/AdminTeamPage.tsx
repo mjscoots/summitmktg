@@ -117,6 +117,7 @@ export default function AdminTeamPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
+  const [rosterSubTab, setRosterSubTab] = useState<'sync' | 'import'>('sync');
 
   // Bootcamp responses state
   const [bootcampData, setBootcampData] = useState<BootcampRow[]>([]);
@@ -516,11 +517,8 @@ export default function AdminTeamPage() {
             <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
             </TabsTrigger>
-            <TabsTrigger value="roster-sync" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster Sync
-            </TabsTrigger>
-            <TabsTrigger value="mass-import" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Upload className="w-3.5 h-3.5 mr-1" /> Mass Import
+            <TabsTrigger value="roster" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster
             </TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
@@ -823,26 +821,41 @@ export default function AdminTeamPage() {
             )}
           </TabsContent>
 
-          {/* ========== ROSTER SYNC TAB ========== */}
-          <TabsContent value="roster-sync">
+          {/* ========== ROSTER TAB (Sync + Import) ========== */}
+          <TabsContent value="roster">
+            <div className="flex items-center gap-2 mb-4">
+              <Button
+                size="sm"
+                variant={rosterSubTab === 'sync' ? 'default' : 'outline'}
+                className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'sync' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
+                onClick={() => setRosterSubTab('sync')}
+              >
+                <RefreshCw className="w-3 h-3" /> Sync
+              </Button>
+              <Button
+                size="sm"
+                variant={rosterSubTab === 'import' ? 'default' : 'outline'}
+                className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'import' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
+                onClick={() => setRosterSubTab('import')}
+              >
+                <Upload className="w-3 h-3" /> Mass Import
+              </Button>
+            </div>
             <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              <LazyRosterSync
-                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status }))}
-                managers={managers}
-                onRefresh={fetchData}
-              />
-            </Suspense>
-          </TabsContent>
-
-          {/* ========== MASS IMPORT TAB ========== */}
-          <TabsContent value="mass-import">
-            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              <LazyMassImport
-                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email }))}
-                managers={managers}
-                teams={teamsSimple}
-                onRefresh={fetchData}
-              />
+              {rosterSubTab === 'sync' ? (
+                <LazyRosterSync
+                  profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status }))}
+                  managers={managers}
+                  onRefresh={fetchData}
+                />
+              ) : (
+                <LazyMassImport
+                  profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email }))}
+                  managers={managers}
+                  teams={teamsSimple}
+                  onRefresh={fetchData}
+                />
+              )}
             </Suspense>
           </TabsContent>
 
