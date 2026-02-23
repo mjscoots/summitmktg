@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2 } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -28,8 +29,8 @@ interface NavItem {
 const rookieNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-  { label: 'Chat', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
-  { label: 'Links', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
+  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
@@ -37,9 +38,9 @@ const rookieNavItems: NavItem[] = [
 const managerNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-  { label: 'Chat', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
   { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
-  { label: 'Links', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
+  { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
@@ -54,6 +55,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { role, profile, signOut } = useAuth();
+  const { themeMode, toggleThemeMode } = useTheme();
   const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === 'collapsed';
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
@@ -94,7 +96,7 @@ export function AppSidebar() {
     <Sidebar
       data-tour="sidebar"
       className={cn(
-        'border-r border-border/20 bg-black transition-all duration-200',
+        'border-r border-sidebar-border bg-sidebar-background transition-all duration-200',
         collapsed ? 'w-[52px]' : 'w-44'
       )}
       collapsible="icon"
@@ -102,7 +104,7 @@ export function AppSidebar() {
       {/* Header */}
       <SidebarHeader className="px-3 pt-4 pb-3">
         <button 
-          className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-all duration-200 hover:bg-white/10 active:scale-95"
+          className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-all duration-200 hover:bg-muted/50 active:scale-95"
           onClick={() => navigate('/app')}
         >
           <Mountain className={cn(
@@ -110,7 +112,7 @@ export function AppSidebar() {
             collapsed ? "w-5 h-5" : "w-4 h-4"
           )} />
           {!collapsed && (
-            <span className="text-sm font-black tracking-tight uppercase text-foreground/90 hover:text-primary transition-colors">
+            <span className="text-sm font-black tracking-tight uppercase text-sidebar-foreground hover:text-primary transition-colors">
               Summit
             </span>
           )}
@@ -129,7 +131,7 @@ export function AppSidebar() {
                     <button
                       data-tour={item.label.toLowerCase()}
                       onClick={() => {
-                        if (item.label === 'Chat') markChatRead();
+                        if (item.path === '/app/chat') markChatRead();
                         navigate(item.path);
                         if (isMobile) setOpenMobile(false);
                       }}
@@ -137,7 +139,7 @@ export function AppSidebar() {
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
                         active 
                           ? "bg-primary/15 text-primary"
-                          : "text-white/70 hover:text-white hover:bg-white/5"
+                          : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                       )}
                     >
                       <item.icon 
@@ -150,7 +152,7 @@ export function AppSidebar() {
                       {!collapsed && (
                         <span className="text-[13px] font-medium">{item.label}</span>
                       )}
-                      {item.label === 'Chat' && unreadChat > 0 && (
+                      {item.path === '/app/chat' && unreadChat > 0 && (
                         <span className={cn(
                           "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
                           collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
@@ -172,7 +174,7 @@ export function AppSidebar() {
         {/* Bottom admin section */}
         {visibleBottomItems.length > 0 && (
           <SidebarGroup>
-            <Separator className="mb-2 bg-white/5" />
+            <Separator className="mb-2 bg-sidebar-border" />
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0.5">
                 {visibleBottomItems.map((item) => {
@@ -187,8 +189,8 @@ export function AppSidebar() {
                         className={cn(
                           "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150",
                           active 
-                            ? "bg-primary/15 text-primary"
-                            : "text-white/50 hover:text-white/80 hover:bg-white/5"
+                          ? "bg-primary/15 text-primary"
+                          : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent"
                         )}
                       >
                         <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
@@ -206,7 +208,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="p-1.5 border-t border-border/10">
+      <SidebarFooter className="p-1.5 border-t border-sidebar-border">
         <div
           data-tour="profile"
           onClick={() => {
@@ -215,7 +217,7 @@ export function AppSidebar() {
           }}
           className={cn(
             "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all duration-200",
-            "hover:bg-white/5",
+            "hover:bg-sidebar-accent",
             collapsed ? "justify-center" : ""
           )}
         >
@@ -228,7 +230,7 @@ export function AppSidebar() {
           )}
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white/90 truncate">
+              <p className="text-xs font-medium text-sidebar-foreground truncate">
                 {profile?.full_name?.split(' ')[0] || 'User'}
               </p>
               <p className="text-[10px] text-primary/80 uppercase tracking-wide">{roleLabel}</p>
@@ -236,11 +238,29 @@ export function AppSidebar() {
           )}
         </div>
 
+        {/* Theme toggle */}
+        <button
+          onClick={toggleThemeMode}
+          className={cn(
+            "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md transition-all duration-150",
+            "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+            collapsed ? "justify-center" : ""
+          )}
+          title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {themeMode === 'dark' ? (
+            <Sun className="w-4 h-4" strokeWidth={1.75} />
+          ) : (
+            <Moon className="w-4 h-4" strokeWidth={1.75} />
+          )}
+          {!collapsed && <span className="text-xs">{themeMode === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+        </button>
+
         <button
           onClick={handleSignOut}
           className={cn(
             "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md transition-all duration-150",
-            "text-white/50 hover:text-white/80 hover:bg-white/5",
+            "text-muted-foreground hover:text-foreground hover:bg-muted/50",
             collapsed ? "justify-center" : ""
           )}
         >
