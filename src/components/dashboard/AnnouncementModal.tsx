@@ -95,6 +95,18 @@ export function AnnouncementModal({ isOpen, onClose, onSuccess }: AnnouncementMo
         return;
       }
 
+      // Sync to chat announcements channel
+      try {
+        if (user?.id) {
+          await supabase.from('chat_messages').insert({
+            user_id: user.id,
+            content: `📢 **${title.trim()}**\n\n${content.trim()}`,
+            is_ai: true,
+            channel: 'announcements',
+          });
+        }
+      } catch { /* non-critical */ }
+
       toast.success('Announcement posted!');
       resetForm();
       onClose();
