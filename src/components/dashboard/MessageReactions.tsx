@@ -5,14 +5,19 @@ import { SmilePlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const DEFAULT_EMOJIS = ['👍', '🔥', '😂', '❤️', '👏'];
+const SUMMIT_REACTIONS = [
+  { emoji: '🔥', label: 'Close' },
+  { emoji: '💰', label: 'Big Money' },
+  { emoji: '🧠', label: 'Smart' },
+  { emoji: '⚔️', label: 'Warrior' },
+  { emoji: '🚀', label: 'Momentum' },
+];
 
 const ALL_EMOJIS: { label: string; emojis: string[] }[] = [
-  { label: 'Popular', emojis: ['👍', '🔥', '😂', '❤️', '👏', '💯', '🎉', '👀', '✅', '🙌', '🚀', '💪'] },
-  { label: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '🤣', '😅', '😊', '😎', '🤩', '🥳', '😤', '😢', '🤔', '🫡', '🤝'] },
-  { label: 'Gestures', emojis: ['👍', '👎', '👊', '✊', '🤞', '🫶', '💪', '🙏', '👋', '🤙', '✌️', '🫰'] },
-  { label: 'Hearts', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '💔', '❤️‍🔥'] },
-  { label: 'Objects', emojis: ['⭐', '💎', '🏆', '🎯', '📈', '💰', '🛡️', '⚡', '🚀', '💡', '🔔', '📌'] },
+  { label: 'Summit', emojis: ['🔥', '💰', '🧠', '⚔️', '🚀', '💪', '👑', '🏆'] },
+  { label: 'Popular', emojis: ['👍', '😂', '❤️', '👏', '💯', '🎉', '👀', '✅', '🙌'] },
+  { label: 'Gestures', emojis: ['👍', '👎', '👊', '✊', '🤞', '🫶', '💪', '🙏', '👋', '🤙', '✌️'] },
+  { label: 'Objects', emojis: ['⭐', '💎', '🏆', '🎯', '📈', '💰', '🛡️', '⚡', '🚀', '💡', '🔔'] },
 ];
 
 interface Reaction {
@@ -32,7 +37,6 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
   const [showPicker, setShowPicker] = useState<'quick' | 'full' | false>(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch reactions for this message
   useEffect(() => {
     const fetchReactions = async () => {
       const { data, error } = await supabase
@@ -60,7 +64,6 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
     fetchReactions();
   }, [messageId]);
 
-  // Realtime subscription for this message's reactions
   useEffect(() => {
     const channel = supabase
       .channel(`reactions-${messageId}`)
@@ -68,7 +71,6 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
         'postgres_changes',
         { event: '*', schema: 'public', table: 'chat_reactions', filter: `message_id=eq.${messageId}` },
         () => {
-          // Re-fetch on any change
           supabase
             .from('chat_reactions')
             .select('emoji, user_id')
@@ -97,7 +99,6 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
     };
   }, [messageId]);
 
-  // Close picker on outside click
   useEffect(() => {
     if (!showPicker) return;
     const handleClick = (e: MouseEvent) => {
@@ -115,7 +116,6 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
     const existing = reactions.find(r => r.emoji === emoji);
     const hasReacted = existing?.users.includes(user.id);
 
-    // Optimistic update
     setReactions(prev => {
       if (hasReacted) {
         return prev
@@ -139,24 +139,16 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
     });
 
     if (hasReacted) {
-      const { error } = await supabase
+      await supabase
         .from('chat_reactions')
         .delete()
         .eq('message_id', messageId)
         .eq('user_id', user.id)
         .eq('emoji', emoji);
-      if (error) {
-        console.error('Delete reaction error:', error);
-        toast.error('Failed to remove reaction');
-      }
     } else {
-      const { error } = await supabase
+      await supabase
         .from('chat_reactions')
         .insert({ message_id: messageId, user_id: user.id, emoji });
-      if (error) {
-        console.error('Insert reaction error:', error);
-        toast.error('Failed to add reaction');
-      }
     }
 
     setShowPicker(false);
@@ -173,7 +165,6 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
 
   return (
     <div className="flex items-center gap-1 flex-wrap mt-1 ml-[52px]">
-      {/* Existing reactions */}
       {reactions.map(reaction => {
         const hasReacted = reaction.users.includes(user?.id || '');
         return (
@@ -182,20 +173,19 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
             onClick={() => toggleReaction(reaction.emoji)}
             title={getTooltip(reaction)}
             className={cn(
-              "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-xs border transition-all duration-150",
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs border transition-all duration-150",
               "hover:bg-muted/80",
               hasReacted
                 ? "bg-primary/10 border-primary/40 text-primary"
-                : "bg-muted/40 border-border/50 text-muted-foreground"
+                : "bg-[hsl(220,14%,10%)] border-border/40 text-muted-foreground"
             )}
           >
             <span className="text-sm leading-none">{reaction.emoji}</span>
-            <span className="font-medium tabular-nums text-[11px]">{reaction.count}</span>
+            <span className="font-bold tabular-nums text-[11px]">{reaction.count}</span>
           </button>
         );
       })}
 
-      {/* Add reaction button */}
       <div className="relative" ref={pickerRef}>
         <button
           onClick={() => setShowPicker(showPicker ? false : 'quick')}
@@ -210,23 +200,24 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
           <SmilePlus className="w-4 h-4" />
         </button>
 
-        {/* Quick 5 emoji bar */}
+        {/* Summit quick reactions */}
         {showPicker === 'quick' && (
-          <div className="absolute bottom-full mb-2 left-0 z-50 bg-card border border-border rounded-xl shadow-xl animate-in fade-in-0 zoom-in-95 duration-150">
+          <div className="absolute bottom-full mb-2 left-0 z-50 bg-[hsl(220,14%,8%)] border border-border/50 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150">
             <div className="flex items-center gap-0.5 p-1.5">
-              {DEFAULT_EMOJIS.map(emoji => (
+              {SUMMIT_REACTIONS.map(r => (
                 <button
-                  key={emoji}
-                  onClick={() => toggleReaction(emoji)}
+                  key={r.emoji}
+                  onClick={() => toggleReaction(r.emoji)}
+                  title={r.label}
                   className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-lg transition-colors"
                 >
-                  {emoji}
+                  {r.emoji}
                 </button>
               ))}
               <button
                 onClick={() => setShowPicker('full')}
                 className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground transition-colors ml-0.5 border-l border-border/50 pl-1"
-                title="More emojis"
+                title="More"
               >
                 <SmilePlus className="w-4 h-4" />
               </button>
@@ -234,13 +225,13 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
           </div>
         )}
 
-        {/* Full emoji picker */}
+        {/* Full picker */}
         {showPicker === 'full' && (
-          <div className="absolute bottom-full mb-2 left-0 z-50 bg-card border border-border rounded-xl shadow-xl w-[280px] max-h-[320px] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+          <div className="absolute bottom-full mb-2 left-0 z-50 bg-[hsl(220,14%,8%)] border border-border/50 rounded-xl shadow-2xl w-[280px] max-h-[320px] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
             <div className="overflow-y-auto max-h-[280px] p-2">
               {ALL_EMOJIS.map(cat => (
                 <div key={cat.label} className="mb-2">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-1">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 px-1">
                     {cat.label}
                   </p>
                   <div className="grid grid-cols-8 gap-0.5">
