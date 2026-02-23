@@ -43,11 +43,15 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
         sunday.setDate(monday.getDate() + 6);
         const fmt = (d: Date) => d.toISOString().split('T')[0];
 
+        const rosterUserIds = roster.map(m => m.user_id).filter(Boolean);
+        if (rosterUserIds.length === 0) return;
+
         const { data } = await (supabase
           .from('daily_training_time' as any)
           .select('user_id, date, total_minutes')
           .gte('date', fmt(monday))
-          .lte('date', fmt(sunday)) as any);
+          .lte('date', fmt(sunday))
+          .in('user_id', rosterUserIds) as any);
 
         if (data) {
           const byUser = new Map<string, any[]>();
@@ -76,7 +80,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
       } catch { /* silent */ }
     };
     fetchDailyTime();
-  }, []);
+  }, [roster]);
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
