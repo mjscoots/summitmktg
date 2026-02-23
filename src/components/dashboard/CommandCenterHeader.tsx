@@ -141,7 +141,7 @@ export function CommandCenterHeader() {
               Welcome back, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="text-xs text-white/50 mt-1">
-              Lead with pressure. Sign with purpose.
+              Lead with pressure. Train with purpose.
             </p>
           </div>
         </div>

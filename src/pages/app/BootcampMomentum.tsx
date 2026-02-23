@@ -22,10 +22,10 @@ const MOMENTUM_STEPS = [
   {
     step: 2,
     icon: Target,
-    title: 'REVENUE GOALS',
+    title: 'YOUR GOALS',
     subtitle: 'Dream big',
     fields: [
-      { key: 'revenue_goal', label: "What's your revenue goal for the summer?", type: 'text', placeholder: '$200,000' },
+      { key: 'summer_goal', label: "What's your biggest goal for the summer?", type: 'text', placeholder: 'e.g. Master my pitch, lead a team, grow as a leader' },
     ],
   },
   {
@@ -98,7 +98,7 @@ export default function BootcampMomentum() {
   const navigate = useNavigate();
   const { progress, isLoading } = useBootcamp();
   const [currentStep, setCurrentStep] = useState(getStoredStep);
-  const [answers, setAnswers] = useState<Record<string, string>>({ revenue_goal: '$200,000' });
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [scaleValue, setScaleValue] = useState<number | null>(null);
 
   useEffect(() => {

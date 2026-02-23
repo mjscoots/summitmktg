@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3, Swords } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3 } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
-import { DailyCheckIn } from '@/components/warroom/DailyCheckIn';
-import { WarModeToggle } from '@/components/warroom/WarModeToggle';
 import { TierBadge } from '@/components/shared/TierBadge';
 import { ChatPoll, PollCreator } from './ChatPoll';
 import { ChatImageUpload, isImageMessage, isFileMessage, getImageUrl, getFileInfo, ChatImage, ChatFile } from './ChatImageUpload';
@@ -108,7 +106,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showGifs, setShowGifs] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  const [warMode, setWarMode] = useState(false);
+  
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
 
@@ -247,15 +245,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     ? localAiMessages 
     : messages.filter(m => m.channel === activeChannel);
   
-  // War Mode: filter to only deal/bot messages
-  const channelMessages = warMode && activeChannel !== 'ai-coach'
-    ? allChannelMessages.filter(m => 
-        m.is_ai || 
-        m.content.includes('DEAL ALERT') || 
-        m.content.includes('Daily Execution') || 
-        m.content.includes('Deals Closed')
-      )
-    : allChannelMessages;
+  const channelMessages = allChannelMessages;
   useEffect(() => {
     scrollToBottom(false);
   }, [channelMessages.length, activeChannel, scrollToBottom]);
@@ -602,15 +592,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             </button>
           );
         })}
-        <div className="ml-auto flex items-center gap-1 pr-1">
-          <WarModeToggle active={warMode} onToggle={() => setWarMode(!warMode)} />
-        </div>
       </div>
 
       {/* Channel description bar */}
       <div className="px-4 py-1.5 border-b border-border/30 bg-muted/10 flex-shrink-0">
         <p className="text-[11px] text-muted-foreground">
-          {warMode ? '⚔️ War Mode — Deals only. No chatter.' : channelDescription[activeChannel]}
+          {channelDescription[activeChannel]}
         </p>
       </div>
 
@@ -944,18 +931,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {/* Input */}
       {canPostInChannel ? (
         <div className="px-4 pb-4 pt-1 flex-shrink-0 relative space-y-2">
-          {/* Daily Check-In */}
-          {activeChannel === 'general' && !warMode && (
-            <DailyCheckIn onSubmit={async (content) => {
-              if (!user) return;
-              await supabase.from('chat_messages').insert({
-                user_id: user.id,
-                content,
-                channel: 'general',
-              });
-              scrollToBottom();
-            }} />
-          )}
           {/* Sticker Picker */}
           {showStickers && (
             <StickerPicker
