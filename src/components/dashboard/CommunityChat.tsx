@@ -107,6 +107,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
@@ -159,21 +160,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       setMessages((data || []).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
 
-      // Welcome bot message on very first chat visit
+      // Show local welcome banner on first chat visit (no DB message)
       if (user) {
         const userMessages = (data || []).filter(m => m.user_id === user.id);
         const hasAnyActivity = userMessages.length > 0;
         if (!hasAnyActivity) {
-          const alreadyWelcomed = sessionStorage.getItem(`chat_welcomed_${user.id}`);
+          const alreadyWelcomed = localStorage.getItem(`chat_welcomed_${user.id}`);
           if (!alreadyWelcomed) {
-            sessionStorage.setItem(`chat_welcomed_${user.id}`, 'true');
-            const name = profile?.full_name || 'there';
-            supabase.from('chat_messages').insert({
-              user_id: user.id,
-              is_ai: true,
-              content: `🚀 **NEW CLOSER ENTERED THE BUILDING**\n${name} just joined the team. Let's see what they're made of. 💪`,
-              channel: 'general',
-            }).then(() => {});
+            localStorage.setItem(`chat_welcomed_${user.id}`, 'true');
+            setShowWelcomeBanner(true);
           }
         }
       }
@@ -665,6 +660,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto min-h-0 relative"
       >
+        {/* First-time welcome banner */}
+        {showWelcomeBanner && activeChannel === 'general' && (
+          <div className="mx-4 mt-4 mb-2 p-3 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-between gap-3">
+            <p className="text-sm text-foreground">
+              👋 Welcome to the squad, <span className="font-semibold">{profile?.full_name?.split(' ')[0] || 'champ'}</span>! Jump in and say hi.
+            </p>
+            <button onClick={() => setShowWelcomeBanner(false)} className="text-xs text-muted-foreground hover:text-foreground shrink-0">Dismiss</button>
+          </div>
+        )}
+
         {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
@@ -704,7 +709,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   isOwnMessage(msg) && "hover:bg-primary/5",
                   msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40",
                   postOfTheDayId === msg.id && "post-of-the-day",
-                  msg.is_ai && !grouped && (msg.content.includes('NEW CLOSER') || msg.content.includes('DEAL ALERT') || msg.content.includes('BOOTCAMP COMPLETE') || msg.content.includes('FULLY CERTIFIED') || msg.content.includes('Welcome to the team')) && "bot-msg-glow my-1"
+                  msg.is_ai && !grouped && (msg.content.includes('DEAL ALERT') || msg.content.includes('BOOTCAMP COMPLETE') || msg.content.includes('FULLY CERTIFIED')) && "bot-msg-glow my-1"
                 )}
               >
                 {/* Post of the Day badge */}

@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 export async function postBotShoutout(
   userId: string,
   fullName: string,
-  type: 'streak' | 'bootcamp' | 'training' | 'deal' | 'new_member',
+  type: 'streak' | 'bootcamp' | 'training' | 'deal',
   meta?: { streakDays?: number; deals?: number }
 ) {
   const messages: Record<string, string> = {
@@ -15,7 +15,6 @@ export async function postBotShoutout(
     bootcamp: `🏔️ BOOTCAMP COMPLETE\n${fullName} just graduated. Another soldier ready for war. ⚔️`,
     training: `🎓 FULLY CERTIFIED\n${fullName} crushed 100% of training. Built different. 🏆`,
     deal: `🔥 DEAL ALERT\n${fullName} just locked down another one.${meta?.deals ? ` That's ${meta.deals} today.` : ''} Momentum is real. 💰`,
-    new_member: `🚀 NEW CLOSER ENTERED THE BUILDING\n${fullName} just joined the team.\nLet's see what they're made of. ⚔️`,
   };
 
   const content = messages[type];
@@ -26,7 +25,6 @@ export async function postBotShoutout(
     bootcamp: `%${fullName}%graduated%`,
     training: `%${fullName}%100% of training%`,
     deal: `%DEAL ALERT%${fullName}%`,
-    new_member: `%NEW CLOSER%${fullName}%`,
   };
 
   try {
