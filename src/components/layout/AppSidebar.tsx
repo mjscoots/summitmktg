@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +29,7 @@ const rookieNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
   { label: 'Chat', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Links', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
@@ -38,6 +39,7 @@ const managerNavItems: NavItem[] = [
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
   { label: 'Chat', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
   { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
+  { label: 'Links', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
