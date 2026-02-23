@@ -825,15 +825,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
                 {/* Reactions */}
                 <MessageReactions messageId={msg.id} profileMap={profileMap} />
-                {/* Read receipts - show on last message of each group */}
-                <ReadReceipts
-                  messageId={msg.id}
-                  profileMap={profileMap}
-                  isLastInGroup={
-                    idx === channelMessages.length - 1 ||
-                    !isSameSender(channelMessages[idx + 1], msg)
-                  }
-                />
+                {/* Read receipts - only on the very last message */}
+                {idx === channelMessages.length - 1 && (
+                  <ReadReceipts
+                    messageId={msg.id}
+                    profileMap={profileMap}
+                    isLastInGroup={true}
+                  />
+                )}
               </div>
             </div>
           );
