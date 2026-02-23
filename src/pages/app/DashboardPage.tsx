@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useStreak } from '@/hooks/useStreak';
+
 import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityFeed } from '@/components/dashboard/CommunityFeed';
 import { WeeklyScheduleExpanded } from '@/components/dashboard/WeeklyScheduleExpanded';
 import { DailyChecklist } from '@/components/dashboard/DailyChecklist';
-import { MomentumMeter } from '@/components/dashboard/MomentumMeter';
+
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
 import { BootcampStragglers } from '@/components/dashboard/BootcampStragglers';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
@@ -23,7 +23,7 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
  export default function DashboardPage() {
    const navigate = useNavigate();
    const { role, profile, isLoading } = useAuth();
-   const { streakData } = useStreak();
+   
    
    const isManager = role === 'manager' || role === 'admin';
    const isAdmin = role === 'admin';
@@ -49,20 +49,17 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
          {isManager ? (
            <CommandCenterHeader />
          ) : (
-           <div className="flex items-start justify-between mb-6">
-             <div>
-               <h1 className="text-xl font-bold text-foreground">
-                 What's up, {firstName}
-               </h1>
-               <p className="text-sm text-muted-foreground mt-0.5">
-                 Complete training. Build momentum.
-               </p>
-             </div>
-             <div className="flex items-center gap-3">
-               <StreakDisplay variant="compact" clickable />
-               <MomentumMeter streak={streakData.currentStreak} />
-             </div>
-           </div>
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-xl font-bold text-foreground">
+                  What's up, {firstName}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Complete training. Build momentum.
+                </p>
+              </div>
+              <StreakDisplay variant="compact" clickable />
+            </div>
          )}
 
            {/* Elite System Progress - below command center */}
