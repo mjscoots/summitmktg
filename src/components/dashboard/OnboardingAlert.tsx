@@ -32,8 +32,8 @@ export function OnboardingAlert() {
 
   const status = profile?.onboarding_status;
 
-  // Don't show if already summer ready or no status
-  if (!status || status === 'summer_ready') return null;
+  // Only show for reps that are contract_signed or info_added
+  if (!status || status === 'summer_ready' || status === 'pending' || status === 'onboarded') return null;
 
   const config = STATUS_CONFIG[status];
   if (!config) return null;
