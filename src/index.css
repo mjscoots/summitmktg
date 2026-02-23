@@ -152,6 +152,18 @@
     box-shadow: 0 0 25px -8px hsl(217 91% 60% / 0.25);
   }
 
+  /* Bot message glow effect */
+  @keyframes bot-glow {
+    0%, 100% { box-shadow: 0 0 8px -2px hsl(var(--primary) / 0.2), inset 0 0 0 1px hsl(var(--primary) / 0.15); }
+    50% { box-shadow: 0 0 18px -2px hsl(var(--primary) / 0.35), inset 0 0 0 1px hsl(var(--primary) / 0.3); }
+  }
+
+  .bot-msg-glow {
+    animation: bot-glow 3s ease-in-out infinite;
+    border-radius: 0.5rem;
+    background: hsl(var(--primary) / 0.04);
+  }
+
   /* Confetti animation */
   @keyframes confetti-fall {
     0% {
