@@ -4,28 +4,27 @@ import { useAuth } from '@/hooks/useAuth';
 import { detectBrowserTimezone } from '@/lib/timezones';
 
 /**
- * Hook to get the user's timezone, auto-detected from browser location.
- * Automatically syncs detected timezone to the user's profile.
+ * Hook to get the user's timezone.
+ * - If the user has a timezone set in their profile, use that (manual override).
+ * - If the profile timezone is null, auto-detect from browser and use that (but don't save it).
+ * This allows users to override via profile settings, while defaulting to auto-detect.
  */
 export function useUserTimezone() {
   const { user } = useAuth();
   const detectedTz = detectBrowserTimezone();
   const [timezone, setTimezone] = useState(detectedTz);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isAutoDetected, setIsAutoDetected] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setTimezone(detectedTz);
+      setIsAutoDetected(true);
       setIsLoaded(true);
       return;
     }
 
-    // Always use the browser-detected timezone and sync it to the profile
-    setTimezone(detectedTz);
-    setIsLoaded(true);
-
-    // Sync to profile in background (fire-and-forget)
-    const syncTimezone = async () => {
+    const loadTimezone = async () => {
       try {
         const { data } = await supabase
           .from('profiles')
@@ -33,20 +32,26 @@ export function useUserTimezone() {
           .eq('user_id', user.id)
           .single();
 
-        const currentTz = (data as any)?.timezone;
-        if (currentTz !== detectedTz) {
-          await supabase
-            .from('profiles')
-            .update({ timezone: detectedTz })
-            .eq('user_id', user.id);
+        const dbTimezone = (data as any)?.timezone;
+
+        if (dbTimezone) {
+          // User has manually set a timezone — use it
+          setTimezone(dbTimezone);
+          setIsAutoDetected(false);
+        } else {
+          // No timezone set — auto-detect from browser
+          setTimezone(detectedTz);
+          setIsAutoDetected(true);
         }
       } catch {
-        // Silent fail
+        setTimezone(detectedTz);
+        setIsAutoDetected(true);
       }
+      setIsLoaded(true);
     };
 
-    syncTimezone();
+    loadTimezone();
   }, [user, detectedTz]);
 
-  return { timezone, isLoaded };
+  return { timezone, isLoaded, isAutoDetected };
 }
