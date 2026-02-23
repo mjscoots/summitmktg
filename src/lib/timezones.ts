@@ -77,19 +77,24 @@ export function formatInTimezone(date: Date | string, timezone: string, formatSt
  */
 export function getTimezoneShort(timezone: string): string {
   const tz = TIMEZONES.find(t => t.value === timezone);
-  return tz?.short || timezone;
+  if (tz) return tz.short;
+  // For any IANA timezone not in our list, derive short name dynamically
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'short' }).formatToParts(new Date());
+    const tzPart = parts.find(p => p.type === 'timeZoneName');
+    return tzPart?.value || timezone;
+  } catch {
+    return timezone;
+  }
 }
 
 /**
- * Detect user's browser timezone and map to closest supported option
+ * Detect user's browser timezone automatically
  */
 export function detectBrowserTimezone(): string {
   try {
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    // Check exact match first
-    if (TIMEZONES.some(t => t.value === browserTz)) return browserTz;
-    // Default to Pacific
-    return DEFAULT_TIMEZONE;
+    return browserTz || DEFAULT_TIMEZONE;
   } catch {
     return DEFAULT_TIMEZONE;
   }
