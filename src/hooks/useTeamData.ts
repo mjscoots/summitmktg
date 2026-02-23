@@ -73,31 +73,60 @@ export function useTeamData(): TeamData {
           }
         }
 
-        // For admins not on a team, or non-pillar managers, show direct reports
-        let memberQuery = supabase
-          .from('profiles')
-           .select('id, user_id, full_name, email, avatar_url, team_id, status, last_active_at, is_active_now, time_this_week_minutes')
-          .neq('status', 'nlc');
+        let membersData: any[] = [];
 
-        if (isPillarOwner && pillarTeamId) {
-          // Pillar owner: show all members of their team
-          memberQuery = memberQuery.eq('team_id', pillarTeamId);
+        if (isPillarOwner) {
+          // Pillar owner: use get_pillar_team_members RPC for full downline
           setTeamName(pillarTeamName);
+          const { data: pillarMembers, error: pillarError } = await supabase
+            .rpc('get_pillar_team_members', { _pillar_user_id: user.id });
+
+          if (pillarError) {
+            console.error('Error fetching pillar team members:', pillarError);
+            setError('Failed to load team members');
+            setIsLoading(false);
+            return;
+          }
+
+          // Map RPC result to match expected shape
+          membersData = (pillarMembers || []).map((m: any) => ({
+            id: m.profile_id,
+            user_id: m.user_id,
+            full_name: m.full_name,
+            email: m.email,
+            avatar_url: m.avatar_url,
+            team_id: null,
+            status: m.status || 'active',
+            last_active_at: m.last_active_at,
+            is_active_now: m.is_active_now,
+            time_this_week_minutes: m.time_this_week_minutes,
+          }));
         } else if (profile?.full_name) {
-          // Manager: show direct reports
-          memberQuery = memberQuery.eq('direct_manager', profile.full_name);
+          // Manager: use get_user_downline RPC for full recursive downline
           setTeamName(`${profile.full_name.split(' ')[0]}'s Team`);
+          const { data: downline, error: downlineError } = await supabase
+            .rpc('get_user_downline', { _manager_name: profile.full_name });
+
+          if (downlineError) {
+            console.error('Error fetching downline:', downlineError);
+            setError('Failed to load team members');
+            setIsLoading(false);
+            return;
+          }
+
+          if (downline && downline.length > 0) {
+            // Fetch full profile data for downline members
+            const downlineUserIds = downline.map((d: any) => d.user_id);
+            const { data: profilesData } = await supabase
+              .from('profiles')
+              .select('id, user_id, full_name, email, avatar_url, team_id, status, last_active_at, is_active_now, time_this_week_minutes')
+              .in('user_id', downlineUserIds)
+              .neq('status', 'nlc')
+              .order('last_active_at', { ascending: false, nullsFirst: false });
+
+            membersData = profilesData || [];
+          }
         } else {
-          setIsLoading(false);
-          return;
-        }
-
-        const { data: membersData, error: membersError } = await memberQuery
-          .order('last_active_at', { ascending: false, nullsFirst: false });
-
-        if (membersError) {
-          console.error('Error fetching team members:', membersError);
-          setError('Failed to load team members');
           setIsLoading(false);
           return;
         }
