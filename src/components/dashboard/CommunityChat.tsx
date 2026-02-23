@@ -255,51 +255,37 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       if (error) throw error;
 
       if (isAiChannel) {
-        // Check if this is the user's first message in ai-coach channel
-        const userAiMessages = messages.filter(m => m.channel === 'ai-coach' && m.user_id === user.id && !m.is_ai);
-        const isFirstMessage = userAiMessages.length === 0;
+        setIsAiLoading(true);
+        try {
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          const accessToken = currentSession?.access_token;
+          if (!accessToken) throw new Error('Not authenticated');
 
-        // React with 🚀 to their message
-        if (insertedMsg?.id) {
-          await supabase.from('chat_reactions').insert({
-            message_id: insertedMsg.id,
-            user_id: user.id,
-            emoji: '🚀',
-          }).then(() => {
-            // The realtime subscription will pick up the reaction
-          });
-        }
+          // Build conversation history from recent ai-coach messages for context
+          const recentAiMessages = messages
+            .filter(m => m.channel === 'ai-coach')
+            .slice(-10)
+            .map(m => ({
+              role: m.is_ai ? 'assistant' as const : 'user' as const,
+              content: m.content,
+            }));
+          // Add current message
+          recentAiMessages.push({ role: 'user', content });
 
-        if (isFirstMessage) {
-          // Send a welcome greeting instead of calling AI
-          const greeting = `What's up! 🔥 Welcome to the AI Coach — I'm here to help you crush it on the doors. Ask me anything about your pitch, objections, closes, or daily game plan. Let's get after it!`;
-          await supabase.from('chat_messages').insert({
-            user_id: user.id,
-            content: greeting,
-            is_ai: true,
-            channel: 'ai-coach',
-          });
-        } else {
-          setIsAiLoading(true);
-          try {
-            const { data: { session: currentSession } } = await supabase.auth.getSession();
-            const accessToken = currentSession?.access_token;
-            if (!accessToken) throw new Error('Not authenticated');
-
-            const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${accessToken}`,
-                  apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-                },
-                body: JSON.stringify({
-                  messages: [{ role: 'user', content }],
-                }),
-              }
-            );
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              },
+              body: JSON.stringify({
+                messages: recentAiMessages,
+              }),
+            }
+          );
 
             if (!response.ok) throw new Error('AI request failed');
 
@@ -335,7 +321,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               }
             }
 
-            if (aiContent) {
+          if (aiContent) {
+            // Prevent duplicate bot messages by checking if this exact content was just posted
+            const { data: existing } = await supabase
+              .from('chat_messages')
+              .select('id')
+              .eq('is_ai', true)
+              .eq('channel', 'ai-coach')
+              .eq('content', aiContent)
+              .gte('created_at', new Date(Date.now() - 30000).toISOString())
+              .limit(1);
+
+            if (!existing?.length) {
               await supabase.from('chat_messages').insert({
                 user_id: user.id,
                 content: aiContent,
@@ -343,12 +340,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 channel: 'ai-coach',
               });
             }
-          } catch (aiError) {
-            console.error('AI error:', aiError);
-            toast.error('AI Coach is unavailable right now');
-          } finally {
-            setIsAiLoading(false);
           }
+        } catch (aiError) {
+          console.error('AI error:', aiError);
+          toast.error('AI Coach is unavailable right now');
+        } finally {
+          setIsAiLoading(false);
         }
       }
     } catch (error) {
