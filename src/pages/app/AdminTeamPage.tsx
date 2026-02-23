@@ -9,12 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2 } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
+const LazyRosterSync = lazy(() => import('@/components/admin/RosterSyncTab'));
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -514,6 +515,9 @@ export default function AdminTeamPage() {
             <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
             </TabsTrigger>
+            <TabsTrigger value="roster-sync" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster Sync
+            </TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
             )}
@@ -813,6 +817,17 @@ export default function AdminTeamPage() {
                 </table>
               </div>
             )}
+          </TabsContent>
+
+          {/* ========== ROSTER SYNC TAB ========== */}
+          <TabsContent value="roster-sync">
+            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyRosterSync
+                profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status }))}
+                managers={managers}
+                onRefresh={fetchData}
+              />
+            </Suspense>
           </TabsContent>
 
           {/* ========== SYSTEM CONTROLS TAB ========== */}
