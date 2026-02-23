@@ -27,19 +27,28 @@
      const fetchTimeData = async () => {
        setIsLoading(true);
        try {
+         // Calculate current PST Monday for stale-week detection
+         const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+         const pstDay = pstNow.getDay();
+         const pstDiffToMon = pstDay === 0 ? -6 : 1 - pstDay;
+         const pstMon = new Date(pstNow);
+         pstMon.setDate(pstNow.getDate() + pstDiffToMon);
+         const pstMondayStr = `${pstMon.getFullYear()}-${String(pstMon.getMonth() + 1).padStart(2, '0')}-${String(pstMon.getDate()).padStart(2, '0')}`;
+
          const { data, error } = await supabase
            .from('profiles')
-           .select('user_id, full_name, avatar_url, time_this_week_minutes')
+           .select('user_id, full_name, avatar_url, time_this_week_minutes, week_start')
            .eq('team_id', teamId)
            .neq('status', 'nlc')
            .order('time_this_week_minutes', { ascending: false });
- 
+
          if (!error && data) {
            setMembers(data.map(d => ({
              user_id: d.user_id,
              full_name: d.full_name,
              avatar_url: d.avatar_url,
-             time_this_week_minutes: d.time_this_week_minutes || 0,
+             // Show 0 if user's week_start is stale (hasn't logged in this week)
+             time_this_week_minutes: (d.week_start || '1970-01-01') < pstMondayStr ? 0 : (d.time_this_week_minutes || 0),
            })));
          }
        } catch (err) {

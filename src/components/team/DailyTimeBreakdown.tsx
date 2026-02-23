@@ -15,16 +15,17 @@ interface DailyTimeRow {
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function getWeekRange(): { start: string; end: string } {
-  const now = new Date();
-  const day = now.getDay(); // 0=Sun, 1=Mon...
+  // Calculate Monday-Sunday in PST (America/Los_Angeles)
+  const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const day = pstNow.getDay(); // 0=Sun, 1=Mon...
   const diffToMon = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + diffToMon);
-  monday.setHours(0, 0, 0, 0);
+  const monday = new Date(pstNow);
+  monday.setDate(pstNow.getDate() + diffToMon);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
 
-  const fmt = (d: Date) => d.toISOString().split('T')[0];
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   return { start: fmt(monday), end: fmt(sunday) };
 }
 
@@ -65,13 +66,15 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
   // Build a 7-day array (Mon-Sun), filling in zeros where no data
   const dailyData = useMemo(() => {
     const { start } = getWeekRange();
-    const monday = new Date(start + 'T00:00:00');
+    // Parse the PST date string directly (avoid UTC conversion)
+    const [y, m, d] = start.split('-').map(Number);
+    const monday = new Date(y, m - 1, d);
     const result: (DailyTimeRow & { label: string })[] = [];
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + i);
+      const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
       const match = rows.find(r => r.date === dateStr);
       result.push({
         label: DAY_LABELS[i],
@@ -112,7 +115,8 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
     );
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const today = `${pstNow.getFullYear()}-${String(pstNow.getMonth() + 1).padStart(2, '0')}-${String(pstNow.getDate()).padStart(2, '0')}`;
 
   return (
     <div className="p-3 bg-muted/30 rounded-lg space-y-3">

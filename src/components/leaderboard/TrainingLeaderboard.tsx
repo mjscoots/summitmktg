@@ -83,7 +83,7 @@ export function TrainingLeaderboard() {
         const [profilesRes, progressRes, videoProgressRes, streaksRes] = await Promise.all([
           supabase
             .from('profiles')
-            .select('user_id, full_name, nickname, avatar_url, time_this_week_minutes, is_active_now, last_active_at')
+            .select('user_id, full_name, nickname, avatar_url, time_this_week_minutes, week_start, is_active_now, last_active_at')
             .in('user_id', rookieIds)
             .not('status', 'eq', 'nlc'),
           supabase
@@ -135,13 +135,24 @@ export function TrainingLeaderboard() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        // Calculate current PST Monday for stale-week detection
+        const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+        const pstDay = pstNow.getDay(); // 0=Sun
+        const pstDiffToMon = pstDay === 0 ? -6 : 1 - pstDay;
+        const pstMonday = new Date(pstNow);
+        pstMonday.setDate(pstNow.getDate() + pstDiffToMon);
+        const pstMondayStr = `${pstMonday.getFullYear()}-${String(pstMonday.getMonth() + 1).padStart(2, '0')}-${String(pstMonday.getDate()).padStart(2, '0')}`;
+
         const leaderboard: LeaderboardEntry[] = profiles.map(p => {
           const stats = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
           const lessonsCompleted = stats.completed;
           const avgQuizScore = stats.quizScores.length > 0
             ? Math.round(stats.quizScores.reduce((a, b) => a + b, 0) / stats.quizScores.length)
             : 0;
-          const hoursThisWeek = Math.round((p.time_this_week_minutes || 0) / 60 * 10) / 10;
+          // If user's week_start is before current PST Monday, their data is stale — show 0
+          const weekStartStr = (p as any).week_start || '1970-01-01';
+          const minutesThisWeek = weekStartStr < pstMondayStr ? 0 : (p.time_this_week_minutes || 0);
+          const hoursThisWeek = Math.round(minutesThisWeek / 60 * 10) / 10;
           const streakDays = streakMap.get(p.user_id) || 0;
           const progressPct = Math.round((lessonsCompleted / totalItems) * 100);
 
