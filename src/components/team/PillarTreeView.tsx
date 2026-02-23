@@ -7,7 +7,7 @@ import { TeamTreeNode } from './TeamTreeNode';
 import { MemberProfileModal } from './MemberProfileModal';
  import { TeamResources } from './TeamResources';
  import { TeamTimeStats } from './TeamTimeStats';
- import { TeamActivityTable } from './TeamActivityTable';
+ 
 import { ManagerTrainingOverview } from '@/components/training/ManagerTrainingOverview';
 import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
 import { isManager as checkIsManager, normalizeName, getDisplayName } from '@/lib/hierarchyUtils';
@@ -26,60 +26,7 @@ interface PillarTreeViewProps {
 export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataChange }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
 
-  // Fetch daily training time for the week
-  useEffect(() => {
-    const fetchDailyTime = async () => {
-      try {
-        const now = new Date();
-        const day = now.getDay();
-        const diffToMon = day === 0 ? -6 : 1 - day;
-        const monday = new Date(now);
-        monday.setDate(now.getDate() + diffToMon);
-        monday.setHours(0, 0, 0, 0);
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-        const fmt = (d: Date) => d.toISOString().split('T')[0];
-
-        const rosterUserIds = roster.map(m => m.user_id).filter(Boolean);
-        if (rosterUserIds.length === 0) return;
-
-        const { data } = await (supabase
-          .from('daily_training_time' as any)
-          .select('user_id, date, total_minutes')
-          .gte('date', fmt(monday))
-          .lte('date', fmt(sunday))
-          .in('user_id', rosterUserIds) as any);
-
-        if (data) {
-          const byUser = new Map<string, any[]>();
-          (data as any[]).forEach((r: any) => {
-            if (!byUser.has(r.user_id)) byUser.set(r.user_id, []);
-            byUser.get(r.user_id)!.push(r);
-          });
-
-          const map = new Map<string, { days: { minutes: number }[]; totalMinutes: number }>();
-          byUser.forEach((userRows, userId) => {
-            const days: { minutes: number }[] = [];
-            let total = 0;
-            for (let i = 0; i < 7; i++) {
-              const d = new Date(monday);
-              d.setDate(monday.getDate() + i);
-              const dateStr = d.toISOString().split('T')[0];
-              const match = userRows.find((r: any) => r.date === dateStr);
-              const mins = match?.total_minutes ?? 0;
-              days.push({ minutes: mins });
-              total += mins;
-            }
-            map.set(userId, { days, totalMinutes: total });
-          });
-          setDailyTimeMap(map);
-        }
-      } catch { /* silent */ }
-    };
-    fetchDailyTime();
-  }, [roster]);
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
@@ -219,12 +166,8 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
         }}
       />
 
-      {/* Team Activity Table */}
-      <TeamActivityTable
-        roster={roster}
-        dailyTimeMap={dailyTimeMap}
-        onMemberClick={handleMemberClick}
-      />
+
+
 
       {/* Rep Training Progress */}
       <ManagerTrainingOverview teamId={pillar.id} />
