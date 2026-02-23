@@ -999,6 +999,7 @@ export type Database = {
           recruiter: string | null
           referred_by: string | null
           region: string | null
+          revenue_goal: number | null
           status: Database["public"]["Enums"]["user_status"] | null
           team_id: string | null
           time_this_week_minutes: number | null
@@ -1029,6 +1030,7 @@ export type Database = {
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
+          revenue_goal?: number | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
           time_this_week_minutes?: number | null
@@ -1059,6 +1061,7 @@ export type Database = {
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
+          revenue_goal?: number | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
           time_this_week_minutes?: number | null
