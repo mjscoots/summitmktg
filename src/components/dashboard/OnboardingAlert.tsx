@@ -7,22 +7,22 @@ import { Badge } from '@/components/ui/badge';
 const STATUS_CONFIG: Record<string, { label: string; message: string; severity: 'warn' | 'info' }> = {
   pending: {
     label: 'Pending',
-    message: 'Your profile is pending. Complete your onboarding to get started.',
+    message: 'Your profile is pending. Hop on the next onboarding Zoom to get started.',
     severity: 'warn',
   },
   info_added: {
     label: 'Info Added',
-    message: 'Your info has been added — complete the remaining onboarding steps to become Summer Ready.',
+    message: 'Your info has been added — join the next onboarding Zoom to become Summer Ready.',
     severity: 'warn',
   },
   contract_signed: {
     label: 'Contract Signed',
-    message: 'Contract signed! Finish your onboarding checklist to get marked Summer Ready.',
+    message: 'Contract signed! Join the next onboarding Zoom to get marked Summer Ready.',
     severity: 'warn',
   },
   onboarded: {
     label: 'Onboarded',
-    message: 'You\'re onboarded — just a few more steps to become Summer Ready!',
+    message: 'You\'re almost there — just a few more steps to become Summer Ready!',
     severity: 'info',
   },
 };
@@ -48,7 +48,7 @@ export function OnboardingAlert() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-sm font-semibold text-foreground">Complete Your Onboarding</h3>
+            <h3 className="text-sm font-semibold text-foreground">Join Onboarding Zoom</h3>
             <Badge variant="outline" className={`text-[9px] ${isWarn ? 'text-amber-400 border-amber-500/30' : 'text-blue-400 border-blue-500/30'}`}>
               {config.label}
             </Badge>
@@ -62,7 +62,7 @@ export function OnboardingAlert() {
               onClick={() => window.location.href = '/app/links'}
             >
               <ExternalLink className="w-3 h-3" />
-              Start Onboarding
+              Join Onboarding
             </Button>
           </div>
         </div>
