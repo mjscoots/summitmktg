@@ -13,38 +13,14 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { VideoUploader } from '@/components/VideoUploader';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import { parseEmbedUrl } from '@/lib/videoUtils';
+import { ALL_VIDEO_CATEGORIES } from '@/lib/trainingConstants';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
 
 type VideoSource = 'url' | 'upload';
-
-const CATEGORIES = [
-  'Introduction',
-  'Switchover',
-  'Fresh Account',
-  'Body Language',
-  'Tonality',
-  'Objections',
-  'Closing',
-  'Advanced Training',
-  'Mental Mastery',
-  'Zoom Trainings',
-  'Manager Training',
-];
-
-const parseEmbedUrl = (url: string): string | null => {
-  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
-  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vimeoMatch) {
-    const hashMatch = url.match(/[?&]h=([a-zA-Z0-9]+)/);
-    const params = 'title=0&byline=0&portrait=0&badge=0&autopause=0&controls=1&dnt=1';
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}?${hashMatch ? `h=${hashMatch[1]}&` : ''}${params}`;
-  }
-  return null;
-};
 
 export function TrainingVideosManager() {
   const { user, role } = useAuth();
@@ -398,7 +374,7 @@ export function TrainingVideosManager() {
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                  {ALL_VIDEO_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

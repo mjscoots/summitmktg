@@ -42,7 +42,7 @@ const InterviewsPage = lazy(() => import("./pages/app/InterviewsPage"));
 const Interview1Page = lazy(() => import("./pages/app/Interview1Page"));
 const Interview2Page = lazy(() => import("./pages/app/Interview2Page"));
 const Interview3Page = lazy(() => import("./pages/app/Interview3Page"));
-const WeeklyOneOnOnesPage = lazy(() => import("./pages/app/WeeklyOneOnOnesPage"));
+
 const FormsPage = lazy(() => import("./pages/app/FormsPage"));
 const TrainingVideosPage = lazy(() => import("./pages/app/TrainingVideosPage"));
 const ManagerTrainingVideosPage = lazy(() => import("./pages/app/ManagerTrainingVideosPage"));
