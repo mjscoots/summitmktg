@@ -14,6 +14,8 @@ import { MessageReactions } from './MessageReactions';
 import { ReadReceipts } from './ReadReceipts';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { TeamMember } from '@/lib/hierarchyUtils';
 /** Render text with clickable links */
 function renderWithLinks(text: string) {
   const urlRegex = /(https?:\/\/[^\s<]+)/g;
@@ -99,6 +101,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showStickers, setShowStickers] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
 
@@ -489,6 +492,28 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return diff < 5 * 60 * 1000;
   };
 
+  const handleProfileClick = async (userId: string) => {
+    if (!userId) return;
+    const [profileRes, roleRes] = await Promise.all([
+      supabase.from('profiles').select('id, user_id, full_name, email, phone, status, experience, direct_manager').eq('user_id', userId).maybeSingle(),
+      supabase.from('user_roles').select('role').eq('user_id', userId).maybeSingle(),
+    ]);
+    if (profileRes.data) {
+      const p = profileRes.data;
+      setSelectedMember({
+        id: p.id,
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        phone: p.phone,
+        status: p.status,
+        experience: p.experience,
+        direct_manager: p.direct_manager,
+        role: (roleRes.data?.role as 'rookie' | 'manager' | 'admin') || 'rookie',
+      });
+    }
+  };
+
   const getRoleColor = (r?: string) => {
     if (r === 'admin') return 'text-red-400';
     if (r === 'manager') return 'text-blue-400';
@@ -666,13 +691,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           <Bot className="w-5 h-5 text-primary" />
                         </div>
                       ) : (
-                        <UserAvatar
-                          avatarUrl={msgProfile.avatar_url}
-                          fullName={msgProfile.full_name}
-                          size="md"
-                          showOnline
-                          isOnline={msgProfile.is_active_now}
-                        />
+                        <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
+                          <UserAvatar
+                            avatarUrl={msgProfile.avatar_url}
+                            fullName={msgProfile.full_name}
+                            size="md"
+                            showOnline
+                            isOnline={msgProfile.is_active_now}
+                          />
+                        </button>
                       )
                     ) : (
                       <span className="text-[10px] text-muted-foreground/0 group-hover/msg:text-muted-foreground/60 transition-colors w-10 text-right leading-[22px] tabular-nums">
@@ -707,12 +734,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                     {/* Name + timestamp header */}
                     {!grouped && (
                       <div className="flex items-baseline gap-2 mb-0.5">
-                        <span className={cn(
-                          "text-sm font-semibold hover:underline cursor-pointer",
-                          msg.is_ai ? 'text-primary' : getRoleColor(msgProfile.role)
-                        )}>
+                        <button
+                          onClick={() => !msg.is_ai && handleProfileClick(msg.user_id)}
+                          className={cn(
+                            "text-sm font-semibold hover:underline cursor-pointer",
+                            msg.is_ai ? 'text-primary' : getRoleColor(msgProfile.role)
+                          )}
+                        >
                           {msgProfile.full_name}
-                        </span>
+                        </button>
                         {getRoleBadge(msgProfile.role)}
                         <span className="text-[10px] text-muted-foreground/60">
                           {isToday(new Date(msg.created_at))
@@ -993,6 +1023,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           </p>
         </div>
       )}
+      {/* Profile Modal */}
+      <MemberProfileModal
+        open={selectedMember !== null}
+        onClose={() => setSelectedMember(null)}
+        member={selectedMember}
+        roster={[]}
+      />
     </div>
   );
 }
