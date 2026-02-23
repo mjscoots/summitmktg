@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck } from 'lucide-react';
+import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Button } from '@/components/ui/button';
 import { TeamCard } from '@/components/team/TeamCard';
 import { PillarTreeView } from '@/components/team/PillarTreeView';
@@ -56,6 +57,7 @@ export default function MyTeamPage() {
   // Profiles with time/activity data for members view
   const [profilesRaw, setProfilesRaw] = useState<any[]>([]);
   const [bootcampMap, setBootcampMap] = useState<Map<string, { completed: boolean; exempt: boolean; phases: number }>>(new Map());
+  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
 
   const isAdmin = role === 'admin';
   const isManagerRole = role === 'manager' || role === 'admin';
@@ -123,6 +125,54 @@ export default function MyTeamPage() {
 
       setAllMembers(members);
       setPillars(teamsData || []);
+
+      // Fetch daily training time for week chart
+      try {
+        const now = new Date();
+        const day = now.getDay();
+        const diffToMon = day === 0 ? -6 : 1 - day;
+        const monday = new Date(now);
+        monday.setDate(now.getDate() + diffToMon);
+        monday.setHours(0, 0, 0, 0);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        const fmt = (d: Date) => d.toISOString().split('T')[0];
+        const start = fmt(monday);
+        const end = fmt(sunday);
+
+        const { data: dailyData } = await (supabase
+          .from('daily_training_time' as any)
+          .select('user_id, date, total_minutes')
+          .gte('date', start)
+          .lte('date', end) as any);
+
+        if (dailyData) {
+          const byUser = new Map<string, any[]>();
+          (dailyData as any[]).forEach((r: any) => {
+            if (!byUser.has(r.user_id)) byUser.set(r.user_id, []);
+            byUser.get(r.user_id)!.push(r);
+          });
+
+          const map = new Map<string, { days: { minutes: number }[]; totalMinutes: number }>();
+          byUser.forEach((userRows, userId) => {
+            const days: { minutes: number }[] = [];
+            let total = 0;
+            for (let i = 0; i < 7; i++) {
+              const d = new Date(monday);
+              d.setDate(monday.getDate() + i);
+              const dateStr = d.toISOString().split('T')[0];
+              const match = userRows.find((r: any) => r.date === dateStr);
+              const mins = match?.total_minutes ?? 0;
+              days.push({ minutes: mins });
+              total += mins;
+            }
+            map.set(userId, { days, totalMinutes: total });
+          });
+          setDailyTimeMap(map);
+        }
+      } catch {
+        // Silent fail for daily time
+      }
     } catch (err) {
       console.error('Error fetching team data:', err);
     } finally {
@@ -495,7 +545,7 @@ export default function MyTeamPage() {
                         <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Training</span>
                       </th>
                       <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Time This Week</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Week Activity</span>
                       </th>
                       <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
                         <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> Last Active</span>
@@ -562,9 +612,16 @@ export default function MyTeamPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-foreground text-xs font-medium tabular-nums">
-                              {formatTime(member.time_this_week_minutes)}
-                            </span>
+                            {(() => {
+                              const weekData = dailyTimeMap.get(member.user_id);
+                              const defaultDays = Array(7).fill({ minutes: 0 });
+                              return (
+                                <MiniWeekChart
+                                  days={weekData?.days ?? defaultDays}
+                                  totalMinutes={weekData?.totalMinutes ?? 0}
+                                />
+                              );
+                            })()}
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1.5">
