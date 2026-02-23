@@ -235,13 +235,6 @@ export function CommandCenterHeader() {
           isLoading={isLoading}
         />
         <Divider />
-        <StatusItem 
-          icon={<Users className="w-3.5 h-3.5" />}
-          label="Active Reps"
-          value={stats.totalActive}
-          isLoading={isLoading}
-        />
-        <Divider />
         <StatusItemPercent 
           icon={<GraduationCap className="w-3.5 h-3.5" />}
           label="Rookie Training"
