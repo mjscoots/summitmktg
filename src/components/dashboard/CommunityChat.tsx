@@ -57,9 +57,9 @@ interface CommunityChatProps {
 }
 
 const CHANNELS = [
-  { id: 'general', label: 'General', icon: Hash, color: 'text-muted-foreground' },
+  { id: 'general', label: 'Feed', icon: Hash, color: 'text-muted-foreground' },
   { id: 'announcements', label: 'Announcements', icon: Megaphone, color: 'text-amber-500' },
-  { id: 'feedback', label: 'Feedback & Ideas', icon: Lightbulb, color: 'text-emerald-500' },
+  { id: 'feedback', label: 'Ideas', icon: Lightbulb, color: 'text-emerald-500' },
   { id: 'ai-coach', label: 'AI Coach', icon: Sparkles, color: 'text-primary' },
 ] as const;
 
@@ -530,10 +530,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const activeChannelConfig = CHANNELS.find(c => c.id === activeChannel)!;
   const canPostInChannel = activeChannel !== 'announcements' || isManager;
   const channelDescription: Record<ChannelId, string> = {
-    general: 'Team chat · open to everyone',
-    announcements: isManager ? 'Post updates for the team' : 'Read-only · updates from leadership',
-    feedback: 'Share ideas & suggestions',
-    'ai-coach': 'Ask the AI Coach anything',
+    general: 'Share wins, ask questions, hype each other up 🔥',
+    announcements: isManager ? 'Post updates for the team' : 'Updates from leadership',
+    feedback: 'Share ideas & feature requests 💡',
+    'ai-coach': 'Your personal sales coach — ask anything',
   };
 
   return (
@@ -631,8 +631,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               <div
                 id={`msg-${msg.id}`}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-muted/30 transition-colors",
-                  grouped ? "py-0.5" : "pt-3 pb-0.5",
+                  "group/msg relative px-4 hover:bg-muted/20 transition-colors",
+                  grouped ? "py-0.5" : "pt-4 pb-1",
+                  !grouped && activeChannel !== 'ai-coach' && "border-b border-border/20",
                   isOwnMessage(msg) && "hover:bg-primary/5",
                   msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40"
                 )}
@@ -950,8 +951,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 replyingTo
                   ? `Reply to ${getProfile(replyingTo).full_name}...`
                   : activeChannel === 'ai-coach'
-                    ? 'Ask the AI Coach...'
-                    : `Message #${activeChannelConfig.label}`
+                    ? 'Ask Summit Coach anything...'
+                    : activeChannel === 'feedback'
+                      ? 'Share an idea or suggestion...'
+                      : "What's on your mind?"
               }
               className="flex-1 bg-transparent text-foreground text-sm px-4 py-2.5 focus:outline-none placeholder:text-muted-foreground/50"
               disabled={isSending || isAiLoading}

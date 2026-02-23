@@ -9,10 +9,11 @@ import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
-import { Bell, Calendar, GraduationCap, Trophy } from 'lucide-react';
+import { RookieXPPanel } from '@/components/dashboard/RookieXPPanel';
+import { Bell, Calendar, GraduationCap, Trophy, Sparkles } from 'lucide-react';
 
 export default function RookieDashboardPage() {
-  const { role, isLoading } = useAuth();
+  const { role, isLoading, profile } = useAuth();
   const { isImpersonating } = useRookieView();
   const navigate = useNavigate();
 
@@ -31,20 +32,26 @@ export default function RookieDashboardPage() {
     );
   }
 
+  const firstName = profile?.full_name?.split(' ')[0] || 'Rookie';
+
   return (
     <ThemeProvider initialRole="rookie">
       <div className="min-h-screen bg-background">
         <DashboardHeader />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          {/* Dashboard Title */}
+          {/* Welcome + XP Panel */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-foreground tracking-tight">
-              ROOKIE <span className="text-primary">DASHBOARD</span>
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Complete your training and climb the leaderboard
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <h1 className="text-2xl font-black text-foreground tracking-tight">
+                LET'S GO, <span className="text-primary">{firstName.toUpperCase()}</span>
+              </h1>
+            </div>
+            <p className="text-muted-foreground text-sm mb-4">
+              Earn XP by completing lessons, passing quizzes, and keeping your streak alive.
             </p>
+            <RookieXPPanel />
           </div>
 
           {/* TRAINING FIRST - Most Important Section */}
@@ -55,7 +62,7 @@ export default function RookieDashboardPage() {
               </div>
               <h2 className="font-bold text-xl text-foreground">Training</h2>
               <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                PRIORITY
+                +25 XP / LESSON
               </span>
             </div>
             <TrainingTiles />
