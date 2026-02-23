@@ -160,7 +160,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
       // Post a welcome announcement in community chat (only if none exists yet)
       try {
-        const welcomeContent = `🎉 **Welcome to the team, ${fullName}!** They just completed their profile and are ready to get started. Let's give them a warm welcome! 🚀`;
+        const welcomeContent = `👋 Welcome **${fullName}** to the team! 🚀`;
         const { data: existing } = await supabase
           .from('chat_messages')
           .select('id')
