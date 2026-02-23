@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3 } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3, Crown } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
 import { TierBadge } from '@/components/shared/TierBadge';
@@ -106,6 +106,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showGifs, setShowGifs] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
   
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
@@ -249,6 +250,43 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   useEffect(() => {
     scrollToBottom(false);
   }, [channelMessages.length, activeChannel, scrollToBottom]);
+
+  // Post of the Day: find today's most-reacted message
+  useEffect(() => {
+    const fetchPostOfTheDay = async () => {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const { data } = await supabase
+        .from('chat_reactions')
+        .select('message_id')
+        .gte('created_at', todayStart.toISOString());
+
+      if (!data || data.length === 0) {
+        setPostOfTheDayId(null);
+        return;
+      }
+
+      // Count reactions per message
+      const counts: Record<string, number> = {};
+      data.forEach(r => {
+        counts[r.message_id] = (counts[r.message_id] || 0) + 1;
+      });
+
+      // Find message with most reactions (minimum 3 to qualify)
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      if (sorted[0] && sorted[0][1] >= 3) {
+        setPostOfTheDayId(sorted[0][0]);
+      } else {
+        setPostOfTheDayId(null);
+      }
+    };
+
+    fetchPostOfTheDay();
+    // Refresh every 2 minutes
+    const interval = setInterval(fetchPostOfTheDay, 120000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Clear unread when switching channels
   const switchChannel = (ch: ChannelId) => {
@@ -664,9 +702,20 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   grouped ? "py-0.5" : "pt-4 pb-1",
                   !grouped && activeChannel !== 'ai-coach' && "border-b border-border/20",
                   isOwnMessage(msg) && "hover:bg-primary/5",
-                  msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40"
+                  msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40",
+                  postOfTheDayId === msg.id && "post-of-the-day"
                 )}
               >
+                {/* Post of the Day badge */}
+                {postOfTheDayId === msg.id && (
+                  <div className="flex items-center gap-1.5 mb-1.5 ml-[52px]">
+                    <Crown className="w-3.5 h-3.5 text-yellow-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-500/90">
+                      Post of the Day
+                    </span>
+                  </div>
+                )}
+
                 {/* Toolbar */}
                 {!msg.is_ai && (
                   <div className="absolute -top-3 right-4 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border rounded-md shadow-lg px-0.5 py-0.5 z-10">
