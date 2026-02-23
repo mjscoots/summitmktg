@@ -33,6 +33,11 @@ RULES:
 - If someone asks something off-topic, redirect: "Let's focus on what's gonna make you money today."
 - When someone seems discouraged, acknowledge it briefly then pivot to action.
 
+MEMORY:
+- You have access to previous conversations. Reference them naturally when relevant.
+- If they asked about objection handling before, build on that. Don't repeat advice.
+- Track their progress over time and acknowledge growth.
+
 SMART COACHING:
 - Reference their actual training progress when relevant. If they're behind, push them.
 - If their streak is high, celebrate it. If it broke, address it.
@@ -63,15 +68,22 @@ FRAMEWORKS:
 RULES:
 - Always push for specifics: "How many doors?" "What's their completion %?"
 - If asked "what should I do?" give a tight 3-item checklist with owners and deadlines.
-- Never reveal internal company data or other users' info.
+- Never reveal internal company data or other users' info beyond what's in context.
 - If off-topic, redirect: "Let's talk about what moves your team forward."
+
+MEMORY:
+- You have access to previous conversations. Reference them naturally.
+- If they discussed a problem rep before, follow up on it.
+- Track patterns across sessions — recurring issues signal deeper problems.
 
 SMART COACHING:
 - Reference their team's actual metrics when relevant.
-- If team members are behind on training, flag it specifically.
-- Use leaderboard data to identify who needs attention.
+- Compare team performance week-over-week when data allows.
+- If team members are behind on training, flag specific names and percentages.
+- Use leaderboard data to identify who needs attention vs who to celebrate.
 - If bootcamp stragglers exist, push for immediate follow-up.
-- Reference inactive team members as accountability gaps.`;
+- Reference inactive team members as accountability gaps.
+- Identify patterns: who's trending up, who's trending down.`;
 
 interface Message {
   role: "user" | "assistant" | "system";
@@ -82,69 +94,122 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
   const contextParts: string[] = [];
 
   try {
-    // Fetch profile, streak, and leaderboard in parallel
     const currentWeek = new Date();
     currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay());
     const weekStart = currentWeek.toISOString().split('T')[0];
 
+    const lastWeek = new Date(currentWeek);
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const lastWeekStart = lastWeek.toISOString().split('T')[0];
+
     const fetches: Promise<any>[] = [
-      // Profile with team
+      // 0: Profile
       supabaseAdmin.from("profiles")
         .select("full_name, experience, onboarding_status, team_id, direct_manager, time_this_week_minutes, last_active_at, status")
         .eq("user_id", userId).maybeSingle(),
-      // Streak
+      // 1: Streak
       supabaseAdmin.from("daily_login_streaks")
         .select("current_streak, longest_streak, total_days_active")
         .eq("user_id", userId).maybeSingle(),
-      // Leaderboard this week
+      // 2: Leaderboard this week
       supabaseAdmin.from("leaderboard_points")
         .select("training_points, total_points")
         .eq("user_id", userId).eq("week_start", weekStart).maybeSingle(),
-      // Bootcamp progress
+      // 3: Bootcamp progress
       supabaseAdmin.from("bootcamp_progress")
         .select("bootcamp_completed, phase_1_complete, phase_2_complete, phase_3_complete, bootcamp_exempt")
         .eq("user_id", userId).maybeSingle(),
-      // Lesson progress count
+      // 4: Lesson progress count
       supabaseAdmin.from("lesson_progress")
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId).not("completed_at", "is", null),
-      // Total lessons
+      // 5: Total lessons
       supabaseAdmin.from("training_lessons")
         .select("id", { count: "exact", head: true })
         .eq("is_active", true),
-      // Video progress count
+      // 6: Video progress count
       supabaseAdmin.from("video_progress")
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId).eq("watched", true),
-      // Total required videos
+      // 7: Total required videos
       supabaseAdmin.from("training_videos")
         .select("id", { count: "exact", head: true })
         .eq("is_active", true).eq("is_required", true),
-      // Completed lesson IDs for gap analysis
+      // 8: Completed lesson IDs for gap analysis
       supabaseAdmin.from("lesson_progress")
         .select("lesson_id")
         .eq("user_id", userId).not("completed_at", "is", null),
-      // All active lessons with module/course info for recommendations
+      // 9: All active lessons with module/course info
       supabaseAdmin.from("training_lessons")
         .select("id, title, display_order, module_id, training_modules(title, display_order, course_id, training_courses(title, target_role))")
         .eq("is_active", true)
         .order("display_order"),
+      // 10: Previous conversation memory (last 20 messages)
+      supabaseAdmin.from("ai_coach_conversations")
+        .select("role, content, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      // 11: Leaderboard last week (for comparison)
+      supabaseAdmin.from("leaderboard_points")
+        .select("training_points, total_points")
+        .eq("user_id", userId).eq("week_start", lastWeekStart).maybeSingle(),
+      // 12: Recent daily training time (last 7 days)
+      supabaseAdmin.from("daily_training_time")
+        .select("date, total_minutes")
+        .eq("user_id", userId)
+        .gte("date", lastWeek.toISOString().split('T')[0])
+        .order("date", { ascending: false })
+        .limit(7),
     ];
 
-    // For managers, also fetch team data
+    // Manager-specific fetches
     if (role === "manager" || role === "admin") {
+      // 13: Team members with richer data
       fetches.push(
-        // Team members count & training stats
         supabaseAdmin.from("profiles")
-          .select("full_name, onboarding_status, time_this_week_minutes, last_active_at, status")
+          .select("user_id, full_name, onboarding_status, time_this_week_minutes, last_active_at, status, direct_manager")
           .neq("status", "nlc")
           .neq("user_id", userId)
-          .limit(50)
+          .limit(100)
+      );
+      // 14: All rookie streaks for team analysis
+      fetches.push(
+        supabaseAdmin.from("daily_login_streaks")
+          .select("user_id, current_streak, longest_streak")
+          .gt("current_streak", 0)
+      );
+      // 15: All bootcamp progress
+      fetches.push(
+        supabaseAdmin.from("bootcamp_progress")
+          .select("user_id, bootcamp_completed, bootcamp_exempt")
+      );
+      // 16: All lesson progress for team training %
+      fetches.push(
+        supabaseAdmin.from("lesson_progress")
+          .select("user_id, lesson_id")
+          .not("completed_at", "is", null)
+      );
+      // 17: Team leaderboard this week
+      fetches.push(
+        supabaseAdmin.from("leaderboard_points")
+          .select("user_id, total_points, training_points")
+          .eq("week_start", weekStart)
+          .order("total_points", { ascending: false })
+          .limit(20)
+      );
+      // 18: Streak breaks (last 7 days)
+      fetches.push(
+        supabaseAdmin.from("streak_breaks")
+          .select("user_id, streak_count, broke_at")
+          .gte("broke_at", lastWeek.toISOString())
+          .order("broke_at", { ascending: false })
+          .limit(15)
       );
     }
 
     const results = await Promise.all(fetches);
-    const [profileRes, streakRes, leaderboardRes, bootcampRes, lessonsCompleted, totalLessons, videosWatched, totalVideos, completedLessonIds, allLessonsRes] = results;
+    const [profileRes, streakRes, leaderboardRes, bootcampRes, lessonsCompleted, totalLessons, videosWatched, totalVideos, completedLessonIds, allLessonsRes, prevConvos, lastWeekLb, dailyTime] = results;
 
     const profile = profileRes.data;
     const streak = streakRes.data;
@@ -156,7 +221,7 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
       contextParts.push(`Experience: ${profile.experience || 'rookie'}`);
       contextParts.push(`Onboarding: ${profile.onboarding_status || 'pending'}`);
       contextParts.push(`Time on platform this week: ${profile.time_this_week_minutes || 0} minutes`);
-      if (profile.status) contextParts.push(`Account status: ${profile.status}`);
+      if (profile.direct_manager) contextParts.push(`Manager: ${profile.direct_manager}`);
     }
 
     if (streak) {
@@ -168,28 +233,42 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
     const totalCount = totalLessons.count || 0;
     const videoDone = videosWatched.count || 0;
     const videoTotal = totalVideos.count || 0;
-    if (totalCount > 0) {
-      const pct = Math.round((completedCount / totalCount) * 100);
-      contextParts.push(`Training: ${completedCount}/${totalCount} lessons done (${pct}%)`);
-    }
-    if (videoTotal > 0) {
-      contextParts.push(`Videos: ${videoDone}/${videoTotal} watched`);
+    const totalItems = totalCount + videoTotal;
+    const totalDone = completedCount + videoDone;
+    if (totalItems > 0) {
+      const pct = Math.round((totalDone / totalItems) * 100);
+      contextParts.push(`Overall Training: ${totalDone}/${totalItems} items complete (${pct}%)`);
+      contextParts.push(`  Lessons: ${completedCount}/${totalCount} | Videos: ${videoDone}/${videoTotal}`);
     }
 
-    // Build incomplete lessons list for recommendations
+    // Week-over-week comparison
+    if (lb && lastWeekLb?.data) {
+      const thisWeekPts = lb.total_points || lb.training_points || 0;
+      const lastWeekPts = lastWeekLb.data.total_points || lastWeekLb.data.training_points || 0;
+      const diff = thisWeekPts - lastWeekPts;
+      contextParts.push(`Points this week: ${thisWeekPts} (${diff >= 0 ? '+' : ''}${diff} vs last week)`);
+    } else if (lb) {
+      contextParts.push(`Points this week: ${lb.total_points || lb.training_points || 0}`);
+    }
+
+    // Daily training pattern
+    if (dailyTime?.data?.length > 0) {
+      const days = dailyTime.data.map((d: any) => `${d.date}: ${d.total_minutes}m`).join(', ');
+      contextParts.push(`Recent daily training: ${days}`);
+    }
+
+    // Incomplete lessons for recommendations
     const doneIds = new Set((completedLessonIds?.data || []).map((r: any) => r.lesson_id));
     const allLessons = allLessonsRes?.data || [];
     const incomplete = allLessons
       .filter((l: any) => !doneIds.has(l.id))
       .filter((l: any) => {
-        // Filter by role relevance
         const targetRole = l.training_modules?.training_courses?.target_role;
         if (role === 'rookie' && targetRole === 'manager') return false;
         return true;
       });
 
     if (incomplete.length > 0) {
-      // Group by module for cleaner context
       const byModule: Record<string, { course: string; module: string; lessons: string[] }> = {};
       for (const l of incomplete) {
         const modTitle = l.training_modules?.title || 'Unknown Module';
@@ -200,7 +279,6 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
       }
 
       contextParts.push(`\nINCOMPLETE TRAINING (${incomplete.length} lessons remaining):`);
-      // Show first 8 modules max to stay within context limits
       const entries = Object.values(byModule).slice(0, 8);
       for (const entry of entries) {
         const lessonList = entry.lessons.slice(0, 5).join(', ');
@@ -210,47 +288,123 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
       if (Object.keys(byModule).length > 8) {
         contextParts.push(`  ...and ${Object.keys(byModule).length - 8} more modules`);
       }
-      contextParts.push(`\nWhen suggesting training, recommend SPECIFIC lesson titles from the list above. Tell them exactly which lesson to do next.`);
-    }
-
-    if (lb) {
-      contextParts.push(`This week: ${lb.total_points || lb.training_points || 0} leaderboard points`);
+      contextParts.push(`When suggesting training, recommend SPECIFIC lesson titles from the list above.`);
     }
 
     if (bc) {
-      if (bc.bootcamp_exempt) {
-        contextParts.push(`Bootcamp: Exempt`);
-      } else if (bc.bootcamp_completed) {
-        contextParts.push(`Bootcamp: ✅ Completed`);
-      } else {
+      if (bc.bootcamp_exempt) contextParts.push(`Bootcamp: Exempt`);
+      else if (bc.bootcamp_completed) contextParts.push(`Bootcamp: ✅ Completed`);
+      else {
         const phases = [bc.phase_1_complete, bc.phase_2_complete, bc.phase_3_complete];
-        const done = phases.filter(Boolean).length;
-        contextParts.push(`Bootcamp: ${done}/3 phases done — NOT COMPLETE`);
+        contextParts.push(`Bootcamp: ${phases.filter(Boolean).length}/3 phases — NOT COMPLETE`);
       }
     } else {
       contextParts.push(`Bootcamp: NOT STARTED`);
     }
 
-    // Manager team context
-    if ((role === "manager" || role === "admin") && results[10]?.data) {
-      const teamMembers = results[10].data;
-      const total = teamMembers.length;
-      const inactive3d = teamMembers.filter((m: any) => {
-        if (!m.last_active_at) return true;
-        const diff = Date.now() - new Date(m.last_active_at).getTime();
-        return diff > 3 * 24 * 60 * 60 * 1000;
-      });
-      const notOnboarded = teamMembers.filter((m: any) => 
-        !m.onboarding_status || m.onboarding_status === 'pending'
-      );
+    // Previous conversation summary for memory
+    if (prevConvos?.data?.length > 0) {
+      const prevMessages = prevConvos.data.reverse(); // oldest first
+      const summary = prevMessages.map((m: any) => 
+        `[${m.role}]: ${m.content.slice(0, 150)}${m.content.length > 150 ? '...' : ''}`
+      ).join('\n');
+      contextParts.push(`\nPREVIOUS CONVERSATION HISTORY (last ${prevMessages.length} messages):\n${summary}`);
+      contextParts.push(`Use this history to provide continuity. Reference past topics naturally. Don't repeat the same advice.`);
+    }
 
-      contextParts.push(`\nTEAM SNAPSHOT (${total} members):`);
+    // === MANAGER-SPECIFIC ENRICHED CONTEXT ===
+    if ((role === "manager" || role === "admin") && results[13]?.data) {
+      const teamMembers = results[13].data;
+      const streakMap = new Map((results[14]?.data || []).map((s: any) => [s.user_id, s]));
+      const bootcampMap = new Map((results[15]?.data || []).map((b: any) => [b.user_id, b]));
+      const lessonProgressByUser = new Map<string, number>();
+      for (const lp of (results[16]?.data || [])) {
+        lessonProgressByUser.set(lp.user_id, (lessonProgressByUser.get(lp.user_id) || 0) + 1);
+      }
+      const lbEntries = results[17]?.data || [];
+      const lbMap = new Map(lbEntries.map((e: any) => [e.user_id, e]));
+      const streakBreaks = results[18]?.data || [];
+
+      const total = teamMembers.length;
+      const now = Date.now();
+      const threeDays = 3 * 24 * 60 * 60 * 1000;
+
+      // Categorize members
+      const inactive3d: string[] = [];
+      const notOnboarded: string[] = [];
+      const noBootcamp: string[] = [];
+      const topPerformers: { name: string; pts: number }[] = [];
+      const lowTraining: { name: string; pct: number }[] = [];
+      const highStreaks: { name: string; streak: number }[] = [];
+
+      for (const m of teamMembers) {
+        if (!m.last_active_at || now - new Date(m.last_active_at).getTime() > threeDays) {
+          inactive3d.push(m.full_name);
+        }
+        if (!['onboarded', 'summer_ready'].includes(m.onboarding_status || '')) {
+          notOnboarded.push(m.full_name);
+        }
+        const bp = bootcampMap.get(m.user_id);
+        if (bp && !bp.bootcamp_completed && !bp.bootcamp_exempt) {
+          noBootcamp.push(m.full_name);
+        }
+        const lbEntry = lbMap.get(m.user_id);
+        if (lbEntry?.total_points > 50) {
+          topPerformers.push({ name: m.full_name, pts: lbEntry.total_points });
+        }
+        const lessonsDone = lessonProgressByUser.get(m.user_id) || 0;
+        if (totalCount > 0) {
+          const pct = Math.round((lessonsDone / totalCount) * 100);
+          if (pct < 30) lowTraining.push({ name: m.full_name, pct });
+        }
+        const s = streakMap.get(m.user_id);
+        if (s?.current_streak >= 5) {
+          highStreaks.push({ name: m.full_name, streak: s.current_streak });
+        }
+      }
+
+      contextParts.push(`\n═══ TEAM ANALYTICS (${total} members) ═══`);
+
+      if (topPerformers.length > 0) {
+        topPerformers.sort((a, b) => b.pts - a.pts);
+        contextParts.push(`🏆 TOP PERFORMERS THIS WEEK:`);
+        topPerformers.slice(0, 5).forEach((p, i) => contextParts.push(`  ${i + 1}. ${p.name} — ${p.pts} pts`));
+      }
+
+      if (highStreaks.length > 0) {
+        highStreaks.sort((a, b) => b.streak - a.streak);
+        contextParts.push(`🔥 ACTIVE STREAKS: ${highStreaks.slice(0, 5).map(s => `${s.name} (${s.streak}d)`).join(', ')}`);
+      }
+
       if (inactive3d.length > 0) {
-        contextParts.push(`⚠️ ${inactive3d.length} inactive 3+ days: ${inactive3d.slice(0, 5).map((m: any) => m.full_name).join(', ')}${inactive3d.length > 5 ? '...' : ''}`);
+        contextParts.push(`👻 INACTIVE 3+ DAYS (${inactive3d.length}): ${inactive3d.slice(0, 8).join(', ')}${inactive3d.length > 8 ? ` +${inactive3d.length - 8} more` : ''}`);
       }
+
       if (notOnboarded.length > 0) {
-        contextParts.push(`⚠️ ${notOnboarded.length} not fully onboarded: ${notOnboarded.slice(0, 5).map((m: any) => m.full_name).join(', ')}${notOnboarded.length > 5 ? '...' : ''}`);
+        contextParts.push(`📋 NOT ONBOARDED (${notOnboarded.length}): ${notOnboarded.slice(0, 8).join(', ')}${notOnboarded.length > 8 ? ` +${notOnboarded.length - 8} more` : ''}`);
       }
+
+      if (noBootcamp.length > 0) {
+        contextParts.push(`🏔️ BOOTCAMP INCOMPLETE (${noBootcamp.length}): ${noBootcamp.slice(0, 8).join(', ')}${noBootcamp.length > 8 ? ` +${noBootcamp.length - 8} more` : ''}`);
+      }
+
+      if (lowTraining.length > 0) {
+        lowTraining.sort((a, b) => a.pct - b.pct);
+        contextParts.push(`📉 LOW TRAINING (<30%): ${lowTraining.slice(0, 8).map(l => `${l.name} (${l.pct}%)`).join(', ')}`);
+      }
+
+      if (streakBreaks.length > 0) {
+        const breakNames = new Map<string, number>();
+        for (const sb of streakBreaks) {
+          const member = teamMembers.find((m: any) => m.user_id === sb.user_id);
+          if (member) breakNames.set(member.full_name, sb.streak_count);
+        }
+        if (breakNames.size > 0) {
+          contextParts.push(`💔 RECENT STREAK BREAKS: ${[...breakNames.entries()].slice(0, 5).map(([n, c]) => `${n} (lost ${c}d)`).join(', ')}`);
+        }
+      }
+
+      contextParts.push(`\nAs a manager coach: identify bottlenecks, suggest specific people to follow up with, and provide actionable team strategies.`);
     }
 
   } catch (err) {
@@ -261,7 +415,6 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
 }
 
 serve(async (req) => {
-
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -321,10 +474,7 @@ serve(async (req) => {
       .from("user_roles").select("role").eq("user_id", userId).order("role").limit(1).maybeSingle();
     const verifiedRole = roleData?.role || "rookie";
 
-    // Build rich context in parallel
-    const userContext = await buildUserContext(supabaseAdmin, userId, verifiedRole);
-
-    const { messages } = await req.json() as { messages: Message[] };
+    const { messages, save_messages } = await req.json() as { messages: Message[]; save_messages?: { user: string; assistant?: string } };
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(
@@ -347,6 +497,18 @@ serve(async (req) => {
         );
       }
     }
+
+    // Save user message to conversation history (non-blocking)
+    if (save_messages?.user) {
+      supabaseAdmin.from("ai_coach_conversations").insert({
+        user_id: userId,
+        role: "user",
+        content: save_messages.user.slice(0, 2000),
+      }).then(() => {});
+    }
+
+    // Build rich context in parallel
+    const userContext = await buildUserContext(supabaseAdmin, userId, verifiedRole);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
