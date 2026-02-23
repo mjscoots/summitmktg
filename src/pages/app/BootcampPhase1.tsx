@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, Upload, Video, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { isMomentumComplete } from './BootcampMomentum';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 
 const QUESTIONS = [
   'Your name',
@@ -84,8 +85,12 @@ export default function BootcampPhase1() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen bg-black px-4 py-12">
+      <div className="w-full max-w-lg mx-auto">
+        <Breadcrumbs items={[
+          { label: 'Bootcamp', to: '/bootcamp/momentum' },
+          { label: 'Phase 1' },
+        ]} />
         <PhaseIndicator current={8} progress={progress} />
 
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-10">
