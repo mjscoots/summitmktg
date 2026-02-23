@@ -233,21 +233,31 @@ Deno.serve(async (req) => {
       // Rate limit: max 2 req/sec on Resend free tier
       await delay(600);
 
-      // Create in-app notification for the manager/pillar leader
+      // Create in-app notification for the manager/pillar leader (dedup: 1 per 12 hours)
       try {
         const repNames = info.reps.length <= 3
           ? info.reps.join(", ")
           : `${info.reps.slice(0, 2).join(", ")} +${info.reps.length - 2} more`;
 
-        await supabase
+        const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+        const { count: existingNotif } = await supabase
           .from("user_notifications")
-          .insert({
-            user_id: info.managerId,
-            title: "Boot Camp Reminder",
-            message: `${info.reps.length} rep(s) haven't completed boot camp: ${repNames}`,
-            link: "/app",
-          });
-        managerNotificationsSent++;
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", info.managerId)
+          .ilike("title", "%Boot Camp Reminder%")
+          .gt("created_at", twelveHoursAgo);
+
+        if (!existingNotif || existingNotif === 0) {
+          await supabase
+            .from("user_notifications")
+            .insert({
+              user_id: info.managerId,
+              title: "Boot Camp Reminder",
+              message: `${info.reps.length} rep(s) haven't completed boot camp: ${repNames}`,
+              link: "/app",
+            });
+          managerNotificationsSent++;
+        }
       } catch (e) {
         console.error(`Error creating notification for ${info.managerName}:`, e);
       }
