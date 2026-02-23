@@ -7,6 +7,7 @@ import { TeamTreeNode } from './TeamTreeNode';
 import { MemberProfileModal } from './MemberProfileModal';
  import { TeamResources } from './TeamResources';
  import { TeamTimeStats } from './TeamTimeStats';
+ import { TeamActivityTable } from './TeamActivityTable';
 import { ManagerTrainingOverview } from '@/components/training/ManagerTrainingOverview';
 import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
 import { isManager as checkIsManager, normalizeName, getDisplayName } from '@/lib/hierarchyUtils';
@@ -316,7 +317,6 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
             isRoot={true}
             getProgress={getProgress}
             onMemberClick={handleMemberClick}
-            dailyTimeMap={dailyTimeMap}
           />
         ) : (
           <div className="text-center py-8">
@@ -339,6 +339,13 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
           setSelectedMember(null);
           onDataChange?.();
         }}
+      />
+
+      {/* Team Activity Table */}
+      <TeamActivityTable
+        roster={roster}
+        dailyTimeMap={dailyTimeMap}
+        onMemberClick={handleMemberClick}
       />
 
       {/* Rep Training Progress */}
