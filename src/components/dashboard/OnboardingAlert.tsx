@@ -59,7 +59,7 @@ export function OnboardingAlert() {
               size="sm"
               variant="outline"
               className={`gap-1.5 text-xs h-7 ${isWarn ? 'border-amber-500/30 text-amber-300 hover:bg-amber-500/10' : 'border-blue-500/30 text-blue-300 hover:bg-blue-500/10'}`}
-              onClick={() => window.open('https://summitmktg.lovable.app/bootcamp/phase-1', '_blank')}
+              onClick={() => window.location.href = '/app/links'}
             >
               <ExternalLink className="w-3 h-3" />
               Start Onboarding
