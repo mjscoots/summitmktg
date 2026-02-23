@@ -36,6 +36,7 @@ import {
   Film,
 } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
+import { parseEmbedUrl } from '@/lib/videoUtils';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -51,20 +52,6 @@ const CATEGORIES = [
   'Mindset',
   'General',
 ];
-
-const parseEmbedUrl = (url: string): string | null => {
-  // YouTube
-  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
-  // Vimeo - clean embed with no branding
-  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vimeoMatch) {
-    const hashMatch = url.match(/[?&]h=([a-zA-Z0-9]+)/);
-    const params = 'title=0&byline=0&portrait=0&badge=0&autopause=0&controls=1&dnt=1';
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}?${hashMatch ? `h=${hashMatch[1]}&` : ''}${params}`;
-  }
-  return null;
-};
 
 export default function AdminVideos() {
   const { role, isLoading: authLoading } = useAuth();

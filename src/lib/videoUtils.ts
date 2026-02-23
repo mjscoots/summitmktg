@@ -66,3 +66,19 @@ export function getVideoThumbnailUrl(videoUrl: string | null): string | null {
   if (isYouTubeUrl(videoUrl)) return getYouTubeThumbnailUrl(videoUrl);
   return null;
 }
+
+/**
+ * Converts a YouTube or Vimeo URL into an embeddable iframe URL.
+ * Returns null if the URL doesn't match any supported format.
+ */
+export function parseEmbedUrl(url: string): string | null {
+  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeoMatch) {
+    const hashMatch = url.match(/[?&]h=([a-zA-Z0-9]+)/);
+    const params = 'title=0&byline=0&portrait=0&badge=0&autopause=0&controls=1&dnt=1';
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}?${hashMatch ? `h=${hashMatch[1]}&` : ''}${params}`;
+  }
+  return null;
+}
