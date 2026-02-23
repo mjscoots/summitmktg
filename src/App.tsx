@@ -50,6 +50,7 @@ const AdminTeamPage = lazy(() => import("./pages/app/AdminTeamPage"));
 const VideoPlayerPage = lazy(() => import("./pages/app/VideoPlayerPage"));
 const ChatPage = lazy(() => import("./pages/app/ChatPage"));
 const LinksPage = lazy(() => import("./pages/app/LinksPage"));
+const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
 
 function LazyFallback() {
   return (
@@ -283,8 +284,15 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Weekly 1:1's - redirect to forms */}
-              <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />
+               {/* Weekly 1:1's - redirect to forms */}
+               <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />
+
+               {/* 1:1 Prep */}
+               <Route path="/app/one-on-ones/prep" element={
+                 <ProtectedRoute requiredRole="manager">
+                   <OneOnOnePrepPage />
+                 </ProtectedRoute>
+               } />
 
 
               {/* Admin Team Management */}
