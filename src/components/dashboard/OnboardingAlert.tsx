@@ -1,0 +1,72 @@
+import { useAuth } from '@/hooks/useAuth';
+import { AlertTriangle, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+
+const STATUS_CONFIG: Record<string, { label: string; message: string; severity: 'warn' | 'info' }> = {
+  pending: {
+    label: 'Pending',
+    message: 'Your profile is pending. Complete your onboarding to get started.',
+    severity: 'warn',
+  },
+  info_added: {
+    label: 'Info Added',
+    message: 'Your info has been added — complete the remaining onboarding steps to become Summer Ready.',
+    severity: 'warn',
+  },
+  contract_signed: {
+    label: 'Contract Signed',
+    message: 'Contract signed! Finish your onboarding checklist to get marked Summer Ready.',
+    severity: 'warn',
+  },
+  onboarded: {
+    label: 'Onboarded',
+    message: 'You\'re onboarded — just a few more steps to become Summer Ready!',
+    severity: 'info',
+  },
+};
+
+export function OnboardingAlert() {
+  const { profile } = useAuth();
+
+  const status = profile?.onboarding_status;
+
+  // Don't show if already summer ready or no status
+  if (!status || status === 'summer_ready') return null;
+
+  const config = STATUS_CONFIG[status];
+  if (!config) return null;
+
+  const isWarn = config.severity === 'warn';
+
+  return (
+    <Card className={`mb-4 border ${isWarn ? 'border-amber-500/40 bg-amber-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+      <div className="p-4 flex items-start gap-3">
+        <div className={`rounded-full p-1.5 ${isWarn ? 'bg-amber-500/15' : 'bg-blue-500/15'}`}>
+          <AlertTriangle className={`w-4 h-4 ${isWarn ? 'text-amber-400' : 'text-blue-400'}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-sm font-semibold text-foreground">Complete Your Onboarding</h3>
+            <Badge variant="outline" className={`text-[9px] ${isWarn ? 'text-amber-400 border-amber-500/30' : 'text-blue-400 border-blue-500/30'}`}>
+              {config.label}
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">{config.message}</p>
+          <div className="mt-3">
+            <Button
+              size="sm"
+              variant="outline"
+              className={`gap-1.5 text-xs h-7 ${isWarn ? 'border-amber-500/30 text-amber-300 hover:bg-amber-500/10' : 'border-blue-500/30 text-blue-300 hover:bg-blue-500/10'}`}
+              onClick={() => window.open('https://summitmktg.lovable.app/bootcamp/phase-1', '_blank')}
+            >
+              <ExternalLink className="w-3 h-3" />
+              Start Onboarding
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
