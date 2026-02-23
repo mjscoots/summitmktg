@@ -11,6 +11,7 @@ import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList'
 import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { ArrowLeft, ArrowRight, Save, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -234,7 +235,8 @@ export default function OneOnOnePrepPage() {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="mb-6">
+          <PageBackButton to="/app/forms" label="Forms" />
+          <div className="mb-6 mt-2">
             <h1 className="text-xl font-bold text-foreground">
               {modeLabel} 1:1 Prep — {teamName}
             </h1>
