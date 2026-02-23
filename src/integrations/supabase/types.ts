@@ -705,6 +705,93 @@ export type Database = {
           },
         ]
       }
+      inactive_users_log: {
+        Row: {
+          created_at: string
+          days_count: number
+          email_day_3_sent: boolean
+          email_day_4_sent: boolean
+          id: string
+          last_email_sent_at: string | null
+          resolved_at: string | null
+          started_inactive_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_count?: number
+          email_day_3_sent?: boolean
+          email_day_4_sent?: boolean
+          id?: string
+          last_email_sent_at?: string | null
+          resolved_at?: string | null
+          started_inactive_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_count?: number
+          email_day_3_sent?: boolean
+          email_day_4_sent?: boolean
+          id?: string
+          last_email_sent_at?: string | null
+          resolved_at?: string | null
+          started_inactive_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inactivity_email_log: {
+        Row: {
+          clicked_at: string | null
+          created_at: string
+          days_inactive: number
+          email_type: string
+          id: string
+          opened_at: string | null
+          recipient_email: string
+          returned_within_24h: boolean | null
+          returned_within_48h: boolean | null
+          returned_within_7d: boolean | null
+          sent_at: string
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          clicked_at?: string | null
+          created_at?: string
+          days_inactive: number
+          email_type: string
+          id?: string
+          opened_at?: string | null
+          recipient_email: string
+          returned_within_24h?: boolean | null
+          returned_within_48h?: boolean | null
+          returned_within_7d?: boolean | null
+          sent_at?: string
+          subject: string
+          user_id: string
+        }
+        Update: {
+          clicked_at?: string | null
+          created_at?: string
+          days_inactive?: number
+          email_type?: string
+          id?: string
+          opened_at?: string | null
+          recipient_email?: string
+          returned_within_24h?: boolean | null
+          returned_within_48h?: boolean | null
+          returned_within_7d?: boolean | null
+          sent_at?: string
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leaderboard_points: {
         Row: {
           call_attendance_points: number | null
