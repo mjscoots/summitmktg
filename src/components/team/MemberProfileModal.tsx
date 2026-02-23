@@ -33,6 +33,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { TrainingProgressBadge } from './TrainingProgressBadge';
 import { MemberStatusToggle } from './MemberStatusToggle';
 import { MemberEditForm } from './MemberEditForm';
+import { DailyTimeBreakdown } from './DailyTimeBreakdown';
 
 interface MemberProfileModalProps {
   member: TeamMember | null;
@@ -276,7 +277,12 @@ export function MemberProfileModal({
                )}
              </div>
            )}
- 
+
+              {/* Daily Training Time Breakdown - managers/admins only */}
+              {!isNLC && (currentUserRole === 'admin' || currentUserRole === 'manager') && (
+                <DailyTimeBreakdown userId={member.user_id} />
+              )}
+
               {/* Phone */}
               <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                 <Phone className="w-5 h-5 text-muted-foreground flex-shrink-0" />
