@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.bootcamp-reminders]
 verify_jwt = false
+
+[functions.check-inactivity]
+verify_jwt = false
