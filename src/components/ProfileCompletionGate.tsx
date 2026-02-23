@@ -61,11 +61,11 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         setAvatarUrl((data as any).avatar_url);
 
         // Check completeness
+        // Timezone is auto-detected now, so don't require it for completeness
         const complete = !!(
           (data as any).full_name?.trim() &&
           (data as any).phone?.trim() &&
-          (data as any).avatar_url &&
-          (data as any).timezone
+          (data as any).avatar_url
         );
         setIsComplete(complete);
       }
@@ -194,9 +194,9 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
     { label: 'Profile Photo', done: !!avatarUrl },
     { label: 'Name', done: !!fullName },
     { label: 'Phone Number', done: !!phone.trim() },
-    { label: 'Timezone', done: !!timezone },
   ];
   const completedCount = fields.filter(f => f.done).length;
+  const totalFields = fields.length;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -226,7 +226,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
                 )}
               />
             ))}
-            <span className="text-xs font-semibold text-muted-foreground ml-1">{completedCount}/4</span>
+            <span className="text-xs font-semibold text-muted-foreground ml-1">{completedCount}/{totalFields}</span>
           </div>
 
           {/* Avatar Upload */}
@@ -312,24 +312,6 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Timezone
-              </label>
-              <div className="relative">
-                <Select value={timezone} onValueChange={setTimezone}>
-                  <SelectTrigger>
-                    <Globe className="w-4 h-4 text-muted-foreground mr-2" />
-                    <SelectValue placeholder="Select timezone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIMEZONES.map(tz => (
-                      <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
           </div>
 
           {/* Submit */}

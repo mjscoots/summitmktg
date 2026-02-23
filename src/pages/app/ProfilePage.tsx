@@ -25,7 +25,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
-  const [timezone, setTimezone] = useState(DEFAULT_TIMEZONE);
+  const [timezone, setTimezone] = useState<string>('auto');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   // Password change state
@@ -58,7 +58,8 @@ export default function ProfilePage() {
           .select('timezone, nickname')
           .eq('user_id', profile.user_id)
           .single();
-        setTimezone((data as any)?.timezone || '');
+        const dbTz = (data as any)?.timezone;
+        setTimezone(dbTz || 'auto');
         setNickname((data as any)?.nickname || '');
       };
       fetchExtra();
@@ -77,7 +78,7 @@ export default function ProfilePage() {
           full_name: fullName,
           nickname: nickname || null,
           phone: phone,
-          timezone: timezone,
+          timezone: timezone === 'auto' ? null : timezone,
           updated_at: new Date().toISOString(),
         } as any)
         .eq('user_id', user.id);
@@ -369,12 +370,19 @@ export default function ProfilePage() {
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="auto">
+                    🌐 Auto-detect ({detectBrowserTimezone().replace('America/', '').replace('Pacific/', '').replace('_', ' ')})
+                  </SelectItem>
                   {TIMEZONES.map(tz => (
                     <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">Calendar events will display in your timezone</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {timezone === 'auto'
+                  ? 'Automatically using your browser timezone'
+                  : 'Manually set — calendar events will display in this timezone'}
+              </p>
             </div>
 
             <div>
