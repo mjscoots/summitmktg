@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { User, UserCheck, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Team,
-  RookieManagerForm,
   ManagerForm,
   ResponsesTab,
 } from '@/components/one-on-one/shared';
@@ -15,6 +15,7 @@ type OneOnOneFormType = 'rookie' | 'manager';
 
 export default function WeeklyOneOnOnesContent() {
   const { profile, user } = useAuth();
+  const navigate = useNavigate();
   const [teams, setTeams] = useState<Team[]>([]);
   const [subTab, setSubTab] = useState<OneOnOneSubTab>('forms');
   const [activeForm, setActiveForm] = useState<OneOnOneFormType | null>(null);
@@ -61,7 +62,7 @@ export default function WeeklyOneOnOnesContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
               <div
                 className="flex flex-col bg-card border border-border/50 rounded-xl p-5 card-hover cursor-pointer group"
-                onClick={() => setActiveForm('rookie')}
+                onClick={() => navigate('/app/one-on-ones/prep')}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
@@ -69,12 +70,12 @@ export default function WeeklyOneOnOnesContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-foreground">Rookie-Manager 1:1</h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with rookies</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with rookies — with training data</p>
                   </div>
                 </div>
                 <div className="flex-1" />
                 <button
-                  onClick={(e) => { e.stopPropagation(); setActiveForm('rookie'); }}
+                  onClick={(e) => { e.stopPropagation(); navigate('/app/one-on-ones/prep'); }}
                   className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
                 >
                   <Pencil className="w-4 h-4" />
@@ -133,11 +134,7 @@ export default function WeeklyOneOnOnesContent() {
             >
               ← Back to forms
             </button>
-            {activeForm === 'rookie' ? (
-              <RookieManagerForm teams={teams} profile={profile} userId={user?.id} />
-            ) : (
-              <ManagerForm teams={teams} profile={profile} userId={user?.id} />
-            )}
+            <ManagerForm teams={teams} profile={profile} userId={user?.id} />
           </div>
         )
       ) : (
