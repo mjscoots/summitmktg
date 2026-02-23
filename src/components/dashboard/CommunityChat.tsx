@@ -869,10 +869,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   </div>
                 </div>
 
-                {/* Reactions */}
-                <MessageReactions messageId={msg.id} profileMap={profileMap} />
-                {/* Read receipts - only on the very last message */}
-                {idx === channelMessages.length - 1 && (
+                {/* Reactions — skip for AI coach (local IDs aren't real UUIDs) */}
+                {activeChannel !== 'ai-coach' && (
+                  <MessageReactions messageId={msg.id} profileMap={profileMap} />
+                )}
+                {/* Read receipts - only on the very last message, skip AI coach */}
+                {activeChannel !== 'ai-coach' && idx === channelMessages.length - 1 && (
                   <ReadReceipts
                     messageId={msg.id}
                     profileMap={profileMap}
