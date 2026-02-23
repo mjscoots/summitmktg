@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { SortableLinkCard } from '@/components/links/SortableLinkCard';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 
 interface ManagedLink {
   id: string;
@@ -147,6 +148,7 @@ export default function LinksPage() {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
+        <PageBackButton to="/app" label="Dashboard" />
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-bold text-foreground">Links</h1>
