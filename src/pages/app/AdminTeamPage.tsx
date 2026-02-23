@@ -118,6 +118,8 @@ export default function AdminTeamPage() {
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const [rosterSubTab, setRosterSubTab] = useState<'sync' | 'import'>('sync');
+  const [passwordResetTarget, setPasswordResetTarget] = useState<{ email: string; full_name: string } | null>(null);
+  const [customPassword, setCustomPassword] = useState('');
 
   // Bootcamp responses state
   const [bootcampData, setBootcampData] = useState<BootcampRow[]>([]);
@@ -264,11 +266,11 @@ export default function AdminTeamPage() {
   };
 
   // ============ USER HANDLERS ============
-  const handleResetPassword = async (email: string) => {
+  const handleResetPassword = async (email: string, newPassword: string) => {
     try {
-      const { error } = await supabase.functions.invoke('admin-reset-password', { body: { email, new_password: 'summit2026' } });
+      const { error } = await supabase.functions.invoke('admin-reset-password', { body: { email, new_password: newPassword } });
       if (error) throw error;
-      toast({ title: 'Password Reset', description: `Password reset to default.` });
+      toast({ title: 'Password Reset', description: `Password updated successfully.` });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
@@ -311,13 +313,20 @@ export default function AdminTeamPage() {
     }
   };
 
-  const handleSendResetEmail = async (email: string, fullName: string) => {
-    try {
-      await supabase.functions.invoke('admin-reset-password', { body: { email, new_password: 'summit2026' } });
-      toast({ title: 'Password Reset', description: `${fullName}'s password has been reset.` });
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+  const openPasswordResetDialog = (email: string, fullName: string) => {
+    setPasswordResetTarget({ email, full_name: fullName });
+    setCustomPassword('');
+  };
+
+  const handleConfirmPasswordReset = async () => {
+    if (!passwordResetTarget || !customPassword) return;
+    if (customPassword.length < 6) {
+      toast({ title: 'Error', description: 'Password must be at least 6 characters.', variant: 'destructive' });
+      return;
     }
+    await handleResetPassword(passwordResetTarget.email, customPassword);
+    setPasswordResetTarget(null);
+    setCustomPassword('');
   };
 
   const openEditModal = (rep: RepRow) => {
@@ -632,8 +641,7 @@ export default function AdminTeamPage() {
                             <div className="flex items-center justify-end gap-1">
                               <button onClick={() => { startImpersonating({ user_id: rep.user_id, full_name: rep.full_name, email: rep.email }); navigate('/app/rookie'); }} className="p-1.5 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
                               <button onClick={() => openEditModal(rep)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => handleResetPassword(rep.email)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Reset Password"><RotateCcw className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => handleSendResetEmail(rep.email, rep.full_name)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Reset & Email"><Mail className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => openPasswordResetDialog(rep.email, rep.full_name)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Change Password"><RotateCcw className="w-3.5 h-3.5" /></button>
                               <button onClick={() => handleToggleStatus(rep.user_id, rep.status)} className={`p-1.5 rounded text-xs font-medium ${rep.status === 'nlc' ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={rep.status === 'nlc' ? 'Activate' : 'Deactivate'}>
                                 {rep.status === 'nlc' ? 'Activate' : 'Disable'}
                               </button>
@@ -984,7 +992,27 @@ export default function AdminTeamPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete User Confirmation */}
+        {/* Change Password Dialog */}
+        <Dialog open={!!passwordResetTarget} onOpenChange={(open) => !open && setPasswordResetTarget(null)}>
+          <DialogContent className="bg-card border-border">
+            <DialogHeader><DialogTitle>Change Password</DialogTitle></DialogHeader>
+            <p className="text-sm text-muted-foreground">Set a new password for <strong>{passwordResetTarget?.full_name}</strong></p>
+            <div className="space-y-4 mt-2">
+              <Input
+                type="password"
+                placeholder="New password (min 6 characters)"
+                value={customPassword}
+                onChange={e => setCustomPassword(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleConfirmPasswordReset()}
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setPasswordResetTarget(null)}>Cancel</Button>
+                <Button onClick={handleConfirmPasswordReset} disabled={customPassword.length < 6}>Set Password</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
