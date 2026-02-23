@@ -72,21 +72,23 @@ interface UserWeekData {
 }
 
 function getWeekRange(): { start: string; end: string } {
-  const now = new Date();
-  const day = now.getDay();
+  const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const day = pstNow.getDay();
   const diffToMon = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + diffToMon);
+  const monday = new Date(pstNow);
+  monday.setDate(pstNow.getDate() + diffToMon);
   monday.setHours(0, 0, 0, 0);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
-  const fmt = (d: Date) => d.toISOString().split('T')[0];
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   return { start: fmt(monday), end: fmt(sunday) };
 }
 
 function buildWeekMap(rows: DailyTimeRow[]): Map<string, UserWeekData> {
   const { start } = getWeekRange();
-  const monday = new Date(start + 'T00:00:00');
+  const parts = start.split('-');
+  const monday = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   const map = new Map<string, UserWeekData>();
 
   // Group rows by user
@@ -102,7 +104,7 @@ function buildWeekMap(rows: DailyTimeRow[]): Map<string, UserWeekData> {
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const match = userRows.find(r => r.date === dateStr);
       const mins = match?.total_minutes ?? 0;
       days.push({ minutes: mins });

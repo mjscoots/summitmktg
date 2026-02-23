@@ -126,7 +126,7 @@ serve(async (req) => {
         }
 
         // Generate secure random password if not provided
-        const password = userData.password || "summit2026";
+        const password = userData.password || crypto.randomUUID().slice(0, 16);
         
         // Create auth user
         const { data: authUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -143,15 +143,12 @@ serve(async (req) => {
         });
 
         if (createError) {
-          // Check if user already exists
-          const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-          const existing = existingUsers?.users?.find(u => u.email === userData.email);
-          
-          if (existing) {
+          // Check if user already exists by inspecting the error message
+          if (createError.message?.includes('already been registered') || createError.message?.includes('already exists')) {
             results.success.push(`${userData.email} (already exists)`);
             continue;
           }
-          
+
           throw createError;
         }
 

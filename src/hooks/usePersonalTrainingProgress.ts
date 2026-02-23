@@ -95,16 +95,6 @@ export function usePersonalTrainingProgress() {
         videoProgressRes.data?.map(vp => vp.video_id) || []
       );
 
-      console.log('Video Progress Debug:', {
-        userId: user.id,
-        videoProgressRaw: videoProgressRes.data,
-        videoProgressError: videoProgressRes.error,
-        watchedVideoIdsCount: watchedVideoIds.size,
-        requiredVideoIdsCount: requiredVideoIds.size,
-        requiredVideoIdsSample: Array.from(requiredVideoIds).slice(0, 3),
-        watchedVideoIdsSample: Array.from(watchedVideoIds).slice(0, 3),
-      });
-
       // Count watched required videos
       let completedVideoCount = 0;
       requiredVideoIds.forEach(id => {
@@ -146,22 +136,6 @@ export function usePersonalTrainingProgress() {
         };
       });
 
-      // Debug logging
-      const totalLessonsDebug = courseProgress.reduce((sum, c) => sum + c.totalLessons, 0);
-      const completedLessonsDebug = courseProgress.reduce((sum, c) => sum + c.completedLessons, 0);
-      console.log('Training Progress Debug:', {
-        role,
-        isManagerRole,
-        coursesFound: relevantCourses.length,
-        courseDetails: courseProgress.map(c => ({ slug: c.courseSlug, total: c.totalLessons, completed: c.completedLessons, pct: c.percentage })),
-        activeLessons: totalLessonsDebug,
-        completedLessons: completedLessonsDebug,
-        requiredVideos: requiredVideoIds.size,
-        watchedRequiredVideos: completedVideoCount,
-        totalItems: totalLessonsDebug + requiredVideoIds.size,
-        totalCompleted: completedLessonsDebug + completedVideoCount,
-      });
-
       // Calculate overall progress including required videos
       let overallProgress = 0;
 
@@ -199,8 +173,6 @@ export function usePersonalTrainingProgress() {
         const completed = completedTotal + completedVideoCount;
         overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
       }
-
-      console.log('Training Progress Result:', { overallProgress, isComplete: overallProgress === 100 });
 
       // Post bot shoutout when training hits 100%
       if (overallProgress === 100 && user?.id) {

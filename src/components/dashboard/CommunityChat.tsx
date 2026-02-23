@@ -7,6 +7,16 @@ import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
 import { TierBadge } from '@/components/shared/TierBadge';
 import { ChatPoll, PollCreator } from './ChatPoll';
 import { ChatImageUpload, isImageMessage, isFileMessage, getImageUrl, getFileInfo, ChatImage, ChatFile } from './ChatImageUpload';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -98,6 +108,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
+  const profileMapRef = useRef<Record<string, ProfileInfo>>({});
   const [showScrollDown, setShowScrollDown] = useState(false);
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
   const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
@@ -108,9 +119,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
-  
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
+
+  // Keep ref in sync for use in realtime callback
+  useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
   const scrollToBottom = useCallback((smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -188,7 +202,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           const newMsg = payload.new as ChatMessage;
           if (!newMsg.channel) newMsg.channel = 'general';
 
-          if (!newMsg.is_ai && !profileMap[newMsg.user_id]) {
+          if (!newMsg.is_ai && !profileMapRef.current[newMsg.user_id]) {
             const [pRes, rRes] = await Promise.all([
               supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now').eq('user_id', newMsg.user_id).maybeSingle(),
               supabase.from('user_roles').select('role').eq('user_id', newMsg.user_id).maybeSingle(),
@@ -234,7 +248,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, onNewMessage, profileMap, activeChannel]);
+  }, [user?.id, onNewMessage, activeChannel]);
 
   // Scroll on channel change or new messages in active channel
   const allChannelMessages = activeChannel === 'ai-coach' 
@@ -757,7 +771,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                     )}
                     {(isOwnMessage(msg) || isManager) && (
                       <button
-                        onClick={() => handleDelete(msg.id)}
+                        onClick={() => setDeleteConfirm({ open: true, msgId: msg.id })}
                         className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
                         title="Delete"
                       >
@@ -1121,6 +1135,30 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         member={selectedMember}
         roster={[]}
       />
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteConfirm.open} onOpenChange={open => !open && setDeleteConfirm({ open: false, msgId: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete message?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The message will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteConfirm.msgId) handleDelete(deleteConfirm.msgId);
+                setDeleteConfirm({ open: false, msgId: null });
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

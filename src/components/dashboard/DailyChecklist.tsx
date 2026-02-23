@@ -31,7 +31,8 @@ export function DailyChecklist() {
   const [newItemText, setNewItemText] = useState('');
   const newItemInputRef = useRef<HTMLInputElement>(null);
 
-  const now = new Date();
+  // Check if it's past 6PM PST
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
   const isPast6PM = now.getHours() >= 18;
 
   useEffect(() => {

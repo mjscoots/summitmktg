@@ -15,6 +15,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { useScrollGate } from '@/hooks/useScrollGate';
 import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
 import { QuizResultsDisplay } from '@/components/training/QuizResultsDisplay';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
 
 interface Lesson {
   id: string;
@@ -709,7 +710,7 @@ export default function LessonPage() {
               return (
                 <div className="mb-4 rounded-lg overflow-hidden border border-border bg-black aspect-video">
                   <video controls className="w-full h-full" title={lesson.title}>
-                    <source src={url} />
+                    <source src={sanitizeUrl(url)} />
                   </video>
                 </div>
               );

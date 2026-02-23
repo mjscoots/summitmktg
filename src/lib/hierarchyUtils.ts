@@ -16,6 +16,11 @@ export interface TeamMember {
   pillarId?: string;
   dataIssue?: string;
   isNLC?: boolean;
+  last_active_at?: string | null;
+  is_active_now?: boolean | null;
+  avatar_url?: string | null;
+  time_this_week_minutes?: number | null;
+  team_id?: string | null;
 }
 
 export interface Pillar {

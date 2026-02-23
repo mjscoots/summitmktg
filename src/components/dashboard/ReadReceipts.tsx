@@ -55,29 +55,6 @@ export function ReadReceipts({ messageId, profileMap, isLastInGroup }: ReadRecei
     fetch();
   }, [messageId, user?.id]);
 
-  // Realtime updates
-  useEffect(() => {
-    const channel = supabase
-      .channel(`read-${messageId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'chat_read_receipts', filter: `message_id=eq.${messageId}` },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newReceipt = payload.new as ReadReceipt;
-            if (newReceipt.user_id !== user?.id) {
-              setReceipts(prev => {
-                if (prev.some(r => r.user_id === newReceipt.user_id)) return prev;
-                return [...prev, newReceipt];
-              });
-            }
-          }
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [messageId, user?.id]);
 
   // Merge profileMap + allProfiles for lookups, use allProfiles for "not seen"
   const mergedProfiles = useMemo(() => ({ ...allProfiles, ...profileMap }), [allProfiles, profileMap]);

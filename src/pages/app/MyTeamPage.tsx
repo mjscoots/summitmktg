@@ -126,12 +126,11 @@ export default function MyTeamPage() {
           role: managerUserIds.has(p.user_id) ? 'manager' : 'rookie',
           isNLC: p.status === 'nlc',
         };
-        // Attach activity & avatar fields for profile modal display
-        (base as any).last_active_at = p.last_active_at;
-        (base as any).is_active_now = p.is_active_now;
-        (base as any).avatar_url = p.avatar_url;
-        (base as any).time_this_week_minutes = p.time_this_week_minutes;
-        (base as any).team_id = p.team_id;
+        base.last_active_at = p.last_active_at;
+        base.is_active_now = p.is_active_now;
+        base.avatar_url = p.avatar_url;
+        base.time_this_week_minutes = p.time_this_week_minutes;
+        base.team_id = p.team_id;
         return base;
       });
 
@@ -140,15 +139,16 @@ export default function MyTeamPage() {
 
       // Fetch daily training time for week chart
       try {
-        const now = new Date();
-        const day = now.getDay();
+        const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+        const day = pstNow.getDay();
         const diffToMon = day === 0 ? -6 : 1 - day;
-        const monday = new Date(now);
-        monday.setDate(now.getDate() + diffToMon);
+        const monday = new Date(pstNow);
+        monday.setDate(pstNow.getDate() + diffToMon);
         monday.setHours(0, 0, 0, 0);
         const sunday = new Date(monday);
         sunday.setDate(monday.getDate() + 6);
-        const fmt = (d: Date) => d.toISOString().split('T')[0];
+        const fmt = (d: Date) =>
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const start = fmt(monday);
         const end = fmt(sunday);
 
@@ -172,7 +172,7 @@ export default function MyTeamPage() {
             for (let i = 0; i < 7; i++) {
               const d = new Date(monday);
               d.setDate(monday.getDate() + i);
-              const dateStr = d.toISOString().split('T')[0];
+              const dateStr = fmt(d);
               const match = userRows.find((r: any) => r.date === dateStr);
               const mins = match?.total_minutes ?? 0;
               days.push({ minutes: mins });
@@ -302,9 +302,6 @@ export default function MyTeamPage() {
 
   // Total active members (NLC excluded) - use DB team_id source of truth
   const totalActiveMembers = profilesRaw.filter(p => p.status !== 'nlc').length;
-
-  // Calculate total team time this week
-  const totalTeamTimeMinutes = teamsWithRanking.reduce((sum, t) => sum, 0);
 
   // Training progress for all members
   const memberUserIds = useMemo(() => allMembers.map(m => m.user_id), [allMembers]);
