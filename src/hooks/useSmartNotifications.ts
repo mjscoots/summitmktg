@@ -26,11 +26,14 @@ export function useSmartNotifications() {
     if (prefs.chat_mentions) checkUnreadChatMessages();
     if (prefs.leaderboard) checkLeaderboardChanges();
     if (prefs.calendar_events) checkUpcomingEvents();
+    if (prefs.streak_milestones) checkStreakMilestones();
+    if (prefs.training_quiz) checkTrainingMilestones();
 
-    // Only managers get new-rep-join notifications
+    // Only managers get new-rep-join + streak-break notifications
     let cleanupSub: (() => void) | undefined;
     if (isManager) {
       cleanupSub = subscribeToNewUsers();
+      if (prefs.streak_milestones) checkStreakBreaksForManager();
     }
 
     return () => {
@@ -159,6 +162,125 @@ export function useSmartNotifications() {
       }
     } catch (err) {
       console.error('Calendar notification check failed:', err);
+    }
+  };
+
+  // ─── 7. Streak milestones (3, 7, 14, 21, 30 days) ────────
+  const checkStreakMilestones = async () => {
+    if (!user?.id) return;
+    try {
+      const { data: streak } = await supabase
+        .from('daily_login_streaks')
+        .select('current_streak')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!streak) return;
+      const milestones = [3, 7, 14, 21, 30, 50, 100];
+      const hit = milestones.find(m => streak.current_streak === m);
+      if (!hit) return;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const { count: existing } = await supabase
+        .from('user_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .ilike('title', `%${hit}-day streak%`)
+        .gt('created_at', todayStr);
+
+      if (!existing || existing === 0) {
+        await supabase.from('user_notifications').insert({
+          user_id: user.id,
+          title: `🔥 ${hit}-day streak!`,
+          message: `You've logged in ${hit} days in a row. That's elite consistency — keep it going!`,
+          link: '/app',
+        });
+      }
+    } catch (err) {
+      console.error('Streak milestone check failed:', err);
+    }
+  };
+
+  // ─── 8. Training milestones (25%, 50%, 75%, 100%) ────────
+  const checkTrainingMilestones = async () => {
+    if (!user?.id) return;
+    try {
+      const { data: lessons } = await supabase
+        .from('lesson_progress')
+        .select('id')
+        .eq('user_id', user.id)
+        .not('completed_at', 'is', null);
+
+      const completed = lessons?.length || 0;
+      if (completed === 0) return;
+
+      // Check for round-number milestones
+      const milestones = [5, 10, 25, 50];
+      const hit = milestones.find(m => completed === m);
+      if (!hit) return;
+
+      const { count: existing } = await supabase
+        .from('user_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .ilike('title', `%${hit} lessons%`);
+
+      if (!existing || existing === 0) {
+        await supabase.from('user_notifications').insert({
+          user_id: user.id,
+          title: `📚 ${hit} lessons completed!`,
+          message: `You just finished your ${hit}th lesson. The grind is paying off!`,
+          link: '/app/training',
+        });
+      }
+    } catch (err) {
+      console.error('Training milestone check failed:', err);
+    }
+  };
+
+  // ─── 9. Streak breaks for managers ────────────────────────
+  const checkStreakBreaksForManager = async () => {
+    if (!user?.id) return;
+    try {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: breaks } = await supabase
+        .from('streak_breaks')
+        .select('id, user_id, streak_count')
+        .eq('manager_user_id', user.id)
+        .eq('acknowledged', false)
+        .gt('broke_at', oneDayAgo)
+        .limit(5);
+
+      if (!breaks?.length) return;
+
+      // Get names
+      const userIds = breaks.map(b => b.user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+      const nameMap = new Map(profiles?.map(p => [p.user_id, p.full_name]) || []);
+
+      for (const b of breaks) {
+        const name = nameMap.get(b.user_id) || 'A rep';
+        const { count: existing } = await supabase
+          .from('user_notifications')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .ilike('title', `%${name}%streak%`)
+          .gt('created_at', oneDayAgo);
+
+        if (!existing || existing === 0) {
+          await supabase.from('user_notifications').insert({
+            user_id: user.id,
+            title: `⚠️ ${name} broke their ${b.streak_count}-day streak`,
+            message: `${name} just lost their login streak. A quick check-in could help them get back on track.`,
+            link: '/app/team',
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Streak break check failed:', err);
     }
   };
 
