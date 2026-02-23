@@ -33,7 +33,7 @@ export interface PrepRep {
   last_active_at: string | null;
 }
 
-export function useOneOnOnePrep() {
+export function useOneOnOnePrep(filterRole: 'rookie' | 'manager' = 'rookie') {
   const { user, profile, role } = useAuth();
   const [reps, setReps] = useState<PrepRep[]>([]);
   const [teamName, setTeamName] = useState('');
@@ -62,7 +62,7 @@ export function useOneOnOnePrep() {
       return;
     }
     fetchData();
-  }, [user, profile, isManager]);
+  }, [user, profile, isManager, filterRole]);
 
   async function fetchData() {
     setLoading(true);
@@ -105,7 +105,28 @@ export function useOneOnOnePrep() {
         return;
       }
 
-      const userIds = members.map(m => m.user_id);
+      // Filter by role
+      const memberIds = members.map(m => m.user_id);
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', memberIds);
+      const roleMap = new Map((userRoles || []).map(r => [r.user_id, r.role as string]));
+
+      const filteredMembers = members.filter(m => {
+        const memberRole = roleMap.get(m.user_id) || 'rookie';
+        if (filterRole === 'rookie') return memberRole === 'rookie';
+        if (filterRole === 'manager') return memberRole === 'manager' || memberRole === 'admin';
+        return true;
+      });
+
+      if (filteredMembers.length === 0) {
+        setReps([]);
+        setLoading(false);
+        return;
+      }
+
+      const userIds = filteredMembers.map(m => m.user_id);
 
       // 2. Get training progress
       const trainingItems = await getReachableRookieTrainingItems();
@@ -170,7 +191,7 @@ export function useOneOnOnePrep() {
         ? sorted.reduce((sum, [, mins]) => sum + mins, 0) / userIds.length
         : 0;
 
-      const preppedReps: PrepRep[] = members.map(m => {
+      const preppedReps: PrepRep[] = filteredMembers.map(m => {
         const completed = completedCounts.get(m.user_id) || 0;
         const progress = trainingItems.totalCount > 0
           ? Math.round((completed / trainingItems.totalCount) * 100)
