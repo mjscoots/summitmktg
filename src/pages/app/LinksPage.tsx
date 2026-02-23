@@ -6,11 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ExternalLink, Plus, Trash2, Link2, BookOpen, Users, Globe, Pencil } from 'lucide-react';
+import { Plus, Link2, ArrowUpDown, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
+import { SortableLinkCard } from '@/components/links/SortableLinkCard';
 
 interface ManagedLink {
   id: string;
@@ -23,14 +25,6 @@ interface ManagedLink {
   is_active: boolean;
 }
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  link: Link2,
-  book: BookOpen,
-  users: Users,
-  globe: Globe,
-  external: ExternalLink,
-};
-
 export default function LinksPage() {
   const { role } = useAuth();
   const isManager = role === 'manager' || role === 'admin';
@@ -41,6 +35,7 @@ export default function LinksPage() {
   const [activeTab, setActiveTab] = useState<'rookie' | 'manager'>(isManager ? 'manager' : 'rookie');
   const [showAdd, setShowAdd] = useState(false);
   const [editingLink, setEditingLink] = useState<ManagedLink | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -48,6 +43,11 @@ export default function LinksPage() {
   const [description, setDescription] = useState('');
   const [targetRole, setTargetRole] = useState<string>('all');
   const [icon, setIcon] = useState('link');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const fetchLinks = async () => {
     const { data } = await supabase
@@ -112,6 +112,38 @@ export default function LinksPage() {
     setShowAdd(true);
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = filteredLinks.findIndex(l => l.id === active.id);
+    const newIndex = filteredLinks.findIndex(l => l.id === over.id);
+    const reordered = arrayMove(filteredLinks, oldIndex, newIndex);
+
+    // Optimistic update
+    const updatedLinks = links.map(l => {
+      const newPos = reordered.findIndex(r => r.id === l.id);
+      return newPos >= 0 ? { ...l, display_order: newPos } : l;
+    });
+    setLinks(updatedLinks.sort((a, b) => a.display_order - b.display_order));
+
+    // Persist to DB
+    const updates = reordered.map((link, idx) =>
+      supabase.from('managed_links').update({ display_order: idx }).eq('id', link.id)
+    );
+    const results = await Promise.all(updates);
+    const hasError = results.some(r => r.error);
+    if (hasError) {
+      toast.error('Failed to save order');
+      fetchLinks();
+    }
+  };
+
+  const handleDoneReordering = () => {
+    setIsReordering(false);
+    toast.success('Link order saved');
+  };
+
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
@@ -121,44 +153,57 @@ export default function LinksPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Quick access to important resources</p>
           </div>
           {isAdmin && (
-            <Dialog open={showAdd} onOpenChange={(o) => { setShowAdd(o); if (!o) resetForm(); }}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-1.5 text-xs">
-                  <Plus className="w-3.5 h-3.5" /> Add Link
+            <div className="flex gap-2">
+              {filteredLinks.length > 1 && (
+                <Button
+                  size="sm"
+                  variant={isReordering ? 'default' : 'outline'}
+                  className="gap-1.5 text-xs"
+                  onClick={isReordering ? handleDoneReordering : () => setIsReordering(true)}
+                >
+                  {isReordering ? <Check className="w-3.5 h-3.5" /> : <ArrowUpDown className="w-3.5 h-3.5" />}
+                  {isReordering ? 'Done' : 'Reorder'}
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>{editingLink ? 'Edit Link' : 'Add New Link'}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-3 pt-2">
-                  <Input placeholder="Link title" value={title} onChange={e => setTitle(e.target.value)} />
-                  <Input placeholder="https://..." value={url} onChange={e => setUrl(e.target.value)} />
-                  <Textarea placeholder="Description (optional)" value={description} onChange={e => setDescription(e.target.value)} rows={2} />
-                  <div className="grid grid-cols-2 gap-3">
-                    <Select value={targetRole} onValueChange={setTargetRole}>
-                      <SelectTrigger><SelectValue placeholder="Audience" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Everyone</SelectItem>
-                        <SelectItem value="rookie">Rookies Only</SelectItem>
-                        <SelectItem value="manager">Managers Only</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={icon} onValueChange={setIcon}>
-                      <SelectTrigger><SelectValue placeholder="Icon" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="link">Link</SelectItem>
-                        <SelectItem value="book">Book</SelectItem>
-                        <SelectItem value="users">Users</SelectItem>
-                        <SelectItem value="globe">Globe</SelectItem>
-                        <SelectItem value="external">External</SelectItem>
-                      </SelectContent>
-                    </Select>
+              )}
+              <Dialog open={showAdd} onOpenChange={(o) => { setShowAdd(o); if (!o) resetForm(); }}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-1.5 text-xs">
+                    <Plus className="w-3.5 h-3.5" /> Add Link
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>{editingLink ? 'Edit Link' : 'Add New Link'}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 pt-2">
+                    <Input placeholder="Link title" value={title} onChange={e => setTitle(e.target.value)} />
+                    <Input placeholder="https://..." value={url} onChange={e => setUrl(e.target.value)} />
+                    <Textarea placeholder="Description (optional)" value={description} onChange={e => setDescription(e.target.value)} rows={2} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <Select value={targetRole} onValueChange={setTargetRole}>
+                        <SelectTrigger><SelectValue placeholder="Audience" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Everyone</SelectItem>
+                          <SelectItem value="rookie">Rookies Only</SelectItem>
+                          <SelectItem value="manager">Managers Only</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select value={icon} onValueChange={setIcon}>
+                        <SelectTrigger><SelectValue placeholder="Icon" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="link">Link</SelectItem>
+                          <SelectItem value="book">Book</SelectItem>
+                          <SelectItem value="users">Users</SelectItem>
+                          <SelectItem value="globe">Globe</SelectItem>
+                          <SelectItem value="external">External</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button onClick={handleSave} className="w-full">{editingLink ? 'Update' : 'Add Link'}</Button>
                   </div>
-                  <Button onClick={handleSave} className="w-full">{editingLink ? 'Update' : 'Add Link'}</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+            </div>
           )}
         </div>
 
@@ -166,7 +211,7 @@ export default function LinksPage() {
         {isManager && (
           <div className="flex gap-1 mb-5 bg-muted/30 rounded-lg p-1 w-fit">
             <button
-              onClick={() => setActiveTab('rookie')}
+              onClick={() => { setActiveTab('rookie'); setIsReordering(false); }}
               className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all ${
                 activeTab === 'rookie'
                   ? 'bg-primary/15 text-primary shadow-sm'
@@ -176,7 +221,7 @@ export default function LinksPage() {
               Rookie Links
             </button>
             <button
-              onClick={() => setActiveTab('manager')}
+              onClick={() => { setActiveTab('manager'); setIsReordering(false); }}
               className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all ${
                 activeTab === 'manager'
                   ? 'bg-primary/15 text-primary shadow-sm'
@@ -202,65 +247,22 @@ export default function LinksPage() {
             {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Link" to get started</p>}
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {filteredLinks.map(link => {
-              const IconComp = ICON_MAP[link.icon || 'link'] || Link2;
-              return (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block"
-                >
-                  <Card className="p-4 h-full border-border/40 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 cursor-pointer relative overflow-hidden">
-                    {/* Subtle gradient accent */}
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary/60 to-primary/10 rounded-l-xl" />
-                    
-                    <div className="flex items-start gap-3 pl-2">
-                      <div className="rounded-lg bg-primary/10 p-2 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-                        <IconComp className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-                            {link.title}
-                          </h3>
-                          <ExternalLink className="w-3 h-3 text-muted-foreground/40 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        {link.description && (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{link.description}</p>
-                        )}
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline" className="text-[9px] text-muted-foreground/60">
-                            {link.target_role === 'all' ? 'Everyone' : link.target_role === 'rookie' ? 'Rookie' : 'Manager'}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Admin controls */}
-                    {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); openEdit(link); }}
-                          className="p-1 rounded bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(link.id); }}
-                          className="p-1 rounded bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
-                  </Card>
-                </a>
-              );
-            })}
-          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={filteredLinks.map(l => l.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {filteredLinks.map(link => (
+                  <SortableLinkCard
+                    key={link.id}
+                    link={link}
+                    isAdmin={isAdmin}
+                    isReordering={isReordering}
+                    onEdit={openEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </AppLayout>
