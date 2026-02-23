@@ -120,6 +120,15 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
       supabaseAdmin.from("training_videos")
         .select("id", { count: "exact", head: true })
         .eq("is_active", true).eq("is_required", true),
+      // Completed lesson IDs for gap analysis
+      supabaseAdmin.from("lesson_progress")
+        .select("lesson_id")
+        .eq("user_id", userId).not("completed_at", "is", null),
+      // All active lessons with module/course info for recommendations
+      supabaseAdmin.from("training_lessons")
+        .select("id, title, display_order, module_id, training_modules(title, display_order, course_id, training_courses(title, target_role))")
+        .eq("is_active", true)
+        .order("display_order"),
     ];
 
     // For managers, also fetch team data
@@ -135,7 +144,7 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
     }
 
     const results = await Promise.all(fetches);
-    const [profileRes, streakRes, leaderboardRes, bootcampRes, lessonsCompleted, totalLessons, videosWatched, totalVideos] = results;
+    const [profileRes, streakRes, leaderboardRes, bootcampRes, lessonsCompleted, totalLessons, videosWatched, totalVideos, completedLessonIds, allLessonsRes] = results;
 
     const profile = profileRes.data;
     const streak = streakRes.data;
@@ -167,6 +176,43 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
       contextParts.push(`Videos: ${videoDone}/${videoTotal} watched`);
     }
 
+    // Build incomplete lessons list for recommendations
+    const doneIds = new Set((completedLessonIds?.data || []).map((r: any) => r.lesson_id));
+    const allLessons = allLessonsRes?.data || [];
+    const incomplete = allLessons
+      .filter((l: any) => !doneIds.has(l.id))
+      .filter((l: any) => {
+        // Filter by role relevance
+        const targetRole = l.training_modules?.training_courses?.target_role;
+        if (role === 'rookie' && targetRole === 'manager') return false;
+        return true;
+      });
+
+    if (incomplete.length > 0) {
+      // Group by module for cleaner context
+      const byModule: Record<string, { course: string; module: string; lessons: string[] }> = {};
+      for (const l of incomplete) {
+        const modTitle = l.training_modules?.title || 'Unknown Module';
+        const courseTitle = l.training_modules?.training_courses?.title || 'Unknown Course';
+        const key = `${courseTitle}::${modTitle}`;
+        if (!byModule[key]) byModule[key] = { course: courseTitle, module: modTitle, lessons: [] };
+        byModule[key].lessons.push(l.title);
+      }
+
+      contextParts.push(`\nINCOMPLETE TRAINING (${incomplete.length} lessons remaining):`);
+      // Show first 8 modules max to stay within context limits
+      const entries = Object.values(byModule).slice(0, 8);
+      for (const entry of entries) {
+        const lessonList = entry.lessons.slice(0, 5).join(', ');
+        const extra = entry.lessons.length > 5 ? ` (+${entry.lessons.length - 5} more)` : '';
+        contextParts.push(`• ${entry.course} → ${entry.module}: ${lessonList}${extra}`);
+      }
+      if (Object.keys(byModule).length > 8) {
+        contextParts.push(`  ...and ${Object.keys(byModule).length - 8} more modules`);
+      }
+      contextParts.push(`\nWhen suggesting training, recommend SPECIFIC lesson titles from the list above. Tell them exactly which lesson to do next.`);
+    }
+
     if (lb) {
       contextParts.push(`This week: ${lb.total_points || lb.training_points || 0} leaderboard points`);
     }
@@ -186,8 +232,8 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
     }
 
     // Manager team context
-    if ((role === "manager" || role === "admin") && results[8]?.data) {
-      const teamMembers = results[8].data;
+    if ((role === "manager" || role === "admin") && results[10]?.data) {
+      const teamMembers = results[10].data;
       const total = teamMembers.length;
       const inactive3d = teamMembers.filter((m: any) => {
         if (!m.last_active_at) return true;
