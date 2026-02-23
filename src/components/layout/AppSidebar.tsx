@@ -54,7 +54,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { role, profile, signOut } = useAuth();
-  const { state } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === 'collapsed';
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
 
@@ -131,6 +131,7 @@ export function AppSidebar() {
                       onClick={() => {
                         if (item.label === 'Chat') markChatRead();
                         navigate(item.path);
+                        if (isMobile) setOpenMobile(false);
                       }}
                       className={cn(
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
@@ -179,7 +180,10 @@ export function AppSidebar() {
                   return (
                     <SidebarMenuItem key={item.path}>
                       <button
-                        onClick={() => navigate(item.path)}
+                        onClick={() => {
+                          navigate(item.path);
+                          if (isMobile) setOpenMobile(false);
+                        }}
                         className={cn(
                           "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150",
                           active 
@@ -205,7 +209,10 @@ export function AppSidebar() {
       <SidebarFooter className="p-1.5 border-t border-border/10">
         <div
           data-tour="profile"
-          onClick={() => navigate('/app/profile')}
+          onClick={() => {
+            navigate('/app/profile');
+            if (isMobile) setOpenMobile(false);
+          }}
           className={cn(
             "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all duration-200",
             "hover:bg-white/5",

@@ -41,7 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <header className="lg:hidden sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 py-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <SidebarTrigger className="w-8 h-8" />
+                  <SidebarTrigger className="w-9 h-9 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary border border-primary/20 rounded-lg shadow-sm" />
                   {/* Clickable Summit Logo */}
                   <button
                     onClick={() => navigate('/app')}
