@@ -90,7 +90,7 @@ export function useStreak() {
                 .eq('user_id', user.id)
                 .single();
               if (prof?.full_name) {
-                postBotShoutout(user.id, prof.full_name, 'streak', result.current_streak);
+                postBotShoutout(user.id, prof.full_name, 'streak', { streakDays: result.current_streak });
               }
             }
           }
