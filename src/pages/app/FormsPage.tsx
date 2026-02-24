@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Pencil, ExternalLink, FileText, Calendar, Bell } from 'lucide-react';
+import { ExternalLink, FileText, Calendar, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
