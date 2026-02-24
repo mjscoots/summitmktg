@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { UserPlus, Play, BookOpen, MessageSquare } from 'lucide-react';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
-import { EliteProgressBar } from '@/components/dashboard/EliteProgressBar';
+
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
  
  export default function DashboardPage() {
@@ -62,8 +62,6 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
             </div>
          )}
 
-           {/* Elite System Progress - below command center */}
-           <EliteProgressBar />
 
         {/* Quick Actions (Manager) or Primary CTA (Rookie) */}
         {isManager ? (
