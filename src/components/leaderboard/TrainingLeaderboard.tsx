@@ -80,6 +80,15 @@ export function TrainingLeaderboard() {
         // Use shared canonical training item calculation (lessons + required videos)
         const trainingItems = await getReachableRookieTrainingItems();
 
+        // Calculate current PST Monday for weekly reset
+        const pstNowForWeek = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+        const pstDayForWeek = pstNowForWeek.getDay(); // 0=Sun
+        const diffToMonday = pstDayForWeek === 0 ? -6 : 1 - pstDayForWeek;
+        const weekMonday = new Date(pstNowForWeek);
+        weekMonday.setDate(pstNowForWeek.getDate() + diffToMonday);
+        weekMonday.setHours(0, 0, 0, 0);
+        const weekMondayISO = weekMonday.toISOString();
+
         const [profilesRes, progressRes, videoProgressRes, streaksRes] = await Promise.all([
           supabase
             .from('profiles')
@@ -90,12 +99,14 @@ export function TrainingLeaderboard() {
             .from('lesson_progress')
             .select('user_id, lesson_id, quiz_score, quiz_passed, completed_at')
             .in('user_id', rookieIds)
-            .not('completed_at', 'is', null),
+            .not('completed_at', 'is', null)
+            .gte('completed_at', weekMondayISO),
           supabase
             .from('video_progress')
-            .select('user_id, video_id')
+            .select('user_id, video_id, watched_at')
             .in('user_id', rookieIds)
-            .eq('watched', true),
+            .eq('watched', true)
+            .gte('watched_at', weekMondayISO),
           supabase
             .from('daily_login_streaks')
             .select('user_id, current_streak')
