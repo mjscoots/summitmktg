@@ -102,29 +102,48 @@ export function useTeamData(): TeamData {
             time_this_week_minutes: m.time_this_week_minutes,
           }));
         } else if (profile?.full_name) {
-          // Manager: use get_user_downline RPC for full recursive downline
+          // Manager: use edge-based RPC for full recursive downline
           setTeamName(`${profile.full_name.split(' ')[0]}'s Team`);
           const { data: downline, error: downlineError } = await supabase
-            .rpc('get_user_downline', { _manager_name: profile.full_name });
+            .rpc('get_downline_from_edges', { _manager_user_id: user.id });
 
           if (downlineError) {
             console.error('Error fetching downline:', downlineError);
-            setError('Failed to load team members');
-            setIsLoading(false);
-            return;
-          }
+            // Fallback to legacy text-based RPC
+            const { data: legacyDownline, error: legacyError } = await supabase
+              .rpc('get_user_downline', { _manager_name: profile.full_name });
 
-          if (downline && downline.length > 0) {
-            // Fetch full profile data for downline members
-            const downlineUserIds = downline.map((d: any) => d.user_id);
-            const { data: profilesData } = await supabase
-              .from('profiles')
-              .select('id, user_id, full_name, email, avatar_url, team_id, status, last_active_at, is_active_now, time_this_week_minutes')
-              .in('user_id', downlineUserIds)
-              .neq('status', 'nlc')
-              .order('last_active_at', { ascending: false, nullsFirst: false });
+            if (legacyError) {
+              console.error('Error fetching legacy downline:', legacyError);
+              setError('Failed to load team members');
+              setIsLoading(false);
+              return;
+            }
 
-            membersData = profilesData || [];
+            if (legacyDownline && legacyDownline.length > 0) {
+              const downlineUserIds = legacyDownline.map((d: any) => d.user_id);
+              const { data: profilesData } = await supabase
+                .from('profiles')
+                .select('id, user_id, full_name, email, avatar_url, team_id, status, last_active_at, is_active_now, time_this_week_minutes')
+                .in('user_id', downlineUserIds)
+                .neq('status', 'nlc')
+                .order('last_active_at', { ascending: false, nullsFirst: false });
+
+              membersData = profilesData || [];
+            }
+          } else if (downline && downline.length > 0) {
+            membersData = (downline || []).map((m: any) => ({
+              id: m.profile_id,
+              user_id: m.user_id,
+              full_name: m.full_name,
+              email: m.email,
+              avatar_url: m.avatar_url,
+              team_id: null,
+              status: m.status || 'active',
+              last_active_at: m.last_active_at,
+              is_active_now: m.is_active_now,
+              time_this_week_minutes: m.time_this_week_minutes,
+            }));
           }
         } else {
           setIsLoading(false);

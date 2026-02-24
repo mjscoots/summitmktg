@@ -9,9 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
+const LazyAssignments = lazy(() => import('@/components/admin/AssignmentsTab'));
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
@@ -529,6 +530,9 @@ export default function AdminTeamPage() {
             <TabsTrigger value="pitches" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Mic className="w-3.5 h-3.5 mr-1" /> Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
             </TabsTrigger>
+            <TabsTrigger value="assignments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Assignments
+            </TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Users <span className="ml-1.5 text-[10px] text-muted-foreground">{reps.length}</span>
             </TabsTrigger>
@@ -555,6 +559,13 @@ export default function AdminTeamPage() {
           {/* ========== APPLICATIONS TAB ========== */}
           <TabsContent value="applications">
             <AdminApplicationsTab />
+          </TabsContent>
+
+          {/* ========== ASSIGNMENTS TAB ========== */}
+          <TabsContent value="assignments">
+            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyAssignments managers={managers} teams={teamsSimple} onRefresh={fetchData} />
+            </Suspense>
           </TabsContent>
 
           {/* ========== PITCH APPROVALS TAB ========== */}
