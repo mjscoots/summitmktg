@@ -209,6 +209,51 @@ export type Database = {
         }
         Relationships: []
       }
+      assignment_conflicts: {
+        Row: {
+          conflict_type: string
+          created_at: string
+          id: string
+          new_manager_id: string | null
+          new_team_id: string | null
+          notes: string | null
+          old_manager_id: string | null
+          old_team_id: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          user_id: string
+        }
+        Insert: {
+          conflict_type: string
+          created_at?: string
+          id?: string
+          new_manager_id?: string | null
+          new_team_id?: string | null
+          notes?: string | null
+          old_manager_id?: string | null
+          old_team_id?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          user_id: string
+        }
+        Update: {
+          conflict_type?: string
+          created_at?: string
+          id?: string
+          new_manager_id?: string | null
+          new_team_id?: string | null
+          notes?: string | null
+          old_manager_id?: string | null
+          old_team_id?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       bootcamp_progress: {
         Row: {
           agreement_end_date: string | null
@@ -706,6 +751,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           video_minutes?: number
+        }
+        Relationships: []
+      }
+      downline_edges: {
+        Row: {
+          child_user_id: string
+          created_at: string
+          edge_type: string
+          id: string
+          parent_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          child_user_id: string
+          created_at?: string
+          edge_type?: string
+          id?: string
+          parent_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          child_user_id?: string
+          created_at?: string
+          edge_type?: string
+          id?: string
+          parent_user_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1321,6 +1393,51 @@ export type Database = {
           target_role?: Database["public"]["Enums"]["app_role"]
           time_pst?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      scheduling_requests: {
+        Row: {
+          chosen_time: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          form_type: string
+          id: string
+          notes: string | null
+          proposed_times: Json
+          recipient_id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          chosen_time?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          form_type?: string
+          id?: string
+          notes?: string | null
+          proposed_times?: Json
+          recipient_id: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          chosen_time?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          form_type?: string
+          id?: string
+          notes?: string | null
+          proposed_times?: Json
+          recipient_id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2175,6 +2292,24 @@ export type Database = {
           p_window_seconds: number
         }
         Returns: boolean
+      }
+      get_downline_from_edges: {
+        Args: { _manager_user_id: string }
+        Returns: {
+          avatar_url: string
+          depth: number
+          direct_manager: string
+          email: string
+          full_name: string
+          is_active_now: boolean
+          last_active_at: string
+          profile_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["user_status"]
+          team_name: string
+          time_this_week_minutes: number
+          user_id: string
+        }[]
       }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
