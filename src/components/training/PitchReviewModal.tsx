@@ -114,19 +114,11 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
         link: '/app/training',
       });
 
-      // Award 25 leaderboard points
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      const ws = weekStart.toISOString().split('T')[0];
-
-      await supabase.from('leaderboard_points').upsert(
-        {
-          user_id: request.user_id,
-          week_start: ws,
-          training_points: 25,
-        },
-        { onConflict: 'user_id,week_start' }
-      );
+      // Award 25 leaderboard points via DB function
+      await supabase.rpc('award_training_points', {
+        _user_id: request.user_id,
+        _points: 25,
+      });
 
       toast.success('Pitch approved!');
       onAction();

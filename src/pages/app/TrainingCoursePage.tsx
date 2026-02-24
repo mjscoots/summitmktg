@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil } from 'lucide-react';
+import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -26,6 +26,8 @@ interface Lesson {
   display_order: number;
   completed: boolean;
   quiz_passed: boolean;
+  requires_pitch_approval?: boolean;
+  pitch_status?: 'pending' | 'approved' | 'rejected' | null;
 }
 
 interface Course {
@@ -89,7 +91,7 @@ export default function TrainingCoursePage() {
           .from('training_modules')
           .select(`
             id, title, description, display_order,
-            training_lessons (id, title, display_order)
+            training_lessons (id, title, display_order, requires_pitch_approval)
           `)
           .eq('course_id', courseData.id)
           .eq('is_active', true)
@@ -119,6 +121,24 @@ export default function TrainingCoursePage() {
           );
         }
 
+        // Fetch pitch approval statuses for lessons that require them
+        const pitchLessonIds = (modulesData || []).flatMap(
+          m => (m.training_lessons || []).filter(l => l.requires_pitch_approval).map(l => l.id)
+        );
+        let pitchMap = new Map<string, string>();
+        if (pitchLessonIds.length > 0) {
+          const { data: pitchData } = await supabase
+            .from('pitch_approval_requests')
+            .select('lesson_id, status')
+            .eq('user_id', user.id)
+            .in('lesson_id', pitchLessonIds)
+            .order('attempt_number', { ascending: false });
+          // Only keep the latest status per lesson
+          (pitchData || []).forEach(p => {
+            if (!pitchMap.has(p.lesson_id)) pitchMap.set(p.lesson_id, p.status);
+          });
+        }
+
         const modulesWithLessons = (modulesData || []).map(module => {
           const sortedLessons = [...(module.training_lessons || [])].sort(
             (a, b) => a.display_order - b.display_order
@@ -127,6 +147,9 @@ export default function TrainingCoursePage() {
             ...lesson,
             completed: progressMap.has(lesson.id) && !!progressMap.get(lesson.id)!.completed_at,
             quiz_passed: progressMap.has(lesson.id) && !!progressMap.get(lesson.id)!.quiz_passed,
+            pitch_status: lesson.requires_pitch_approval
+              ? (pitchMap.get(lesson.id) as 'pending' | 'approved' | 'rejected' | undefined) || null
+              : null,
           }));
           return { ...module, lessons };
         });
@@ -274,9 +297,13 @@ export default function TrainingCoursePage() {
             
             const isModuleComplete = moduleProgress === 100;
             // Module is locked if previous module has incomplete quizzes
-            // (pitch approval gating is handled at lesson level via PitchApprovalCard)
-            const isModuleLocked = moduleIndex > 0 && 
-              modules[moduleIndex - 1].lessons.some(l => !l.quiz_passed);
+            // OR if previous module has unapproved pitch approvals
+            const prevModule = moduleIndex > 0 ? modules[moduleIndex - 1] : null;
+            const prevQuizzesIncomplete = prevModule ? prevModule.lessons.some(l => !l.quiz_passed) : false;
+            const prevPitchesBlocking = prevModule ? prevModule.lessons.some(
+              l => l.requires_pitch_approval && l.pitch_status !== 'approved'
+            ) : false;
+            const isModuleLocked = moduleIndex > 0 && (prevQuizzesIncomplete || prevPitchesBlocking);
 
             // Find the first incomplete lesson across all modules to determine "continue" point
             const isCurrentModule = !isModuleLocked && !isModuleComplete && 
@@ -426,6 +453,24 @@ export default function TrainingCoursePage() {
                           )}>
                             {lesson.title}
                           </span>
+                          {/* Pitch approval status badge */}
+                          {lesson.requires_pitch_approval && lesson.quiz_passed && (
+                            <span className={cn(
+                              "text-[10px] font-medium px-1.5 py-0.5 rounded-full ml-1",
+                              lesson.pitch_status === 'approved'
+                                ? "bg-green-500/15 text-green-500"
+                                : lesson.pitch_status === 'pending'
+                                  ? "bg-amber-500/15 text-amber-500"
+                                  : lesson.pitch_status === 'rejected'
+                                    ? "bg-destructive/15 text-destructive"
+                                    : "bg-amber-500/15 text-amber-500"
+                            )}>
+                              {lesson.pitch_status === 'approved' ? '🎤 Approved' 
+                                : lesson.pitch_status === 'pending' ? '🎤 Pending'
+                                : lesson.pitch_status === 'rejected' ? '🎤 Re-record'
+                                : '🎤 Required'}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-1">
                           {isAdmin && (

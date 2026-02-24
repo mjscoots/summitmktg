@@ -47,3 +47,9 @@ verify_jwt = false
 
 [functions.check-inactivity]
 verify_jwt = false
+
+[functions.check-pitch-approvals-overdue]
+verify_jwt = false
+
+[functions.daily-accountability-post]
+verify_jwt = false
