@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 
@@ -17,6 +17,8 @@ import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleto
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
 const LazyRosterSync = lazy(() => import('@/components/admin/RosterSyncTab'));
 const LazyMassImport = lazy(() => import('@/components/admin/MassImportTab'));
+const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
+import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -94,6 +96,7 @@ export default function AdminTeamPage() {
   const { role, profile } = useAuth();
   const navigate = useNavigate();
   const { startImpersonating } = useRookieView();
+  const adminCounts = useAdminCounts();
   const isAdmin = role === 'admin';
   const isSuperAdmin = profile?.email === SUPER_ADMIN_EMAIL;
   const [reps, setReps] = useState<RepRow[]>([]);
@@ -508,7 +511,13 @@ export default function AdminTeamPage() {
         <Tabs defaultValue="approvals" className="w-full">
           <TabsList className="bg-white/5 border border-white/10 mb-4 flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full">{pendingUsers.length}</span>}
+              Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
+            </TabsTrigger>
+            <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Applications {adminCounts.pendingApplications > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
+            </TabsTrigger>
+            <TabsTrigger value="pitches" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Mic className="w-3.5 h-3.5 mr-1" /> Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
             </TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Users <span className="ml-1.5 text-[10px] text-muted-foreground">{reps.length}</span>
@@ -519,15 +528,14 @@ export default function AdminTeamPage() {
             <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Bootcamp <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Applications
-            </TabsTrigger>
-            
             <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
             </TabsTrigger>
             <TabsTrigger value="roster" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster
+            </TabsTrigger>
+            <TabsTrigger value="feedback" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <MessageSquareText className="w-3.5 h-3.5 mr-1" /> Feedback {adminCounts.newFeedback > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.newFeedback}</span>}
             </TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
@@ -539,6 +547,22 @@ export default function AdminTeamPage() {
             <AdminApplicationsTab />
           </TabsContent>
 
+          {/* ========== PITCH APPROVALS TAB ========== */}
+          <TabsContent value="pitches">
+            <div className="text-sm text-muted-foreground mb-3">
+              Manage pending pitch approval requests from reps.
+            </div>
+            <Button size="sm" variant="outline" className="text-xs gap-1.5 mb-4" onClick={() => navigate('/app/pitch-approvals')}>
+              <Mic className="w-3.5 h-3.5" /> Open Pitch Approvals Page
+            </Button>
+          </TabsContent>
+
+          {/* ========== FEEDBACK TAB ========== */}
+          <TabsContent value="feedback">
+            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyFeedback />
+            </Suspense>
+          </TabsContent>
 
           {/* ========== TRAINING CMS TAB ========== */}
           <TabsContent value="training-cms" className="mt-0">
