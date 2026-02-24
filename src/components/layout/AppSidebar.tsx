@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Mic } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +39,7 @@ const managerNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
   { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Pitches', path: '/app/pitch-approvals', icon: Mic, iconColor: 'text-amber-400', requiredRole: 'manager' },
   { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
   { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },

@@ -273,6 +273,8 @@ export default function TrainingCoursePage() {
               : 0;
             
             const isModuleComplete = moduleProgress === 100;
+            // Module is locked if previous module has incomplete quizzes
+            // (pitch approval gating is handled at lesson level via PitchApprovalCard)
             const isModuleLocked = moduleIndex > 0 && 
               modules[moduleIndex - 1].lessons.some(l => !l.quiz_passed);
 

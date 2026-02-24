@@ -1001,6 +1001,56 @@ export type Database = {
         }
         Relationships: []
       }
+      pitch_approval_requests: {
+        Row: {
+          attempt_number: number | null
+          created_at: string | null
+          id: string
+          lesson_id: string
+          manager_feedback: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string | null
+          user_id: string
+          video_url: string
+        }
+        Insert: {
+          attempt_number?: number | null
+          created_at?: string | null
+          id?: string
+          lesson_id: string
+          manager_feedback?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          user_id: string
+          video_url: string
+        }
+        Update: {
+          attempt_number?: number | null
+          created_at?: string | null
+          id?: string
+          lesson_id?: string
+          manager_feedback?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          user_id?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_approval_requests_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "training_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           approved: boolean | null
@@ -1626,6 +1676,7 @@ export type Database = {
           is_active: boolean | null
           key_takeaways: string[] | null
           module_id: string
+          requires_pitch_approval: boolean | null
           title: string
           video_url: string | null
         }
@@ -1637,6 +1688,7 @@ export type Database = {
           is_active?: boolean | null
           key_takeaways?: string[] | null
           module_id: string
+          requires_pitch_approval?: boolean | null
           title: string
           video_url?: string | null
         }
@@ -1648,6 +1700,7 @@ export type Database = {
           is_active?: boolean | null
           key_takeaways?: string[] | null
           module_id?: string
+          requires_pitch_approval?: boolean | null
           title?: string
           video_url?: string | null
         }

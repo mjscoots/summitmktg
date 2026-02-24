@@ -14,6 +14,8 @@ import { TeamScriptSelector } from '@/components/training/TeamScriptSelector';
 import { useStreak } from '@/hooks/useStreak';
 import { useScrollGate } from '@/hooks/useScrollGate';
 import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
+import { useLessonPitchStatus } from '@/hooks/usePitchApprovals';
+import { PitchApprovalCard } from '@/components/training/PitchApprovalCard';
 import { QuizResultsDisplay } from '@/components/training/QuizResultsDisplay';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
 
@@ -82,9 +84,10 @@ type ButtonState = 'locked' | 'ready' | 'finalReady';
 export default function LessonPage() {
   const { courseSlug, lessonId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const contentRef = useRef<HTMLDivElement>(null);
   const { recordActivity, streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, clearMilestone } = useStreak();
+  const { pitchRequest, requiresPitch, refresh: refreshPitch } = useLessonPitchStatus(lessonId);
   
   // Core state
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -762,6 +765,18 @@ export default function LessonPage() {
                 </ul>
               </div>
             )}
+
+            {/* Pitch Approval Gate */}
+            <PitchApprovalCard
+              lessonId={lesson.id}
+              lessonTitle={lesson.title}
+              pitchRequest={pitchRequest}
+              requiresPitch={requiresPitch}
+              lessonCompleted={lessonCompleted}
+              managerName={profile?.direct_manager || undefined}
+              isRookieCourse={isRookieCourse}
+              onRefresh={refreshPitch}
+            />
 
             {/* Quiz Section - Only show if has quiz and not complete */}
             {questions.length > 0 && !lessonCompleted && !isQuizOptional && (
