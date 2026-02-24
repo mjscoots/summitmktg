@@ -52,6 +52,7 @@ const ChatPage = lazy(() => import("./pages/app/ChatPage"));
 const LinksPage = lazy(() => import("./pages/app/LinksPage"));
 const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
 const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
+const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 
 function LazyFallback() {
   return (
@@ -308,6 +309,15 @@ function LazyFallback() {
                   <AdminTeamPage />
                 </ProtectedRoute>
               } />
+
+             {/* War Room */}
+             <Route path="/app/war-room" element={
+               <ProtectedRoute>
+                 <BootcampGate>
+                   <WarRoomPage />
+                 </BootcampGate>
+               </ProtectedRoute>
+             } />
 
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />
