@@ -1,0 +1,1 @@
+UPDATE training_lessons SET content = REPLACE(content, 'Go up and show bug sheet', 'Go up, close gap between you and the customer, and show bug sheet') WHERE id = 'c1d2e3f4-0003-4000-8000-000000000003'
