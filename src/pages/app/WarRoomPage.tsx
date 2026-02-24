@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { PageBackButton } from '@/components/shared/PageBackButton';
@@ -8,10 +8,11 @@ import { LiveLeaderboardSnapshot } from '@/components/warroom/LiveLeaderboardSna
 import { DailyCheckIn } from '@/components/warroom/DailyCheckIn';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Swords, Flame, Trophy, Users, Target, Zap } from 'lucide-react';
+import { Swords, Trophy, Users, Target, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function WarRoomPage() {
+  const navigate = useNavigate();
   const { user, profile, role } = useAuth();
   const isManager = role === 'manager' || role === 'admin';
   const firstName = profile?.full_name?.split(' ')[0] || 'Soldier';
@@ -79,14 +80,14 @@ export default function WarRoomPage() {
               { icon: Target, label: 'Sign a Rep', path: '/app/interviews', color: 'text-emerald-400' },
               { icon: Zap, label: 'Training', path: '/app/training', color: 'text-orange-400' },
             ].map(item => (
-              <a
+              <button
                 key={item.label}
-                href={item.path}
+                onClick={() => navigate(item.path)}
                 className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-border/40 hover:border-border transition-all hover:scale-[1.02] group"
               >
                 <item.icon className={cn('w-5 h-5', item.color, 'group-hover:scale-110 transition-transform')} />
                 <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{item.label}</span>
-              </a>
+              </button>
             ))}
           </div>
         )}
