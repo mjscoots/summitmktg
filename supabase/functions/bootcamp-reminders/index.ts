@@ -145,7 +145,7 @@ Deno.serve(async (req) => {
               Authorization: `Bearer ${resendApiKey}`,
             },
             body: JSON.stringify({
-              from: "Summit <onboarding@resend.dev>",
+              from: "Summit <noreply@summitmktgsales.com>",
               to: [profile.email],
               subject,
               html: body,
@@ -215,8 +215,8 @@ Deno.serve(async (req) => {
             Authorization: `Bearer ${resendApiKey}`,
           },
           body: JSON.stringify({
-            from: "Summit <onboarding@resend.dev>",
-            to: [info.managerEmail],
+             from: "Summit <noreply@summitmktgsales.com>",
+             to: [info.managerEmail],
             subject,
             html: body,
           }),

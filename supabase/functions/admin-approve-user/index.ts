@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Summit <onboarding@resend.dev>",
+              from: "Summit <noreply@summitmktgsales.com>",
               to: [profile.email],
               subject: "Your Summit Account Has Been Approved",
               html: `
