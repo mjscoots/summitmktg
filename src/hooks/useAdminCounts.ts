@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -10,6 +10,8 @@ interface AdminCounts {
   total: number;
 }
 
+type AdminCountKey = 'pendingApprovals' | 'pendingApplications' | 'pendingPitches' | 'newFeedback';
+
 export function useAdminCounts() {
   const { role } = useAuth();
   const [counts, setCounts] = useState<AdminCounts>({
@@ -19,6 +21,7 @@ export function useAdminCounts() {
     newFeedback: 0,
     total: 0,
   });
+  const [viewed, setViewed] = useState<Set<AdminCountKey>>(new Set());
 
   const isAdmin = role === 'admin';
 
@@ -49,7 +52,6 @@ export function useAdminCounts() {
 
     fetchCounts();
 
-    // Subscribe to realtime changes on key tables
     const channel = supabase
       .channel('admin-counts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchCounts())
@@ -61,5 +63,19 @@ export function useAdminCounts() {
     return () => { supabase.removeChannel(channel); };
   }, [isAdmin]);
 
-  return counts;
+  const markViewed = useCallback((key: AdminCountKey) => {
+    setViewed(prev => new Set(prev).add(key));
+  }, []);
+
+  // Return counts with viewed ones zeroed out
+  const displayCounts: AdminCounts = {
+    pendingApprovals: viewed.has('pendingApprovals') ? 0 : counts.pendingApprovals,
+    pendingApplications: viewed.has('pendingApplications') ? 0 : counts.pendingApplications,
+    pendingPitches: viewed.has('pendingPitches') ? 0 : counts.pendingPitches,
+    newFeedback: viewed.has('newFeedback') ? 0 : counts.newFeedback,
+    total: 0,
+  };
+  displayCounts.total = displayCounts.pendingApprovals + displayCounts.pendingApplications + displayCounts.pendingPitches + displayCounts.newFeedback;
+
+  return { ...displayCounts, markViewed };
 }
