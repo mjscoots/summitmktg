@@ -59,10 +59,13 @@ export function LessonContent({ content, isRookieCourse = true }: LessonContentP
       .replace(/^#{2}\s+(.+)$/gm, `<h2 class="text-lg font-semibold text-foreground mb-3 mt-8 first:mt-0 pb-2 border-b border-border/30">$1</h2>`)
       .replace(/^#{3}\s+(.+)$/gm, `<h3 class="text-base font-semibold text-foreground mb-2 mt-6">$1</h3>`)
       .replace(/^#{4}\s+(.+)$/gm, `<h4 class="text-sm font-semibold text-foreground mb-2 mt-4 uppercase tracking-wide">$1</h4>`)
+      .replace(/\*\*(YOU:)\*\*/g, '<strong class="font-bold text-primary text-base tracking-wide">$1</strong>')
+      .replace(/\*\*(CUSTOMER:)\*\*/g, '<strong class="font-bold text-muted-foreground text-sm uppercase tracking-wider">$1</strong>')
+      .replace(/\*\*(\[Customer\])\*\*/g, '<strong class="font-bold text-muted-foreground text-sm uppercase tracking-wider">$1</strong>')
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
       .replace(/\*([^*]+)\*/g, '<em class="italic">$1</em>')
       .replace(/_([^_]+)_/g, '<em class="italic">$1</em>')
-      .replace(/^>\s*(.+)$/gm, `<blockquote class="border-l-3 ${isRookieCourse ? 'border-green-500/40' : 'border-blue-500/40'} pl-4 my-4 py-1 text-foreground/80 italic text-sm">$1</blockquote>`)
+      .replace(/^>\s*(.+)$/gm, `<blockquote class="border-l-3 ${isRookieCourse ? 'border-green-500/50' : 'border-blue-500/50'} pl-4 my-3 py-2 ${isRookieCourse ? 'bg-green-500/5' : 'bg-blue-500/5'} rounded-r-lg text-foreground text-base font-medium leading-relaxed">$1</blockquote>`)
       .replace(/^---$/gm, '<hr class="border-border/40 my-6">')
       .replace(/^\*\*\*$/gm, '<hr class="border-border/40 my-6">')
       .replace(/^[-•]\s+(.+)$/gm, `<li class="flex items-start gap-2 mb-1.5 text-sm leading-relaxed"><span class="${isRookieCourse ? 'text-green-400' : 'text-blue-400'} mt-0.5 text-xs">●</span><span class="text-foreground/90">$1</span></li>`)
@@ -108,7 +111,10 @@ export function LessonContent({ content, isRookieCourse = true }: LessonContentP
           "[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_ul]:text-sm [&_ul]:text-foreground/90",
           "[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_ol]:text-sm [&_ol]:text-foreground/90",
           "[&_li]:mb-1 [&_li]:leading-relaxed",
-          "[&_blockquote]:border-l-3 [&_blockquote]:pl-4 [&_blockquote]:my-4 [&_blockquote]:text-foreground/80 [&_blockquote]:italic [&_blockquote]:text-sm",
+          "[&_blockquote]:border-l-3 [&_blockquote]:pl-4 [&_blockquote]:my-3 [&_blockquote]:py-2 [&_blockquote]:text-foreground [&_blockquote]:text-base [&_blockquote]:font-medium [&_blockquote]:leading-relaxed [&_blockquote]:rounded-r-lg",
+          isRookieCourse
+            ? "[&_blockquote]:border-green-500/50 [&_blockquote]:bg-green-500/5"
+            : "[&_blockquote]:border-blue-500/50 [&_blockquote]:bg-blue-500/5",
           isRookieCourse 
             ? "[&_blockquote]:border-green-500/40" 
             : "[&_blockquote]:border-blue-500/40",
