@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { TeamTreeNode } from './TeamTreeNode';
 import { MemberProfileModal } from './MemberProfileModal';
  import { TeamResources } from './TeamResources';
- import { TeamTimeStats } from './TeamTimeStats';
 import { TeamActivityTable } from './TeamActivityTable';
  
 import { ManagerTrainingOverview } from '@/components/training/ManagerTrainingOverview';
@@ -241,9 +240,6 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
         dailyTimeMap={dailyTimeMap}
         onMemberClick={handleMemberClick}
       />
-
-       {/* Team Time Stats (Pillar view only) */}
-       <TeamTimeStats teamId={pillar.id} teamName={pillar.name} />
     </div>
   );
 }
