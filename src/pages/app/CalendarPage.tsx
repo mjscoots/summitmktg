@@ -5,14 +5,12 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { 
   Calendar as CalendarIcon, Plus, Check, X, Users, 
   ChevronLeft, ChevronRight, Clock, Globe, Video, Building2,
-  Pencil, Trash2, MapPin, Flame, Trophy, DollarSign,
-  Timer, Target, Zap, TrendingUp, AlertTriangle, Shield,
-  BarChart3
+  Pencil, Trash2, MapPin, Target, Shield, BarChart3
 } from 'lucide-react';
 import { 
   format, isFuture, isPast, isToday, startOfMonth, endOfMonth, 
   eachDayOfInterval, isSameDay, isSameMonth, startOfWeek, endOfWeek, 
-  addMonths, subMonths, parseISO, differenceInMinutes, differenceInSeconds
+  addMonths, subMonths, parseISO
 } from 'date-fns';
 import { useUserTimezone } from '@/hooks/useUserTimezone';
 import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
@@ -20,9 +18,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
-import { AddToCalendarButton } from '@/components/calendar/AddToCalendarButton';
 import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
-import { Progress } from '@/components/ui/progress';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -51,14 +47,14 @@ interface Attendance {
   profile?: { full_name: string };
 }
 
-// Execution Command Center event categories
-type EventCategory = 'all' | 'mandatory' | 'revenue' | 'training' | 'team' | 'optional';
+// Simplified 4 categories only
+type EventCategory = 'all' | 'mandatory' | 'training' | 'team' | 'optional';
 
 const EVENT_CATEGORY_MAP: Record<string, EventCategory> = {
   call: 'mandatory',
   deadline: 'mandatory',
   training: 'training',
-  meeting: 'revenue',
+  meeting: 'team',
   general: 'optional',
 };
 
@@ -66,12 +62,11 @@ const getEventCategory = (type: string | null): EventCategory => {
   return EVENT_CATEGORY_MAP[type || 'general'] || 'optional';
 };
 
-const CATEGORY_COLORS: Record<EventCategory, { bg: string; text: string; dot: string; border: string; label: string; glow?: string }> = {
+const CATEGORY_COLORS: Record<EventCategory, { bg: string; text: string; dot: string; border: string; label: string }> = {
   all: { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-foreground', border: 'border-foreground', label: 'All' },
-  mandatory: { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-500', border: 'border-red-500', label: 'Mandatory', glow: 'shadow-[0_0_8px_-2px_hsl(0,72%,51%/0.4)]' },
+  mandatory: { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-500', border: 'border-red-500', label: 'Mandatory' },
   training: { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-500', border: 'border-blue-500', label: 'Training' },
   team: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-500', border: 'border-emerald-500', label: 'Team' },
-  revenue: { bg: 'bg-purple-500/10', text: 'text-purple-400', dot: 'bg-purple-500', border: 'border-purple-500', label: 'Revenue / 1-on-1' },
   optional: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-500', border: 'border-yellow-500', label: 'Optional' },
 };
 
@@ -79,29 +74,6 @@ const getColor = (type: string | null) => {
   const cat = getEventCategory(type);
   return CATEGORY_COLORS[cat];
 };
-
-// Live countdown hook
-function useCountdown(targetDate: Date | null) {
-  const [timeLeft, setTimeLeft] = useState('');
-  
-  useEffect(() => {
-    if (!targetDate) { setTimeLeft(''); return; }
-    const tick = () => {
-      const now = new Date();
-      const diff = differenceInSeconds(targetDate, now);
-      if (diff <= 0) { setTimeLeft('NOW'); return; }
-      const h = Math.floor(diff / 3600);
-      const m = Math.floor((diff % 3600) / 60);
-      const s = diff % 60;
-      setTimeLeft(`${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`);
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [targetDate]);
-  
-  return timeLeft;
-}
 
 export default function CalendarPage() {
   const { role, user, profile } = useAuth();
@@ -124,51 +96,6 @@ export default function CalendarPage() {
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
 
-  // Next mandatory event for countdown
-  const nextMandatoryEvent = useMemo(() => {
-    const now = new Date();
-    return events
-      .filter(e => {
-        const cat = getEventCategory(e.event_type);
-        return (cat === 'mandatory' || cat === 'training') && new Date(e.event_date) > now;
-      })
-      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())[0] || null;
-  }, [events]);
-
-  const countdownTarget = nextMandatoryEvent ? new Date(nextMandatoryEvent.event_date) : null;
-  const countdown = useCountdown(countdownTarget);
-
-  // Execution score calculation
-  const executionScore = useMemo(() => {
-    const totalMandatory = events.filter(e => {
-      const cat = getEventCategory(e.event_type);
-      return (cat === 'mandatory' || cat === 'training') && isPast(new Date(e.event_date));
-    }).length;
-    if (totalMandatory === 0) return 100;
-    const attended = events.filter(e => {
-      const cat = getEventCategory(e.event_type);
-      return (cat === 'mandatory' || cat === 'training') && isPast(new Date(e.event_date)) && userAttendance[e.id] === 'attending';
-    }).length;
-    return Math.round((attended / totalMandatory) * 100);
-  }, [events, userAttendance]);
-
-  // Attendance streak
-  const attendanceStreak = useMemo(() => {
-    const pastMandatory = events
-      .filter(e => {
-        const cat = getEventCategory(e.event_type);
-        return (cat === 'mandatory') && isPast(new Date(e.event_date));
-      })
-      .sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
-    
-    let streak = 0;
-    for (const e of pastMandatory) {
-      if (userAttendance[e.id] === 'attending') streak++;
-      else break;
-    }
-    return streak;
-  }, [events, userAttendance]);
-
   // Calendar grid
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
@@ -178,12 +105,12 @@ export default function CalendarPage() {
     return eachDayOfInterval({ start: calStart, end: calEnd });
   }, [currentMonth]);
 
-  // Events by day for quick lookup
+  // Events by day
   const eventsByDay = useMemo(() => {
     const map: Record<string, CalendarEvent[]> = {};
     const filtered = activeFilter === 'all' ? events : events.filter(e => {
       const cat = getEventCategory(e.event_type);
-      if (activeFilter === 'team') return e.is_team_wide;
+      if (activeFilter === 'team') return e.is_team_wide || cat === 'team';
       return cat === activeFilter;
     });
     filtered.forEach(e => {
@@ -202,7 +129,7 @@ export default function CalendarPage() {
     return eventsByDay[key] || [];
   }, [selectedDate, eventsByDay]);
 
-  // Today's events (unfiltered for execution board)
+  // Today's events
   const todayEvents = useMemo(() => {
     const key = format(new Date(), 'yyyy-MM-dd');
     const todayAll: Record<string, CalendarEvent[]> = {};
@@ -270,7 +197,7 @@ export default function CalendarPage() {
     finally { setIsLoading(false); }
   };
 
-  // Fetch team attendance data for manager view
+  // Fetch team attendance data
   const fetchTeamAttendance = async () => {
     if (!user || !isManager || !profile?.full_name) return;
     try {
@@ -289,14 +216,7 @@ export default function CalendarPage() {
         const attended = memberAtt.filter(a => a.status === 'attending').length;
         const missed = memberAtt.filter(a => a.status === 'not_attending').length;
         const pct = total > 0 ? Math.round((attended / total) * 100) : 0;
-        return {
-          ...member,
-          attendance_pct: pct,
-          attended,
-          missed,
-          total,
-          execution_score: pct,
-        };
+        return { ...member, attendance_pct: pct, attended, missed, total };
       }).sort((a: any, b: any) => a.attendance_pct - b.attendance_pct);
       
       setTeamAttendanceData(teamData);
@@ -350,21 +270,19 @@ export default function CalendarPage() {
   };
 
   const handleFormClose = () => { setIsFormOpen(false); setEditingEvent(null); setPrefillDate(null); };
-
   const handleDayClick = (day: Date) => { setSelectedDate(day); };
   const handleDayDoubleClick = (day: Date) => {
     if (!isManager) return;
     setPrefillDate(format(day, 'yyyy-MM-dd'));
     setIsFormOpen(true);
   };
-
   const goToToday = () => { setCurrentMonth(new Date()); setSelectedDate(new Date()); };
 
   if (isLoading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center py-20">
-          <div className="animate-pulse text-muted-foreground">Loading command center...</div>
+          <div className="animate-pulse text-muted-foreground">Loading calendar...</div>
         </div>
       </AppLayout>
     );
@@ -373,89 +291,29 @@ export default function CalendarPage() {
   return (
     <AppLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        {/* ═══ TOP BAR: Execution Overview Strip ═══ */}
-        <div className="mb-5 rounded-xl bg-card border border-border/50 overflow-hidden">
-          <div className="flex flex-col lg:flex-row items-stretch">
-            {/* Left: Title */}
-            <div className="flex items-center gap-3 px-5 py-3 border-b lg:border-b-0 lg:border-r border-border/40 shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Shield className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-sm font-bold text-foreground tracking-tight">EXECUTION COMMAND CENTER</h1>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <Globe className="w-2.5 h-2.5" />
-                  {getTimezoneShort(timezone)}
-                </span>
-              </div>
+        {/* Clean header */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CalendarIcon className="w-5 h-5 text-primary" />
+            <div>
+              <h1 className="text-lg font-bold text-foreground tracking-tight">Calendar</h1>
+              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Globe className="w-2.5 h-2.5" />
+                {getTimezoneShort(timezone)}
+              </span>
             </div>
-
-            {/* Center: Countdown */}
-            <div className="flex-1 flex items-center justify-center gap-3 px-5 py-3 border-b lg:border-b-0 lg:border-r border-border/40">
-              {nextMandatoryEvent ? (
-                <div className="flex items-center gap-3">
-                  <Timer className="w-4 h-4 text-red-400 animate-pulse" />
-                  <div className="text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Next Mandatory</p>
-                    <p className="text-xs font-medium text-foreground truncate max-w-[200px]">{nextMandatoryEvent.title}</p>
-                    <p className={cn(
-                      "text-lg font-black tracking-tight tabular-nums",
-                      countdown === 'NOW' ? "text-red-400 animate-pulse" : "text-primary"
-                    )}>
-                      {countdown}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">No upcoming mandatory events</p>
-              )}
-            </div>
-
-            {/* Right: Status Badges */}
-            <div className="flex items-center gap-3 px-5 py-3 flex-wrap justify-center lg:justify-end">
-              {/* Execution Score */}
-              <div className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-lg border",
-                executionScore >= 90 ? "border-emerald-500/30 bg-emerald-500/5" :
-                executionScore < 70 ? "border-red-500/30 bg-red-500/5" :
-                "border-yellow-500/30 bg-yellow-500/5"
-              )}>
-                <Zap className={cn("w-3.5 h-3.5", 
-                  executionScore >= 90 ? "text-emerald-400" : executionScore < 70 ? "text-red-400" : "text-yellow-400"
-                )} />
-                <div>
-                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Execution</p>
-                  <p className={cn("text-sm font-black tabular-nums",
-                    executionScore >= 90 ? "text-emerald-400" : executionScore < 70 ? "text-red-400" : "text-yellow-400"
-                  )}>
-                    {executionScore}%
-                    {executionScore >= 90 && <Flame className="w-3 h-3 inline ml-0.5 text-orange-400" />}
-                  </p>
-                </div>
-              </div>
-
-              {/* Revenue Progress (placeholder) */}
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/5">
-                <DollarSign className="w-3.5 h-3.5 text-purple-400" />
-                <div>
-                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Revenue</p>
-                  <p className="text-sm font-black text-purple-400 tabular-nums">—</p>
-                </div>
-              </div>
-
-              {/* Leaderboard Rank (placeholder) */}
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/5">
-                <Trophy className="w-3.5 h-3.5 text-primary" />
-                <div>
-                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Rank</p>
-                  <p className="text-sm font-black text-primary tabular-nums">—</p>
-                </div>
-              </div>
-            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={goToToday} className="text-xs h-8">Today</Button>
+            {isManager && (
+              <Button size="sm" onClick={() => setIsFormOpen(true)} className="gap-1.5 h-8">
+                <Plus className="w-3.5 h-3.5" />Event
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Manager tab strip */}
+        {/* Manager tabs */}
         {isManager && (
           <div className="flex items-center gap-2 mb-4">
             <button
@@ -463,7 +321,7 @@ export default function CalendarPage() {
               className={cn(
                 "px-4 py-2 rounded-lg text-xs font-semibold transition-all",
                 activeTab === 'calendar'
-                  ? "bg-primary text-primary-foreground shadow-[0_0_12px_-3px_hsl(var(--primary)/0.5)]"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground border border-border/50"
               )}
             >
@@ -475,42 +333,25 @@ export default function CalendarPage() {
               className={cn(
                 "px-4 py-2 rounded-lg text-xs font-semibold transition-all",
                 activeTab === 'team_attendance'
-                  ? "bg-primary text-primary-foreground shadow-[0_0_12px_-3px_hsl(var(--primary)/0.5)]"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground border border-border/50"
               )}
             >
               <Users className="w-3.5 h-3.5 inline mr-1.5" />
               Team Attendance
             </button>
-            <div className="flex-1" />
-            {activeTab === 'calendar' && (
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={goToToday} className="text-xs h-8">Today</Button>
-                <Button size="sm" onClick={() => setIsFormOpen(true)} className="gap-1.5 h-8">
-                  <Plus className="w-3.5 h-3.5" />Event
-                </Button>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Non-manager header */}
-        {!isManager && (
-          <div className="flex items-center justify-between mb-4">
-            <div />
-            <Button variant="outline" size="sm" onClick={goToToday} className="text-xs h-8">Today</Button>
-          </div>
-        )}
-
-        {/* ═══ TEAM ATTENDANCE TAB (Manager Only) ═══ */}
+        {/* Team Attendance Tab */}
         {activeTab === 'team_attendance' && isManager && (
           <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
             <div className="px-5 py-4 border-b border-border/40">
               <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-primary" />
-                Team Compliance Overview
+                Team Attendance
               </h2>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Sorted by lowest compliance first</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Sorted by lowest attendance first</p>
             </div>
             {teamAttendanceData.length === 0 ? (
               <div className="py-12 text-center text-sm text-muted-foreground">No team members found</div>
@@ -542,16 +383,6 @@ export default function CalendarPage() {
                         {member.missed}
                       </p>
                     </div>
-                    <div className="text-center px-3">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Score</p>
-                      <p className={cn("text-sm font-black tabular-nums flex items-center gap-0.5",
-                        member.execution_score >= 90 ? "text-emerald-400" :
-                        member.execution_score < 70 ? "text-red-400" : "text-yellow-400"
-                      )}>
-                        {member.execution_score}
-                        {member.execution_score >= 90 && <Flame className="w-3 h-3 text-orange-400" />}
-                      </p>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -559,14 +390,14 @@ export default function CalendarPage() {
           </div>
         )}
 
-        {/* ═══ CALENDAR VIEW ═══ */}
+        {/* Calendar View */}
         {activeTab === 'calendar' && (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
             {/* Main Calendar Grid */}
             <div>
-              {/* Filter Buttons */}
+              {/* Filters — 4 categories only */}
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {(['all', 'mandatory', 'revenue', 'training', 'team', 'optional'] as EventCategory[]).map(cat => {
+                {(['all', 'mandatory', 'training', 'team', 'optional'] as EventCategory[]).map(cat => {
                   const c = CATEGORY_COLORS[cat];
                   return (
                     <button
@@ -608,7 +439,7 @@ export default function CalendarPage() {
                 ))}
               </div>
 
-              {/* Grid */}
+              {/* Grid — show title only, NO time in cells */}
               <div className="grid grid-cols-7 border-t border-l border-border/40 rounded-lg overflow-hidden bg-card">
                 {calendarDays.map(day => {
                   const key = format(day, 'yyyy-MM-dd');
@@ -653,19 +484,18 @@ export default function CalendarPage() {
                       <div className="mt-0.5 space-y-px">
                         {dayEvents.slice(0, 3).map(event => {
                           const color = getColor(event.event_type);
-                          const isMandatory = getEventCategory(event.event_type) === 'mandatory';
                           return (
                             <button
                               key={event.id}
                               onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
                               className={cn(
                                 "w-full text-left text-[10px] leading-tight font-medium px-1.5 py-[3px] rounded truncate transition-all hover:brightness-110",
-                                color.bg, color.text,
-                                isMandatory && "ring-1 ring-red-500/20"
+                                color.bg, color.text
                               )}
                             >
-                              <span className="truncate block">
-                                {format(new Date(event.event_date), 'h:mma').toLowerCase().replace(':00', '')} {event.title}
+                              <span className="flex items-center gap-1">
+                                <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", color.dot)} />
+                                <span className="truncate">{event.title}</span>
                               </span>
                             </button>
                           );
@@ -686,7 +516,7 @@ export default function CalendarPage() {
 
               {/* Legend */}
               <div className="flex flex-wrap items-center gap-4 mt-3 px-1">
-                {(['mandatory', 'training', 'revenue', 'team', 'optional'] as EventCategory[]).map(cat => {
+                {(['mandatory', 'training', 'team', 'optional'] as EventCategory[]).map(cat => {
                   const c = CATEGORY_COLORS[cat];
                   return (
                     <span key={cat} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -703,17 +533,17 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* ═══ RIGHT PANEL: Today's Execution Board ═══ */}
+            {/* Right Panel — Event details only, no revenue/streak */}
             <div className="space-y-4">
-              {/* Section A: Today's Execution */}
+              {/* Today's / Selected day events */}
               <div className="bg-card rounded-xl border border-border/50 p-4">
                 <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2 uppercase tracking-wider">
                   <Target className="w-3.5 h-3.5 text-primary" />
                   {selectedDate ? (
                     isToday(selectedDate)
-                      ? "Today's Execution"
+                      ? "Today's Events"
                       : format(selectedDate, 'EEEE, MMM d')
-                  ) : "Today's Execution"}
+                  ) : "Today's Events"}
                 </h3>
 
                 {(selectedDate ? selectedDayEvents : todayEvents).length === 0 ? (
@@ -746,17 +576,16 @@ export default function CalendarPage() {
                         <div
                           key={event.id}
                           className={cn(
-                            "p-3 rounded-lg border-l-[3px] cursor-pointer transition-all hover:translate-x-0.5",
+                            "p-3 rounded-lg cursor-pointer transition-all hover:translate-x-0.5",
                             "bg-background border border-border/40",
-                            `border-l-${color.dot.replace('bg-', '')}`,
                             wasMissed && "ring-1 ring-red-500/20 bg-red-500/[0.03]"
                           )}
-                          style={{ borderLeftColor: `var(--${color.dot.includes('red') ? 'destructive' : color.dot.includes('blue') ? 'primary' : color.dot.includes('emerald') ? 'success' : color.dot.includes('purple') ? 'ring' : 'warning'})` }}
                           onClick={() => setSelectedEvent(event)}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1.5 mb-0.5">
+                                <span className={cn("w-2 h-2 rounded-full flex-shrink-0", color.dot)} />
                                 <p className="text-sm font-semibold text-foreground truncate">{event.title}</p>
                                 {isMandatory && (
                                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase shrink-0">
@@ -764,13 +593,18 @@ export default function CalendarPage() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 ml-3.5">
                                 <Clock className="w-3 h-3" />
                                 {formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}
                                 {event.end_date && ` – ${formatInTimezone(new Date(event.end_date), timezone, 'h:mm a')}`}
                               </p>
-                              {/* Status badge */}
-                              <div className="mt-1.5">
+                              {event.location && (
+                                <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 ml-3.5">
+                                  <MapPin className="w-2.5 h-2.5" />
+                                  {event.location}
+                                </p>
+                              )}
+                              <div className="mt-1.5 ml-3.5">
                                 {myStatus === 'attending' ? (
                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                                     <Check className="w-3 h-3" /> Attended
@@ -786,8 +620,6 @@ export default function CalendarPage() {
                                 )}
                               </div>
                             </div>
-
-                            {/* Quick RSVP */}
                             {!eventPast && (
                               <div className="flex gap-0.5 shrink-0">
                                 <button
@@ -824,49 +656,6 @@ export default function CalendarPage() {
                 )}
               </div>
 
-              {/* Section B: Revenue Context (Placeholder) */}
-              <div className="bg-card rounded-xl border border-border/50 p-4">
-                <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2 uppercase tracking-wider">
-                  <DollarSign className="w-3.5 h-3.5 text-purple-400" />
-                  Revenue Context
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Current Revenue</span>
-                    <span className="text-sm font-bold text-foreground">—</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Next Bracket</span>
-                    <span className="text-sm font-bold text-purple-400">—</span>
-                  </div>
-                  <Progress value={0} className="h-1.5" />
-                  <p className="text-[10px] text-muted-foreground/60 text-center">Connect revenue tracking to activate</p>
-                </div>
-              </div>
-
-              {/* Section C: Attendance Streak */}
-              <div className="bg-card rounded-xl border border-border/50 p-4">
-                <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2 uppercase tracking-wider">
-                  <Flame className="w-3.5 h-3.5 text-orange-400" />
-                  Attendance Streak
-                </h3>
-                <div className="text-center py-2">
-                  <p className={cn(
-                    "text-3xl font-black tabular-nums",
-                    attendanceStreak >= 5 ? "text-orange-400" :
-                    attendanceStreak === 0 ? "text-red-400" : "text-foreground"
-                  )}>
-                    {attendanceStreak}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {attendanceStreak === 0 ? 'Streak broken — rebuild it' : 
-                     attendanceStreak >= 10 ? '🔥 Unstoppable!' :
-                     attendanceStreak >= 5 ? 'Keep the fire burning' :
-                     'consecutive mandatory events'}
-                  </p>
-                </div>
-              </div>
-
               {/* Upcoming Events */}
               <div className="bg-card rounded-xl border border-border/50 p-4">
                 <h3 className="text-xs font-bold text-foreground mb-3 uppercase tracking-wider">Upcoming</h3>
@@ -892,7 +681,7 @@ export default function CalendarPage() {
                                 {event.title}
                               </p>
                               <p className="text-[11px] text-muted-foreground">
-                                {isToday(eventDate) ? 'Today' : format(eventDate, 'EEE, MMM d')} · {format(eventDate, 'h:mm a')}
+                                {isToday(eventDate) ? 'Today' : format(eventDate, 'EEE, MMM d')} · {formatInTimezone(eventDate, timezone, 'h:mm a')}
                               </p>
                             </div>
                           </button>
