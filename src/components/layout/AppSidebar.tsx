@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
+import { useAdminCounts } from '@/hooks/useAdminCounts';
 
 interface NavItem {
   label: string;
@@ -59,6 +60,7 @@ export function AppSidebar() {
   const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === 'collapsed';
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
+  const adminCounts = useAdminCounts();
 
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
@@ -187,7 +189,7 @@ export function AppSidebar() {
                           if (isMobile) setOpenMobile(false);
                         }}
                         className={cn(
-                          "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150",
+                          "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
                           active 
                           ? "bg-primary/15 text-primary"
                           : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent"
@@ -196,6 +198,14 @@ export function AppSidebar() {
                         <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
                         {!collapsed && (
                           <span className="text-[13px] font-medium">{item.label}</span>
+                        )}
+                        {item.label === 'Admin' && adminCounts.total > 0 && (
+                          <span className={cn(
+                            "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
+                            collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
+                          )}>
+                            {adminCounts.total > 99 ? '99+' : adminCounts.total}
+                          </span>
                         )}
                       </button>
                     </SidebarMenuItem>
