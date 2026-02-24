@@ -103,25 +103,28 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Build the post
+    // Build the post — cap at 10 names, add "View Full List" note
+    const MAX_NAMES = 10;
     const sections: string[] = [];
 
+    const formatNameList = (names: string[], label: string, emoji: string): string => {
+      const displayed = names.slice(0, MAX_NAMES);
+      const remaining = names.length - displayed.length;
+      const nameStr = displayed.map(n => `• ${n}`).join("\n");
+      const extra = remaining > 0 ? `\n_...and ${remaining} more — see Team page for full list_` : "";
+      return `${emoji} **${label}** (${names.length})\n${nameStr}${extra}`;
+    };
+
     if (bootcampIncomplete.length > 0) {
-      const names = bootcampIncomplete.slice(0, 30).join(", ");
-      const extra = bootcampIncomplete.length > 30 ? ` (+${bootcampIncomplete.length - 30} more)` : "";
-      sections.push(`🏔️ **BOOT CAMP INCOMPLETE** (${bootcampIncomplete.length})\n${names}${extra}`);
+      sections.push(formatNameList(bootcampIncomplete, "BOOT CAMP INCOMPLETE", "🏔️"));
     }
 
     if (notOnboarded.length > 0) {
-      const names = notOnboarded.slice(0, 30).join(", ");
-      const extra = notOnboarded.length > 30 ? ` (+${notOnboarded.length - 30} more)` : "";
-      sections.push(`📋 **NOT ONBOARDED** (${notOnboarded.length})\n${names}${extra}`);
+      sections.push(formatNameList(notOnboarded, "NOT ONBOARDED", "📋"));
     }
 
     if (inactive.length > 0) {
-      const names = inactive.slice(0, 30).join(", ");
-      const extra = inactive.length > 30 ? ` (+${inactive.length - 30} more)` : "";
-      sections.push(`👻 **GHOST MODE — 3+ DAYS INACTIVE** (${inactive.length})\n${names}${extra}`);
+      sections.push(formatNameList(inactive, "GHOST MODE — 3+ DAYS INACTIVE", "👻"));
     }
 
     if (sections.length === 0) {
@@ -131,7 +134,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const content = `📢 **DAILY ACCOUNTABILITY REPORT**\n\n${sections.join("\n\n")}\n\nManagers — if your people are on this list, it's your job to get them off it. No excuses. ⚔️`;
+    const content = `📢 **DAILY ACCOUNTABILITY REPORT**\n\n${sections.join("\n\n")}\n\n---\nManagers — if your people are on this list, it's your job to get them off it. ⚔️`;
 
     await supabase.from("chat_messages").insert({
       user_id: botUserId,
