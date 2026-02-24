@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -39,6 +39,7 @@ export function usePersonalTrainingProgress() {
     isComplete: false,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const hasPostedShoutoutRef = useRef(false);
 
   const calculateProgress = useCallback(async () => {
     if (!user?.id) {
@@ -174,8 +175,9 @@ export function usePersonalTrainingProgress() {
         overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
       }
 
-      // Post bot shoutout when training hits 100%
-      if (overallProgress === 100 && user?.id) {
+      // Post bot shoutout when training hits 100% (guarded by ref + DB dedup)
+      if (overallProgress === 100 && user?.id && !hasPostedShoutoutRef.current) {
+        hasPostedShoutoutRef.current = true;
         try {
           const { data: prof } = await supabase
             .from('profiles')

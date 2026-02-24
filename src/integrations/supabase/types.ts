@@ -444,6 +444,27 @@ export type Database = {
           },
         ]
       }
+      celebration_log: {
+        Row: {
+          celebration_type: string
+          id: string
+          posted_at: string
+          user_id: string
+        }
+        Insert: {
+          celebration_type: string
+          id?: string
+          posted_at?: string
+          user_id: string
+        }
+        Update: {
+          celebration_type?: string
+          id?: string
+          posted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           channel: string
