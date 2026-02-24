@@ -5,12 +5,15 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 
 export default function ChatPage() {
-  const { markRead } = useUnreadChat();
+  const { markRead, setViewing } = useUnreadChat();
 
   useEffect(() => {
-    markRead();
-    return () => { markRead(); };
-  }, [markRead]);
+    setViewing(true);
+    return () => {
+      markRead();
+      setViewing(false);
+    };
+  }, [markRead, setViewing]);
 
   return (
     <AppLayout>
