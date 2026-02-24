@@ -51,6 +51,7 @@ const VideoPlayerPage = lazy(() => import("./pages/app/VideoPlayerPage"));
 const ChatPage = lazy(() => import("./pages/app/ChatPage"));
 const LinksPage = lazy(() => import("./pages/app/LinksPage"));
 const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
+const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
 
 function LazyFallback() {
   return (
@@ -294,6 +295,12 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
+               {/* Pitch Approvals (Manager+) */}
+               <Route path="/app/pitch-approvals" element={
+                 <ProtectedRoute requiredRole="manager">
+                   <PitchApprovalsPage />
+                 </ProtectedRoute>
+               } />
 
               {/* Admin Team Management */}
               <Route path="/admin/team" element={

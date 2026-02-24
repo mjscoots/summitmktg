@@ -356,11 +356,11 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
         if (!['onboarded', 'summer_ready'].includes(m.onboarding_status || '')) {
           notOnboarded.push(m.full_name);
         }
-        const bp = bootcampMap.get(m.user_id);
+      const bp = bootcampMap.get(m.user_id) as any;
         if (bp && !bp.bootcamp_completed && !bp.bootcamp_exempt) {
           noBootcamp.push(m.full_name);
         }
-        const lbEntry = lbMap.get(m.user_id);
+        const lbEntry = lbMap.get(m.user_id) as any;
         if (lbEntry?.total_points > 50) {
           topPerformers.push({ name: m.full_name, pts: lbEntry.total_points });
         }
@@ -369,7 +369,7 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
           const pct = Math.round((lessonsDone / totalCount) * 100);
           if (pct < 30) lowTraining.push({ name: m.full_name, pct });
         }
-        const s = streakMap.get(m.user_id);
+        const s = streakMap.get(m.user_id) as any;
         if (s?.current_streak >= 5) {
           highStreaks.push({ name: m.full_name, streak: s.current_streak });
         }

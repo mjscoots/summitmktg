@@ -329,7 +329,7 @@ Deno.serve(async (req) => {
     // ── 7. Compute team stats for pillar emails ──
     function teamStats(teamId: string | null) {
       if (!teamId) return { activeCount: 0, inactiveCount: 0, avgTraining: 0 };
-      const teamMembers = allProfiles.filter((p: any) => p.team_id === teamId && roleMap.get(p.user_id) !== "admin");
+      const teamMembers = (allProfiles || []).filter((p: any) => p.team_id === teamId && roleMap.get(p.user_id) !== "admin");
       const activeCount = teamMembers.filter((p: any) => daysInactive(p.last_active_at) < 3).length;
       const inactiveCount = teamMembers.filter((p: any) => daysInactive(p.last_active_at) >= 3).length;
       const avgTraining = teamMembers.length
@@ -341,7 +341,7 @@ Deno.serve(async (req) => {
     // Find top rookie per team for day-4 email
     function topRookieForTeam(teamId: string | null) {
       if (!teamId) return null;
-      const rookies = allProfiles
+      const rookies = (allProfiles || [])
         .filter((p: any) => p.team_id === teamId && roleMap.get(p.user_id) === "rookie")
         .map((p: any) => ({ name: firstName(p.full_name), pct: trainingPct(p.user_id) }))
         .sort((a: any, b: any) => b.pct - a.pct);
