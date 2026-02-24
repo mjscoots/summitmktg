@@ -170,7 +170,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-lg">
             Pitch Review — {request.user_name}
@@ -181,98 +181,106 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
           </p>
         </DialogHeader>
 
-        {/* Video */}
-        <div className="rounded-lg overflow-hidden bg-black aspect-video">
-          {videoUrl ? (
-            <video src={videoUrl} controls className="w-full h-full" playsInline />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
-          )}
-        </div>
-
-        {/* Checklist */}
-        <div className="space-y-2">
-          <p className="text-xs font-bold text-foreground uppercase tracking-wide">
-            ✅ Outline Checklist
-          </p>
-          <p className="text-[10px] text-muted-foreground">Check off as you watch:</p>
-          {checklist.map((item, i) => (
-            <label
-              key={i}
-              className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/30 cursor-pointer transition-colors"
-            >
-              <Checkbox
-                checked={checkedItems.has(i)}
-                onCheckedChange={(checked) => {
-                  setCheckedItems(prev => {
-                    const next = new Set(prev);
-                    checked ? next.add(i) : next.delete(i);
-                    return next;
-                  });
-                }}
-              />
-              <span className="text-sm text-foreground">{item}</span>
-            </label>
-          ))}
-        </div>
-
-        {/* Feedback */}
-        {showRejectForm ? (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-foreground">Feedback for {request.user_name?.split(' ')[0]}:</p>
-            <Textarea
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Explain what needs improvement..."
-              rows={3}
-            />
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowRejectForm(false)} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleReject}
-                disabled={isSubmitting || !feedback.trim()}
-                className="gap-1.5"
-              >
-                {isSubmitting && <Loader2 className="w-3 h-3 animate-spin" />}
-                Send Feedback & Request Re-record
-              </Button>
+        {/* Side-by-side on desktop, stacked on mobile */}
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* LEFT: Video Player */}
+          <div className="md:w-[60%] flex-shrink-0">
+            <div className="rounded-lg overflow-hidden bg-black aspect-video sticky top-0">
+              {videoUrl ? (
+                <video src={videoUrl} controls className="w-full h-full" playsInline />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+              )}
             </div>
           </div>
-        ) : (
-          <>
-            <Textarea
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Manager feedback (optional)..."
-              rows={2}
-              className="text-sm"
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={handleApprove}
-                disabled={isSubmitting}
-                className="flex-1 gap-1.5 bg-green-500 hover:bg-green-600"
-              >
-                {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                Approve Pitch
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => setShowRejectForm(true)}
-                disabled={isSubmitting}
-                className="flex-1 gap-1.5"
-              >
-                <XCircle className="w-4 h-4" />
-                Request Re-record
-              </Button>
+
+          {/* RIGHT: Checklist + Feedback */}
+          <div className="md:w-[40%] flex flex-col gap-4 md:max-h-[60vh] md:overflow-y-auto">
+            {/* Checklist */}
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold text-foreground uppercase tracking-wide">
+                ✅ Outline Checklist
+              </p>
+              <p className="text-[10px] text-muted-foreground">Check off as you watch:</p>
+              {checklist.map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/30 cursor-pointer transition-colors"
+                >
+                  <Checkbox
+                    checked={checkedItems.has(i)}
+                    onCheckedChange={(checked) => {
+                      setCheckedItems(prev => {
+                        const next = new Set(prev);
+                        checked ? next.add(i) : next.delete(i);
+                        return next;
+                      });
+                    }}
+                  />
+                  <span className="text-sm text-foreground">{item}</span>
+                </label>
+              ))}
             </div>
-          </>
-        )}
+
+            {/* Feedback */}
+            {showRejectForm ? (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-foreground">Feedback for {request.user_name?.split(' ')[0]}:</p>
+                <Textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Explain what needs improvement..."
+                  rows={3}
+                />
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setShowRejectForm(false)} disabled={isSubmitting}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleReject}
+                    disabled={isSubmitting || !feedback.trim()}
+                    className="gap-1.5"
+                  >
+                    {isSubmitting && <Loader2 className="w-3 h-3 animate-spin" />}
+                    Send Feedback & Request Re-record
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Manager feedback (optional)..."
+                  rows={2}
+                  className="text-sm"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleApprove}
+                    disabled={isSubmitting}
+                    className="flex-1 gap-1.5 bg-green-500 hover:bg-green-600"
+                  >
+                    {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    Approve
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowRejectForm(true)}
+                    disabled={isSubmitting}
+                    className="flex-1 gap-1.5"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Re-record
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
