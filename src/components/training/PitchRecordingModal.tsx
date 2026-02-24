@@ -255,7 +255,7 @@ export function PitchRecordingModal({
         {mode === 'record' && recordingState === 'recording' && (
           <div className="space-y-3">
             <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
-              <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+              <video ref={videoRef} className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} muted playsInline />
               <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 rounded-full px-3 py-1">
                 <div className="w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
                 <span className="text-white text-sm font-mono">{formatTime(recordingTime)}</span>
