@@ -97,6 +97,8 @@ export default function AdminTeamPage() {
   const navigate = useNavigate();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
+  // Mark approvals as viewed on mount (default tab)
+  useEffect(() => { adminCounts.markViewed('pendingApprovals'); }, []);
   const isAdmin = role === 'admin';
   const isSuperAdmin = profile?.email === SUPER_ADMIN_EMAIL;
   const [reps, setReps] = useState<RepRow[]>([]);
@@ -508,7 +510,15 @@ export default function AdminTeamPage() {
           )}
         </div>
 
-        <Tabs defaultValue="approvals" className="w-full">
+        <Tabs defaultValue="approvals" className="w-full" onValueChange={(tab) => {
+          const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications' | 'pendingPitches' | 'newFeedback'> = {
+            approvals: 'pendingApprovals',
+            applications: 'pendingApplications',
+            pitches: 'pendingPitches',
+            feedback: 'newFeedback',
+          };
+          if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
+        }}>
           <TabsList className="bg-white/5 border border-white/10 mb-4 flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
