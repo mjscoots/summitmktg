@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   Calendar, 
   MessageSquare, 
   TrendingUp,
-  ClipboardList
+  ClipboardList,
+  Mic
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { AnnouncementModal } from '@/components/dashboard/AnnouncementModal';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QuickAction {
   icon: React.ReactNode;
@@ -18,6 +20,7 @@ interface QuickAction {
   shortLabel: string;
   onClick: () => void;
   adminOnly?: boolean;
+  badge?: number;
 }
 
 export function QuickActions() {
@@ -25,8 +28,28 @@ export function QuickActions() {
   const { profile, role } = useAuth();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+  const [pendingPitchCount, setPendingPitchCount] = useState(0);
 
   const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin';
+
+  useEffect(() => {
+    if (!isManager) return;
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from('pitch_approval_requests')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      setPendingPitchCount(count || 0);
+    };
+    fetchCount();
+
+    const channel = supabase
+      .channel('pitch-approvals-count')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pitch_approval_requests' }, () => fetchCount())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [isManager]);
 
   // Navigate directly to user's team page
   const handleViewTeam = () => {
@@ -68,6 +91,14 @@ export function QuickActions() {
       shortLabel: 'Leaders',
       onClick: () => navigate('/app/leaderboard'),
     },
+    {
+      icon: <Mic className="w-4 h-4" />,
+      label: 'Pitch Approvals',
+      shortLabel: 'Pitches',
+      onClick: () => navigate('/app/pitch-approvals'),
+      adminOnly: false,
+      badge: pendingPitchCount > 0 ? pendingPitchCount : undefined,
+    },
   ];
 
   // Filter actions based on user role
@@ -102,6 +133,11 @@ export function QuickActions() {
               {action.icon}
               <span className="hidden sm:inline">{action.label}</span>
               <span className="sm:hidden">{action.shortLabel}</span>
+              {action.badge && action.badge > 0 && (
+                <span className="ml-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none">
+                  {action.badge > 99 ? '99+' : action.badge}
+                </span>
+              )}
             </button>
           ))}
         </div>

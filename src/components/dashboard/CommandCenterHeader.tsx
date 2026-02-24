@@ -1,9 +1,19 @@
-import { Users, UserCheck, GraduationCap, TrendingUp } from 'lucide-react';
+import { Users, UserCheck, GraduationCap, TrendingUp, Mic, Clock, AlertTriangle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
+
+interface PendingPitch {
+  id: string;
+  user_id: string;
+  lesson_id: string;
+  submitted_at: string;
+  user_name: string;
+  lesson_title: string;
+}
 
 interface Stats {
   managerCount: number;
@@ -24,6 +34,7 @@ export function CommandCenterHeader() {
     needsAttention: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingPitches, setPendingPitches] = useState<PendingPitch[]>([]);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
 
@@ -127,6 +138,47 @@ export function CommandCenterHeader() {
     return () => clearInterval(interval);
   }, [profile?.full_name]);
 
+  // Fetch pending pitch approvals
+  useEffect(() => {
+    const fetchPitches = async () => {
+      const { data: pitchData } = await supabase
+        .from('pitch_approval_requests')
+        .select('id, user_id, lesson_id, submitted_at')
+        .eq('status', 'pending')
+        .order('submitted_at', { ascending: false })
+        .limit(5);
+
+      if (!pitchData || pitchData.length === 0) {
+        setPendingPitches([]);
+        return;
+      }
+
+      const userIds = [...new Set(pitchData.map(p => p.user_id))];
+      const lessonIds = [...new Set(pitchData.map(p => p.lesson_id))];
+
+      const [profilesRes, lessonsRes] = await Promise.all([
+        supabase.from('profiles').select('user_id, full_name').in('user_id', userIds),
+        supabase.from('training_lessons').select('id, title').in('id', lessonIds),
+      ]);
+
+      const profileMap = new Map((profilesRes.data || []).map(p => [p.user_id, p.full_name]));
+      const lessonMap = new Map((lessonsRes.data || []).map(l => [l.id, l.title]));
+
+      setPendingPitches(pitchData.map(p => ({
+        ...p,
+        user_name: profileMap.get(p.user_id)?.split(' ')[0] || 'Unknown',
+        lesson_title: lessonMap.get(p.lesson_id) || 'Unknown',
+      })));
+    };
+
+    fetchPitches();
+    const channel = supabase
+      .channel('pitch-approvals-command')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pitch_approval_requests' }, () => fetchPitches())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   return (
     <div className="mb-6">
       {/* Simplified Hero */}
@@ -228,6 +280,52 @@ export function CommandCenterHeader() {
           )}
         </div>
       )}
+
+      {/* Pending Pitch Approvals */}
+      <div className="bg-card rounded-lg border border-border/40 p-3 mt-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-primary" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Pending Pitch Approvals ({pendingPitches.length})
+            </p>
+          </div>
+          {pendingPitches.length > 0 && (
+            <button
+              onClick={() => navigate('/app/pitch-approvals')}
+              className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              Review All →
+            </button>
+          )}
+        </div>
+        {pendingPitches.length === 0 ? (
+          <p className="text-xs text-muted-foreground">✅ No pending pitch approvals</p>
+        ) : (
+          <div className="space-y-1.5">
+            {pendingPitches.map((pitch) => {
+              const hoursAgo = (Date.now() - new Date(pitch.submitted_at).getTime()) / (1000 * 60 * 60);
+              const isOverdue = hoursAgo >= 24;
+              return (
+                <button
+                  key={pitch.id}
+                  onClick={() => navigate('/app/pitch-approvals')}
+                  className="w-full flex items-center justify-between text-xs py-1 px-1.5 rounded hover:bg-muted/50 transition-colors"
+                >
+                  <span className="text-foreground font-medium flex items-center gap-1">
+                    <Mic className="w-3 h-3 text-primary/60" />
+                    {pitch.user_name} — {pitch.lesson_title}
+                  </span>
+                  <span className={cn("text-[10px] flex items-center gap-0.5", isOverdue ? "text-destructive font-semibold" : "text-muted-foreground")}>
+                    {isOverdue && <AlertTriangle className="w-3 h-3" />}
+                    {formatDistanceToNow(new Date(pitch.submitted_at), { addSuffix: true })}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
