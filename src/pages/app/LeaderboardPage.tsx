@@ -2,28 +2,19 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
-import { SigningsLeaderboard } from '@/components/leaderboard/SigningsLeaderboard';
-import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
-import { Trophy, Flame, GraduationCap, Swords, UserPlus } from 'lucide-react';
+import { Trophy, Flame, Swords } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
 
-type LeaderboardTab = 'training' | 'streak' | 'completion' | 'signings';
+type LeaderboardTab = 'training' | 'streak';
 
 export default function LeaderboardPage() {
-  const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('training');
 
-  const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy; managerOnly?: boolean }[] = [
+  const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
     { id: 'training', label: 'Overall', icon: Trophy },
     { id: 'streak', label: 'Streak', icon: Flame },
-    { id: 'completion', label: 'Progress', icon: GraduationCap },
-    { id: 'signings', label: 'Signings', icon: UserPlus, managerOnly: true },
   ];
-
-  const visibleTabs = TABS.filter(t => !t.managerOnly || isManager);
 
   return (
     <AppLayout>
@@ -38,14 +29,14 @@ export default function LeaderboardPage() {
           </div>
           <div>
             <h1 className="text-xl font-black text-foreground tracking-tight">LEADERBOARD</h1>
-            <p className="text-xs text-muted-foreground font-medium">Rookies only · This week · Dominate or be dominated</p>
+            <p className="text-xs text-muted-foreground font-medium">This week · Dominate or be dominated</p>
           </div>
         </div>
 
         {/* Tab Bar */}
         <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">
           <div className="flex">
-            {visibleTabs.map((tab) => {
+            {TABS.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
@@ -73,8 +64,6 @@ export default function LeaderboardPage() {
         <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
           {activeTab === 'training' && <TrainingLeaderboard />}
           {activeTab === 'streak' && <StreakLeaderboard />}
-          {activeTab === 'completion' && <TrainingLeaderboardPanel />}
-          {activeTab === 'signings' && <SigningsLeaderboard />}
         </div>
       </main>
     </AppLayout>

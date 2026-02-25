@@ -48,9 +48,8 @@ export function BootcampStragglers() {
       // Get profiles and bootcamp progress
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, full_name, email, created_at, status, team_id, teams:team_id(name)')
-        .in('user_id', rookieIds)
-        .eq('status', 'active');
+        .select('user_id, full_name, email, created_at, status, team_id, direct_manager, teams:team_id(name)')
+        .in('user_id', rookieIds);
 
       const { data: bootcampData } = await supabase
         .from('bootcamp_progress')
@@ -61,27 +60,15 @@ export function BootcampStragglers() {
         (bootcampData || []).map(b => [b.user_id, b])
       );
 
-      // Determine which team IDs this manager/pillar can see
-      let allowedTeamIds: Set<string> | null = null; // null = see all (admin)
+      // For non-admins: use direct_manager name matching via downline RPC
+      let allowedUserIds: Set<string> | null = null; // null = see all (admin)
       
-      if (!isAdmin) {
-        // For managers: get teams they lead + their own team
-        const teamIds = new Set<string>();
+      if (!isAdmin && profile?.full_name) {
+        // Get manager's full downline using RPC
+        const { data: downline } = await supabase
+          .rpc('get_user_downline', { _manager_name: profile.full_name });
         
-        // Check if they're a pillar leader
-        const { data: ledTeams } = await supabase
-          .from('teams')
-          .select('id')
-          .eq('leader_id', user.id);
-        
-        ledTeams?.forEach(t => teamIds.add(t.id));
-        
-        // Also include their own team
-        if (profile?.team_id) {
-          teamIds.add(profile.team_id);
-        }
-        
-        allowedTeamIds = teamIds;
+        allowedUserIds = new Set((downline || []).map((d: any) => d.user_id));
       }
 
       const result: Straggler[] = [];
@@ -89,10 +76,9 @@ export function BootcampStragglers() {
         const bp = bootcampMap.get(p.user_id);
         if (bp?.bootcamp_completed || bp?.bootcamp_exempt) continue;
         
-        // Filter by team for non-admin managers
-        const profileTeamId = (p as any).team_id;
-        if (allowedTeamIds !== null) {
-          if (!profileTeamId || !allowedTeamIds.has(profileTeamId)) continue;
+        // Filter: managers see only their downline, admins see all
+        if (allowedUserIds !== null) {
+          if (!allowedUserIds.has(p.user_id)) continue;
         }
         
         result.push({
@@ -107,7 +93,7 @@ export function BootcampStragglers() {
         });
       }
 
-      // Sort by oldest first
+      // Sort: incomplete first by oldest created
       result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       setStragglers(result);
       setIsLoading(false);

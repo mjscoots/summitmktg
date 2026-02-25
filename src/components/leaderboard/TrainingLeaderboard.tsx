@@ -55,27 +55,34 @@ const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: stri
 ];
 
 export function TrainingLeaderboard() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const isManager = role === 'manager' || role === 'admin';
+  const [viewRole, setViewRole] = useState<'rookie' | 'manager'>('rookie');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const [animateIn, setAnimateIn] = useState(false);
 
+  // Managers default to manager view
+  useEffect(() => {
+    if (isManager) setViewRole('rookie');
+  }, [isManager]);
+
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { data: rookieRoles } = await supabase
+        const { data: roleData } = await supabase
           .from('user_roles')
           .select('user_id')
-          .eq('role', 'rookie');
+          .eq('role', viewRole);
 
-        if (!rookieRoles || rookieRoles.length === 0) {
+        if (!roleData || roleData.length === 0) {
           setEntries([]);
           setIsLoading(false);
           return;
         }
 
-        const rookieIds = rookieRoles.map(r => r.user_id);
+        const rookieIds = roleData.map(r => r.user_id);
 
         // Use shared canonical training item calculation (lessons + required videos)
         const trainingItems = await getReachableRookieTrainingItems();
@@ -204,7 +211,9 @@ export function TrainingLeaderboard() {
           }
         });
 
-        setEntries(leaderboard.slice(0, 20));
+        // Filter: minimum 100 points to show
+        const filtered = leaderboard.filter(e => e.totalPoints >= 100);
+        setEntries(filtered.slice(0, 20));
         setTimeout(() => setAnimateIn(true), 100);
       } catch (err) {
         console.error('Error:', err);
@@ -214,7 +223,7 @@ export function TrainingLeaderboard() {
     };
 
     fetchLeaderboard();
-  }, []);
+  }, [viewRole]);
 
   const getBadgeInfo = (badgeId: string | null) => {
     if (!badgeId) return null;
@@ -231,9 +240,26 @@ export function TrainingLeaderboard() {
 
   if (entries.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-        <p className="text-muted-foreground text-sm">No training data yet</p>
+      <div>
+        {/* Role Toggle */}
+        <div className="px-4 pt-4">
+          <div className="p-0.5 bg-muted/50 rounded-lg inline-flex border border-border/30">
+            <button
+              onClick={() => setViewRole('rookie')}
+              className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
+                viewRole === 'rookie' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
+            >Rookies</button>
+            <button
+              onClick={() => setViewRole('manager')}
+              className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
+                viewRole === 'manager' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
+            >Managers</button>
+          </div>
+        </div>
+        <div className="p-8 text-center">
+          <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
+          <p className="text-muted-foreground text-sm">No one with 100+ points yet</p>
+        </div>
       </div>
     );
   }
@@ -243,6 +269,22 @@ export function TrainingLeaderboard() {
 
   return (
     <div>
+      {/* Role Toggle */}
+      <div className="px-4 pt-4">
+        <div className="p-0.5 bg-muted/50 rounded-lg inline-flex border border-border/30">
+          <button
+            onClick={() => setViewRole('rookie')}
+            className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
+              viewRole === 'rookie' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
+          >Rookies</button>
+          <button
+            onClick={() => setViewRole('manager')}
+            className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
+              viewRole === 'manager' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
+          >Managers</button>
+        </div>
+      </div>
+
       {/* ===== YOUR RANK + RIVAL SYSTEM ===== */}
       {(() => {
         const myRank = entries.findIndex(e => e.user_id === user?.id);
