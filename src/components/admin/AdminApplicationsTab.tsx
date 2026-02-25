@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, Trash2 } from 'lucide-react';
+import { Search, FileText, Trash2, Copy, CheckCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import {
@@ -78,6 +79,32 @@ export default function AdminApplicationsTab() {
 
   const rookieCount = applications.filter(a => a.application_type === 'rookie').length;
   const vetCount = applications.filter(a => a.application_type === 'vet' || a.application_type === 'veteran').length;
+  const pendingCount = filtered.filter(a => a.status === 'pending').length;
+
+  const handleMarkAllReviewed = async () => {
+    const pendingIds = filtered.filter(a => a.status === 'pending').map(a => a.id);
+    if (pendingIds.length === 0) return;
+    const { error } = await supabase.from('applications').update({ status: 'reviewed' }).in('id', pendingIds);
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to mark as reviewed', variant: 'destructive' });
+    } else {
+      setApplications(prev => prev.map(a => pendingIds.includes(a.id) ? { ...a, status: 'reviewed' } : a));
+      toast({ title: 'Done', description: `${pendingIds.length} applications marked as reviewed` });
+    }
+  };
+
+  const handleCopyInfo = (app: Application) => {
+    const lines = [
+      `Name: ${app.full_name}`,
+      `Phone: ${app.phone}`,
+      `Email: ${app.email}`,
+      `Location: ${app.city_state}`,
+      `Referral: ${app.referral_source}`,
+      app.notes ? `Notes: ${app.notes}` : '',
+    ].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(lines);
+    toast({ title: 'Copied', description: `${app.full_name}'s info copied to clipboard` });
+  };
 
   return (
     <div>
@@ -92,14 +119,22 @@ export default function AdminApplicationsTab() {
         </TabsList>
       </Tabs>
 
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name, email, or phone..."
-          className="pl-9 bg-white/5 border-white/10"
-        />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name, email, or phone..."
+            className="pl-9 bg-white/5 border-white/10"
+          />
+        </div>
+        {pendingCount > 0 && (
+          <Button variant="outline" size="sm" onClick={handleMarkAllReviewed} className="gap-1.5 text-xs shrink-0">
+            <CheckCheck className="w-3.5 h-3.5" />
+            Mark All Read ({pendingCount})
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -127,7 +162,7 @@ export default function AdminApplicationsTab() {
                 )}
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Date</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3 text-right font-semibold text-white/60 text-xs uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -156,25 +191,34 @@ export default function AdminApplicationsTab() {
                     {app.created_at ? format(new Date(app.created_at), 'MMM d, yyyy') : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button className="p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors" disabled={deletingId === app.id}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete application?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Remove <span className="font-medium text-foreground">{app.full_name}</span>'s application. This cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(app.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => handleCopyInfo(app)}
+                        className="p-1 rounded hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
+                        title="Copy info"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button className="p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors" disabled={deletingId === app.id}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete application?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Remove <span className="font-medium text-foreground">{app.full_name}</span>'s application. This cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(app.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </td>
                 </tr>
               ))}
