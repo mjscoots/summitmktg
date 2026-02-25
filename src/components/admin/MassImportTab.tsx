@@ -36,7 +36,7 @@ interface ParsedUser {
   matchedName?: string;
 }
 
-function parseInput(text: string, existingProfiles: { full_name: string }[]): ParsedUser[] {
+function parseInput(text: string, existingProfiles: { full_name: string }[], managerList: { full_name: string }[]): ParsedUser[] {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const parsed: ParsedUser[] = [];
 
@@ -54,20 +54,35 @@ function parseInput(text: string, existingProfiles: { full_name: string }[]): Pa
     if (cleanLine.includes('|')) {
       const parts = cleanLine.split('|').map(p => p.trim());
       full_name = parts[0];
-      for (const part of parts.slice(1)) {
-        if (part.toLowerCase().startsWith('manager:')) {
-          direct_manager = part.replace(/^manager:\s*/i, '').trim();
+      
+      // Part 2: could be manager name or "Manager: Name"
+      if (parts[1]) {
+        const managerPrefixed = parts[1].match(/^manager:\s*(.+)/i);
+        if (managerPrefixed) {
+          direct_manager = managerPrefixed[1].trim();
+        } else {
+          // Try to match against known managers
+          const bestMatch = managerList.find(m => matchNames(m.full_name, parts[1]) > 0.7);
+          if (bestMatch) {
+            direct_manager = bestMatch.full_name;
+          } else {
+            direct_manager = parts[1]; // Use as-is
+          }
         }
-        if (part.toLowerCase().startsWith('status:')) {
-          const rawStatus = part.replace(/^status:\s*/i, '').trim();
-          const statusMap: Record<string, string> = {
-            'summer ready': 'summer_ready',
-            'onboarded': 'onboarded',
-            'contract signed': 'contract_signed',
-            'info added': 'info_added',
-          };
-          onboarding_status = statusMap[rawStatus.toLowerCase()] || 'pending';
-        }
+      }
+
+      // Part 3: status
+      if (parts[2]) {
+        const statusPrefixed = parts[2].match(/^status:\s*(.+)/i);
+        const rawStatus = statusPrefixed ? statusPrefixed[1].trim() : parts[2].trim();
+        const statusMap: Record<string, string> = {
+          'summer ready': 'summer_ready',
+          'onboarded': 'onboarded',
+          'contract signed': 'contract_signed',
+          'info added': 'info_added',
+          'pending': 'pending',
+        };
+        onboarding_status = statusMap[rawStatus.toLowerCase()] || 'pending';
       }
     } else if (cleanLine.includes(',')) {
       const parts = cleanLine.split(',').map(p => p.trim());
@@ -80,6 +95,12 @@ function parseInput(text: string, existingProfiles: { full_name: string }[]): Pa
     }
 
     if (!full_name) continue;
+
+    // Auto-match manager name against known managers
+    if (direct_manager) {
+      const bestMatch = managerList.find(m => matchNames(m.full_name, direct_manager) > 0.7);
+      if (bestMatch) direct_manager = bestMatch.full_name;
+    }
 
     // Check if already exists
     let alreadyExists = false;
@@ -129,7 +150,7 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
   const [defaultTeam, setDefaultTeam] = useState('');
 
   const handleParse = () => {
-    const parsed = parseInput(rawText, profiles);
+    const parsed = parseInput(rawText, profiles, managers);
     setParsedUsers(parsed);
     setResults(null);
   };
@@ -189,15 +210,15 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-1">Paste Names</h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Paste a list of names — one per line. Supports formats like: 
-            <span className="text-white/50 ml-1">"Name | Manager: Manager Name"</span> or 
-            <span className="text-white/50 ml-1">"Name, email, phone, manager"</span> or plain names.
+            Paste a list — one per line. Supports: 
+            <span className="text-foreground/50 ml-1">"Name | Manager Name | Status"</span> or 
+            <span className="text-foreground/50 ml-1">"Name, email, phone, manager"</span> or plain names. Manager names are auto-matched.
           </p>
         </div>
         <Textarea
           value={rawText}
           onChange={e => setRawText(e.target.value)}
-          placeholder={`Paste names here...\n\nExamples:\nJohn Smith\nJane Doe | Manager: John Smith\nBob Wilson, bob@email.com, 555-1234, Jane Doe`}
+          placeholder={`Paste names here...\n\nExamples:\nJohn Smith | Jane Doe | summer ready\nBob Wilson | Manager: Jane Doe\nPlain Name`}
           className="min-h-[160px] bg-white/5 border-white/10 font-mono text-xs"
         />
         <div className="flex items-center gap-3">
