@@ -489,13 +489,14 @@ export default function CalendarPage() {
                               key={event.id}
                               onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
                               className={cn(
-                                "w-full text-left text-[10px] leading-tight font-medium px-1.5 py-[3px] rounded truncate transition-all hover:brightness-110",
+                                "w-full text-left text-[10px] leading-tight font-medium px-1.5 py-[3px] rounded transition-all hover:brightness-110",
                                 color.bg, color.text
                               )}
+                              title={event.title}
                             >
                               <span className="flex items-center gap-1">
                                 <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", color.dot)} />
-                                <span className="truncate">{event.title}</span>
+                                <span className="truncate max-w-[calc(100%-12px)]">{event.title}</span>
                               </span>
                             </button>
                           );

@@ -1,64 +1,47 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { TrendingUp, Users, DollarSign, Target, Phone } from 'lucide-react';
+import { TrendingUp, Users, Target, Phone } from 'lucide-react';
 
 interface Metrics {
-  dealsToday: number;
-  dealsThisWeek: number;
   activeReps: number;
   totalReps: number;
-  avgPerRep: number;
   weeklyTargetPct: number;
 }
 
 export function MomentumMetrics() {
   const [metrics, setMetrics] = useState<Metrics>({
-    dealsToday: 0,
-    dealsThisWeek: 0,
     activeReps: 0,
     totalReps: 0,
-    avgPerRep: 0,
     weeklyTargetPct: 0,
   });
 
   useEffect(() => {
     const fetchMetrics = async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const weekStart = new Date(today);
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
 
-      const [todaySignups, weekSignups, activeProfiles, totalProfiles] = await Promise.all([
-        supabase.from('rep_signups').select('id', { count: 'exact', head: true }).gte('signed_at', today.toISOString()),
-        supabase.from('rep_signups').select('id', { count: 'exact', head: true }).gte('signed_at', weekStart.toISOString()),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('is_active_now', true).neq('status', 'nlc'),
+      const [activeProfiles, totalProfiles] = await Promise.all([
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('last_active_at', tenMinAgo).neq('status', 'nlc'),
         supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('status', 'nlc'),
       ]);
 
-      const dealsToday = todaySignups.count || 0;
-      const dealsThisWeek = weekSignups.count || 0;
       const totalReps = totalProfiles.count || 1;
       const activeReps = activeProfiles.count || 0;
 
       setMetrics({
-        dealsToday,
-        dealsThisWeek,
         activeReps,
         totalReps,
-        avgPerRep: totalReps > 0 ? Math.round((dealsThisWeek / totalReps) * 10) / 10 : 0,
-        weeklyTargetPct: Math.min(Math.round((dealsThisWeek / Math.max(totalReps * 5, 1)) * 100), 100),
+        weeklyTargetPct: Math.min(Math.round((activeReps / Math.max(totalReps, 1)) * 100), 100),
       });
     };
     fetchMetrics();
+    // Refresh every 60s for real-time feel
+    const interval = setInterval(fetchMetrics, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const items = [
-    { icon: TrendingUp, label: 'Deals Today', value: metrics.dealsToday, color: 'text-emerald-400' },
-    { icon: DollarSign, label: 'This Week', value: metrics.dealsThisWeek, color: 'text-yellow-400' },
     { icon: Users, label: 'Active Now', value: `${metrics.activeReps}/${metrics.totalReps}`, color: 'text-primary' },
-    { icon: Target, label: 'Avg/Rep', value: metrics.avgPerRep, color: 'text-orange-400' },
-    { icon: Phone, label: 'Weekly Target', value: `${metrics.weeklyTargetPct}%`, color: 'text-primary' },
+    { icon: Target, label: 'Active %', value: `${metrics.weeklyTargetPct}%`, color: 'text-orange-400' },
   ];
 
   return (

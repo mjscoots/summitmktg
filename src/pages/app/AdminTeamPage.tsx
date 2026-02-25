@@ -450,10 +450,23 @@ export default function AdminTeamPage() {
     setSettingsLoading(false);
   };
 
+  const [userSort, setUserSort] = useState<'alpha' | 'latest' | 'team' | 'role' | 'bootcamp'>('alpha');
+
   const filtered = reps.filter(r =>
     r.full_name.toLowerCase().includes(search.toLowerCase()) ||
     r.email.toLowerCase().includes(search.toLowerCase())
-  );
+  ).sort((a, b) => {
+    switch (userSort) {
+      case 'latest': return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      case 'team': return (getTeamName(a.team_id)).localeCompare(getTeamName(b.team_id));
+      case 'role': return (a.role || 'rookie').localeCompare(b.role || 'rookie');
+      case 'bootcamp': {
+        if (a.bootcamp_completed === b.bootcamp_completed) return a.full_name.localeCompare(b.full_name);
+        return a.bootcamp_completed ? 1 : -1; // incomplete first
+      }
+      default: return a.full_name.localeCompare(b.full_name);
+    }
+  });
 
   const filteredTeams = teams.filter(t =>
     t.name.toLowerCase().includes(teamSearch.toLowerCase())
@@ -643,9 +656,23 @@ export default function AdminTeamPage() {
 
           {/* ========== USERS TAB ========== */}
           <TabsContent value="users">
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..." className="pl-9 bg-white/5 border-white/10" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..." className="pl-9 bg-white/5 border-white/10" />
+              </div>
+              <Select value={userSort} onValueChange={(v) => setUserSort(v as any)}>
+                <SelectTrigger className="w-[160px] bg-white/5 border-white/10 text-xs">
+                  <SelectValue placeholder="Sort by..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alpha">Alphabetical</SelectItem>
+                  <SelectItem value="latest">Latest</SelectItem>
+                  <SelectItem value="team">Team</SelectItem>
+                  <SelectItem value="role">Role</SelectItem>
+                  <SelectItem value="bootcamp">Checklist Status</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {loading ? (

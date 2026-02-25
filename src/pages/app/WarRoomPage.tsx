@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,8 +9,10 @@ import { LiveLeaderboardSnapshot } from '@/components/warroom/LiveLeaderboardSna
 import { DailyCheckIn } from '@/components/warroom/DailyCheckIn';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Swords, Trophy, Users, Target, Zap } from 'lucide-react';
+import { Swords, Trophy, Target, Zap, Activity, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+type WarRoomTab = 'pulse' | 'team' | 'leaderboard';
 
 export default function WarRoomPage() {
   const navigate = useNavigate();
@@ -30,6 +33,12 @@ export default function WarRoomPage() {
       toast.error('Failed to post check-in');
     }
   };
+
+  const TABS: { id: WarRoomTab; label: string; icon: typeof Activity; path?: string }[] = [
+    { id: 'pulse', label: 'Pulse', icon: Activity },
+    { id: 'team', label: 'Team', icon: Users, path: '/app/team' },
+    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, path: '/app/leaderboard' },
+  ];
 
   return (
     <AppLayout>
@@ -60,6 +69,30 @@ export default function WarRoomPage() {
           </div>
         </div>
 
+        {/* Tab Bar — Pulse / Team / Leaderboard */}
+        <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">
+          <div className="flex">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => tab.path ? navigate(tab.path) : undefined}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs font-semibold rounded-lg transition-all duration-200",
+                    tab.id === 'pulse'
+                      ? "bg-card text-foreground shadow-md shadow-primary/10 border border-border/50"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("w-3.5 h-3.5", tab.id === 'pulse' && "text-primary")} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Daily Check-In */}
         <div className="mb-5">
           <DailyCheckIn onSubmit={handleCheckInSubmit} />
@@ -73,12 +106,11 @@ export default function WarRoomPage() {
 
         {/* Quick action cards */}
         {isManager && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">
             {[
               { icon: Users, label: 'My Team', path: '/app/team', color: 'text-primary' },
               { icon: Trophy, label: 'Leaderboard', path: '/app/leaderboard', color: 'text-yellow-500' },
               { icon: Target, label: 'Sign a Rep', path: '/app/interviews', color: 'text-emerald-400' },
-              { icon: Zap, label: 'Training', path: '/app/training', color: 'text-orange-400' },
             ].map(item => (
               <button
                 key={item.label}
