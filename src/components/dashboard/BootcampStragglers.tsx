@@ -187,7 +187,7 @@ export function BootcampStragglers() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-destructive" />
-            <h2 className="font-semibold text-sm text-foreground">Boot Camp Stragglers</h2>
+            <h2 className="font-semibold text-sm text-foreground">Summer Checklist Stragglers</h2>
           </div>
           <div className="flex items-center gap-2">
             <Button

@@ -148,7 +148,7 @@ export default function BootcampPhase3() {
       });
 
       if (success) {
-        toast({ title: 'Boot Camp Complete!', description: 'Welcome to the Summit.' });
+        toast({ title: 'Summer Checklist Complete!', description: 'Welcome to the Summit.' });
         navigate('/app', { replace: true });
       }
     } catch (err: any) {
@@ -169,7 +169,7 @@ export default function BootcampPhase3() {
     <div className="min-h-screen bg-black px-4 py-12">
       <div className="w-full max-w-2xl mx-auto">
         <Breadcrumbs items={[
-          { label: 'Bootcamp', to: '/bootcamp/momentum' },
+          { label: 'Summer Checklist', to: '/bootcamp/momentum' },
           { label: 'Phase 3' },
         ]} />
         <PhaseIndicator current={10} progress={progress} />
