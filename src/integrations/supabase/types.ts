@@ -2364,7 +2364,9 @@ export type Database = {
         Returns: boolean
       }
       mark_inactive_users: { Args: never; Returns: undefined }
-      record_daily_login: { Args: { _user_id: string }; Returns: Json }
+      record_daily_login:
+        | { Args: { _user_id: string }; Returns: Json }
+        | { Args: { _timezone?: string; _user_id: string }; Returns: Json }
       record_daily_time: {
         Args: { _category: string; _user_id: string }
         Returns: undefined

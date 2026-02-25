@@ -35,8 +35,10 @@ export function useStreak() {
     const recordLogin = async () => {
       try {
         // Record daily login
+        const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
         const { data, error } = await supabase.rpc('record_daily_login', {
           _user_id: user.id,
+          _timezone: userTz,
         });
 
         if (error) {
