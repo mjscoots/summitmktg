@@ -12,6 +12,7 @@ import {
   Shield,
   Sun
 } from 'lucide-react';
+import { getTeamColor } from '@/lib/teamColors';
 import {
   Dialog,
   DialogContent,
@@ -153,27 +154,29 @@ export function MemberProfileModal({
   const isNLC = member.status === 'nlc' || member.isNLC;
   const progress = getProgress(member.user_id);
   const isSelf = user?.id === member.user_id;
+  const teamColor = getTeamColor(getPillarName(member.pillar));
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-hidden flex flex-col bg-card border-border">
+        {/* Team color accent bar */}
+        <div 
+          className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
+          style={{ background: `hsl(${teamColor.hsl})` }}
+        />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center",
               isNLC 
                 ? "bg-muted" 
-                : isMgr 
-                  ? "bg-primary/20" 
-                  : "bg-success/20"
+                : teamColor.bgTint
             )}>
               <User className={cn(
                 "w-6 h-6",
                 isNLC 
                   ? "text-muted-foreground" 
-                  : isMgr 
-                    ? "text-primary" 
-                    : "text-success"
+                  : teamColor.text
               )} />
             </div>
             <div className="flex-1 min-w-0">
@@ -181,9 +184,7 @@ export function MemberProfileModal({
                 "block",
                 isNLC 
                   ? "text-destructive" 
-                  : isMgr 
-                    ? "text-primary" 
-                    : "text-success"
+                  : teamColor.text
               )}>
                 {getDisplayName(member.full_name)}
               </span>
@@ -193,8 +194,8 @@ export function MemberProfileModal({
                   isNLC 
                     ? "bg-destructive/15 text-destructive"
                     : isMgr 
-                      ? "bg-primary/15 text-primary" 
-                      : "bg-success/15 text-success"
+                      ? cn(teamColor.bgBadge, teamColor.text)
+                      : cn(teamColor.bgBadge, teamColor.text)
                 )}>
                   {isNLC ? 'NLC' : isMgr ? 'Manager' : 'Rookie'}
                 </span>
@@ -352,11 +353,11 @@ export function MemberProfileModal({
               </div>
 
               {/* Team */}
-              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                <Building2 className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `hsl(${teamColor.hsl} / 0.06)` }}>
+                <Building2 className={cn("w-5 h-5 flex-shrink-0", teamColor.text)} />
                 <div>
                   <p className="text-xs text-muted-foreground">Team</p>
-                  <p className="text-sm text-foreground">{getPillarName(member.pillar)}</p>
+                  <p className={cn("text-sm font-medium", teamColor.text)}>{getPillarName(member.pillar)}</p>
                 </div>
               </div>
 
@@ -373,7 +374,7 @@ export function MemberProfileModal({
                           onMemberClick(manager);
                         }
                       }}
-                      className="text-sm text-primary hover:underline text-left"
+                      className={cn("text-sm hover:underline text-left", teamColor.text)}
                     >
                       {getDisplayName(member.direct_manager)}
                     </button>
@@ -400,9 +401,8 @@ export function MemberProfileModal({
                         onClick={() => onMemberClick?.(report)}
                         className={cn(
                           "text-xs px-2 py-1 rounded-full transition-colors",
-                          isManager(roster, report.full_name) || report.role === 'manager'
-                            ? "bg-primary/10 text-primary hover:bg-primary/20"
-                            : "bg-success/10 text-success hover:bg-success/20"
+                          teamColor.bgTint, teamColor.text,
+                          "hover:opacity-80"
                         )}
                       >
                         {getDisplayName(report.full_name)}

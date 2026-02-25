@@ -6,6 +6,7 @@ import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 import { getStatusInfo, getDisplayName } from '@/lib/hierarchyUtils';
 import type { MemberTrainingProgress } from '@/hooks/useTrainingProgress';
+import { getTeamColor } from '@/lib/teamColors';
 
 interface TeamTreeNodeProps {
   member: TeamMember;
@@ -14,6 +15,7 @@ interface TeamTreeNodeProps {
   depth?: number;
   getProgress?: (userId: string) => MemberTrainingProgress;
   onMemberClick?: (member: TeamMember) => void;
+  teamName?: string | null;
 }
 
 export function TeamTreeNode({ 
@@ -23,11 +25,13 @@ export function TeamTreeNode({
   depth = 0, 
   getProgress,
   onMemberClick,
+  teamName,
 }: TeamTreeNodeProps) {
   const [expanded, setExpanded] = useState(isRoot || depth < 2);
   const hasChildren = member.children && member.children.length > 0;
   const statusInfo = getStatusInfo(member.status);
   const isNLC = member.status === 'nlc' || member.isNLC;
+  const tc = getTeamColor(teamName);
 
   // Sort children: managers first by team size, then by training progress
   const sortedChildren = member.children?.slice().sort((a, b) => {
@@ -116,14 +120,12 @@ export function TeamTreeNode({
             "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
             isRoot 
               ? "bg-amber-500/20" 
-              : isManager 
-                ? "bg-primary/20" 
-                : "bg-success/20"
+              : tc.bgTint
           )}>
             {isRoot ? (
               <Crown className="w-4 h-4 text-amber-400" />
             ) : (
-              <User className={cn("w-4 h-4", isManager ? "text-primary" : "text-success")} />
+              <User className={cn("w-4 h-4", tc.text)} />
             )}
           </div>
         )}
@@ -137,9 +139,7 @@ export function TeamTreeNode({
                 "font-medium truncate hover:underline cursor-pointer text-left",
                 isNLC 
                   ? "text-muted-foreground" 
-                  : isManager 
-                    ? "text-primary" 
-                    : "text-success"
+                  : tc.text
               )}
             >
               {getDisplayName(member.full_name)}
@@ -166,7 +166,7 @@ export function TeamTreeNode({
           {!isNLC && (
             <span className={cn(
               "text-xs font-medium px-2 py-0.5 rounded-full",
-              isManager ? "bg-primary/15 text-primary" : "bg-success/15 text-success"
+              isManager ? cn(tc.bgBadge, tc.text) : cn(tc.bgBadge, tc.text)
             )}>
               {isManager ? 'Manager' : 'Rookie'}
             </span>
@@ -195,6 +195,7 @@ export function TeamTreeNode({
               depth={depth + 1}
               getProgress={getProgress}
               onMemberClick={onMemberClick}
+              teamName={teamName}
             />
           ))}
         </div>

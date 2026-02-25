@@ -3,6 +3,7 @@ import { Users, Upload, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { getTeamColor } from '@/lib/teamColors';
 
 interface TeamCardProps {
   team: {
@@ -27,6 +28,7 @@ export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false
   const canActuallyUpload = canUploadLogo && isAdmin;
   const [isUploading, setIsUploading] = useState(false);
   const [memberCountPulse, setMemberCountPulse] = useState(false);
+  const tc = getTeamColor(team.name);
 
   // Get border color based on rank
   const getBorderStyle = () => {
@@ -138,9 +140,12 @@ export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false
         <div className="relative">
           <div className={cn(
             'w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden',
-            'bg-muted/50 border border-border/30',
+            'border border-border/30',
+            team.logo_url ? 'bg-muted/50' : tc.bgTint,
             'group-hover:border-primary/30 transition-colors'
-          )}>
+          )}
+            style={!team.logo_url ? { borderColor: `hsl(${tc.hsl} / 0.3)` } : undefined}
+          >
             {team.logo_url ? (
               <img 
                 src={team.logo_url} 
@@ -148,7 +153,7 @@ export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false
                 className="w-full h-full object-cover"
               />
             ) : (
-              <ImageIcon className="w-6 h-6 text-muted-foreground/50" />
+              <ImageIcon className={cn("w-6 h-6", tc.text)} style={{ opacity: 0.7 }} />
             )}
           </div>
           
@@ -190,7 +195,7 @@ export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground text-lg truncate group-hover:text-primary transition-colors">
+          <h3 className={cn("font-semibold text-lg truncate transition-colors", tc.text)}>
             {team.name}
           </h3>
           <div className="flex items-center gap-2 mt-1">
@@ -207,19 +212,20 @@ export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false
 
       {/* Stats Row */}
       <div className="flex gap-2">
-        <span className="px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+        <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium", tc.bgBadge, tc.text)}>
           {team.managerCount} {team.managerCount === 1 ? 'manager' : 'managers'}
         </span>
-        <span className="px-2.5 py-1 rounded-full bg-success/15 text-success text-xs font-medium">
+        <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium", tc.bgBadge, tc.text)}>
           {team.rookieCount} {team.rookieCount === 1 ? 'rookie' : 'rookies'}
         </span>
       </div>
 
       {/* Hover glow effect */}
       <div className={cn(
-        'absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100',
-        'bg-gradient-to-br from-primary/5 via-transparent to-transparent'
-      )} />
+        'absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100'
+      )} 
+        style={{ background: `linear-gradient(to bottom right, hsl(${tc.hsl} / 0.06), transparent, transparent)` }}
+      />
     </div>
   );
 }
