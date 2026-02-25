@@ -29,31 +29,32 @@ export function StreakLeaderboard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Get all rookies
-        const { data: rookieRoles } = await supabase
+        // Get all rookies and managers
+        const { data: userRoles } = await supabase
           .from('user_roles')
-          .select('user_id')
-          .eq('role', 'rookie');
+          .select('user_id, role')
+          .in('role', ['rookie', 'manager']);
 
-        if (!rookieRoles || rookieRoles.length === 0) {
+        if (!userRoles || userRoles.length === 0) {
           setEntries([]);
           setIsLoading(false);
           return;
         }
 
-        const rookieIds = rookieRoles.map(r => r.user_id);
+        const userIds = userRoles.map(r => r.user_id);
+        const roleMap = new Map(userRoles.map(r => [r.user_id, r.role]));
 
         // Fetch streaks and profiles in parallel
         const [streaksRes, profilesRes] = await Promise.all([
           supabase
             .from('daily_login_streaks')
             .select('user_id, current_streak, longest_streak, total_days_active')
-            .in('user_id', rookieIds)
+            .in('user_id', userIds)
             .gt('current_streak', 0),
           supabase
             .from('profiles')
             .select('user_id, full_name, nickname, avatar_url')
-            .in('user_id', rookieIds)
+            .in('user_id', userIds)
             .not('status', 'eq', 'nlc'),
         ]);
 
