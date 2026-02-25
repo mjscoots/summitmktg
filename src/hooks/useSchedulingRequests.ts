@@ -98,6 +98,13 @@ export function useSchedulingRequests() {
       confirmed_at: new Date().toISOString(),
     }).eq('id', requestId);
     if (error) throw error;
+
+    // Award 25 XP to both requester and recipient for confirming the 1:1
+    const request = requests.find(r => r.id === requestId);
+    if (request) {
+      try { await supabase.rpc('award_training_points', { _user_id: request.requester_id, _points: 25 }); } catch {}
+      try { await supabase.rpc('award_training_points', { _user_id: request.recipient_id, _points: 25 }); } catch {}
+    }
   };
 
   const rescheduleRequest = async (requestId: string, newTimes: string[], notes?: string) => {
