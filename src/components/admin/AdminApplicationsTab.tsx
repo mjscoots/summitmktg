@@ -63,7 +63,8 @@ export default function AdminApplicationsTab() {
   }, []);
 
   const filtered = applications.filter(app => {
-    if (app.application_type !== typeFilter) return false;
+    const isVetApp = app.application_type === 'vet' || app.application_type === 'veteran';
+    if (typeFilter === 'veteran' ? !isVetApp : app.application_type !== 'rookie') return false;
     if (search) {
       const q = search.toLowerCase();
       return (
@@ -76,7 +77,7 @@ export default function AdminApplicationsTab() {
   });
 
   const rookieCount = applications.filter(a => a.application_type === 'rookie').length;
-  const vetCount = applications.filter(a => a.application_type === 'veteran').length;
+  const vetCount = applications.filter(a => a.application_type === 'vet' || a.application_type === 'veteran').length;
 
   return (
     <div>
@@ -120,8 +121,8 @@ export default function AdminApplicationsTab() {
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Referral</th>
                 {typeFilter === 'veteran' && (
                   <>
-                    <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Prev. Company</th>
-                    <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Yrs Exp</th>
+                    <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Prev. Markets</th>
+                    <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Revenue</th>
                   </>
                 )}
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
