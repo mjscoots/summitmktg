@@ -150,11 +150,6 @@ export function PitchApprovalCard({
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 p-2.5 rounded-lg bg-card border border-border">
-            <Video className="w-3.5 h-3.5 text-primary" />
-            <span>💡 TIP: Watch the training videos in the Video Library for this section before recording.</span>
-          </div>
-
           <div className="flex gap-2">
             <Button
               onClick={() => setShowRecording(true)}
@@ -165,14 +160,6 @@ export function PitchApprovalCard({
             >
               <Mic className="w-4 h-4" />
               {status === 'rejected' ? 'Record New Attempt' : 'Record Your Pitch'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => window.open('/app/training/videos', '_blank')}
-              className="gap-1.5"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              Videos
             </Button>
           </div>
         </div>
