@@ -201,6 +201,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
             isRoot={true}
             getProgress={getProgress}
             onMemberClick={handleMemberClick}
+            teamName={pillar.name}
           />
         ) : (
           <div className="text-center py-8">

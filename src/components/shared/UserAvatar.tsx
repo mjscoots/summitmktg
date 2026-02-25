@@ -1,6 +1,7 @@
  import { useMemo } from 'react';
  import { cn } from '@/lib/utils';
  import { getTierBorderClass } from '@/components/shared/TierBadge';
+ import { getTeamColor } from '@/lib/teamColors';
  
 interface UserAvatarProps {
   avatarUrl?: string | null;
@@ -10,6 +11,7 @@ interface UserAvatarProps {
   showOnline?: boolean;
   isOnline?: boolean;
   tierPct?: number;
+  teamName?: string | null;
 }
  
  // Generate a consistent color based on name hash
@@ -63,9 +65,10 @@ const dotSizeClasses = {
   lg: 'w-3 h-3 border-2',
 };
 
-export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, tierPct }: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, tierPct, teamName }: UserAvatarProps) {
   const initials = useMemo(() => getInitials(fullName), [fullName]);
-  const bgColor = useMemo(() => getColorFromName(fullName), [fullName]);
+  const teamColor = useMemo(() => getTeamColor(teamName), [teamName]);
+  const bgColor = useMemo(() => teamName ? teamColor.bg : getColorFromName(fullName), [teamName, teamColor, fullName]);
   const tierBorder = tierPct != null ? getTierBorderClass(tierPct) : '';
 
   const onlineDot = showOnline ? (
