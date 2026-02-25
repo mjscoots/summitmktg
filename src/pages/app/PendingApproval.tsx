@@ -27,12 +27,12 @@ const PendingApproval = () => {
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
           <Clock className="w-8 h-8 text-primary" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-3">Account Submitted</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-3">Summer Checklist Complete!</h1>
         <p className="text-muted-foreground mb-2">
-          Your account is awaiting admin approval.
+          Your account is awaiting admin approval to unlock full access.
         </p>
         <p className="text-muted-foreground text-sm mb-8">
-          You'll receive an email once approved.
+          You'll receive an email once your manager approves you.
         </p>
         <button
           onClick={handleSignOut}
