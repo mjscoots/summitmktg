@@ -150,6 +150,30 @@ export function useTeamData(): TeamData {
           return;
         }
 
+        // Filter to only reps who completed bootcamp AND have logged in
+        const { data: bootcampData } = await supabase
+          .from('bootcamp_progress')
+          .select('user_id')
+          .in('user_id', (membersData || []).map(m => m.user_id))
+          .or('bootcamp_completed.eq.true,bootcamp_exempt.eq.true');
+
+        const bootcampCompletedIds = new Set((bootcampData || []).map(b => b.user_id));
+
+        // Also check who has roles — managers always pass through
+        const { data: managerRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .in('user_id', (membersData || []).map(m => m.user_id))
+          .in('role', ['manager', 'admin']);
+
+        const managerIds = new Set((managerRoles || []).map(r => r.user_id));
+
+        // Keep only members who: completed bootcamp + have logged in, OR are managers
+        membersData = (membersData || []).filter(m =>
+          managerIds.has(m.user_id) ||
+          (bootcampCompletedIds.has(m.user_id) && m.last_active_at)
+        );
+
         // Get training progress with batch queries instead of N+1
         const memberUserIds = (membersData || []).map(m => m.user_id);
 
