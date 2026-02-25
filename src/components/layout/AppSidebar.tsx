@@ -47,9 +47,8 @@ const managerNavItems: NavItem[] = [
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
 ];
 
-// Bottom admin items (above footer)
+// Bottom admin items (above footer) — Team removed, now inside War Room
 const bottomNavItems: NavItem[] = [
-  { label: 'Team', path: '/app/team', icon: Users, requiredRole: 'manager' },
   { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' },
 ];
 
