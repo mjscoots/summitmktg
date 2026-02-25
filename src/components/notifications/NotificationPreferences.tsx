@@ -19,7 +19,7 @@ const PREF_LABELS: { key: keyof Preferences; label: string; description: string 
   { key: 'calendar_events', label: 'Calendar Events', description: 'Upcoming event reminders and schedule notifications' },
   { key: 'leaderboard', label: 'Leaderboard', description: 'Weekly rank changes and #1 position alerts' },
   { key: 'chat_mentions', label: 'Chat Activity', description: 'Unread message alerts when 10+ messages pile up' },
-  { key: 'bootcamp_reminders', label: 'Boot Camp', description: 'Boot camp deadline reminders and phase completion' },
+  { key: 'bootcamp_reminders', label: 'Summer Checklist', description: 'Summer Checklist deadline reminders and phase completion' },
   { key: 'streak_milestones', label: 'Streak Milestones', description: 'Daily login streak achievements and milestone bonuses' },
 ];
 

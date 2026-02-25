@@ -34,7 +34,7 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
     return (
       <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
         <AlertTriangle className="w-5 h-5 shrink-0" />
-        <span className="text-sm font-semibold">Deadline passed — complete boot camp now!</span>
+        <span className="text-sm font-semibold">Deadline passed — complete your Summer Checklist now!</span>
       </div>
     );
   }
@@ -134,12 +134,12 @@ export default function BootcampLock() {
           <Lock className="w-12 h-12 text-white/60 mx-auto mb-6" />
 
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-3">
-            BOOT CAMP REQUIRED
+            SUMMER CHECKLIST REQUIRED
           </h1>
 
           <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 mb-4">
             <p className="text-red-400 text-sm font-semibold">
-              🔒 You must complete Boot Camp before you can access the app.
+              🔒 You must complete the Summer Checklist before you can access the app.
             </p>
           </div>
 
@@ -156,7 +156,7 @@ export default function BootcampLock() {
             size="lg"
             className="w-full bg-white text-black hover:bg-white/90 font-black text-lg tracking-wide h-14 mb-6 shadow-lg shadow-white/10"
           >
-            {completedCount > 0 ? 'CONTINUE BOOT CAMP' : 'START NOW'}
+            {completedCount > 0 ? 'CONTINUE CHECKLIST' : 'START NOW'}
           </Button>
 
           {/* Countdown Timer */}
@@ -201,7 +201,7 @@ export default function BootcampLock() {
 
             {/* Phase section */}
             <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold px-2 mt-4 mb-1 flex items-center gap-2">
-              <Lock className="w-3 h-3" /> Boot Camp Modules
+              <Lock className="w-3 h-3" /> Summer Checklist Modules
             </div>
             {STEPS.filter(s => s.group === 'phase').map(step => {
               const done = getStepDone(step);

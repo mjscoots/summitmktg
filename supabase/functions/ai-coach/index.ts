@@ -53,7 +53,7 @@ MEMORY:
 SMART COACHING:
 - Reference their actual training progress when relevant. If they're behind, push them.
 - If their streak is high, celebrate it. If it broke, address it.
-- If they haven't completed bootcamp, make it urgent.
+- If they haven't completed the Summer Checklist, make it urgent.
 - Use their leaderboard position to fuel competition.
 - If they ask about something they've already trained on, reference the specific module.`;
 
@@ -93,7 +93,7 @@ SMART COACHING:
 - Compare team performance week-over-week when data allows.
 - If team members are behind on training, flag specific names and percentages.
 - Use leaderboard data to identify who needs attention vs who to celebrate.
-- If bootcamp stragglers exist, push for immediate follow-up.
+- If Summer Checklist stragglers exist, push for immediate follow-up.
 - Reference inactive team members as accountability gaps.
 - Identify patterns: who's trending up, who's trending down.`;
 
@@ -304,14 +304,14 @@ async function buildUserContext(supabaseAdmin: any, userId: string, role: string
     }
 
     if (bc) {
-      if (bc.bootcamp_exempt) contextParts.push(`Bootcamp: Exempt`);
-      else if (bc.bootcamp_completed) contextParts.push(`Bootcamp: ✅ Completed`);
+      if (bc.bootcamp_exempt) contextParts.push(`Summer Checklist: Exempt`);
+      else if (bc.bootcamp_completed) contextParts.push(`Summer Checklist: ✅ Completed`);
       else {
         const phases = [bc.phase_1_complete, bc.phase_2_complete, bc.phase_3_complete];
-        contextParts.push(`Bootcamp: ${phases.filter(Boolean).length}/3 phases — NOT COMPLETE`);
+        contextParts.push(`Summer Checklist: ${phases.filter(Boolean).length}/3 phases — NOT COMPLETE`);
       }
     } else {
-      contextParts.push(`Bootcamp: NOT STARTED`);
+      contextParts.push(`Summer Checklist: NOT STARTED`);
     }
 
     // Previous conversation summary for memory

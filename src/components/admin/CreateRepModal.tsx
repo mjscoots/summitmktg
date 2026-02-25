@@ -233,7 +233,7 @@ export function CreateRepModal({ open, onOpenChange, managers, teams, onSuccess 
             </div>
 
             <div className="text-[10px] text-white/30 bg-white/[0.02] rounded p-2">
-              Role: <span className="text-white/50">Rep (Rookie)</span> · Boot Camp will be auto-enforced on first login.
+              Role: <span className="text-white/50">Rep (Rookie)</span> · Summer Checklist will be auto-enforced on first login.
             </div>
 
             <Button

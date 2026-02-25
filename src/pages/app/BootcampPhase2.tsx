@@ -88,7 +88,7 @@ export default function BootcampPhase2() {
     <div className="min-h-screen bg-black px-4 py-12">
       <div className="w-full max-w-lg mx-auto">
         <Breadcrumbs items={[
-          { label: 'Bootcamp', to: '/bootcamp/momentum' },
+          { label: 'Summer Checklist', to: '/bootcamp/momentum' },
           { label: 'Phase 2' },
         ]} />
         <PhaseIndicator current={9} progress={progress} />

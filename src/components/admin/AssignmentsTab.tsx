@@ -182,7 +182,7 @@ export default function AssignmentsTab({ managers, teams, onRefresh }: Props) {
     { id: 'needs_manager', label: 'Needs Manager', icon: UserX, count: counts.needs_manager },
     { id: 'missing_team', label: 'Missing Team', icon: Users, count: counts.missing_team },
     { id: 'not_onboarded', label: 'Not Onboarded', icon: AlertTriangle, count: counts.not_onboarded },
-    { id: 'bootcamp_incomplete', label: 'Bootcamp Incomplete', icon: AlertTriangle, count: counts.bootcamp_incomplete },
+    { id: 'bootcamp_incomplete', label: 'Checklist Incomplete', icon: AlertTriangle, count: counts.bootcamp_incomplete },
   ];
 
   return (
@@ -290,7 +290,7 @@ export default function AssignmentsTab({ managers, teams, onRefresh }: Props) {
                       {!u.direct_manager && <Badge variant="destructive" className="text-[9px] px-1.5 py-0">No Manager</Badge>}
                       {!u.team_id && <Badge variant="destructive" className="text-[9px] px-1.5 py-0">No Team</Badge>}
                       {u.onboarding_status !== 'complete' && <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Not Onboarded</Badge>}
-                      {!u.bootcamp_completed && u.role === 'rookie' && <Badge variant="outline" className="text-[9px] px-1.5 py-0">Bootcamp ✗</Badge>}
+                      {!u.bootcamp_completed && u.role === 'rookie' && <Badge variant="outline" className="text-[9px] px-1.5 py-0">Checklist ✗</Badge>}
                     </div>
                   </td>
                   <td className="px-3 py-2 text-right">
@@ -346,7 +346,7 @@ export default function AssignmentsTab({ managers, teams, onRefresh }: Props) {
                   <span className={selectedUser.onboarding_status === 'complete' ? 'text-primary' : 'text-yellow-400'}>{selectedUser.onboarding_status || 'pending'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bootcamp</span>
+                  <span className="text-muted-foreground">Summer Checklist</span>
                   <span className={selectedUser.bootcamp_completed ? 'text-primary' : 'text-destructive'}>{selectedUser.bootcamp_completed ? 'Complete' : 'Incomplete'}</span>
                 </div>
               </div>

@@ -761,7 +761,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   isOwnMessage(msg) && "hover:bg-primary/5",
                   msg.is_pinned && "bg-amber-500/5 border-l-2 border-amber-500/40",
                   postOfTheDayId === msg.id && "post-of-the-day",
-                  msg.is_ai && !grouped && (msg.content.includes('DEAL ALERT') || msg.content.includes('BOOTCAMP COMPLETE') || msg.content.includes('FULLY CERTIFIED')) && "bot-msg-glow my-1"
+                  msg.is_ai && !grouped && (msg.content.includes('DEAL ALERT') || msg.content.includes('SUMMER CHECKLIST COMPLETE') || msg.content.includes('FULLY CERTIFIED')) && "bot-msg-glow my-1"
                 )}
               >
                 {/* Post of the Day badge */}

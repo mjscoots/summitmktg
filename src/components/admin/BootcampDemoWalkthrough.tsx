@@ -8,14 +8,14 @@ import { cn } from '@/lib/utils';
 const DEMO_SCREENS = [
   {
     id: 'lock',
-    title: 'Boot Camp Lock Screen',
-    description: 'This is what rookies see when they first log in — they cannot access the app until boot camp is complete.',
+    title: 'Summer Checklist Lock Screen',
+    description: 'This is what rookies see when they first log in — they cannot access the app until the Summer Checklist is complete.',
     render: () => (
       <div className="bg-black rounded-xl p-6 text-center space-y-4 max-h-[60vh] overflow-y-auto">
         <Lock className="w-10 h-10 text-white/60 mx-auto" />
-        <h2 className="text-xl font-black text-white tracking-tight">BOOT CAMP REQUIRED</h2>
+        <h2 className="text-xl font-black text-white tracking-tight">SUMMER CHECKLIST REQUIRED</h2>
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
-          <p className="text-red-400 text-sm font-semibold">🔒 You must complete Boot Camp before you can access the app.</p>
+          <p className="text-red-400 text-sm font-semibold">🔒 You must complete the Summer Checklist before you can access the app.</p>
         </div>
         <p className="text-blue-400 text-sm font-black bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2.5 inline-block">
           ⚡ Most reps finish in under 15 minutes
@@ -28,7 +28,7 @@ const DEMO_SCREENS = [
             </div>
           ))}
           <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold px-2 mt-3 mb-1 flex items-center gap-2">
-            <Lock className="w-3 h-3" /> Boot Camp Modules
+            <Lock className="w-3 h-3" /> Summer Checklist Modules
           </div>
           {['Sunblock', 'Motivation', 'Final Commitment'].map((s, i) => (
             <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/[0.02] text-white/25 text-xs">
@@ -222,15 +222,15 @@ const DEMO_SCREENS = [
               </div>
             </div>
           </div>
-          <div className="mt-4 bg-white/20 text-white font-black text-sm py-2.5 rounded-lg text-center">COMPLETE BOOT CAMP</div>
+          <div className="mt-4 bg-white/20 text-white font-black text-sm py-2.5 rounded-lg text-center">COMPLETE CHECKLIST</div>
         </div>
       </div>
     ),
   },
   {
     id: 'dashboard',
-    title: 'Dashboard (After Bootcamp)',
-    description: 'After completing boot camp, the rookie lands on their dashboard.',
+    title: 'Dashboard (After Checklist)',
+    description: 'After completing the Summer Checklist, the rookie lands on their dashboard.',
     render: () => (
       <div className="bg-background rounded-xl p-6 max-h-[60vh] overflow-y-auto border border-border/20">
         <div className="flex items-center gap-2 mb-4">

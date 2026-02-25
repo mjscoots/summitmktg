@@ -125,8 +125,8 @@ Deno.serve(async (req) => {
 
       notifications.push({
         user_id: managerUserId,
-        title: "Boot Camp Overdue",
-        message: `${rep.full_name} has not completed boot camp (${hoursOverdue}h overdue).`,
+        title: "Summer Checklist Overdue",
+        message: `${rep.full_name} has not completed the Summer Checklist (${hoursOverdue}h overdue).`,
         link: "/app/manager",
       });
 

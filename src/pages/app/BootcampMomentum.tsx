@@ -145,7 +145,7 @@ export default function BootcampMomentum() {
               Step {currentStep} of 10
             </span>
             <span className="text-xs text-white/30">
-              {currentStep <= 7 ? 'Momentum Builder' : 'Boot Camp'}
+              {currentStep <= 7 ? 'Momentum Builder' : 'Summer Checklist'}
             </span>
           </div>
           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">

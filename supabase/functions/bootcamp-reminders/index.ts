@@ -124,18 +124,18 @@ Deno.serve(async (req) => {
       if (repReminderDue) {
         const isOverdue = hoursRemaining <= 0;
         const subject = isOverdue
-          ? "⚠️ Boot Camp Overdue — Complete Now"
-          : `⏰ Boot Camp Reminder — ${Math.ceil(hoursRemaining)}h remaining`;
+          ? "⚠️ Summer Checklist Overdue — Complete Now"
+          : `⏰ Summer Checklist Reminder — ${Math.ceil(hoursRemaining)}h remaining`;
 
         const body = isOverdue
           ? `<h2>Hi ${profile.full_name},</h2>
-             <p>Your boot camp deadline has passed. Please complete it immediately to unlock full access to the platform.</p>
-             <p>Most reps complete boot camp in under 15 minutes.</p>
-             <p><strong>Log in now to finish your boot camp.</strong></p>`
+             <p>Your Summer Checklist deadline has passed. Please complete it immediately to unlock full access to the platform.</p>
+             <p>Most reps complete the checklist in under 15 minutes.</p>
+             <p><strong>Log in now to finish your Summer Checklist.</strong></p>`
           : `<h2>Hi ${profile.full_name},</h2>
-             <p>You have <strong>${Math.ceil(hoursRemaining)} hours</strong> remaining to complete your boot camp.</p>
-             <p>Most reps complete boot camp in under 15 minutes.</p>
-             <p><strong>Log in now to finish your boot camp.</strong></p>`;
+             <p>You have <strong>${Math.ceil(hoursRemaining)} hours</strong> remaining to complete your Summer Checklist.</p>
+             <p>Most reps complete the checklist in under 15 minutes.</p>
+             <p><strong>Log in now to finish your Summer Checklist.</strong></p>`;
 
         try {
           const emailRes = await fetch("https://api.resend.com/emails", {
@@ -200,9 +200,9 @@ Deno.serve(async (req) => {
     let managerNotificationsSent = 0;
     for (const [, info] of managerReminders) {
       const repList = info.reps.map((r) => `<li>${r}</li>`).join("");
-      const subject = `🚨 ${info.reps.length} rep(s) haven't completed boot camp`;
+      const subject = `🚨 ${info.reps.length} rep(s) haven't completed the Summer Checklist`;
       const body = `<h2>Hi ${info.managerName},</h2>
-        <p>The following rep(s) on your team have not yet completed boot camp:</p>
+        <p>The following rep(s) on your team have not yet completed the Summer Checklist:</p>
         <ul>${repList}</ul>
         <p>Please follow up with them to ensure they complete it promptly.</p>`;
 
@@ -244,7 +244,7 @@ Deno.serve(async (req) => {
           .from("user_notifications")
           .select("id", { count: "exact", head: true })
           .eq("user_id", info.managerId)
-          .ilike("title", "%Boot Camp Reminder%")
+          .ilike("title", "%Summer Checklist Reminder%")
           .gt("created_at", twelveHoursAgo);
 
         if (!existingNotif || existingNotif === 0) {
@@ -252,8 +252,8 @@ Deno.serve(async (req) => {
             .from("user_notifications")
             .insert({
               user_id: info.managerId,
-              title: "Boot Camp Reminder",
-              message: `${info.reps.length} rep(s) haven't completed boot camp: ${repNames}`,
+              title: "Summer Checklist Reminder",
+              message: `${info.reps.length} rep(s) haven't completed the Summer Checklist: ${repNames}`,
               link: "/app",
             });
           managerNotificationsSent++;

@@ -540,7 +540,7 @@ export default function AdminTeamPage() {
               Teams <span className="ml-1.5 text-[10px] text-muted-foreground">{teams.length}</span>
             </TabsTrigger>
             <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Bootcamp <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
+              Summer Checklist <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
             </TabsTrigger>
             <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
@@ -660,7 +660,7 @@ export default function AdminTeamPage() {
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Role</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Boot Camp</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Summer Checklist</th>
                       {isAdmin && <th className="text-right px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Actions</th>}
                     </tr>
                   </thead>
@@ -866,7 +866,7 @@ export default function AdminTeamPage() {
                       </tr>
                     ))}
                     {filteredBootcamp.length === 0 && (
-                      <tr><td colSpan={8} className="px-4 py-12 text-center text-white/30">No bootcamp data found</td></tr>
+                      <tr><td colSpan={8} className="px-4 py-12 text-center text-white/30">No checklist data found</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -920,8 +920,8 @@ export default function AdminTeamPage() {
                   <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2"><Settings className="w-5 h-5 text-primary" /> Global Settings</h2>
                   <div className="border border-white/10 rounded-lg divide-y divide-white/5">
                     {[
-                      { key: 'bootcamp_required', label: 'Boot Camp Required', desc: 'Require rookies to complete Boot Camp before app access' },
-                      { key: 'bootcamp_skip_allowed', label: 'Allow Boot Camp Skip', desc: 'Show a "Skip for Now" button so reps can bypass boot camp temporarily' },
+                      { key: 'bootcamp_required', label: 'Summer Checklist Required', desc: 'Require rookies to complete Summer Checklist before app access' },
+                      { key: 'bootcamp_skip_allowed', label: 'Allow Checklist Skip', desc: 'Show a "Skip for Now" button so reps can bypass the Summer Checklist temporarily' },
                       { key: 'approval_required', label: 'Approval Required', desc: 'Require admin approval for new sign-ups' },
                       { key: 'public_signups', label: 'Public Sign-Ups', desc: 'Allow new users to sign up from the login page' },
                       { key: 'maintenance_mode', label: 'Maintenance Mode', desc: 'Disable entire app for all non-admin users' },
@@ -1114,7 +1114,7 @@ export default function AdminTeamPage() {
         <Dialog open={!!bootcampDetail} onOpenChange={(open) => !open && setBootcampDetail(null)}>
           <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Bootcamp Details — {bootcampDetail?.full_name}</DialogTitle>
+              <DialogTitle>Summer Checklist Details — {bootcampDetail?.full_name}</DialogTitle>
             </DialogHeader>
             {bootcampDetail && (
               <div className="space-y-6 mt-4">
