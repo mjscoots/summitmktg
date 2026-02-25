@@ -1,5 +1,5 @@
 import { useState, ReactNode } from 'react';
-import { Pencil, Save, X, Loader2, History } from 'lucide-react';
+import { Pencil, Save, X, Loader2, History, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +30,7 @@ export function AdminEditWrapper({
   const isAdmin = role === 'admin';
   
   const [isEditing, setIsEditing] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [editedContent, setEditedContent] = useState(initialContent);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -105,10 +106,27 @@ export function AdminEditWrapper({
 
   return (
     <div className={cn("relative group", className)}>
+      {/* Confirmation Popup */}
+      {showConfirm && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
+          <div className="bg-card border border-border rounded-xl p-5 shadow-xl max-w-sm mx-4 text-center space-y-3">
+            <ShieldAlert className="w-8 h-8 text-amber-500 mx-auto" />
+            <h3 className="font-bold text-sm text-foreground">Protected Content</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Training material is standardized. Are you sure you want to modify this content?
+            </p>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => setShowConfirm(false)}>Cancel</Button>
+              <Button size="sm" className="flex-1 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => { setShowConfirm(false); setIsEditing(true); }}>Yes, Continue</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Admin Edit Button */}
       {!isEditing && (
         <button
-          onClick={() => setIsEditing(true)}
+          onClick={() => setShowConfirm(true)}
           className="absolute -top-2 -right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-primary text-primary-foreground p-1.5 rounded-full shadow-lg hover:bg-primary/90"
           title="Edit content"
         >
