@@ -77,6 +77,7 @@ const CHANNELS = [
 ] as const;
 
 type ChannelId = typeof CHANNELS[number]['id'];
+type RoomType = 'rookie' | 'vet';
 
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
@@ -104,7 +105,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
   const [activeChannel, setActiveChannel] = useState<ChannelId>('general');
+  const [activeRoom, setActiveRoom] = useState<RoomType>('rookie');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Effective channel combines tab + room (ai-coach has no room split)
+  const effectiveChannel = activeChannel === 'ai-coach' ? 'ai-coach' : (activeRoom === 'vet' ? `${activeChannel}:vet` : activeChannel);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
@@ -226,7 +231,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           });
 
           // Mark channel as unread if not active
-          if (newMsg.user_id !== user?.id && newMsg.channel !== activeChannel) {
+          if (newMsg.user_id !== user?.id && newMsg.channel !== effectiveChannel) {
             setUnreadChannels(prev => new Set([...prev, newMsg.channel as ChannelId]));
           }
 
@@ -248,17 +253,17 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, onNewMessage, activeChannel]);
+  }, [user?.id, onNewMessage, effectiveChannel]);
 
   // Scroll on channel change or new messages in active channel
   const allChannelMessages = activeChannel === 'ai-coach' 
     ? localAiMessages 
-    : messages.filter(m => m.channel === activeChannel);
+    : messages.filter(m => m.channel === effectiveChannel);
   
   const channelMessages = allChannelMessages;
   useEffect(() => {
     scrollToBottom(false);
-  }, [channelMessages.length, activeChannel, scrollToBottom]);
+  }, [channelMessages.length, activeChannel, activeRoom, scrollToBottom]);
 
   // Post of the Day: find today's most-reacted message
   useEffect(() => {
@@ -422,7 +427,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           content,
           is_ai: false,
           reply_to: currentReplyTo,
-          channel: activeChannel,
+          channel: effectiveChannel,
         }).select('id').single();
 
         if (error) throw error;
@@ -470,7 +475,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       user_id: user.id,
       content,
       reply_to: replyingTo?.id || null,
-      channel: activeChannel,
+      channel: effectiveChannel,
     });
     if (error) { toast.error('Failed to send'); return; }
     setReplyingTo(null);
@@ -484,7 +489,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const { data: msg, error } = await supabase.from('chat_messages').insert({
       user_id: user.id,
       content: pollContent,
-      channel: activeChannel,
+      channel: effectiveChannel,
     }).select('id').single();
     if (error || !msg) { toast.error('Failed to create poll'); return; }
     await supabase.from('chat_polls').insert({
@@ -504,7 +509,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       user_id: user.id,
       content,
       reply_to: replyingTo?.id || null,
-      channel: activeChannel,
+      channel: effectiveChannel,
     });
     if (error) { toast.error('Failed to send sticker'); return; }
     setReplyingTo(null);
@@ -519,7 +524,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       user_id: user.id,
       content,
       reply_to: replyingTo?.id || null,
-      channel: activeChannel,
+      channel: effectiveChannel,
     });
     if (error) { toast.error('Failed to send GIF'); return; }
     setReplyingTo(null);
@@ -547,7 +552,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       .then(({ error }) => {
         if (error) console.error('Read receipt error:', error);
       });
-  }, [channelMessages.length, user?.id, activeChannel]);
+  }, [channelMessages.length, user?.id, effectiveChannel]);
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) {
@@ -641,12 +646,45 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         })}
       </div>
 
-      {/* Channel description bar */}
-      <div className="px-4 py-1.5 border-b border-border/30 bg-muted/10 flex-shrink-0">
-        <p className="text-[11px] text-muted-foreground">
-          {channelDescription[activeChannel]}
-        </p>
-      </div>
+      {/* Rookie / Vet toggle + description */}
+      {activeChannel !== 'ai-coach' && (
+        <div className="flex items-center gap-3 px-4 py-1.5 border-b border-border/30 bg-muted/10 flex-shrink-0">
+          <div className="flex items-center bg-muted/60 rounded-lg p-0.5 border border-border/30">
+            <button
+              onClick={() => setActiveRoom('rookie')}
+              className={cn(
+                "px-3 py-1 text-[11px] font-semibold rounded-md transition-all",
+                activeRoom === 'rookie'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Rookie
+            </button>
+            <button
+              onClick={() => setActiveRoom('vet')}
+              className={cn(
+                "px-3 py-1 text-[11px] font-semibold rounded-md transition-all",
+                activeRoom === 'vet'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Vet
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            {channelDescription[activeChannel]}
+          </p>
+        </div>
+      )}
+      {activeChannel === 'ai-coach' && (
+        <div className="px-4 py-1.5 border-b border-border/30 bg-muted/10 flex-shrink-0">
+          <p className="text-[11px] text-muted-foreground">
+            {channelDescription[activeChannel]}
+          </p>
+        </div>
+      )}
 
       {/* Pinned messages banner */}
       {(() => {
