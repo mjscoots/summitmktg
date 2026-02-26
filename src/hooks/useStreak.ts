@@ -27,6 +27,32 @@ export function useStreak() {
   const [pointsAwarded, setPointsAwarded] = useState(0);
   const hasRecordedRef = useRef(false);
 
+  // Always load existing streak data on mount
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadStreak = async () => {
+      try {
+        const { data: streakRow } = await supabase
+          .from('daily_login_streaks')
+          .select('current_streak, longest_streak, total_days_active, last_login_date')
+          .eq('user_id', user.id)
+          .single();
+
+        if (streakRow) {
+          setStreakData({
+            currentStreak: streakRow.current_streak,
+            longestStreak: streakRow.longest_streak,
+            lastLoginDate: streakRow.last_login_date,
+            totalDaysActive: streakRow.total_days_active,
+          });
+        }
+      } catch { /* no streak row yet */ }
+    };
+
+    loadStreak();
+  }, [user?.id]);
+
   // Record daily login via DB function
   useEffect(() => {
     if (!user?.id || hasRecordedRef.current) return;
@@ -34,7 +60,6 @@ export function useStreak() {
 
     const recordLogin = async () => {
       try {
-        // Record daily login
         const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
         const { data, error } = await supabase.rpc('record_daily_login', {
           _user_id: user.id,
@@ -54,7 +79,7 @@ export function useStreak() {
           already_recorded: boolean;
         };
 
-        // Fetch actual totalDaysActive from DB to avoid approximation
+        // Fetch actual totalDaysActive from DB
         let totalDaysActive = result.current_streak;
         try {
           const { data: streakRow } = await supabase
@@ -85,7 +110,6 @@ export function useStreak() {
               setNewMilestone(parseInt(milestoneMatch[1]));
             }
 
-            // Create in-app notification for streak milestones
             try {
               await supabase.from('user_notifications').insert({
                 user_id: user.id,
@@ -95,7 +119,6 @@ export function useStreak() {
               });
             } catch { /* ignore */ }
 
-            // Post bot shoutout in community chat for big streaks (7+)
             if (result.current_streak >= 7) {
               const { data: prof } = await supabase
                 .from('profiles')
