@@ -21,7 +21,7 @@ interface Stats {
 }
 
 export function CommandCenterHeader() {
-  const { profile } = useAuth();
+  const { profile, role } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     teamCompletion: 0,
@@ -31,6 +31,7 @@ export function CommandCenterHeader() {
   const [pendingPitches, setPendingPitches] = useState<PendingPitch[]>([]);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
+  const isOwner = role === 'owner';
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -161,14 +162,19 @@ export function CommandCenterHeader() {
     <div className="mb-6">
       {/* Hero */}
       <div className="relative h-24 rounded-xl overflow-hidden mb-4">
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-blue-950 to-primary/40" />
+        <div className={cn(
+          "absolute inset-0 bg-gradient-to-r",
+          isOwner
+            ? "from-slate-900 via-yellow-950/80 to-yellow-500/30"
+            : "from-slate-900 via-blue-950 to-primary/40"
+        )} />
         <div className="absolute inset-0 flex items-center px-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Welcome back, <span className="text-primary">{firstName}</span>
+              Welcome back, <span className={isOwner ? "text-yellow-400" : "text-primary"}>{firstName}</span>
             </h1>
             <p className="text-xs text-white/50 mt-1">
-              Lead with pressure. Train with purpose.
+              {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
             </p>
           </div>
         </div>
