@@ -9,7 +9,6 @@ import { AnnouncementsFeed } from '@/components/dashboard/AnnouncementsFeed';
 import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
-import { AICoachChat } from '@/components/dashboard/AICoachChat';
 import { RookieXPPanel } from '@/components/dashboard/RookieXPPanel';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { Bell, Calendar, GraduationCap, Trophy, Sparkles } from 'lucide-react';
@@ -20,7 +19,6 @@ export default function RookieDashboardPage() {
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   const navigate = useNavigate();
 
-  // Redirect managers to their dashboard (unless impersonating)
   useEffect(() => {
     if (!isLoading && !isImpersonating && (role === 'manager' || role === 'admin')) {
       navigate('/app/manager', { replace: true });
@@ -57,7 +55,7 @@ export default function RookieDashboardPage() {
             <RookieXPPanel />
           </div>
 
-          {/* TRAINING FIRST - Most Important Section */}
+          {/* TRAINING FIRST */}
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-5">
               <div className="p-2 bg-primary/15 rounded-lg">
@@ -73,7 +71,6 @@ export default function RookieDashboardPage() {
 
           {/* Top Row: Announcements + Weekly Calendar */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Announcements Panel */}
             <div className="bg-card rounded-xl border border-border p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Bell className="w-5 h-5 text-primary" />
@@ -81,8 +78,6 @@ export default function RookieDashboardPage() {
               </div>
               <AnnouncementsFeed />
             </div>
-
-            {/* Weekly Calendar */}
             <div className="bg-card rounded-xl border border-border p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="w-5 h-5 text-primary" />
@@ -102,9 +97,6 @@ export default function RookieDashboardPage() {
             <WeeklyLeaderboard />
           </div>
         </main>
-
-        {/* AI Coach Chat */}
-        <AICoachChat />
 
         {/* Streak Celebration Popup */}
         {showStreakCelebration && streakData.currentStreak > 0 && (
