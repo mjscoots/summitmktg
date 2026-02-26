@@ -25,67 +25,37 @@ export function QuizLeaderboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       try {
-        const { data: rookieRoles } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'rookie');
+        // Use server-side SECURITY DEFINER function — deterministic, no RLS filtering
+        const { data, error } = await supabase.rpc('get_quiz_leaderboard', { _limit: 20 });
 
-        if (!rookieRoles?.length) { setIsLoading(false); return; }
+        if (error) {
+          console.error('Quiz leaderboard RPC error:', error);
+          setEntries([]);
+          setIsLoading(false);
+          return;
+        }
 
-        const rookieIds = rookieRoles.map(r => r.user_id);
+        // Map server response — NO re-sorting, server order is authoritative
+        const leaderboard: QuizEntry[] = (data || []).map((row: any) => ({
+          user_id: row.user_id,
+          full_name: row.full_name,
+          nickname: row.nickname || null,
+          avatar_url: row.avatar_url,
+          avgScore: row.avg_score || 0,
+          quizzesPassed: row.quizzes_passed || 0,
+          totalAttempts: row.total_attempts || 0,
+        }));
 
-        const [profilesRes, progressRes] = await Promise.all([
-          supabase
-            .from('profiles')
-            .select('user_id, full_name, nickname, avatar_url')
-            .in('user_id', rookieIds)
-            .not('status', 'eq', 'nlc'),
-          supabase
-            .from('lesson_progress')
-            .select('user_id, quiz_score, quiz_passed, quiz_attempts')
-            .in('user_id', rookieIds)
-            .not('quiz_score', 'is', null),
-        ]);
-
-        const profiles = profilesRes.data || [];
-        const progress = progressRes.data || [];
-
-        const statsMap = new Map<string, { scores: number[]; passed: number; attempts: number }>();
-        progress.forEach(p => {
-          const existing = statsMap.get(p.user_id) || { scores: [], passed: 0, attempts: 0 };
-          if (p.quiz_score !== null) existing.scores.push(p.quiz_score);
-          if (p.quiz_passed) existing.passed++;
-          existing.attempts += p.quiz_attempts || 0;
-          statsMap.set(p.user_id, existing);
-        });
-
-        const leaderboard: QuizEntry[] = profiles
-          .map(p => {
-            const stats = statsMap.get(p.user_id);
-            if (!stats || stats.scores.length === 0) return null;
-            return {
-              user_id: p.user_id,
-              full_name: p.full_name,
-              nickname: (p as any).nickname || null,
-              avatar_url: p.avatar_url,
-              avgScore: Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length),
-              quizzesPassed: stats.passed,
-              totalAttempts: stats.attempts,
-            };
-          })
-          .filter(Boolean) as QuizEntry[];
-
-        leaderboard.sort((a, b) => b.avgScore - a.avgScore || b.quizzesPassed - a.quizzesPassed);
-        setEntries(leaderboard.slice(0, 20));
+        setEntries(leaderboard);
       } catch (err) {
         console.error('Error:', err);
       } finally {
         setIsLoading(false);
       }
     };
-    fetch();
+    fetchData();
   }, []);
 
   const getRankIcon = (rank: number) => {

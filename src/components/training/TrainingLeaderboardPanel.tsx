@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Trophy, Shield, Award, Star, Mountain } from 'lucide-react';
-import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 
 interface LeaderboardEntry {
   userId: string;
@@ -30,69 +29,30 @@ export function TrainingLeaderboardPanel() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Show all rookies regardless of viewer role
-
   useEffect(() => {
     const fetchLeaderboard = async () => {
       if (!user?.id) return;
 
       try {
-        // Get all rookie profiles for leaderboard (consistent with Training tab)
-        const { data: rookieRoles } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'rookie');
+        // Use server-side SECURITY DEFINER function — deterministic, bypasses RLS
+        const { data, error } = await supabase.rpc('get_training_leaderboard_panel', { _limit: 20 });
 
-        if (!rookieRoles || rookieRoles.length === 0) { setIsLoading(false); return; }
+        if (error) {
+          console.error('Training leaderboard panel RPC error:', error);
+          setIsLoading(false);
+          return;
+        }
 
-        const rookieIds = rookieRoles.map(r => r.user_id);
+        // Map server response — NO re-sorting, server order is authoritative
+        const leaderboard: LeaderboardEntry[] = (data || []).map((row: any) => ({
+          userId: row.user_id,
+          name: row.full_name,
+          nickname: row.nickname || null,
+          globalPercent: row.global_percent || 0,
+          completedCount: row.completed_count || 0,
+          badges: row.badges || [],
+        }));
 
-        const { data: allProfiles } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, nickname')
-          .in('user_id', rookieIds)
-          .not('status', 'eq', 'nlc');
-
-        const profiles = allProfiles || [];
-
-        if (profiles.length === 0) { setIsLoading(false); return; }
-
-        // Use shared canonical training item calculation (lessons + videos)
-        const trainingItems = await getReachableRookieTrainingItems();
-        const totalItems = trainingItems.totalCount;
-
-        const userIds = profiles.map(p => p.user_id);
-        
-        // Use shared completion counting (lessons + videos)
-        const completedCounts = await getCompletedTrainingCounts(userIds, trainingItems);
-
-        // Get all achievements
-        const { data: allAchievements } = await supabase
-          .from('user_training_achievements')
-          .select('user_id, badge_type')
-          .in('user_id', userIds);
-
-        // Build entries
-        const leaderboard: LeaderboardEntry[] = profiles.map(p => {
-          const totalDone = completedCounts.get(p.user_id) || 0;
-          const globalPercent = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
-
-          const badges = (allAchievements || [])
-            .filter(a => a.user_id === p.user_id && ['bronze', 'silver', 'gold', 'summit'].includes(a.badge_type))
-            .map(a => a.badge_type);
-
-          return {
-            userId: p.user_id,
-            name: p.full_name,
-            nickname: (p as any).nickname || null,
-            globalPercent,
-            completedCount: totalDone,
-            badges,
-          };
-        });
-
-        // Sort by completion % desc
-        leaderboard.sort((a, b) => b.globalPercent - a.globalPercent);
         setEntries(leaderboard);
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
