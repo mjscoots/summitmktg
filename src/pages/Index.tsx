@@ -139,10 +139,11 @@ const Index = () => {
                 <div className="flex items-center justify-center gap-2">
                   <User className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
                   <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors">
-                    Sign In / Sign Up
+                    Member Login
                   </span>
                 </div>
               </button>
+              <span className="text-xs text-muted-foreground font-medium">Sign In / Sign Up</span>
             </div>
           </div>
           
