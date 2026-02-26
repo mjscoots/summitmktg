@@ -93,8 +93,8 @@ export default function CalendarPage() {
   const [activeTab, setActiveTab] = useState<'calendar' | 'team_attendance'>('calendar');
   const [teamAttendanceData, setTeamAttendanceData] = useState<any[]>([]);
 
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   // Calendar grid
   const calendarDays = useMemo(() => {
@@ -454,7 +454,7 @@ export default function CalendarPage() {
                       onClick={() => handleDayClick(day)}
                       onDoubleClick={() => handleDayDoubleClick(day)}
                       className={cn(
-                        "min-h-[90px] p-1 border-b border-r border-border/30 cursor-pointer transition-colors group relative",
+                        "min-h-[100px] p-1.5 border-b border-r border-border/30 cursor-pointer transition-colors group relative",
                         !inMonth && "bg-muted/10",
                         inMonth && "hover:bg-primary/[0.03]",
                         isSelected && "bg-primary/5 ring-1 ring-inset ring-primary/20",
@@ -489,14 +489,14 @@ export default function CalendarPage() {
                               key={event.id}
                               onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
                               className={cn(
-                                "w-full text-left text-[10px] leading-tight font-medium px-1.5 py-[3px] rounded transition-all hover:brightness-110",
+                                "w-full text-left text-[10px] leading-snug font-medium px-1.5 py-[3px] rounded transition-all hover:brightness-110",
                                 color.bg, color.text
                               )}
                               title={event.title}
                             >
-                              <span className="flex items-center gap-1">
-                                <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", color.dot)} />
-                                <span className="truncate max-w-[calc(100%-12px)]">{event.title}</span>
+                              <span className="flex items-start gap-1">
+                                <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[3px]", color.dot)} />
+                                <span className="line-clamp-2 break-words">{event.title}</span>
                               </span>
                             </button>
                           );
