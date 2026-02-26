@@ -100,8 +100,9 @@ export default function AdminTeamPage() {
   const adminCounts = useAdminCounts();
   // Mark approvals as viewed on mount (default tab)
   useEffect(() => { adminCounts.markViewed('pendingApprovals'); }, []);
-  const isAdmin = role === 'admin';
-  const isSuperAdmin = profile?.email === SUPER_ADMIN_EMAIL;
+  const isOwner = role === 'owner';
+  const isAdmin = role === 'admin' || isOwner;
+  const isSuperAdmin = isOwner || profile?.email === SUPER_ADMIN_EMAIL;
   const [reps, setReps] = useState<RepRow[]>([]);
   const [pendingUsers, setPendingUsers] = useState<RepRow[]>([]);
   const [managers, setManagers] = useState<{ user_id: string; full_name: string }[]>([]);
@@ -537,6 +538,9 @@ export default function AdminTeamPage() {
             <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
             </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Users <span className="ml-1.5 text-[10px] text-muted-foreground">{reps.length}</span>
+            </TabsTrigger>
             <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Applications {adminCounts.pendingApplications > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
             </TabsTrigger>
@@ -546,23 +550,14 @@ export default function AdminTeamPage() {
             <TabsTrigger value="assignments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Assignments
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Users <span className="ml-1.5 text-[10px] text-muted-foreground">{reps.length}</span>
-            </TabsTrigger>
             <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Teams <span className="ml-1.5 text-[10px] text-muted-foreground">{teams.length}</span>
             </TabsTrigger>
             <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Summer Checklist <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="training-cms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Book className="w-3.5 h-3.5 mr-1" /> Training CMS
-            </TabsTrigger>
             <TabsTrigger value="roster" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster
-            </TabsTrigger>
-            <TabsTrigger value="feedback" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <MessageSquareText className="w-3.5 h-3.5 mr-1" /> Feedback {adminCounts.newFeedback > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.newFeedback}</span>}
             </TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
@@ -592,18 +587,8 @@ export default function AdminTeamPage() {
           </TabsContent>
 
           {/* ========== FEEDBACK TAB ========== */}
-          <TabsContent value="feedback">
-            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              <LazyFeedback />
-            </Suspense>
-          </TabsContent>
 
-          {/* ========== TRAINING CMS TAB ========== */}
-          <TabsContent value="training-cms" className="mt-0">
-            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              <LazyTrainingCMS embedded />
-            </Suspense>
-          </TabsContent>
+
 
           <TabsContent value="approvals">
             {loading ? (

@@ -23,7 +23,7 @@
    content: string;
    is_pinned: boolean;
    created_at: string;
-   target_role: 'rookie' | 'manager' | 'admin' | null;
+   target_role: 'rookie' | 'manager' | 'admin' | 'owner' | null;
    author_id: string | null;
    team_ids: string[] | null;
    author_name?: string;

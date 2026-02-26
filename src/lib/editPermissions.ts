@@ -46,12 +46,12 @@ export const BASIC_EDITABLE_FIELDS = [
 export function canEditMemberProfile(
   roster: TeamMember[],
   currentUserName: string,
-  currentUserRole: 'rookie' | 'manager' | 'admin' | undefined,
+  currentUserRole: 'rookie' | 'manager' | 'admin' | 'owner' | undefined,
   currentUserId: string,
   targetMember: TeamMember
 ): EditPermission {
   // Admins can edit anyone with full access including hierarchy
-  if (currentUserRole === 'admin') {
+  if (currentUserRole === 'admin' || currentUserRole === 'owner') {
     return {
       canEdit: true,
       canEditAll: true,

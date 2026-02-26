@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: 'rookie' | 'manager' | 'admin';
+  requiredRole?: 'rookie' | 'manager' | 'admin' | 'owner';
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
@@ -41,12 +41,17 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     );
   }
 
+  // Owner has all permissions
+  const isOwner = role === 'owner';
+  const isAdmin = role === 'admin' || isOwner;
+  const isManager = role === 'manager' || isAdmin;
+
   // Check required role (managers can access rookie content, but not vice versa)
-  if (requiredRole === 'manager' && role === 'rookie') {
+  if (requiredRole === 'manager' && !isManager) {
     return <Navigate to="/app" replace />;
   }
 
-  if (requiredRole === 'admin' && role !== 'admin') {
+  if (requiredRole === 'admin' && !isAdmin) {
     return <Navigate to="/app" replace />;
   }
 

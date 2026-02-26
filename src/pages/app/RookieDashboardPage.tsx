@@ -20,7 +20,7 @@ export default function RookieDashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !isImpersonating && (role === 'manager' || role === 'admin')) {
+    if (!isLoading && !isImpersonating && (role === 'manager' || role === 'admin' || role === 'owner')) {
       navigate('/app/manager', { replace: true });
     }
   }, [role, isLoading, isImpersonating, navigate]);
