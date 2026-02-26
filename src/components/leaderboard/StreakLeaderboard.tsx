@@ -29,57 +29,28 @@ export function StreakLeaderboard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Get all rookies and managers
-        const { data: userRoles } = await supabase
-          .from('user_roles')
-          .select('user_id, role')
-          .in('role', ['rookie', 'manager']);
+        // Use server-side SECURITY DEFINER function — deterministic, bypasses RLS
+        const { data, error } = await supabase.rpc('get_streak_leaderboard', { _limit: 20 });
 
-        if (!userRoles || userRoles.length === 0) {
+        if (error) {
+          console.error('Streak leaderboard RPC error:', error);
           setEntries([]);
           setIsLoading(false);
           return;
         }
 
-        const userIds = userRoles.map(r => r.user_id);
-        const roleMap = new Map(userRoles.map(r => [r.user_id, r.role]));
+        // Map server response — NO re-sorting, server order is authoritative
+        const leaderboard: StreakEntry[] = (data || []).map((row: any) => ({
+          user_id: row.user_id,
+          full_name: row.full_name,
+          nickname: row.nickname || null,
+          avatar_url: row.avatar_url,
+          streak: row.current_streak || 0,
+          longest_streak: row.longest_streak || 0,
+          total_days: row.total_days_active || 0,
+        }));
 
-        // Fetch streaks and profiles in parallel
-        const [streaksRes, profilesRes] = await Promise.all([
-          supabase
-            .from('daily_login_streaks')
-            .select('user_id, current_streak, longest_streak, total_days_active')
-            .in('user_id', userIds)
-            .gt('current_streak', 0),
-          supabase
-            .from('profiles')
-            .select('user_id, full_name, nickname, avatar_url')
-            .in('user_id', userIds)
-            .not('status', 'eq', 'nlc'),
-        ]);
-
-        const profileMap = new Map(
-          (profilesRes.data || []).map(p => [p.user_id, p])
-        );
-
-        const leaderboard: StreakEntry[] = (streaksRes.data || [])
-          .map(s => {
-            const profile = profileMap.get(s.user_id);
-            if (!profile) return null;
-            return {
-              user_id: s.user_id,
-              full_name: profile.full_name,
-              nickname: (profile as any).nickname || null,
-              avatar_url: profile.avatar_url,
-              streak: s.current_streak,
-              longest_streak: s.longest_streak,
-              total_days: s.total_days_active,
-            };
-          })
-          .filter(Boolean) as StreakEntry[];
-
-        leaderboard.sort((a, b) => b.streak - a.streak);
-        setEntries(leaderboard.slice(0, 20));
+        setEntries(leaderboard);
       } catch (err) {
         console.error('Error:', err);
       } finally {
