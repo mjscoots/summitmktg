@@ -2,17 +2,18 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
-import { Trophy, Flame, Swords } from 'lucide-react';
+import { Trophy, Flame, Swords, Calendar } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 
-type LeaderboardTab = 'training' | 'streak';
+type LeaderboardTab = 'overall' | 'weekly' | 'streak';
 
 export default function LeaderboardPage() {
-  const [activeTab, setActiveTab] = useState<LeaderboardTab>('training');
+  const [activeTab, setActiveTab] = useState<LeaderboardTab>('overall');
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
-    { id: 'training', label: 'Overall', icon: Trophy },
+    { id: 'overall', label: 'Overall', icon: Trophy },
+    { id: 'weekly', label: 'Weekly', icon: Calendar },
     { id: 'streak', label: 'Streak', icon: Flame },
   ];
 
@@ -29,7 +30,7 @@ export default function LeaderboardPage() {
           </div>
           <div>
             <h1 className="text-xl font-black text-foreground tracking-tight">LEADERBOARD</h1>
-            <p className="text-xs text-muted-foreground font-medium">This week · Dominate or be dominated</p>
+            <p className="text-xs text-muted-foreground font-medium">Dominate or be dominated</p>
           </div>
         </div>
 
@@ -62,7 +63,8 @@ export default function LeaderboardPage() {
 
         {/* Content */}
         <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
-          {activeTab === 'training' && <TrainingLeaderboard />}
+          {activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
+          {activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
           {activeTab === 'streak' && <StreakLeaderboard />}
         </div>
       </main>

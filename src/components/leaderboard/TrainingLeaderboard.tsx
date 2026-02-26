@@ -15,9 +15,13 @@ import {
 const POINTS = {
   LESSON_COMPLETED: 100,
   STREAK_DAY: 10,
-  HOUR_LOGGED: 5,
+  HOUR_LOGGED: 50, // Heavily weighted — primary factor
   QUIZ_SCORE_MULTIPLIER: 3,
 };
+
+interface TrainingLeaderboardProps {
+  mode?: 'overall' | 'weekly';
+}
 
 interface LeaderboardEntry {
   user_id: string;
@@ -53,7 +57,7 @@ const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: stri
   { id: 'fast-learner', icon: Zap, label: 'Fast Learner', color: 'text-amber-500', check: (e) => e.lessonsCompleted >= 10 },
 ];
 
-export function TrainingLeaderboard() {
+export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardProps) {
   const { user, role } = useAuth();
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const [viewRole, setViewRole] = useState<'rookie' | 'manager'>('rookie');
@@ -325,30 +329,7 @@ export function TrainingLeaderboard() {
         </div>
       )}
 
-      {/* Weekly Badges */}
-      {entries.some(e => e.weeklyBadge) && (
-        <div className="px-4 py-3 bg-muted/20 border-y border-border/30">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">This Week's Badges</p>
-          <div className="flex flex-wrap gap-2">
-            {entries.filter(e => e.weeklyBadge).map(entry => {
-              const badge = getBadgeInfo(entry.weeklyBadge);
-              if (!badge) return null;
-              const BadgeIcon = badge.icon;
-              return (
-                <div
-                  key={entry.user_id + badge.id}
-                  className="flex items-center gap-1.5 px-2.5 py-1 bg-card rounded-full border border-border/50 text-xs"
-                >
-                  <BadgeIcon className={cn('w-3.5 h-3.5', badge.color)} />
-                  <span className="font-medium text-foreground">{displayName(entry)}</span>
-                  <span className="text-muted-foreground">·</span>
-                  <span className={cn('font-semibold', badge.color)}>{badge.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Badges section removed for cleaner UI */}
 
       {/* Full Leaderboard List */}
       <div className="divide-y divide-border/30">
@@ -480,9 +461,9 @@ export function TrainingLeaderboard() {
               })()}
 
               {[
+                { icon: Clock, label: 'Time on App', detail: `${selectedEntry.hoursThisWeek} hrs × ${POINTS.HOUR_LOGGED}`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
                 { icon: BookOpen, label: 'Lessons Completed', detail: `${selectedEntry.lessonsCompleted} × ${POINTS.LESSON_COMPLETED}`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-success' },
                 { icon: Flame, label: 'Training Streak', detail: `${selectedEntry.streakDays} days × ${POINTS.STREAK_DAY}`, value: selectedEntry.breakdown.streakPoints, color: 'text-orange-500' },
-                { icon: Clock, label: 'Hours This Week', detail: `${selectedEntry.hoursThisWeek} hrs × ${POINTS.HOUR_LOGGED}`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
                 { icon: Target, label: 'Avg Quiz Score', detail: `${selectedEntry.avgQuizScore}% × ${POINTS.QUIZ_SCORE_MULTIPLIER}`, value: selectedEntry.breakdown.quizPoints, color: 'text-purple-500' },
               ].map(({ icon: Icon, label, detail, value, color }) => (
                 <div key={label} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
