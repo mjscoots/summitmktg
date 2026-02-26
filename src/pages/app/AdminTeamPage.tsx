@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 const LazyAssignments = lazy(() => import('@/components/admin/AssignmentsTab'));
@@ -19,6 +19,7 @@ const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').the
 const LazyRosterSync = lazy(() => import('@/components/admin/RosterSyncTab'));
 const LazyMassImport = lazy(() => import('@/components/admin/MassImportTab'));
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
+const LazySubmittedVideos = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -556,6 +557,9 @@ export default function AdminTeamPage() {
             <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Summer Checklist <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
             </TabsTrigger>
+            <TabsTrigger value="submitted-videos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Video className="w-3.5 h-3.5 mr-1" /> Videos
+            </TabsTrigger>
             <TabsTrigger value="roster" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster
             </TabsTrigger>
@@ -783,6 +787,13 @@ export default function AdminTeamPage() {
                 </tbody>
               </table>
             </div>
+          </TabsContent>
+
+          {/* ========== SUBMITTED VIDEOS TAB ========== */}
+          <TabsContent value="submitted-videos">
+            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazySubmittedVideos />
+            </Suspense>
           </TabsContent>
 
           {/* ========== BOOTCAMP RESPONSES TAB ========== */}
