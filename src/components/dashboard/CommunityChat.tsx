@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3, Crown } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Sticker, Image, Pin, PinOff, BarChart3, Crown, Plus, MessageSquarePlus } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
 import { TierBadge } from '@/components/shared/TierBadge';
@@ -69,14 +69,18 @@ interface CommunityChatProps {
   onNewMessage?: () => void;
 }
 
-const CHANNELS = [
-  { id: 'general', label: 'Feed', icon: Hash, color: 'text-muted-foreground' },
-  { id: 'announcements', label: 'Announcements', icon: Megaphone, color: 'text-amber-500' },
-  { id: 'feedback', label: 'Ideas', icon: Lightbulb, color: 'text-emerald-500' },
-  { id: 'ai-coach', label: 'AI Coach', icon: Sparkles, color: 'text-primary' },
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  Hash, Megaphone, Lightbulb, Sparkles, MessageSquarePlus,
+};
+
+const DEFAULT_CHANNELS = [
+  { id: 'general', label: 'Feed', icon: 'Hash', color: 'text-muted-foreground' },
+  { id: 'announcements', label: 'Announcements', icon: 'Megaphone', color: 'text-amber-500' },
+  { id: 'feedback', label: 'Ideas', icon: 'Lightbulb', color: 'text-emerald-500' },
+  { id: 'ai-coach', label: 'AI Coach', icon: 'Sparkles', color: 'text-primary' },
 ] as const;
 
-type ChannelId = typeof CHANNELS[number]['id'];
+type ChannelId = string;
 type RoomType = 'rookie' | 'vet';
 
 function DateSeparator({ date }: { date: Date }) {
@@ -107,6 +111,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [activeChannel, setActiveChannel] = useState<ChannelId>('general');
   const [activeRoom, setActiveRoom] = useState<RoomType>('rookie');
   const inputRef = useRef<HTMLInputElement>(null);
+  const [channels, setChannels] = useState<Array<{ id: string; label: string; icon: string; color: string }>>([...DEFAULT_CHANNELS]);
+  const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [newChannelName, setNewChannelName] = useState('');
+  const [creatingChannel, setCreatingChannel] = useState(false);
 
   // Effective channel combines tab + room (ai-coach has no room split)
   const effectiveChannel = activeChannel === 'ai-coach' ? 'ai-coach' : (activeRoom === 'vet' ? `${activeChannel}:vet` : activeChannel);
@@ -127,6 +135,45 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
   const isManager = role === 'manager' || role === 'admin';
   const isAdmin = role === 'admin';
+
+  // Load channels from DB
+  useEffect(() => {
+    const fetchChannels = async () => {
+      const { data } = await supabase
+        .from('chat_channels')
+        .select('slug, label, icon, color, display_order')
+        .eq('is_active', true)
+        .order('display_order');
+      if (data && data.length > 0) {
+        setChannels(data.map(ch => ({ id: ch.slug, label: ch.label, icon: ch.icon, color: ch.color })));
+      }
+    };
+    fetchChannels();
+  }, []);
+
+  const handleCreateChannel = async () => {
+    if (!newChannelName.trim() || creatingChannel) return;
+    setCreatingChannel(true);
+    const slug = newChannelName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const { error } = await supabase.from('chat_channels').insert({
+      slug,
+      label: newChannelName.trim(),
+      icon: 'Hash',
+      color: 'text-muted-foreground',
+      created_by: user?.id,
+      display_order: channels.length + 1,
+    });
+    if (error) {
+      toast.error(error.message.includes('duplicate') ? 'Channel already exists' : 'Failed to create channel');
+    } else {
+      setChannels(prev => [...prev, { id: slug, label: newChannelName.trim(), icon: 'Hash', color: 'text-muted-foreground' }]);
+      setActiveChannel(slug);
+      setNewChannelName('');
+      setShowCreateChannel(false);
+      toast.success('Channel created!');
+    }
+    setCreatingChannel(false);
+  };
 
   // Keep ref in sync for use in realtime callback
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
@@ -608,21 +655,22 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return null;
   };
 
-  const activeChannelConfig = CHANNELS.find(c => c.id === activeChannel)!;
+  const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
   const canPostInChannel = activeChannel !== 'announcements' || isManager;
-  const channelDescription: Record<ChannelId, string> = {
+  const defaultDescriptions: Record<string, string> = {
     general: 'Share wins, ask questions, hype each other up 🔥',
     announcements: isManager ? 'Post updates for the team' : 'Updates from leadership',
     feedback: 'Share ideas & feature requests 💡',
     'ai-coach': 'Your personal sales coach — ask anything',
   };
+  const channelDescription = (chId: string) => defaultDescriptions[chId] || `#${activeChannelConfig.label}`;
 
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--card))] rounded-xl overflow-hidden border border-border/30">
       {/* Channel tabs */}
-      <div className="flex items-center gap-0.5 px-2 pt-2 pb-0 border-b border-border/50 bg-[hsl(var(--card))] flex-shrink-0 overflow-x-auto">
-        {CHANNELS.map(ch => {
-          const Icon = ch.icon;
+      <div className="flex items-center flex-wrap gap-0.5 px-2 pt-2 pb-0 border-b border-border/50 bg-[hsl(var(--card))] flex-shrink-0">
+        {channels.map(ch => {
+          const Icon = ICON_MAP[ch.icon] || Hash;
           const isActive = activeChannel === ch.id;
           const hasUnread = unreadChannels.has(ch.id);
           return (
@@ -644,7 +692,51 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             </button>
           );
         })}
+        {/* Admin: Create Channel Button */}
+        {isAdmin && (
+          <button
+            onClick={() => setShowCreateChannel(!showCreateChannel)}
+            className={cn(
+              "flex items-center gap-1 px-2 py-2 text-xs font-medium rounded-t-lg transition-all whitespace-nowrap",
+              showCreateChannel
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40"
+            )}
+            title="Create new channel"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
+
+      {/* Create Channel Inline Form */}
+      {showCreateChannel && isAdmin && (
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 bg-muted/20 flex-shrink-0">
+          <Hash className="w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={newChannelName}
+            onChange={e => setNewChannelName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleCreateChannel()}
+            placeholder="Channel name..."
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+            autoFocus
+          />
+          <button
+            onClick={handleCreateChannel}
+            disabled={!newChannelName.trim() || creatingChannel}
+            className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
+          >
+            {creatingChannel ? 'Creating...' : 'Create'}
+          </button>
+          <button
+            onClick={() => { setShowCreateChannel(false); setNewChannelName(''); }}
+            className="p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Rookie / Vet toggle + description */}
       {activeChannel !== 'ai-coach' && (
@@ -674,14 +766,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             </button>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            {channelDescription[activeChannel]}
+            {channelDescription(activeChannel)}
           </p>
         </div>
       )}
       {activeChannel === 'ai-coach' && (
         <div className="px-4 py-1.5 border-b border-border/30 bg-muted/10 flex-shrink-0">
           <p className="text-[11px] text-muted-foreground">
-            {channelDescription[activeChannel]}
+            {channelDescription(activeChannel)}
           </p>
         </div>
       )}
@@ -725,7 +817,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-              <activeChannelConfig.icon className={cn("w-8 h-8", activeChannelConfig.color)} />
+              {(() => { const Icon = ICON_MAP[activeChannelConfig.icon] || Hash; return <Icon className={cn("w-8 h-8", activeChannelConfig.color)} />; })()}
             </div>
             <h3 className="text-xl font-bold text-foreground mb-1">
               Welcome to #{activeChannelConfig.label}!

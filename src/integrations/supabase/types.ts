@@ -510,6 +510,42 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_channels: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          icon: string
+          id: string
+          is_active: boolean
+          label: string
+          slug: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          slug: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           channel: string
