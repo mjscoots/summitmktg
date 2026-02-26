@@ -2381,6 +2381,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_quiz_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          avatar_url: string
+          avg_score: number
+          full_name: string
+          nickname: string
+          quizzes_passed: number
+          total_attempts: number
+          user_id: string
+        }[]
+      }
       get_quiz_questions: {
         Args: { _lesson_id: string }
         Returns: {
@@ -2390,6 +2402,18 @@ export type Database = {
           options: Json
           question_text: string
           question_type: string
+        }[]
+      }
+      get_training_leaderboard_panel: {
+        Args: { _limit?: number }
+        Returns: {
+          badges: string[]
+          completed_count: number
+          full_name: string
+          global_percent: number
+          nickname: string
+          total_count: number
+          user_id: string
         }[]
       }
       get_user_downline: {
