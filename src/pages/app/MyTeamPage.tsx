@@ -63,7 +63,7 @@ export default function MyTeamPage() {
   const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
 
   const isAdmin = role === 'admin';
-  const isManagerRole = role === 'manager' || role === 'admin';
+  const isManagerRole = role === 'manager' || role === 'admin' || role === 'owner';
 
   // Listen for manager notifications (real-time toasts)
   useManagerNotifications();

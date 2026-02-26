@@ -48,7 +48,7 @@ export function usePersonalTrainingProgress() {
     }
 
     try {
-      const isManagerRole = role === 'manager' || role === 'admin';
+      const isManagerRole = role === 'manager' || role === 'admin' || role === 'owner';
 
       // Fetch courses, lesson progress, required videos, and video progress in parallel
       const [coursesRes, lessonProgressRes, requiredVideosRes, videoProgressRes] = await Promise.all([
