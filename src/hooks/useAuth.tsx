@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, useRef, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
@@ -47,23 +47,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<UserRole>('rookie');
   const [isLoading, setIsLoading] = useState(true);
+  const isLoadingRef = useRef(true);
+  const hasActiveSessionRef = useRef(false);
+
+  const ROLE_PRIORITY: UserRole[] = ['rookie', 'manager', 'admin', 'owner'];
+
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   const fetchUserRole = async (userId: string): Promise<UserRole> => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userId)
-        .order('role')
-        .limit(1)
-        .maybeSingle();
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Error fetching role:', error);
         return 'rookie';
       }
 
-      return (data?.role as UserRole) || 'rookie';
+      const roles = (data ?? []).map((r) => r.role as UserRole);
+      if (!roles.length) return 'rookie';
+
+      return roles.sort((a, b) => ROLE_PRIORITY.indexOf(b) - ROLE_PRIORITY.indexOf(a))[0] ?? 'rookie';
     } catch (err) {
       console.error('Error in fetchUserRole:', err);
       return 'rookie';
@@ -103,9 +111,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
     let initialLoadDone = false;
 
-    // Safety timeout: never stay in loading state forever (prevents black screen on mobile)
+    // Safety timeout: only unblock loading if no active session has been detected
+    // (prevents auth deadlock while avoiding premature rookie-role fallback)
     const loadingTimeout = setTimeout(() => {
-      if (mounted && isLoading) {
+      if (mounted && isLoadingRef.current && !hasActiveSessionRef.current) {
         console.warn('Auth loading timeout - forcing isLoading to false');
         setIsLoading(false);
       }
@@ -134,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
+        hasActiveSessionRef.current = !!session;
 
         if (session?.user) {
           // Skip if getSession already handled the initial load
@@ -154,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       initialLoadDone = true;
       setSession(session);
       setUser(session?.user ?? null);
+      hasActiveSessionRef.current = !!session;
 
       if (session?.user) {
         loadUserData(session.user.id);
@@ -205,6 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    hasActiveSessionRef.current = false;
     setUser(null);
     setSession(null);
     setProfile(null);
