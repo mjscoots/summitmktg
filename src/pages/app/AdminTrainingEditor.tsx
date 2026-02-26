@@ -96,7 +96,7 @@ export function TrainingCMSContent({ embedded = false }: { embedded?: boolean })
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   useEffect(() => {
     if (!isAdmin && !embedded) {
@@ -644,7 +644,7 @@ export function TrainingCMSContent({ embedded = false }: { embedded?: boolean })
 export default function AdminTrainingEditor() {
   const navigate = useNavigate();
   const { role } = useAuth();
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   if (!isAdmin) {
     return null;

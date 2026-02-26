@@ -28,7 +28,7 @@ export function useTeamScripts(moduleKey: string) {
   const [error, setError] = useState<string | null>(null);
 
   const userTeamId = profile?.team_id || null;
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   // Check if user is a pillar owner
   const isPillarOwner = (teamId: string) => {

@@ -25,8 +25,8 @@ export function BootcampStragglers() {
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   useEffect(() => {
     if (!isManager || !user?.id) return;

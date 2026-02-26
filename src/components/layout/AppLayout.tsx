@@ -18,7 +18,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   useSmartNotifications();
 
   return (

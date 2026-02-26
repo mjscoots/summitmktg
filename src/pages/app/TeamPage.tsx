@@ -156,8 +156,8 @@ export default function TeamPage() {
     open: false, member: null
   });
 
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   // Training progress for all members
   const memberUserIds = useMemo(() => allMembers.map(m => m.user_id), [allMembers]);

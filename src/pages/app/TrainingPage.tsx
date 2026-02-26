@@ -23,7 +23,7 @@ export default function TrainingPage() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [managerManualComplete, setManagerManualComplete] = useState(false);
   
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   useEffect(() => {
     const checkProgress = async () => {

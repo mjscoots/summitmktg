@@ -59,8 +59,8 @@ export default function TrainingCoursePage() {
   const [editContent, setEditContent] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
-  const isAdmin = role === 'admin';
-  const isManager = role === 'manager' || role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isRookieCourse = course ? (ROOKIE_COURSES.includes(course.slug) || course.target_role === null) : true;
   const accentColor = isRookieCourse ? 'green' : 'blue';
 

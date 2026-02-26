@@ -23,7 +23,7 @@ export function EditableVideoField({
   className = ''
 }: EditableVideoFieldProps) {
   const { role, user } = useAuth();
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
   
   const [isEditing, setIsEditing] = useState(false);
   const [editedUrl, setEditedUrl] = useState(initialUrl);

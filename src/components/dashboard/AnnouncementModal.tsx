@@ -39,7 +39,7 @@ export function AnnouncementModal({ isOpen, onClose, onSuccess }: AnnouncementMo
   const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   useEffect(() => {
     const fetchTeams = async () => {

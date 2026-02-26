@@ -53,7 +53,7 @@
    const [url, setUrl] = useState('');
    const [description, setDescription] = useState('');
  
-   const isAdmin = role === 'admin';
+   const isAdmin = role === 'admin' || role === 'owner';
    const canEdit = isPillar || isAdmin;
  
    useEffect(() => {
