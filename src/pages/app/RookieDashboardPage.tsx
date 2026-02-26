@@ -11,6 +11,7 @@ import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
 import { RookieXPPanel } from '@/components/dashboard/RookieXPPanel';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
+import { StreakDisplay } from '@/components/training/StreakDisplay';
 import { Bell, Calendar, GraduationCap, Trophy, Sparkles } from 'lucide-react';
 
 export default function RookieDashboardPage() {
@@ -53,6 +54,9 @@ export default function RookieDashboardPage() {
               Earn XP by completing lessons, passing quizzes, and keeping your streak alive.
             </p>
             <RookieXPPanel />
+            <div className="mt-4 max-w-sm">
+              <StreakDisplay variant="compact" clickable />
+            </div>
           </div>
 
           {/* TRAINING FIRST */}
