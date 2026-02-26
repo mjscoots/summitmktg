@@ -77,7 +77,7 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
 const DEFAULT_CHANNELS = [
   { id: 'general', label: 'Feed', icon: 'Hash', color: 'text-muted-foreground' },
   { id: 'announcements', label: 'Announcements', icon: 'Megaphone', color: 'text-amber-500' },
-  { id: 'feedback', label: 'Ideas', icon: 'Lightbulb', color: 'text-emerald-500' },
+  { id: 'feedback', label: 'Feedback', icon: 'Lightbulb', color: 'text-emerald-500' },
   { id: 'ai-coach', label: 'AI Coach', icon: 'Sparkles', color: 'text-primary' },
 ] as const;
 
@@ -125,6 +125,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [newChannelName, setNewChannelName] = useState('');
   const [creatingChannel, setCreatingChannel] = useState(false);
+  const [editingChannelId, setEditingChannelId] = useState<string | null>(null);
+  const [editChannelLabel, setEditChannelLabel] = useState('');
 
   const effectiveChannel = activeChannel === 'ai-coach' ? 'ai-coach' : (activeRoom === 'vet' ? `${activeChannel}:vet` : activeChannel);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -140,8 +142,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner';
+  const isOwner = role === 'owner';
 
   // Load channels from DB
   useEffect(() => {
@@ -180,6 +183,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       toast.success('Channel created!');
     }
     setCreatingChannel(false);
+  };
+
+  const handleRenameChannel = async (slug: string) => {
+    if (!editChannelLabel.trim()) { setEditingChannelId(null); return; }
+    const { error } = await supabase.from('chat_channels').update({ label: editChannelLabel.trim() }).eq('slug', slug);
+    if (error) { toast.error('Failed to rename channel'); return; }
+    setChannels(prev => prev.map(ch => ch.id === slug ? { ...ch, label: editChannelLabel.trim() } : ch));
+    setEditingChannelId(null);
+    toast.success('Channel renamed');
   };
 
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
@@ -393,7 +405,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   return (
     <div className="h-full flex flex-col bg-black rounded-xl overflow-hidden border border-white/[0.06]">
       {/* Channel tabs — minimal top bar */}
-      <div className="flex items-center flex-wrap gap-0.5 px-3 pt-2 pb-0 border-b border-white/[0.06] bg-black flex-shrink-0">
+      <div className="flex items-center flex-wrap gap-0.5 px-3 pt-2 pb-0 border-b border-white/[0.06] bg-black flex-shrink-0 sticky top-0 z-20">
         {channels.map(ch => {
           const Icon = ICON_MAP[ch.icon] || Hash;
           const isActive = activeChannel === ch.id;
@@ -402,6 +414,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             <button
               key={ch.id}
               onClick={() => switchChannel(ch.id)}
+              onDoubleClick={() => { if (isOwner) { setEditingChannelId(ch.id); setEditChannelLabel(ch.label); } }}
               className={cn(
                 "relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-all whitespace-nowrap",
                 isActive
@@ -410,7 +423,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               )}
             >
               <Icon className={cn("w-3.5 h-3.5", isActive ? ch.color : "")} />
-              {ch.label}
+              {editingChannelId === ch.id ? (
+                <input
+                  type="text"
+                  value={editChannelLabel}
+                  onChange={e => setEditChannelLabel(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleRenameChannel(ch.id); if (e.key === 'Escape') setEditingChannelId(null); }}
+                  onBlur={() => handleRenameChannel(ch.id)}
+                  className="bg-transparent text-white text-xs w-20 focus:outline-none border-b border-primary/50"
+                  autoFocus
+                  onClick={e => e.stopPropagation()}
+                />
+              ) : ch.label}
               {hasUnread && !isActive && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
               )}
@@ -581,9 +605,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         </div>
                       </div>
                     ) : isStickerMessage(msg.content) ? (
-                      (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className="w-32 h-32 object-contain rounded-lg" /> : <p className="text-sm text-white/50">[Unknown sticker]</p>; })()
+                      (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className={cn("w-32 h-32 object-contain rounded-lg", own && "ml-auto")} /> : <p className="text-sm text-white/50">[Unknown sticker]</p>; })()
                     ) : isGifMessage(msg.content) ? (
-                      (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className="max-w-[280px] rounded-lg" loading="lazy" /> : <p className="text-sm text-white/50">[GIF unavailable]</p>; })()
+                      (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className={cn("max-w-[280px] rounded-lg", own && "ml-auto")} loading="lazy" /> : <p className="text-sm text-white/50">[GIF unavailable]</p>; })()
                     ) : isImageMessage(msg.content) ? (
                       <ChatImage url={getImageUrl(msg.content)} />
                     ) : isFileMessage(msg.content) ? (
@@ -667,6 +691,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             {activeChannel !== 'ai-coach' && (
               <>
                 <ChatImageUpload onSend={handleSendFile} />
+                <button
+                  onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
+                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-white/20 hover:text-white/40")}
+                  title="GIFs"
+                >
+                  <Image className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
                   className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-white/20 hover:text-white/40")}
