@@ -50,6 +50,7 @@ export default function TrainingCoursePage() {
   const [modules, setModules] = useState<Module[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [overallProgress, setOverallProgress] = useState(0);
+  const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
 
   // Admin quick-edit state
   const [editingLesson, setEditingLesson] = useState<{ id: string; title: string; content: string; video_url: string } | null>(null);
@@ -155,6 +156,17 @@ export default function TrainingCoursePage() {
         });
 
         setModules(modulesWithLessons);
+
+        // Auto-expand the current (first incomplete, unlocked) module
+        for (let i = 0; i < modulesWithLessons.length; i++) {
+          const m = modulesWithLessons[i];
+          const mComplete = m.lessons.every(l => l.quiz_passed);
+          const prevIncomplete = i > 0 && modulesWithLessons[i - 1].lessons.some(l => !l.quiz_passed);
+          if (!mComplete && !prevIncomplete) {
+            setExpandedModuleId(m.id);
+            break;
+          }
+        }
 
         const totalLessons = modulesWithLessons.reduce((sum, m) => sum + m.lessons.length, 0);
         const completedLessons = modulesWithLessons.reduce(
@@ -314,10 +326,13 @@ export default function TrainingCoursePage() {
               ? module.lessons.find(l => !l.quiz_passed)?.id || module.lessons[0]?.id
               : null;
 
+            const isExpanded = expandedModuleId === module.id;
+
             const handleModuleClick = (e: React.MouseEvent) => {
               e.stopPropagation();
-              if (isModuleLocked || !firstIncompleteLessonId) return;
-              navigate(`/app/training/${courseSlug}/${firstIncompleteLessonId}`);
+              if (isModuleLocked) return;
+              // Toggle accordion
+              setExpandedModuleId(isExpanded ? null : module.id);
             };
 
             return (
@@ -342,7 +357,8 @@ export default function TrainingCoursePage() {
                 <div 
                   onClick={handleModuleClick}
                   className={cn(
-                    "p-4 border-b border-border transition-colors",
+                    "p-4 transition-colors",
+                    isExpanded && "border-b border-border",
                     isCurrentModule && "bg-muted/30",
                     !isModuleLocked && "cursor-pointer hover:bg-muted/40"
                   )}
@@ -381,7 +397,8 @@ export default function TrainingCoursePage() {
                       {isModuleLocked && <Lock className="w-4 h-4 text-muted-foreground" />}
                       {!isModuleLocked && (
                         <ChevronRight className={cn(
-                          "w-4 h-4 transition-transform",
+                          "w-4 h-4 transition-transform duration-200",
+                          isExpanded && "rotate-90",
                           isCurrentModule 
                             ? isRookieCourse ? "text-green-400" : "text-blue-400"
                             : "text-muted-foreground"
@@ -394,7 +411,8 @@ export default function TrainingCoursePage() {
                   )}
                 </div>
 
-                {/* Lessons */}
+                {/* Lessons - Accordion */}
+                {isExpanded && !isModuleLocked && (
                 <div className="divide-y divide-border">
                   {module.lessons.map((lesson, lessonIndex) => {
                     const isLessonLocked = isModuleLocked || 
@@ -495,6 +513,7 @@ export default function TrainingCoursePage() {
                     );
                   })}
                 </div>
+                )}
               </div>
             );
           })}

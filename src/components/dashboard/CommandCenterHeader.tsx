@@ -1,4 +1,4 @@
-import { Users, UserCheck, GraduationCap, TrendingUp, Ghost, AlertTriangle, Mic, Clock } from 'lucide-react';
+import { GraduationCap, AlertTriangle, Clock, Mic } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,10 +17,7 @@ interface PendingPitch {
 
 interface Stats {
   teamCompletion: number;
-  bootcampIncomplete: number;
-  ghostMode: number;
-  topPerformers: { name: string; progress: number }[];
-  needsAttention: { name: string; progress: number }[];
+  checklistIncomplete: number;
 }
 
 export function CommandCenterHeader() {
@@ -28,10 +25,7 @@ export function CommandCenterHeader() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     teamCompletion: 0,
-    bootcampIncomplete: 0,
-    ghostMode: 0,
-    topPerformers: [],
-    needsAttention: [],
+    checklistIncomplete: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPitches, setPendingPitches] = useState<PendingPitch[]>([]);
@@ -54,33 +48,19 @@ export function CommandCenterHeader() {
           }
         });
 
-        // Bootcamp incomplete
-        let bootcampIncomplete = 0;
+        // Summer Checklist incomplete
+        let checklistIncomplete = 0;
         if (rookieUserIds.length > 0) {
           const { count } = await supabase
             .from('bootcamp_progress')
             .select('*', { count: 'exact', head: true })
             .in('user_id', rookieUserIds)
             .eq('bootcamp_completed', false);
-          bootcampIncomplete = count || 0;
+          checklistIncomplete = count || 0;
         }
 
-        // Ghost mode (3+ days inactive)
-        let ghostMode = 0;
-        if (rookieUserIds.length > 0) {
-          const threeDaysAgo = new Date();
-          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-          const { count } = await supabase
-            .from('profiles')
-            .select('*', { count: 'exact', head: true })
-            .in('user_id', rookieUserIds)
-            .lt('last_active_at', threeDaysAgo.toISOString());
-          ghostMode = count || 0;
-        }
-
-        // Training progress
+        // Training progress — average across ALL active reps
         let avgProgress = 0;
-        const memberProgress: { name: string; progress: number }[] = [];
 
         if (rookieUserIds.length > 0) {
           const { data: courses } = await supabase
@@ -90,7 +70,7 @@ export function CommandCenterHeader() {
 
           const reachableLessonIds = new Set<string>();
           (courses || []).forEach((course: any) => {
-            if (course.target_role !== null && course.target_role !== 'rookie') return;
+            // Include all courses (rookie + manager training)
             course.training_modules?.forEach((mod: any) => {
               mod.training_lessons?.forEach((lesson: any) => {
                 if (lesson.is_active !== false) reachableLessonIds.add(lesson.id);
@@ -118,25 +98,14 @@ export function CommandCenterHeader() {
               const completed = completionMap.get(uid) || 0;
               const pct = Math.round((completed / totalLessons) * 100);
               totalProgress += pct;
-              const member = members.find((m: any) => m.user_id === uid);
-              if (member) {
-                memberProgress.push({ name: member.full_name, progress: pct });
-              }
             });
             avgProgress = rookieUserIds.length > 0 ? Math.round(totalProgress / rookieUserIds.length) : 0;
           }
         }
 
-        const sorted = [...memberProgress].sort((a, b) => b.progress - a.progress);
-        const topPerformers = sorted.slice(0, 5).map(m => ({ name: m.name, progress: m.progress }));
-        const needsAttention = sorted.filter(m => m.progress < 50).sort((a, b) => a.progress - b.progress).slice(0, 5).map(m => ({ name: m.name, progress: m.progress }));
-
         setStats({
           teamCompletion: avgProgress,
-          bootcampIncomplete,
-          ghostMode,
-          topPerformers,
-          needsAttention,
+          checklistIncomplete,
         });
       } catch (err) {
         console.error('Error fetching stats:', err);
@@ -205,15 +174,15 @@ export function CommandCenterHeader() {
         </div>
       </div>
 
-      {/* 3 KPI Strip */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      {/* 2 KPI Strip */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <button
           onClick={() => navigate('/app/team')}
           className="bg-card rounded-xl border border-border/60 p-4 text-left hover:border-primary/40 transition-colors group"
         >
           <div className="flex items-center gap-2 mb-1">
             <GraduationCap className="w-4 h-4 text-primary/60" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Team Completion</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Team Training Completion</span>
           </div>
           <span className={cn(
             "text-2xl font-black tabular-nums",
@@ -221,6 +190,7 @@ export function CommandCenterHeader() {
           )}>
             {isLoading ? '—' : `${stats.teamCompletion}%`}
           </span>
+          <p className="text-[10px] text-muted-foreground mt-0.5">All Summit Training Progress</p>
         </button>
 
         <button
@@ -229,67 +199,20 @@ export function CommandCenterHeader() {
         >
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="w-4 h-4 text-destructive/60" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Bootcamp Incomplete</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Summer Checklist Incomplete</span>
           </div>
           <span className={cn(
             "text-2xl font-black tabular-nums",
-            stats.bootcampIncomplete > 0 ? "text-destructive" : "text-success"
+            stats.checklistIncomplete > 0 ? "text-destructive" : "text-success"
           )}>
-            {isLoading ? '—' : stats.bootcampIncomplete}
+            {isLoading ? '—' : stats.checklistIncomplete}
           </span>
         </button>
-
-        <button
-          onClick={() => navigate('/app/team')}
-          className="bg-card rounded-xl border border-border/60 p-4 text-left hover:border-yellow-500/40 transition-colors"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <Ghost className="w-4 h-4 text-yellow-500/60" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ghost Mode (3d+)</span>
-          </div>
-          <span className={cn(
-            "text-2xl font-black tabular-nums",
-            stats.ghostMode > 0 ? "text-yellow-400" : "text-success"
-          )}>
-            {isLoading ? '—' : stats.ghostMode}
-          </span>
-        </button>
-      </div>
-
-      {/* Action Center + Top/Bottom 5 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Top 5 */}
-        {!isLoading && stats.topPerformers.length > 0 && (
-          <div className="bg-card rounded-lg border border-border/40 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-success mb-2">🏆 Top 5</p>
-            <div className="space-y-1.5">
-              {stats.topPerformers.map((p, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <span className="text-foreground font-medium truncate">{p.name}</span>
-                  <span className="text-success font-bold">{p.progress}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {!isLoading && stats.needsAttention.length > 0 && (
-          <div className="bg-card rounded-lg border border-destructive/20 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">⚠️ Bottom 5</p>
-            <div className="space-y-1.5">
-              {stats.needsAttention.map((p, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <span className="text-foreground font-medium truncate">{p.name}</span>
-                  <span className="text-destructive font-bold">{p.progress}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Pending Pitch Approvals */}
       {pendingPitches.length > 0 && (
-        <div className="bg-card rounded-lg border border-border/40 p-3 mt-3">
+        <div className="bg-card rounded-lg border border-border/40 p-3">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-primary" />
