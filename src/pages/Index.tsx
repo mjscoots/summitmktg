@@ -117,30 +117,33 @@ const Index = () => {
           {/* Dual CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {/* Recruiting CTA */}
-            <button
-              onClick={() => navigate("/recruiting")}
-              className="flex-1 group bg-primary py-4 px-6 text-center transition-all duration-300 rounded-xl hover:scale-[1.02] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] cursor-pointer">
-
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-base font-bold text-primary-foreground uppercase tracking-wide">
-                  Learn More
-                </span>
-                <ArrowRight className="w-4 h-4 text-primary-foreground" />
-              </div>
-            </button>
+            <div className="flex-1 flex flex-col items-center gap-2">
+              <button
+                onClick={() => navigate("/recruiting")}
+                className="w-full group bg-primary py-4 px-6 text-center transition-all duration-300 rounded-xl hover:scale-[1.02] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] cursor-pointer">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-base font-bold text-primary-foreground uppercase tracking-wide">
+                    Learn More
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-primary-foreground" />
+                </div>
+              </button>
+              <span className="text-xs text-muted-foreground font-medium">New to Summit?</span>
+            </div>
             
             {/* Member Login CTA */}
-            <button
-              onClick={() => navigate("/login")}
-              className="flex-1 group bg-primary/10 backdrop-blur-sm py-4 px-6 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] cursor-pointer">
-
-              <div className="flex items-center justify-center gap-2">
-                <User className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
-                <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors">
-                  Member Login
-                </span>
-              </div>
-            </button>
+            <div className="flex-1 flex flex-col items-center gap-2">
+              <button
+                onClick={() => navigate("/login")}
+                className="w-full group bg-primary/10 backdrop-blur-sm py-4 px-6 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] cursor-pointer">
+                <div className="flex items-center justify-center gap-2">
+                  <User className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
+                  <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors">
+                    Sign In / Sign Up
+                  </span>
+                </div>
+              </button>
+            </div>
           </div>
           
           
