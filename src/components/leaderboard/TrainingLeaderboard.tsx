@@ -5,7 +5,6 @@ import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Cr
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
-import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 import {
   Dialog,
   DialogContent,
@@ -56,151 +55,67 @@ const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: stri
 
 export function TrainingLeaderboard() {
   const { user, role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const [viewRole, setViewRole] = useState<'rookie' | 'manager'>('rookie');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const [animateIn, setAnimateIn] = useState(false);
 
-  // Managers default to manager view
+  // Managers default to rookie view
   useEffect(() => {
     if (isManager) setViewRole('rookie');
   }, [isManager]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      setIsLoading(true);
+      setAnimateIn(false);
       try {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', viewRole);
+        // Use server-side SECURITY DEFINER function for deterministic results
+        const { data, error } = await supabase.rpc('get_global_leaderboard', {
+          _view_role: viewRole,
+          _limit: 20,
+        });
 
-        if (!roleData || roleData.length === 0) {
+        if (error) {
+          console.error('Leaderboard RPC error:', error);
           setEntries([]);
           setIsLoading(false);
           return;
         }
 
-        const rookieIds = roleData.map(r => r.user_id);
-
-        // Use shared canonical training item calculation (lessons + required videos)
-        const trainingItems = await getReachableRookieTrainingItems();
-
-        // Calculate current PST Monday for weekly reset
-        const pstNowForWeek = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-        const pstDayForWeek = pstNowForWeek.getDay(); // 0=Sun
-        const diffToMonday = pstDayForWeek === 0 ? -6 : 1 - pstDayForWeek;
-        const weekMonday = new Date(pstNowForWeek);
-        weekMonday.setDate(pstNowForWeek.getDate() + diffToMonday);
-        weekMonday.setHours(0, 0, 0, 0);
-        const weekMondayISO = weekMonday.toISOString();
-
-        const [profilesRes, progressRes, videoProgressRes, streaksRes] = await Promise.all([
-          supabase
-            .from('profiles')
-            .select('user_id, full_name, nickname, avatar_url, time_this_week_minutes, week_start, is_active_now, last_active_at')
-            .in('user_id', rookieIds)
-            .not('status', 'eq', 'nlc'),
-          supabase
-            .from('lesson_progress')
-            .select('user_id, lesson_id, quiz_score, quiz_passed, completed_at')
-            .in('user_id', rookieIds)
-            .not('completed_at', 'is', null)
-            .gte('completed_at', weekMondayISO),
-          supabase
-            .from('video_progress')
-            .select('user_id, video_id, watched_at')
-            .in('user_id', rookieIds)
-            .eq('watched', true)
-            .gte('watched_at', weekMondayISO),
-          supabase
-            .from('daily_login_streaks')
-            .select('user_id, current_streak')
-            .in('user_id', rookieIds),
-        ]);
-
-        const profiles = profilesRes.data || [];
-        const totalItems = trainingItems.totalCount || 1;
-        const progressData = progressRes.data || [];
-        const videoProgressData = videoProgressRes.data || [];
-        const streakMap = new Map(
-          (streaksRes.data || []).map(s => [s.user_id, s.current_streak])
-        );
-
-        const userStats = new Map<string, { completed: number; quizScores: number[] }>();
-        progressData.forEach(p => {
-          if (!trainingItems.lessonIds.has(p.lesson_id)) return;
-          const existing = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
-          existing.completed++;
-          // Use recorded quiz_score if available; if quiz was passed but score is null (legacy), default to 100
-          if (p.quiz_score !== null && p.quiz_score !== undefined) {
-            existing.quizScores.push(p.quiz_score);
-          } else if (p.quiz_passed) {
-            existing.quizScores.push(100);
-          }
-          userStats.set(p.user_id, existing);
-        });
-
-        // Count watched required videos per user
-        videoProgressData.forEach(vp => {
-          if (!trainingItems.videoIds.has(vp.video_id)) return;
-          const existing = userStats.get(vp.user_id) || { completed: 0, quizScores: [] };
-          existing.completed++;
-          userStats.set(vp.user_id, existing);
-        });
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Calculate current PST Monday for stale-week detection
-        const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-        const pstDay = pstNow.getDay(); // 0=Sun
-        const pstDiffToMon = pstDay === 0 ? -6 : 1 - pstDay;
-        const pstMonday = new Date(pstNow);
-        pstMonday.setDate(pstNow.getDate() + pstDiffToMon);
-        const pstMondayStr = `${pstMonday.getFullYear()}-${String(pstMonday.getMonth() + 1).padStart(2, '0')}-${String(pstMonday.getDate()).padStart(2, '0')}`;
-
-        const leaderboard: LeaderboardEntry[] = profiles.map(p => {
-          const stats = userStats.get(p.user_id) || { completed: 0, quizScores: [] };
-          const lessonsCompleted = stats.completed;
-          const avgQuizScore = stats.quizScores.length > 0
-            ? Math.round(stats.quizScores.reduce((a, b) => a + b, 0) / stats.quizScores.length)
-            : 0;
-          // If user's week_start is before current PST Monday, their data is stale — show 0
-          const weekStartStr = (p as any).week_start || '1970-01-01';
-          const minutesThisWeek = weekStartStr < pstMondayStr ? 0 : (p.time_this_week_minutes || 0);
-          const hoursThisWeek = Math.round(minutesThisWeek / 60 * 10) / 10;
-          const streakDays = streakMap.get(p.user_id) || 0;
-          const progressPct = Math.round((lessonsCompleted / totalItems) * 100);
-
-          const lastActive = p.last_active_at ? new Date(p.last_active_at) : null;
-          const isActiveToday = lastActive ? lastActive >= today : false;
+        // Map server response to UI interface — NO re-sorting, server order is authoritative
+        const leaderboard: LeaderboardEntry[] = (data || []).map((row: any) => {
+          const lessonsCompleted = row.lessons_completed || 0;
+          const streakDays = row.streak_days || 0;
+          const hoursThisWeek = parseFloat(row.hours_this_week) || 0;
+          const avgQuizScore = row.avg_quiz_score || 0;
 
           const lessonsPoints = lessonsCompleted * POINTS.LESSON_COMPLETED;
           const streakPoints = streakDays * POINTS.STREAK_DAY;
           const hoursPoints = Math.round(hoursThisWeek * POINTS.HOUR_LOGGED);
           const quizPoints = Math.round(avgQuizScore * POINTS.QUIZ_SCORE_MULTIPLIER);
-          const totalPoints = lessonsPoints + streakPoints + hoursPoints + quizPoints;
 
           return {
-            user_id: p.user_id,
-            full_name: p.full_name,
-            nickname: (p as any).nickname || null,
-            avatar_url: p.avatar_url,
+            user_id: row.user_id,
+            full_name: row.full_name,
+            nickname: row.nickname || null,
+            avatar_url: row.avatar_url,
             lessonsCompleted,
-            totalLessons: totalItems,
+            totalLessons: row.total_lessons || 1,
             streakDays,
             hoursThisWeek,
             avgQuizScore,
-            totalPoints,
-            progressPct,
-            isActiveToday,
+            totalPoints: row.total_points || 0,
+            progressPct: row.progress_pct || 0,
+            isActiveToday: row.is_active_today || false,
             breakdown: { lessonsPoints, streakPoints, hoursPoints, quizPoints },
             weeklyBadge: null,
           };
-        }).sort((a, b) => b.totalPoints - a.totalPoints);
+        });
 
+        // Assign badges (cosmetic only, doesn't affect order)
         leaderboard.forEach((entry, index) => {
           const rank = index + 1;
           for (const badge of WEEKLY_BADGES) {
@@ -211,9 +126,7 @@ export function TrainingLeaderboard() {
           }
         });
 
-        // Filter: minimum 100 points to show
-        const filtered = leaderboard.filter(e => e.totalPoints >= 100);
-        setEntries(filtered.slice(0, 20));
+        setEntries(leaderboard);
         setTimeout(() => setAnimateIn(true), 100);
       } catch (err) {
         console.error('Error:', err);

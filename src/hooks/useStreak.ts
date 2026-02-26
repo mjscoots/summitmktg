@@ -54,11 +54,22 @@ export function useStreak() {
           already_recorded: boolean;
         };
 
+        // Fetch actual totalDaysActive from DB to avoid approximation
+        let totalDaysActive = result.current_streak;
+        try {
+          const { data: streakRow } = await supabase
+            .from('daily_login_streaks')
+            .select('total_days_active')
+            .eq('user_id', user.id)
+            .single();
+          if (streakRow) totalDaysActive = streakRow.total_days_active;
+        } catch { /* use fallback */ }
+
         setStreakData({
           currentStreak: result.current_streak,
           longestStreak: result.longest_streak,
           lastLoginDate: new Date().toISOString().split('T')[0],
-          totalDaysActive: result.current_streak, // approximation
+          totalDaysActive,
         });
 
         if (!result.already_recorded) {
