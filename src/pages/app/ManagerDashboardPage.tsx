@@ -7,7 +7,6 @@ import { AnnouncementsFeed } from '@/components/dashboard/AnnouncementsFeed';
 import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
-import { AICoachChat } from '@/components/dashboard/AICoachChat';
 import { NotSummerReadyPanel } from '@/components/dashboard/NotSummerReadyPanel';
 
 import { Bell, Calendar, GraduationCap, Trophy, Users, Video } from 'lucide-react';
@@ -17,7 +16,6 @@ export default function ManagerDashboardPage() {
   const { role, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect rookies to their dashboard
   useEffect(() => {
     if (!isLoading && role === 'rookie') {
       navigate('/app/rookie', { replace: true });
@@ -38,17 +36,13 @@ export default function ManagerDashboardPage() {
         <DashboardHeader />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          {/* Dashboard Title */}
           <div className="mb-8">
             <h1 className="text-3xl font-black text-foreground tracking-tight">
               MANAGER <span className="text-primary">DASHBOARD</span>
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Lead your team to the summit
-            </p>
+            <p className="text-muted-foreground mt-1">Lead your team to the summit</p>
           </div>
 
-          {/* TRAINING FIRST - Most Important Section */}
           <div className="mb-10">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
@@ -71,10 +65,7 @@ export default function ManagerDashboardPage() {
             <TrainingTiles />
           </div>
 
-
-          {/* Top Row: Announcements + Weekly Calendar */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Announcements Panel */}
             <div className="bg-card rounded-xl border border-border p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Bell className="w-5 h-5 text-primary" />
@@ -82,8 +73,6 @@ export default function ManagerDashboardPage() {
               </div>
               <AnnouncementsFeed />
             </div>
-
-            {/* Weekly Calendar */}
             <div className="bg-card rounded-xl border border-border p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="w-5 h-5 text-primary" />
@@ -93,7 +82,6 @@ export default function ManagerDashboardPage() {
             </div>
           </div>
 
-          {/* Not Summer Ready + Leaderboard */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
               <NotSummerReadyPanel />
@@ -111,9 +99,6 @@ export default function ManagerDashboardPage() {
             </div>
           </div>
         </main>
-
-        {/* AI Coach Chat */}
-        <AICoachChat />
       </div>
     </ThemeProvider>
   );
