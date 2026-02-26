@@ -1,22 +1,48 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { useManagerPitchApprovals, PitchApprovalWithDetails } from '@/hooks/usePitchApprovals';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { Mic, Clock, CheckCircle2, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { Mic, Clock, CheckCircle2, XCircle, Loader2, AlertTriangle, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import { PitchReviewModal } from '@/components/training/PitchReviewModal';
+import { getTeamColor } from '@/lib/teamColors';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function PitchApprovalsPage() {
   const { requests, isLoading, refresh } = useManagerPitchApprovals();
   const [reviewingRequest, setReviewingRequest] = useState<PitchApprovalWithDetails | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [teamFilter, setTeamFilter] = useState<string>('all');
 
-  const pending = requests.filter(r => r.status === 'pending');
-  const approved = requests.filter(r => r.status === 'approved');
-  const rejected = requests.filter(r => r.status === 'rejected');
+  // Get unique teams from requests
+  const teams = useMemo(() => {
+    const teamSet = new Map<string, string>();
+    requests.forEach(r => {
+      if (r.team_name && r.team_id) {
+        teamSet.set(r.team_id, r.team_name);
+      }
+    });
+    return Array.from(teamSet.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [requests]);
+
+  // Filter requests by team
+  const filtered = useMemo(() => {
+    if (teamFilter === 'all') return requests;
+    return requests.filter(r => r.team_id === teamFilter);
+  }, [requests, teamFilter]);
+
+  const pending = filtered.filter(r => r.status === 'pending');
+  const approved = filtered.filter(r => r.status === 'approved');
+  const rejected = filtered.filter(r => r.status === 'rejected');
 
   if (isLoading) {
     return (
@@ -33,14 +59,40 @@ export default function PitchApprovalsPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <Breadcrumbs items={[{ label: 'Pitch Approvals' }]} />
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-xl bg-primary/10">
-            <Mic className="w-6 h-6 text-primary" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-primary/10">
+              <Mic className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Pitch Approvals</h1>
+              <p className="text-sm text-muted-foreground">Review recorded pitches from your reps</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Pitch Approvals</h1>
-            <p className="text-sm text-muted-foreground">Review recorded pitches from your reps</p>
-          </div>
+
+          {/* Team Filter */}
+          {teams.length > 1 && (
+            <Select value={teamFilter} onValueChange={setTeamFilter}>
+              <SelectTrigger className="w-[180px] bg-card">
+                <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="All Teams" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Teams</SelectItem>
+                {teams.map(t => {
+                  const tc = getTeamColor(t.name);
+                  return (
+                    <SelectItem key={t.id} value={t.id}>
+                      <span className="flex items-center gap-2">
+                        <span className={cn("w-2 h-2 rounded-full", tc.bg)} />
+                        {t.name}
+                      </span>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Stats */}
@@ -73,6 +125,7 @@ export default function PitchApprovalsPage() {
             <div className="space-y-2">
               {pending.map(req => {
                 const isOverdue = new Date(req.submitted_at).getTime() < Date.now() - 24 * 60 * 60 * 1000;
+                const tc = getTeamColor(req.team_name);
                 return (
                   <div
                     key={req.id}
@@ -80,11 +133,18 @@ export default function PitchApprovalsPage() {
                       "bg-card rounded-lg border p-4 flex items-center gap-3 transition-colors hover:bg-muted/30",
                       isOverdue ? "border-amber-500/40" : "border-border"
                     )}
+                    style={{ borderLeftWidth: 3, borderLeftColor: `hsl(${tc.hsl})` }}
                   >
-                    <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", isOverdue ? "bg-amber-500" : "bg-destructive")} />
-                    <UserAvatar avatarUrl={req.user_avatar} fullName={req.user_name || ''} size="sm" />
+                    <UserAvatar avatarUrl={req.user_avatar} fullName={req.user_name || ''} size="sm" teamName={req.team_name} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{req.user_name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground truncate">{req.user_name}</p>
+                        {req.team_name && (
+                          <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full", tc.bgBadge, tc.text)}>
+                            {req.team_name}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground">{req.lesson_title}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[10px] text-muted-foreground">
@@ -120,18 +180,32 @@ export default function PitchApprovalsPage() {
           </button>
           {showHistory && (
             <div className="space-y-2">
-              {approved.map(req => (
-                <div key={req.id} className="bg-card rounded-lg border border-border p-3 flex items-center gap-3 opacity-70">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <UserAvatar avatarUrl={req.user_avatar} fullName={req.user_name || ''} size="xs" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground truncate">{req.user_name} — {req.lesson_title}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      Approved {req.reviewed_at && format(new Date(req.reviewed_at), 'MMM d')} by {req.reviewer_name || 'manager'}
-                    </p>
+              {approved.map(req => {
+                const tc = getTeamColor(req.team_name);
+                return (
+                  <div 
+                    key={req.id} 
+                    className="bg-card rounded-lg border border-border p-3 flex items-center gap-3 opacity-70"
+                    style={{ borderLeftWidth: 3, borderLeftColor: `hsl(${tc.hsl})` }}
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <UserAvatar avatarUrl={req.user_avatar} fullName={req.user_name || ''} size="xs" teamName={req.team_name} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-medium text-foreground truncate">{req.user_name} — {req.lesson_title}</p>
+                        {req.team_name && (
+                          <span className={cn("text-[9px] font-medium px-1 py-0.5 rounded-full", tc.bgBadge, tc.text)}>
+                            {req.team_name}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        Approved {req.reviewed_at && format(new Date(req.reviewed_at), 'MMM d')} by {req.reviewer_name || 'manager'}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
