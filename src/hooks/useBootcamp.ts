@@ -47,7 +47,7 @@ export function useBootcamp() {
     isOverdue: false,
   });
 
-  const isBypassed = role === 'manager' || role === 'admin';
+  const isBypassed = role === 'manager' || role === 'admin' || role === 'owner';
 
   const fetchProgress = useCallback(async () => {
     if (!user || isBypassed) {

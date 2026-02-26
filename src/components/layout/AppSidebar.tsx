@@ -22,8 +22,8 @@ interface NavItem {
   label: string;
   path: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
-  iconColor?: string; // custom color for the icon when NOT active
-  requiredRole?: 'manager' | 'admin';
+  iconColor?: string;
+  requiredRole?: 'manager' | 'admin' | 'owner';
 }
 
 // Primary nav items (top section)
@@ -62,9 +62,10 @@ export function AppSidebar() {
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
   const adminCounts = useAdminCounts();
 
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
-  const roleLabel = isAdmin ? 'ADMIN' : isManager ? 'MANAGER' : 'ROOKIE';
+  const isOwner = role === 'owner';
+  const isAdmin = role === 'admin' || isOwner;
+  const isManager = role === 'manager' || isAdmin;
+  const roleLabel = isOwner ? 'OWNER' : role === 'admin' ? 'ADMIN' : isManager ? 'MANAGER' : 'ROOKIE';
 
   const handleSignOut = async () => {
     await signOut();
@@ -243,7 +244,7 @@ export function AppSidebar() {
               <p className="text-xs font-medium text-sidebar-foreground truncate">
                 {profile?.full_name?.split(' ')[0] || 'User'}
               </p>
-              <p className="text-[10px] text-primary/80 uppercase tracking-wide">{roleLabel}</p>
+              <p className={cn("text-[10px] uppercase tracking-wide", isOwner ? "text-yellow-400 font-bold" : "text-primary/80")}>{roleLabel}</p>
             </div>
           )}
         </div>
