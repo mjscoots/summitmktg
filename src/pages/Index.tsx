@@ -117,7 +117,7 @@ const Index = () => {
           {/* Dual CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {/* Recruiting CTA */}
-            <div className="flex-1 flex flex-col items-center gap-2">
+            <div className="flex-1 flex flex-col items-center gap-1">
               <button
                 onClick={() => navigate("/recruiting")}
                 className="w-full group bg-primary py-4 px-6 text-center transition-all duration-300 rounded-xl hover:scale-[1.02] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] cursor-pointer">
@@ -132,7 +132,7 @@ const Index = () => {
             </div>
             
             {/* Member Login CTA */}
-            <div className="flex-1 flex flex-col items-center gap-2">
+            <div className="flex-1 flex flex-col items-center gap-1">
               <button
                 onClick={() => navigate("/login")}
                 className="w-full group bg-primary/10 backdrop-blur-sm py-4 px-6 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] cursor-pointer">
