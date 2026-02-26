@@ -33,11 +33,9 @@ const AuthPage = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && profile) {
-      if (!profile.approved) {
-        navigate("/pending-approval", { replace: true });
-      } else {
-        navigate("/app", { replace: true });
-      }
+      // Always redirect to /app — BootcampGate handles routing
+      // (bootcamp lock vs pending approval vs full access)
+      navigate("/app", { replace: true });
     }
   }, [isAuthenticated, profile, navigate]);
 
@@ -107,8 +105,7 @@ const AuthPage = () => {
       return;
     }
 
-    toast.success("Account created! Awaiting admin approval.");
-    navigate("/pending-approval", { replace: true });
+    toast.success("Account created! Complete the Summer Checklist to get started.");
     setIsLoading(false);
   };
 
