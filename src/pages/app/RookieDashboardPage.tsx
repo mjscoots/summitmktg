@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
+import { useStreak } from '@/hooks/useStreak';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { AnnouncementsFeed } from '@/components/dashboard/AnnouncementsFeed';
@@ -10,11 +11,13 @@ import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
 import { RookieXPPanel } from '@/components/dashboard/RookieXPPanel';
+import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { Bell, Calendar, GraduationCap, Trophy, Sparkles } from 'lucide-react';
 
 export default function RookieDashboardPage() {
   const { role, isLoading, profile } = useAuth();
   const { isImpersonating } = useRookieView();
+  const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   const navigate = useNavigate();
 
   // Redirect managers to their dashboard (unless impersonating)
@@ -102,6 +105,16 @@ export default function RookieDashboardPage() {
 
         {/* AI Coach Chat */}
         <AICoachChat />
+
+        {/* Streak Celebration Popup */}
+        {showStreakCelebration && streakData.currentStreak > 0 && (
+          <StreakCelebration
+            streak={streakData.currentStreak}
+            milestone={newMilestone}
+            message={getStreakMessage()}
+            onComplete={() => { clearStreakCelebration(); clearMilestone(); }}
+          />
+        )}
       </div>
     </ThemeProvider>
   );

@@ -9,6 +9,8 @@ import { DailyChecklist } from '@/components/dashboard/DailyChecklist';
 import { AICoachChat } from '@/components/dashboard/AICoachChat';
 import { BootcampStragglers } from '@/components/dashboard/BootcampStragglers';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
+import { StreakCelebration } from '@/components/training/StreakCelebration';
+import { useStreak } from '@/hooks/useStreak';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { OneOnOneTasks } from '@/components/dashboard/OneOnOneTasks';
@@ -23,6 +25,7 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
  export default function DashboardPage() {
    const navigate = useNavigate();
    const { role, profile, isLoading } = useAuth();
+   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
    
    
    const isManager = role === 'manager' || role === 'admin';
@@ -140,6 +143,16 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
         
         {/* Guided tour for new users */}
         <GuidedTour />
+
+        {/* Streak Celebration Popup */}
+        {showStreakCelebration && streakData.currentStreak > 0 && (
+          <StreakCelebration
+            streak={streakData.currentStreak}
+            milestone={newMilestone}
+            message={getStreakMessage()}
+            onComplete={() => { clearStreakCelebration(); clearMilestone(); }}
+          />
+        )}
       </AppLayout>
    );
  }
