@@ -10,7 +10,7 @@ export function TeamSnapshot() {
   const { role } = useAuth();
   const { teamName, topPerformers, needsAttention, completionRate, isLoading, error } = useTeamData();
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   // For rookies, show personal stats instead
   if (!isManager) {

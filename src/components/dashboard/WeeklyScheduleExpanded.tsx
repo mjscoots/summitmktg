@@ -49,8 +49,8 @@ export function WeeklyScheduleExpanded() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
-  const dbRole = role === 'manager' || role === 'admin' ? 'manager' : 'rookie';
-  const isManager = role === 'manager' || role === 'admin';
+  const dbRole = role === 'manager' || role === 'admin' || role === 'owner' ? 'manager' : 'rookie';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   useEffect(() => {
     const fetchData = async () => {

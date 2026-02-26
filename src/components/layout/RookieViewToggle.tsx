@@ -8,7 +8,7 @@
    const { role } = useAuth();
    const { isRookieView, toggleRookieView } = useRookieView();
  
-   const isManager = role === 'manager' || role === 'admin';
+   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
  
    if (!isManager) {
      return null;

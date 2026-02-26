@@ -39,8 +39,8 @@ export function useOneOnOnePrep(filterRole: 'rookie' | 'manager' = 'rookie') {
   const [teamName, setTeamName] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   // Calculate date ranges
   const now = new Date();

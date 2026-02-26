@@ -28,7 +28,7 @@ export function EditableFeaturesBenefits({
   className = ''
 }: EditableFeaturesBenefitsProps) {
   const { role, user } = useAuth();
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
   
   const [isEditing, setIsEditing] = useState(false);
   const [items, setItems] = useState<FeatureBenefit[]>(initialItems);

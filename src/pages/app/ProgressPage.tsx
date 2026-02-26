@@ -7,7 +7,7 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 
 export default function ProgressPage() {
   const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   return (
     <AppLayout>

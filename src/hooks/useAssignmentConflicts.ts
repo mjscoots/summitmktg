@@ -27,7 +27,7 @@ export function useAssignmentConflicts() {
   const [conflicts, setConflicts] = useState<AssignmentConflict[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   const fetchConflicts = useCallback(async () => {
     if (!isAdmin) { setIsLoading(false); return; }

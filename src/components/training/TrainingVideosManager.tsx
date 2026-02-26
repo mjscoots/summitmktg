@@ -24,7 +24,7 @@ type VideoSource = 'url' | 'upload';
 
 export function TrainingVideosManager() {
   const { user, role } = useAuth();
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   const [videos, setVideos] = useState<TrainingVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);

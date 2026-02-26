@@ -8,9 +8,9 @@ export function DashboardHeader() {
   const { role, profile, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin';
-  const roleLabel = isManager ? 'MANAGER' : 'ROOKIE';
-  const roleColor = isManager ? 'text-blue-400' : 'text-green-400';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const roleLabel = role === 'owner' ? 'OWNER' : isManager ? 'MANAGER' : 'ROOKIE';
+  const roleColor = role === 'owner' ? 'text-yellow-400' : isManager ? 'text-blue-400' : 'text-green-400';
   const roleBgColor = isManager ? 'bg-blue-500/10' : 'bg-green-500/10';
 
   const handleSignOut = async () => {

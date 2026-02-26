@@ -27,7 +27,7 @@ export function AdminEditWrapper({
   editorMinHeight = '300px'
 }: AdminEditWrapperProps) {
   const { role, user } = useAuth();
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
   
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

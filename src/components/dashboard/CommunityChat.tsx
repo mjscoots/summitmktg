@@ -394,6 +394,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const getRoleColor = (r?: string) => { if (r === 'admin') return 'text-red-400'; if (r === 'manager') return 'text-blue-400'; return 'text-white/80'; };
   const getRoleBadge = (r?: string) => {
     if (r === 'bot') return null; // No badge for bot — uses divider style
+    if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 uppercase tracking-wider">Owner</span>;
     if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase tracking-wider">Admin</span>;
     if (r === 'manager') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 uppercase tracking-wider">Manager</span>;
     return null;

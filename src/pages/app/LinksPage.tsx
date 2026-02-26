@@ -28,8 +28,8 @@ interface ManagedLink {
 
 export default function LinksPage() {
   const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
-  const isAdmin = role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   const [links, setLinks] = useState<ManagedLink[]>([]);
   const [loading, setLoading] = useState(true);

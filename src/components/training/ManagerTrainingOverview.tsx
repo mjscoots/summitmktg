@@ -27,7 +27,7 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
   const [isLoading, setIsLoading] = useState(true);
   const [sortMode, setSortMode] = useState<SortMode>('highest');
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   useEffect(() => {
     const fetchRepProgress = async () => {

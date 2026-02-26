@@ -23,7 +23,7 @@ export function useAdminCounts() {
   });
   const [viewed, setViewed] = useState<Set<AdminCountKey>>(new Set());
 
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   useEffect(() => {
     if (!isAdmin) return;

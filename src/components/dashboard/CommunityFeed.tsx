@@ -54,7 +54,7 @@ export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFee
   const [audienceType, setAudienceType] = useState<'everyone' | 'managers_only' | 'teams'>('everyone');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
  
    useEffect(() => {
      const fetchTeams = async () => {

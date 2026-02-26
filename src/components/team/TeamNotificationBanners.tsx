@@ -34,7 +34,7 @@ export function TeamNotificationBanners({ teamId, teamName, roster = [] }: TeamN
   const [selectedRep, setSelectedRep] = useState<{ name: string; phone: string } | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   const fetchNotifications = async () => {
     if (!user) return;
