@@ -50,7 +50,7 @@ export default function FormsPage() {
     );
   }
 
-  if (role !== 'manager' && role !== 'admin') {
+  if (role !== 'manager' && role !== 'admin' && role !== 'owner') {
     navigate('/app', { replace: true });
     return null;
   }
