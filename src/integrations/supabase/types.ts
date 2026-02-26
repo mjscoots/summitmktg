@@ -2404,6 +2404,18 @@ export type Database = {
           question_type: string
         }[]
       }
+      get_streak_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          avatar_url: string
+          current_streak: number
+          full_name: string
+          longest_streak: number
+          nickname: string
+          total_days_active: number
+          user_id: string
+        }[]
+      }
       get_training_leaderboard_panel: {
         Args: { _limit?: number }
         Returns: {
