@@ -21,6 +21,8 @@ export interface PitchApprovalWithDetails extends PitchApprovalRequest {
   user_avatar?: string | null;
   lesson_title?: string;
   reviewer_name?: string;
+  team_name?: string | null;
+  team_id?: string | null;
 }
 
 /** Hook for rookies: get pitch status for a specific lesson */
@@ -89,25 +91,37 @@ export function useManagerPitchApprovals() {
     const reviewerIds = [...new Set(pitchData.filter(p => p.reviewed_by).map(p => p.reviewed_by!))];
 
     const [profilesRes, lessonsRes, reviewersRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', userIds),
+      supabase.from('profiles').select('user_id, full_name, avatar_url, team_id').in('user_id', userIds),
       supabase.from('training_lessons').select('id, title').in('id', lessonIds),
       reviewerIds.length > 0
         ? supabase.from('profiles').select('user_id, full_name').in('user_id', reviewerIds)
         : Promise.resolve({ data: [] }),
     ]);
 
+    // Fetch team names
+    const teamIds = [...new Set((profilesRes.data || []).filter(p => p.team_id).map(p => p.team_id!))];
+    const teamsRes = teamIds.length > 0
+      ? await supabase.from('teams').select('id, name').in('id', teamIds)
+      : { data: [] };
+    const teamMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
+
     const profileMap = new Map((profilesRes.data || []).map(p => [p.user_id, p]));
     const lessonMap = new Map((lessonsRes.data || []).map(l => [l.id, l]));
     const reviewerMap = new Map((reviewersRes.data || []).map(r => [r.user_id, r]));
 
-    const enriched: PitchApprovalWithDetails[] = pitchData.map(p => ({
-      ...p,
-      status: p.status as 'pending' | 'approved' | 'rejected',
-      user_name: profileMap.get(p.user_id)?.full_name || 'Unknown',
-      user_avatar: profileMap.get(p.user_id)?.avatar_url || null,
-      lesson_title: lessonMap.get(p.lesson_id)?.title || 'Unknown Lesson',
-      reviewer_name: p.reviewed_by ? reviewerMap.get(p.reviewed_by)?.full_name || undefined : undefined,
-    }));
+    const enriched: PitchApprovalWithDetails[] = pitchData.map(p => {
+      const profile = profileMap.get(p.user_id);
+      return {
+        ...p,
+        status: p.status as 'pending' | 'approved' | 'rejected',
+        user_name: profile?.full_name || 'Unknown',
+        user_avatar: profile?.avatar_url || null,
+        lesson_title: lessonMap.get(p.lesson_id)?.title || 'Unknown Lesson',
+        reviewer_name: p.reviewed_by ? reviewerMap.get(p.reviewed_by)?.full_name || undefined : undefined,
+        team_name: profile?.team_id ? teamMap.get(profile.team_id) || null : null,
+        team_id: profile?.team_id || null,
+      };
+    });
 
     setRequests(enriched);
     setIsLoading(false);
