@@ -294,6 +294,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setReplyingTo(null);
     setEditingId(null);
     setUnreadChannels(prev => { const next = new Set(prev); next.delete(ch); return next; });
+    // Force scroll to bottom after React renders the new channel's messages
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      });
+    });
   };
 
   const handleSend = async () => {
@@ -469,8 +475,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {activeChannel !== 'ai-coach' && (
         <div className="flex items-center gap-3 px-4 py-1.5 border-b border-border/30 bg-muted/20 flex-shrink-0">
           <div className="flex items-center bg-muted/40 rounded-xl p-0.5 border border-border/50">
-            <button onClick={() => setActiveRoom('rookie')} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'rookie' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Rookie</button>
-            <button onClick={() => setActiveRoom('vet')} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'vet' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Vet</button>
+            <button onClick={() => { setActiveRoom('rookie'); requestAnimationFrame(() => requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }))); }} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'rookie' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Rookie</button>
+            <button onClick={() => { setActiveRoom('vet'); requestAnimationFrame(() => requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }))); }} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'vet' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Vet</button>
           </div>
         </div>
       )}
