@@ -81,7 +81,7 @@ const DEFAULT_CHANNELS = [
   { id: 'ai-coach', label: 'AI Coach', icon: 'Sparkles', color: 'text-primary' },
 ] as const;
 
-const QUICK_REPLY_CHIPS = ['🔥 Fired up', '✅ Closed one', '🤝 Need backup'] as const;
+const QUICK_REPLY_CHIPS = ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'] as const;
 
 type ChannelId = string;
 type RoomType = 'rookie' | 'vet';
