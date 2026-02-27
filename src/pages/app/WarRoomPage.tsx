@@ -267,7 +267,17 @@ function TeamTab({ managerName }: { managerName: string }) {
           </div>
           <span className={cn("text-xs font-semibold", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
           <span className="text-[11px] text-muted-foreground">
-            {m.last_active_at ? new Date(m.last_active_at).toLocaleDateString() : 'Never'}
+            {m.last_active_at ? (() => {
+              const now = new Date();
+              const active = new Date(m.last_active_at!);
+              const diffMs = now.getTime() - active.getTime();
+              const diffMins = Math.floor(diffMs / 60000);
+              const diffDays = Math.floor(diffMs / 86400000);
+              if (diffMins < 10) return 'Active Now';
+              if (diffDays === 0) return 'Today';
+              if (diffDays === 1) return 'Yesterday';
+              return `${diffDays} days ago`;
+            })() : 'Never'}
           </span>
         </div>
       ))}
