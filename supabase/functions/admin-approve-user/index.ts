@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
@@ -30,13 +30,10 @@ Deno.serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    // Validate the user token
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: { user: callerUser }, error: userError } = await userClient.auth.getUser(token);
+    // Validate the user token using the admin client (most reliable)
+    const { data: { user: callerUser }, error: userError } = await supabaseAdmin.auth.getUser(token);
     if (userError || !callerUser) {
+      console.error("Token validation failed:", userError?.message);
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -44,12 +41,22 @@ Deno.serve(async (req) => {
     }
 
     // Check caller has admin or owner role
-    const { data: roleData } = await supabaseAdmin
+    const { data: roleRows, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", callerUser.id)
-      .in("role", ["admin", "owner"])
-      .maybeSingle();
+      .eq("user_id", callerUser.id);
+
+    console.log("Caller:", callerUser.id, "Roles:", roleRows, "Error:", roleError);
+
+    const hasAccess = roleRows?.some(r => r.role === "admin" || r.role === "owner");
+    if (!hasAccess) {
+      return new Response(JSON.stringify({ error: "Admin access required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const roleData = roleRows?.[0];
 
     if (!roleData) {
       return new Response(JSON.stringify({ error: "Admin access required" }), {

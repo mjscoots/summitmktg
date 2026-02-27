@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { ReactNode, useEffect } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { useAuth } from '@/hooks/useAuth';
 import { ProfileCompletionGate } from '@/components/ProfileCompletionGate';
@@ -11,22 +11,33 @@ interface BootcampGateProps {
 
 /**
  * Wraps protected app routes to enforce:
- * 1. Bootcamp completion for rookies
- * 2. Admin approval AFTER bootcamp completion
- * 3. Profile completion for all users
+ * 1. Rejected users get signed out immediately
+ * 2. Bootcamp completion for rookies
+ * 3. Admin approval AFTER bootcamp completion
+ * 4. Profile completion for all users
  * Managers/admins bypass bootcamp and approval automatically.
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading, isBypassed } = useBootcamp();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Step 0: If user was rejected, sign them out and redirect to homepage
+  useEffect(() => {
+    if (!isLoading && profile?.status === 'rejected') {
+      signOut().then(() => {
+        navigate('/', { replace: true });
+      });
+    }
+  }, [isLoading, profile?.status, signOut, navigate]);
 
   // Don't gate bootcamp routes themselves
   if (location.pathname.startsWith('/bootcamp')) {
     return <>{children}</>;
   }
 
-  if (isLoading) {
+  if (isLoading || profile?.status === 'rejected') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
