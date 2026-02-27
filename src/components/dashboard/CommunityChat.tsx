@@ -81,6 +81,8 @@ const DEFAULT_CHANNELS = [
   { id: 'ai-coach', label: 'AI Coach', icon: 'Sparkles', color: 'text-primary' },
 ] as const;
 
+const QUICK_REPLY_CHIPS = ['🔥 Fired up', '✅ Closed one', '🤝 Need backup'] as const;
+
 type ChannelId = string;
 type RoomType = 'rookie' | 'vet';
 
@@ -404,9 +406,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const canPostInChannel = activeChannel !== 'announcements' || isManager;
 
   return (
-    <div className="h-full flex flex-col bg-black rounded-xl overflow-hidden border border-white/[0.06]">
+    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
       {/* Channel tabs — minimal top bar */}
-      <div className="flex items-center flex-wrap gap-0.5 px-3 pt-2 pb-0 border-b border-white/[0.06] bg-black flex-shrink-0 sticky top-0 z-20">
+      <div className="flex items-center flex-wrap gap-1 px-3 pt-2 pb-1 border-b border-border/40 bg-background/90 backdrop-blur-md flex-shrink-0 sticky top-0 z-20">
         {channels.map(ch => {
           const Icon = ICON_MAP[ch.icon] || Hash;
           const isActive = activeChannel === ch.id;
@@ -417,10 +419,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               onClick={() => switchChannel(ch.id)}
               onDoubleClick={() => { if (isOwner) { setEditingChannelId(ch.id); setEditChannelLabel(ch.label); } }}
               className={cn(
-                "relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-all whitespace-nowrap",
+                "relative flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full transition-all whitespace-nowrap border font-chat-display",
                 isActive
-                  ? "bg-white/[0.04] text-white border border-white/[0.08] border-b-transparent -mb-px z-10"
-                  : "text-white/30 hover:text-white/60"
+                  ? "bg-primary/15 text-foreground border-primary/40 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
+                  : "text-muted-foreground border-transparent hover:text-foreground hover:border-border/60 hover:bg-muted/30"
               )}
             >
               <Icon className={cn("w-3.5 h-3.5", isActive ? ch.color : "")} />
@@ -431,11 +433,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   onChange={e => setEditChannelLabel(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleRenameChannel(ch.id); if (e.key === 'Escape') setEditingChannelId(null); }}
                   onBlur={() => handleRenameChannel(ch.id)}
-                  className="bg-transparent text-white text-xs w-20 focus:outline-none border-b border-primary/50"
+                  className="bg-transparent text-foreground text-xs w-20 focus:outline-none border-b border-primary/50"
                   autoFocus
                   onClick={e => e.stopPropagation()}
                 />
-              ) : ch.label}
+              ) : <span className="tracking-wide">{ch.label}</span>}
               {hasUnread && !isActive && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
               )}
@@ -465,10 +467,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Rookie / Vet toggle */}
       {activeChannel !== 'ai-coach' && (
-        <div className="flex items-center gap-3 px-4 py-1.5 border-b border-white/[0.04] bg-white/[0.01] flex-shrink-0">
-          <div className="flex items-center bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]">
-            <button onClick={() => setActiveRoom('rookie')} className={cn("px-3 py-1 text-[11px] font-semibold rounded-md transition-all", activeRoom === 'rookie' ? "bg-primary text-primary-foreground shadow-sm" : "text-white/30 hover:text-white/60")}>Rookie</button>
-            <button onClick={() => setActiveRoom('vet')} className={cn("px-3 py-1 text-[11px] font-semibold rounded-md transition-all", activeRoom === 'vet' ? "bg-primary text-primary-foreground shadow-sm" : "text-white/30 hover:text-white/60")}>Vet</button>
+        <div className="flex items-center gap-3 px-4 py-1.5 border-b border-border/30 bg-muted/20 flex-shrink-0">
+          <div className="flex items-center bg-muted/40 rounded-xl p-0.5 border border-border/50">
+            <button onClick={() => setActiveRoom('rookie')} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'rookie' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Rookie</button>
+            <button onClick={() => setActiveRoom('vet')} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'vet' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Vet</button>
           </div>
         </div>
       )}
@@ -671,7 +673,26 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Modern Input Bar */}
       {canPostInChannel ? (
-        <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2">
+        <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md">
+          {activeChannel !== 'ai-coach' && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {QUICK_REPLY_CHIPS.map((chip) => (
+                <button
+                  key={chip}
+                  type="button"
+                  onClick={() => {
+                    setInput(chip);
+                    onTyping();
+                    inputRef.current?.focus();
+                  }}
+                  className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-chat-display text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/10 transition-colors whitespace-nowrap"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          )}
+
           {showGifs && <GifPicker onSelect={handleSendGif} onClose={() => setShowGifs(false)} />}
           {showPollCreator && <PollCreator onSubmit={handleCreatePoll} onClose={() => setShowPollCreator(false)} />}
 
@@ -685,7 +706,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           )}
 
           <div className={cn(
-            "flex items-center gap-1 bg-white/[0.04] border border-white/[0.08] focus-within:border-primary/40 transition-colors",
+            "flex items-center gap-1 bg-card/80 border border-border/60 focus-within:border-primary/50 focus-within:shadow-[0_0_0_1px_hsl(var(--primary)/0.25)] transition-all",
             replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-xl"
           )}>
             {/* Left icons */}
@@ -694,14 +715,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 <ChatImageUpload onSend={handleSendFile} />
                 <button
                   onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
-                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-white/20 hover:text-white/40")}
+                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-muted-foreground hover:text-foreground")}
                   title="GIFs"
                 >
                   <Image className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
-                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-white/20 hover:text-white/40")}
+                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-muted-foreground hover:text-foreground")}
                   title="Poll"
                 >
                   <BarChart3 className="w-4 h-4" />
@@ -716,8 +737,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               value={input}
               onChange={(e) => { setInput(e.target.value); onTyping(); }}
               onKeyDown={handleKeyDown}
-              placeholder={activeChannel === 'ai-coach' ? 'Ask Summit Coach anything...' : "What's on your mind?"}
-              className="flex-1 bg-transparent text-white text-sm px-3 py-2.5 focus:outline-none placeholder:text-white/20"
+              placeholder={activeChannel === 'ai-coach' ? 'Ask Summit Coach anything...' : 'Drop your update, win the day…'}
+              className="flex-1 bg-transparent text-foreground font-chat-input text-sm px-3 py-2.5 focus:outline-none placeholder:text-muted-foreground"
               disabled={isSending || isAiLoading}
             />
 
@@ -725,7 +746,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             <button
               onClick={handleSend}
               disabled={!input.trim() || isSending || isAiLoading}
-              className={cn("p-2 mr-1 rounded-lg transition-all flex-shrink-0", input.trim() ? "text-primary hover:bg-primary/10" : "text-white/10")}
+              className={cn("p-2 mr-1 rounded-lg transition-all flex-shrink-0", input.trim() ? "text-primary hover:bg-primary/10 hover:scale-105 active:scale-95" : "text-muted-foreground/40")}
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
