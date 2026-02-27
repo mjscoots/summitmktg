@@ -80,6 +80,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
         const { data, error } = await supabase.rpc('get_global_leaderboard', {
           _view_role: viewRole,
           _limit: 20,
+          _mode: mode,
         });
 
         if (error) {
@@ -140,7 +141,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     };
 
     fetchLeaderboard();
-  }, [viewRole]);
+  }, [viewRole, mode]);
 
   const getBadgeInfo = (badgeId: string | null) => {
     if (!badgeId) return null;
