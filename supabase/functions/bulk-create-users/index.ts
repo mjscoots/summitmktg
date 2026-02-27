@@ -1,22 +1,10 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const allowedOrigins = [
-  "https://summitmktg.lovable.app",
-  "https://summitmktgsales.com",
-  "https://www.summitmktgsales.com",
-];
-
-function getCorsHeaders(origin: string | null): Record<string, string> {
-  const isAllowed = origin && (
-    allowedOrigins.includes(origin) || 
-    origin.endsWith('.lovable.app')
-  );
-  return {
-    "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
 
 interface UserData {
   full_name: string;
@@ -29,16 +17,12 @@ interface UserData {
   onboarding_status?: string;
 }
 
-serve(async (req) => {
-  const origin = req.headers.get("Origin");
-  const corsHeaders = getCorsHeaders(origin);
-
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Require authentication
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -53,25 +37,25 @@ serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Verify the caller's token and get their user ID
+    // Verify caller via token
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseAdmin.auth.getClaims(token);
-    
-    if (claimsError || !claimsData?.claims?.sub) {
+    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+
+    if (userError || !userData?.user) {
       return new Response(
         JSON.stringify({ error: "Invalid authentication token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const callerId = claimsData.claims.sub;
+    const callerId = userData.user.id;
 
-    // Verify caller is admin using database lookup
+    // Verify caller is admin/owner
     const { data: callerRole, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerId)
-      .eq("role", "admin")
+      .in("role", ["admin", "owner"])
       .maybeSingle();
 
     if (roleError || !callerRole) {
@@ -83,7 +67,6 @@ serve(async (req) => {
 
     const { users } = await req.json() as { users: UserData[] };
 
-    // Validate input
     if (!Array.isArray(users) || users.length === 0) {
       return new Response(
         JSON.stringify({ error: "Invalid input: users array required" }),
@@ -91,7 +74,6 @@ serve(async (req) => {
       );
     }
 
-    // Limit batch size
     if (users.length > 50) {
       return new Response(
         JSON.stringify({ error: "Batch size limited to 50 users" }),
@@ -104,67 +86,54 @@ serve(async (req) => {
       failed: [],
     };
 
-    for (const userData of users) {
+    for (const u of users) {
       try {
-        // Validate required fields
-        if (!userData.email || !userData.full_name) {
-          results.failed.push({
-            email: userData.email || "unknown",
-            error: "Email and full_name are required",
-          });
+        if (!u.email || !u.full_name) {
+          results.failed.push({ email: u.email || "unknown", error: "Email and full_name are required" });
           continue;
         }
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(userData.email)) {
-          results.failed.push({
-            email: userData.email,
-            error: "Invalid email format",
-          });
+        if (!emailRegex.test(u.email)) {
+          results.failed.push({ email: u.email, error: "Invalid email format" });
           continue;
         }
 
-        // Generate secure random password if not provided
-        const password = userData.password || crypto.randomUUID().slice(0, 16);
-        
-        // Create auth user
+        const password = u.password || crypto.randomUUID().slice(0, 16);
+
         const { data: authUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-          email: userData.email,
-          phone: userData.phone ? `+1${userData.phone.replace(/\D/g, "")}` : undefined,
-          password: password,
+          email: u.email,
+          phone: u.phone ? `+1${u.phone.replace(/\D/g, "")}` : undefined,
+          password,
           email_confirm: true,
           user_metadata: {
-            full_name: userData.full_name,
-            phone: userData.phone,
-            direct_manager: userData.direct_manager,
-            selected_role: userData.role || "rookie",
+            full_name: u.full_name,
+            phone: u.phone,
+            direct_manager: u.direct_manager,
+            selected_role: u.role || "rookie",
           },
         });
 
         if (createError) {
-          // Check if user already exists by inspecting the error message
-          if (createError.message?.includes('already been registered') || createError.message?.includes('already exists')) {
-            results.success.push(`${userData.email} (already exists)`);
+          if (createError.message?.includes("already been registered") || createError.message?.includes("already exists")) {
+            results.success.push(`${u.email} (already exists)`);
             continue;
           }
-
           throw createError;
         }
 
         if (authUser?.user) {
-          // Update onboarding_status if provided
-          if (userData.onboarding_status) {
+          if (u.onboarding_status) {
             await supabaseAdmin
               .from("profiles")
-              .update({ onboarding_status: userData.onboarding_status })
+              .update({ onboarding_status: u.onboarding_status })
               .eq("user_id", authUser.user.id);
           }
-          results.success.push(userData.email);
+          results.success.push(u.email);
         }
       } catch (error) {
         results.failed.push({
-          email: userData.email,
+          email: u.email,
           error: error instanceof Error ? error.message : "Unknown error",
         });
       }
