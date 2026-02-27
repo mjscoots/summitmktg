@@ -94,7 +94,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
 
     try {
       // Update request
-      await supabase
+      const { error: updateError } = await supabase
         .from('pitch_approval_requests')
         .update({
           status: 'approved',
@@ -103,6 +103,12 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
           manager_feedback: feedback || null,
         })
         .eq('id', request.id);
+
+      if (updateError) {
+        console.error('Pitch approve error:', updateError);
+        toast.error('Failed to approve: ' + updateError.message);
+        return;
+      }
 
       // Notify rookie
       await supabase.from('user_notifications').insert({
@@ -138,7 +144,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
     setIsSubmitting(true);
 
     try {
-      await supabase
+      const { error: updateError } = await supabase
         .from('pitch_approval_requests')
         .update({
           status: 'rejected',
@@ -147,6 +153,12 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
           manager_feedback: feedback,
         })
         .eq('id', request.id);
+
+      if (updateError) {
+        console.error('Pitch reject error:', updateError);
+        toast.error('Failed to reject: ' + updateError.message);
+        return;
+      }
 
       // Notify rookie
       await supabase.from('user_notifications').insert({
