@@ -30,22 +30,20 @@ Deno.serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    // Use a user-scoped client to validate the JWT
+    // Validate the user token
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user: callerUser }, error: userError } = await userClient.auth.getUser(token);
+    if (userError || !callerUser) {
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const callerUserId = claimsData.claims.sub;
-    const callerUser = { id: callerUserId };
-
+    // Check caller has admin or owner role
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
