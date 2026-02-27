@@ -76,22 +76,40 @@ const MOMENTUM_STEPS = [
   },
 ];
 
+function getUserId(): string {
+  try {
+    const raw = localStorage.getItem('sb-chzvugfyjxqlcfddxyoa-auth-token');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed?.user?.id || 'unknown';
+    }
+  } catch {}
+  return 'unknown';
+}
+
 function getStoredStep(): number {
   try {
-    return parseInt(localStorage.getItem('bootcamp_momentum_step') || '1', 10);
+    const uid = getUserId();
+    return parseInt(localStorage.getItem(`bootcamp_momentum_step_${uid}`) || '1', 10);
   } catch { return 1; }
 }
 
 function setStoredStep(step: number) {
-  localStorage.setItem('bootcamp_momentum_step', String(step));
+  const uid = getUserId();
+  localStorage.setItem(`bootcamp_momentum_step_${uid}`, String(step));
 }
 
 export function markMomentumComplete() {
-  localStorage.setItem('bootcamp_momentum_complete', 'true');
+  const uid = getUserId();
+  localStorage.setItem(`bootcamp_momentum_complete_${uid}`, 'true');
+  // Clean up old global key
+  localStorage.removeItem('bootcamp_momentum_complete');
+  localStorage.removeItem('bootcamp_momentum_step');
 }
 
 export function isMomentumComplete(): boolean {
-  return localStorage.getItem('bootcamp_momentum_complete') === 'true';
+  const uid = getUserId();
+  return localStorage.getItem(`bootcamp_momentum_complete_${uid}`) === 'true';
 }
 
 export default function BootcampMomentum() {
