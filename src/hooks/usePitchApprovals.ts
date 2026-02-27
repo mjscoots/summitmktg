@@ -68,7 +68,7 @@ export function useManagerPitchApprovals() {
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    if (!user || (role !== 'manager' && role !== 'admin')) {
+    if (!user || (role !== 'manager' && role !== 'admin' && role !== 'owner')) {
       setIsLoading(false);
       return;
     }
