@@ -122,10 +122,11 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
       if (notifError) console.error('Notification insert error:', notifError);
 
       // Award 25 leaderboard points via DB function
-      await supabase.rpc('award_training_points', {
+      const { error: rpcError } = await supabase.rpc('award_training_points', {
         _user_id: request.user_id,
         _points: 25,
       });
+      if (rpcError) console.error('Points award error:', rpcError);
 
       toast.success('Pitch approved!');
       onAction();

@@ -55,14 +55,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const roleData = roleRows?.[0];
-
-    if (!roleData) {
-      return new Response(JSON.stringify({ error: "Admin access required" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // hasAccess already validated above — no extra check needed
 
     const { action, user_id, role: newRole } = await req.json();
 
