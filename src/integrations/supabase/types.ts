@@ -2347,23 +2347,41 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_global_leaderboard: {
-        Args: { _limit?: number; _view_role?: string }
-        Returns: {
-          avatar_url: string
-          avg_quiz_score: number
-          full_name: string
-          hours_this_week: number
-          is_active_today: boolean
-          lessons_completed: number
-          nickname: string
-          progress_pct: number
-          streak_days: number
-          total_lessons: number
-          total_points: number
-          user_id: string
-        }[]
-      }
+      get_global_leaderboard:
+        | {
+            Args: { _limit?: number; _view_role?: string }
+            Returns: {
+              avatar_url: string
+              avg_quiz_score: number
+              full_name: string
+              hours_this_week: number
+              is_active_today: boolean
+              lessons_completed: number
+              nickname: string
+              progress_pct: number
+              streak_days: number
+              total_lessons: number
+              total_points: number
+              user_id: string
+            }[]
+          }
+        | {
+            Args: { _limit?: number; _mode?: string; _view_role: string }
+            Returns: {
+              avatar_url: string
+              avg_quiz_score: number
+              full_name: string
+              hours_this_week: number
+              is_active_today: boolean
+              lessons_completed: number
+              nickname: string
+              progress_pct: number
+              streak_days: number
+              total_lessons: number
+              total_points: number
+              user_id: string
+            }[]
+          }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
         Returns: {
