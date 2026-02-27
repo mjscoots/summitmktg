@@ -408,7 +408,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   return (
     <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
       {/* Channel tabs — minimal top bar */}
-      <div className="flex items-center flex-wrap gap-1 px-3 pt-2 pb-1 border-b border-border/40 bg-background/90 backdrop-blur-md flex-shrink-0 sticky top-0 z-20">
+      <div className="flex items-center gap-1 px-3 pt-2 pb-1 border-b border-border/40 bg-background/90 backdrop-blur-md flex-shrink-0 z-20 overflow-x-auto scrollbar-hide">
         {channels.map(ch => {
           const Icon = ICON_MAP[ch.icon] || Hash;
           const isActive = activeChannel === ch.id;
