@@ -110,8 +110,8 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
         return;
       }
 
-      // Notify rookie
-      await supabase.from('user_notifications').insert({
+      // Notify rookie (non-blocking)
+      const { error: notifError } = await supabase.from('user_notifications').insert({
         user_id: request.user_id,
         title: `✅ ${profile?.full_name || 'Manager'} approved your ${request.lesson_title} pitch!`,
         message: feedback
@@ -119,6 +119,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
           : 'You can now continue to the next module.',
         link: '/app/training',
       });
+      if (notifError) console.error('Notification insert error:', notifError);
 
       // Award 25 leaderboard points via DB function
       await supabase.rpc('award_training_points', {
@@ -160,13 +161,14 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
         return;
       }
 
-      // Notify rookie
-      await supabase.from('user_notifications').insert({
+      // Notify rookie (non-blocking)
+      const { error: notifError2 } = await supabase.from('user_notifications').insert({
         user_id: request.user_id,
         title: `❌ ${profile?.full_name || 'Manager'} requested a re-record of your ${request.lesson_title} pitch`,
         message: `Feedback: "${feedback}"`,
         link: `/app/training`,
       });
+      if (notifError2) console.error('Notification insert error:', notifError2);
 
       toast.success('Feedback sent — rep notified');
       onAction();
