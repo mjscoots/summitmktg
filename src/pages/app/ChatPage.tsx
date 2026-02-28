@@ -17,7 +17,7 @@ export default function ChatPage() {
   return (
     <AppLayout>
       <div className="h-full min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0 px-0 sm:px-2 pb-2">
+        <div className="flex-1 min-h-0 px-0 sm:px-2 pb-2 overflow-hidden">
           <CommunityChat />
         </div>
       </div>
