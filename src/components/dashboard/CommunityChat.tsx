@@ -199,9 +199,21 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
   const scrollToBottom = useCallback((smooth = true) => {
-    requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
-    });
+    const container = containerRef.current;
+    if (!container) return;
+
+    const doScroll = () => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
+    };
+
+    // Initial + retries to account for async layout/media rendering
+    doScroll();
+    requestAnimationFrame(doScroll);
+    setTimeout(doScroll, 120);
+    setTimeout(doScroll, 320);
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -274,15 +286,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const channelMessages = allChannelMessages;
 
   useEffect(() => {
-    // Triple-rAF to ensure DOM is fully laid out before scrolling
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-        });
-      });
-    });
-  }, [channelMessages.length, activeChannel, activeRoom]);
+    scrollToBottom(false);
+  }, [channelMessages.length, activeChannel, activeRoom, scrollToBottom]);
 
   // Post of the Day
   useEffect(() => {
@@ -305,12 +310,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setReplyingTo(null);
     setEditingId(null);
     setUnreadChannels(prev => { const next = new Set(prev); next.delete(ch); return next; });
-    // Force scroll to bottom after React renders the new channel's messages
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-      });
-    });
+    scrollToBottom(false);
   };
 
   const handleSend = async () => {
