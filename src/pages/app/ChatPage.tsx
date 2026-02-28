@@ -8,6 +8,16 @@ export default function ChatPage() {
 
   useEffect(() => {
     setViewing(true);
+
+    const resetScroll = () => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      const mainEl = document.querySelector('main');
+      if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'auto' });
+    };
+
+    resetScroll();
+    requestAnimationFrame(resetScroll);
+
     return () => {
       markRead();
       setViewing(false);
