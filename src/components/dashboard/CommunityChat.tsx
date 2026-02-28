@@ -199,7 +199,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
   const scrollToBottom = useCallback((smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
+    });
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -271,7 +273,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const allChannelMessages = activeChannel === 'ai-coach' ? localAiMessages : messages.filter(m => m.channel === effectiveChannel);
   const channelMessages = allChannelMessages;
 
-  useEffect(() => { scrollToBottom(false); }, [channelMessages.length, activeChannel, activeRoom, scrollToBottom]);
+  useEffect(() => {
+    // Triple-rAF to ensure DOM is fully laid out before scrolling
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        });
+      });
+    });
+  }, [channelMessages.length, activeChannel, activeRoom]);
 
   // Post of the Day
   useEffect(() => {
@@ -414,7 +425,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   return (
     <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
       {/* Channel tabs — minimal top bar */}
-      <div className="sticky top-0 flex flex-wrap items-center gap-1 px-3 py-2 border-b border-border/40 bg-background/95 backdrop-blur-md flex-shrink-0 z-30">
+      <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-border/40 bg-background/95 backdrop-blur-md flex-shrink-0 z-30">
         {channels.map(ch => {
           const Icon = ICON_MAP[ch.icon] || Hash;
           const isActive = activeChannel === ch.id;
@@ -473,7 +484,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Rookie / Vet toggle */}
       {activeChannel !== 'ai-coach' && (
-        <div className="sticky top-[44px] flex items-center gap-3 px-4 py-1.5 border-b border-border/30 bg-muted/20 flex-shrink-0 z-20">
+        <div className="flex items-center gap-3 px-4 py-1.5 border-b border-border/30 bg-muted/20 flex-shrink-0 z-20">
           <div className="flex items-center bg-muted/40 rounded-xl p-0.5 border border-border/50">
             <button onClick={() => { setActiveRoom('rookie'); requestAnimationFrame(() => requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }))); }} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'rookie' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Rookie</button>
             <button onClick={() => { setActiveRoom('vet'); requestAnimationFrame(() => requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }))); }} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'vet' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Vet</button>
