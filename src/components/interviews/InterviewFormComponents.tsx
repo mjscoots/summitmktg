@@ -1,33 +1,17 @@
-import { useState } from 'react';
-import { CheckCircle2, ChevronDown, ChevronRight, Lightbulb } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/* ─── ScriptTip (collapsible) ─── */
-export function ScriptTip({ children, label = 'Script tip' }: { children: React.ReactNode; label?: string }) {
-  const [open, setOpen] = useState(false);
-
+/* ─── ScriptTip — always visible muted text block ─── */
+export function ScriptTip({ children, label }: { children: React.ReactNode; label?: string }) {
   return (
-    <button
-      type="button"
-      onClick={() => setOpen(!open)}
-      className={cn(
-        "w-full text-left rounded-lg border transition-all duration-200",
-        open
-          ? "bg-primary/5 border-primary/20 p-3"
-          : "bg-primary/[0.03] border-primary/10 px-3 py-2 hover:bg-primary/5"
+    <div className="rounded-lg border border-border/30 bg-muted/30 p-4 space-y-1">
+      {label && (
+        <p className="text-[11px] font-semibold text-primary/70 uppercase tracking-wider">{label}</p>
       )}
-    >
-      <div className="flex items-center gap-2">
-        <Lightbulb className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-        <span className="text-[11px] font-semibold text-primary/80 uppercase tracking-wider flex-1">{label}</span>
-        {open ? <ChevronDown className="w-3 h-3 text-primary/60" /> : <ChevronRight className="w-3 h-3 text-primary/60" />}
+      <div className="text-xs text-muted-foreground leading-relaxed">
+        {children}
       </div>
-      {open && (
-        <div className="mt-2 text-xs text-muted-foreground leading-relaxed pl-5.5" onClick={(e) => e.stopPropagation()}>
-          {children}
-        </div>
-      )}
-    </button>
+    </div>
   );
 }
 
@@ -38,47 +22,34 @@ export function ChecklistItem({ checked, onChange, label }: { checked: boolean; 
       type="button"
       onClick={onChange}
       className={cn(
-        "flex items-center gap-3 w-full text-left px-3.5 py-2.5 rounded-lg border transition-all duration-150",
-        checked
-          ? "bg-success/8 border-success/25 text-foreground"
-          : "bg-background border-border/60 hover:border-primary/30 text-muted-foreground"
+        "flex items-center gap-3 w-full text-left py-2 transition-all duration-150",
+        checked ? "text-foreground" : "text-muted-foreground"
       )}
     >
       <div className={cn(
-        "w-[18px] h-[18px] rounded-[5px] border-[1.5px] flex items-center justify-center flex-shrink-0 transition-all duration-150",
-        checked ? "bg-success border-success" : "border-border/80"
+        "w-[18px] h-[18px] rounded border-[1.5px] flex items-center justify-center flex-shrink-0 transition-all duration-150",
+        checked ? "bg-success border-success" : "border-border/80 bg-background"
       )}>
         {checked && <CheckCircle2 className="w-3 h-3 text-white" />}
       </div>
-      <span className="text-sm">{label}</span>
+      <span className="text-sm">Done</span>
     </button>
   );
 }
 
-/* ─── SectionHeader ─── */
+/* ─── SectionHeader — simple divider ─── */
 export function SectionHeader({ children, step }: { children: React.ReactNode; step?: number }) {
   return (
-    <div className="pt-8 pb-1 first:pt-0">
-      <div className="flex items-center gap-2.5">
-        {step && (
-          <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-[11px] font-bold text-primary">{step}</span>
-          </div>
-        )}
-        <h2 className="text-[15px] font-bold text-foreground tracking-tight">{children}</h2>
-      </div>
-      <div className="mt-2 h-px bg-border/40" />
+    <div className="pt-6 pb-1 first:pt-0">
+      <h2 className="text-base font-semibold text-foreground">{children}</h2>
     </div>
   );
 }
 
-/* ─── QuestionCard — groups related fields ─── */
+/* ─── QuestionCard — minimal wrapper ─── */
 export function QuestionCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn(
-      "p-4 rounded-xl border border-border/40 bg-card/50 space-y-3",
-      className
-    )}>
+    <div className={cn("space-y-2", className)}>
       {children}
     </div>
   );
@@ -88,48 +59,42 @@ export function QuestionCard({ children, className }: { children: React.ReactNod
 export function FieldLabel({ children, required = true }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label className="block text-sm font-medium text-foreground mb-1.5">
-      {children}{required && <span className="text-primary/60 ml-0.5">*</span>}
+      {children}{required && <span className="text-destructive ml-0.5">*</span>}
     </label>
   );
 }
 
 /* ─── Helper text ─── */
 export function FieldHint({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] text-muted-foreground/70 mb-1.5">{children}</p>;
+  return <p className="text-xs text-muted-foreground mb-1.5">{children}</p>;
 }
 
 /* ─── Shared styles ─── */
 export const inputClass = "w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all placeholder:text-muted-foreground/40";
-export const textareaClass = `${inputClass} resize-none`;
+export const textareaClass = `${inputClass} resize-vertical`;
 
 /* ─── Yes/No Toggle ─── */
 export function YesNoToggle({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <div className="flex gap-2">
-      <button
-        type="button"
-        onClick={() => onChange('yes')}
-        className={cn(
-          'flex-1 py-2.5 rounded-lg font-medium transition-all border text-sm',
-          value === 'yes'
-            ? 'bg-success/10 text-success border-success/30'
-            : 'bg-background text-muted-foreground/60 border-border/50 hover:border-success/40'
-        )}
-      >
-        Yes
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange('no')}
-        className={cn(
-          'flex-1 py-2.5 rounded-lg font-medium transition-all border text-sm',
-          value === 'no'
-            ? 'bg-destructive/10 text-destructive border-destructive/30'
-            : 'bg-background text-muted-foreground/60 border-border/50 hover:border-destructive/40'
-        )}
-      >
-        No
-      </button>
+    <div className="flex gap-3">
+      <label className="flex items-center gap-2 cursor-pointer">
+        <div className={cn(
+          "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+          value === 'yes' ? "border-primary" : "border-border"
+        )}>
+          {value === 'yes' && <div className="w-2 h-2 rounded-full bg-primary" />}
+        </div>
+        <span className="text-sm">Yes</span>
+      </label>
+      <label className="flex items-center gap-2 cursor-pointer">
+        <div className={cn(
+          "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+          value === 'no' ? "border-primary" : "border-border"
+        )}>
+          {value === 'no' && <div className="w-2 h-2 rounded-full bg-primary" />}
+        </div>
+        <span className="text-sm">No I did not, I will tell my manager that I had to schedule for another day.</span>
+      </label>
     </div>
   );
 }
