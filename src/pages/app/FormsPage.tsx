@@ -2,16 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ExternalLink, FileText, Calendar, Bell } from 'lucide-react';
+import { ExternalLink, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
-import { useSchedulingRequests } from '@/hooks/useSchedulingRequests';
-import { SchedulingRequestCard } from '@/components/scheduling/SchedulingFlow';
-import { Badge } from '@/components/ui/badge';
 
-type FormSection = 'interviews' | 'weekly-1on1s' | 'scheduling';
+type FormSection = 'interviews' | 'weekly-1on1s';
 type InterviewSubTab = 'forms' | 'responses';
 
 const interviewCards = [
@@ -40,7 +37,7 @@ export default function FormsPage() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<FormSection>('interviews');
   const [interviewSubTab, setInterviewSubTab] = useState<InterviewSubTab>('forms');
-  const { pendingForMe, requests, confirmRequest, cancelRequest } = useSchedulingRequests();
+  
 
   if (isLoading) {
     return (
@@ -105,19 +102,6 @@ export default function FormsPage() {
             )}
           >
             Weekly 1:1 Forms
-          </button>
-          <button
-            onClick={() => setActiveSection('scheduling')}
-            className={cn(
-              'tab-pill relative',
-              activeSection === 'scheduling' ? 'tab-pill-active' : 'tab-pill-inactive'
-            )}
-          >
-            <Calendar className="w-3.5 h-3.5 mr-1 inline" />
-            1:1 Scheduling
-            {pendingForMe.length > 0 && (
-              <Badge variant="destructive" className="ml-1.5 text-[9px] px-1.5 py-0 h-4">{pendingForMe.length}</Badge>
-            )}
           </button>
         </div>
 
@@ -209,49 +193,6 @@ export default function FormsPage() {
               <InterviewResponsesTable />
             )}
           </>
-        ) : activeSection === 'scheduling' ? (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              1:1 Scheduling Requests
-            </h2>
-            {pendingForMe.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                  <Bell className="w-3.5 h-3.5 text-yellow-400" />
-                  {pendingForMe.length} pending request{pendingForMe.length !== 1 ? 's' : ''} for you
-                </p>
-                {pendingForMe.map(r => (
-                  <SchedulingRequestCard
-                    key={r.id}
-                    request={r}
-                    onConfirm={(id, time) => confirmRequest(id, time)}
-                    onReschedule={(id) => cancelRequest(id)}
-                  />
-                ))}
-              </div>
-            )}
-            {requests.filter(r => r.status === 'confirmed').length > 0 && (
-              <div className="space-y-3 mt-6">
-                <h3 className="text-sm font-semibold text-foreground">Confirmed</h3>
-                {requests.filter(r => r.status === 'confirmed').map(r => (
-                  <SchedulingRequestCard
-                    key={r.id}
-                    request={r}
-                    onConfirm={() => {}}
-                    onReschedule={() => {}}
-                  />
-                ))}
-              </div>
-            )}
-            {pendingForMe.length === 0 && requests.filter(r => r.status === 'confirmed').length === 0 && (
-              <div className="text-center py-16 text-muted-foreground">
-                <Calendar className="w-8 h-8 mx-auto mb-3 opacity-40" />
-                <p className="font-medium">No scheduling requests</p>
-                <p className="text-xs mt-1">Use the scheduling button on Weekly 1:1 forms to send requests</p>
-              </div>
-            )}
-          </div>
         ) : (
           <WeeklyOneOnOnesContent />
         )}
