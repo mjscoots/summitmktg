@@ -27,7 +27,7 @@ export function BootcampGate({ children }: BootcampGateProps) {
   useEffect(() => {
     if (!isLoading && profile?.status === 'rejected') {
       signOut().then(() => {
-        navigate('/', { replace: true });
+        navigate('/login?reason=declined', { replace: true });
       });
     }
   }, [isLoading, profile?.status, signOut, navigate]);

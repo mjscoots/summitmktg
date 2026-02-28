@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,8 @@ import { toast } from "sonner";
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const declinedReason = searchParams.get("reason") === "declined";
   const { signIn, signUp, isAuthenticated, profile } = useAuth();
   
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
@@ -153,6 +155,12 @@ const AuthPage = () => {
             Sign Up
           </button>
         </div>
+
+        {declinedReason && (
+          <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+            Sorry, your logins are no longer valid. Please go back and repeat the sign-up process and your logins will be granted.
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
