@@ -414,7 +414,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   return (
     <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
       {/* Channel tabs — minimal top bar */}
-      <div className="flex items-center gap-1 px-3 pt-2 pb-1 border-b border-border/40 bg-background/90 backdrop-blur-md flex-shrink-0 z-20 overflow-x-auto scrollbar-hide">
+      <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-border/40 bg-background/90 backdrop-blur-md flex-shrink-0 z-20">
         {channels.map(ch => {
           const Icon = ICON_MAP[ch.icon] || Hash;
           const isActive = activeChannel === ch.id;
@@ -453,7 +453,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         {isAdmin && (
           <button
             onClick={() => setShowCreateChannel(!showCreateChannel)}
-            className={cn("flex items-center gap-1 px-2 py-2 text-xs font-medium rounded-t-lg transition-all whitespace-nowrap", showCreateChannel ? "text-primary" : "text-white/20 hover:text-white/40")}
+            className={cn("flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap", showCreateChannel ? "text-primary" : "text-white/20 hover:text-white/40")}
             title="Create new channel"
           >
             <Plus className="w-3.5 h-3.5" />
