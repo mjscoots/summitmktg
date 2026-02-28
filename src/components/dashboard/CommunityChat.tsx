@@ -216,7 +216,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: false })
         .limit(200);
 
       if (error) { console.error('Error fetching messages:', error); return; }
@@ -235,7 +235,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         });
         setProfileMap(map);
       }
-      setMessages((data || []).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
+      setMessages(([...(data || [])].reverse()).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
     };
     fetchMessages();
   }, []);
@@ -508,7 +508,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       })()}
 
       {/* Messages */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto min-h-0 relative">
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative">
         {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
             <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
