@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { isMomentumComplete } from './BootcampMomentum';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0, isOverdue: false });
@@ -72,6 +75,8 @@ const STEPS = [
 export default function BootcampLock() {
   const navigate = useNavigate();
   const { progress, isLoading, isLocked, deadlineInfo, skipAllowed, skipBootcamp } = useBootcamp();
+  const { signOut } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
   const momentumDone = isMomentumComplete();
 
   useEffect(() => {
@@ -120,6 +125,23 @@ export default function BootcampLock() {
           : 10;
 
   const completedCount = STEPS.filter(s => getStepDone(s)).length;
+
+  const handleDeleteMyAccount = async () => {
+    if (!window.confirm('Delete your account permanently and sign up again?')) return;
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase.functions.invoke('self-delete-account');
+      if (error) throw error;
+      await signOut();
+      toast.success('Account deleted. You can re-sign up now.');
+      navigate('/login', { replace: true });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete account right now.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black relative flex items-center justify-center px-4">
@@ -243,6 +265,15 @@ export default function BootcampLock() {
               Skip for Now
             </Button>
           )}
+
+          <Button
+            variant="ghost"
+            onClick={handleDeleteMyAccount}
+            disabled={isDeleting}
+            className="w-full mt-2 text-destructive hover:text-destructive text-sm font-semibold"
+          >
+            {isDeleting ? 'Deleting account...' : 'Delete Account & Re-sign Up'}
+          </Button>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { RookieViewProvider } from "@/contexts/RookieViewContext";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 // Public pages (keep eager – small & needed immediately)
 import Index from "./pages/Index";
@@ -96,8 +97,9 @@ function LazyFallback() {
      <TooltipProvider>
        <Toaster />
        <Sonner />
-       <BrowserRouter>
-         <Suspense fallback={<LazyFallback />}>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Suspense fallback={<LazyFallback />}>
            <Routes>
              {/* ========== PUBLIC ROUTES ========== */}
              <Route path="/" element={<Index />} />

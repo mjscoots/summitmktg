@@ -16,7 +16,7 @@ interface ChecklistItem {
 }
 
 export function DailyChecklist() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,24 +65,28 @@ export function DailyChecklist() {
       }
     } catch {}
 
-    // 2. Summer Checklist — check real bootcamp status
-    try {
-      const { data: bp } = await supabase
-        .from('bootcamp_progress')
-        .select('bootcamp_completed, bootcamp_exempt')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    // 2. Summer Checklist — rookie-only and only while incomplete
+    if (role === 'rookie') {
+      try {
+        const { data: bp } = await supabase
+          .from('bootcamp_progress')
+          .select('bootcamp_completed, bootcamp_exempt')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      const done = bp?.bootcamp_completed || bp?.bootcamp_exempt || false;
-      candidates.push({
-        id: 'summer-checklist',
-        text: done ? 'Summer Checklist Done' : 'Complete Summer Checklist',
-        subtext: done ? 'All phases finished' : 'Phases still remaining',
-        completed: done,
-        link: '/app/bootcamp',
-        icon: <ClipboardCheck className="w-3.5 h-3.5" />,
-      });
-    } catch {}
+        const done = bp?.bootcamp_completed || bp?.bootcamp_exempt || false;
+        if (!done) {
+          candidates.push({
+            id: 'summer-checklist',
+            text: 'Complete Summer Checklist',
+            subtext: 'One-time unlock requirement',
+            completed: false,
+            link: '/bootcamp-lock',
+            icon: <ClipboardCheck className="w-3.5 h-3.5" />,
+          });
+        }
+      } catch {}
+    }
 
     // 3. Pending 1:1 confirmation — check real scheduling requests
     try {
@@ -114,7 +118,7 @@ export function DailyChecklist() {
         text: first.task_title,
         subtext: first.task_description?.slice(0, 60),
         completed: false,
-        link: '/app/dashboard',
+        link: '/app',
         icon: <Target className="w-3.5 h-3.5" />,
       });
     }
@@ -125,7 +129,7 @@ export function DailyChecklist() {
     // Show max 3 items
     setItems(candidates.slice(0, 3));
     setIsLoading(false);
-  }, [user, priorityTasks]);
+  }, [user, role, priorityTasks]);
 
   useEffect(() => {
     buildChecklist();

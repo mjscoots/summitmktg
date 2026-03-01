@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -17,7 +18,8 @@ import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 
 export default function ProfilePage() {
-  const { user, profile, role, isLoading: authLoading, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+  const { user, profile, role, isLoading: authLoading, refreshProfile, signOut } = useAuth();
   
   // Profile state
   const [fullName, setFullName] = useState('');
@@ -39,11 +41,13 @@ export default function ProfilePage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [rawImageSrc, setRawImageSrc] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const canSelfDelete = role === 'rookie' || role === 'manager';
   const { systemPct, tier } = useEliteTier();
 
   useEffect(() => {
@@ -206,6 +210,25 @@ export default function ProfilePage() {
       toast.error('Failed to remove photo');
     } finally {
       setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleDeleteMyAccount = async () => {
+    if (!canSelfDelete) return;
+    if (!window.confirm('Delete your account permanently? This cannot be undone.')) return;
+
+    setIsDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke('self-delete-account');
+      if (error) throw error;
+      await signOut();
+      toast.success('Account deleted. You can sign up again anytime.');
+      navigate('/login', { replace: true });
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not delete account right now. Please try again.');
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -425,6 +448,32 @@ export default function ProfilePage() {
         <div className="mb-6">
           <NotificationPreferences />
         </div>
+
+        {canSelfDelete && (
+          <div className="bg-card rounded-xl border border-destructive/40 p-6 mb-6">
+            <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+              <Trash2 className="w-4 h-4 text-destructive" />
+              Delete Account
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Permanently delete your account and sign up fresh.
+            </p>
+            <Button
+              onClick={handleDeleteMyAccount}
+              disabled={isDeletingAccount}
+              variant="destructive"
+            >
+              {isDeletingAccount ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete My Account'
+              )}
+            </Button>
+          </div>
+        )}
 
         {/* Change Password */}
         <div className="bg-card rounded-xl border border-border/50 p-6">
