@@ -80,6 +80,13 @@ const getColor = (type: string | null) => {
   return CATEGORY_COLORS[cat];
 };
 
+/** Detect if an event location is remote/virtual */
+const isRemoteLocation = (location: string | null): boolean | null => {
+  if (!location) return null;
+  const loc = location.toLowerCase();
+  return loc.includes('zoom') || loc.includes('meet') || loc.includes('teams') || loc.includes('http') || loc.includes('virtual') || loc.includes('remote') || loc.includes('online');
+};
+
 /** Check if event_date has a real time (not midnight) */
 const hasTime = (dateStr: string) => {
   const d = new Date(dateStr);
@@ -874,20 +881,24 @@ export default function CalendarPage() {
 
                       <div className="mt-0.5 space-y-px">
                         {dayEvents.slice(0, 3).map(event => {
-                          const color = getColor(event.event_type);
+                          const isMand = getEventCategory(event.event_type) === 'mandatory';
+                          const remote = isRemoteLocation(event.location);
                           return (
                             <button
                               key={event.id}
                               onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
-                              className={cn(
-                                "w-full text-left text-[11px] leading-snug font-medium px-1.5 py-[3px] rounded transition-all hover:brightness-110",
-                                color.bg, color.text
-                              )}
+                              className="w-full text-left text-[11px] leading-snug font-medium px-1.5 py-[3px] rounded transition-all hover:bg-muted/60 bg-muted/30 text-foreground"
                               title={event.title}
                             >
-                              <span className="flex items-start gap-1">
-                                <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[3px]", color.dot)} />
-                                <span className="line-clamp-2 break-words">{event.title}</span>
+                              <span className="flex items-center gap-1">
+                                {isMand && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
+                                <span className="line-clamp-1 break-words flex-1 min-w-0">{event.title}</span>
+                                {remote !== null && (
+                                  <span className={cn(
+                                    "w-1.5 h-4 rounded-sm flex-shrink-0",
+                                    remote ? "bg-[hsl(270,60%,55%)]" : "bg-[hsl(25,90%,55%)]"
+                                  )} title={remote ? 'Remote' : 'In Person'} />
+                                )}
                               </span>
                             </button>
                           );
@@ -908,15 +919,18 @@ export default function CalendarPage() {
 
               {/* Legend */}
               <div className="flex flex-wrap items-center gap-4 mt-3 px-1">
-                {(['mandatory', 'optional'] as EventCategory[]).map(cat => {
-                  const c = CATEGORY_COLORS[cat];
-                  return (
-                    <span key={cat} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span className={cn("w-2.5 h-2.5 rounded-full", c.dot)} />
-                      {c.label}
-                    </span>
-                  );
-                })}
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  Mandatory
+                </span>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="w-1.5 h-3.5 rounded-sm bg-[hsl(270,60%,55%)]" />
+                  Remote
+                </span>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="w-1.5 h-3.5 rounded-sm bg-[hsl(25,90%,55%)]" />
+                  In Person
+                </span>
                 {isManager && (
                   <span className="text-xs text-muted-foreground/50 ml-auto">
                     Double-click to create
