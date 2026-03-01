@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Calendar, CalendarDays, ClipboardList } from 'lucide-react';
+import { Users, Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
@@ -14,35 +14,27 @@ interface QuickAction {
 
 export function QuickActions() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { role } = useAuth();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
-  const actions: QuickAction[] = [
-    {
-      icon: <Users className="w-4 h-4" />,
-      label: 'View Team',
-      shortLabel: 'Team',
-      onClick: () => navigate('/app/team'),
-    },
-    {
-      icon: <Calendar className="w-4 h-4" />,
-      label: 'Schedule Event',
-      shortLabel: 'Schedule',
-      onClick: () => setIsEventModalOpen(true),
-    },
-    {
-      icon: <CalendarDays className="w-4 h-4" />,
-      label: 'Open Calendar',
-      shortLabel: 'Calendar',
-      onClick: () => navigate('/app/calendar'),
-    },
-    {
-      icon: <ClipboardList className="w-4 h-4" />,
-      label: 'Open Forms',
-      shortLabel: 'Forms',
-      onClick: () => navigate('/app/forms'),
-    },
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+
+  const managerActions: QuickAction[] = [
+    { icon: <Users className="w-4 h-4" />, label: 'View Team', shortLabel: 'Team', onClick: () => navigate('/app/team') },
+    { icon: <Calendar className="w-4 h-4" />, label: 'Schedule Event', shortLabel: 'Schedule', onClick: () => setIsEventModalOpen(true) },
+    { icon: <CalendarDays className="w-4 h-4" />, label: 'Open Calendar', shortLabel: 'Calendar', onClick: () => navigate('/app/calendar') },
+    { icon: <ClipboardList className="w-4 h-4" />, label: 'Open Forms', shortLabel: 'Forms', onClick: () => navigate('/app/forms') },
   ];
+
+  const rookieActions: QuickAction[] = [
+    { icon: <GraduationCap className="w-4 h-4" />, label: 'Training', shortLabel: 'Train', onClick: () => navigate('/app/training') },
+    { icon: <ListChecks className="w-4 h-4" />, label: 'Attendance', shortLabel: 'RSVP', onClick: () => navigate('/app/calendar') },
+    { icon: <MessagesSquare className="w-4 h-4" />, label: 'Community', shortLabel: 'Chat', onClick: () => navigate('/app/chat') },
+    { icon: <Trophy className="w-4 h-4" />, label: 'Leaderboard', shortLabel: 'Rank', onClick: () => navigate('/app/leaderboard') },
+    { icon: <Link2 className="w-4 h-4" />, label: 'Resources', shortLabel: 'Links', onClick: () => navigate('/app/links') },
+  ];
+
+  const actions = isManager ? managerActions : rookieActions;
 
   return (
     <>
@@ -76,11 +68,13 @@ export function QuickActions() {
         </div>
       </div>
 
-      <ManagerEventForm
-        isOpen={isEventModalOpen}
-        onClose={() => setIsEventModalOpen(false)}
-        onSave={() => setIsEventModalOpen(false)}
-      />
+      {isManager && (
+        <ManagerEventForm
+          isOpen={isEventModalOpen}
+          onClose={() => setIsEventModalOpen(false)}
+          onSave={() => setIsEventModalOpen(false)}
+        />
+      )}
     </>
   );
 }
