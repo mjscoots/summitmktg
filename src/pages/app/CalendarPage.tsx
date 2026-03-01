@@ -52,15 +52,17 @@ interface Attendance {
   profile?: { full_name: string };
 }
 
-// Simplified 4 categories only
-type EventCategory = 'all' | 'mandatory' | 'training' | 'team' | 'optional';
+// Simplified 3 categories: All, Mandatory, Optional
+type EventCategory = 'all' | 'mandatory' | 'optional';
 
 const EVENT_CATEGORY_MAP: Record<string, EventCategory> = {
   call: 'mandatory',
   deadline: 'mandatory',
-  training: 'training',
-  meeting: 'team',
+  mandatory: 'mandatory',
+  training: 'mandatory',
+  meeting: 'mandatory',
   general: 'optional',
+  optional: 'optional',
 };
 
 const getEventCategory = (type: string | null): EventCategory => {
@@ -70,8 +72,6 @@ const getEventCategory = (type: string | null): EventCategory => {
 const CATEGORY_COLORS: Record<EventCategory, { bg: string; text: string; dot: string; border: string; label: string }> = {
   all: { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-foreground', border: 'border-foreground', label: 'All' },
   mandatory: { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-500', border: 'border-red-500', label: 'Mandatory' },
-  training: { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-500', border: 'border-blue-500', label: 'Training' },
-  team: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-500', border: 'border-emerald-500', label: 'Team' },
   optional: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-500', border: 'border-yellow-500', label: 'Optional' },
 };
 
@@ -165,7 +165,6 @@ export default function CalendarPage() {
     const map: Record<string, CalendarEvent[]> = {};
     const filtered = activeFilter === 'all' ? expandedEvents : expandedEvents.filter(e => {
       const cat = getEventCategory(e.event_type);
-      if (activeFilter === 'team') return e.is_team_wide || cat === 'team';
       return cat === activeFilter;
     });
     filtered.forEach(e => {
@@ -446,9 +445,9 @@ export default function CalendarPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
             {/* Main Calendar Grid */}
             <div>
-              {/* Filters — 4 categories only */}
+              {/* Filters — Mandatory & Optional only */}
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {(['all', 'mandatory', 'training', 'team', 'optional'] as EventCategory[]).map(cat => {
+                {(['all', 'mandatory', 'optional'] as EventCategory[]).map(cat => {
                   const c = CATEGORY_COLORS[cat];
                   return (
                     <button
