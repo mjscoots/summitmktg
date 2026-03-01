@@ -93,9 +93,9 @@ function DateSeparator({ date }: { date: Date }) {
 
   return (
     <div className="flex items-center my-4 px-4">
-      <div className="flex-1 h-px bg-white/[0.06]" />
-      <span className="text-[11px] font-semibold text-white/30 px-3">{label}</span>
-      <div className="flex-1 h-px bg-white/[0.06]" />
+      <div className="flex-1 h-px bg-border/50" />
+      <span className="text-[11px] font-semibold text-muted-foreground px-3">{label}</span>
+      <div className="flex-1 h-px bg-border/50" />
     </div>
   );
 }
@@ -104,9 +104,9 @@ function DateSeparator({ date }: { date: Date }) {
 function BotMessage({ content }: { content: string }) {
   return (
     <div className="my-3 mx-4">
-      <div className="h-px bg-white/[0.06] mb-3" />
-      <p className="text-[13px] text-white/50 italic text-center leading-relaxed">{content}</p>
-      <div className="h-px bg-white/[0.06] mt-3" />
+      <div className="h-px bg-border/50 mb-3" />
+      <p className="text-[13px] text-muted-foreground italic text-center leading-relaxed">{content}</p>
+      <div className="h-px bg-border/50 mt-3" />
     </div>
   );
 }
@@ -410,7 +410,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     }
   };
 
-  const getRoleColor = (r?: string) => { if (r === 'admin') return 'text-red-400'; if (r === 'manager') return 'text-blue-400'; return 'text-white/80'; };
+  const getRoleColor = (r?: string) => { if (r === 'admin') return 'text-red-400'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
   const getRoleBadge = (r?: string) => {
     if (r === 'bot') return null; // No badge for bot — uses divider style
     if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 uppercase tracking-wider">Owner</span>;
@@ -464,7 +464,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         {isAdmin && (
           <button
             onClick={() => setShowCreateChannel(!showCreateChannel)}
-            className={cn("flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap", showCreateChannel ? "text-primary" : "text-white/20 hover:text-white/40")}
+            className={cn("flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap", showCreateChannel ? "text-primary" : "text-muted-foreground/50 hover:text-muted-foreground")}
             title="Create new channel"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -474,11 +474,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Create Channel Form */}
       {showCreateChannel && isAdmin && (
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-white/[0.06] bg-white/[0.02] flex-shrink-0">
-          <Hash className="w-4 h-4 text-white/30" />
-          <input type="text" value={newChannelName} onChange={e => setNewChannelName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateChannel()} placeholder="Channel name..." className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 focus:outline-none" autoFocus />
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-border/40 bg-muted/30 flex-shrink-0">
+          <Hash className="w-4 h-4 text-muted-foreground" />
+          <input type="text" value={newChannelName} onChange={e => setNewChannelName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateChannel()} placeholder="Channel name..." className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none" autoFocus />
           <button onClick={handleCreateChannel} disabled={!newChannelName.trim() || creatingChannel} className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">{creatingChannel ? 'Creating...' : 'Create'}</button>
-          <button onClick={() => { setShowCreateChannel(false); setNewChannelName(''); }} className="p-1 text-white/30 hover:text-white"><X className="w-4 h-4" /></button>
+          <button onClick={() => { setShowCreateChannel(false); setNewChannelName(''); }} className="p-1 text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
         </div>
       )}
 
@@ -502,7 +502,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           <button onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/10 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left">
             <Pin className="w-3 h-3 text-amber-500 flex-shrink-0" />
             <span className="text-[11px] font-semibold text-amber-500">{pinProfile.full_name}:</span>
-            <span className="text-[11px] text-white/40 truncate">{lastPinned.content}</span>
+            <span className="text-[11px] text-muted-foreground truncate">{lastPinned.content}</span>
           </button>
         );
       })()}
@@ -511,11 +511,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative">
         {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
-            <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-full bg-muted/40 flex items-center justify-center mx-auto mb-4">
               {(() => { const Icon = ICON_MAP[activeChannelConfig.icon] || Hash; return <Icon className={cn("w-7 h-7", activeChannelConfig.color)} />; })()}
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">#{activeChannelConfig.label}</h3>
-            <p className="text-sm text-white/30">Start the conversation.</p>
+            <h3 className="text-lg font-bold text-foreground mb-1">#{activeChannelConfig.label}</h3>
+            <p className="text-sm text-muted-foreground">Start the conversation.</p>
           </div>
         )}
 
@@ -543,7 +543,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               <div
                 id={`msg-${msg.id}`}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-white/[0.02] transition-colors",
+                  "group/msg relative px-4 hover:bg-muted/30 transition-colors",
                   grouped ? "py-0.5" : "pt-3 pb-1",
                   msg.is_pinned && "bg-amber-500/[0.03] border-l-2 border-amber-500/30",
                   postOfTheDayId === msg.id && "post-of-the-day"
@@ -558,11 +558,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
                 {/* Hover toolbar */}
                 {!msg.is_ai && (
-                  <div className="absolute -top-3 right-4 hidden group-hover/msg:flex items-center gap-0.5 bg-[hsl(220,14%,10%)] border border-white/[0.08] rounded-md shadow-lg px-0.5 py-0.5 z-10">
-                    <button onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }} className="p-1.5 text-white/30 hover:text-white hover:bg-white/[0.06] rounded transition-colors" title="Reply"><Reply className="w-3.5 h-3.5" /></button>
-                    {own && <button onClick={() => { setEditingId(msg.id); setEditText(msg.content); }} className="p-1.5 text-white/30 hover:text-white hover:bg-white/[0.06] rounded transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>}
-                    {isManager && <button onClick={() => handlePin(msg.id, msg.is_pinned)} className={cn("p-1.5 rounded transition-colors", msg.is_pinned ? "text-amber-500 hover:text-amber-400" : "text-white/30 hover:text-white hover:bg-white/[0.06]")} title={msg.is_pinned ? "Unpin" : "Pin"}>{msg.is_pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}</button>}
-                    {(own || isManager) && <button onClick={() => setDeleteConfirm({ open: true, msgId: msg.id })} className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
+                   <div className="absolute -top-3 right-4 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border/60 rounded-md shadow-lg px-0.5 py-0.5 z-10">
+                    <button onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors" title="Reply"><Reply className="w-3.5 h-3.5" /></button>
+                    {own && <button onClick={() => { setEditingId(msg.id); setEditText(msg.content); }} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>}
+                    {isManager && <button onClick={() => handlePin(msg.id, msg.is_pinned)} className={cn("p-1.5 rounded transition-colors", msg.is_pinned ? "text-amber-500 hover:text-amber-400" : "text-muted-foreground hover:text-foreground hover:bg-muted/60")} title={msg.is_pinned ? "Unpin" : "Pin"}>{msg.is_pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}</button>}
+                    {(own || isManager) && <button onClick={() => setDeleteConfirm({ open: true, msgId: msg.id })} className="p-1.5 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
                   </div>
                 )}
 
@@ -580,7 +580,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         </button>
                       )
                     ) : (
-                      <span className="text-[10px] text-transparent group-hover/msg:text-white/20 transition-colors w-9 text-right leading-[22px] tabular-nums">
+                      <span className="text-[10px] text-transparent group-hover/msg:text-muted-foreground/50 transition-colors w-9 text-right leading-[22px] tabular-nums">
                         {format(new Date(msg.created_at), 'h:mm')}
                       </span>
                     )}
@@ -594,10 +594,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                       if (!parentMsg) return null;
                       const parentProfile = getProfile(parentMsg);
                       return (
-                        <div className={cn("flex items-center gap-1.5 mb-1 text-xs cursor-pointer hover:text-white/60 transition-colors", own && "justify-end")} onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
-                          <CornerDownRight className="w-3 h-3 text-white/20 flex-shrink-0" />
+                        <div className={cn("flex items-center gap-1.5 mb-1 text-xs cursor-pointer hover:text-foreground/60 transition-colors", own && "justify-end")} onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
+                          <CornerDownRight className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
                           <span className={cn("font-semibold text-[11px]", getRoleColor(parentProfile.role))}>{parentProfile.full_name}</span>
-                          <span className="text-white/20 truncate max-w-[200px]">{parentMsg.content}</span>
+                          <span className="text-muted-foreground/50 truncate max-w-[200px]">{parentMsg.content}</span>
                         </div>
                       );
                     })()}
@@ -610,7 +610,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                         </button>
                         {getRoleBadge(msgProfile.role)}
                         {!msg.is_ai && msgProfile.tier_pct != null && msgProfile.tier_pct >= 25 && <TierBadge percentage={msgProfile.tier_pct} size="xs" />}
-                        <span className="text-[10px] text-white/20">
+                        <span className="text-[10px] text-muted-foreground/60">
                           {isToday(new Date(msg.created_at)) ? `Today at ${format(new Date(msg.created_at), 'h:mm a')}` : isYesterday(new Date(msg.created_at)) ? `Yesterday at ${format(new Date(msg.created_at), 'h:mm a')}` : format(new Date(msg.created_at), 'MM/dd/yyyy h:mm a')}
                         </span>
                       </div>
@@ -618,24 +618,24 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
                     {/* Message body */}
                     {editingId === msg.id ? (
-                      <div className="bg-white/[0.04] rounded-lg p-2 border border-primary/30">
-                        <input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }} className="w-full bg-transparent text-white text-sm focus:outline-none" autoFocus />
+                      <div className="bg-muted/40 rounded-lg p-2 border border-primary/30">
+                        <input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }} className="w-full bg-transparent text-foreground text-sm focus:outline-none" autoFocus />
                         <div className="flex items-center gap-2 mt-1.5">
-                          <span className="text-[10px] text-white/30">esc to <button onClick={() => setEditingId(null)} className="text-primary hover:underline">cancel</button> · enter to <button onClick={() => handleEdit(msg.id)} className="text-primary hover:underline">save</button></span>
+                          <span className="text-[10px] text-muted-foreground">esc to <button onClick={() => setEditingId(null)} className="text-primary hover:underline">cancel</button> · enter to <button onClick={() => handleEdit(msg.id)} className="text-primary hover:underline">save</button></span>
                         </div>
                       </div>
                     ) : isStickerMessage(msg.content) ? (
-                      (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className={cn("w-32 h-32 object-contain rounded-lg", own && "ml-auto")} /> : <p className="text-sm text-white/50">[Unknown sticker]</p>; })()
+                      (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className={cn("w-32 h-32 object-contain rounded-lg", own && "ml-auto")} /> : <p className="text-sm text-muted-foreground">[Unknown sticker]</p>; })()
                     ) : isGifMessage(msg.content) ? (
-                      (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className={cn("max-w-[280px] rounded-lg", own && "ml-auto")} loading="lazy" /> : <p className="text-sm text-white/50">[GIF unavailable]</p>; })()
+                      (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className={cn("max-w-[280px] rounded-lg", own && "ml-auto")} loading="lazy" /> : <p className="text-sm text-muted-foreground">[GIF unavailable]</p>; })()
                     ) : isImageMessage(msg.content) ? (
                       <ChatImage url={getImageUrl(msg.content)} />
                     ) : isFileMessage(msg.content) ? (
-                      (() => { const info = getFileInfo(msg.content); return info ? <ChatFile info={info} /> : <p className="text-sm text-white/50">[File unavailable]</p>; })()
+                      (() => { const info = getFileInfo(msg.content); return info ? <ChatFile info={info} /> : <p className="text-sm text-muted-foreground">[File unavailable]</p>; })()
                     ) : msg.content.startsWith('📊 Poll:') ? (
-                      <div><p className="text-sm text-white/80 leading-relaxed">{renderWithLinks(msg.content)}</p><ChatPoll messageId={msg.id} profileMap={profileMap} /></div>
+                      <div><p className="text-sm text-foreground/80 leading-relaxed">{renderWithLinks(msg.content)}</p><ChatPoll messageId={msg.id} profileMap={profileMap} /></div>
                     ) : (
-                      <p className={cn("text-sm leading-relaxed whitespace-pre-wrap break-words", own ? "text-white/90" : "text-white/70")}>{renderWithLinks(msg.content)}</p>
+                      <p className={cn("text-sm leading-relaxed whitespace-pre-wrap break-words", own ? "text-foreground/90" : "text-foreground/70")}>{renderWithLinks(msg.content)}</p>
                     )}
                   </div>
                 </div>
@@ -654,9 +654,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               <div>
                 <div className="flex items-baseline gap-2 mb-1"><span className="text-sm font-semibold text-primary">AI Coach</span></div>
                 <div className="flex gap-1 py-1">
-                  <div className="w-2 h-2 rounded-full bg-white/20 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-white/20 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-white/20 animate-bounce" style={{ animationDelay: '300ms' }} />
+                   <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>
@@ -666,11 +666,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         {typingUsers.length > 0 && (
           <div className="px-4 py-1.5 flex items-center gap-2">
             <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-white/20 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-1.5 h-1.5 rounded-full bg-white/20 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-1.5 h-1.5 rounded-full bg-white/20 animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
-            <span className="text-xs text-white/30">
+            <span className="text-xs text-muted-foreground">
               {typingUsers.length === 1 ? `${typingUsers[0].fullName} is typing...` : typingUsers.length === 2 ? `${typingUsers[0].fullName} and ${typingUsers[1].fullName} are typing...` : `${typingUsers[0].fullName} and ${typingUsers.length - 1} others are typing...`}
             </span>
           </div>
@@ -682,7 +682,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {/* Scroll FAB */}
       {showScrollDown && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
-          <button onClick={() => scrollToBottom()} className="bg-white/[0.06] border border-white/[0.08] shadow-lg rounded-full p-2 text-white/40 hover:text-white transition-colors">
+          <button onClick={() => scrollToBottom()} className="bg-card border border-border/60 shadow-lg rounded-full p-2 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
@@ -714,11 +714,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           {showPollCreator && <PollCreator onSubmit={handleCreatePoll} onClose={() => setShowPollCreator(false)} />}
 
           {replyingTo && (
-            <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-white/[0.03] rounded-t-lg border border-b-0 border-white/[0.06] text-xs">
+            <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/30 rounded-t-lg border border-b-0 border-border/40 text-xs">
               <Reply className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <span className="text-white/30">Replying to</span>
-              <span className="font-semibold text-white/60 truncate">{getProfile(replyingTo).full_name}</span>
-              <button onClick={() => setReplyingTo(null)} className="p-0.5 text-white/20 hover:text-white rounded transition-colors ml-auto flex-shrink-0"><X className="w-3.5 h-3.5" /></button>
+              <span className="text-muted-foreground">Replying to</span>
+              <span className="font-semibold text-foreground/60 truncate">{getProfile(replyingTo).full_name}</span>
+              <button onClick={() => setReplyingTo(null)} className="p-0.5 text-muted-foreground/50 hover:text-foreground rounded transition-colors ml-auto flex-shrink-0"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
 
@@ -770,8 +770,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           </div>
         </div>
       ) : (
-        <div className="px-4 py-3 flex-shrink-0 border-t border-white/[0.04]">
-          <p className="text-xs text-white/20 text-center">Only managers can post in Announcements</p>
+        <div className="px-4 py-3 flex-shrink-0 border-t border-border/30">
+          <p className="text-xs text-muted-foreground/50 text-center">Only managers can post in Announcements</p>
         </div>
       )}
 
