@@ -51,11 +51,8 @@ interface ManagerEventFormProps {
 }
 
 const EVENT_TYPES = [
-  { value: 'general', label: 'General', icon: '📋' },
-  { value: 'training', label: 'Training', icon: '📚' },
-  { value: 'meeting', label: 'Meeting', icon: '🤝' },
-  { value: 'deadline', label: 'Deadline', icon: '⏰' },
-  { value: 'call', label: 'Team Call', icon: '📞' },
+  { value: 'mandatory', label: 'Mandatory', icon: '🔴' },
+  { value: 'optional', label: 'Optional', icon: '🟡' },
 ];
 
 type AssignmentMode = 'entire_team' | 'managers_only' | 'rookies_only' | 'specific';
@@ -92,7 +89,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
   const [endTime, setEndTime] = useState('');
   const [locationMode, setLocationMode] = useState<LocationMode>('virtual');
   const [locationDetail, setLocationDetail] = useState('');
-  const [eventType, setEventType] = useState('general');
+  const [eventType, setEventType] = useState('mandatory');
   const [isTeamWide, setIsTeamWide] = useState(true);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [assignmentMode, setAssignmentMode] = useState<AssignmentMode>('entire_team');
@@ -184,7 +181,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
     setEndTime('');
     setLocationMode('virtual');
     setLocationDetail('');
-    setEventType('general');
+    setEventType('mandatory');
     setIsTeamWide(true);
     setSelectedMembers([]);
     setAssignmentMode('entire_team');

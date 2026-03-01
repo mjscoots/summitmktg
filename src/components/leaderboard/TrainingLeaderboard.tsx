@@ -151,7 +151,10 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
   if (isLoading) {
     return (
       <div className="p-6 text-center">
-        <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
+        <div className="flex flex-col items-center gap-2">
+          <Trophy className="w-6 h-6 text-yellow-500 animate-bounce" />
+          <span className="text-muted-foreground text-sm animate-pulse">Loading rankings...</span>
+        </div>
       </div>
     );
   }
@@ -225,24 +228,34 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
           <div className="mx-4 mt-4 space-y-2">
             {/* Rank card */}
             <div className={cn(
-              "p-3.5 rounded-xl border bg-gradient-to-r flex items-center gap-3",
+              "p-4 rounded-xl border bg-gradient-to-r flex items-center gap-3 relative overflow-hidden",
               accentClass
             )}>
-              <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
-                <span className="text-sm font-black text-primary">#{rank}</span>
+              {rank === 1 && <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-yellow-500/5 animate-pulse" />}
+              <div className="w-12 h-12 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center shrink-0 shadow-lg">
+                <span className="text-base font-black text-primary">#{rank}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {rank === 1 ? "👑 You're #1! Keep dominating." : `Top ${topPct}% — ${me.totalPoints.toLocaleString()} pts`}
+              <div className="flex-1 min-w-0 relative">
+                <p className="text-sm font-bold text-foreground truncate">
+                  {rank === 1 ? "👑 You're the king. Stay dangerous." : rank <= 3 ? `🔥 Top 3! ${me.totalPoints.toLocaleString()} pts — keep pushing.` : `Top ${topPct}% — ${me.totalPoints.toLocaleString()} pts`}
                 </p>
                 <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
-                  <span className="font-semibold text-primary">{me.progressPct}% trained</span>
+                  <span className="font-bold text-primary">{me.progressPct}% trained</span>
                   {me.streakDays > 0 && (
                     <>
                       <span>·</span>
                       <span className="flex items-center gap-0.5">
-                        <Flame className={cn("w-3 h-3", me.streakDays >= 7 ? "text-orange-500" : "text-orange-400/70")} />
+                        <Flame className={cn("w-3 h-3", me.streakDays >= 7 ? "text-orange-500 animate-pulse" : "text-orange-400/70")} />
                         {me.streakDays}d streak
+                      </span>
+                    </>
+                  )}
+                  {me.hoursThisWeek > 0 && (
+                    <>
+                      <span>·</span>
+                      <span className="flex items-center gap-0.5">
+                        <Clock className="w-3 h-3 text-blue-400" />
+                        {me.hoursThisWeek}h this week
                       </span>
                     </>
                   )}
@@ -252,25 +265,26 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
 
             {/* Rival callout */}
             {rival && pointsToNext > 0 && (
-              <div className="p-3 rounded-xl border border-destructive/20 bg-gradient-to-r from-destructive/8 to-transparent flex items-center gap-3">
-                <div className="p-1.5 rounded-lg bg-destructive/10">
+              <div className="p-3.5 rounded-xl border border-destructive/30 bg-gradient-to-r from-destructive/10 to-transparent flex items-center gap-3 relative overflow-hidden">
+                <div className="absolute right-0 top-0 w-20 h-20 bg-destructive/5 rounded-full blur-2xl" />
+                <div className="p-2 rounded-lg bg-destructive/15 border border-destructive/20">
                   <Target className="w-4 h-4 text-destructive" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-foreground">
-                    You're <span className="text-destructive">{pointsToNext.toLocaleString()} pts</span> behind {displayName(rival)}
+                <div className="flex-1 min-w-0 relative">
+                  <p className="text-xs font-black text-foreground">
+                    <span className="text-destructive">{pointsToNext.toLocaleString()} pts</span> behind {displayName(rival)}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Complete 1 lesson to close the gap</p>
+                  <p className="text-[10px] text-muted-foreground font-medium">1 lesson = 100 pts. Close the gap NOW.</p>
                 </div>
               </div>
             )}
 
             {/* Chaser warning */}
-            {chaser && chaserGap < 200 && chaserGap > 0 && (
-              <div className="p-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 flex items-center gap-2">
-                <Flame className="w-3.5 h-3.5 text-amber-500" />
-                <p className="text-[11px] text-amber-400 font-medium">
-                  {displayName(chaser)} is <span className="font-bold">{chaserGap} pts</span> behind and gaining
+            {chaser && chaserGap < 300 && chaserGap > 0 && (
+              <div className="p-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center gap-2.5">
+                <Zap className="w-4 h-4 text-amber-500 animate-pulse" />
+                <p className="text-[11px] text-amber-400 font-bold">
+                  ⚠️ {displayName(chaser)} is <span className="text-amber-300">{chaserGap} pts</span> behind — they're coming for your spot
                 </p>
               </div>
             )}
@@ -282,8 +296,8 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       {top3.length >= 3 && (
         <div className="relative px-4 pt-10 pb-6 overflow-hidden">
           {/* Background glow */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/8 rounded-full blur-[60px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/8 via-primary/3 to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-yellow-500/10 rounded-full blur-[80px]" />
 
           <div className="relative flex items-end justify-center gap-4">
             {/* 2nd Place */}
