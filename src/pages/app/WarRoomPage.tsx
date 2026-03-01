@@ -8,7 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Swords, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import type { TeamMember } from '@/lib/hierarchyUtils';
 
 type WarRoomTab = 'team' | 'pulse' | 'activity';
 
@@ -188,7 +189,7 @@ function TeamTab({ managerName }: { managerName: string }) {
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<'name' | 'training' | 'checklist' | 'activity'>('training');
   const [sortAsc, setSortAsc] = useState(false);
-  const navigate = useNavigate();
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -261,53 +262,75 @@ function TeamTab({ managerName }: { managerName: string }) {
 
   if (loading) return <SummitLoader label="Loading team..." />;
 
+  const toTeamMember = (row: TeamMemberRow): TeamMember => ({
+    id: row.user_id,
+    user_id: row.user_id,
+    full_name: row.full_name,
+    email: '',
+    status: null,
+    experience: null,
+    direct_manager: null,
+    last_active_at: row.last_active_at,
+  });
+
   return (
-    <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
-      {/* Header */}
-      <div className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/30 bg-muted/30">
-        {headers.map(h => (
-          <button
-            key={h.key}
-            onClick={() => handleSort(h.key)}
-            className={cn(
-              "text-[10px] font-bold uppercase tracking-wider text-left transition-colors flex items-center gap-1",
-              sortKey === h.key ? "text-primary" : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {h.label}
-            {sortKey === h.key && (
-              sortAsc ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />
-            )}
-          </button>
+    <>
+      <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
+        {/* Header */}
+        <div className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/30 bg-muted/30">
+          {headers.map(h => (
+            <button
+              key={h.key}
+              onClick={() => handleSort(h.key)}
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-wider text-left transition-colors flex items-center gap-1",
+                sortKey === h.key ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {h.label}
+              {sortKey === h.key && (
+                sortAsc ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />
+              )}
+            </button>
+          ))}
+        </div>
+        {/* Rows */}
+        {sorted.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No reps found</p>
+        ) : sorted.map((m) => (
+          <div key={m.user_id} className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/10 hover:bg-muted/20 transition-colors items-center">
+            <button onClick={() => setSelectedMember(toTeamMember(m))} className="text-sm font-medium text-primary hover:underline truncate text-left">
+              {m.full_name}
+            </button>
+            <div className="flex items-center gap-2">
+              <Progress value={m.trainingPct} className="h-1.5 flex-1 bg-muted max-w-[80px]" />
+              <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-yellow-400" : "text-destructive")}>{m.trainingPct}%</span>
+            </div>
+            <span className={cn("text-xs font-semibold", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
+            <span className="text-[11px] text-muted-foreground">
+              {m.last_active_at ? (() => {
+                const now = new Date();
+                const active = new Date(m.last_active_at!);
+                const diffMs = now.getTime() - active.getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffDays = Math.floor(diffMs / 86400000);
+                if (diffMins < 10) return 'Active Now';
+                if (diffDays === 0) return 'Today';
+                if (diffDays === 1) return 'Yesterday';
+                return `${diffDays} days ago`;
+              })() : 'Never'}
+            </span>
+          </div>
         ))}
       </div>
-      {/* Rows */}
-      {sorted.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">No reps found</p>
-      ) : sorted.map((m) => (
-        <div key={m.user_id} className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/10 hover:bg-muted/20 transition-colors items-center">
-          <span className="text-sm font-medium text-foreground truncate">{m.full_name}</span>
-          <div className="flex items-center gap-2">
-            <Progress value={m.trainingPct} className="h-1.5 flex-1 bg-muted max-w-[80px]" />
-            <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-yellow-400" : "text-destructive")}>{m.trainingPct}%</span>
-          </div>
-          <span className={cn("text-xs font-semibold", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
-          <span className="text-[11px] text-muted-foreground">
-            {m.last_active_at ? (() => {
-              const now = new Date();
-              const active = new Date(m.last_active_at!);
-              const diffMs = now.getTime() - active.getTime();
-              const diffMins = Math.floor(diffMs / 60000);
-              const diffDays = Math.floor(diffMs / 86400000);
-              if (diffMins < 10) return 'Active Now';
-              if (diffDays === 0) return 'Today';
-              if (diffDays === 1) return 'Yesterday';
-              return `${diffDays} days ago`;
-            })() : 'Never'}
-          </span>
-        </div>
-      ))}
-    </div>
+
+      <MemberProfileModal
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        roster={[]}
+      />
+    </>
   );
 }
 
@@ -319,6 +342,7 @@ function ActivityTab({ managerName }: { managerName: string }) {
   const [sortKey, setSortKey] = useState<'name' | 'total' | 'weekly' | 'status'>('total');
   const [sortAsc, setSortAsc] = useState(false);
   const navigate = useNavigate();
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -386,6 +410,16 @@ function ActivityTab({ managerName }: { managerName: string }) {
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
 
+  const toTeamMember = (row: TimeEntry): TeamMember => ({
+    id: row.user_id,
+    user_id: row.user_id,
+    full_name: row.full_name,
+    email: '',
+    status: null,
+    experience: null,
+    direct_manager: null,
+  });
+
   if (loading) return <SummitLoader label="Loading activity..." />;
 
   const bottomThree = sortedEntries.filter(e => e.status === 'below').slice(-3).map(e => e.user_id);
@@ -429,7 +463,9 @@ function ActivityTab({ managerName }: { managerName: string }) {
                 isBottom ? "bg-destructive/5 border-l-2 border-l-destructive/50" : "hover:bg-muted/20"
               )}
             >
-              <span className="text-sm font-medium text-foreground truncate">{e.full_name}</span>
+              <button onClick={() => setSelectedMember(toTeamMember(e))} className="text-sm font-medium text-primary hover:underline truncate text-left">
+                {e.full_name}
+              </button>
               <span className="text-xs font-bold tabular-nums text-foreground">{formatTime(e.totalMinutes)}</span>
               <span className={cn("text-xs font-bold tabular-nums", e.status === 'acceptable' ? "text-success" : "text-destructive")}>{formatTime(e.weeklyMinutes)}</span>
               <span className={cn(
@@ -450,6 +486,13 @@ function ActivityTab({ managerName }: { managerName: string }) {
       >
         View Full Leaderboard →
       </button>
+
+      <MemberProfileModal
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        roster={[]}
+      />
     </div>
   );
 }
