@@ -19,22 +19,22 @@ export function QuickActions() {
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
-  const managerActions: QuickAction[] = [
-    { icon: <Users className="w-4 h-4" />, label: 'View Team', shortLabel: 'Team', onClick: () => navigate('/app/team') },
-    { icon: <Calendar className="w-4 h-4" />, label: 'Schedule Event', shortLabel: 'Schedule', onClick: () => setIsEventModalOpen(true) },
-    { icon: <CalendarDays className="w-4 h-4" />, label: 'Open Calendar', shortLabel: 'Calendar', onClick: () => navigate('/app/calendar') },
-    { icon: <ClipboardList className="w-4 h-4" />, label: 'Open Forms', shortLabel: 'Forms', onClick: () => navigate('/app/forms') },
-  ];
-
-  const rookieActions: QuickAction[] = [
+  const commonActions: QuickAction[] = [
     { icon: <GraduationCap className="w-4 h-4" />, label: 'Training', shortLabel: 'Train', onClick: () => navigate('/app/training') },
-    { icon: <ListChecks className="w-4 h-4" />, label: 'Attendance', shortLabel: 'RSVP', onClick: () => navigate('/app/calendar') },
-    { icon: <MessagesSquare className="w-4 h-4" />, label: 'Community', shortLabel: 'Chat', onClick: () => navigate('/app/chat') },
+    { icon: <MessagesSquare className="w-4 h-4" />, label: 'Team Chat', shortLabel: 'Chat', onClick: () => navigate('/app/chat') },
+    { icon: <Users className="w-4 h-4" />, label: 'War Room', shortLabel: 'War', onClick: () => navigate('/app/war-room') },
+    { icon: <CalendarDays className="w-4 h-4" />, label: 'Calendar', shortLabel: 'Calendar', onClick: () => navigate('/app/calendar') },
     { icon: <Trophy className="w-4 h-4" />, label: 'Leaderboard', shortLabel: 'Rank', onClick: () => navigate('/app/leaderboard') },
     { icon: <Link2 className="w-4 h-4" />, label: 'Resources', shortLabel: 'Links', onClick: () => navigate('/app/links') },
   ];
 
-  const actions = isManager ? managerActions : rookieActions;
+  const managerOnlyActions: QuickAction[] = [
+    { icon: <Calendar className="w-4 h-4" />, label: 'Schedule Event', shortLabel: 'Schedule', onClick: () => setIsEventModalOpen(true) },
+    { icon: <ClipboardList className="w-4 h-4" />, label: 'Open Forms', shortLabel: 'Forms', onClick: () => navigate('/app/forms') },
+    { icon: <ListChecks className="w-4 h-4" />, label: 'View Team', shortLabel: 'Team', onClick: () => navigate('/app/team') },
+  ];
+
+  const actions = isManager ? [...commonActions, ...managerOnlyActions] : commonActions;
 
   return (
     <>

@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Clock, LogOut } from "lucide-react";
-import { useEffect } from "react";
+import { Clock, LogOut, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const PendingApproval = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profile, signOut, isLoading } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -19,6 +22,23 @@ const PendingApproval = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate("/login", { replace: true });
+  };
+
+  const handleDeleteMyAccount = async () => {
+    if (!window.confirm("Delete your account permanently and sign up again?")) return;
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase.functions.invoke("self-delete-account");
+      if (error) throw error;
+      await signOut();
+      toast.success("Account deleted. You can re-sign up now.");
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not delete account right now.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -40,6 +60,14 @@ const PendingApproval = () => {
         >
           <LogOut className="w-4 h-4" />
           Sign Out
+        </button>
+        <button
+          onClick={handleDeleteMyAccount}
+          disabled={isDeleting}
+          className="flex items-center gap-2 mx-auto mt-3 text-sm text-destructive hover:text-destructive/80 transition-colors disabled:opacity-60"
+        >
+          <Trash2 className="w-4 h-4" />
+          {isDeleting ? 'Deleting...' : 'Delete Account & Re-sign Up'}
         </button>
       </div>
     </div>

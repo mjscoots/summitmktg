@@ -58,18 +58,11 @@ const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: stri
 ];
 
 export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardProps) {
-  const { user, role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const [viewRole, setViewRole] = useState<'rookie' | 'manager'>('rookie');
+  const { user } = useAuth();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const [animateIn, setAnimateIn] = useState(false);
-
-  // Managers default to rookie view
-  useEffect(() => {
-    if (isManager) setViewRole('rookie');
-  }, [isManager]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -77,11 +70,13 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       setAnimateIn(false);
       try {
         // Use server-side SECURITY DEFINER function for deterministic results
-        const { data, error } = await supabase.rpc('get_global_leaderboard', {
-          _view_role: viewRole,
-          _limit: 20,
-          _mode: mode,
-        });
+        const [rookieResult, managerResult] = await Promise.all([
+          supabase.rpc('get_global_leaderboard', { _view_role: 'rookie', _limit: 20, _mode: mode }),
+          supabase.rpc('get_global_leaderboard', { _view_role: 'manager', _limit: 20, _mode: mode }),
+        ]);
+
+        const error = rookieResult.error || managerResult.error;
+        const data = [...(rookieResult.data || []), ...(managerResult.data || [])];
 
         if (error) {
           console.error('Leaderboard RPC error:', error);
@@ -131,7 +126,18 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
           }
         });
 
-        setEntries(leaderboard);
+        // De-duplicate users and keep highest total_points row when needed
+        const dedupedMap = new Map<string, LeaderboardEntry>();
+        leaderboard.forEach((entry) => {
+          const existing = dedupedMap.get(entry.user_id);
+          if (!existing || entry.totalPoints > existing.totalPoints) {
+            dedupedMap.set(entry.user_id, entry);
+          }
+        });
+
+        const merged = Array.from(dedupedMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
+
+        setEntries(merged);
         setTimeout(() => setAnimateIn(true), 100);
       } catch (err) {
         console.error('Error:', err);
@@ -141,7 +147,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     };
 
     fetchLeaderboard();
-  }, [viewRole, mode]);
+  }, [mode]);
 
   const getBadgeInfo = (badgeId: string | null) => {
     if (!badgeId) return null;
@@ -162,21 +168,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
   if (entries.length === 0) {
     return (
       <div>
-        {/* Role Toggle */}
-        <div className="px-4 pt-4">
-          <div className="p-0.5 bg-muted/50 rounded-lg inline-flex border border-border/30">
-            <button
-              onClick={() => setViewRole('rookie')}
-              className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-                viewRole === 'rookie' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
-            >Rookies</button>
-            <button
-              onClick={() => setViewRole('manager')}
-              className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-                viewRole === 'manager' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
-            >Managers</button>
-          </div>
-        </div>
         <div className="p-8 text-center">
           <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
           <p className="text-muted-foreground text-sm">No one with 100+ points yet</p>
@@ -190,21 +181,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
 
   return (
     <div>
-      {/* Role Toggle */}
-      <div className="px-4 pt-4">
-        <div className="p-0.5 bg-muted/50 rounded-lg inline-flex border border-border/30">
-          <button
-            onClick={() => setViewRole('rookie')}
-            className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-              viewRole === 'rookie' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
-          >Rookies</button>
-          <button
-            onClick={() => setViewRole('manager')}
-            className={cn("px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-              viewRole === 'manager' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
-          >Managers</button>
-        </div>
-      </div>
+      {/* Combined cohort (Managers + Rookies) */}
 
       {/* ===== YOUR RANK + RIVAL SYSTEM ===== */}
       {(() => {

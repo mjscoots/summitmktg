@@ -19,8 +19,13 @@ const TAB_META: Record<LeaderboardTab, { subtitle: string; icon: React.ReactNode
     ),
   },
   overall: {
-    subtitle: 'Rookies only · All time',
-    icon: <Mountain className="w-3.5 h-3.5 text-success" />,
+    subtitle: 'Includes managers & rookies · All time',
+    icon: (
+      <span className="inline-flex items-center gap-0.5">
+        <Mountain className="w-3 h-3 text-primary" />
+        <Mountain className="w-3 h-3 text-success -ml-1.5" />
+      </span>
+    ),
   },
   streak: {
     subtitle: 'Includes everyone',
