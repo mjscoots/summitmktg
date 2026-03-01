@@ -275,11 +275,11 @@ export default function AssignmentsTab({ managers, teams, onRefresh }: Props) {
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <UserAvatar fullName={u.full_name} avatarUrl={u.avatar_url} size="xs" />
-                      <div>
-                        <p className="font-medium text-foreground text-xs">{u.full_name}</p>
-                        <p className="text-[10px] text-muted-foreground">{u.email}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-xs truncate" title={u.full_name}>{u.full_name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate" title={u.email}>{u.email}</p>
                       </div>
                     </div>
                   </td>

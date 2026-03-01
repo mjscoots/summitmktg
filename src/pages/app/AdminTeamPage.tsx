@@ -604,11 +604,11 @@ export default function AdminTeamPage() {
               </div>
             ) : (
               <div className="border border-white/10 rounded-lg overflow-hidden overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.02]">
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
+                      <th className="w-[140px] sm:w-[180px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
+                      <th className="w-[170px] sm:w-[220px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Phone</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Level</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
@@ -619,8 +619,8 @@ export default function AdminTeamPage() {
                   <tbody>
                     {pendingUsers.map(user => (
                       <tr key={user.user_id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                        <td className="px-4 py-3 font-medium text-white">{user.full_name}</td>
-                        <td className="px-4 py-3 text-white/60">{user.email}</td>
+                        <td className="px-4 py-3 font-medium text-white max-w-[140px] sm:max-w-[180px] truncate" title={user.full_name}>{user.full_name}</td>
+                        <td className="px-4 py-3 text-white/60 max-w-[170px] sm:max-w-[220px] truncate" title={user.email}>{user.email}</td>
                         <td className="px-4 py-3 text-white/60">{user.phone || '—'}</td>
                         <td className="px-4 py-3"><Badge variant="secondary" className="text-[10px] capitalize">{user.role}</Badge></td>
                         <td className="px-4 py-3 text-white/60">{getTeamName(user.team_id)}</td>
@@ -668,11 +668,11 @@ export default function AdminTeamPage() {
               <TableSkeleton columns={7} rows={8} />
             ) : (
               <div className="border border-white/10 rounded-lg overflow-hidden overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.02]">
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
+                      <th className="w-[140px] sm:w-[180px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
+                      <th className="w-[170px] sm:w-[220px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Role</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
                       <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
@@ -683,8 +683,8 @@ export default function AdminTeamPage() {
                   <tbody>
                     {filtered.map(rep => (
                       <tr key={rep.user_id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="px-4 py-3 font-medium text-white">{rep.full_name}</td>
-                        <td className="px-4 py-3 text-white/60">{rep.email}</td>
+                        <td className="px-4 py-3 font-medium text-white max-w-[140px] sm:max-w-[180px] truncate" title={rep.full_name}>{rep.full_name}</td>
+                        <td className="px-4 py-3 text-white/60 max-w-[170px] sm:max-w-[220px] truncate" title={rep.email}>{rep.email}</td>
                         <td className="px-4 py-3"><Badge variant="outline" className="text-[10px] capitalize">{rep.role}</Badge></td>
                         <td className="px-4 py-3">{statusBadge(rep.status)}</td>
                         <td className="px-4 py-3 text-white/60">{getTeamName(rep.team_id)}</td>

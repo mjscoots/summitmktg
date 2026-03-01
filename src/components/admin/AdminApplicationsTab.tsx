@@ -146,11 +146,11 @@ export default function AdminApplicationsTab() {
         </div>
       ) : (
         <div className="border border-white/10 rounded-lg overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full table-fixed text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.02]">
-                <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
-                <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
+                <th className="w-[140px] sm:w-[180px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
+                <th className="w-[170px] sm:w-[220px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Phone</th>
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Location</th>
                 <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Referral</th>
@@ -168,8 +168,8 @@ export default function AdminApplicationsTab() {
             <tbody>
               {filtered.map(app => (
                 <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                  <td className="px-4 py-3 font-medium text-white">{app.full_name}</td>
-                  <td className="px-4 py-3 text-white/60">{app.email}</td>
+                  <td className="px-4 py-3 font-medium text-white max-w-[140px] sm:max-w-[180px] truncate" title={app.full_name}>{app.full_name}</td>
+                  <td className="px-4 py-3 text-white/60 max-w-[170px] sm:max-w-[220px] truncate" title={app.email}>{app.email}</td>
                   <td className="px-4 py-3 text-white/60">{app.phone}</td>
                   <td className="px-4 py-3 text-white/60">{app.city_state}</td>
                   <td className="px-4 py-3 text-white/60 text-xs">{app.referral_source}</td>
