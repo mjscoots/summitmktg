@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { SummitLoader } from '@/components/shared/SummitLoader';
 import { supabase } from '@/integrations/supabase/client';
-import { Swords, Activity, Users, Clock, ChevronRight, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare } from 'lucide-react';
+import { Swords, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-type WarRoomTab = 'pulse' | 'team' | 'activity';
+type WarRoomTab = 'team' | 'pulse' | 'activity';
 
 interface TeamMemberRow {
   user_id: string;
@@ -27,67 +29,80 @@ interface TimeEntry {
   status: 'acceptable' | 'below';
 }
 
+/** Get Monday-based week start */
+function getMondayWeekStart(): Date {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 1=Mon...
+  const diff = day === 0 ? 6 : day - 1; // days since Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
 export default function WarRoomPage() {
   const navigate = useNavigate();
   const { profile, role } = useAuth();
-  const firstName = profile?.full_name?.split(' ')[0] || 'Soldier';
-  const [activeTab, setActiveTab] = useState<WarRoomTab>('pulse');
+  const firstName = profile?.full_name?.split(' ')[0] || 'Manager';
+  const [activeTab, setActiveTab] = useState<WarRoomTab>('team');
 
   const TABS: { id: WarRoomTab; label: string; icon: typeof Activity }[] = [
-    { id: 'pulse', label: 'Pulse', icon: Activity },
     { id: 'team', label: 'Team', icon: Users },
+    { id: 'pulse', label: 'Pulse', icon: Activity },
     { id: 'activity', label: 'Activity', icon: Clock },
   ];
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <PageBackButton to="/app" label="Dashboard" />
+      <ScrollArea className="h-full">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <PageBackButton to="/app" label="Dashboard" />
 
-        {/* Hero */}
-        <div className="relative h-24 rounded-xl overflow-hidden mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-950 via-red-900/60 to-orange-900/40" />
-          <div className="absolute inset-0 flex items-center px-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-red-500/20 border border-red-500/30">
-                <Swords className="w-6 h-6 text-red-400" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">WAR ROOM</h1>
-                <p className="text-xs text-white/50">It's game day, {firstName}. Execute or get left behind.</p>
+          {/* Hero */}
+          <div className="relative h-24 rounded-xl overflow-hidden mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-950 via-red-900/60 to-orange-900/40" />
+            <div className="absolute inset-0 flex items-center px-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-red-500/20 border border-red-500/30">
+                  <Swords className="w-6 h-6 text-red-400" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">WAR ROOM</h1>
+                  <p className="text-xs text-white/50">Your team's training, progress & accountability at a glance.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Tab Bar */}
-        <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">
-          <div className="flex">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs font-semibold rounded-lg transition-all duration-200",
-                    activeTab === tab.id
-                      ? "bg-card text-foreground shadow-md shadow-primary/10 border border-border/50"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className={cn("w-3.5 h-3.5", activeTab === tab.id && "text-primary")} />
-                  {tab.label}
-                </button>
-              );
-            })}
+          {/* Tab Bar */}
+          <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">
+            <div className="flex">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs font-semibold rounded-lg transition-all duration-200",
+                      activeTab === tab.id
+                        ? "bg-card text-foreground shadow-md shadow-primary/10 border border-border/50"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Icon className={cn("w-3.5 h-3.5", activeTab === tab.id && "text-primary")} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} />}
-        {activeTab === 'team' && <TeamTab managerName={profile?.full_name || ''} />}
-        {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} />}
-      </div>
+          {activeTab === 'team' && <TeamTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} />}
+        </div>
+      </ScrollArea>
     </AppLayout>
   );
 }
@@ -130,10 +145,8 @@ function PulseTab({ managerName }: { managerName: string }) {
       const completedChecklist = (bp || []).filter((b: any) => b.bootcamp_completed).length;
       const checklistPct = repIds.length > 0 ? Math.round((completedChecklist / repIds.length) * 100) : 0;
 
-      // 1:1 Completion % (this week)
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      weekStart.setHours(0, 0, 0, 0);
+      // 1:1 Completion % (this week - Monday start)
+      const weekStart = getMondayWeekStart();
       const { count: completedCount } = await supabase
         .from('scheduling_requests')
         .select('*', { count: 'exact', head: true })
@@ -154,12 +167,14 @@ function PulseTab({ managerName }: { managerName: string }) {
     { icon: MessageSquare, label: '1:1 Completion', value: `${stats.oneOnOnePct}%`, color: stats.oneOnOnePct >= 75 ? 'text-success' : 'text-yellow-400' },
   ];
 
+  if (loading) return <SummitLoader label="Loading pulse..." />;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {metrics.map((m) => (
         <div key={m.label} className="bg-card rounded-xl border border-border/50 p-5 text-center">
           <m.icon className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-          <p className={cn("text-3xl font-black tabular-nums", m.color)}>{loading ? '—' : m.value}</p>
+          <p className={cn("text-3xl font-black tabular-nums", m.color)}>{m.value}</p>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">{m.label}</p>
         </div>
       ))}
@@ -172,6 +187,7 @@ function TeamTab({ managerName }: { managerName: string }) {
   const [members, setMembers] = useState<TeamMemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<'name' | 'training' | 'checklist' | 'activity'>('training');
+  const [sortAsc, setSortAsc] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -182,11 +198,9 @@ function TeamTab({ managerName }: { managerName: string }) {
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
 
-      // Profiles
       const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, last_active_at').in('user_id', repIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
 
-      // Lessons
       const { data: courses } = await supabase
         .from('training_courses')
         .select('id, target_role, training_modules ( id, training_lessons ( id, is_active ) )')
@@ -200,7 +214,6 @@ function TeamTab({ managerName }: { managerName: string }) {
       const lessonMap = new Map<string, number>();
       (prog || []).forEach((p: any) => { if (lessonIds.has(p.lesson_id)) lessonMap.set(p.user_id, (lessonMap.get(p.user_id) || 0) + 1); });
 
-      // Checklist
       const { data: bp } = await supabase.from('bootcamp_progress').select('user_id, bootcamp_completed').in('user_id', repIds);
       const checkMap = new Map((bp || []).map(b => [b.user_id, b.bootcamp_completed]));
 
@@ -221,12 +234,22 @@ function TeamTab({ managerName }: { managerName: string }) {
     fetch();
   }, [managerName]);
 
+  const handleSort = (key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortKey(key);
+      setSortAsc(false);
+    }
+  };
+
   const sorted = [...members].sort((a, b) => {
-    if (sortKey === 'name') return a.full_name.localeCompare(b.full_name);
-    if (sortKey === 'training') return b.trainingPct - a.trainingPct;
-    if (sortKey === 'checklist') return (b.checklistDone ? 1 : 0) - (a.checklistDone ? 1 : 0);
-    if (sortKey === 'activity') return (new Date(b.last_active_at || 0).getTime()) - (new Date(a.last_active_at || 0).getTime());
-    return 0;
+    let cmp = 0;
+    if (sortKey === 'name') cmp = a.full_name.localeCompare(b.full_name);
+    else if (sortKey === 'training') cmp = b.trainingPct - a.trainingPct;
+    else if (sortKey === 'checklist') cmp = (b.checklistDone ? 1 : 0) - (a.checklistDone ? 1 : 0);
+    else if (sortKey === 'activity') cmp = (new Date(b.last_active_at || 0).getTime()) - (new Date(a.last_active_at || 0).getTime());
+    return sortAsc ? -cmp : cmp;
   });
 
   const headers: { key: typeof sortKey; label: string }[] = [
@@ -236,7 +259,7 @@ function TeamTab({ managerName }: { managerName: string }) {
     { key: 'activity', label: 'Last Active' },
   ];
 
-  if (loading) return <div className="text-center py-12 text-muted-foreground text-sm">Loading team...</div>;
+  if (loading) return <SummitLoader label="Loading team..." />;
 
   return (
     <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
@@ -245,13 +268,16 @@ function TeamTab({ managerName }: { managerName: string }) {
         {headers.map(h => (
           <button
             key={h.key}
-            onClick={() => setSortKey(h.key)}
+            onClick={() => handleSort(h.key)}
             className={cn(
-              "text-[10px] font-bold uppercase tracking-wider text-left transition-colors",
+              "text-[10px] font-bold uppercase tracking-wider text-left transition-colors flex items-center gap-1",
               sortKey === h.key ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
             {h.label}
+            {sortKey === h.key && (
+              sortAsc ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />
+            )}
           </button>
         ))}
       </div>
@@ -289,7 +315,9 @@ function TeamTab({ managerName }: { managerName: string }) {
 function ActivityTab({ managerName }: { managerName: string }) {
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [requiredMinutes, setRequiredMinutes] = useState(120); // 2 hours default
+  const [requiredMinutes, setRequiredMinutes] = useState(120);
+  const [sortKey, setSortKey] = useState<'name' | 'total' | 'weekly' | 'status'>('total');
+  const [sortAsc, setSortAsc] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -303,10 +331,8 @@ function ActivityTab({ managerName }: { managerName: string }) {
       const { data: profiles } = await supabase.from('profiles').select('user_id, full_name').in('user_id', repIds);
       const nameMap = new Map((profiles || []).map(p => [p.user_id, p.full_name]));
 
-      // Weekly time
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      weekStart.setHours(0, 0, 0, 0);
+      // Monday-based week start
+      const weekStart = getMondayWeekStart();
       const { data: timeData } = await supabase
         .from('daily_training_time')
         .select('user_id, total_minutes, date')
@@ -316,7 +342,7 @@ function ActivityTab({ managerName }: { managerName: string }) {
       const weeklyMap = new Map<string, number>();
       (timeData || []).forEach(t => {
         totalMap.set(t.user_id, (totalMap.get(t.user_id) || 0) + t.total_minutes);
-        if (new Date(t.date) >= weekStart) {
+        if (new Date(t.date + 'T00:00:00') >= weekStart) {
           weeklyMap.set(t.user_id, (weeklyMap.get(t.user_id) || 0) + t.total_minutes);
         }
       });
@@ -340,28 +366,60 @@ function ActivityTab({ managerName }: { managerName: string }) {
     fetch();
   }, [managerName, requiredMinutes]);
 
+  const handleSort = (key: typeof sortKey) => {
+    if (sortKey === key) setSortAsc(!sortAsc);
+    else { setSortKey(key); setSortAsc(false); }
+  };
+
+  const sortedEntries = [...entries].sort((a, b) => {
+    let cmp = 0;
+    if (sortKey === 'name') cmp = a.full_name.localeCompare(b.full_name);
+    else if (sortKey === 'total') cmp = b.totalMinutes - a.totalMinutes;
+    else if (sortKey === 'weekly') cmp = b.weeklyMinutes - a.weeklyMinutes;
+    else if (sortKey === 'status') cmp = (a.status === 'below' ? 1 : 0) - (b.status === 'below' ? 1 : 0);
+    return sortAsc ? -cmp : cmp;
+  });
+
   const formatTime = (mins: number) => {
     const h = Math.floor(mins / 60);
     const m = mins % 60;
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
 
-  if (loading) return <div className="text-center py-12 text-muted-foreground text-sm">Loading activity...</div>;
+  if (loading) return <SummitLoader label="Loading activity..." />;
 
-  const bottomThree = entries.filter(e => e.status === 'below').slice(-3).map(e => e.user_id);
+  const bottomThree = sortedEntries.filter(e => e.status === 'below').slice(-3).map(e => e.user_id);
+
+  const activityHeaders: { key: typeof sortKey; label: string }[] = [
+    { key: 'name', label: 'Name' },
+    { key: 'total', label: 'Total Time' },
+    { key: 'weekly', label: 'This Week' },
+    { key: 'status', label: 'Status' },
+  ];
 
   return (
     <div>
       <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
         <div className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/30 bg-muted/30">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Name</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Time</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">This Week</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status</span>
+          {activityHeaders.map(h => (
+            <button
+              key={h.key}
+              onClick={() => handleSort(h.key)}
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-wider text-left transition-colors flex items-center gap-1",
+                sortKey === h.key ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {h.label}
+              {sortKey === h.key && (
+                sortAsc ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />
+              )}
+            </button>
+          ))}
         </div>
-        {entries.length === 0 ? (
+        {sortedEntries.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">No data yet</p>
-        ) : entries.map((e) => {
+        ) : sortedEntries.map((e) => {
           const isBottom = bottomThree.includes(e.user_id);
           return (
             <div
@@ -388,9 +446,9 @@ function ActivityTab({ managerName }: { managerName: string }) {
 
       <button
         onClick={() => navigate('/app/leaderboard')}
-        className="mt-4 w-full py-2.5 text-sm font-semibold text-primary bg-primary/10 border border-primary/20 rounded-lg hover:bg-primary/15 transition-colors flex items-center justify-center gap-2"
+        className="mt-4 w-full text-center text-xs font-semibold text-primary/70 hover:text-primary py-2 transition-colors"
       >
-        View Team Leaderboard <ChevronRight className="w-4 h-4" />
+        View Full Leaderboard →
       </button>
     </div>
   );
