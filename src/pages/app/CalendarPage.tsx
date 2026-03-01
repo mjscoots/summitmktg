@@ -10,7 +10,8 @@ import {
 import { 
   format, isFuture, isPast, isToday, startOfMonth, endOfMonth, 
   eachDayOfInterval, isSameDay, isSameMonth, startOfWeek, endOfWeek, 
-  addMonths, subMonths, parseISO
+  addMonths, subMonths, parseISO, addDays, addWeeks, addMonths as addMonthsFn,
+  isBefore, isAfter, getDay
 } from 'date-fns';
 import { useUserTimezone } from '@/hooks/useUserTimezone';
 import { formatInTimezone, getTimezoneShort } from '@/lib/timezones';
@@ -38,6 +39,10 @@ interface CalendarEvent {
   created_by: string | null;
   recurrence_type?: string | null;
   recurrence_interval?: number | null;
+  recurrence_days_of_week?: number[] | null;
+  recurrence_end_date?: string | null;
+  recurrence_count?: number | null;
+  _virtual?: boolean; // marks expanded instances
 }
 
 interface Attendance {
@@ -105,10 +110,60 @@ export default function CalendarPage() {
     return eachDayOfInterval({ start: calStart, end: calEnd });
   }, [currentMonth]);
 
+  // Expand recurring events into virtual instances for the visible range
+  const expandedEvents = useMemo(() => {
+    const calStart = calendarDays[0];
+    const calEnd = calendarDays[calendarDays.length - 1];
+    const result: CalendarEvent[] = [];
+
+    events.forEach(event => {
+      // Always include the original
+      result.push(event);
+
+      if (!event.recurrence_type || event.recurrence_type === 'none') return;
+
+      const interval = event.recurrence_interval || 1;
+      const baseDate = new Date(event.event_date);
+      const recEnd = event.recurrence_end_date ? new Date(event.recurrence_end_date) : null;
+      const maxCount = event.recurrence_count || 200;
+      let count = 0;
+      let cursor = baseDate;
+
+      const advance = (d: Date): Date => {
+        switch (event.recurrence_type) {
+          case 'daily': return addDays(d, interval);
+          case 'weekly': return addDays(d, 7 * interval);
+          case 'biweekly': return addDays(d, 14);
+          case 'monthly': return addMonthsFn(d, interval);
+          default: return addDays(d, 7);
+        }
+      };
+
+      cursor = advance(cursor);
+      while (count < maxCount) {
+        if (recEnd && isAfter(cursor, recEnd)) break;
+        if (isAfter(cursor, calEnd)) break;
+
+        if (!isBefore(cursor, calStart)) {
+          result.push({
+            ...event,
+            event_date: cursor.toISOString(),
+            end_date: null,
+            _virtual: true,
+          });
+        }
+        cursor = advance(cursor);
+        count++;
+      }
+    });
+
+    return result;
+  }, [events, calendarDays]);
+
   // Events by day
   const eventsByDay = useMemo(() => {
     const map: Record<string, CalendarEvent[]> = {};
-    const filtered = activeFilter === 'all' ? events : events.filter(e => {
+    const filtered = activeFilter === 'all' ? expandedEvents : expandedEvents.filter(e => {
       const cat = getEventCategory(e.event_type);
       if (activeFilter === 'team') return e.is_team_wide || cat === 'team';
       return cat === activeFilter;
@@ -120,7 +175,7 @@ export default function CalendarPage() {
     });
     Object.values(map).forEach(arr => arr.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime()));
     return map;
-  }, [events, activeFilter]);
+  }, [expandedEvents, activeFilter]);
 
   // Selected day's events
   const selectedDayEvents = useMemo(() => {
@@ -129,17 +184,13 @@ export default function CalendarPage() {
     return eventsByDay[key] || [];
   }, [selectedDate, eventsByDay]);
 
-  // Today's events
+  // Today's events (uses expanded events)
   const todayEvents = useMemo(() => {
     const key = format(new Date(), 'yyyy-MM-dd');
-    const todayAll: Record<string, CalendarEvent[]> = {};
-    events.forEach(e => {
-      const k = format(new Date(e.event_date), 'yyyy-MM-dd');
-      if (!todayAll[k]) todayAll[k] = [];
-      todayAll[k].push(e);
-    });
-    return (todayAll[key] || []).sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-  }, [events]);
+    return expandedEvents
+      .filter(e => format(new Date(e.event_date), 'yyyy-MM-dd') === key)
+      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+  }, [expandedEvents]);
 
   const fetchEvents = async () => {
     if (!user) return;
