@@ -239,8 +239,14 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now').in('user_id', userIds),
           supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
         ]);
+        const rolePriority: Record<string, number> = { rookie: 0, manager: 1, admin: 2, owner: 3 };
         const roleMap: Record<string, string> = {};
-        (rolesRes.data || []).forEach(r => { roleMap[r.user_id] = r.role; });
+        (rolesRes.data || []).forEach(r => {
+          const prev = roleMap[r.user_id];
+          if (!prev || (rolePriority[r.role] ?? 0) > (rolePriority[prev] ?? 0)) {
+            roleMap[r.user_id] = r.role;
+          }
+        });
         const map: Record<string, ProfileInfo> = {};
         (profilesRes.data || []).forEach(p => {
           map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url, is_active_now: p.is_active_now, role: roleMap[p.user_id] };
@@ -416,7 +422,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 uppercase tracking-wider">Owner</span>;
     if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase tracking-wider">Admin</span>;
     if (r === 'manager') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 uppercase tracking-wider">Manager</span>;
-    return null;
+    return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 uppercase tracking-wider">Rookie</span>;
   };
 
   const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
