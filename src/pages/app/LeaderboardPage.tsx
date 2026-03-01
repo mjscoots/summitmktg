@@ -2,25 +2,46 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
-import { Trophy, Flame, Swords, Calendar, Zap } from 'lucide-react';
+import { Trophy, Flame, Swords, Calendar, Zap, Mountain, Users } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak';
 
+const TAB_META: Record<LeaderboardTab, { subtitle: string; icon: React.ReactNode }> = {
+  weekly: {
+    subtitle: 'Includes managers & rookies',
+    icon: (
+      <span className="inline-flex items-center gap-0.5">
+        <Mountain className="w-3 h-3 text-primary" />
+        <Mountain className="w-3 h-3 text-success -ml-1.5" />
+      </span>
+    ),
+  },
+  overall: {
+    subtitle: 'Rookies only · All time',
+    icon: <Mountain className="w-3.5 h-3.5 text-success" />,
+  },
+  streak: {
+    subtitle: 'Includes everyone',
+    icon: <Users className="w-3.5 h-3.5 text-orange-400" />,
+  },
+};
+
 export default function LeaderboardPage() {
-  const [activeTab, setActiveTab] = useState<LeaderboardTab>('overall');
+  const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
-    { id: 'overall', label: 'All-Time', icon: Trophy },
     { id: 'weekly', label: 'This Week', icon: Calendar },
+    { id: 'overall', label: 'All-Time', icon: Trophy },
     { id: 'streak', label: 'Streaks', icon: Flame },
   ];
 
+  const meta = TAB_META[activeTab];
+
   return (
     <AppLayout>
-      <ScrollArea className="h-full">
+      <div className="h-full overflow-y-auto">
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Dashboard" />
 
@@ -48,7 +69,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Tab Bar */}
-          <div className="p-1 bg-gradient-to-r from-muted/80 to-muted/50 rounded-xl mb-6 border border-border/40">
+          <div className="p-1 bg-gradient-to-r from-muted/80 to-muted/50 rounded-xl mb-4 border border-border/40">
             <div className="flex">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
@@ -74,6 +95,12 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
+          {/* Inclusion Banner */}
+          <div className="flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-lg bg-muted/30 border border-border/20">
+            {meta.icon}
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{meta.subtitle}</span>
+          </div>
+
           {/* Content */}
           <div className="bg-card rounded-xl border border-border/50 overflow-hidden shadow-xl shadow-black/5">
             {activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
@@ -81,7 +108,7 @@ export default function LeaderboardPage() {
             {activeTab === 'streak' && <StreakLeaderboard />}
           </div>
         </main>
-      </ScrollArea>
+      </div>
     </AppLayout>
   );
 }
