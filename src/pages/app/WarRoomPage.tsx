@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Swords, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 type WarRoomTab = 'team' | 'pulse' | 'activity';
 
@@ -54,7 +54,7 @@ export default function WarRoomPage() {
 
   return (
     <AppLayout>
-      <ScrollArea className="h-full">
+      <div className="h-full overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Dashboard" />
 
@@ -102,7 +102,7 @@ export default function WarRoomPage() {
           {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} />}
           {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} />}
         </div>
-      </ScrollArea>
+      </div>
     </AppLayout>
   );
 }
