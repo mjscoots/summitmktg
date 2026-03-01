@@ -535,36 +535,36 @@ export default function AdminTeamPage() {
           };
           if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
         }}>
-          <TabsList className="bg-white/5 border border-white/10 mb-4 flex-wrap h-auto gap-1 p-1">
-            <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Approvals {pendingUsers.length > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
+          <TabsList className="bg-white/5 border border-white/10 mb-4 flex-wrap h-auto gap-0.5 p-1">
+            <TabsTrigger value="approvals" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Users <span className="ml-1.5 text-[10px] text-muted-foreground">{reps.length}</span>
+            <TabsTrigger value="users" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Users <span className="ml-1 text-[9px] text-muted-foreground">{reps.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="applications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Applications {adminCounts.pendingApplications > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
+            <TabsTrigger value="applications" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Apps {adminCounts.pendingApplications > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
             </TabsTrigger>
-            <TabsTrigger value="pitches" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Mic className="w-3.5 h-3.5 mr-1" /> Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
+            <TabsTrigger value="pitches" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Assignments
+            <TabsTrigger value="assignments" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Assign
             </TabsTrigger>
-            <TabsTrigger value="teams" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Teams <span className="ml-1.5 text-[10px] text-muted-foreground">{teams.length}</span>
+            <TabsTrigger value="teams" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Teams <span className="ml-1 text-[9px] text-muted-foreground">{teams.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="bootcamp" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Summer Checklist <span className="ml-1.5 text-[10px] text-muted-foreground">{bootcampData.length}</span>
+            <TabsTrigger value="bootcamp" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Summer <span className="ml-1 text-[9px] text-muted-foreground">{bootcampData.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="submitted-videos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Video className="w-3.5 h-3.5 mr-1" /> Videos
+            <TabsTrigger value="submitted-videos" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Videos
             </TabsTrigger>
-            <TabsTrigger value="roster" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <RefreshCw className="w-3.5 h-3.5 mr-1" /> Roster
+            <TabsTrigger value="roster" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Roster
             </TabsTrigger>
             {isSuperAdmin && (
-              <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
+              <TabsTrigger value="system" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
             )}
           </TabsList>
 
