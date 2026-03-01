@@ -54,8 +54,8 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Quick Actions (Manager only) */}
-        {isManager && <QuickActions />}
+        {/* Quick Actions */}
+        <QuickActions />
 
         {/* Resume Training Card */}
         <ResumeTrainingCard />

@@ -5,7 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { 
   Calendar as CalendarIcon, Plus, Check, X, Users, 
   ChevronLeft, ChevronRight, Clock, Globe, Video, Building2,
-  Pencil, Trash2, MapPin, Target, Shield, BarChart3
+  Pencil, Trash2, MapPin, Target, Shield, BarChart3, ListChecks, Eye
 } from 'lucide-react';
 import { 
   format, isFuture, isPast, isToday, startOfMonth, endOfMonth, 
@@ -86,6 +86,8 @@ const hasTime = (dateStr: string) => {
   return d.getHours() !== 0 || d.getMinutes() !== 0;
 };
 
+type CalendarTab = 'calendar' | 'attendance' | 'responses';
+
 export default function CalendarPage() {
   const { role, user, profile } = useAuth();
   const { timezone } = useUserTimezone();
@@ -101,8 +103,8 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [prefillDate, setPrefillDate] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<EventCategory>('all');
-  const [activeTab, setActiveTab] = useState<'calendar' | 'team_attendance'>('calendar');
-  const [teamAttendanceData, setTeamAttendanceData] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<CalendarTab>('calendar');
+  const [attendanceCardIndex, setAttendanceCardIndex] = useState(0);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isAdmin = role === 'admin' || role === 'owner';
@@ -110,6 +112,7 @@ export default function CalendarPage() {
   // Reset filter when leaving and coming back
   useEffect(() => {
     setActiveFilter('all');
+    setActiveTab('calendar');
   }, []);
 
   // Calendar grid
@@ -202,6 +205,16 @@ export default function CalendarPage() {
       .slice(0, 10);
   }, [expandedEvents]);
 
+  // Events needing RSVP (upcoming, not yet responded)
+  const pendingRSVPEvents = useMemo(() => {
+    return expandedEvents
+      .filter(e => {
+        const d = new Date(e.event_date);
+        return (isFuture(d) || isToday(d)) && !userAttendance[e.id];
+      })
+      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+  }, [expandedEvents, userAttendance]);
+
   const fetchEvents = async () => {
     if (!user) return;
     try {
@@ -255,27 +268,7 @@ export default function CalendarPage() {
     finally { setIsLoading(false); }
   };
 
-  const fetchTeamAttendance = async () => {
-    if (!user || !isManager || !profile?.full_name) return;
-    try {
-      const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: profile.full_name });
-      if (!downline || downline.length === 0) return;
-      const userIds = downline.map((d: any) => d.user_id);
-      const { data: allAtt } = await supabase.from('calendar_attendance').select('user_id, status, event_id').in('user_id', userIds);
-      const teamData = downline.map((member: any) => {
-        const memberAtt = (allAtt || []).filter(a => a.user_id === member.user_id);
-        const total = memberAtt.length;
-        const attended = memberAtt.filter(a => a.status === 'attending').length;
-        const missed = memberAtt.filter(a => a.status === 'not_attending').length;
-        const pct = total > 0 ? Math.round((attended / total) * 100) : 0;
-        return { ...member, attendance_pct: pct, attended, missed, total };
-      }).sort((a: any, b: any) => a.attendance_pct - b.attendance_pct);
-      setTeamAttendanceData(teamData);
-    } catch (err) { console.error('Error fetching team attendance:', err); }
-  };
-
   useEffect(() => { fetchEvents(); }, [user, isManager]);
-  useEffect(() => { if (activeTab === 'team_attendance') fetchTeamAttendance(); }, [activeTab]);
 
   const handleAttendanceToggle = async (eventId: string, status: 'attending' | 'not_attending') => {
     if (!user) return;
@@ -285,9 +278,19 @@ export default function CalendarPage() {
         .upsert({ event_id: eventId, user_id: user.id, status, updated_at: new Date().toISOString() }, { onConflict: 'event_id,user_id' });
       if (error) { toast.error('Failed to update attendance'); return; }
       setUserAttendance(prev => ({ ...prev, [eventId]: status }));
-      toast.success(status === 'attending' ? 'Marked as attending' : 'Marked as not attending');
+      toast.success(status === 'attending' ? '✅ Marked as attending' : '❌ Marked as not attending');
       if (isManager) fetchEvents();
     } catch { toast.error('Something went wrong'); }
+  };
+
+  const handleRSVP = async (status: 'attending' | 'not_attending') => {
+    const event = pendingRSVPEvents[attendanceCardIndex];
+    if (!event) return;
+    await handleAttendanceToggle(event.id, status);
+    // Auto-advance to next card
+    if (attendanceCardIndex >= pendingRSVPEvents.length - 1) {
+      setAttendanceCardIndex(0);
+    }
   };
 
   const handleEditEvent = (event: CalendarEvent) => { setEditingEvent(event); setIsFormOpen(true); };
@@ -327,7 +330,6 @@ export default function CalendarPage() {
     setPrefillDate(format(day, 'yyyy-MM-dd'));
     setIsFormOpen(true);
   };
-  const goToToday = () => { setCurrentMonth(new Date()); setSelectedDate(new Date()); };
 
   if (isLoading) {
     return (
@@ -338,6 +340,8 @@ export default function CalendarPage() {
       </AppLayout>
     );
   }
+
+  const currentRSVPEvent = pendingRSVPEvents[attendanceCardIndex];
 
   return (
     <AppLayout>
@@ -355,7 +359,6 @@ export default function CalendarPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={goToToday} className="text-xs h-8">Today</Button>
             {isManager && (
               <Button size="sm" onClick={() => setIsFormOpen(true)} className="gap-1.5 h-8">
                 <Plus className="w-3.5 h-3.5" />Event
@@ -364,90 +367,246 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        {/* Manager tabs */}
-        {isManager && (
-          <div className="flex items-center gap-2 mb-4">
+        {/* Tabs — visible to everyone */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={cn(
+              "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
+              activeTab === 'calendar'
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:text-foreground border border-border/50"
+            )}
+          >
+            <CalendarIcon className="w-4 h-4 inline mr-1.5" />
+            Calendar
+          </button>
+          <button
+            onClick={() => { setActiveTab('attendance'); setAttendanceCardIndex(0); }}
+            className={cn(
+              "px-4 py-2 rounded-lg text-sm font-semibold transition-all relative",
+              activeTab === 'attendance'
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:text-foreground border border-border/50"
+            )}
+          >
+            <ListChecks className="w-4 h-4 inline mr-1.5" />
+            Attendance
+            {pendingRSVPEvents.length > 0 && activeTab !== 'attendance' && (
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                {pendingRSVPEvents.length}
+              </span>
+            )}
+          </button>
+          {isManager && (
             <button
-              onClick={() => setActiveTab('calendar')}
+              onClick={() => setActiveTab('responses')}
               className={cn(
                 "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
-                activeTab === 'calendar'
+                activeTab === 'responses'
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground border border-border/50"
               )}
             >
-              <CalendarIcon className="w-4 h-4 inline mr-1.5" />
-              Calendar
+              <Eye className="w-4 h-4 inline mr-1.5" />
+              Responses
             </button>
-            <button
-              onClick={() => setActiveTab('team_attendance')}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
-                activeTab === 'team_attendance'
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-muted-foreground hover:text-foreground border border-border/50"
-              )}
-            >
-              <Users className="w-4 h-4 inline mr-1.5" />
-              Team Attendance
-            </button>
+          )}
+        </div>
+
+        {/* ═══════════ ATTENDANCE TAB — Tinder-style RSVP ═══════════ */}
+        {activeTab === 'attendance' && (
+          <div className="max-w-md mx-auto">
+            {pendingRSVPEvents.length === 0 ? (
+              <div className="bg-card rounded-2xl border border-border/50 p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-success" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-1">You're all caught up!</h3>
+                <p className="text-sm text-muted-foreground">No events need your RSVP right now.</p>
+              </div>
+            ) : currentRSVPEvent ? (
+              <div className="space-y-4">
+                {/* Progress */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground font-medium">
+                    {Object.keys(userAttendance).length} responded · {pendingRSVPEvents.length} remaining
+                  </span>
+                  <div className="flex gap-1">
+                    {pendingRSVPEvents.slice(0, 6).map((_, i) => (
+                      <div key={i} className={cn(
+                        "w-2 h-2 rounded-full transition-all",
+                        i === attendanceCardIndex ? "bg-primary scale-125" : "bg-muted-foreground/20"
+                      )} />
+                    ))}
+                    {pendingRSVPEvents.length > 6 && <span className="text-[10px] text-muted-foreground ml-0.5">+{pendingRSVPEvents.length - 6}</span>}
+                  </div>
+                </div>
+
+                {/* Event Card */}
+                <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xl shadow-black/5">
+                  {/* Color stripe */}
+                  <div className={cn(
+                    "h-2",
+                    getEventCategory(currentRSVPEvent.event_type) === 'mandatory' ? "bg-red-500" : "bg-yellow-500"
+                  )} />
+
+                  <div className="p-6">
+                    {/* Category badge */}
+                    <div className="flex items-center gap-2 mb-3">
+                      {(() => {
+                        const cat = getEventCategory(currentRSVPEvent.event_type);
+                        const c = CATEGORY_COLORS[cat];
+                        return (
+                          <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider", c.bg, c.text)}>
+                            {c.label}
+                          </span>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Title */}
+                    <h2 className="text-xl font-black text-foreground mb-3 leading-tight">
+                      {currentRSVPEvent.title}
+                    </h2>
+
+                    {/* Date */}
+                    <div className="space-y-2 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-foreground">
+                        <CalendarIcon className="w-4 h-4 text-primary" />
+                        <span className="font-bold">{format(new Date(currentRSVPEvent.event_date), 'EEEE, MMMM d')}</span>
+                      </div>
+                      {hasTime(currentRSVPEvent.event_date) ? (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          <span>{formatInTimezone(new Date(currentRSVPEvent.event_date), timezone, 'h:mm a')}</span>
+                          {currentRSVPEvent.end_date && (
+                            <span>– {formatInTimezone(new Date(currentRSVPEvent.end_date), timezone, 'h:mm a')}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          <span>All day</span>
+                        </div>
+                      )}
+                      {currentRSVPEvent.location && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <MapPin className="w-4 h-4" />
+                          <span>{currentRSVPEvent.location}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {currentRSVPEvent.description && (
+                      <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{currentRSVPEvent.description}</p>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleRSVP('not_attending')}
+                        className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-red-500/10 text-red-400 font-bold text-base hover:bg-red-500/20 transition-all active:scale-95 border border-red-500/20"
+                      >
+                        <X className="w-5 h-5" />
+                        Can't Make It
+                      </button>
+                      <button
+                        onClick={() => handleRSVP('attending')}
+                        className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-base hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20"
+                      >
+                        <Check className="w-5 h-5" />
+                        I'll Be There
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skip */}
+                {pendingRSVPEvents.length > 1 && (
+                  <button
+                    onClick={() => setAttendanceCardIndex(prev => (prev + 1) % pendingRSVPEvents.length)}
+                    className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    Skip for now →
+                  </button>
+                )}
+              </div>
+            ) : null}
           </div>
         )}
 
-        {/* Team Attendance Tab */}
-        {activeTab === 'team_attendance' && isManager && (
+        {/* ═══════════ RESPONSES TAB — Manager view of who's attending ═══════════ */}
+        {activeTab === 'responses' && isManager && (
           <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
             <div className="px-5 py-4 border-b border-border/40">
               <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-primary" />
-                Team Attendance
+                Attendance Responses
               </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Sorted by lowest attendance first</p>
+              <p className="text-xs text-muted-foreground mt-0.5">See who's attending each event</p>
             </div>
-            {teamAttendanceData.length === 0 ? (
-              <div className="py-12 text-center text-sm text-muted-foreground">No team members found</div>
+            {events.filter(e => isFuture(new Date(e.event_date)) || isToday(new Date(e.event_date))).length === 0 ? (
+              <div className="py-12 text-center text-sm text-muted-foreground">No upcoming events</div>
             ) : (
               <div className="divide-y divide-border/30">
-                {teamAttendanceData.map((member: any) => (
-                  <div key={member.user_id} className={cn(
-                    "flex items-center gap-4 px-5 py-3 transition-colors hover:bg-muted/30",
-                    member.attendance_pct < 70 && "bg-red-500/[0.03]"
-                  )}>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{member.full_name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{member.role} · {member.team_name || 'No Team'}</p>
-                    </div>
-                    <div className="text-center px-3">
-                      <p className={cn("text-lg font-black tabular-nums",
-                        member.attendance_pct >= 90 ? "text-success" :
-                        member.attendance_pct >= 70 ? "text-yellow-400" : "text-destructive"
-                      )}>
-                        {member.attendance_pct}%
-                      </p>
-                      <p className="text-[10px] text-muted-foreground font-medium">Attendance</p>
-                    </div>
-                    <div className="flex gap-4 text-center">
-                      <div>
-                        <p className="text-sm font-bold text-success tabular-nums">{member.attended}</p>
-                        <p className="text-[10px] text-muted-foreground">Attended</p>
-                      </div>
-                      <div>
-                        <p className={cn("text-sm font-bold tabular-nums",
-                          member.missed > 0 ? "text-red-400" : "text-muted-foreground"
-                        )}>
-                          {member.missed}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">Missed</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {events
+                  .filter(e => isFuture(new Date(e.event_date)) || isToday(new Date(e.event_date)))
+                  .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+                  .map(event => {
+                    const eventAtt = attendance[event.id] || [];
+                    const attending = eventAtt.filter(a => a.status === 'attending');
+                    const notAttending = eventAtt.filter(a => a.status === 'not_attending');
+                    const color = getColor(event.event_type);
+                    
+                    return (
+                      <details key={event.id} className="group">
+                        <summary className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-muted/30 transition-colors">
+                          <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", color.dot)} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-foreground truncate">{event.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-bold">{format(new Date(event.event_date), 'EEE, MMM d')}</span>
+                              {hasTime(event.event_date) && ` · ${formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}`}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-xs font-bold text-success">{attending.length} ✓</span>
+                            {notAttending.length > 0 && (
+                              <span className="text-xs font-bold text-red-400">{notAttending.length} ✗</span>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
+                          </div>
+                        </summary>
+                        <div className="px-5 pb-4">
+                          {eventAtt.length === 0 ? (
+                            <p className="text-xs text-muted-foreground py-2 pl-5">No responses yet</p>
+                          ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-5">
+                              {attending.map(a => (
+                                <div key={a.user_id} className="flex items-center gap-2 text-xs py-1">
+                                  <Check className="w-3.5 h-3.5 text-success shrink-0" />
+                                  <span className="text-foreground font-medium truncate">{a.profile?.full_name || 'Unknown'}</span>
+                                </div>
+                              ))}
+                              {notAttending.map(a => (
+                                <div key={a.user_id} className="flex items-center gap-2 text-xs py-1">
+                                  <X className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                  <span className="text-muted-foreground truncate">{a.profile?.full_name || 'Unknown'}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </details>
+                    );
+                  })}
               </div>
             )}
           </div>
         )}
 
-        {/* Calendar View — layout swapped: left panel + right calendar */}
+        {/* ═══════════ CALENDAR VIEW ═══════════ */}
         {activeTab === 'calendar' && (
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5">
             {/* LEFT Panel — Today + Upcoming This Week */}
@@ -530,7 +689,11 @@ export default function CalendarPage() {
                               <div className="mt-1.5 ml-3.5">
                                 {myStatus === 'attending' ? (
                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <Check className="w-3 h-3" /> Attended
+                                    <Check className="w-3 h-3" /> Attending
+                                  </span>
+                                ) : myStatus === 'not_attending' ? (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
+                                    <X className="w-3 h-3" /> Not Attending
                                   </span>
                                 ) : wasMissed ? (
                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
@@ -639,7 +802,7 @@ export default function CalendarPage() {
                 })}
               </div>
 
-              {/* Month Navigation — bigger arrows */}
+              {/* Month Navigation */}
               <div className="flex items-center justify-between mb-3">
                 <button
                   onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
