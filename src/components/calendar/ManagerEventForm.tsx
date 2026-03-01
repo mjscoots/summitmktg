@@ -375,16 +375,23 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
 
           {/* ── Section 2: When ── */}
           <StepSection icon={Clock} title="When">
-            <div className="grid grid-cols-2 gap-3">
+            {recurrence.type === 'none' ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Start *</Label>
+                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">End</Label>
+                  <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-background/50 border-border/40" />
+                </div>
+              </div>
+            ) : (
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Start *</Label>
+                <Label className="text-xs text-muted-foreground">Date *</Label>
                 <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">End</Label>
-                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-background/50 border-border/40" />
-              </div>
-            </div>
+            )}
 
             <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2.5">
               <Label className="text-xs font-medium text-muted-foreground">Add specific time</Label>
