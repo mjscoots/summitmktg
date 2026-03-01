@@ -567,11 +567,11 @@ export default function CalendarPage() {
 
               {/* Legend */}
               <div className="flex flex-wrap items-center gap-4 mt-3 px-1">
-                {(['mandatory', 'training', 'team', 'optional'] as EventCategory[]).map(cat => {
-                  const c = CATEGORY_COLORS[cat];
+                {(['all', 'mandatory', 'optional'] as EventCategory[]).map(cat => {
+                  const c = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.optional;
                   return (
                     <span key={cat} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                      <span className={cn("w-2 h-2 rounded-full", c.dot)} />
+                      {cat !== 'all' && <span className={cn("w-2 h-2 rounded-full", c.dot)} />}
                       {c.label}
                     </span>
                   );
