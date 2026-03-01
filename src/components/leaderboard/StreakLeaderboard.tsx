@@ -73,7 +73,10 @@ export function StreakLeaderboard() {
   if (isLoading) {
     return (
       <div className="p-6 text-center">
-        <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
+        <div className="flex flex-col items-center gap-2">
+          <Flame className="w-6 h-6 text-orange-500 animate-bounce" />
+          <span className="text-muted-foreground text-sm animate-pulse">Loading streaks...</span>
+        </div>
       </div>
     );
   }

@@ -10,7 +10,12 @@ import {
   Users,
   Pencil,
   Shield,
-  Sun
+  Sun,
+  Trash2,
+  Flame,
+  Trophy,
+  Clock,
+  Star
 } from 'lucide-react';
 import { getTeamColor } from '@/lib/teamColors';
 import {
@@ -19,6 +24,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -31,12 +41,13 @@ import {
 import { canEditMemberProfile } from '@/lib/editPermissions';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
 import { useAuth } from '@/hooks/useAuth';
- import { formatLastActive, formatTimeMinutes } from '@/hooks/useActivityTracking';
- import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
+import { formatLastActive, formatTimeMinutes } from '@/hooks/useActivityTracking';
+import { ActivityIndicator } from '@/components/shared/ActivityIndicator';
 import { TrainingProgressBadge } from './TrainingProgressBadge';
 import { MemberStatusToggle } from './MemberStatusToggle';
 import { MemberEditForm } from './MemberEditForm';
 import { DailyTimeBreakdown } from './DailyTimeBreakdown';
+import { toast } from 'sonner';
 
 interface MemberProfileModalProps {
   member: TeamMember | null;
@@ -61,6 +72,10 @@ export function MemberProfileModal({
   const [localPillars, setLocalPillars] = useState<{ id: string; name: string; slug: string }[]>(pillars);
   const [isEditMode, setIsEditMode] = useState(false);
   const [onboardingStatus, setOnboardingStatus] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [streakDays, setStreakDays] = useState(0);
+  const [teamName, setTeamName] = useState<string | null>(null);
 
   // Fetch pillars if not provided
   useEffect(() => {
@@ -81,30 +96,44 @@ export function MemberProfileModal({
     if (!open) {
       setIsEditMode(false);
       setOnboardingStatus(null);
+      setStreakDays(0);
+      setTeamName(null);
     }
   }, [open, member?.user_id]);
 
-  // Fetch onboarding status
+  // Fetch extra profile data
   useEffect(() => {
     if (!open || !member) return;
-    const fetchStatus = async () => {
-      const { data } = await supabase
+    const fetchExtra = async () => {
+      // Onboarding status + team
+      const { data: pData } = await supabase
         .from('profiles')
-        .select('onboarding_status')
+        .select('onboarding_status, team_id')
         .eq('user_id', member.user_id)
         .single();
-      if (data) setOnboardingStatus(data.onboarding_status);
+      if (pData) {
+        setOnboardingStatus(pData.onboarding_status);
+        if (pData.team_id) {
+          const { data: tData } = await supabase.from('teams').select('name').eq('id', pData.team_id).single();
+          if (tData) setTeamName(tData.name);
+        }
+      }
+      // Streak
+      const { data: sData } = await supabase
+        .from('daily_login_streaks')
+        .select('current_streak')
+        .eq('user_id', member.user_id)
+        .single();
+      if (sData) setStreakDays(sData.current_streak || 0);
     };
-    fetchStatus();
+    fetchExtra();
   }, [open, member?.user_id]);
 
   const effectivePillars = pillars.length > 0 ? pillars : localPillars;
 
-  // Get training progress for displayed member
   const userIds = useMemo(() => member ? [member.user_id] : [], [member]);
   const { getProgress } = useTrainingProgress(userIds);
 
-  // Find direct reports
   const directReports = useMemo(() => {
     if (!member) return [];
     return roster.filter(m => {
@@ -114,38 +143,65 @@ export function MemberProfileModal({
     }).filter(m => m.status !== 'nlc');
   }, [member, roster]);
 
-  // Check edit permissions
   const editPermission = useMemo(() => {
     if (!member || !profile) {
       return { canEdit: false, canEditAll: false, canEditBasic: false, canEditHierarchy: false, allowedFields: [], reason: '' };
     }
-    return canEditMemberProfile(
-      roster,
-      profile.full_name || '',
-      currentUserRole,
-      user?.id || '',
-      member
-    );
+    return canEditMemberProfile(roster, profile.full_name || '', currentUserRole, user?.id || '', member);
   }, [member, roster, profile, currentUserRole, user?.id]);
 
   const getPillarName = (slug: string | undefined) => {
-    if (!slug) return 'Unassigned';
+    if (!slug) return teamName || 'Unassigned';
     const pillar = effectivePillars.find(p => p.slug === slug);
-    return pillar?.name || 'Unassigned';
+    return pillar?.name || teamName || 'Unassigned';
   };
 
   const formatPhone = (phone: string | null | undefined) => {
     if (!phone) return '—';
     const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-    }
+    if (cleaned.length === 10) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     return phone;
   };
 
-  const handleEditSave = () => {
-    setIsEditMode(false);
-    onStatusChange?.();
+  const handleEditSave = () => { setIsEditMode(false); onStatusChange?.(); };
+
+  const isAdminOrOwner = currentUserRole === 'admin' || currentUserRole === 'owner';
+
+  const handleDeleteUser = async () => {
+    if (!member || !isAdminOrOwner) return;
+    setIsDeleting(true);
+    try {
+      // Deep-clean all user data
+      const uid = member.user_id;
+      await Promise.all([
+        supabase.from('chat_messages').delete().eq('user_id', uid),
+        supabase.from('chat_reactions').delete().eq('user_id', uid),
+        supabase.from('chat_read_receipts').delete().eq('user_id', uid),
+        supabase.from('lesson_progress').delete().eq('user_id', uid),
+        supabase.from('daily_login_streaks').delete().eq('user_id', uid),
+        supabase.from('daily_training_time').delete().eq('user_id', uid),
+        supabase.from('notification_preferences').delete().eq('user_id', uid),
+        supabase.from('bootcamp_progress').delete().eq('user_id', uid),
+        supabase.from('ai_coach_conversations').delete().eq('user_id', uid),
+        supabase.from('video_progress').delete().eq('user_id', uid),
+        supabase.from('user_training_achievements').delete().eq('user_id', uid),
+        supabase.from('calendar_attendance').delete().eq('user_id', uid),
+        supabase.from('downline_edges').delete().eq('child_user_id', uid),
+        supabase.from('downline_edges').delete().eq('parent_user_id', uid),
+        supabase.from('user_roles').delete().eq('user_id', uid),
+      ]);
+      // Delete profile last
+      await supabase.from('profiles').delete().eq('user_id', uid);
+      toast.success(`${member.full_name} has been removed`);
+      setDeleteConfirmOpen(false);
+      onStatusChange?.();
+      onClose();
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast.error('Failed to delete user');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (!member) return null;
@@ -157,71 +213,55 @@ export function MemberProfileModal({
   const teamColor = getTeamColor(getPillarName(member.pillar));
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-hidden flex flex-col bg-card border-border">
         {/* Team color accent bar */}
         <div 
-          className="absolute top-0 left-0 right-0 h-1 rounded-t-lg"
-          style={{ background: `hsl(${teamColor.hsl})` }}
+          className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg"
+          style={{ background: `linear-gradient(90deg, hsl(${teamColor.hsl}), hsl(${teamColor.hsl} / 0.3))` }}
         />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center",
-              isNLC 
-                ? "bg-muted" 
-                : teamColor.bgTint
-            )}>
-              <User className={cn(
-                "w-6 h-6",
-                isNLC 
-                  ? "text-muted-foreground" 
-                  : teamColor.text
-              )} />
+              "w-14 h-14 rounded-full flex items-center justify-center border-2",
+              isNLC ? "bg-muted border-muted-foreground/20" : cn(teamColor.bgTint, "border-current/10")
+            )} style={!isNLC ? { borderColor: `hsl(${teamColor.hsl} / 0.3)` } : undefined}>
+              <User className={cn("w-7 h-7", isNLC ? "text-muted-foreground" : teamColor.text)} />
             </div>
             <div className="flex-1 min-w-0">
-              <span className={cn(
-                "block",
-                isNLC 
-                  ? "text-destructive" 
-                  : teamColor.text
-              )}>
+              <span className={cn("block text-lg font-black", isNLC ? "text-destructive" : teamColor.text)}>
                 {getDisplayName(member.full_name)}
               </span>
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                 <span className={cn(
-                  "text-xs font-medium px-2 py-0.5 rounded-full",
-                  isNLC 
-                    ? "bg-destructive/15 text-destructive"
-                    : isMgr 
-                      ? cn(teamColor.bgBadge, teamColor.text)
-                      : cn(teamColor.bgBadge, teamColor.text)
+                  "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
+                  isNLC ? "bg-destructive/15 text-destructive"
+                    : isMgr ? cn(teamColor.bgBadge, teamColor.text)
+                    : cn(teamColor.bgBadge, teamColor.text)
                 )}>
                   {isNLC ? 'NLC' : isMgr ? 'Manager' : 'Rookie'}
                 </span>
                 {isSelf && (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                    This is you
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">You</span>
+                )}
+                {streakDays > 0 && !isNLC && (
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-400">
+                    <Flame className={cn("w-3 h-3", streakDays >= 7 && "animate-pulse")} />
+                    {streakDays}d
                   </span>
                 )}
               </div>
             </div>
-            {/* Edit Button - only show if can edit and not in edit mode */}
             {editPermission.canEdit && !isEditMode && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditMode(true)}
-                className="flex-shrink-0"
-              >
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
+              <Button variant="outline" size="sm" onClick={() => setIsEditMode(true)} className="flex-shrink-0">
+                <Pencil className="w-4 h-4 mr-2" />Edit
               </Button>
             )}
           </DialogTitle>
         </DialogHeader>
 
-         <div className="flex-1 overflow-y-auto -mx-6 px-6" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-1 overflow-y-auto -mx-6 px-6" style={{ maxHeight: 'calc(85vh - 120px)' }}>
           {isEditMode ? (
             <MemberEditForm
               member={member}
@@ -232,25 +272,39 @@ export function MemberProfileModal({
               canEditHierarchy={editPermission.canEditHierarchy}
             />
           ) : (
-            <div className="space-y-4 py-4">
-              {/* Training Progress */}
+            <div className="space-y-3 py-4">
+
+              {/* ── Quick Stats Row ── */}
               {!isNLC && (
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                  <GraduationCap className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">Training Progress</p>
-                    <div className="flex items-center gap-2">
-                      <TrainingProgressBadge 
-                        percentage={progress.percentage} 
-                        size="md"
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        ({progress.completed}/{progress.total} lessons)
-                      </span>
-                    </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-3 bg-muted/30 rounded-lg">
+                    <GraduationCap className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <p className="text-lg font-black text-foreground tabular-nums">{progress.percentage}%</p>
+                    <p className="text-[10px] text-muted-foreground font-medium">Training</p>
                   </div>
-                  {/* Progress bar */}
-                  <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="text-center p-3 bg-muted/30 rounded-lg">
+                    <Flame className="w-4 h-4 text-orange-400 mx-auto mb-1" />
+                    <p className="text-lg font-black text-foreground tabular-nums">{streakDays}</p>
+                    <p className="text-[10px] text-muted-foreground font-medium">Day Streak</p>
+                  </div>
+                  <div className="text-center p-3 bg-muted/30 rounded-lg">
+                    <Clock className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <p className="text-lg font-black text-foreground tabular-nums">
+                      {formatTimeMinutes((member as any).time_this_week_minutes || 0)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-medium">This Week</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Training Progress Bar */}
+              {!isNLC && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-semibold text-foreground">Training Progress</p>
+                    <span className="text-xs text-muted-foreground">{progress.completed}/{progress.total} lessons</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
                     <div 
                       className={cn(
                         "h-full rounded-full transition-all",
@@ -275,62 +329,46 @@ export function MemberProfileModal({
                     "text-muted-foreground"
                   )} />
                   <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">Onboarding Status</p>
+                    <p className="text-xs text-muted-foreground">Onboarding</p>
                     <p className={cn(
-                      "text-sm font-medium",
+                      "text-sm font-semibold",
                       progress.percentage >= 100 ? "text-warning" :
                       onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready' ? "text-primary" :
                       "text-destructive"
                     )}>
-                      {progress.percentage >= 100 
-                        ? '☀️ Summer Ready' 
-                        : onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready'
-                          ? 'Onboarded'
-                          : 'Not Onboarded'}
+                      {progress.percentage >= 100 ? '☀️ Summer Ready' 
+                        : onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready' ? 'Onboarded'
+                        : 'Not Onboarded'}
                     </p>
                   </div>
-                  {progress.percentage >= 100 && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/15 text-warning">
-                      100% TRAINING
-                    </span>
-                  )}
                 </div>
               )}
 
-           {/* Activity Status - Show for all non-NLC members */}
-           {!isNLC && (
-             <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-               <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                 <div className={cn(
-                   "w-3 h-3 rounded-full",
-                   (member as any).is_active_now 
-                     ? "bg-success animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]" 
-                     : "bg-muted-foreground/40"
-                 )} />
-               </div>
-               <div className="flex-1">
-                 <p className="text-xs text-muted-foreground">Activity Status</p>
-                 <p className={cn(
-                   "text-sm font-medium",
-                   (member as any).is_active_now ? "text-success" : "text-foreground"
-                 )}>
-                   {formatLastActive((member as any).last_active_at)}
-                 </p>
-               </div>
-               {/* Show time this week for pillars only */}
-               {(currentUserRole === 'admin' || currentUserRole === 'manager') && (member as any).time_this_week_minutes !== undefined && (
-                 <div className="text-right">
-                   <p className="text-xs text-muted-foreground">This week</p>
-                   <p className="text-sm font-medium text-foreground">
-                     {formatTimeMinutes((member as any).time_this_week_minutes || 0)}
-                   </p>
-                 </div>
-               )}
-             </div>
-           )}
+              {/* Activity Status */}
+              {!isNLC && (
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    <div className={cn(
+                      "w-3 h-3 rounded-full",
+                      (member as any).is_active_now 
+                        ? "bg-success animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]" 
+                        : "bg-muted-foreground/40"
+                    )} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Last Active</p>
+                    <p className={cn(
+                      "text-sm font-semibold",
+                      (member as any).is_active_now ? "text-success" : "text-foreground"
+                    )}>
+                      {formatLastActive((member as any).last_active_at)}
+                    </p>
+                  </div>
+                </div>
+              )}
 
-              {/* Daily Training Time Breakdown - managers/admins only */}
-              {!isNLC && (currentUserRole === 'admin' || currentUserRole === 'manager') && (
+              {/* Daily Training Time Breakdown */}
+              {!isNLC && (currentUserRole === 'admin' || currentUserRole === 'manager' || currentUserRole === 'owner') && (
                 <DailyTimeBreakdown userId={member.user_id} />
               )}
 
@@ -348,7 +386,7 @@ export function MemberProfileModal({
                 <Mail className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm text-foreground">{member.email}</p>
+                  <p className="text-sm text-foreground break-all">{member.email}</p>
                 </div>
               </div>
 
@@ -357,7 +395,7 @@ export function MemberProfileModal({
                 <Building2 className={cn("w-5 h-5 flex-shrink-0", teamColor.text)} />
                 <div>
                   <p className="text-xs text-muted-foreground">Team</p>
-                  <p className={cn("text-sm font-medium", teamColor.text)}>{getPillarName(member.pillar)}</p>
+                  <p className={cn("text-sm font-semibold", teamColor.text)}>{getPillarName(member.pillar)}</p>
                 </div>
               </div>
 
@@ -370,11 +408,9 @@ export function MemberProfileModal({
                     <button
                       onClick={() => {
                         const manager = roster.find(m => namesMatch(m.full_name, member.direct_manager));
-                        if (manager && onMemberClick) {
-                          onMemberClick(manager);
-                        }
+                        if (manager && onMemberClick) onMemberClick(manager);
                       }}
-                      className={cn("text-sm hover:underline text-left", teamColor.text)}
+                      className={cn("text-sm hover:underline text-left font-semibold", teamColor.text)}
                     >
                       {getDisplayName(member.direct_manager)}
                     </button>
@@ -384,7 +420,7 @@ export function MemberProfileModal({
                 </div>
               </div>
 
-              {/* Direct Reports (if any) */}
+              {/* Direct Reports */}
               {directReports.length > 0 && (
                 <div className="p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-3 mb-2">
@@ -399,25 +435,19 @@ export function MemberProfileModal({
                       <button
                         key={report.id}
                         onClick={() => onMemberClick?.(report)}
-                        className={cn(
-                          "text-xs px-2 py-1 rounded-full transition-colors",
-                          teamColor.bgTint, teamColor.text,
-                          "hover:opacity-80"
-                        )}
+                        className={cn("text-xs px-2 py-1 rounded-full transition-colors", teamColor.bgTint, teamColor.text, "hover:opacity-80")}
                       >
                         {getDisplayName(report.full_name)}
                       </button>
                     ))}
                     {directReports.length > 10 && (
-                      <span className="text-xs px-2 py-1 text-muted-foreground">
-                        +{directReports.length - 10} more
-                      </span>
+                      <span className="text-xs px-2 py-1 text-muted-foreground">+{directReports.length - 10} more</span>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Status Toggle - only show in view mode */}
+              {/* Status Toggle */}
               <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
                   <UserCheck className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -431,17 +461,55 @@ export function MemberProfileModal({
                   roster={roster}
                   canEdit={editPermission.canEdit}
                   disabledReason={editPermission.reason}
-                  onStatusChange={() => {
-                    onStatusChange?.();
-                    onClose();
-                  }}
+                  onStatusChange={() => { onStatusChange?.(); onClose(); }}
                   size="md"
                 />
               </div>
+
+              {/* Admin Actions — Delete */}
+              {isAdminOrOwner && !isSelf && (
+                <div className="pt-2 border-t border-border/30">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+                    <Shield className="w-3 h-3" /> Admin Actions
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-2" />
+                    Delete Account
+                  </Button>
+                </div>
+              )}
             </div>
           )}
-         </div>
+        </div>
       </DialogContent>
     </Dialog>
+
+    {/* Delete Confirmation */}
+    <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {member?.full_name}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently remove all data for this user including chat history, training progress, streaks, and their profile. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteUser}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? 'Deleting...' : 'Delete permanently'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
