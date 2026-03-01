@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
+import { usePendingRSVP } from '@/hooks/usePendingRSVP';
 
 interface NavItem {
   label: string;
@@ -61,6 +62,7 @@ export function AppSidebar() {
   const collapsed = state === 'collapsed';
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
   const adminCounts = useAdminCounts();
+  const pendingRSVP = usePendingRSVP();
 
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
@@ -161,6 +163,14 @@ export function AppSidebar() {
                           collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
                         )}>
                           {unreadChat > 99 ? '99+' : unreadChat}
+                        </span>
+                      )}
+                      {item.path === '/app/calendar' && pendingRSVP > 0 && (
+                        <span className={cn(
+                          "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
+                          collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
+                        )}>
+                          {pendingRSVP > 99 ? '99+' : pendingRSVP}
                         </span>
                       )}
                     </button>
