@@ -34,6 +34,10 @@ export function LiveLeaderboardSnapshot() {
       setLeaders(top5);
     };
     fetchLeaders();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchLeaders, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const medals = ['🥇', '🥈', '🥉'];

@@ -59,6 +59,10 @@ export function WeeklyLeaderboard() {
     };
 
     fetchLeaderboard();
+
+    // Auto-refresh every 30 seconds — no stale data
+    const interval = setInterval(fetchLeaderboard, 30000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const getRankIcon = (rank: number) => {
