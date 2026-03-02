@@ -1,37 +1,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, ListChecks } from 'lucide-react';
+import { Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 
 interface QuickAction {
   icon: React.ReactNode;
   label: string;
   shortLabel: string;
+  iconColor: string;
   onClick: () => void;
+  badge?: number;
 }
 
 export function QuickActions() {
   const navigate = useNavigate();
   const { role } = useAuth();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const { unreadCount } = useUnreadChat();
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   const commonActions: QuickAction[] = [
-    { icon: <GraduationCap className="w-4 h-4" />, label: 'Training', shortLabel: 'Train', onClick: () => navigate('/app/training') },
-    { icon: <MessagesSquare className="w-4 h-4" />, label: 'Team Chat', shortLabel: 'Chat', onClick: () => navigate('/app/chat') },
-    { icon: <Users className="w-4 h-4" />, label: 'War Room', shortLabel: 'War', onClick: () => navigate('/app/war-room') },
-    { icon: <CalendarDays className="w-4 h-4" />, label: 'Calendar', shortLabel: 'Calendar', onClick: () => navigate('/app/calendar') },
-    { icon: <Trophy className="w-4 h-4" />, label: 'Leaderboard', shortLabel: 'Rank', onClick: () => navigate('/app/leaderboard') },
-    { icon: <Link2 className="w-4 h-4" />, label: 'Resources', shortLabel: 'Links', onClick: () => navigate('/app/links') },
+    { icon: <GraduationCap className="w-4 h-4" />, label: 'Training', shortLabel: 'Train', iconColor: 'text-green-400', onClick: () => navigate('/app/training') },
+    { icon: <MessagesSquare className="w-4 h-4" />, label: 'Community', shortLabel: 'Chat', iconColor: 'text-blue-300', onClick: () => navigate('/app/chat'), badge: unreadCount },
+    { icon: <Swords className="w-4 h-4" />, label: 'War Room', shortLabel: 'War', iconColor: 'text-red-400', onClick: () => navigate('/app/war-room') },
+    { icon: <CalendarDays className="w-4 h-4" />, label: 'Calendar', shortLabel: 'Cal', iconColor: 'text-red-400', onClick: () => navigate('/app/calendar') },
+    { icon: <Trophy className="w-4 h-4" />, label: 'Leaderboard', shortLabel: 'Rank', iconColor: 'text-yellow-400', onClick: () => navigate('/app/leaderboard') },
+    { icon: <Link2 className="w-4 h-4" />, label: 'Resources', shortLabel: 'Links', iconColor: 'text-purple-400', onClick: () => navigate('/app/links') },
   ];
 
   const managerOnlyActions: QuickAction[] = [
-    { icon: <Calendar className="w-4 h-4" />, label: 'Schedule Event', shortLabel: 'Schedule', onClick: () => setIsEventModalOpen(true) },
-    { icon: <ClipboardList className="w-4 h-4" />, label: 'Open Forms', shortLabel: 'Forms', onClick: () => navigate('/app/forms') },
-    { icon: <ListChecks className="w-4 h-4" />, label: 'View Team', shortLabel: 'Team', onClick: () => navigate('/app/team') },
+    { icon: <Calendar className="w-4 h-4" />, label: 'Schedule Event', shortLabel: 'Schedule', iconColor: 'text-orange-400', onClick: () => setIsEventModalOpen(true) },
+    { icon: <ClipboardList className="w-4 h-4" />, label: 'Open Forms', shortLabel: 'Forms', iconColor: 'text-orange-400', onClick: () => navigate('/app/forms') },
   ];
 
   const actions = isManager ? [...commonActions, ...managerOnlyActions] : commonActions;
@@ -51,18 +54,25 @@ export function QuickActions() {
               key={idx}
               onClick={action.onClick}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
-                "bg-card border border-border/50",
+                "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                "bg-card border border-blue-500/20",
                 "text-muted-foreground",
-                "hover:text-primary",
-                "hover:border-primary/50 hover:bg-primary/5",
+                "hover:text-foreground",
+                "hover:border-blue-400/50 hover:bg-blue-500/5",
+                "shadow-[0_0_6px_-1px_hsl(217,91%,60%,0.15)]",
+                "hover:shadow-[0_0_12px_-2px_hsl(217,91%,60%,0.3)]",
                 "transition-all duration-200",
-                "hover:-translate-y-0.5 hover:shadow-sm hover:shadow-primary/10"
+                "hover:-translate-y-0.5"
               )}
             >
-              {action.icon}
+              <span className={action.iconColor}>{action.icon}</span>
               <span className="hidden sm:inline">{action.label}</span>
               <span className="sm:hidden">{action.shortLabel}</span>
+              {action.badge && action.badge > 0 ? (
+                <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none">
+                  {action.badge > 99 ? '99+' : action.badge}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
