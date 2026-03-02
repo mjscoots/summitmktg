@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, CheckCircle, Clock, Star } from 'lucide-react';
+import { Play, CheckCircle, Clock, Star, FileText, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getVideoThumbnailUrl } from '@/lib/videoUtils';
 import { isBonusCategory } from '@/lib/trainingConstants';
@@ -12,9 +12,12 @@ interface VideoCardProps {
   isWatched: boolean;
   onClick: () => void;
   highlightTitle?: React.ReactNode;
+  hasNotes?: boolean;
+  isBookmarked?: boolean;
+  bookmarkedAt?: string;
 }
 
-export function VideoCard({ video, isWatched, onClick, highlightTitle }: VideoCardProps) {
+export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes, isBookmarked, bookmarkedAt }: VideoCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
   const isBonus = isBonusCategory(video.category);
@@ -98,9 +101,17 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle }: VideoCa
       {/* Card Info */}
       <div className="p-3">
         <div className="flex items-center gap-1.5">
-          <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors flex-1">
             {highlightTitle || video.title}
           </h3>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {hasNotes && (
+              <FileText className="w-3.5 h-3.5 text-primary/70" />
+            )}
+            {isBookmarked && (
+              <Bookmark className="w-3.5 h-3.5 text-yellow-500" fill="currentColor" />
+            )}
+          </div>
           {isBonus && (
             <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-500 border border-yellow-500/30">
               Optional
@@ -117,7 +128,12 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle }: VideoCa
             </span>
           )}
         </div>
-        {video.description && (
+        {bookmarkedAt && (
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            Bookmarked {new Date(bookmarkedAt).toLocaleDateString()}
+          </p>
+        )}
+        {video.description && !bookmarkedAt && (
           <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">{video.description}</p>
         )}
       </div>

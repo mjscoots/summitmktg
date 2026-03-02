@@ -5,11 +5,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, CheckCircle, Loader2, Video, Play } from 'lucide-react';
+import { ChevronLeft, CheckCircle, Loader2, Video, Play, Bookmark } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getVideoThumbnailUrl } from '@/lib/videoUtils';
+import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
+import { VideoNotesPanel } from '@/components/training/VideoNotesPanel';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
@@ -38,6 +41,8 @@ export default function VideoPlayerPage() {
   const { videoId } = useParams<{ videoId: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const { bookmarkedIds, toggleBookmark } = useVideoBookmarks();
   const [video, setVideo] = useState<TrainingVideo | null>(null);
   const [allVideos, setAllVideos] = useState<TrainingVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -202,12 +207,31 @@ export default function VideoPlayerPage() {
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-4">
                 <h1 className="text-xl font-bold text-foreground">{video.title}</h1>
-                {isWatched && (
-                  <div className="flex items-center gap-1 px-3 py-1 bg-success/15 text-success rounded-full text-xs font-bold flex-shrink-0">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Watched
-                  </div>
-                )}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleBookmark(video.id)}
+                    className={cn(
+                      "gap-1.5",
+                      bookmarkedIds.has(video.id)
+                        ? "text-yellow-500 hover:text-yellow-600"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Bookmark
+                      className="w-4 h-4"
+                      fill={bookmarkedIds.has(video.id) ? 'currentColor' : 'none'}
+                    />
+                    {bookmarkedIds.has(video.id) ? 'Bookmarked' : 'Bookmark'}
+                  </Button>
+                  {isWatched && (
+                    <div className="flex items-center gap-1 px-3 py-1 bg-success/15 text-success rounded-full text-xs font-bold">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      Watched
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center gap-3 flex-wrap">
@@ -245,68 +269,85 @@ export default function VideoPlayerPage() {
                 </Button>
               )}
             </div>
-          </div>
 
-          {/* Up Next Sidebar - Unwatched first, sequential */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-foreground text-sm">Up Next</h3>
-            {upNextVideos.length === 0 ? (
-              <p className="text-sm text-muted-foreground">You've completed all videos!</p>
-            ) : (
-              <div className="space-y-3">
-                {upNextVideos.map((rv, idx) => {
-                  const rvWatched = watchedIds.has(rv.id);
-                  const isCategoryChange = idx === 0
-                    ? rv.category.toLowerCase() !== video.category.toLowerCase()
-                    : rv.category.toLowerCase() !== upNextVideos[idx - 1].category.toLowerCase();
-                  const thumbnail = rv.thumbnail_url || getVideoThumbnailUrl(rv.video_url);
-
-                  return (
-                    <div key={rv.id}>
-                      {isCategoryChange && (
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1.5 mt-2">
-                          Next: {rv.category}
-                        </div>
-                      )}
-                      <div
-                        onClick={() => navigate(`/app/training/videos/${rv.id}`)}
-                        className={cn(
-                          "flex gap-3 cursor-pointer group",
-                          rvWatched && "opacity-60"
-                        )}
-                      >
-                        <div className="w-32 flex-shrink-0 aspect-video bg-muted rounded-lg relative flex items-center justify-center overflow-hidden">
-                          {thumbnail ? (
-                            <img src={thumbnail} alt={rv.title} className="w-full h-full object-cover" loading="lazy" />
-                          ) : (
-                            <Video className="w-6 h-6 text-muted-foreground/50" />
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play className="w-5 h-5 text-white" fill="currentColor" />
-                          </div>
-                          {rvWatched && (
-                            <div className="absolute top-1 right-1">
-                              <CheckCircle className="w-4 h-4 text-success" />
-                            </div>
-                          )}
-                          {rv.duration_minutes && (
-                            <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">
-                              {rv.duration_minutes}m
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                            {rv.title}
-                          </h4>
-                          <span className="text-[10px] text-muted-foreground">{rv.category}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+            {/* Notes Panel - Mobile: below video */}
+            {isMobile && videoId && (
+              <div className="border border-border rounded-xl p-4 bg-card">
+                <VideoNotesPanel videoId={videoId} />
               </div>
             )}
+          </div>
+
+          {/* Right Column: Notes + Up Next */}
+          <div className="space-y-6">
+            {/* Notes Panel - Desktop: side panel */}
+            {!isMobile && videoId && (
+              <div className="border border-border rounded-xl p-4 bg-card">
+                <VideoNotesPanel videoId={videoId} />
+              </div>
+            )}
+
+            {/* Up Next Sidebar */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-foreground text-sm">Up Next</h3>
+              {upNextVideos.length === 0 ? (
+                <p className="text-sm text-muted-foreground">You've completed all videos!</p>
+              ) : (
+                <div className="space-y-3">
+                  {upNextVideos.map((rv, idx) => {
+                    const rvWatched = watchedIds.has(rv.id);
+                    const isCategoryChange = idx === 0
+                      ? rv.category.toLowerCase() !== video.category.toLowerCase()
+                      : rv.category.toLowerCase() !== upNextVideos[idx - 1].category.toLowerCase();
+                    const thumbnail = rv.thumbnail_url || getVideoThumbnailUrl(rv.video_url);
+
+                    return (
+                      <div key={rv.id}>
+                        {isCategoryChange && (
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1.5 mt-2">
+                            Next: {rv.category}
+                          </div>
+                        )}
+                        <div
+                          onClick={() => navigate(`/app/training/videos/${rv.id}`)}
+                          className={cn(
+                            "flex gap-3 cursor-pointer group",
+                            rvWatched && "opacity-60"
+                          )}
+                        >
+                          <div className="w-32 flex-shrink-0 aspect-video bg-muted rounded-lg relative flex items-center justify-center overflow-hidden">
+                            {thumbnail ? (
+                              <img src={thumbnail} alt={rv.title} className="w-full h-full object-cover" loading="lazy" />
+                            ) : (
+                              <Video className="w-6 h-6 text-muted-foreground/50" />
+                            )}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Play className="w-5 h-5 text-white" fill="currentColor" />
+                            </div>
+                            {rvWatched && (
+                              <div className="absolute top-1 right-1">
+                                <CheckCircle className="w-4 h-4 text-success" />
+                              </div>
+                            )}
+                            {rv.duration_minutes && (
+                              <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">
+                                {rv.duration_minutes}m
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                              {rv.title}
+                            </h4>
+                            <span className="text-[10px] text-muted-foreground">{rv.category}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
