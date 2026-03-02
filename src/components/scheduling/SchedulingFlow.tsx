@@ -5,9 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { Calendar, Clock, Check, X, RefreshCw, Send, Loader2 } from 'lucide-react';
+import { Calendar, Clock, Check, X, RefreshCw, Send, Loader2, Repeat } from 'lucide-react';
 import { format, addDays, setHours, setMinutes } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -39,6 +41,7 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [sending, setSending] = useState(false);
+  const [recurring, setRecurring] = useState(true);
   const [mode, setMode] = useState<'quick' | 'custom'>('custom');
   const [customDate1, setCustomDate1] = useState('');
   const [customTime1, setCustomTime1] = useState('');
@@ -69,7 +72,7 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
     if (!recipientId || allSlots.length === 0) return;
     setSending(true);
     try {
-      await createRequest(recipientId, allSlots, 'weekly_1on1', notes || undefined);
+      await createRequest(recipientId, allSlots, 'weekly_1on1', notes || undefined, recurring);
       toast({ title: 'Request Sent', description: `${recipientName} will see your proposed times.` });
       setOpen(false);
       setSelectedSlots([]);
@@ -223,6 +226,21 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
                 )}
               </>
             )}
+            {/* Recurring toggle */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+              <div className="flex items-center gap-2">
+                <Repeat className="w-4 h-4 text-primary" />
+                <Label htmlFor="recurring" className="text-sm font-medium cursor-pointer">
+                  Repeat weekly
+                </Label>
+              </div>
+              <Switch id="recurring" checked={recurring} onCheckedChange={setRecurring} />
+            </div>
+            {recurring && (
+              <p className="text-[10px] text-muted-foreground -mt-2 px-1">
+                After confirmation, a new request for the same time next week will be created automatically.
+              </p>
+            )}
 
             <Input
               value={notes}
@@ -262,9 +280,16 @@ export function SchedulingRequestCard({ request, onConfirm, onReschedule }: {
           <p className="text-sm font-medium text-foreground">{request.requester_name}</p>
           <p className="text-[10px] text-muted-foreground">wants to schedule a 1:1</p>
         </div>
-        <Badge variant={request.status === 'pending' ? 'secondary' : request.status === 'confirmed' ? 'default' : 'outline'} className="text-[10px]">
-          {request.status}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          {request.is_recurring && (
+            <Badge variant="outline" className="text-[10px] gap-1">
+              <Repeat className="w-2.5 h-2.5" /> Weekly
+            </Badge>
+          )}
+          <Badge variant={request.status === 'pending' ? 'secondary' : request.status === 'confirmed' ? 'default' : 'outline'} className="text-[10px]">
+            {request.status}
+          </Badge>
+        </div>
       </div>
 
       {request.status === 'pending' && (
