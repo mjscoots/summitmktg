@@ -169,10 +169,47 @@ export default function TrainingVideosPage() {
 
         {/* Category Filter Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none items-center">
-          {/* Required category tabs */}
-          {REQUIRED_CATEGORY_TABS.map(cat => {
-            const count = cat === 'All Videos' ? requiredVideos.length : videos.filter(v => v.category === cat).length;
-            if (cat !== 'All Videos' && count === 0) return null;
+          {/* All Videos tab */}
+          <button
+            onClick={() => {
+              setActiveCategory('All Videos');
+              setSearchTerm('');
+              setSearchFilteredVideos(null);
+            }}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+              activeCategory === 'All Videos'
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+            )}
+          >
+            All Videos
+            <span className="ml-1.5 opacity-70">({requiredVideos.length})</span>
+          </button>
+
+          {/* Bookmarks tab — right after All Videos */}
+          <button
+            onClick={() => {
+              setActiveCategory('Bookmarks');
+              setSearchTerm('');
+              setSearchFilteredVideos(null);
+            }}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5",
+              activeCategory === 'Bookmarks'
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+            )}
+          >
+            <Bookmark className="w-3.5 h-3.5" />
+            Bookmarks
+            {bookmarkCount > 0 && <span className="opacity-70">({bookmarkCount})</span>}
+          </button>
+
+          {/* Required category tabs (skip All Videos, already rendered) */}
+          {REQUIRED_CATEGORY_TABS.filter(cat => cat !== 'All Videos').map(cat => {
+            const count = videos.filter(v => v.category === cat).length;
+            if (count === 0) return null;
             return (
               <button
                 key={cat}
@@ -189,7 +226,7 @@ export default function TrainingVideosPage() {
                 )}
               >
                 {cat}
-                {count > 0 && <span className="ml-1.5 opacity-70">({count})</span>}
+                <span className="ml-1.5 opacity-70">({count})</span>
               </button>
             );
           })}
@@ -230,28 +267,6 @@ export default function TrainingVideosPage() {
               </button>
             );
           })}
-
-          {/* Bookmarks tab divider + tab */}
-          <div className="flex items-center gap-2 mx-1">
-            <div className="w-px h-6 bg-border" />
-          </div>
-          <button
-            onClick={() => {
-              setActiveCategory('Bookmarks');
-              setSearchTerm('');
-              setSearchFilteredVideos(null);
-            }}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5",
-              activeCategory === 'Bookmarks'
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
-            )}
-          >
-            <Bookmark className="w-3.5 h-3.5" />
-            Bookmarks
-            {bookmarkCount > 0 && <span className="opacity-70">({bookmarkCount})</span>}
-          </button>
         </div>
 
         {/* Video Grid */}
