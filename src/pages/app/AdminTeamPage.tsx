@@ -974,13 +974,30 @@ export default function AdminTeamPage() {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Permanently Delete User?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to permanently delete <strong>{deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone.
+              <AlertDialogDescription asChild>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>Are you sure you want to permanently delete <strong className="text-foreground">{deleteTarget?.full_name}</strong> ({deleteTarget?.email})?</p>
+                  <p>This will remove their account entirely and cannot be undone.</p>
+                  <p>If they need access again later, consider marking them as <strong className="text-foreground">'Inactive'</strong> instead.</p>
+                </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete Permanently</AlertDialogAction>
+              <AlertDialogAction
+                onClick={() => {
+                  if (deleteTarget) {
+                    handleToggleStatus(deleteTarget.user_id, deleteTarget.status === 'nlc' ? 'nlc' : 'active');
+                    setDeleteTarget(null);
+                  }
+                }}
+                className="bg-amber-600 text-white hover:bg-amber-700"
+              >
+                Mark Inactive
+              </AlertDialogAction>
+              <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Permanently Delete
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
