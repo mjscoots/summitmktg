@@ -90,8 +90,8 @@ export function CreateRepModal({ open, onOpenChange, managers, teams, onSuccess 
         },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      const errMsg = data?.error || error?.message || (error && typeof error === 'object' && 'context' in error ? (error as any).context?.body?.error : null);
+      if (error || data?.error) throw new Error(errMsg || 'Failed to create account');
 
       setCreatedPassword(password);
       toast({ title: 'Account Created', description: `${firstName} ${lastName} has been added.` });
