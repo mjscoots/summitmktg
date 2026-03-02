@@ -77,6 +77,13 @@ export default function TrainingVideosPage() {
   // Special "Bookmarks" category
   const isBookmarksTab = activeCategory === 'Bookmarks';
 
+  // Build a category order map for sorting
+  const CATEGORY_ORDER = [...REQUIRED_CATEGORY_TABS.filter(c => c !== 'All Videos'), ...BONUS_CATEGORY_TABS];
+  const getCatOrder = (cat: string) => {
+    const idx = CATEGORY_ORDER.indexOf(cat);
+    return idx >= 0 ? idx : 999;
+  };
+
   const categoryFiltered = isBookmarksTab
     ? videos.filter(v => bookmarkedIds.has(v.id)).sort((a, b) => {
         const aDate = bookmarkData[a.id] || '';
@@ -84,7 +91,17 @@ export default function TrainingVideosPage() {
         return bDate.localeCompare(aDate);
       })
     : activeCategory === 'All Videos'
-      ? videos
+      ? [...videos].sort((a, b) => {
+          // Bookmarked videos first
+          const aBookmarked = bookmarkedIds.has(a.id) ? 0 : 1;
+          const bBookmarked = bookmarkedIds.has(b.id) ? 0 : 1;
+          if (aBookmarked !== bBookmarked) return aBookmarked - bBookmarked;
+          // Then by category order
+          const catDiff = getCatOrder(a.category) - getCatOrder(b.category);
+          if (catDiff !== 0) return catDiff;
+          // Then by display_order within category
+          return (a.display_order ?? 0) - (b.display_order ?? 0);
+        })
       : videos.filter(v => v.category === activeCategory);
 
   const displayedVideos = searchTerm ? (searchFilteredVideos || []) : categoryFiltered;
