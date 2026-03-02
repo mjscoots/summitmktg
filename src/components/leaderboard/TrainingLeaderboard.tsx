@@ -65,9 +65,11 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
   const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setIsLoading(true);
-      setAnimateIn(false);
+    const fetchLeaderboard = async (isRefresh = false) => {
+      if (!isRefresh) {
+        setIsLoading(true);
+        setAnimateIn(false);
+      }
       try {
         // Use server-side SECURITY DEFINER function for deterministic results
         const [rookieResult, managerResult] = await Promise.all([
@@ -80,7 +82,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
 
         if (error) {
           console.error('Leaderboard RPC error:', error);
-          setEntries([]);
+          if (!isRefresh) setEntries([]);
           setIsLoading(false);
           return;
         }
@@ -138,7 +140,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
         const merged = Array.from(dedupedMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
 
         setEntries(merged);
-        setTimeout(() => setAnimateIn(true), 100);
+        if (!isRefresh) setTimeout(() => setAnimateIn(true), 100);
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -146,7 +148,11 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       }
     };
 
-    fetchLeaderboard();
+    fetchLeaderboard(false);
+
+    // Auto-refresh every 30 seconds — always get fresh server data
+    const interval = setInterval(() => fetchLeaderboard(true), 30000);
+    return () => clearInterval(interval);
   }, [mode]);
 
   const getBadgeInfo = (badgeId: string | null) => {
