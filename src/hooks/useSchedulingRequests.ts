@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { addDays } from 'date-fns';
 
 export interface SchedulingRequest {
   id: string;
@@ -10,6 +11,7 @@ export interface SchedulingRequest {
   chosen_time: string | null;
   status: 'pending' | 'confirmed' | 'reschedule_requested' | 'completed' | 'cancelled';
   form_type: string;
+  is_recurring: boolean;
   notes: string | null;
   created_at: string;
   confirmed_at: string | null;
@@ -57,6 +59,7 @@ export function useSchedulingRequests() {
       ...r,
       proposed_times: Array.isArray(r.proposed_times) ? (r.proposed_times as any[]).map(String) : [],
       status: r.status as SchedulingRequest['status'],
+      is_recurring: (r as any).is_recurring || false,
       requester_name: profileMap.get(r.requester_id)?.full_name || 'Unknown',
       recipient_name: profileMap.get(r.recipient_id)?.full_name || 'Unknown',
       requester_avatar: profileMap.get(r.requester_id)?.avatar_url,
@@ -79,7 +82,7 @@ export function useSchedulingRequests() {
     return () => { supabase.removeChannel(channel); };
   }, [fetchRequests, user]);
 
-  const createRequest = async (recipientId: string, proposedTimes: string[], formType = 'weekly_1on1', notes?: string) => {
+  const createRequest = async (recipientId: string, proposedTimes: string[], formType = 'weekly_1on1', notes?: string, isRecurring = false, parentRequestId?: string) => {
     if (!user) return;
     const { error } = await supabase.from('scheduling_requests').insert({
       requester_id: user.id,
@@ -87,7 +90,9 @@ export function useSchedulingRequests() {
       proposed_times: proposedTimes as any,
       form_type: formType,
       notes: notes || null,
-    });
+      is_recurring: isRecurring,
+      parent_request_id: parentRequestId || null,
+    } as any);
     if (error) throw error;
   };
 
@@ -104,6 +109,25 @@ export function useSchedulingRequests() {
     if (request) {
       try { await supabase.rpc('award_training_points', { _user_id: request.requester_id, _points: 25 }); } catch {}
       try { await supabase.rpc('award_training_points', { _user_id: request.recipient_id, _points: 25 }); } catch {}
+
+      // If recurring, auto-create next week's request with the same day/time
+      if ((request as any).is_recurring) {
+        try {
+          const chosenDate = new Date(chosenTime);
+          const nextWeek = addDays(chosenDate, 7);
+          await supabase.from('scheduling_requests').insert({
+            requester_id: request.requester_id,
+            recipient_id: request.recipient_id,
+            proposed_times: [nextWeek.toISOString()] as any,
+            form_type: request.form_type,
+            notes: request.notes,
+            is_recurring: true,
+            parent_request_id: requestId,
+          } as any);
+        } catch (e) {
+          console.error('Failed to create recurring request:', e);
+        }
+      }
     }
   };
 

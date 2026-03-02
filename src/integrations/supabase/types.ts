@@ -1440,7 +1440,9 @@ export type Database = {
           created_at: string
           form_type: string
           id: string
+          is_recurring: boolean | null
           notes: string | null
+          parent_request_id: string | null
           proposed_times: Json
           recipient_id: string
           requester_id: string
@@ -1454,7 +1456,9 @@ export type Database = {
           created_at?: string
           form_type?: string
           id?: string
+          is_recurring?: boolean | null
           notes?: string | null
+          parent_request_id?: string | null
           proposed_times?: Json
           recipient_id: string
           requester_id: string
@@ -1468,14 +1472,24 @@ export type Database = {
           created_at?: string
           form_type?: string
           id?: string
+          is_recurring?: boolean | null
           notes?: string | null
+          parent_request_id?: string | null
           proposed_times?: Json
           recipient_id?: string
           requester_id?: string
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "scheduling_requests_parent_request_id_fkey"
+            columns: ["parent_request_id"]
+            isOneToOne: false
+            referencedRelation: "scheduling_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       signup_logs: {
         Row: {
