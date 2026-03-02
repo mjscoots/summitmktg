@@ -203,8 +203,9 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
         },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      // Edge function returns error details in data on non-2xx, or in error object
+      const errMsg = data?.error || error?.message || (error && typeof error === 'object' && 'context' in error ? (error as any).context?.body?.error : null);
+      if (error || data?.error) throw new Error(errMsg || 'Failed to create account');
 
       toast.success(`${fullName} added to ${teamName} under ${reportsTo?.full_name}`);
       onMemberAdded();
