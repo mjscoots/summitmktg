@@ -493,19 +493,41 @@ export function MemberProfileModal({
     <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {member?.full_name}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently remove all data for this user including chat history, training progress, streaks, and their profile. This action cannot be undone.
+          <AlertDialogTitle>Permanently Delete User?</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>Are you sure you want to permanently delete <strong className="text-foreground">{member?.full_name}</strong>?</p>
+              <p>This will remove their account entirely including chat history, training progress, streaks, and their profile. This action cannot be undone.</p>
+              <p>If they need access again later, consider marking them as <strong className="text-foreground">'Inactive'</strong> instead.</p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={async () => {
+              if (!member) return;
+              try {
+                const { error } = await supabase.from('profiles').update({ status: 'nlc' }).eq('user_id', member.user_id);
+                if (error) throw error;
+                toast.success(`${member.full_name} marked as inactive`);
+                setDeleteConfirmOpen(false);
+                onStatusChange?.();
+                onClose();
+              } catch (err) {
+                toast.error('Failed to update status');
+              }
+            }}
+            className="bg-amber-600 text-white hover:bg-amber-700"
+          >
+            Mark Inactive
+          </AlertDialogAction>
           <AlertDialogAction
             onClick={handleDeleteUser}
             disabled={isDeleting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isDeleting ? 'Deleting...' : 'Delete permanently'}
+            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
