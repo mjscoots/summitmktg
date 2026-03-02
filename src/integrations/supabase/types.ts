@@ -2410,14 +2410,21 @@ export type Database = {
           avatar_url: string
           current_streak: number
           full_name: string
+          hours_points: number
+          lesson_points: number
           lessons_completed: number
+          manual_points: number
           nickname: string
+          one_on_one_points: number
           rank: number
+          streak_points: number
           team_name: string
+          threshold_bonus: number
           time_this_week_minutes: number
           total_points: number
           training_points: number
           user_id: string
+          video_points: number
           videos_watched: number
         }[]
       }

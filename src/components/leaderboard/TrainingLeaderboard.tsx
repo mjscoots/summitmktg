@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity } from 'lucide-react';
+import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, CheckCircle2, Activity, Video, FileText, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
@@ -13,11 +13,19 @@ import {
 } from "@/components/ui/dialog";
 
 const POINTS = {
+  HOUR_LOGGED: 40,
   LESSON_COMPLETED: 100,
-  STREAK_DAY: 10,
-  HOUR_LOGGED: 50, // Heavily weighted — primary factor
-  QUIZ_SCORE_MULTIPLIER: 3,
+  VIDEO_WATCHED: 40,
+  STREAK_DAY: 15,
+  MANUAL_CHAPTER: 30,
+  ONE_ON_ONE: 50,
 };
+
+const THRESHOLDS = [
+  { min: 420, bonus: 1500, label: '60 min/day' },
+  { min: 315, bonus: 1000, label: '45 min/day' },
+  { min: 210, bonus: 500, label: '30 min/day' },
+];
 
 interface TrainingLeaderboardProps {
   mode?: 'overall' | 'weekly';
@@ -36,16 +44,19 @@ interface LeaderboardEntry {
   totalPoints: number;
   progressPct: number;
   isActiveToday: boolean;
+  timeThisWeekMinutes: number;
   breakdown: {
-    lessonsPoints: number;
-    streakPoints: number;
     hoursPoints: number;
-    quizPoints: number;
+    thresholdBonus: number;
+    lessonsPoints: number;
+    videoPoints: number;
+    streakPoints: number;
+    manualPoints: number;
+    oneOnOnePoints: number;
   };
   weeklyBadge: string | null;
 }
 
-/** Display name: nickname if available, otherwise first name */
 function displayName(entry: LeaderboardEntry) {
   return entry.nickname || entry.full_name.split(' ')[0];
 }
@@ -87,17 +98,11 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
           return;
         }
 
-        // Map server response to UI interface — NO re-sorting, server order is authoritative
         const leaderboard: LeaderboardEntry[] = (data || []).map((row: any) => {
           const lessonsCompleted = row.lessons_completed || 0;
           const streakDays = row.streak_days || 0;
           const hoursThisWeek = parseFloat(row.hours_this_week) || 0;
           const avgQuizScore = row.avg_quiz_score || 0;
-
-          const lessonsPoints = lessonsCompleted * POINTS.LESSON_COMPLETED;
-          const streakPoints = streakDays * POINTS.STREAK_DAY;
-          const hoursPoints = Math.round(hoursThisWeek * POINTS.HOUR_LOGGED);
-          const quizPoints = Math.round(avgQuizScore * POINTS.QUIZ_SCORE_MULTIPLIER);
 
           return {
             user_id: row.user_id,
@@ -112,12 +117,20 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
             totalPoints: row.total_points || 0,
             progressPct: row.progress_pct || 0,
             isActiveToday: row.is_active_today || false,
-            breakdown: { lessonsPoints, streakPoints, hoursPoints, quizPoints },
+            timeThisWeekMinutes: 0,
+            breakdown: {
+              hoursPoints: 0,
+              thresholdBonus: 0,
+              lessonsPoints: lessonsCompleted * POINTS.LESSON_COMPLETED,
+              videoPoints: 0,
+              streakPoints: streakDays * POINTS.STREAK_DAY,
+              manualPoints: 0,
+              oneOnOnePoints: 0,
+            },
             weeklyBadge: null,
           };
         });
 
-        // Assign badges (cosmetic only, doesn't affect order)
         leaderboard.forEach((entry, index) => {
           const rank = index + 1;
           for (const badge of WEEKLY_BADGES) {
@@ -128,7 +141,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
           }
         });
 
-        // De-duplicate users and keep highest total_points row when needed
         const dedupedMap = new Map<string, LeaderboardEntry>();
         leaderboard.forEach((entry) => {
           const existing = dedupedMap.get(entry.user_id);
@@ -149,13 +161,10 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     };
 
     fetchLeaderboard(false);
-
-    // Auto-refresh every 30 seconds — always get fresh server data
     const interval = setInterval(() => fetchLeaderboard(true), 30000);
     return () => clearInterval(interval);
   }, [mode]);
 
-  // Debug: log top 5 so every user can verify identical rankings
   useEffect(() => {
     if (entries.length > 0) {
       console.log(`[Leaderboard ${mode}] Top 5:`, entries.slice(0, 5).map((u, i) => ({
@@ -187,7 +196,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       <div>
         <div className="p-8 text-center">
           <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground text-sm">No one with 100+ points yet</p>
+          <p className="text-muted-foreground text-sm">No activity yet this period</p>
         </div>
       </div>
     );
@@ -198,8 +207,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
 
   return (
     <div>
-      {/* Combined cohort (Managers + Rookies) */}
-
       {/* ===== YOUR RANK + RIVAL SYSTEM ===== */}
       {(() => {
         const myRank = entries.findIndex(e => e.user_id === user?.id);
@@ -220,7 +227,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
 
         return (
           <div className="mx-4 mt-4 space-y-2">
-            {/* Rank card */}
             <div className={cn(
               "p-4 rounded-xl border bg-gradient-to-r flex items-center gap-3 relative overflow-hidden",
               accentClass
@@ -257,7 +263,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             </div>
 
-            {/* Rival callout */}
             {rival && pointsToNext > 0 && (
               <div className="p-3.5 rounded-xl border border-destructive/30 bg-gradient-to-r from-destructive/10 to-transparent flex items-center gap-3 relative overflow-hidden">
                 <div className="absolute right-0 top-0 w-20 h-20 bg-destructive/5 rounded-full blur-2xl" />
@@ -273,7 +278,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             )}
 
-            {/* Chaser warning */}
             {chaser && chaserGap < 300 && chaserGap > 0 && (
               <div className="p-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center gap-2.5">
                 <Zap className="w-4 h-4 text-amber-500 animate-pulse" />
@@ -289,56 +293,25 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
         <div className="relative px-4 pt-10 pb-6 overflow-hidden">
-          {/* Background glow */}
           <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/8 via-primary/3 to-transparent" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-yellow-500/10 rounded-full blur-[80px]" />
 
           <div className="relative flex items-end justify-center gap-4">
-            {/* 2nd Place */}
-            <PodiumSlot
-              entry={top3[1]}
-              rank={2}
-              animateIn={animateIn}
-              delay="200ms"
-              podiumH="h-20"
-              podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent"
-              ringColor="ring-gray-400/60"
-              medalIcon={<Medal className="w-5 h-5 text-gray-400" />}
-              rankBg="bg-gradient-to-br from-gray-400 to-gray-500"
-              onClick={() => setSelectedEntry(top3[1])}
-            />
-            {/* 1st Place */}
-            <PodiumSlot
-              entry={top3[0]}
-              rank={1}
-              animateIn={animateIn}
-              delay="0ms"
-              podiumH="h-28"
-              podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent"
-              ringColor="ring-yellow-500/70"
-              medalIcon={<Trophy className="w-7 h-7 text-yellow-500" />}
-              rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
-              isChampion
-              onClick={() => setSelectedEntry(top3[0])}
-            />
-            {/* 3rd Place */}
-            <PodiumSlot
-              entry={top3[2]}
-              rank={3}
-              animateIn={animateIn}
-              delay="400ms"
-              podiumH="h-14"
-              podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent"
-              ringColor="ring-amber-600/60"
-              medalIcon={<Award className="w-5 h-5 text-amber-600" />}
-              rankBg="bg-gradient-to-br from-amber-500 to-amber-700"
-              onClick={() => setSelectedEntry(top3[2])}
-            />
+            <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
+              podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent" ringColor="ring-gray-400/60"
+              medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gradient-to-br from-gray-400 to-gray-500"
+              onClick={() => setSelectedEntry(top3[1])} />
+            <PodiumSlot entry={top3[0]} rank={1} animateIn={animateIn} delay="0ms" podiumH="h-28"
+              podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent" ringColor="ring-yellow-500/70"
+              medalIcon={<Trophy className="w-7 h-7 text-yellow-500" />} rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
+              isChampion onClick={() => setSelectedEntry(top3[0])} />
+            <PodiumSlot entry={top3[2]} rank={3} animateIn={animateIn} delay="400ms" podiumH="h-14"
+              podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent" ringColor="ring-amber-600/60"
+              medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-gradient-to-br from-amber-500 to-amber-700"
+              onClick={() => setSelectedEntry(top3[2])} />
           </div>
         </div>
       )}
-
-      {/* Badges section removed for cleaner UI */}
 
       {/* Full Leaderboard List */}
       <div className="divide-y divide-border/30">
@@ -358,7 +331,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               )}
               style={{ animationDelay: `${index * 30}ms` }}
             >
-              {/* Rank */}
               <div className="w-8 flex justify-center">
                 <span className={cn(
                   "text-sm font-bold tabular-nums",
@@ -366,7 +338,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 )}>{rank}</span>
               </div>
 
-              {/* Avatar */}
               <div className="relative">
                 <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" />
                 {entry.isActiveToday && (
@@ -374,7 +345,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 )}
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className={cn(
@@ -397,7 +367,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 </div>
               </div>
 
-              {/* Points */}
               <div className="text-right pl-2">
                 <span className="text-base font-black text-primary tabular-nums">{entry.totalPoints.toLocaleString()}</span>
                 <p className="text-[9px] text-muted-foreground font-medium">PTS</p>
@@ -439,7 +408,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 </div>
                 <Progress value={selectedEntry.progressPct} className="h-2.5" />
                 <p className="text-xs text-muted-foreground mt-1.5">
-                  {selectedEntry.lessonsCompleted} of {selectedEntry.totalLessons} lessons completed
+                  {selectedEntry.lessonsCompleted} of {selectedEntry.totalLessons} items completed
                 </p>
               </div>
 
@@ -469,12 +438,16 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 );
               })()}
 
+              {/* Point Breakdown */}
+              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1 pt-1">Point Breakdown</div>
               {[
-                { icon: Clock, label: 'Time on App', detail: `${selectedEntry.hoursThisWeek} hrs × ${POINTS.HOUR_LOGGED}`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
-                { icon: BookOpen, label: 'Lessons Completed', detail: `${selectedEntry.lessonsCompleted} × ${POINTS.LESSON_COMPLETED}`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-success' },
-                { icon: Flame, label: 'Training Streak', detail: `${selectedEntry.streakDays} days × ${POINTS.STREAK_DAY}`, value: selectedEntry.breakdown.streakPoints, color: 'text-orange-500' },
-                { icon: Target, label: 'Avg Quiz Score', detail: `${selectedEntry.avgQuizScore}% × ${POINTS.QUIZ_SCORE_MULTIPLIER}`, value: selectedEntry.breakdown.quizPoints, color: 'text-purple-500' },
-              ].map(({ icon: Icon, label, detail, value, color }) => (
+                { icon: Clock, label: 'Hours Logged', detail: `${selectedEntry.hoursThisWeek} hrs × ${POINTS.HOUR_LOGGED}/hr`, value: Math.floor(selectedEntry.hoursThisWeek) * POINTS.HOUR_LOGGED, color: 'text-blue-500' },
+                { icon: BookOpen, label: 'Lessons Completed', detail: `${selectedEntry.lessonsCompleted} × ${POINTS.LESSON_COMPLETED}`, value: selectedEntry.lessonsCompleted * POINTS.LESSON_COMPLETED, color: 'text-success' },
+                { icon: Flame, label: 'Training Streak', detail: `${selectedEntry.streakDays} days × ${POINTS.STREAK_DAY}/day + milestones`, value: selectedEntry.breakdown.streakPoints, color: 'text-orange-500' },
+                { icon: Video, label: 'Videos Watched', detail: `${POINTS.VIDEO_WATCHED} pts per watch (rewatches count!)`, value: selectedEntry.breakdown.videoPoints, color: 'text-purple-500' },
+                { icon: FileText, label: 'Manual Chapters', detail: `${POINTS.MANUAL_CHAPTER} pts per chapter`, value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
+                { icon: Users, label: 'Weekly 1:1s', detail: `${POINTS.ONE_ON_ONE} pts each`, value: selectedEntry.breakdown.oneOnOnePoints, color: 'text-pink-500' },
+              ].filter(item => item.value > 0 || item.label === 'Hours Logged').map(({ icon: Icon, label, detail, value, color }) => (
                 <div key={label} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Icon className={cn('w-5 h-5', color)} />
@@ -519,7 +492,6 @@ function PodiumSlot({
       )}
       style={{ transitionDelay: delay }}
     >
-      {/* Avatar */}
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
         <div className={cn(
           "rounded-full p-0.5",
@@ -551,7 +523,6 @@ function PodiumSlot({
         )}
       </div>
 
-      {/* Name */}
       <p className={cn(
         "font-bold text-foreground mt-2 truncate text-center",
         isChampion ? "text-sm max-w-[100px]" : "text-xs max-w-[80px]"
@@ -559,7 +530,6 @@ function PodiumSlot({
         {displayName(entry)}
       </p>
 
-      {/* Points */}
       <p className={cn(
         "font-black text-primary tabular-nums",
         isChampion ? "text-xl" : "text-sm"
@@ -568,7 +538,6 @@ function PodiumSlot({
       </p>
       <span className="text-[9px] text-muted-foreground font-semibold -mt-0.5">PTS</span>
 
-      {/* Podium bar */}
       <div className={cn(
         "rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2",
         podiumH,
