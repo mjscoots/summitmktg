@@ -2131,6 +2131,67 @@ export type Database = {
         }
         Relationships: []
       }
+      video_bookmarks: {
+        Row: {
+          bookmarked_at: string | null
+          id: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          bookmarked_at?: string | null
+          id?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          bookmarked_at?: string | null
+          id?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_bookmarks_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "training_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_notes: {
+        Row: {
+          id: string
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_notes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "training_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_progress: {
         Row: {
           created_at: string | null

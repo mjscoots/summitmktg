@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Video, ChevronLeft, Loader2, Film, Star } from 'lucide-react';
+import { Video, Loader2, Film, Star, Bookmark } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
+import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
 import { REQUIRED_CATEGORY_TABS, BONUS_CATEGORY_TABS, isBonusCategory } from '@/lib/trainingConstants';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -24,8 +24,12 @@ export default function TrainingVideosPage() {
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All Videos');
+  const [noteVideoIds, setNoteVideoIds] = useState<Set<string>>(new Set());
+  const { bookmarkedIds } = useVideoBookmarks();
 
-  // Search state
+  // Bookmarked videos data (with bookmarked_at timestamps)
+  const [bookmarkData, setBookmarkData] = useState<Record<string, string>>({});
+
   const [searchFilteredVideos, setSearchFilteredVideos] = useState<TrainingVideo[] | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -34,29 +38,24 @@ export default function TrainingVideosPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        let query = supabase
-          .from('training_videos')
-          .select('*')
-          .eq('is_active', true)
-          .order('display_order')
-          .order('created_at', { ascending: false });
+        const [videosRes, progressRes, notesRes, bookmarksRes] = await Promise.all([
+          supabase.from('training_videos').select('*').eq('is_active', true).order('display_order').order('created_at', { ascending: false }),
+          supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
+          supabase.from('video_notes').select('video_id').eq('user_id', user.id),
+          supabase.from('video_bookmarks').select('video_id, bookmarked_at').eq('user_id', user.id),
+        ]);
 
-        const { data: videosData } = await query;
-
-        const filtered = (videosData || []).filter(v => {
+        const filtered = (videosRes.data || []).filter(v => {
           if (!v.target_role) return true;
           return v.target_role === role;
         });
-
         setVideos(filtered);
+        setWatchedIds(new Set((progressRes.data || []).map(p => p.video_id)));
+        setNoteVideoIds(new Set((notesRes.data || []).map(n => n.video_id)));
 
-        const { data: progressData } = await supabase
-          .from('video_progress')
-          .select('video_id')
-          .eq('user_id', user.id)
-          .eq('watched', true);
-
-        setWatchedIds(new Set((progressData || []).map(p => p.video_id)));
+        const bData: Record<string, string> = {};
+        (bookmarksRes.data || []).forEach(b => { bData[b.video_id] = b.bookmarked_at || ''; });
+        setBookmarkData(bData);
       } catch (err) {
         console.error('Error fetching videos:', err);
       } finally {
@@ -75,21 +74,29 @@ export default function TrainingVideosPage() {
     setActiveCategory(cat);
   }, []);
 
-  // Determine displayed videos
-  const categoryFiltered = activeCategory === 'All Videos'
-    ? videos
-    : videos.filter(v => v.category === activeCategory);
+  // Special "Bookmarks" category
+  const isBookmarksTab = activeCategory === 'Bookmarks';
+
+  const categoryFiltered = isBookmarksTab
+    ? videos.filter(v => bookmarkedIds.has(v.id)).sort((a, b) => {
+        const aDate = bookmarkData[a.id] || '';
+        const bDate = bookmarkData[b.id] || '';
+        return bDate.localeCompare(aDate);
+      })
+    : activeCategory === 'All Videos'
+      ? videos
+      : videos.filter(v => v.category === activeCategory);
 
   const displayedVideos = searchTerm ? (searchFilteredVideos || []) : categoryFiltered;
 
-  // Separate required vs bonus counts
   const requiredVideos = videos.filter(v => !isBonusCategory(v.category));
   const bonusVideos = videos.filter(v => isBonusCategory(v.category));
   const requiredWatchedCount = requiredVideos.filter(v => watchedIds.has(v.id)).length;
   const bonusWatchedCount = bonusVideos.filter(v => watchedIds.has(v.id)).length;
   const progressPercent = requiredVideos.length > 0 ? Math.round((requiredWatchedCount / requiredVideos.length) * 100) : 0;
 
-  // Highlight helper for search
+  const bookmarkCount = videos.filter(v => bookmarkedIds.has(v.id)).length;
+
   const renderHighlightedTitle = (title: string) => {
     if (!searchTerm) return undefined;
     const q = searchTerm.toLowerCase();
@@ -103,6 +110,7 @@ export default function TrainingVideosPage() {
       </>
     );
   };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -222,21 +230,53 @@ export default function TrainingVideosPage() {
               </button>
             );
           })}
+
+          {/* Bookmarks tab divider + tab */}
+          <div className="flex items-center gap-2 mx-1">
+            <div className="w-px h-6 bg-border" />
+          </div>
+          <button
+            onClick={() => {
+              setActiveCategory('Bookmarks');
+              setSearchTerm('');
+              setSearchFilteredVideos(null);
+            }}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5",
+              activeCategory === 'Bookmarks'
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+            )}
+          >
+            <Bookmark className="w-3.5 h-3.5" />
+            Bookmarks
+            {bookmarkCount > 0 && <span className="opacity-70">({bookmarkCount})</span>}
+          </button>
         </div>
 
         {/* Video Grid */}
         {displayedVideos.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
-            <Film className="w-16 h-16 mx-auto mb-4 opacity-40" />
-            {searchTerm ? (
+            {isBookmarksTab ? (
               <>
-                <p>No videos found for "{searchTerm}"</p>
-                <p className="text-sm mt-1">Try searching a category like Introduction, Closing, or Body Language</p>
+                <Bookmark className="w-16 h-16 mx-auto mb-4 opacity-40" />
+                <p>No bookmarked videos yet.</p>
+                <p className="text-sm mt-1">Click ⭐ on any video to bookmark it for quick access.</p>
               </>
             ) : (
               <>
-                <p>No videos in this category yet.</p>
-                <p className="text-sm mt-1">Check back soon!</p>
+                <Film className="w-16 h-16 mx-auto mb-4 opacity-40" />
+                {searchTerm ? (
+                  <>
+                    <p>No videos found for "{searchTerm}"</p>
+                    <p className="text-sm mt-1">Try searching a category like Introduction, Closing, or Body Language</p>
+                  </>
+                ) : (
+                  <>
+                    <p>No videos in this category yet.</p>
+                    <p className="text-sm mt-1">Check back soon!</p>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -249,6 +289,9 @@ export default function TrainingVideosPage() {
                 isWatched={watchedIds.has(video.id)}
                 onClick={() => navigate(`/app/training/videos/${video.id}`)}
                 highlightTitle={renderHighlightedTitle(video.title)}
+                hasNotes={noteVideoIds.has(video.id)}
+                isBookmarked={bookmarkedIds.has(video.id)}
+                bookmarkedAt={isBookmarksTab ? bookmarkData[video.id] : undefined}
               />
             ))}
           </div>

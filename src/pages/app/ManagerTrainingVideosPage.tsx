@@ -5,27 +5,28 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Video, ChevronLeft, Loader2, Film, Star } from 'lucide-react';
+import { Video, ChevronLeft, Loader2, Film, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
-import { isBonusCategory } from '@/lib/trainingConstants';
+import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
-// Manager video categories
 const MANAGER_CATEGORIES = ['All Videos', 'Advanced Training', 'Manager Training', 'Zoom Trainings'];
 
 export default function ManagerTrainingVideosPage() {
-  const { user, role } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [videos, setVideos] = useState<TrainingVideo[]>([]);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All Videos');
+  const [noteVideoIds, setNoteVideoIds] = useState<Set<string>>(new Set());
+  const { bookmarkedIds } = useVideoBookmarks();
+  const [bookmarkData, setBookmarkData] = useState<Record<string, string>>({});
 
-  // Search state
   const [searchFilteredVideos, setSearchFilteredVideos] = useState<TrainingVideo[] | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -34,23 +35,21 @@ export default function ManagerTrainingVideosPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const { data: videosData } = await supabase
-          .from('training_videos')
-          .select('*')
-          .eq('is_active', true)
-          .in('category', ['Advanced Training', 'Manager Training', 'Zoom Trainings'])
-          .order('display_order')
-          .order('created_at', { ascending: false });
+        const [videosRes, progressRes, notesRes, bookmarksRes] = await Promise.all([
+          supabase.from('training_videos').select('*').eq('is_active', true)
+            .in('category', ['Advanced Training', 'Manager Training', 'Zoom Trainings'])
+            .order('display_order').order('created_at', { ascending: false }),
+          supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
+          supabase.from('video_notes').select('video_id').eq('user_id', user.id),
+          supabase.from('video_bookmarks').select('video_id, bookmarked_at').eq('user_id', user.id),
+        ]);
 
-        setVideos(videosData || []);
-
-        const { data: progressData } = await supabase
-          .from('video_progress')
-          .select('video_id')
-          .eq('user_id', user.id)
-          .eq('watched', true);
-
-        setWatchedIds(new Set((progressData || []).map(p => p.video_id)));
+        setVideos(videosRes.data || []);
+        setWatchedIds(new Set((progressRes.data || []).map(p => p.video_id)));
+        setNoteVideoIds(new Set((notesRes.data || []).map(n => n.video_id)));
+        const bData: Record<string, string> = {};
+        (bookmarksRes.data || []).forEach(b => { bData[b.video_id] = b.bookmarked_at || ''; });
+        setBookmarkData(bData);
       } catch (err) {
         console.error('Error fetching videos:', err);
       } finally {
@@ -69,19 +68,25 @@ export default function ManagerTrainingVideosPage() {
     setActiveCategory(cat);
   }, []);
 
-  // Determine displayed videos
-  const categoryFiltered = activeCategory === 'All Videos'
-    ? videos
-    : videos.filter(v => v.category === activeCategory);
+  const isBookmarksTab = activeCategory === 'Bookmarks';
+
+  const categoryFiltered = isBookmarksTab
+    ? videos.filter(v => bookmarkedIds.has(v.id)).sort((a, b) => {
+        const aDate = bookmarkData[a.id] || '';
+        const bDate = bookmarkData[b.id] || '';
+        return bDate.localeCompare(aDate);
+      })
+    : activeCategory === 'All Videos'
+      ? videos
+      : videos.filter(v => v.category === activeCategory);
 
   const displayedVideos = searchTerm ? (searchFilteredVideos || []) : categoryFiltered;
 
-  // Progress tracking
   const totalVideos = videos.length;
   const watchedCount = videos.filter(v => watchedIds.has(v.id)).length;
   const progressPercent = totalVideos > 0 ? Math.round((watchedCount / totalVideos) * 100) : 0;
+  const bookmarkCount = videos.filter(v => bookmarkedIds.has(v.id)).length;
 
-  // Highlight helper for search
   const renderHighlightedTitle = (title: string) => {
     if (!searchTerm) return undefined;
     const q = searchTerm.toLowerCase();
@@ -127,19 +132,15 @@ export default function ManagerTrainingVideosPage() {
           <p className="text-sm text-muted-foreground mt-1">Advanced and manager-level training content</p>
         </div>
 
-        {/* Progress Card */}
         <div className="bg-card rounded-xl border border-border p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-foreground">Progress</span>
-            <span className="text-sm text-muted-foreground">
-              {watchedCount}/{totalVideos} videos watched
-            </span>
+            <span className="text-sm text-muted-foreground">{watchedCount}/{totalVideos} videos watched</span>
           </div>
           <Progress value={progressPercent} className="h-2.5" />
           <p className="text-xs text-muted-foreground mt-2">{progressPercent}% complete</p>
         </div>
 
-        {/* Search Bar */}
         <VideoSearchBar
           videos={videos}
           categoryTabs={MANAGER_CATEGORIES}
@@ -149,7 +150,6 @@ export default function ManagerTrainingVideosPage() {
           onNavigateToVideo={(id) => navigate(`/app/training/videos/${id}`)}
         />
 
-        {/* Category Filter Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none items-center">
           {MANAGER_CATEGORIES.map(cat => {
             const count = cat === 'All Videos' ? videos.length : videos.filter(v => v.category === cat).length;
@@ -157,11 +157,7 @@ export default function ManagerTrainingVideosPage() {
             return (
               <button
                 key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  setSearchTerm('');
-                  setSearchFilteredVideos(null);
-                }}
+                onClick={() => { setActiveCategory(cat); setSearchTerm(''); setSearchFilteredVideos(null); }}
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
                   activeCategory === cat
@@ -174,21 +170,41 @@ export default function ManagerTrainingVideosPage() {
               </button>
             );
           })}
+
+          <div className="flex items-center gap-2 mx-1">
+            <div className="w-px h-6 bg-border" />
+          </div>
+          <button
+            onClick={() => { setActiveCategory('Bookmarks'); setSearchTerm(''); setSearchFilteredVideos(null); }}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5",
+              activeCategory === 'Bookmarks'
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+            )}
+          >
+            <Bookmark className="w-3.5 h-3.5" />
+            Bookmarks
+            {bookmarkCount > 0 && <span className="opacity-70">({bookmarkCount})</span>}
+          </button>
         </div>
 
-        {/* Video Grid */}
         {displayedVideos.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
-            <Film className="w-16 h-16 mx-auto mb-4 opacity-40" />
-            {searchTerm ? (
+            {isBookmarksTab ? (
               <>
-                <p>No videos found for "{searchTerm}"</p>
-                <p className="text-sm mt-1">Try a different search term</p>
+                <Bookmark className="w-16 h-16 mx-auto mb-4 opacity-40" />
+                <p>No bookmarked videos yet.</p>
+                <p className="text-sm mt-1">Click the bookmark button on any video to save it here.</p>
               </>
             ) : (
               <>
-                <p>No videos in this category yet.</p>
-                <p className="text-sm mt-1">Check back soon!</p>
+                <Film className="w-16 h-16 mx-auto mb-4 opacity-40" />
+                {searchTerm ? (
+                  <><p>No videos found for "{searchTerm}"</p><p className="text-sm mt-1">Try a different search term</p></>
+                ) : (
+                  <><p>No videos in this category yet.</p><p className="text-sm mt-1">Check back soon!</p></>
+                )}
               </>
             )}
           </div>
@@ -201,6 +217,9 @@ export default function ManagerTrainingVideosPage() {
                 isWatched={watchedIds.has(video.id)}
                 onClick={() => navigate(`/app/training/videos/${video.id}`)}
                 highlightTitle={renderHighlightedTitle(video.title)}
+                hasNotes={noteVideoIds.has(video.id)}
+                isBookmarked={bookmarkedIds.has(video.id)}
+                bookmarkedAt={isBookmarksTab ? bookmarkData[video.id] : undefined}
               />
             ))}
           </div>
