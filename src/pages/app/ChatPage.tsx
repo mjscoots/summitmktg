@@ -25,7 +25,7 @@ export default function ChatPage() {
   }, [markRead, setViewing]);
 
   return (
-    <AppLayout>
+    <AppLayout fullHeight>
       <div className="h-full flex flex-col overflow-hidden">
         <div className="flex-1 min-h-0">
           <CommunityChat />
