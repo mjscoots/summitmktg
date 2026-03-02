@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Textarea } from '@/components/ui/textarea';
-import { FileText, Loader2, Check } from 'lucide-react';
+import { PenLine, Loader2, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface VideoNotesPanelProps {
   videoId: string;
@@ -11,11 +11,14 @@ interface VideoNotesPanelProps {
 
 export function VideoNotesPanel({ videoId }: VideoNotesPanelProps) {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!isMobile);
   const initialNotesRef = useRef('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load notes
   useEffect(() => {
@@ -45,7 +48,6 @@ export function VideoNotesPanel({ videoId }: VideoNotesPanelProps) {
   // Auto-save with debounce
   useEffect(() => {
     if (!isLoaded || !user || !videoId) return;
-    // Don't save if nothing changed from initial load
     if (notes === initialNotesRef.current && lastSaved) return;
     if (notes === '' && !lastSaved) return;
 
@@ -68,30 +70,70 @@ export function VideoNotesPanel({ videoId }: VideoNotesPanelProps) {
     return () => clearTimeout(timeout);
   }, [notes, isLoaded, user, videoId]);
 
+  const headerContent = (
+    <div
+      className="flex items-center justify-between cursor-pointer select-none"
+      onClick={() => isMobile && setIsExpanded(prev => !prev)}
+    >
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+          <PenLine className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-sm text-foreground tracking-tight">My Notes</h3>
+          <p className="text-[10px] text-muted-foreground">Private • Auto-saves</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {/* Save status pill */}
+        <div className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-muted/50">
+          {isSaving ? (
+            <><Loader2 className="w-2.5 h-2.5 animate-spin text-muted-foreground" /> <span className="text-muted-foreground">Saving</span></>
+          ) : lastSaved ? (
+            <><Check className="w-2.5 h-2.5 text-emerald-500" /> <span className="text-muted-foreground">Saved</span></>
+          ) : (
+            <span className="text-muted-foreground">No notes yet</span>
+          )}
+        </div>
+        {isMobile && (
+          isExpanded
+            ? <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            : <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-3">
-        <FileText className="w-4 h-4 text-primary" />
-        <h3 className="font-semibold text-sm text-foreground">My Notes</h3>
-      </div>
-      <Textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        placeholder="Take notes while watching... (auto-saves)"
-        className="flex-1 min-h-[300px] lg:min-h-[400px] resize-none font-mono text-sm bg-background"
-      />
-      <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-        <span>{notes.length} characters</span>
-        <span className="flex items-center gap-1">
-          {isSaving ? (
-            <><Loader2 className="w-3 h-3 animate-spin" /> Saving...</>
-          ) : lastSaved ? (
-            <><Check className="w-3 h-3 text-success" /> Saved {formatDistanceToNow(new Date(lastSaved))} ago</>
-          ) : (
-            'Type to start taking notes'
-          )}
-        </span>
-      </div>
+      {headerContent}
+
+      {(isExpanded || !isMobile) && (
+        <div className="flex flex-col flex-1 mt-3">
+          <div className="relative flex-1">
+            <textarea
+              ref={textareaRef}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Start typing your notes..."
+              className="w-full min-h-[300px] lg:min-h-[360px] resize-none rounded-xl border-0 bg-muted/30 px-4 py-3.5 text-sm text-foreground leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-muted/40 transition-all duration-200"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif' }}
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between mt-2 px-1">
+            <span className="text-[10px] text-muted-foreground/60 tabular-nums">
+              {notes.length.toLocaleString()} chars
+            </span>
+            {lastSaved && (
+              <span className="text-[10px] text-muted-foreground/60">
+                {formatDistanceToNow(new Date(lastSaved))} ago
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
