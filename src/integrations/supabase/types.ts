@@ -1091,6 +1091,27 @@ export type Database = {
         }
         Relationships: []
       }
+      manual_chapter_progress: {
+        Row: {
+          chapter_id: string
+          completed_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          completed_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          completed_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           bootcamp_reminders: boolean
@@ -1185,6 +1206,7 @@ export type Database = {
           approved: boolean | null
           avatar_url: string | null
           created_at: string | null
+          cumulative_points: number | null
           direct_manager: string | null
           email: string
           experience: Database["public"]["Enums"]["experience_level"] | null
@@ -1216,6 +1238,7 @@ export type Database = {
           approved?: boolean | null
           avatar_url?: string | null
           created_at?: string | null
+          cumulative_points?: number | null
           direct_manager?: string | null
           email: string
           experience?: Database["public"]["Enums"]["experience_level"] | null
@@ -1247,6 +1270,7 @@ export type Database = {
           approved?: boolean | null
           avatar_url?: string | null
           created_at?: string | null
+          cumulative_points?: number | null
           direct_manager?: string | null
           email?: string
           experience?: Database["public"]["Enums"]["experience_level"] | null
@@ -2227,6 +2251,38 @@ export type Database = {
           },
         ]
       }
+      video_watch_log: {
+        Row: {
+          id: string
+          user_id: string
+          video_id: string
+          watch_duration_minutes: number | null
+          watched_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          video_id: string
+          watch_duration_minutes?: number | null
+          watched_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          video_id?: string
+          watch_duration_minutes?: number | null
+          watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_watch_log_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "training_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_one_on_ones_manager: {
         Row: {
           completed_mission: string
@@ -2570,6 +2626,7 @@ export type Database = {
         Returns: boolean
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      recalculate_all_time_points: { Args: never; Returns: undefined }
       record_daily_login:
         | { Args: { _user_id: string }; Returns: Json }
         | { Args: { _timezone?: string; _user_id: string }; Returns: Json }
