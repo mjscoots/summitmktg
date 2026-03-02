@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video, ArrowUpDown } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 const LazyAssignments = lazy(() => import('@/components/admin/AssignmentsTab'));
@@ -99,7 +99,6 @@ export default function AdminTeamPage() {
   const navigate = useNavigate();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
-  // Mark approvals as viewed on mount (default tab)
   useEffect(() => { adminCounts.markViewed('pendingApprovals'); }, []);
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
@@ -125,7 +124,7 @@ export default function AdminTeamPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
-  const [rosterSubTab, setRosterSubTab] = useState<'sync' | 'import'>('sync');
+  const [rosterSubTab, setRosterSubTab] = useState<'sync' | 'import' | 'assign'>('sync');
   const [passwordResetTarget, setPasswordResetTarget] = useState<{ email: string; full_name: string } | null>(null);
   const [customPassword, setCustomPassword] = useState('');
 
@@ -136,6 +135,9 @@ export default function AdminTeamPage() {
   const [bootcampStatusFilter, setBootcampStatusFilter] = useState('all');
   const [bootcampDetail, setBootcampDetail] = useState<BootcampRow | null>(null);
   const [videoUrls, setVideoUrls] = useState<Record<string, string>>({});
+
+  // Sort direction
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const fetchData = async () => {
     setLoading(true);
@@ -182,7 +184,7 @@ export default function AdminTeamPage() {
     (settingsRes.data || []).forEach(s => { settingsMap[s.key] = s.value || ''; });
     setSettings(settingsMap);
 
-    // Build bootcamp responses data — exclude managers/admins
+    // Build bootcamp responses data
     const bcRows: BootcampRow[] = (profilesRes.data || [])
       .filter(p => {
         const userRole = roleMap.get(p.user_id) || 'rookie';
@@ -218,7 +220,6 @@ export default function AdminTeamPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  // Get signed URL for a video
   const getVideoUrl = async (path: string): Promise<string | null> => {
     if (videoUrls[path]) return videoUrls[path];
     const { data } = await supabase.storage.from('bootcamp-videos').createSignedUrl(path, 3600);
@@ -231,7 +232,6 @@ export default function AdminTeamPage() {
 
   // ============ APPROVAL HANDLERS ============
   const handleApprove = async (userId: string) => {
-    // Optimistic: move user from pending to approved list immediately
     const approvedUser = pendingUsers.find(u => u.user_id === userId);
     if (approvedUser) {
       setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
@@ -241,10 +241,8 @@ export default function AdminTeamPage() {
     try {
       const { error } = await supabase.functions.invoke('admin-approve-user', { body: { action: 'approve', user_id: userId } });
       if (error) throw error;
-      // Background refresh for consistency
       fetchData();
     } catch (err: any) {
-      // Revert on failure
       if (approvedUser) {
         setPendingUsers(prev => [approvedUser, ...prev]);
         setReps(prev => prev.filter(u => u.user_id !== userId));
@@ -254,7 +252,6 @@ export default function AdminTeamPage() {
   };
 
   const handleReject = async (userId: string) => {
-    // Optimistic: remove from pending immediately
     const rejectedUser = pendingUsers.find(u => u.user_id === userId);
     if (rejectedUser) {
       setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
@@ -265,7 +262,6 @@ export default function AdminTeamPage() {
       if (error) throw error;
       fetchData();
     } catch (err: any) {
-      // Revert on failure
       if (rejectedUser) {
         setPendingUsers(prev => [rejectedUser, ...prev]);
       }
@@ -458,15 +454,16 @@ export default function AdminTeamPage() {
     r.full_name.toLowerCase().includes(search.toLowerCase()) ||
     r.email.toLowerCase().includes(search.toLowerCase())
   ).sort((a, b) => {
+    const dir = sortDirection === 'asc' ? 1 : -1;
     switch (userSort) {
-      case 'latest': return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-      case 'team': return (getTeamName(a.team_id)).localeCompare(getTeamName(b.team_id));
-      case 'role': return (a.role || 'rookie').localeCompare(b.role || 'rookie');
+      case 'latest': return dir * (new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      case 'team': return dir * (getTeamName(a.team_id)).localeCompare(getTeamName(b.team_id));
+      case 'role': return dir * (a.role || 'rookie').localeCompare(b.role || 'rookie');
       case 'bootcamp': {
-        if (a.bootcamp_completed === b.bootcamp_completed) return a.full_name.localeCompare(b.full_name);
-        return a.bootcamp_completed ? 1 : -1; // incomplete first
+        if (a.bootcamp_completed === b.bootcamp_completed) return dir * a.full_name.localeCompare(b.full_name);
+        return dir * (a.bootcamp_completed ? 1 : -1);
       }
-      default: return a.full_name.localeCompare(b.full_name);
+      default: return dir * a.full_name.localeCompare(b.full_name);
     }
   });
 
@@ -488,10 +485,10 @@ export default function AdminTeamPage() {
   };
 
   const statusBadge = (status: string | null) => {
-    if (status === 'nlc') return <Badge variant="destructive" className="text-[10px]">Disabled</Badge>;
-    if (status === 'rejected') return <Badge variant="destructive" className="text-[10px]">Rejected</Badge>;
-    if (status === 'pending') return <Badge variant="secondary" className="text-[10px]">Pending</Badge>;
-    return <Badge variant="outline" className="text-[10px]">Active</Badge>;
+    if (status === 'nlc') return <Badge variant="destructive" className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">Disabled</Badge>;
+    if (status === 'rejected') return <Badge variant="destructive" className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">Rejected</Badge>;
+    if (status === 'pending') return <Badge variant="secondary" className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">Pending</Badge>;
+    return <Badge variant="outline" className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">Active</Badge>;
   };
 
   const openVideoInNewTab = async (path: string | null) => {
@@ -536,48 +533,32 @@ export default function AdminTeamPage() {
           if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
         }}>
           <TabsList className="bg-white/5 border border-white/10 mb-4 flex-wrap h-auto gap-0.5 p-1">
-            <TabsTrigger value="approvals" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="approvals" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
             </TabsTrigger>
-            <TabsTrigger value="users" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="users" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Users <span className="ml-1 text-[9px] text-muted-foreground">{reps.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="applications" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="applications" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Apps {adminCounts.pendingApplications > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
             </TabsTrigger>
-            <TabsTrigger value="pitches" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="pitches" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Assign
-            </TabsTrigger>
-            <TabsTrigger value="teams" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="teams" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Teams <span className="ml-1 text-[9px] text-muted-foreground">{teams.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="bootcamp" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Summer <span className="ml-1 text-[9px] text-muted-foreground">{bootcampData.length}</span>
-            </TabsTrigger>
-            <TabsTrigger value="submitted-videos" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Videos
-            </TabsTrigger>
-            <TabsTrigger value="roster" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Roster
+            <TabsTrigger value="roster" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Roster & Assign
             </TabsTrigger>
             {isSuperAdmin && (
-              <TabsTrigger value="system" className="text-[11px] px-2 py-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
+              <TabsTrigger value="system" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
             )}
           </TabsList>
 
           {/* ========== APPLICATIONS TAB ========== */}
           <TabsContent value="applications">
             <AdminApplicationsTab />
-          </TabsContent>
-
-          {/* ========== ASSIGNMENTS TAB ========== */}
-          <TabsContent value="assignments">
-            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              <LazyAssignments managers={managers} teams={teamsSimple} onRefresh={fetchData} />
-            </Suspense>
           </TabsContent>
 
           {/* ========== PITCH APPROVALS TAB ========== */}
@@ -589,10 +570,6 @@ export default function AdminTeamPage() {
               <Mic className="w-3.5 h-3.5" /> Open Pitch Approvals Page
             </Button>
           </TabsContent>
-
-          {/* ========== FEEDBACK TAB ========== */}
-
-
 
           <TabsContent value="approvals">
             {loading ? (
@@ -622,7 +599,7 @@ export default function AdminTeamPage() {
                         <td className="px-4 py-3 font-medium text-white max-w-[140px] sm:max-w-[180px] truncate" title={user.full_name}>{user.full_name}</td>
                         <td className="px-4 py-3 text-white/60 max-w-[170px] sm:max-w-[220px] truncate" title={user.email}>{user.email}</td>
                         <td className="px-4 py-3 text-white/60">{user.phone || '—'}</td>
-                        <td className="px-4 py-3"><Badge variant="secondary" className="text-[10px] capitalize">{user.role}</Badge></td>
+                        <td className="px-4 py-3"><Badge variant="secondary" className="text-[9px] px-1.5 py-0 capitalize">{user.role}</Badge></td>
                         <td className="px-4 py-3 text-white/60">{getTeamName(user.team_id)}</td>
                         <td className="px-4 py-3 text-white/40 text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
                         <td className="px-4 py-3 text-right">
@@ -645,13 +622,13 @@ export default function AdminTeamPage() {
 
           {/* ========== USERS TAB ========== */}
           <TabsContent value="users">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="relative flex-1">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..." className="pl-9 bg-white/5 border-white/10" />
               </div>
               <Select value={userSort} onValueChange={(v) => setUserSort(v as any)}>
-                <SelectTrigger className="w-[160px] bg-white/5 border-white/10 text-xs">
+                <SelectTrigger className="w-[140px] bg-white/5 border-white/10 text-xs">
                   <SelectValue placeholder="Sort by..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -659,9 +636,19 @@ export default function AdminTeamPage() {
                   <SelectItem value="latest">Latest</SelectItem>
                   <SelectItem value="team">Team</SelectItem>
                   <SelectItem value="role">Role</SelectItem>
-                  <SelectItem value="bootcamp">Checklist Status</SelectItem>
+                  <SelectItem value="bootcamp">Checklist</SelectItem>
                 </SelectContent>
               </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 px-2 border-white/10 text-muted-foreground hover:text-foreground"
+                onClick={() => setSortDirection(d => d === 'asc' ? 'desc' : 'asc')}
+                title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 mr-1" />
+                <span className="text-xs">{sortDirection === 'asc' ? 'A→Z' : 'Z→A'}</span>
+              </Button>
             </div>
 
             {loading ? (
@@ -671,49 +658,49 @@ export default function AdminTeamPage() {
                 <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.02]">
-                      <th className="w-[140px] sm:w-[180px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
-                      <th className="w-[170px] sm:w-[220px] text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Role</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Summer Checklist</th>
-                      {isAdmin && <th className="text-right px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Actions</th>}
+                      <th className="w-[130px] sm:w-[170px] text-left px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
+                      <th className="w-[150px] sm:w-[200px] text-left px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
+                      <th className="w-[60px] text-left px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Role</th>
+                      <th className="w-[60px] text-left px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Status</th>
+                      <th className="w-[80px] text-left px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
+                      <th className="w-[70px] text-left px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Checklist</th>
+                      {isAdmin && <th className="w-[120px] text-right px-3 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(rep => (
                       <tr key={rep.user_id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="px-4 py-3 font-medium text-white max-w-[140px] sm:max-w-[180px] truncate" title={rep.full_name}>{rep.full_name}</td>
-                        <td className="px-4 py-3 text-white/60 max-w-[170px] sm:max-w-[220px] truncate" title={rep.email}>{rep.email}</td>
-                        <td className="px-4 py-3"><Badge variant="outline" className="text-[10px] capitalize">{rep.role}</Badge></td>
-                        <td className="px-4 py-3">{statusBadge(rep.status)}</td>
-                        <td className="px-4 py-3 text-white/60">{getTeamName(rep.team_id)}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-3 py-2.5 font-medium text-white truncate" title={rep.full_name}>{rep.full_name}</td>
+                        <td className="px-3 py-2.5 text-white/60 truncate" title={rep.email}>{rep.email}</td>
+                        <td className="px-3 py-2.5"><Badge variant="outline" className="text-[9px] px-1.5 py-0 capitalize leading-tight">{rep.role}</Badge></td>
+                        <td className="px-3 py-2.5">{statusBadge(rep.status)}</td>
+                        <td className="px-3 py-2.5 text-white/60 text-xs truncate" title={getTeamName(rep.team_id)}>{getTeamName(rep.team_id)}</td>
+                        <td className="px-3 py-2.5">
                           {rep.role === 'manager' || rep.role === 'admin' ? (
-                            <span className="text-muted-foreground text-[10px] font-medium">N/A</span>
+                            <span className="text-muted-foreground text-[9px] font-medium">N/A</span>
                           ) : (
-                            <Badge variant={rep.bootcamp_completed ? 'default' : 'destructive'} className="text-[10px]">
-                              {rep.bootcamp_completed ? 'Complete' : 'Incomplete'}
+                            <Badge variant={rep.bootcamp_completed ? 'default' : 'destructive'} className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">
+                              {rep.bootcamp_completed ? '✓' : '✗'}
                             </Badge>
                           )}
                         </td>
                         {isAdmin && (
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => { startImpersonating({ user_id: rep.user_id, full_name: rep.full_name, email: rep.email }); navigate('/app/rookie'); }} className="p-1.5 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => openEditModal(rep)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => openPasswordResetDialog(rep.email, rep.full_name)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="Change Password"><RotateCcw className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => handleToggleStatus(rep.user_id, rep.status)} className={`p-1.5 rounded text-xs font-medium ${rep.status === 'nlc' ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={rep.status === 'nlc' ? 'Activate' : 'Deactivate'}>
-                                {rep.status === 'nlc' ? 'Activate' : 'Disable'}
+                          <td className="px-3 py-2.5 text-right">
+                            <div className="flex items-center justify-end gap-0.5">
+                              <button onClick={() => { startImpersonating({ user_id: rep.user_id, full_name: rep.full_name, email: rep.email }); navigate('/app/rookie'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => openEditModal(rep)} className="p-1 rounded text-white/40 hover:text-white hover:bg-white/5" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => openPasswordResetDialog(rep.email, rep.full_name)} className="p-1 rounded text-white/40 hover:text-white hover:bg-white/5" title="Change Password"><RotateCcw className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => handleToggleStatus(rep.user_id, rep.status)} className={`p-1 rounded text-[10px] font-medium ${rep.status === 'nlc' ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={rep.status === 'nlc' ? 'Activate' : 'Deactivate'}>
+                                {rep.status === 'nlc' ? '✓' : '✗'}
                               </button>
                               {rep.role !== 'admin' && (
-                                <button onClick={() => handlePromoteDemote(rep.user_id, rep.role)} className="p-1.5 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
+                                <button onClick={() => handlePromoteDemote(rep.user_id, rep.role)} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
                               )}
                               {rep.role === 'admin' && rep.email !== SUPER_ADMIN_EMAIL && (
-                                <button onClick={() => handlePromoteDemote(rep.user_id, rep.role)} className="p-1.5 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
+                                <button onClick={() => handlePromoteDemote(rep.user_id, rep.role)} className="p-1 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
                               )}
                               {rep.email !== SUPER_ADMIN_EMAIL && isSuperAdmin && (
-                                <button onClick={() => setDeleteTarget(rep)} className="p-1.5 rounded text-red-500/60 hover:text-red-500 hover:bg-red-500/5" title="Delete User"><Trash2 className="w-3.5 h-3.5" /></button>
+                                <button onClick={() => setDeleteTarget(rep)} className="p-1 rounded text-red-500/60 hover:text-red-500 hover:bg-red-500/5" title="Delete User"><Trash2 className="w-3.5 h-3.5" /></button>
                               )}
                             </div>
                           </td>
@@ -789,115 +776,7 @@ export default function AdminTeamPage() {
             </div>
           </TabsContent>
 
-          {/* ========== SUBMITTED VIDEOS TAB ========== */}
-          <TabsContent value="submitted-videos">
-            <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              <LazySubmittedVideos />
-            </Suspense>
-          </TabsContent>
-
-          {/* ========== BOOTCAMP RESPONSES TAB ========== */}
-          <TabsContent value="bootcamp">
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={bootcampSearch} onChange={e => setBootcampSearch(e.target.value)} placeholder="Search by name or email..." className="pl-9 bg-white/5 border-white/10" />
-              </div>
-              <Select value={bootcampTeamFilter} onValueChange={setBootcampTeamFilter}>
-                <SelectTrigger className="w-40 bg-white/5 border-white/10">
-                  <SelectValue placeholder="All Teams" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Teams</SelectItem>
-                  {uniqueTeamNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={bootcampStatusFilter} onValueChange={setBootcampStatusFilter}>
-                <SelectTrigger className="w-40 bg-white/5 border-white/10">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="complete">Complete</SelectItem>
-                  <SelectItem value="incomplete">Incomplete</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-12 text-muted-foreground">Loading...</div>
-            ) : (
-              <div className="border border-white/10 rounded-lg overflow-hidden overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.02]">
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Name</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Email</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Team</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Sunblock</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Motivation</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Commitment</th>
-                      <th className="text-left px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Completed</th>
-                      <th className="text-right px-4 py-3 font-semibold text-white/60 text-xs uppercase tracking-wider">Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBootcamp.map(b => (
-                      <tr key={b.user_id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                        <td className="px-4 py-3 font-medium text-white">{b.full_name}</td>
-                        <td className="px-4 py-3 text-white/60">{b.email}</td>
-                        <td className="px-4 py-3 text-white/60">{b.team_name}</td>
-                        <td className="px-4 py-3">
-                          {b.sunblock_video_url ? (
-                            <button onClick={() => openVideoInNewTab(b.sunblock_video_url)} className="text-primary hover:underline text-xs flex items-center gap-1"><Play className="w-3 h-3" /> View</button>
-                          ) : b.phase_1_complete ? (
-                            <Badge variant="outline" className="text-[10px]">Done</Badge>
-                          ) : (
-                            <span className="text-white/20 text-xs">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          {b.motivation_video_url ? (
-                            <button onClick={() => openVideoInNewTab(b.motivation_video_url)} className="text-primary hover:underline text-xs flex items-center gap-1"><Play className="w-3 h-3" /> View</button>
-                          ) : b.phase_2_complete ? (
-                            <Badge variant="outline" className="text-[10px]">Done</Badge>
-                          ) : (
-                            <span className="text-white/20 text-xs">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          {b.final_commitment_video_url ? (
-                            <button onClick={() => openVideoInNewTab(b.final_commitment_video_url)} className="text-primary hover:underline text-xs flex items-center gap-1"><Play className="w-3 h-3" /> View</button>
-                          ) : b.phase_3_complete ? (
-                            <Badge variant="outline" className="text-[10px]">Done</Badge>
-                          ) : (
-                            <span className="text-white/20 text-xs">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          {b.bootcamp_completed_at ? (
-                            <span className="text-white/60 text-xs">{format(new Date(b.bootcamp_completed_at), 'MMM d, yyyy')}</span>
-                          ) : (
-                            <Badge variant="destructive" className="text-[10px]">Incomplete</Badge>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <button onClick={() => setBootcampDetail(b)} className="p-1.5 rounded text-white/40 hover:text-white hover:bg-white/5" title="View Details">
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {filteredBootcamp.length === 0 && (
-                      <tr><td colSpan={8} className="px-4 py-12 text-center text-white/30">No checklist data found</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </TabsContent>
-
-          {/* ========== ROSTER TAB (Sync + Import) ========== */}
+          {/* ========== ROSTER & ASSIGN TAB (combined) ========== */}
           <TabsContent value="roster">
             <div className="flex items-center gap-2 mb-4">
               <Button
@@ -916,6 +795,14 @@ export default function AdminTeamPage() {
               >
                 <Upload className="w-3 h-3" /> Mass Import
               </Button>
+              <Button
+                size="sm"
+                variant={rosterSubTab === 'assign' ? 'default' : 'outline'}
+                className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'assign' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
+                onClick={() => setRosterSubTab('assign')}
+              >
+                <ClipboardList className="w-3 h-3" /> Assignments
+              </Button>
             </div>
             <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
               {rosterSubTab === 'sync' ? (
@@ -924,13 +811,15 @@ export default function AdminTeamPage() {
                   managers={managers}
                   onRefresh={fetchData}
                 />
-              ) : (
+              ) : rosterSubTab === 'import' ? (
                 <LazyMassImport
                   profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email }))}
                   managers={managers}
                   teams={teamsSimple}
                   onRefresh={fetchData}
                 />
+              ) : (
+                <LazyAssignments managers={managers} teams={teamsSimple} onRefresh={fetchData} />
               )}
             </Suspense>
           </TabsContent>
@@ -1168,7 +1057,6 @@ export default function AdminTeamPage() {
                   </div>
                 </div>
 
-                {/* Videos */}
                 <div className="space-y-3">
                   <h3 className="text-sm font-bold text-foreground">Videos</h3>
                   {[
@@ -1189,7 +1077,6 @@ export default function AdminTeamPage() {
                   ))}
                 </div>
 
-                {/* Signature */}
                 {bootcampDetail.signature_data && (
                   <div>
                     <h3 className="text-sm font-bold text-foreground mb-2">Signature</h3>
