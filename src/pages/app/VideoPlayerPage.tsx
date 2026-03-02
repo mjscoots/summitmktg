@@ -110,12 +110,22 @@ export default function VideoPlayerPage() {
     return queue.slice(0, 6);
   }, [video, allVideos, watchedIds]);
 
-  // Silent DB write — no state changes, no re-render, no player remount
+  // Silent DB write — log every watch (rewatches count!) + mark first watch in video_progress
   const silentMarkComplete = useCallback(async () => {
     if (!user || !videoId || silentCompletedRef.current) return;
     silentCompletedRef.current = true;
     try {
-      const { error } = await supabase
+      // 1. Always log the watch (allows rewatches to earn points)
+      const watchDuration = video?.duration_minutes || 0;
+      await (supabase as any).from('video_watch_log').insert({
+        user_id: user.id,
+        video_id: videoId,
+        watched_at: new Date().toISOString(),
+        watch_duration_minutes: watchDuration,
+      });
+
+      // 2. Also upsert video_progress for "first watch" tracking (progress calculations)
+      await supabase
         .from('video_progress')
         .upsert({
           user_id: user.id,
@@ -123,22 +133,30 @@ export default function VideoPlayerPage() {
           watched: true,
           watched_at: new Date().toISOString(),
         }, { onConflict: 'user_id,video_id' });
-      if (error) throw error;
 
+      // 3. Award 40 points per watch
       try {
         await supabase.rpc('award_training_points', {
           _user_id: user.id,
-          _points: 10,
+          _points: 40,
         });
       } catch (e) {
         console.error('Points award failed:', e);
       }
-      toast.success('Video complete! +10 points added to leaderboard');
+
+      // 4. Log watch duration toward daily training time
+      if (watchDuration > 0) {
+        for (let i = 0; i < watchDuration; i++) {
+          try { await supabase.rpc('record_daily_time', { _user_id: user.id, _category: 'video' }); } catch {}
+        }
+      }
+
+      toast.success('Video complete! +40 points added to leaderboard');
     } catch (err) {
       console.error('Error marking watched:', err);
       silentCompletedRef.current = false;
     }
-  }, [user, videoId]);
+  }, [user, videoId, video]);
 
   // Manual button — updates UI
   const markAsWatched = useCallback(async () => {
@@ -152,11 +170,11 @@ export default function VideoPlayerPage() {
     setIsMarking(false);
   }, [user, videoId, isWatched, isMarking, silentMarkComplete]);
 
-  // Natural video end — mark complete + update UI (video is done, safe to re-render)
+  // Natural video end — always log (rewatches count!) + update UI
   const handleVideoEnded = useCallback(() => {
-    if (!silentCompletedRef.current) {
-      silentMarkComplete();
-    }
+    // Reset the ref so rewatches get logged too
+    silentCompletedRef.current = false;
+    silentMarkComplete();
     setIsWatched(true);
     if (videoId) setWatchedIds(prev => new Set(prev).add(videoId));
   }, [silentMarkComplete, videoId]);
