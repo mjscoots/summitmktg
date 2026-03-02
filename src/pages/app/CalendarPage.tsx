@@ -5,7 +5,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { 
   Calendar as CalendarIcon, Plus, Check, X, Users, 
   ChevronLeft, ChevronRight, Clock, Globe, Video, Building2,
-  Pencil, Trash2, MapPin, Target, Shield, BarChart3, ListChecks, Eye
+  Pencil, Trash2, MapPin, Target, Shield, BarChart3, ListChecks, Eye,
+  List, LayoutGrid
 } from 'lucide-react';
 import { 
   format, isFuture, isPast, isToday, startOfMonth, endOfMonth, 
@@ -54,6 +55,7 @@ interface Attendance {
 }
 
 type EventCategory = 'all' | 'mandatory' | 'optional';
+type LocationFilter = 'all' | 'in-person' | 'remote';
 
 const EVENT_CATEGORY_MAP: Record<string, EventCategory> = {
   call: 'mandatory',
@@ -94,6 +96,7 @@ const hasTime = (dateStr: string) => {
 };
 
 type CalendarTab = 'calendar' | 'attendance' | 'responses';
+type CalendarViewMode = 'grid' | 'list';
 
 export default function CalendarPage() {
   const { role, user, profile } = useAuth();
@@ -110,8 +113,10 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [prefillDate, setPrefillDate] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<EventCategory>('all');
+  const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
   const [activeTab, setActiveTab] = useState<CalendarTab>('calendar');
   const [attendanceCardIndex, setAttendanceCardIndex] = useState(0);
+  const [viewMode, setViewMode] = useState<CalendarViewMode>('grid');
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isAdmin = role === 'admin' || role === 'owner';
@@ -173,10 +178,21 @@ export default function CalendarPage() {
     return result;
   }, [events, calendarDays]);
 
+  // Apply location filter
+  const locationFilteredEvents = useMemo(() => {
+    if (locationFilter === 'all') return expandedEvents;
+    return expandedEvents.filter(e => {
+      const remote = isRemoteLocation(e.location);
+      if (locationFilter === 'remote') return remote === true;
+      if (locationFilter === 'in-person') return remote === false;
+      return true;
+    });
+  }, [expandedEvents, locationFilter]);
+
   // Events by day
   const eventsByDay = useMemo(() => {
     const map: Record<string, CalendarEvent[]> = {};
-    const filtered = activeFilter === 'all' ? expandedEvents : expandedEvents.filter(e => getEventCategory(e.event_type) === activeFilter);
+    const filtered = activeFilter === 'all' ? locationFilteredEvents : locationFilteredEvents.filter(e => getEventCategory(e.event_type) === activeFilter);
     filtered.forEach(e => {
       const key = format(new Date(e.event_date), 'yyyy-MM-dd');
       if (!map[key]) map[key] = [];
@@ -184,7 +200,7 @@ export default function CalendarPage() {
     });
     Object.values(map).forEach(arr => arr.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime()));
     return map;
-  }, [expandedEvents, activeFilter]);
+  }, [locationFilteredEvents, activeFilter]);
 
   const selectedDayEvents = useMemo(() => {
     if (!selectedDate) return [];
@@ -194,23 +210,23 @@ export default function CalendarPage() {
 
   const todayEvents = useMemo(() => {
     const key = format(new Date(), 'yyyy-MM-dd');
-    return expandedEvents
+    return locationFilteredEvents
       .filter(e => format(new Date(e.event_date), 'yyyy-MM-dd') === key)
       .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-  }, [expandedEvents]);
+  }, [locationFilteredEvents]);
 
   // Upcoming this week
   const upcomingThisWeek = useMemo(() => {
     const now = new Date();
     const weekEnd = endOfWeekFn(now);
-    return expandedEvents
+    return locationFilteredEvents
       .filter(e => {
         const d = new Date(e.event_date);
         return (isFuture(d) || isToday(d)) && !isAfter(d, weekEnd);
       })
       .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
       .slice(0, 10);
-  }, [expandedEvents]);
+  }, [locationFilteredEvents]);
 
   // Events needing RSVP (upcoming, not yet responded)
   const pendingRSVPEvents = useMemo(() => {
@@ -221,6 +237,34 @@ export default function CalendarPage() {
       })
       .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
   }, [expandedEvents, userAttendance]);
+
+  // List view: upcoming 30 days of events
+  const listViewEvents = useMemo(() => {
+    const now = new Date();
+    const end = addDays(now, 30);
+    const filtered = activeFilter === 'all' ? locationFilteredEvents : locationFilteredEvents.filter(e => getEventCategory(e.event_type) === activeFilter);
+    return filtered
+      .filter(e => {
+        const d = new Date(e.event_date);
+        return !isBefore(d, now) && !isAfter(d, end);
+      })
+      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+  }, [locationFilteredEvents, activeFilter]);
+
+  // Group list view events by day
+  const listViewByDay = useMemo(() => {
+    const grouped: { date: Date; events: CalendarEvent[] }[] = [];
+    const dayMap = new Map<string, CalendarEvent[]>();
+    listViewEvents.forEach(e => {
+      const key = format(new Date(e.event_date), 'yyyy-MM-dd');
+      if (!dayMap.has(key)) dayMap.set(key, []);
+      dayMap.get(key)!.push(e);
+    });
+    dayMap.forEach((evts, key) => {
+      grouped.push({ date: parseISO(key), events: evts });
+    });
+    return grouped;
+  }, [listViewEvents]);
 
   const fetchEvents = async () => {
     if (!user) return;
@@ -294,7 +338,6 @@ export default function CalendarPage() {
     const event = pendingRSVPEvents[attendanceCardIndex];
     if (!event) return;
     await handleAttendanceToggle(event.id, status);
-    // Auto-advance to next card
     if (attendanceCardIndex >= pendingRSVPEvents.length - 1) {
       setAttendanceCardIndex(0);
     }
@@ -350,6 +393,114 @@ export default function CalendarPage() {
 
   const currentRSVPEvent = pendingRSVPEvents[attendanceCardIndex];
 
+  // Render event card for sidebar / list view
+  const renderEventCard = (event: CalendarEvent, compact = false) => {
+    const color = getColor(event.event_type);
+    const myStatus = userAttendance[event.id];
+    const eventPast = isPast(new Date(event.event_date));
+    const isMandatory = getEventCategory(event.event_type) === 'mandatory';
+    const wasMissed = eventPast && myStatus !== 'attending' && isMandatory;
+    const showTime = hasTime(event.event_date);
+    const remote = isRemoteLocation(event.location);
+
+    return (
+      <div
+        key={event.id}
+        className={cn(
+          "p-3 rounded-lg cursor-pointer transition-all hover:translate-x-0.5",
+          "bg-background border border-border/40",
+          wasMissed && "ring-1 ring-red-500/20 bg-red-500/[0.03]"
+        )}
+        onClick={() => setSelectedEvent(event)}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className={cn("w-2 h-2 rounded-full flex-shrink-0", color.dot)} />
+              <p className="text-sm font-semibold text-foreground break-words">{event.title}</p>
+              {isMandatory && (
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase shrink-0">
+                  Required
+                </span>
+              )}
+              {remote !== null && (
+                <span className={cn(
+                  "text-[9px] font-bold px-1.5 py-0.5 rounded uppercase shrink-0",
+                  remote ? "bg-purple-500/15 text-purple-400" : "bg-orange-500/15 text-orange-400"
+                )}>
+                  {remote ? 'Remote' : 'In Person'}
+                </span>
+              )}
+            </div>
+            {!compact && showTime && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1 ml-3.5">
+                <Clock className="w-3 h-3" />
+                {formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}
+                {event.end_date && ` – ${formatInTimezone(new Date(event.end_date), timezone, 'h:mm a')}`}
+              </p>
+            )}
+            {!compact && !showTime && (
+              <p className="text-xs text-muted-foreground ml-3.5">All day</p>
+            )}
+            {!compact && event.location && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 ml-3.5">
+                <MapPin className="w-3 h-3" />
+                <span className="break-words">{event.location}</span>
+              </p>
+            )}
+            <div className="mt-1.5 ml-3.5">
+              {myStatus === 'attending' ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  <Check className="w-3 h-3" /> Attending
+                </span>
+              ) : myStatus === 'not_attending' ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
+                  <X className="w-3 h-3" /> Not Attending
+                </span>
+              ) : wasMissed ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
+                  <X className="w-3 h-3" /> Missed
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-full">
+                  <Clock className="w-3 h-3" /> Pending
+                </span>
+              )}
+            </div>
+          </div>
+          {!eventPast && !compact && (
+            <div className="flex gap-0.5 shrink-0">
+              <button
+                onClick={(e) => { e.stopPropagation(); handleAttendanceToggle(event.id, 'attending'); }}
+                className={cn(
+                  "w-7 h-7 rounded-full flex items-center justify-center transition-all",
+                  myStatus === 'attending'
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : "text-muted-foreground/40 hover:text-emerald-400 hover:bg-emerald-500/10"
+                )}
+                title="Attending"
+              >
+                <Check className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleAttendanceToggle(event.id, 'not_attending'); }}
+                className={cn(
+                  "w-7 h-7 rounded-full flex items-center justify-center transition-all",
+                  myStatus === 'not_attending'
+                    ? "bg-red-500/20 text-red-400"
+                    : "text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10"
+                )}
+                title="Not attending"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <AppLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
@@ -374,7 +525,7 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        {/* Tabs — visible to everyone */}
+        {/* Tabs */}
         <div className="flex items-center gap-2 mb-4">
           <button
             onClick={() => setActiveTab('calendar')}
@@ -398,7 +549,7 @@ export default function CalendarPage() {
             )}
           >
             <ListChecks className="w-4 h-4 inline mr-1.5" />
-            Attendance
+            RSVP
             {pendingRSVPEvents.length > 0 && activeTab !== 'attendance' && (
               <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
                 {pendingRSVPEvents.length}
@@ -416,7 +567,7 @@ export default function CalendarPage() {
               )}
             >
               <Eye className="w-4 h-4 inline mr-1.5" />
-              Responses
+              Team RSVPs
             </button>
           )}
         </div>
@@ -452,14 +603,12 @@ export default function CalendarPage() {
 
                 {/* Event Card */}
                 <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xl shadow-black/5">
-                  {/* Color stripe */}
                   <div className={cn(
                     "h-2",
                     getEventCategory(currentRSVPEvent.event_type) === 'mandatory' ? "bg-red-500" : "bg-yellow-500"
                   )} />
 
                   <div className="p-6">
-                    {/* Category badge */}
                     <div className="flex items-center gap-2 mb-3">
                       {(() => {
                         const cat = getEventCategory(currentRSVPEvent.event_type);
@@ -472,12 +621,10 @@ export default function CalendarPage() {
                       })()}
                     </div>
 
-                    {/* Title */}
                     <h2 className="text-xl font-black text-foreground mb-3 leading-tight">
                       {currentRSVPEvent.title}
                     </h2>
 
-                    {/* Date */}
                     <div className="space-y-2 mb-6">
                       <div className="flex items-center gap-2 text-sm text-foreground">
                         <CalendarIcon className="w-4 h-4 text-primary" />
@@ -509,7 +656,6 @@ export default function CalendarPage() {
                       <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{currentRSVPEvent.description}</p>
                     )}
 
-                    {/* Action Buttons */}
                     <div className="flex gap-3">
                       <button
                         onClick={() => handleRSVP('not_attending')}
@@ -529,7 +675,6 @@ export default function CalendarPage() {
                   </div>
                 </div>
 
-                {/* Skip */}
                 {pendingRSVPEvents.length > 1 && (
                   <button
                     onClick={() => setAttendanceCardIndex(prev => (prev + 1) % pendingRSVPEvents.length)}
@@ -543,13 +688,13 @@ export default function CalendarPage() {
           </div>
         )}
 
-        {/* ═══════════ RESPONSES TAB — Manager view of who's attending ═══════════ */}
+        {/* ═══════════ RESPONSES TAB — Manager view ═══════════ */}
         {activeTab === 'responses' && isManager && (
           <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
             <div className="px-5 py-4 border-b border-border/40">
               <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-primary" />
-                Attendance Responses
+                Team RSVPs
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">See who's attending each event</p>
             </div>
@@ -615,10 +760,10 @@ export default function CalendarPage() {
 
         {/* ═══════════ CALENDAR VIEW ═══════════ */}
         {activeTab === 'calendar' && (
-          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5">
-            {/* LEFT Panel — Today + Upcoming This Week */}
-            <div className="space-y-4 order-2 lg:order-1">
-              {/* Today's / Selected day events */}
+          <div>
+            {/* Today's Events + Upcoming — ABOVE calendar */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              {/* Today's Events */}
               <div className="bg-card rounded-xl border border-border/50 p-4">
                 <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Target className="w-4 h-4 text-primary" />
@@ -647,104 +792,8 @@ export default function CalendarPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {(selectedDate ? selectedDayEvents : todayEvents).map(event => {
-                      const color = getColor(event.event_type);
-                      const myStatus = userAttendance[event.id];
-                      const eventPast = isPast(new Date(event.event_date));
-                      const isMandatory = getEventCategory(event.event_type) === 'mandatory';
-                      const wasMissed = eventPast && myStatus !== 'attending' && isMandatory;
-                      const showTime = hasTime(event.event_date);
-
-                      return (
-                        <div
-                          key={event.id}
-                          className={cn(
-                            "p-3 rounded-lg cursor-pointer transition-all hover:translate-x-0.5",
-                            "bg-background border border-border/40",
-                            wasMissed && "ring-1 ring-red-500/20 bg-red-500/[0.03]"
-                          )}
-                          onClick={() => setSelectedEvent(event)}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5 mb-0.5">
-                                <span className={cn("w-2 h-2 rounded-full flex-shrink-0", color.dot)} />
-                                <p className="text-sm font-semibold text-foreground break-words">{event.title}</p>
-                                {isMandatory && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase shrink-0">
-                                    Required
-                                  </span>
-                                )}
-                              </div>
-                              {showTime && (
-                                <p className="text-xs text-muted-foreground flex items-center gap-1 ml-3.5">
-                                  <Clock className="w-3 h-3" />
-                                  {formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}
-                                  {event.end_date && ` – ${formatInTimezone(new Date(event.end_date), timezone, 'h:mm a')}`}
-                                </p>
-                              )}
-                              {!showTime && (
-                                <p className="text-xs text-muted-foreground ml-3.5">All day</p>
-                              )}
-                              {event.location && (
-                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 ml-3.5">
-                                  <MapPin className="w-3 h-3" />
-                                  <span className="break-words">{event.location}</span>
-                                </p>
-                              )}
-                              <div className="mt-1.5 ml-3.5">
-                                {myStatus === 'attending' ? (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <Check className="w-3 h-3" /> Attending
-                                  </span>
-                                ) : myStatus === 'not_attending' ? (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
-                                    <X className="w-3 h-3" /> Not Attending
-                                  </span>
-                                ) : wasMissed ? (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
-                                    <X className="w-3 h-3" /> Missed
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-full">
-                                    <Clock className="w-3 h-3" /> Pending
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            {!eventPast && (
-                              <div className="flex gap-0.5 shrink-0">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleAttendanceToggle(event.id, 'attending'); }}
-                                  className={cn(
-                                    "w-7 h-7 rounded-full flex items-center justify-center transition-all",
-                                    myStatus === 'attending'
-                                      ? "bg-emerald-500/20 text-emerald-400"
-                                      : "text-muted-foreground/40 hover:text-emerald-400 hover:bg-emerald-500/10"
-                                  )}
-                                  title="Attending"
-                                >
-                                  <Check className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleAttendanceToggle(event.id, 'not_attending'); }}
-                                  className={cn(
-                                    "w-7 h-7 rounded-full flex items-center justify-center transition-all",
-                                    myStatus === 'not_attending'
-                                      ? "bg-red-500/20 text-red-400"
-                                      : "text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10"
-                                  )}
-                                  title="Not attending"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                    {(selectedDate ? selectedDayEvents : todayEvents).map(event => renderEventCard(event))}
                   </div>
                 )}
               </div>
@@ -755,11 +804,12 @@ export default function CalendarPage() {
                 {upcomingThisWeek.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">No upcoming events this week</p>
                 ) : (
-                  <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                  <div className="space-y-1.5 max-h-[250px] overflow-y-auto">
                     {upcomingThisWeek.map(event => {
                       const color = getColor(event.event_type);
                       const eventDate = new Date(event.event_date);
                       const showT = hasTime(event.event_date);
+                      const remote = isRemoteLocation(event.location);
                       return (
                         <button
                           key={`${event.id}-${event.event_date}`}
@@ -768,9 +818,19 @@ export default function CalendarPage() {
                         >
                           <div className={cn("w-1.5 h-8 rounded-full shrink-0", color.dot)} />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-foreground break-words group-hover:text-primary transition-colors">
-                              {event.title}
-                            </p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-sm font-medium text-foreground break-words group-hover:text-primary transition-colors">
+                                {event.title}
+                              </p>
+                              {remote !== null && (
+                                <span className={cn(
+                                  "text-[9px] font-bold px-1 py-0.5 rounded uppercase shrink-0",
+                                  remote ? "bg-purple-500/15 text-purple-400" : "bg-orange-500/15 text-orange-400"
+                                )}>
+                                  {remote ? 'Remote' : 'In Person'}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-muted-foreground">
                               <span className="font-bold">{isToday(eventDate) ? 'Today' : format(eventDate, 'EEE, MMM d')}</span>
                               {showT && ` · ${formatInTimezone(eventDate, timezone, 'h:mm a')}`}
@@ -785,159 +845,266 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* RIGHT — Main Calendar Grid */}
-            <div className="order-1 lg:order-2">
-              {/* Filters */}
-              <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {(['all', 'mandatory', 'optional'] as EventCategory[]).map(cat => {
-                  const c = CATEGORY_COLORS[cat];
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => setActiveFilter(cat)}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all",
-                        activeFilter === cat
-                          ? cn(c.bg, c.text, "ring-1 ring-current/30")
-                          : "bg-secondary text-muted-foreground hover:text-foreground border border-border/30"
-                      )}
-                    >
-                      {cat !== 'all' && <span className={cn("w-2 h-2 rounded-full", c.dot)} />}
-                      {c.label}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Filters row + View toggle */}
+            <div className="flex flex-wrap items-center gap-1.5 mb-3">
+              {(['all', 'mandatory', 'optional'] as EventCategory[]).map(cat => {
+                const c = CATEGORY_COLORS[cat];
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveFilter(cat)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all",
+                      activeFilter === cat
+                        ? cn(c.bg, c.text, "ring-1 ring-current/30")
+                        : "bg-secondary text-muted-foreground hover:text-foreground border border-border/30"
+                    )}
+                  >
+                    {cat !== 'all' && <span className={cn("w-2 h-2 rounded-full", c.dot)} />}
+                    {c.label}
+                  </button>
+                );
+              })}
 
-              {/* Month Navigation */}
-              <div className="flex items-center justify-between mb-3">
-                <button
-                  onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                  className="p-2.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/40 hover:border-primary/40"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <h2 className="text-xl font-black text-foreground tracking-tight">
-                  {format(currentMonth, 'MMMM yyyy')}
-                </h2>
-                <button
-                  onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                  className="p-2.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/40 hover:border-primary/40"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Day headers */}
-              <div className="grid grid-cols-7 mb-px">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                  <div key={d} className="text-center text-xs font-bold text-muted-foreground py-2 uppercase tracking-wider">
-                    {d}
-                  </div>
-                ))}
-              </div>
-
-              {/* Grid */}
-              <div className="grid grid-cols-7 border-t border-l border-border/40 rounded-lg overflow-hidden bg-card">
-                {calendarDays.map(day => {
-                  const key = format(day, 'yyyy-MM-dd');
-                  const dayEvents = eventsByDay[key] || [];
-                  const inMonth = isSameMonth(day, currentMonth);
-                  const today = isToday(day);
-                  const isSelected = selectedDate && isSameDay(day, selectedDate);
-
-                  return (
-                    <div
-                      key={key}
-                      onClick={() => handleDayClick(day)}
-                      onDoubleClick={() => handleDayDoubleClick(day)}
-                      className={cn(
-                        "min-h-[100px] p-1.5 border-b border-r border-border/30 cursor-pointer transition-colors group relative",
-                        !inMonth && "bg-muted/10",
-                        inMonth && "hover:bg-primary/[0.03]",
-                        isSelected && "bg-primary/5 ring-1 ring-inset ring-primary/20",
-                        today && !isSelected && "bg-primary/[0.02]"
-                      )}
-                    >
-                      <div className="flex items-center justify-between px-0.5">
-                        <span className={cn(
-                          "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full transition-colors",
-                          today && "bg-primary text-primary-foreground font-bold",
-                          !today && inMonth && "text-foreground",
-                          !inMonth && "text-muted-foreground/30"
-                        )}>
-                          {format(day, 'd')}
-                        </span>
-                        {isManager && inMonth && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setPrefillDate(key); setIsFormOpen(true); }}
-                            className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-full hover:bg-primary/20 text-primary transition-all"
-                            title="Create event"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="mt-0.5 space-y-px">
-                        {dayEvents.slice(0, 3).map(event => {
-                          const isMand = getEventCategory(event.event_type) === 'mandatory';
-                          const remote = isRemoteLocation(event.location);
-                          return (
-                            <button
-                              key={event.id}
-                              onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
-                              className="w-full text-left text-[11px] leading-snug font-medium px-1.5 py-[3px] rounded transition-all hover:bg-muted/60 bg-muted/30 text-foreground"
-                              title={event.title}
-                            >
-                              <span className="flex items-center gap-1">
-                                {isMand && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
-                                <span className="line-clamp-1 break-words flex-1 min-w-0">{event.title}</span>
-                                {remote !== null && (
-                                  <span className={cn(
-                                    "w-1.5 h-4 rounded-sm flex-shrink-0",
-                                    remote ? "bg-[hsl(270,60%,55%)]" : "bg-[hsl(25,90%,55%)]"
-                                  )} title={remote ? 'Remote' : 'In Person'} />
-                                )}
-                              </span>
-                            </button>
-                          );
-                        })}
-                        {dayEvents.length > 3 && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setSelectedDate(day); }}
-                            className="text-[10px] text-primary font-medium px-1.5 hover:underline"
-                          >
-                            +{dayEvents.length - 3} more
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Legend */}
-              <div className="flex flex-wrap items-center gap-4 mt-3 px-1">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-2 h-2 rounded-full bg-red-500" />
-                  Mandatory
-                </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-1.5 h-3.5 rounded-sm bg-[hsl(270,60%,55%)]" />
-                  Remote
-                </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-1.5 h-3.5 rounded-sm bg-[hsl(25,90%,55%)]" />
-                  In Person
-                </span>
-                {isManager && (
-                  <span className="text-xs text-muted-foreground/50 ml-auto">
-                    Double-click to create
-                  </span>
+              {/* Location filters */}
+              <span className="w-px h-5 bg-border/50 mx-1" />
+              <button
+                onClick={() => setLocationFilter(locationFilter === 'in-person' ? 'all' : 'in-person')}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all",
+                  locationFilter === 'in-person'
+                    ? "bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/30"
+                    : "bg-secondary text-orange-400/70 hover:text-orange-400 border border-border/30"
                 )}
+              >
+                <Building2 className="w-3 h-3" />
+                In Person
+              </button>
+              <button
+                onClick={() => setLocationFilter(locationFilter === 'remote' ? 'all' : 'remote')}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all",
+                  locationFilter === 'remote'
+                    ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/30"
+                    : "bg-secondary text-purple-400/70 hover:text-purple-400 border border-border/30"
+                )}
+              >
+                <Video className="w-3 h-3" />
+                Remote
+              </button>
+
+              {/* View toggle */}
+              <div className="ml-auto flex items-center bg-muted/50 rounded-lg p-0.5 border border-border/30">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={cn(
+                    "p-1.5 rounded-md transition-all",
+                    viewMode === 'grid' ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  title="Calendar view"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    "p-1.5 rounded-md transition-all",
+                    viewMode === 'list' ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  title="List view"
+                >
+                  <List className="w-4 h-4" />
+                </button>
               </div>
             </div>
+
+            {/* ── LIST VIEW ── */}
+            {viewMode === 'list' && (
+              <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
+                {listViewByDay.length === 0 ? (
+                  <div className="py-12 text-center text-sm text-muted-foreground">No upcoming events</div>
+                ) : (
+                  <div className="divide-y divide-border/30">
+                    {listViewByDay.map(({ date, events: dayEvts }) => {
+                      const isCurrentDay = isToday(date);
+                      return (
+                        <div key={format(date, 'yyyy-MM-dd')} className={cn("px-4 py-3", isCurrentDay && "bg-primary/5")}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={cn(
+                              "text-sm font-semibold",
+                              isCurrentDay ? "text-primary" : "text-foreground"
+                            )}>
+                              {format(date, 'EEEE')}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {format(date, 'MMM d')}
+                            </span>
+                            {isCurrentDay && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground uppercase">
+                                Today
+                              </span>
+                            )}
+                          </div>
+                          <div className="space-y-1.5">
+                            {dayEvts.map(event => {
+                              const color = getColor(event.event_type);
+                              const remote = isRemoteLocation(event.location);
+                              const showT = hasTime(event.event_date);
+                              return (
+                                <button
+                                  key={event.id}
+                                  onClick={() => setSelectedEvent(event)}
+                                  className="w-full flex items-center gap-2 p-2 rounded-lg text-left transition-colors hover:bg-muted/50 group"
+                                >
+                                  <div className={cn("w-1.5 h-8 rounded-full", color.dot)} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-medium text-muted-foreground">
+                                        {showT ? formatInTimezone(new Date(event.event_date), timezone, 'h:mm a') : 'All day'}
+                                      </span>
+                                      {remote !== null && (
+                                        <span className={cn(
+                                          "text-[9px] font-bold px-1 py-0.5 rounded uppercase",
+                                          remote ? "bg-purple-500/15 text-purple-400" : "bg-orange-500/15 text-orange-400"
+                                        )}>
+                                          {remote ? 'Remote' : 'In Person'}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                                      {event.title}
+                                    </p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── GRID VIEW ── */}
+            {viewMode === 'grid' && (
+              <div>
+                {/* Month Navigation */}
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                    className="p-2.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/40 hover:border-primary/40"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <h2 className="text-xl font-black text-foreground tracking-tight">
+                    {format(currentMonth, 'MMMM yyyy')}
+                  </h2>
+                  <button
+                    onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                    className="p-2.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/40 hover:border-primary/40"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Day headers */}
+                <div className="grid grid-cols-7 mb-px">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                    <div key={d} className="text-center text-xs font-bold text-muted-foreground py-2 uppercase tracking-wider">
+                      {d}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Grid */}
+                <div className="grid grid-cols-7 border-t border-l border-border/40 rounded-lg overflow-hidden bg-card">
+                  {calendarDays.map(day => {
+                    const key = format(day, 'yyyy-MM-dd');
+                    const dayEvents = eventsByDay[key] || [];
+                    const inMonth = isSameMonth(day, currentMonth);
+                    const today = isToday(day);
+                    const isSelected = selectedDate && isSameDay(day, selectedDate);
+
+                    return (
+                      <div
+                        key={key}
+                        onClick={() => handleDayClick(day)}
+                        onDoubleClick={() => handleDayDoubleClick(day)}
+                        className={cn(
+                          "min-h-[100px] p-1.5 border-b border-r border-border/30 cursor-pointer transition-colors group relative",
+                          !inMonth && "bg-muted/10",
+                          inMonth && "hover:bg-primary/[0.03]",
+                          isSelected && "bg-primary/5 ring-1 ring-inset ring-primary/20",
+                          today && !isSelected && "bg-primary/[0.02]"
+                        )}
+                      >
+                        <div className="flex items-center justify-between px-0.5">
+                          <span className={cn(
+                            "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full transition-colors",
+                            today && "bg-primary text-primary-foreground font-bold",
+                            !today && inMonth && "text-foreground",
+                            !inMonth && "text-muted-foreground/30"
+                          )}>
+                            {format(day, 'd')}
+                          </span>
+                          {isManager && inMonth && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setPrefillDate(key); setIsFormOpen(true); }}
+                              className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-full hover:bg-primary/20 text-primary transition-all"
+                              title="Create event"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="mt-0.5 space-y-px">
+                          {dayEvents.slice(0, 3).map(event => {
+                            const isMand = getEventCategory(event.event_type) === 'mandatory';
+                            const remote = isRemoteLocation(event.location);
+                            return (
+                              <button
+                                key={event.id}
+                                onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
+                                className="w-full text-left text-[11px] leading-snug font-medium px-1.5 py-[3px] rounded transition-all hover:bg-muted/60 bg-muted/30 text-foreground"
+                                title={event.title}
+                              >
+                                <span className="flex items-center gap-1">
+                                  {isMand && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
+                                  <span className="line-clamp-2 break-words flex-1 min-w-0">{event.title}</span>
+                                  {remote !== null && (
+                                    <span className={cn(
+                                      "w-1.5 h-4 rounded-sm flex-shrink-0",
+                                      remote ? "bg-purple-500" : "bg-orange-500"
+                                    )} title={remote ? 'Remote' : 'In Person'} />
+                                  )}
+                                </span>
+                              </button>
+                            );
+                          })}
+                          {dayEvents.length > 3 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelectedDate(day); }}
+                              className="text-[10px] text-primary font-medium px-1.5 hover:underline"
+                            >
+                              +{dayEvents.length - 3} more
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {isManager && (
+                  <p className="text-xs text-muted-foreground/50 mt-2 text-right">
+                    Double-click to create
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 

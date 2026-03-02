@@ -5,36 +5,40 @@ import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { Trophy, Flame, Swords, Calendar, Zap, Mountain, Users } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak';
 
-const TAB_META: Record<LeaderboardTab, { subtitle: string; icon: React.ReactNode }> = {
-  weekly: {
-    subtitle: 'Includes managers & rookies',
-    icon: (
-      <span className="inline-flex items-center gap-0.5">
-        <Mountain className="w-3 h-3 text-primary" />
-        <Mountain className="w-3 h-3 text-success -ml-1.5" />
-      </span>
-    ),
-  },
-  overall: {
-    subtitle: 'Includes managers & rookies · All time',
-    icon: (
-      <span className="inline-flex items-center gap-0.5">
-        <Mountain className="w-3 h-3 text-primary" />
-        <Mountain className="w-3 h-3 text-success -ml-1.5" />
-      </span>
-    ),
-  },
-  streak: {
-    subtitle: 'Includes everyone',
-    icon: <Users className="w-3.5 h-3.5 text-orange-400" />,
-  },
-};
-
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
+  const { role } = useAuth();
+
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+
+  const TAB_META: Record<LeaderboardTab, { subtitle: string; icon: React.ReactNode }> = {
+    weekly: {
+      subtitle: 'Includes managers & rookies',
+      icon: (
+        <span className="inline-flex items-center gap-0.5">
+          <Mountain className="w-3 h-3 text-primary" />
+          <Mountain className="w-3 h-3 text-success -ml-1.5" />
+        </span>
+      ),
+    },
+    overall: {
+      subtitle: 'Includes managers & rookies · All time',
+      icon: (
+        <span className="inline-flex items-center gap-0.5">
+          <Mountain className="w-3 h-3 text-primary" />
+          <Mountain className="w-3 h-3 text-success -ml-1.5" />
+        </span>
+      ),
+    },
+    streak: {
+      subtitle: 'Includes everyone',
+      icon: <Users className="w-3.5 h-3.5 text-orange-400" />,
+    },
+  };
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
     { id: 'weekly', label: 'This Week', icon: Calendar },
@@ -100,11 +104,13 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Inclusion Banner */}
-          <div className="flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-lg bg-muted/30 border border-border/20">
-            {meta.icon}
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{meta.subtitle}</span>
-          </div>
+          {/* Inclusion Banner — only for managers */}
+          {isManager && (
+            <div className="flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-lg bg-muted/30 border border-border/20">
+              {meta.icon}
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{meta.subtitle}</span>
+            </div>
+          )}
 
           {/* Content */}
           <div className="bg-card rounded-xl border border-border/50 overflow-hidden shadow-xl shadow-black/5">
