@@ -155,6 +155,17 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     return () => clearInterval(interval);
   }, [mode]);
 
+  // Debug: log top 5 so every user can verify identical rankings
+  useEffect(() => {
+    if (entries.length > 0) {
+      console.log(`[Leaderboard ${mode}] Top 5:`, entries.slice(0, 5).map((u, i) => ({
+        rank: i + 1,
+        name: u.full_name,
+        points: u.totalPoints,
+      })));
+    }
+  }, [entries, mode]);
+
   const getBadgeInfo = (badgeId: string | null) => {
     if (!badgeId) return null;
     return WEEKLY_BADGES.find(b => b.id === badgeId) || null;
