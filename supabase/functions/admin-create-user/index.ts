@@ -100,6 +100,36 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check for orphaned auth user (profile deleted but auth record remains)
+    // List users by email to find orphans
+    const { data: authList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 50 });
+    const orphanedAuthUser = authList?.users?.find(
+      (u) => u.email?.toLowerCase() === normalizedEmail
+    );
+
+    if (orphanedAuthUser) {
+      console.log(`Found orphaned auth user ${orphanedAuthUser.id} for ${normalizedEmail}, deleting...`);
+      // Clean up any remaining data for this orphaned user
+      const orphanId = orphanedAuthUser.id;
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", orphanId);
+      await supabaseAdmin.from("bootcamp_progress").delete().eq("user_id", orphanId);
+      await supabaseAdmin.from("daily_login_streaks").delete().eq("user_id", orphanId);
+      await supabaseAdmin.from("leaderboard_points").delete().eq("user_id", orphanId);
+      await supabaseAdmin.from("notification_preferences").delete().eq("user_id", orphanId);
+      await supabaseAdmin.from("signup_logs").delete().eq("user_id", orphanId);
+      await supabaseAdmin.from("downline_edges").delete().eq("parent_user_id", orphanId);
+      await supabaseAdmin.from("downline_edges").delete().eq("child_user_id", orphanId);
+      const { error: delOrphanErr } = await supabaseAdmin.auth.admin.deleteUser(orphanId);
+      if (delOrphanErr) {
+        console.error("Failed to delete orphaned auth user:", delOrphanErr.message);
+        return new Response(JSON.stringify({ error: `Failed to clean up previous account: ${delOrphanErr.message}` }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      console.log(`Orphaned auth user ${orphanId} deleted successfully`);
+    }
+
     // Create the auth user
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email: normalizedEmail,
