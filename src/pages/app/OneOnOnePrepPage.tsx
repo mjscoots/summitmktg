@@ -12,12 +12,12 @@ import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPane
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { ArrowLeft, ArrowRight, Save, SkipForward, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useSchedulingRequests } from '@/hooks/useSchedulingRequests';
-import { ScheduleOneOnOneDialog } from '@/components/scheduling/SchedulingFlow';
+
+
 
 const DRAFT_PREFIX = 'one-on-one-draft-';
 const MGR_DRAFT_PREFIX = 'one-on-one-mgr-draft-';
@@ -51,7 +51,7 @@ export default function OneOnOnePrepPage() {
     loading, lastMonday, lastSunday, refresh,
   } = useOneOnOnePrep(mode);
 
-  const { requests: schedulingRequests, refetch: refetchScheduling } = useSchedulingRequests();
+  
 
   const [selectedRepId, setSelectedRepId] = useState<string | null>(null);
   const [completedRepIds, setCompletedRepIds] = useState<Set<string>>(new Set());
@@ -67,13 +67,7 @@ export default function OneOnOnePrepPage() {
   const prevRep = currentIndex > 0 ? reps[currentIndex - 1] : null;
   const nextRep = currentIndex < reps.length - 1 ? reps[currentIndex + 1] : null;
 
-  // Check if the selected rep has a confirmed scheduling request
-  const hasConfirmedSchedule = selectedRepId ? schedulingRequests.some(
-    r => r.status === 'confirmed' && (
-      (r.requester_id === user?.id && r.recipient_id === selectedRepId) ||
-      (r.recipient_id === user?.id && r.requester_id === selectedRepId)
-    )
-  ) : false;
+
 
   // Load draft on rep selection
   useEffect(() => {
@@ -273,25 +267,6 @@ export default function OneOnOnePrepPage() {
   return (
     <AppLayout>
       <div className="flex flex-col h-[calc(100vh-3rem)]">
-      {/* Scheduling gate banner */}
-      {selectedRep && !hasConfirmedSchedule && (
-        <div className="mx-4 mt-3 mb-1 bg-accent/50 border border-accent rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <div className="flex items-center gap-2 flex-1">
-            <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Schedule your 1:1 first</p>
-              <p className="text-xs text-muted-foreground">
-                You need a confirmed recurring time with {selectedRep.full_name} before completing the form.
-              </p>
-            </div>
-          </div>
-          <ScheduleOneOnOneDialog
-            recipientId={selectedRep.user_id}
-            recipientName={selectedRep.full_name}
-            onComplete={() => refetchScheduling()}
-          />
-        </div>
-      )}
 
 
         <div className="flex items-center justify-between px-4 py-2 border-b border-border/30 bg-card/50">
@@ -350,17 +325,8 @@ export default function OneOnOnePrepPage() {
               ? mobilePanel === 'form' ? 'w-full' : 'hidden'
               : ''
           )}>
-            {!hasConfirmedSchedule && (
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-3 p-6 text-center">
-                <Calendar className="w-8 h-8 text-muted-foreground/50" />
-                <p className="text-sm font-medium text-muted-foreground">Schedule a recurring 1:1 time first</p>
-                <ScheduleOneOnOneDialog
-                  recipientId={selectedRep.user_id}
-                  recipientName={selectedRep.full_name}
-                  onComplete={() => refetchScheduling()}
-                />
-              </div>
-            )}
+
+
             {mode === 'manager' ? (
               <ManagerPrepForm
                 rep={selectedRep}
