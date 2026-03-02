@@ -39,6 +39,13 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [sending, setSending] = useState(false);
+  const [mode, setMode] = useState<'quick' | 'custom'>('custom');
+  const [customDate1, setCustomDate1] = useState('');
+  const [customTime1, setCustomTime1] = useState('');
+  const [customDate2, setCustomDate2] = useState('');
+  const [customTime2, setCustomTime2] = useState('');
+  const [customDate3, setCustomDate3] = useState('');
+  const [customTime3, setCustomTime3] = useState('');
 
   const timeSlots = generateTimeSlots();
 
@@ -48,14 +55,27 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
     );
   };
 
-  const handleSend = async () => {
-    if (!recipientId || selectedSlots.length === 0) return;
+  const getCustomSlots = (): string[] => {
+    const slots: string[] = [];
+    if (customDate1 && customTime1) slots.push(new Date(`${customDate1}T${customTime1}`).toISOString());
+    if (customDate2 && customTime2) slots.push(new Date(`${customDate2}T${customTime2}`).toISOString());
+    if (customDate3 && customTime3) slots.push(new Date(`${customDate3}T${customTime3}`).toISOString());
+    return slots;
+  };
+
+  const allSlots = mode === 'custom' ? getCustomSlots() : selectedSlots;
+
+  const handleSendWrapped = async () => {
+    if (!recipientId || allSlots.length === 0) return;
     setSending(true);
     try {
-      await createRequest(recipientId, selectedSlots, 'weekly_1on1', notes || undefined);
+      await createRequest(recipientId, allSlots, 'weekly_1on1', notes || undefined);
       toast({ title: 'Request Sent', description: `${recipientName} will see your proposed times.` });
       setOpen(false);
       setSelectedSlots([]);
+      setCustomDate1(''); setCustomTime1('');
+      setCustomDate2(''); setCustomTime2('');
+      setCustomDate3(''); setCustomTime3('');
       setNotes('');
       onComplete?.();
     } catch (err: any) {
@@ -63,6 +83,8 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
     }
     setSending(false);
   };
+
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
 
   return (
     <>
@@ -78,60 +100,128 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
               Schedule 1:1 with {recipientName}
             </DialogTitle>
             <DialogDescription>
-              Pick up to 3 time slots. They'll choose one.
+              Enter up to 3 times. They'll choose one.
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-4 space-y-4">
-            {/* Time slots grouped by day */}
-            <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
-              {Array.from(new Set(timeSlots.map(s => format(s, 'yyyy-MM-dd')))).map(dayKey => {
-                const daySlots = timeSlots.filter(s => format(s, 'yyyy-MM-dd') === dayKey);
-                return (
-                  <div key={dayKey}>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase">
-                      {format(new Date(dayKey), 'EEEE, MMM d')}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {daySlots.map(slot => {
-                        const iso = slot.toISOString();
-                        const selected = selectedSlots.includes(iso);
-                        return (
-                          <button
-                            key={iso}
-                            onClick={() => toggleSlot(iso)}
-                            className={cn(
-                              "px-2.5 py-1 rounded-md text-xs font-medium border transition-all",
-                              selected
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
-                            )}
-                          >
-                            <Clock className="w-3 h-3 inline mr-1" />
-                            {format(slot, 'h:mm a')}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Mode toggle */}
+            <div className="flex gap-1 p-0.5 bg-muted/50 rounded-lg">
+              <button
+                onClick={() => setMode('custom')}
+                className={cn(
+                  "flex-1 text-xs font-medium py-1.5 rounded-md transition-all",
+                  mode === 'custom' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Custom Times
+              </button>
+              <button
+                onClick={() => setMode('quick')}
+                className={cn(
+                  "flex-1 text-xs font-medium py-1.5 rounded-md transition-all",
+                  mode === 'quick' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Quick Pick
+              </button>
             </div>
 
-            {selectedSlots.length > 0 && (
-              <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
-                <p className="text-xs font-medium text-primary mb-1.5">Selected ({selectedSlots.length}/3)</p>
-                <div className="space-y-1">
-                  {selectedSlots.map(s => (
-                    <div key={s} className="flex items-center justify-between text-xs">
-                      <span className="text-foreground">{format(new Date(s), 'EEE, MMM d · h:mm a')}</span>
-                      <button onClick={() => toggleSlot(s)} className="text-muted-foreground hover:text-destructive">
-                        <X className="w-3 h-3" />
-                      </button>
+            {mode === 'custom' ? (
+              <div className="space-y-3">
+                {[
+                  { date: customDate1, time: customTime1, setDate: setCustomDate1, setTime: setCustomTime1, label: 'Option 1' },
+                  { date: customDate2, time: customTime2, setDate: setCustomDate2, setTime: setCustomTime2, label: 'Option 2' },
+                  { date: customDate3, time: customTime3, setDate: setCustomDate3, setTime: setCustomTime3, label: 'Option 3' },
+                ].map((slot, i) => (
+                  <div key={i}>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">{slot.label}{i === 0 ? ' *' : ' (optional)'}</p>
+                    <div className="flex gap-2">
+                      <Input
+                        type="date"
+                        value={slot.date}
+                        onChange={e => slot.setDate(e.target.value)}
+                        min={todayStr}
+                        className="flex-1 bg-muted/30 border-border/50 text-sm"
+                      />
+                      <Input
+                        type="time"
+                        value={slot.time}
+                        onChange={e => slot.setTime(e.target.value)}
+                        className="w-32 bg-muted/30 border-border/50 text-sm"
+                      />
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+
+                {/* Preview of custom selections */}
+                {getCustomSlots().length > 0 && (
+                  <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
+                    <p className="text-xs font-medium text-primary mb-1.5">Selected ({getCustomSlots().length}/3)</p>
+                    <div className="space-y-1">
+                      {getCustomSlots().map(s => (
+                        <div key={s} className="flex items-center gap-2 text-xs text-foreground">
+                          <Clock className="w-3 h-3 text-primary" />
+                          {format(new Date(s), 'EEE, MMM d · h:mm a')}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+            ) : (
+              <>
+                {/* Quick pick time slots grouped by day */}
+                <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
+                  {Array.from(new Set(timeSlots.map(s => format(s, 'yyyy-MM-dd')))).map(dayKey => {
+                    const daySlots = timeSlots.filter(s => format(s, 'yyyy-MM-dd') === dayKey);
+                    return (
+                      <div key={dayKey}>
+                        <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase">
+                          {format(new Date(dayKey), 'EEEE, MMM d')}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {daySlots.map(slot => {
+                            const iso = slot.toISOString();
+                            const selected = selectedSlots.includes(iso);
+                            return (
+                              <button
+                                key={iso}
+                                onClick={() => toggleSlot(iso)}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-md text-xs font-medium border transition-all",
+                                  selected
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
+                                )}
+                              >
+                                <Clock className="w-3 h-3 inline mr-1" />
+                                {format(slot, 'h:mm a')}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {selectedSlots.length > 0 && (
+                  <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
+                    <p className="text-xs font-medium text-primary mb-1.5">Selected ({selectedSlots.length}/3)</p>
+                    <div className="space-y-1">
+                      {selectedSlots.map(s => (
+                        <div key={s} className="flex items-center justify-between text-xs">
+                          <span className="text-foreground">{format(new Date(s), 'EEE, MMM d · h:mm a')}</span>
+                          <button onClick={() => toggleSlot(s)} className="text-muted-foreground hover:text-destructive">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             <Input
@@ -142,8 +232,8 @@ export function ScheduleOneOnOneDialog({ recipientId, recipientName, onComplete 
             />
 
             <Button
-              onClick={handleSend}
-              disabled={selectedSlots.length === 0 || sending}
+              onClick={handleSendWrapped}
+              disabled={allSlots.length === 0 || sending}
               className="w-full gap-2"
             >
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
