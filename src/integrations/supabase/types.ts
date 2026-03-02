@@ -2329,6 +2329,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_current_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          current_streak: number
+          full_name: string
+          lessons_completed: number
+          nickname: string
+          rank: number
+          team_name: string
+          time_this_week_minutes: number
+          total_points: number
+          training_points: number
+          user_id: string
+          videos_watched: number
+        }[]
+      }
       get_downline_from_edges: {
         Args: { _manager_user_id: string }
         Returns: {

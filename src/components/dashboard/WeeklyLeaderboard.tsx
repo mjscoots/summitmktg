@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Trophy, Medal, Award, TrendingUp } from 'lucide-react';
-import { startOfWeek, format } from 'date-fns';
 
 interface LeaderboardEntry {
-  id: string;
   user_id: string;
+  full_name: string;
+  nickname: string | null;
+  avatar_url: string | null;
   total_points: number;
   training_points: number;
-  call_attendance_points: number;
-  roleplay_points: number;
-  quiz_points: number;
-  profile: {
-    full_name: string;
-    avatar_url: string | null;
-  } | null;
+  current_streak: number;
+  lessons_completed: number;
+  rank: number;
 }
 
 export function WeeklyLeaderboard() {
@@ -28,67 +25,32 @@ export function WeeklyLeaderboard() {
       if (!user) return;
 
       try {
-        // Get start of current week (Monday)
-        const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
-        const weekStartStr = format(weekStart, 'yyyy-MM-dd');
+        const { data, error } = await supabase.rpc('get_current_leaderboard');
 
-        // Fetch leaderboard entries for this week
-        const { data: pointsData, error: pointsError } = await supabase
-          .from('leaderboard_points')
-          .select(`
-            id,
-            user_id,
-            total_points,
-            training_points,
-            call_attendance_points,
-            roleplay_points,
-            quiz_points
-          `)
-          .eq('week_start', weekStartStr)
-          .order('total_points', { ascending: false })
-          .limit(20);
-
-        if (pointsError) {
-          console.error('Error fetching leaderboard:', pointsError);
-          return;
-        }
-
-        if (!pointsData || pointsData.length === 0) {
+        if (error) {
+          console.error('Leaderboard RPC error:', error);
           setLeaderboard([]);
           setIsLoading(false);
           return;
         }
 
-        // Fetch profiles and roles for these users
-        const userIds = pointsData.map(p => p.user_id);
-
-        const [profilesRes, rolesRes] = await Promise.all([
-          supabase
-            .from('profiles')
-            .select('user_id, full_name, avatar_url')
-            .in('user_id', userIds),
-          supabase
-            .from('user_roles')
-            .select('user_id, role')
-            .in('user_id', userIds)
-        ]);
-
-        const profilesMap = new Map(
-          (profilesRes.data || []).map(p => [p.user_id, p])
-        );
-        const rolesMap = new Map(
-          (rolesRes.data || []).map(r => [r.user_id, r.role])
-        );
-
-        // Filter to ONLY show rookies - managers never appear
-        const rookieEntries: LeaderboardEntry[] = pointsData
-          .filter(p => rolesMap.get(p.user_id) === 'rookie')
-          .map(p => ({
-            ...p,
-            profile: profilesMap.get(p.user_id) || null,
+        // Server returns deterministic order — just map and take top 20
+        const entries: LeaderboardEntry[] = (data || [])
+          .filter((row: any) => (row.total_points || 0) > 0)
+          .slice(0, 20)
+          .map((row: any) => ({
+            user_id: row.user_id,
+            full_name: row.full_name,
+            nickname: row.nickname,
+            avatar_url: row.avatar_url,
+            total_points: row.total_points || 0,
+            training_points: row.training_points || 0,
+            current_streak: row.current_streak || 0,
+            lessons_completed: Number(row.lessons_completed) || 0,
+            rank: Number(row.rank) || 0,
           }));
 
-        setLeaderboard(rookieEntries);
+        setLeaderboard(entries);
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -132,13 +94,13 @@ export function WeeklyLeaderboard() {
 
   return (
     <div className="space-y-3 overflow-y-auto max-h-[350px] pr-2">
-      {leaderboard.map((entry, index) => {
+      {leaderboard.map((entry) => {
         const isCurrentUser = entry.user_id === user?.id;
-        const rank = index + 1;
+        const displayLabel = entry.nickname || entry.full_name?.split(' ')[0] || 'Unknown';
 
         return (
           <div
-            key={entry.id}
+            key={entry.user_id}
             className={`flex items-center gap-4 p-3 rounded-lg border transition-all ${
               isCurrentUser
                 ? 'border-primary/50 bg-primary/5'
@@ -146,13 +108,13 @@ export function WeeklyLeaderboard() {
             }`}
           >
             <div className="flex items-center justify-center w-8">
-              {getRankIcon(rank)}
+              {getRankIcon(entry.rank)}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className={`font-medium text-sm ${isCurrentUser ? 'text-primary' : 'text-foreground'}`}>
-                  {entry.profile?.full_name || 'Unknown User'}
+                  {displayLabel}
                 </span>
                 {isCurrentUser && (
                   <span className="text-xs text-primary">(You)</span>
@@ -160,8 +122,8 @@ export function WeeklyLeaderboard() {
               </div>
               <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
                 <span>🎓 {entry.training_points}</span>
-                <span>📞 {entry.call_attendance_points}</span>
-                <span>🎭 {entry.roleplay_points}</span>
+                <span>📚 {entry.lessons_completed}</span>
+                <span>🔥 {entry.current_streak}d</span>
               </div>
             </div>
 

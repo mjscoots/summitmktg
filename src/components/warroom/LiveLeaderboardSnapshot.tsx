@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 interface LeaderEntry {
   name: string;
-  deals: number;
+  points: number;
+  rank: number;
 }
 
 export function LiveLeaderboardSnapshot() {
@@ -14,38 +15,23 @@ export function LiveLeaderboardSnapshot() {
 
   useEffect(() => {
     const fetchLeaders = async () => {
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      weekStart.setHours(0, 0, 0, 0);
+      const { data, error } = await supabase.rpc('get_current_leaderboard');
 
-      const { data: signups } = await supabase
-        .from('rep_signups')
-        .select('signed_by')
-        .gte('signed_at', weekStart.toISOString());
-
-      const counts: Record<string, number> = {};
-      (signups || []).forEach(s => {
-        if (s.signed_by) counts[s.signed_by] = (counts[s.signed_by] || 0) + 1;
-      });
-
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      
-      if (sorted.length > 0) {
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, nickname')
-          .in('user_id', sorted.map(s => s[0]));
-        
-        const profileMap: Record<string, string> = {};
-        (profiles || []).forEach(p => {
-          profileMap[p.user_id] = p.nickname || p.full_name?.split(' ')[0] || '?';
-        });
-
-        setLeaders(sorted.map(([uid, count]) => ({
-          name: profileMap[uid] || '?',
-          deals: count,
-        })));
+      if (error) {
+        console.error('Leaderboard snapshot RPC error:', error);
+        return;
       }
+
+      const top5: LeaderEntry[] = (data || [])
+        .filter((row: any) => (row.total_points || 0) > 0)
+        .slice(0, 5)
+        .map((row: any) => ({
+          name: row.nickname || row.full_name?.split(' ')[0] || '?',
+          points: row.total_points || 0,
+          rank: Number(row.rank) || 0,
+        }));
+
+      setLeaders(top5);
     };
     fetchLeaders();
   }, []);
@@ -84,7 +70,7 @@ export function LiveLeaderboardSnapshot() {
                 </span>
               </div>
               <span className={`text-xs font-bold tabular-nums ${i === 0 ? 'text-yellow-400' : 'text-muted-foreground'}`}>
-                {leader.deals}
+                {leader.points}
               </span>
             </div>
           ))}
