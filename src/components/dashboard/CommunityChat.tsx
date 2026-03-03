@@ -760,6 +760,25 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               value={input}
               onChange={(e) => { setInput(e.target.value); onTyping(); }}
               onKeyDown={handleKeyDown}
+              onPaste={async (e) => {
+                const items = e.clipboardData?.items;
+                if (!items || !user) return;
+                for (const item of Array.from(items)) {
+                  if (item.type.startsWith('image/')) {
+                    e.preventDefault();
+                    const file = item.getAsFile();
+                    if (!file) return;
+                    try {
+                      const { uploadChatFile } = await import('@/components/dashboard/ChatImageUpload');
+                      await uploadChatFile(file, user.id, handleSendFile);
+                      toast.success('Image uploaded');
+                    } catch {
+                      toast.error('Failed to upload pasted image');
+                    }
+                    return;
+                  }
+                }
+              }}
               placeholder={activeChannel === 'ai-coach' ? 'Ask Summit Coach anything...' : 'Drop your update, win the day…'}
               className="flex-1 bg-transparent text-foreground font-chat-input text-sm px-3 py-2.5 focus:outline-none placeholder:text-muted-foreground"
               disabled={isSending || isAiLoading}

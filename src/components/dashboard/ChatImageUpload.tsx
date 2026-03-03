@@ -41,6 +41,33 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+export async function uploadChatFile(file: File, userId: string, onSend: (content: string) => Promise<void>) {
+  if (file.size > MAX_SIZE) {
+    toast.error('File too large (max 10MB)');
+    return;
+  }
+
+  const ext = file.name.split('.').pop() || 'png';
+  const path = `${userId}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('chat-uploads')
+    .upload(path, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('chat-uploads')
+    .getPublicUrl(path);
+
+  if (isImageFile(file.name)) {
+    await onSend(`${IMAGE_PREFIX}${publicUrl}`);
+  } else {
+    const fileInfo = { url: publicUrl, name: file.name, size: file.size };
+    await onSend(`${FILE_PREFIX}${JSON.stringify(fileInfo)}`);
+  }
+}
+
 interface ChatImageUploadProps {
   onSend: (content: string) => Promise<void>;
 }
@@ -54,32 +81,9 @@ export function ChatImageUpload({ onSend }: ChatImageUploadProps) {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (file.size > MAX_SIZE) {
-      toast.error('File too large (max 10MB)');
-      return;
-    }
-
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop() || '';
-      const path = `${user.id}/${Date.now()}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('chat-uploads')
-        .upload(path, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('chat-uploads')
-        .getPublicUrl(path);
-
-      if (isImageFile(file.name)) {
-        await onSend(`${IMAGE_PREFIX}${publicUrl}`);
-      } else {
-        const fileInfo = { url: publicUrl, name: file.name, size: file.size };
-        await onSend(`${FILE_PREFIX}${JSON.stringify(fileInfo)}`);
-      }
+      await uploadChatFile(file, user.id, onSend);
     } catch (err: any) {
       console.error('Upload error:', err);
       toast.error('Failed to upload file');
