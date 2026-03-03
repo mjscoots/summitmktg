@@ -1,6 +1,28 @@
+import { useState } from 'react';
 import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Check, Clock, Loader2, TrendingUp } from 'lucide-react';
+import { AlertTriangle, Check, GripVertical, Loader2, RotateCcw, TrendingUp } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { useRepOrder } from '@/hooks/useRepOrder';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface RepSelectionListProps {
   needsAttention: PrepRep[];
@@ -18,61 +40,92 @@ function formatMinutes(mins: number): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-function RepRow({ rep, completed, onSelect }: { rep: PrepRep; completed: boolean; onSelect: () => void }) {
+function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed: boolean; onSelect: () => void }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: rep.user_id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <button
-      onClick={onSelect}
+    <div
+      ref={setNodeRef}
+      style={style}
       className={cn(
-        'w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all text-left',
+        'w-full flex items-center gap-2 rounded-lg border transition-all',
+        isDragging && 'z-50 shadow-lg scale-[1.02] opacity-90',
         completed
           ? 'border-green-500/30 bg-green-500/5 opacity-60'
           : 'border-border/50 bg-card hover:bg-accent/50 hover:border-primary/30'
       )}
     >
-      {/* Avatar */}
-      {rep.avatar_url ? (
-        <img src={rep.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary">
-          {rep.full_name.charAt(0)}
-        </div>
-      )}
+      {/* Drag handle */}
+      <button
+        className="pl-2 py-3 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="w-4 h-4" />
+      </button>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-foreground truncate">{rep.full_name}</span>
-          {completed && <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{formatMinutes(rep.lastWeekMinutes)}</span>
-          <span>•</span>
-          <span>{rep.lastWeekDaysActive}/7 days</span>
-          <span>•</span>
-          <span>{rep.trainingProgress}%</span>
-        </div>
-      </div>
-
-      {/* Status badges */}
-      <div className="flex-shrink-0">
-        {rep.lastWeekMinutes === 0 ? (
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
-            ⚠️ No activity
-          </span>
-        ) : rep.lastWeekMinutes / 7 < 20 ? (
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 font-medium">
-            ⚠️ Low avg
-          </span>
-        ) : rep.peerRank === 1 ? (
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
-            ✅ #1
-          </span>
+      {/* Clickable content */}
+      <button
+        onClick={onSelect}
+        className="flex-1 flex items-center gap-3 pr-4 py-3 text-left min-w-0"
+      >
+        {/* Avatar */}
+        {rep.avatar_url ? (
+          <img src={rep.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
         ) : (
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
-            ✅ On pace
-          </span>
+          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary">
+            {rep.full_name.charAt(0)}
+          </div>
         )}
-      </div>
-    </button>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-foreground truncate">{rep.full_name}</span>
+            {completed && <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{formatMinutes(rep.lastWeekMinutes)}</span>
+            <span>•</span>
+            <span>{rep.lastWeekDaysActive}/7 days</span>
+            <span>•</span>
+            <span>{rep.trainingProgress}%</span>
+          </div>
+        </div>
+
+        {/* Status badges */}
+        <div className="flex-shrink-0">
+          {rep.lastWeekMinutes === 0 ? (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
+              ⚠️ No activity
+            </span>
+          ) : rep.lastWeekMinutes / 7 < 20 ? (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 font-medium">
+              ⚠️ Low avg
+            </span>
+          ) : rep.peerRank === 1 ? (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
+              ✅ #1
+            </span>
+          ) : (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
+              ✅ On pace
+            </span>
+          )}
+        </div>
+      </button>
+    </div>
   );
 }
 
@@ -85,6 +138,35 @@ export function RepSelectionList({
   totalReps,
   completedCount,
 }: RepSelectionListProps) {
+  const { user } = useAuth();
+  const allReps = [...needsAttention, ...onTrack];
+  const { orderedReps, reorder, resetToDefault } = useRepOrder(user?.id, allReps);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = orderedReps.findIndex(r => r.user_id === active.id);
+    const newIndex = orderedReps.findIndex(r => r.user_id === over.id);
+    if (oldIndex !== -1 && newIndex !== -1) {
+      reorder(oldIndex, newIndex);
+    }
+  };
+
+  const handleReset = async () => {
+    await resetToDefault();
+    toast.success('Reset to alphabetical order');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -103,8 +185,8 @@ export function RepSelectionList({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Progress */}
+    <div className="space-y-4">
+      {/* Progress + reset */}
       <div className="flex items-center gap-3">
         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
           <div
@@ -117,40 +199,18 @@ export function RepSelectionList({
         </span>
       </div>
 
-      {/* Needs Attention */}
-      {needsAttention.length > 0 ? (
-        <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-destructive mb-3 flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            Needs Attention ({needsAttention.length})
-          </h3>
-          <div className="space-y-2">
-            {needsAttention.map(rep => (
-              <RepRow
-                key={rep.user_id}
-                rep={rep}
-                completed={completedRepIds.has(rep.user_id)}
-                onSelect={() => onSelect(rep.user_id)}
-              />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4 text-center">
-          <span className="text-sm text-green-500">🎉 Everyone on track!</span>
-        </div>
-      )}
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">Drag to reorder</p>
+        <Button variant="ghost" size="sm" onClick={handleReset} className="h-7 text-xs gap-1">
+          <RotateCcw className="w-3 h-3" /> A–Z
+        </Button>
+      </div>
 
-      {/* On Track */}
-      {onTrack.length > 0 && (
-        <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-green-500 mb-3 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5" />
-            On Track ({onTrack.length})
-          </h3>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={orderedReps.map(r => r.user_id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
-            {onTrack.map(rep => (
-              <RepRow
+            {orderedReps.map(rep => (
+              <SortableRepRow
                 key={rep.user_id}
                 rep={rep}
                 completed={completedRepIds.has(rep.user_id)}
@@ -158,8 +218,8 @@ export function RepSelectionList({
               />
             ))}
           </div>
-        </div>
-      )}
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
