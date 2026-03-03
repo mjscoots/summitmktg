@@ -223,12 +223,7 @@ export function RepSelectionList({
             <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
               To Do ({incompleteReps.length})
             </h3>
-            <div className="flex items-center gap-2">
-              <p className="text-[10px] text-muted-foreground">Drag to reorder</p>
-              <Button variant="ghost" size="sm" onClick={onReset} className="h-6 text-[10px] gap-1 px-2">
-                <RotateCcw className="w-3 h-3" /> A–Z
-              </Button>
-            </div>
+            <p className="text-[10px] text-muted-foreground">Drag to reorder</p>
           </div>
 
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
