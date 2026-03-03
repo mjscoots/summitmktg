@@ -30,7 +30,20 @@ export function useRepOrder(managerId: string | undefined, reps: PrepRep[]) {
           .map(d => reps.find(r => r.user_id === d.rep_user_id))
           .filter(Boolean) as PrepRep[];
         const newReps = reps.filter(r => !orderMap.has(r.user_id));
-        setOrderedReps([...inOrder, ...newReps]);
+        const merged = [...inOrder, ...newReps];
+        setOrderedReps(merged);
+
+        // Auto-save if new reps were appended so their position persists
+        if (newReps.length > 0) {
+          const records = merged.map((rep, i) => ({
+            manager_id: managerId,
+            rep_user_id: rep.user_id,
+            display_order: i,
+          }));
+          supabase.from('one_on_one_rep_order').delete().eq('manager_id', managerId).then(() => {
+            supabase.from('one_on_one_rep_order').insert(records);
+          });
+        }
       } else {
         setOrderedReps(reps);
       }
