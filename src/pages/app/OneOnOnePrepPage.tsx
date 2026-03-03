@@ -70,11 +70,12 @@ export default function OneOnOnePrepPage() {
   const [submitting, setSubmitting] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'data' | 'form'>('data');
 
-  // Use orderedReps for ALL navigation
+  // Use orderedReps for ALL navigation, but skip completed reps
+  const incompleteReps = orderedReps.filter(r => !completedRepIds.has(r.user_id));
   const selectedRep = orderedReps.find(r => r.user_id === selectedRepId) || null;
-  const currentIndex = selectedRep ? orderedReps.findIndex(r => r.user_id === selectedRep.user_id) : -1;
-  const prevRep = currentIndex > 0 ? orderedReps[currentIndex - 1] : null;
-  const nextRep = currentIndex < orderedReps.length - 1 ? orderedReps[currentIndex + 1] : null;
+  const currentIncompleteIndex = selectedRep ? incompleteReps.findIndex(r => r.user_id === selectedRep.user_id) : -1;
+  const prevRep = currentIncompleteIndex > 0 ? incompleteReps[currentIncompleteIndex - 1] : null;
+  const nextRep = currentIncompleteIndex < incompleteReps.length - 1 ? incompleteReps[currentIncompleteIndex + 1] : null;
 
   // ── Load completed rep IDs from database ──
   const fetchCompletedReps = useCallback(async () => {
