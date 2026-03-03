@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { cn } from '@/lib/utils';
-import { Check, GripVertical, Loader2, RotateCcw } from 'lucide-react';
+import { Check, ChevronDown, GripVertical, Loader2, RotateCcw } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -18,6 +19,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 interface RepSelectionListProps {
   orderedReps: PrepRep[];
@@ -36,7 +42,7 @@ function formatMinutes(mins: number): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed: boolean; onSelect: () => void }) {
+function SortableRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void }) {
   const {
     attributes,
     listeners,
@@ -58,9 +64,7 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
       className={cn(
         'w-full flex items-center gap-2 rounded-lg border transition-all',
         isDragging && 'z-50 shadow-lg scale-[1.02] opacity-90',
-        completed
-          ? 'border-green-500/30 bg-green-500/5 opacity-60'
-          : 'border-border/50 bg-card hover:bg-accent/50 hover:border-primary/30'
+        'border-border/50 bg-card hover:bg-accent/50 hover:border-primary/30'
       )}
     >
       <button
@@ -84,10 +88,7 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
         )}
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground truncate">{rep.full_name}</span>
-            {completed && <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
-          </div>
+          <span className="text-sm font-medium text-foreground truncate block">{rep.full_name}</span>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{formatMinutes(rep.lastWeekMinutes)}</span>
             <span>•</span>
@@ -121,6 +122,26 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
   );
 }
 
+function CompletedRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void }) {
+  return (
+    <button
+      onClick={onSelect}
+      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-green-500/20 bg-green-500/5 text-left opacity-70 hover:opacity-90 transition-opacity"
+    >
+      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+      {rep.avatar_url ? (
+        <img src={rep.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+      ) : (
+        <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-green-600">
+          {rep.full_name.charAt(0)}
+        </div>
+      )}
+      <span className="text-sm text-foreground/70 truncate">{rep.full_name}</span>
+      <span className="ml-auto text-[10px] text-green-600 font-medium">Done</span>
+    </button>
+  );
+}
+
 export function RepSelectionList({
   orderedReps,
   completedRepIds,
@@ -140,14 +161,26 @@ export function RepSelectionList({
     })
   );
 
+  const { incompleteReps, completedReps } = useMemo(() => {
+    const incomplete = orderedReps.filter(r => !completedRepIds.has(r.user_id));
+    const completed = orderedReps.filter(r => completedRepIds.has(r.user_id));
+    return { incompleteReps: incomplete, completedReps: completed };
+  }, [orderedReps, completedRepIds]);
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = orderedReps.findIndex(r => r.user_id === active.id);
-    const newIndex = orderedReps.findIndex(r => r.user_id === over.id);
-    if (oldIndex !== -1 && newIndex !== -1) {
-      onReorder(oldIndex, newIndex);
+    // Find indices in the incomplete list
+    const oldIncIdx = incompleteReps.findIndex(r => r.user_id === active.id);
+    const newIncIdx = incompleteReps.findIndex(r => r.user_id === over.id);
+    if (oldIncIdx === -1 || newIncIdx === -1) return;
+
+    // Map back to full orderedReps indices
+    const oldFullIdx = orderedReps.findIndex(r => r.user_id === active.id);
+    const newFullIdx = orderedReps.findIndex(r => r.user_id === over.id);
+    if (oldFullIdx !== -1 && newFullIdx !== -1) {
+      onReorder(oldFullIdx, newFullIdx);
     }
   };
 
@@ -169,7 +202,8 @@ export function RepSelectionList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Progress bar */}
       <div className="flex items-center gap-3">
         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
           <div
@@ -182,27 +216,61 @@ export function RepSelectionList({
         </span>
       </div>
 
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">Drag to reorder</p>
-        <Button variant="ghost" size="sm" onClick={onReset} className="h-7 text-xs gap-1">
-          <RotateCcw className="w-3 h-3" /> A–Z
-        </Button>
-      </div>
+      {/* To Do section */}
+      {incompleteReps.length > 0 ? (
+        <>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              To Do ({incompleteReps.length})
+            </h3>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-muted-foreground">Drag to reorder</p>
+              <Button variant="ghost" size="sm" onClick={onReset} className="h-6 text-[10px] gap-1 px-2">
+                <RotateCcw className="w-3 h-3" /> A–Z
+              </Button>
+            </div>
+          </div>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={orderedReps.map(r => r.user_id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
-            {orderedReps.map(rep => (
-              <SortableRepRow
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={incompleteReps.map(r => r.user_id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {incompleteReps.map(rep => (
+                  <SortableRepRow
+                    key={rep.user_id}
+                    rep={rep}
+                    onSelect={() => onSelect(rep.user_id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </>
+      ) : (
+        <div className="text-center py-10 rounded-lg border border-green-500/20 bg-green-500/5">
+          <span className="text-2xl">🎉</span>
+          <p className="text-sm font-medium text-foreground mt-2">All 1:1s completed for this week!</p>
+          <p className="text-xs text-muted-foreground mt-1">{completedCount} reps checked in</p>
+        </div>
+      )}
+
+      {/* Completed section — collapsed by default */}
+      {completedReps.length > 0 && (
+        <Collapsible defaultOpen={false}>
+          <CollapsibleTrigger className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-green-600 hover:text-green-500 transition-colors w-full group">
+            <ChevronDown className="w-3.5 h-3.5 transition-transform group-data-[state=open]:rotate-180" />
+            Completed ({completedReps.length})
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3 space-y-1.5">
+            {completedReps.map(rep => (
+              <CompletedRepRow
                 key={rep.user_id}
                 rep={rep}
-                completed={completedRepIds.has(rep.user_id)}
                 onSelect={() => onSelect(rep.user_id)}
               />
             ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }
