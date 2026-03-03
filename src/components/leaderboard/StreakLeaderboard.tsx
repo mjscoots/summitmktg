@@ -59,6 +59,9 @@ export function StreakLeaderboard() {
     };
 
     fetchLeaderboard();
+    // Auto-refresh every 30 seconds for sync across users
+    const interval = setInterval(fetchLeaderboard, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const getRankIcon = (rank: number) => {

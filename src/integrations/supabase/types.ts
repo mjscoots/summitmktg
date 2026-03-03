@@ -2484,6 +2484,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_all_time_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          avatar_url: string
+          cumulative_points: number
+          current_streak: number
+          full_name: string
+          nickname: string
+          team_name: string
+          user_id: string
+        }[]
+      }
       get_current_leaderboard: {
         Args: never
         Returns: {
