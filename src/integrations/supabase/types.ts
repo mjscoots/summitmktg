@@ -1151,6 +1151,30 @@ export type Database = {
         }
         Relationships: []
       }
+      one_on_one_rep_order: {
+        Row: {
+          display_order: number
+          id: string
+          manager_id: string
+          rep_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          display_order?: number
+          id?: string
+          manager_id: string
+          rep_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          display_order?: number
+          id?: string
+          manager_id?: string
+          rep_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pitch_approval_requests: {
         Row: {
           attempt_number: number | null
