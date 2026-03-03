@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Check, GripVertical, Loader2, RotateCcw, TrendingUp } from 'lucide-react';
+import { Check, GripVertical, Loader2, RotateCcw } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -12,23 +11,20 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useRepOrder } from '@/hooks/useRepOrder';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 
 interface RepSelectionListProps {
-  needsAttention: PrepRep[];
-  onTrack: PrepRep[];
+  orderedReps: PrepRep[];
   completedRepIds: Set<string>;
   onSelect: (userId: string) => void;
+  onReorder: (oldIndex: number, newIndex: number) => void;
+  onReset: () => void;
   loading: boolean;
   totalReps: number;
   completedCount: number;
@@ -67,7 +63,6 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
           : 'border-border/50 bg-card hover:bg-accent/50 hover:border-primary/30'
       )}
     >
-      {/* Drag handle */}
       <button
         className="pl-2 py-3 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
         {...attributes}
@@ -76,12 +71,10 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
         <GripVertical className="w-4 h-4" />
       </button>
 
-      {/* Clickable content */}
       <button
         onClick={onSelect}
         className="flex-1 flex items-center gap-3 pr-4 py-3 text-left min-w-0"
       >
-        {/* Avatar */}
         {rep.avatar_url ? (
           <img src={rep.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
         ) : (
@@ -104,7 +97,6 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
           </div>
         </div>
 
-        {/* Status badges */}
         <div className="flex-shrink-0">
           {rep.lastWeekMinutes === 0 ? (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
@@ -130,18 +122,15 @@ function SortableRepRow({ rep, completed, onSelect }: { rep: PrepRep; completed:
 }
 
 export function RepSelectionList({
-  needsAttention,
-  onTrack,
+  orderedReps,
   completedRepIds,
   onSelect,
+  onReorder,
+  onReset,
   loading,
   totalReps,
   completedCount,
 }: RepSelectionListProps) {
-  const { user } = useAuth();
-  const allReps = [...needsAttention, ...onTrack];
-  const { orderedReps, reorder, resetToDefault } = useRepOrder(user?.id, allReps);
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -158,13 +147,8 @@ export function RepSelectionList({
     const oldIndex = orderedReps.findIndex(r => r.user_id === active.id);
     const newIndex = orderedReps.findIndex(r => r.user_id === over.id);
     if (oldIndex !== -1 && newIndex !== -1) {
-      reorder(oldIndex, newIndex);
+      onReorder(oldIndex, newIndex);
     }
-  };
-
-  const handleReset = async () => {
-    await resetToDefault();
-    toast.success('Reset to alphabetical order');
   };
 
   if (loading) {
@@ -186,7 +170,6 @@ export function RepSelectionList({
 
   return (
     <div className="space-y-4">
-      {/* Progress + reset */}
       <div className="flex items-center gap-3">
         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
           <div
@@ -201,7 +184,7 @@ export function RepSelectionList({
 
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">Drag to reorder</p>
-        <Button variant="ghost" size="sm" onClick={handleReset} className="h-7 text-xs gap-1">
+        <Button variant="ghost" size="sm" onClick={onReset} className="h-7 text-xs gap-1">
           <RotateCcw className="w-3 h-3" /> A–Z
         </Button>
       </div>

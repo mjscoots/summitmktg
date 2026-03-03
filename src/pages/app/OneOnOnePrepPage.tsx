@@ -16,6 +16,7 @@ import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useRepOrder } from '@/hooks/useRepOrder';
 
 export interface PrepFormData {
   week_description: string;
@@ -57,6 +58,9 @@ export default function OneOnOnePrepPage() {
     loading, lastMonday, lastSunday, refresh,
   } = useOneOnOnePrep(mode);
 
+  const allReps = [...needsAttention, ...onTrack];
+  const { orderedReps, reorder, resetToDefault } = useRepOrder(user?.id, allReps);
+
   const [selectedRepId, setSelectedRepId] = useState<string | null>(repFromUrl);
   const [completedRepIds, setCompletedRepIds] = useState<Set<string>>(new Set());
   const [loadingCompleted, setLoadingCompleted] = useState(true);
@@ -66,10 +70,11 @@ export default function OneOnOnePrepPage() {
   const [submitting, setSubmitting] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'data' | 'form'>('data');
 
-  const selectedRep = reps.find(r => r.user_id === selectedRepId) || null;
-  const currentIndex = selectedRep ? reps.indexOf(selectedRep) : -1;
-  const prevRep = currentIndex > 0 ? reps[currentIndex - 1] : null;
-  const nextRep = currentIndex < reps.length - 1 ? reps[currentIndex + 1] : null;
+  // Use orderedReps for ALL navigation
+  const selectedRep = orderedReps.find(r => r.user_id === selectedRepId) || null;
+  const currentIndex = selectedRep ? orderedReps.findIndex(r => r.user_id === selectedRep.user_id) : -1;
+  const prevRep = currentIndex > 0 ? orderedReps[currentIndex - 1] : null;
+  const nextRep = currentIndex < orderedReps.length - 1 ? orderedReps[currentIndex + 1] : null;
 
   // ── Load completed rep IDs from database ──
   const fetchCompletedReps = useCallback(async () => {
@@ -115,8 +120,8 @@ export default function OneOnOnePrepPage() {
 
   // ── Restore rep from URL on load ──
   useEffect(() => {
-    if (repFromUrl && reps.length > 0 && !selectedRepId) {
-      const found = reps.find(r => r.user_id === repFromUrl);
+    if (repFromUrl && orderedReps.length > 0 && !selectedRepId) {
+      const found = orderedReps.find(r => r.user_id === repFromUrl);
       if (found) setSelectedRepId(found.user_id);
     }
   }, [repFromUrl, reps]);
@@ -283,6 +288,11 @@ export default function OneOnOnePrepPage() {
     }
   };
 
+  const handleResetOrder = async () => {
+    await resetToDefault();
+    toast.success('Reset to alphabetical order');
+  };
+
   const modeLabel = mode === 'manager' ? 'Manager' : 'Rookie';
 
   if (!selectedRep) {
@@ -299,12 +309,13 @@ export default function OneOnOnePrepPage() {
             </p>
           </div>
           <RepSelectionList
-            needsAttention={needsAttention}
-            onTrack={onTrack}
+            orderedReps={orderedReps}
             completedRepIds={completedRepIds}
             onSelect={handleSelectRep}
+            onReorder={reorder}
+            onReset={handleResetOrder}
             loading={loading || loadingCompleted}
-            totalReps={reps.length}
+            totalReps={orderedReps.length}
             completedCount={completedRepIds.size}
           />
         </div>
@@ -321,7 +332,7 @@ export default function OneOnOnePrepPage() {
             <ArrowLeft className="w-3.5 h-3.5" /> Back to roster
           </button>
           <span className="text-xs text-muted-foreground">
-            {completedRepIds.size} of {reps.length} completed
+            {completedRepIds.size} of {orderedReps.length} completed
           </span>
         </div>
 
