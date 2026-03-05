@@ -56,17 +56,6 @@ export default function LeaderboardPage() {
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Dashboard" />
 
-          {/* Point system revised banner */}
-          <button
-            onClick={() => setShowPointSystem(true)}
-            className="w-full mb-4 p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-left flex items-center gap-2 hover:bg-yellow-500/15 transition-colors"
-          >
-            <Info className="w-4 h-4 text-yellow-400 shrink-0" />
-            <span className="text-xs text-yellow-200/80 font-medium">
-              Point system has been revised. Hours logged is now #1. <span className="underline">Click to see updates</span>
-            </span>
-          </button>
-
           {/* Header */}
           <div className="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-r from-yellow-950 via-amber-900/60 to-red-900/40 border border-yellow-500/20">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(234,179,8,0.15),transparent_50%)]" />
@@ -80,13 +69,21 @@ export default function LeaderboardPage() {
                   <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
                 </div>
               </div>
-              <div>
+              <div className="flex-1">
                 <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                   LEADERBOARD
                   <span className="text-yellow-400 animate-pulse">⚡</span>
                 </h1>
                 <p className="text-xs text-yellow-200/60 font-bold uppercase tracking-widest mt-0.5">Outwork everyone. No excuses.</p>
               </div>
+              {/* Points Guide Button */}
+              <button
+                onClick={() => setShowPointSystem(true)}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-yellow-500/15 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/25 transition-colors text-xs font-bold uppercase tracking-wide"
+              >
+                <Info className="w-3.5 h-3.5" />
+                Points Guide
+              </button>
             </div>
           </div>
 
