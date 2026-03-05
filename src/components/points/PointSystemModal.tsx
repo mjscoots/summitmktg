@@ -1,7 +1,7 @@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import { Clock, Flame, MessageSquare, BookOpen, Video, FileText, Zap, Trophy, Shield } from 'lucide-react';
+import { Clock, Flame, MessageSquare, BookOpen, Video, FileText, Zap, Trophy, Shield, ThumbsUp, Users, CalendarCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PointSystemModalProps {
@@ -11,58 +11,92 @@ interface PointSystemModalProps {
 
 const SECTIONS = [
   {
-    icon: Clock, color: 'text-blue-500', title: '#1 — Hours Logged (Primary)',
+    icon: Clock, color: 'text-blue-500', title: 'Hours Logged',
+    subtitle: 'Primary point driver',
     items: [
-      '100 pts per hour of qualified learning time',
-      'Daily cap: 600 pts (≈ 6 hrs)',
-      '5 hrs/day = ELITE participation',
-      'Only counts active time — 90-sec idle auto-pause',
-      'Tab must be in focus to count',
+      { label: 'Per hour of qualified learning time', pts: '+100' },
+      { label: 'Daily cap', pts: '600' },
+      { label: '90-sec idle auto-pause · Tab must be in focus', pts: null },
     ],
   },
   {
-    icon: Flame, color: 'text-orange-500', title: '#2 — Streak & Daily Login',
+    icon: Flame, color: 'text-orange-500', title: 'Streak & Login',
+    subtitle: 'Consistency rewards',
     items: [
-      '+75 pts daily login bonus',
-      '+25 pts per day maintaining streak',
-      'Streak requires 20 min activity or 1 lesson/quiz per day',
-      'Milestones: 3d (+100) · 7d (+300) · 14d (+700) · 30d (+2,000)',
+      { label: 'Daily login bonus', pts: '+75' },
+      { label: 'Streak maintenance (per day)', pts: '+25' },
+      { label: '3-day milestone', pts: '+100' },
+      { label: '7-day milestone', pts: '+300' },
+      { label: '14-day milestone', pts: '+700' },
+      { label: '30-day milestone', pts: '+2,000' },
+      { label: 'Requires 20 min activity or 1 lesson/quiz per day', pts: null },
     ],
   },
   {
-    icon: MessageSquare, color: 'text-emerald-500', title: '#3 — Chat Participation',
+    icon: MessageSquare, color: 'text-emerald-500', title: 'Chat',
+    subtitle: '≥10 chars, no spam',
     items: [
-      '+20 pts per qualifying message (≥10 chars, no spam)',
-      'Hourly cap: 10 messages/hr (200 pts/hr)',
-      'Daily cap: 600 pts from chat',
-      '+10 pts when your message gets a reaction',
-      '+2 pts for reacting to others',
-      'Duplicates, single-word & emoji-only messages don\'t count',
+      { label: 'Per qualifying message', pts: '+20' },
+      { label: 'Hourly cap (10 msgs/hr)', pts: '200' },
+      { label: 'Daily cap', pts: '600' },
     ],
   },
   {
-    icon: BookOpen, color: 'text-green-500', title: '#4 — Lessons (Diminishing Returns)',
+    icon: ThumbsUp, color: 'text-pink-500', title: 'Reactions',
+    subtitle: 'Chat engagement',
     items: [
-      'First 3/day: 60 pts each',
-      'Next 3/day: 30 pts each',
-      'Beyond 6/day: 10 pts each',
-      'Daily cap: 300 pts',
-      'Quiz bonus: 80%+ (+25) · 90%+ (+40) · 100% (+60)',
+      { label: 'Your message gets a reaction', pts: '+10' },
+      { label: 'Reacting to others', pts: '+2' },
     ],
   },
   {
-    icon: Video, color: 'text-purple-500', title: '#5 — Videos Watched',
+    icon: BookOpen, color: 'text-green-500', title: 'Lessons',
+    subtitle: 'Diminishing returns',
     items: [
-      '+40 pts per video watch (rewatches count)',
-      'Daily cap: 200 pts',
+      { label: 'First 3 per day', pts: '+60 ea' },
+      { label: 'Next 3 per day', pts: '+30 ea' },
+      { label: 'Beyond 6 per day', pts: '+10 ea' },
+      { label: 'Daily cap', pts: '300' },
+      { label: 'Quiz bonus: 80%+ / 90%+ / 100%', pts: '+25 / +40 / +60' },
     ],
   },
   {
-    icon: Zap, color: 'text-yellow-500', title: 'Weekly Threshold Bonuses',
+    icon: Video, color: 'text-purple-500', title: 'Videos',
+    subtitle: 'Rewatches count',
     items: [
-      '300 min (5 hrs) = +500 pts',
-      '600 min (10 hrs) = +1,200 pts',
-      '900 min (15 hrs) = +2,000 pts',
+      { label: 'Per video watched', pts: '+40' },
+      { label: 'Daily cap', pts: '200' },
+    ],
+  },
+  {
+    icon: FileText, color: 'text-cyan-500', title: 'Manual Chapters',
+    subtitle: 'Chapter completion',
+    items: [
+      { label: 'Per chapter completed', pts: '+30' },
+    ],
+  },
+  {
+    icon: Users, color: 'text-indigo-500', title: '1:1 Sessions',
+    subtitle: 'Coaching',
+    items: [
+      { label: 'Per session (both participants)', pts: '+50' },
+    ],
+  },
+  {
+    icon: CalendarCheck, color: 'text-teal-500', title: 'Attendance',
+    subtitle: 'Calendar RSVPs',
+    items: [
+      { label: 'RSVP "Yes"', pts: '+pts' },
+      { label: 'RSVP "No"', pts: '−pts' },
+    ],
+  },
+  {
+    icon: Zap, color: 'text-yellow-500', title: 'Weekly Bonuses',
+    subtitle: 'Training thresholds',
+    items: [
+      { label: '5 hrs (300 min)', pts: '+500' },
+      { label: '10 hrs (600 min)', pts: '+1,200' },
+      { label: '15 hrs (900 min)', pts: '+2,000' },
     ],
   },
 ];
@@ -70,38 +104,45 @@ const SECTIONS = [
 export function PointSystemModal({ open, onOpenChange }: PointSystemModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-500" />
-            Revised Point System
+            Points Guide
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
-          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-muted-foreground">
-            <Shield className="w-4 h-4 text-primary inline mr-1" />
-            <strong>Your past points are preserved.</strong> This revised system applies going forward.
-            Hours logged is now the #1 driver. Rushing lessons no longer dominates.
+        <div className="space-y-3 pt-1">
+          <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20 text-[11px] text-muted-foreground leading-relaxed">
+            <Shield className="w-3.5 h-3.5 text-primary inline mr-1 -mt-0.5" />
+            <strong>Hours logged is the #1 driver.</strong> Rushing lessons won't dominate. Past points are preserved.
           </div>
 
-          {SECTIONS.map(({ icon: Icon, color, title, items }) => (
-            <div key={title} className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Icon className={cn('w-4 h-4', color)} />
-                <h3 className="text-sm font-bold text-foreground">{title}</h3>
+          {SECTIONS.map(({ icon: Icon, color, title, subtitle, items }) => (
+            <div key={title} className="rounded-lg border border-border/40 overflow-hidden">
+              <div className="flex items-center gap-2 px-3 py-2 bg-muted/30">
+                <Icon className={cn('w-3.5 h-3.5 shrink-0', color)} />
+                <span className="text-xs font-bold text-foreground">{title}</span>
+                {subtitle && (
+                  <span className="text-[10px] text-muted-foreground ml-auto">{subtitle}</span>
+                )}
               </div>
-              <ul className="space-y-0.5 ml-6">
+              <div className="px-3 py-1.5 space-y-0.5">
                 {items.map((item, i) => (
-                  <li key={i} className="text-xs text-muted-foreground list-disc">{item}</li>
+                  <div key={i} className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="text-[11px] text-muted-foreground">{item.label}</span>
+                    {item.pts && (
+                      <span className="text-[11px] font-bold text-foreground tabular-nums shrink-0">{item.pts}</span>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           ))}
 
-          <div className="p-3 rounded-lg bg-muted/50 border border-border/30">
-            <p className="text-[11px] text-muted-foreground">
-              <strong>Elite Participation:</strong> 5 hrs/day · <strong>Strong:</strong> 3 hrs/day · <strong>Baseline:</strong> 1 hr/day
+          <div className="p-2.5 rounded-lg bg-muted/40 border border-border/30">
+            <p className="text-[10px] text-muted-foreground text-center font-semibold tracking-wide uppercase">
+              Elite: 5 hrs/day · Strong: 3 hrs/day · Baseline: 1 hr/day
             </p>
           </div>
         </div>
