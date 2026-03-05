@@ -84,6 +84,8 @@ export function MemberProfileModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const [streakDays, setStreakDays] = useState(0);
   const [teamName, setTeamName] = useState<string | null>(null);
+  const [pointsBreakdown, setPointsBreakdown] = useState<any>(null);
+  const [pointsExpanded, setPointsExpanded] = useState(false);
 
   // Fetch pillars if not provided
   useEffect(() => {
