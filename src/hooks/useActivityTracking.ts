@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-// Detect training category from current route
+const IDLE_TIMEOUT_MS = 90_000; // 90 seconds — no interaction = pause time accrual
+
 function getRouteCategory(): string {
   const path = window.location.pathname;
   if (/^\/app\/training\/videos\/[^/]+/.test(path)) return 'video';
@@ -11,74 +12,74 @@ function getRouteCategory(): string {
   return 'other';
 }
 
-// Track user activity and update last_active_at
+/**
+ * Qualified-time activity tracker with anti-idle protection.
+ *
+ * Rules:
+ * - Only counts time when tab is VISIBLE (Page Visibility API)
+ * - Only counts time when user has interacted within the last 90 seconds
+ * - Heartbeat fires every 60 seconds; skips if idle or hidden
+ */
 export function useActivityTracking() {
   const { user } = useAuth();
   const lastUpdateRef = useRef<number>(0);
-  const isActiveRef = useRef<boolean>(true);
+  const lastInteractionRef = useRef<number>(Date.now());
   const isVisibleRef = useRef<boolean>(true);
 
   useEffect(() => {
     if (!user) return;
 
-    // Page Visibility API — pause tracking when tab is hidden
-    const handleVisibilityChange = () => {
+    // --- Visibility ---
+    const handleVisibility = () => {
       isVisibleRef.current = document.visibilityState === 'visible';
+      if (isVisibleRef.current) {
+        // Reset interaction timer when tab regains focus
+        lastInteractionRef.current = Date.now();
+      }
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibility);
 
-    const updateActivity = async () => {
-      // Skip if tab is hidden
+    // --- Interaction tracking ---
+    const handleInteraction = () => {
+      lastInteractionRef.current = Date.now();
+    };
+    const events = ['mousemove', 'keypress', 'click', 'scroll', 'touchstart', 'mousedown', 'keydown'];
+    events.forEach(e => window.addEventListener(e, handleInteraction, { passive: true }));
+
+    // --- Heartbeat ---
+    const tick = async () => {
+      // Guard: tab hidden
       if (!isVisibleRef.current) return;
 
-      const now = Date.now();
-      // Only update if at least 60 seconds have passed (fixes 2x overcount)
-      if (now - lastUpdateRef.current < 60000) return;
+      // Guard: idle (no interaction for 90 s)
+      if (Date.now() - lastInteractionRef.current > IDLE_TIMEOUT_MS) return;
 
+      // Guard: rate-limit to 1 call per 60 s
+      const now = Date.now();
+      if (now - lastUpdateRef.current < 60_000) return;
       lastUpdateRef.current = now;
 
       try {
         const category = getRouteCategory();
-        // Record daily time (handles time increment + profiles.time_this_week_minutes)
+        // Record 1 minute of qualified time
         await (supabase.rpc as any)('record_daily_time', {
           _user_id: user.id,
           _category: category,
         });
-        // Update presence (last_active_at, is_active_now) — no time increment
+        // Update presence
         await supabase.rpc('update_user_activity', { _user_id: user.id });
-      } catch (err) {
-        // Silent fail - activity tracking is non-critical
+      } catch {
+        // Silent — non-critical
       }
     };
 
-    // Update on initial load
-    updateActivity();
-
-    // Track user interactions
-    const handleActivity = () => {
-      isActiveRef.current = true;
-    };
-
-    // Event listeners for activity detection
-    const events = ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'];
-    events.forEach(event => {
-      window.addEventListener(event, handleActivity, { passive: true });
-    });
-
-    // Periodic heartbeat every 60 seconds if active and visible
-    const intervalId = setInterval(() => {
-      if (isActiveRef.current && isVisibleRef.current) {
-        updateActivity();
-        isActiveRef.current = false; // Reset, will be set true on next activity
-      }
-    }, 60000);
+    tick(); // fire immediately on mount
+    const id = setInterval(tick, 60_000);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      events.forEach(event => {
-        window.removeEventListener(event, handleActivity);
-      });
-      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      events.forEach(e => window.removeEventListener(e, handleInteraction));
+      clearInterval(id);
     };
   }, [user]);
 }
@@ -86,24 +87,20 @@ export function useActivityTracking() {
 // Format last active time for display
 export function formatLastActive(lastActiveAt: string | null): string {
   if (!lastActiveAt) return 'Never';
-
   const lastActive = new Date(lastActiveAt);
   const now = new Date();
   const diffMs = now.getTime() - lastActive.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
-
   if (diffMins < 5) return 'Active now';
   if (diffMins < 60) return `Active ${diffMins} min ago`;
   if (diffHours < 24) return `Active ${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
   if (diffDays === 1) return 'Active yesterday';
   if (diffDays < 7) return `Active ${diffDays} days ago`;
-
   return `Last active ${lastActive.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 }
 
-// Format time in minutes to hours/minutes display
 export function formatTimeMinutes(minutes: number): string {
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);

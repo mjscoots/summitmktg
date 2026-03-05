@@ -369,8 +369,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           }
         } catch (aiError) { console.error('AI error:', aiError); toast.error('AI Coach is unavailable right now'); } finally { setIsAiLoading(false); }
       } else {
-        const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
+        const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
         if (error) throw error;
+        // Award chat points (non-blocking, with anti-spam)
+        if (msg) {
+          (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id }).catch(() => {});
+        }
       }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send message'); } finally { setIsSending(false); }
   };
@@ -646,7 +650,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   </div>
                 </div>
 
-                {activeChannel !== 'ai-coach' && <MessageReactions messageId={msg.id} profileMap={profileMap} />}
+                {activeChannel !== 'ai-coach' && <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} />}
                 {activeChannel !== 'ai-coach' && idx === channelMessages.length - 1 && <ReadReceipts messageId={msg.id} profileMap={profileMap} isLastInGroup={true} />}
               </div>
             </div>

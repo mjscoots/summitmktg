@@ -29,9 +29,10 @@ interface Reaction {
 interface MessageReactionsProps {
   messageId: string;
   profileMap: Record<string, { full_name: string }>;
+  messageAuthorId?: string;
 }
 
-export function MessageReactions({ messageId, profileMap }: MessageReactionsProps) {
+export function MessageReactions({ messageId, profileMap, messageAuthorId }: MessageReactionsProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [showPicker, setShowPicker] = useState<'quick' | 'full' | false>(false);
@@ -149,6 +150,14 @@ export function MessageReactions({ messageId, profileMap }: MessageReactionsProp
       await supabase
         .from('chat_reactions')
         .insert({ message_id: messageId, user_id: user.id, emoji });
+      // Award reaction points (non-blocking)
+      if (messageAuthorId) {
+        (supabase.rpc as any)('award_reaction_points', {
+          _reactor_user_id: user.id,
+          _author_user_id: messageAuthorId,
+          _message_id: messageId,
+        }).catch(() => {});
+      }
     }
 
     setShowPicker(false);

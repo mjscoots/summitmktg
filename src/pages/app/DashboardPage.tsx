@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -11,14 +12,18 @@ import { OneOnOneTasks } from '@/components/dashboard/OneOnOneTasks';
 import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { ResumeTrainingCard } from '@/components/dashboard/ResumeTrainingCard';
 import { Card } from '@/components/ui/card';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Trophy, Info } from 'lucide-react';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
+import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
+import { PointSystemModal } from '@/components/points/PointSystemModal';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { role, profile, isLoading } = useAuth();
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
+  const [showPoints, setShowPoints] = useState(false);
+  const [showPointSystem, setShowPointSystem] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
@@ -38,6 +43,15 @@ export default function DashboardPage() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         <OnboardingAlert />
 
+        {/* Point system banner */}
+        <button
+          onClick={() => setShowPointSystem(true)}
+          className="w-full mb-3 p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-left flex items-center gap-2 hover:bg-yellow-500/15 transition-colors"
+        >
+          <Info className="w-4 h-4 text-yellow-400 shrink-0" />
+          <span className="text-xs text-yellow-200/80 font-medium">Point system revised — hours logged is now #1. <span className="underline">See details</span></span>
+        </button>
+
         {isManager ? (
           <CommandCenterHeader />
         ) : (
@@ -53,6 +67,16 @@ export default function DashboardPage() {
             <StreakDisplay variant="compact" clickable />
           </div>
         )}
+
+        {/* See My Points button */}
+        <button
+          onClick={() => setShowPoints(true)}
+          className="w-full mb-4 p-3 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 flex items-center gap-2.5 hover:from-primary/15 hover:to-primary/10 transition-all"
+        >
+          <Trophy className="w-4 h-4 text-primary" />
+          <span className="text-sm font-bold text-foreground">See My Points</span>
+          <span className="text-xs text-muted-foreground ml-auto">Breakdown + Caps →</span>
+        </button>
 
         {/* Quick Actions */}
         <QuickActions />
