@@ -108,6 +108,8 @@ export function MemberProfileModal({
       setOnboardingStatus(null);
       setStreakDays(0);
       setTeamName(null);
+      setPointsBreakdown(null);
+      setPointsExpanded(false);
     }
   }, [open, member?.user_id]);
 
