@@ -137,6 +137,30 @@ export function MemberProfileModal({
         .eq('user_id', member.user_id)
         .single();
       if (sData) setStreakDays(sData.current_streak || 0);
+
+      // Points breakdown — weekly
+      try {
+        const { data: lbData } = await (supabase as any).rpc('get_current_leaderboard');
+        if (lbData) {
+          const myEntry = (lbData as any[]).find((r: any) => r.user_id === member.user_id);
+          if (myEntry) {
+            setPointsBreakdown({
+              total: myEntry.total_points || 0,
+              hours: myEntry.hours_points || 0,
+              threshold: myEntry.threshold_bonus || 0,
+              login: myEntry.login_points || 0,
+              streak: myEntry.streak_points || 0,
+              chat: myEntry.chat_points || 0,
+              lessons: myEntry.lesson_points || 0,
+              video: myEntry.video_points || 0,
+              manual: myEntry.manual_points || 0,
+              reactions: myEntry.reaction_points || 0,
+              oneOnOne: myEntry.one_on_one_points || 0,
+              rank: myEntry.rank || 0,
+            });
+          }
+        }
+      } catch (e) { /* non-critical */ }
     };
     fetchExtra();
   }, [open, member?.user_id]);
