@@ -18,6 +18,70 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 
+function PointsCard() {
+  const { data } = useMyPoints();
+  if (!data) return null;
+
+  const hoursToday = Math.floor(data.timeTodayMinutes / 60);
+  const minsToday = data.timeTodayMinutes % 60;
+
+  // Find top and lowest category from weekly events
+  const categories = [
+    { label: 'Hours', value: data.weeklyHoursPoints },
+    { label: 'Streak', value: (data.weeklyEvents.daily_login || 0) + (data.weeklyEvents.streak || 0) },
+    { label: 'Chat', value: data.weeklyEvents.chat || 0 },
+    { label: 'Lessons', value: data.weeklyEvents.lesson || 0 },
+    { label: 'Videos', value: data.weeklyEvents.video || 0 },
+  ].filter(c => c.value > 0);
+
+  const topCategory = categories.length > 0 ? categories.sort((a, b) => b.value - a.value)[0] : null;
+  const lowestCategory = categories.length > 1 ? categories[categories.length - 1] : null;
+
+  return (
+    <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        <Trophy className="w-4 h-4 text-yellow-500" />
+        <h3 className="font-semibold text-foreground text-sm">Points Card</h3>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
+          <p className="text-[9px] text-muted-foreground font-bold uppercase">This Week</p>
+          <p className="text-xl font-black text-primary tabular-nums">{data.weeklyTotal.toLocaleString()}</p>
+        </div>
+        <div className="p-3 rounded-lg bg-muted/50 border border-border/30 text-center">
+          <p className="text-[9px] text-muted-foreground font-bold uppercase">All-Time</p>
+          <p className="text-xl font-black text-foreground tabular-nums">{data.allTimeTotal.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="p-2 rounded-lg bg-muted/30">
+          <Flame className={cn("w-3.5 h-3.5 mx-auto mb-0.5", data.currentStreak >= 7 ? "text-orange-500" : "text-orange-400/70")} />
+          <p className="text-xs font-bold">{data.currentStreak}d</p>
+          <p className="text-[9px] text-muted-foreground">Streak</p>
+        </div>
+        <div className="p-2 rounded-lg bg-muted/30">
+          <Clock className="w-3.5 h-3.5 mx-auto mb-0.5 text-blue-400" />
+          <p className="text-xs font-bold">{hoursToday}h {minsToday}m</p>
+          <p className="text-[9px] text-muted-foreground">Today</p>
+        </div>
+        <div className="p-2 rounded-lg bg-muted/30">
+          <TrendingUp className="w-3.5 h-3.5 mx-auto mb-0.5 text-primary" />
+          <p className="text-xs font-bold">{topCategory?.label || '—'}</p>
+          <p className="text-[9px] text-muted-foreground">Top Source</p>
+        </div>
+      </div>
+
+      {lowestCategory && (
+        <p className="text-[10px] text-muted-foreground mt-2 text-center">
+          💡 Opportunity: Boost your <strong>{lowestCategory.label}</strong> points
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, role, isLoading: authLoading, refreshProfile, signOut } = useAuth();
