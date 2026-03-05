@@ -79,6 +79,19 @@ function PointsCard() {
         </div>
       </div>
 
+      {/* Category breakdown */}
+      {sorted.length > 0 && (
+        <div className="mt-3 space-y-1.5">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">This Week Breakdown</p>
+          {sorted.map(c => (
+            <div key={c.label} className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">{c.icon} {c.label}</span>
+              <span className="font-semibold text-foreground tabular-nums">{c.value.toLocaleString()} pts</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {lowestCategory && (
         <p className="text-[10px] text-muted-foreground mt-2 text-center">
           💡 Opportunity: Boost your <strong>{lowestCategory.label}</strong> points
