@@ -22,6 +22,8 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { role, profile, isLoading } = useAuth();
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
+  const [showPoints, setShowPoints] = useState(false);
+  const [showPointSystem, setShowPointSystem] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
