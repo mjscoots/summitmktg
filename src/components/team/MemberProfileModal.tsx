@@ -333,6 +333,60 @@ export function MemberProfileModal({
                 </div>
               )}
 
+              {/* Points Breakdown */}
+              {!isNLC && pointsBreakdown && pointsBreakdown.total > 0 && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <button
+                    onClick={() => setPointsExpanded(!pointsExpanded)}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-primary" />
+                      <p className="text-xs font-semibold text-foreground">Weekly Points</p>
+                      {pointsBreakdown.rank > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                          #{pointsBreakdown.rank}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-primary tabular-nums">{pointsBreakdown.total.toLocaleString()} pts</span>
+                      {pointsExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {pointsExpanded && (
+                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
+                      {[
+                        { label: 'Hours Logged', value: pointsBreakdown.hours, icon: Clock, color: 'text-blue-400' },
+                        { label: 'Time Bonus', value: pointsBreakdown.threshold, icon: Target, color: 'text-primary' },
+                        { label: 'Daily Login', value: pointsBreakdown.login, icon: Zap, color: 'text-primary' },
+                        { label: 'Streak', value: pointsBreakdown.streak, icon: Flame, color: 'text-orange-400' },
+                        { label: 'Lessons', value: pointsBreakdown.lessons, icon: BookOpen, color: 'text-primary' },
+                        { label: 'Videos', value: pointsBreakdown.video, icon: Video, color: 'text-primary' },
+                        { label: 'Chat', value: pointsBreakdown.chat, icon: MessageSquare, color: 'text-emerald-400' },
+                        { label: 'Reactions', value: pointsBreakdown.reactions, icon: Star, color: 'text-primary' },
+                        { label: 'Manual', value: pointsBreakdown.manual, icon: FileText, color: 'text-primary' },
+                        { label: '1:1 Sessions', value: pointsBreakdown.oneOnOne, icon: Users, color: 'text-primary' },
+                      ]
+                        .filter(item => item.value > 0)
+                        .sort((a, b) => b.value - a.value)
+                        .map(item => (
+                          <div key={item.label} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <item.icon className={cn("w-3.5 h-3.5", item.color)} />
+                              <span className="text-xs text-muted-foreground">{item.label}</span>
+                            </div>
+                            <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      {pointsBreakdown.total === 0 && (
+                        <p className="text-xs text-muted-foreground text-center">No points this week</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Training Progress Bar */}
               {!isNLC && (
                 <div className="p-3 bg-muted/30 rounded-lg">
