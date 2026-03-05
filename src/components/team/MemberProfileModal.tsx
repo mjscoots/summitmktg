@@ -15,7 +15,15 @@ import {
   Flame,
   Trophy,
   Clock,
-  Star
+  Star,
+  BookOpen,
+  Video,
+  MessageSquare,
+  Zap,
+  FileText,
+  Target,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { getTeamColor } from '@/lib/teamColors';
 import {
