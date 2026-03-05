@@ -101,28 +101,32 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
     const video = videoRef.current;
     if (!video || isExternal) return;
 
-    const saveState = () => {
+    const handleTimeUpdate = () => {
       currentTimeRef.current = video.currentTime;
       wasPlayingRef.current = !video.paused;
     };
 
     const handleVisibility = () => {
       if (document.hidden) {
-        saveState();
+        // Save state when tab hides
+        currentTimeRef.current = video.currentTime;
+        wasPlayingRef.current = !video.paused;
       } else {
         // Restore position if it drifted (e.g. element was recreated)
         if (video.readyState >= 1 && Math.abs(video.currentTime - currentTimeRef.current) > 2) {
           video.currentTime = currentTimeRef.current;
+          if (wasPlayingRef.current) {
+            video.play().catch(() => {});
+          }
         }
       }
     };
 
-    video.addEventListener('timeupdate', () => {
-      currentTimeRef.current = video.currentTime;
-    });
+    video.addEventListener('timeupdate', handleTimeUpdate);
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [isExternal, signedUrl]);
