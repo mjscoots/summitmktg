@@ -650,7 +650,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   </div>
                 </div>
 
-                {activeChannel !== 'ai-coach' && <MessageReactions messageId={msg.id} profileMap={profileMap} />}
+                {activeChannel !== 'ai-coach' && <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} />}
                 {activeChannel !== 'ai-coach' && idx === channelMessages.length - 1 && <ReadReceipts messageId={msg.id} profileMap={profileMap} isLastInGroup={true} />}
               </div>
             </div>

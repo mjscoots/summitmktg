@@ -150,6 +150,14 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
       await supabase
         .from('chat_reactions')
         .insert({ message_id: messageId, user_id: user.id, emoji });
+      // Award reaction points (non-blocking)
+      if (messageAuthorId) {
+        (supabase.rpc as any)('award_reaction_points', {
+          _reactor_user_id: user.id,
+          _author_user_id: messageAuthorId,
+          _message_id: messageId,
+        }).catch(() => {});
+      }
     }
 
     setShowPicker(false);
