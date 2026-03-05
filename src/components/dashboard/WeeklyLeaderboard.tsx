@@ -69,16 +69,7 @@ export function WeeklyLeaderboard() {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Debug: verify all users see identical rankings
-  useEffect(() => {
-    if (leaderboard.length > 0) {
-      console.log('[WeeklyLeaderboard] Top 5:', leaderboard.slice(0, 5).map(u => ({
-        rank: u.rank,
-        name: u.full_name,
-        points: u.total_points,
-      })));
-    }
-  }, [leaderboard]);
+  // Removed debug log to reduce console noise
 
   const getRankDisplay = (rank: number) => {
     switch (rank) {
