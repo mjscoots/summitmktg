@@ -754,6 +754,57 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_point_caps: {
+        Row: {
+          chat_hour_window_start: string | null
+          chat_messages_counted_this_hour: number | null
+          chat_points: number | null
+          created_at: string | null
+          date: string
+          hours_points: number | null
+          id: string
+          lesson_points: number | null
+          lessons_completed_today: number | null
+          manual_points: number | null
+          reaction_given_points: number | null
+          reaction_received_points: number | null
+          user_id: string
+          video_points: number | null
+        }
+        Insert: {
+          chat_hour_window_start?: string | null
+          chat_messages_counted_this_hour?: number | null
+          chat_points?: number | null
+          created_at?: string | null
+          date: string
+          hours_points?: number | null
+          id?: string
+          lesson_points?: number | null
+          lessons_completed_today?: number | null
+          manual_points?: number | null
+          reaction_given_points?: number | null
+          reaction_received_points?: number | null
+          user_id: string
+          video_points?: number | null
+        }
+        Update: {
+          chat_hour_window_start?: string | null
+          chat_messages_counted_this_hour?: number | null
+          chat_points?: number | null
+          created_at?: string | null
+          date?: string
+          hours_points?: number | null
+          id?: string
+          lesson_points?: number | null
+          lessons_completed_today?: number | null
+          manual_points?: number | null
+          reaction_given_points?: number | null
+          reaction_received_points?: number | null
+          user_id?: string
+          video_points?: number | null
+        }
+        Relationships: []
+      }
       daily_training_time: {
         Row: {
           created_at: string
@@ -1225,6 +1276,33 @@ export type Database = {
           },
         ]
       }
+      point_events: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          points: number
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          points: number
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           approved: boolean | null
@@ -1238,6 +1316,7 @@ export type Database = {
           id: string
           is_active_now: boolean | null
           last_active_at: string | null
+          legacy_points_snapshot: number | null
           nickname: string | null
           onboarding_status: string | null
           organization: string | null
@@ -1270,6 +1349,7 @@ export type Database = {
           id?: string
           is_active_now?: boolean | null
           last_active_at?: string | null
+          legacy_points_snapshot?: number | null
           nickname?: string | null
           onboarding_status?: string | null
           organization?: string | null
@@ -1302,6 +1382,7 @@ export type Database = {
           id?: string
           is_active_now?: boolean | null
           last_active_at?: string | null
+          legacy_points_snapshot?: number | null
           nickname?: string | null
           onboarding_status?: string | null
           organization?: string | null
@@ -2472,9 +2553,42 @@ export type Database = {
       }
     }
     Functions: {
+      award_chat_message_points: {
+        Args: { _content: string; _message_id?: string; _user_id: string }
+        Returns: number
+      }
+      award_lesson_completion_points: {
+        Args: { _lesson_id: string; _user_id: string }
+        Returns: number
+      }
+      award_points_v2: {
+        Args: {
+          _category: string
+          _metadata?: Json
+          _points: number
+          _user_id: string
+        }
+        Returns: number
+      }
+      award_quiz_bonus_points: {
+        Args: { _lesson_id: string; _score: number; _user_id: string }
+        Returns: number
+      }
+      award_reaction_points: {
+        Args: {
+          _author_user_id: string
+          _message_id: string
+          _reactor_user_id: string
+        }
+        Returns: undefined
+      }
       award_training_points: {
         Args: { _points: number; _user_id: string }
         Returns: undefined
+      }
+      award_video_watch_points: {
+        Args: { _user_id: string; _video_id: string }
+        Returns: number
       }
       check_rate_limit: {
         Args: {
@@ -2488,11 +2602,14 @@ export type Database = {
         Args: { _limit?: number }
         Returns: {
           avatar_url: string
-          cumulative_points: number
           current_streak: number
           full_name: string
+          legacy_points: number
+          new_event_points: number
+          new_hours_points: number
           nickname: string
           team_name: string
+          total_points: number
           user_id: string
         }[]
       }
@@ -2500,24 +2617,24 @@ export type Database = {
         Args: never
         Returns: {
           avatar_url: string
+          chat_points: number
           current_streak: number
           full_name: string
           hours_points: number
           lesson_points: number
-          lessons_completed: number
+          login_points: number
           manual_points: number
           nickname: string
           one_on_one_points: number
           rank: number
+          reaction_points: number
           streak_points: number
           team_name: string
           threshold_bonus: number
           time_this_week_minutes: number
           total_points: number
-          training_points: number
           user_id: string
           video_points: number
-          videos_watched: number
         }[]
       }
       get_downline_from_edges: {
@@ -2573,6 +2690,7 @@ export type Database = {
               user_id: string
             }[]
           }
+      get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
         Returns: {
@@ -2663,9 +2781,10 @@ export type Database = {
       }
       mark_inactive_users: { Args: never; Returns: undefined }
       recalculate_all_time_points: { Args: never; Returns: undefined }
-      record_daily_login:
-        | { Args: { _user_id: string }; Returns: Json }
-        | { Args: { _timezone?: string; _user_id: string }; Returns: Json }
+      record_daily_login: {
+        Args: { _timezone?: string; _user_id: string }
+        Returns: Json
+      }
       record_daily_time: {
         Args: { _category: string; _user_id: string }
         Returns: undefined
