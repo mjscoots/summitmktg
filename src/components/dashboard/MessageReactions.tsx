@@ -32,7 +32,7 @@ interface MessageReactionsProps {
   messageAuthorId?: string;
 }
 
-export function MessageReactions({ messageId, profileMap }: MessageReactionsProps) {
+export function MessageReactions({ messageId, profileMap, messageAuthorId }: MessageReactionsProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [showPicker, setShowPicker] = useState<'quick' | 'full' | false>(false);
