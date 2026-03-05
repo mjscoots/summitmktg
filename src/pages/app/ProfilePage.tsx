@@ -25,17 +25,23 @@ function PointsCard() {
   const hoursToday = Math.floor(data.timeTodayMinutes / 60);
   const minsToday = data.timeTodayMinutes % 60;
 
-  // Find top and lowest category from weekly events
+  // All point-earning categories
   const categories = [
-    { label: 'Hours', value: data.weeklyHoursPoints },
-    { label: 'Streak', value: (data.weeklyEvents.daily_login || 0) + (data.weeklyEvents.streak || 0) },
-    { label: 'Chat', value: data.weeklyEvents.chat || 0 },
-    { label: 'Lessons', value: data.weeklyEvents.lesson || 0 },
-    { label: 'Videos', value: data.weeklyEvents.video || 0 },
+    { label: 'Hours', value: data.weeklyHoursPoints, icon: '⏱' },
+    { label: 'Streak', value: (data.weeklyEvents.daily_login || 0) + (data.weeklyEvents.streak || 0), icon: '🔥' },
+    { label: 'Chat', value: data.weeklyEvents.chat || 0, icon: '💬' },
+    { label: 'Lessons', value: data.weeklyEvents.lesson || 0, icon: '📖' },
+    { label: 'Videos', value: data.weeklyEvents.video || 0, icon: '🎥' },
+    { label: 'Chapters', value: data.weeklyEvents.manual || 0, icon: '📋' },
+    { label: 'Reactions', value: (data.weeklyEvents.reaction_given || 0) + (data.weeklyEvents.reaction_received || 0), icon: '👍' },
+    { label: '1:1s', value: data.weeklyEvents.one_on_one || 0, icon: '🤝' },
+    { label: 'Attendance', value: data.weeklyEvents.attendance || 0, icon: '✅' },
+    { label: 'Bonus', value: data.weeklyThresholdBonus || 0, icon: '🏆' },
   ].filter(c => c.value > 0);
 
-  const topCategory = categories.length > 0 ? categories.sort((a, b) => b.value - a.value)[0] : null;
-  const lowestCategory = categories.length > 1 ? categories[categories.length - 1] : null;
+  const sorted = [...categories].sort((a, b) => b.value - a.value);
+  const topCategory = sorted.length > 0 ? sorted[0] : null;
+  const lowestCategory = sorted.length > 1 ? sorted[sorted.length - 1] : null;
 
   return (
     <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
