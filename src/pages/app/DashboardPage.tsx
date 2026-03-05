@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -11,9 +12,11 @@ import { OneOnOneTasks } from '@/components/dashboard/OneOnOneTasks';
 import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { ResumeTrainingCard } from '@/components/dashboard/ResumeTrainingCard';
 import { Card } from '@/components/ui/card';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Trophy, Info } from 'lucide-react';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
+import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
+import { PointSystemModal } from '@/components/points/PointSystemModal';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
