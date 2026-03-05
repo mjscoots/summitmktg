@@ -334,6 +334,9 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Points Baseball Card */}
+        <PointsCard />
+
         {/* Profile Info */}
         <div className="bg-card rounded-xl border border-border/50 p-6 mb-6">
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
