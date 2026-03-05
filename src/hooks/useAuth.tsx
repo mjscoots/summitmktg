@@ -141,6 +141,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
+
+        // For token refreshes, only update session/user if the user actually changed.
+        // This prevents unnecessary re-renders that unmount components (e.g. video player).
+        if (event === 'TOKEN_REFRESHED' && session?.user) {
+          setSession(prev => {
+            // Only update if token actually differs
+            if (prev?.access_token === session.access_token) return prev;
+            return session;
+          });
+          // Don't update user/profile/role — same user, same data.
+          return;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
         hasActiveSessionRef.current = !!session;
