@@ -68,6 +68,16 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* See My Points button */}
+        <button
+          onClick={() => setShowPoints(true)}
+          className="w-full mb-4 p-3 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 flex items-center gap-2.5 hover:from-primary/15 hover:to-primary/10 transition-all"
+        >
+          <Trophy className="w-4 h-4 text-primary" />
+          <span className="text-sm font-bold text-foreground">See My Points</span>
+          <span className="text-xs text-muted-foreground ml-auto">Breakdown + Caps →</span>
+        </button>
+
         {/* Quick Actions */}
         <QuickActions />
 
