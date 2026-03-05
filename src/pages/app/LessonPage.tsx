@@ -456,6 +456,16 @@ export default function LessonPage() {
 
     setLessonCompleted(true);
 
+    // Check if already completed to avoid double-awarding
+    const { data: existing } = await supabase
+      .from('lesson_progress')
+      .select('completed_at')
+      .eq('user_id', user.id)
+      .eq('lesson_id', lessonId)
+      .maybeSingle();
+
+    const alreadyCompleted = !!existing?.completed_at;
+
     await supabase
       .from('lesson_progress')
       .upsert({
@@ -464,6 +474,14 @@ export default function LessonPage() {
         completed_at: new Date().toISOString(),
         quiz_passed: true,
       }, { onConflict: 'user_id,lesson_id' });
+
+    // Award points for first-time completion
+    if (!alreadyCompleted) {
+      await (supabase.rpc as any)('award_lesson_completion_points', {
+        _user_id: user.id,
+        _lesson_id: lessonId,
+      });
+    }
     
     recordActivity();
   }, [user, lessonId, recordActivity]);
