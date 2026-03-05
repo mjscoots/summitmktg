@@ -5,6 +5,61 @@ import { supabase } from '@/integrations/supabase/client';
 import { getCleanVimeoEmbedUrl } from '@/lib/videoUtils';
 import Player from '@vimeo/player';
 
+// Extract Vimeo video ID
+function getVimeoId(url: string): string | null {
+  const match = url.match(/vimeo\.com\/(\d+)/);
+  return match ? match[1] : null;
+}
+
+// --- VimeoEmbed defined OUTSIDE VideoPlayer to prevent unmount/remount ---
+function VimeoEmbed({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded }: {
+  vimeoSrc: string; vimeoTitle?: string; vimeoClassName?: string;
+  vimeoOnEnded?: () => void;
+}) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const hasTriggeredComplete = useRef(false);
+  const onEndedRef = useRef(vimeoOnEnded);
+  const vimeoId = getVimeoId(vimeoSrc);
+
+  onEndedRef.current = vimeoOnEnded;
+
+  useEffect(() => {
+    hasTriggeredComplete.current = false;
+  }, [vimeoSrc]);
+
+  useEffect(() => {
+    if (!iframeRef.current) return;
+
+    const player = new Player(iframeRef.current);
+
+    player.on('ended', () => {
+      if (!hasTriggeredComplete.current) {
+        hasTriggeredComplete.current = true;
+        onEndedRef.current?.();
+      }
+    });
+
+    return () => {
+      player.off('ended');
+      player.destroy();
+    };
+  }, [vimeoSrc]);
+
+  return (
+    <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-black", vimeoClassName)}>
+      <iframe
+        ref={iframeRef}
+        src={getCleanVimeoEmbedUrl(vimeoId || '')}
+        title={vimeoTitle || 'Video'}
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full"
+        style={{ border: 'none' }}
+      />
+    </div>
+  );
+}
+
 interface VideoPlayerProps {
   src: string;
   title?: string;
@@ -15,6 +70,8 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ src, title, onEnded, onProgress, className }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const currentTimeRef = useRef(0);
+  const wasPlayingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -39,60 +96,36 @@ export function VideoPlayer({ src, title, onEnded, onProgress, className }: Vide
     return match ? match[1] : null;
   };
 
-  // Extract Vimeo video ID
-  const getVimeoId = (url: string) => {
-    const match = url.match(/vimeo\.com\/(\d+)/);
-    return match ? match[1] : null;
-  };
+  // Preserve playback position for native HTML5 video across visibility changes
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || isExternal) return;
 
-  // Vimeo embed — completion only on 'ended' event
-  const VimeoEmbed = ({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded }: {
-    vimeoSrc: string; vimeoTitle?: string; vimeoClassName?: string;
-    vimeoOnEnded?: () => void;
-  }) => {
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-    const hasTriggeredComplete = useRef(false);
-    const onEndedRef = useRef(vimeoOnEnded);
-    const vimeoId = getVimeoId(vimeoSrc);
+    const saveState = () => {
+      currentTimeRef.current = video.currentTime;
+      wasPlayingRef.current = !video.paused;
+    };
 
-    onEndedRef.current = vimeoOnEnded;
-
-    useEffect(() => {
-      hasTriggeredComplete.current = false;
-    }, [vimeoSrc]);
-
-    useEffect(() => {
-      if (!iframeRef.current) return;
-
-      const player = new Player(iframeRef.current);
-
-      player.on('ended', () => {
-        if (!hasTriggeredComplete.current) {
-          hasTriggeredComplete.current = true;
-          onEndedRef.current?.();
+    const handleVisibility = () => {
+      if (document.hidden) {
+        saveState();
+      } else {
+        // Restore position if it drifted (e.g. element was recreated)
+        if (video.readyState >= 1 && Math.abs(video.currentTime - currentTimeRef.current) > 2) {
+          video.currentTime = currentTimeRef.current;
         }
-      });
+      }
+    };
 
-      return () => {
-        player.off('ended');
-        player.destroy();
-      };
-    }, [vimeoSrc]);
+    video.addEventListener('timeupdate', () => {
+      currentTimeRef.current = video.currentTime;
+    });
+    document.addEventListener('visibilitychange', handleVisibility);
 
-    return (
-      <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-black", vimeoClassName)}>
-        <iframe
-          ref={iframeRef}
-          src={getCleanVimeoEmbedUrl(vimeoId || '')}
-          title={vimeoTitle || 'Video'}
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-          className="w-full h-full"
-          style={{ border: 'none' }}
-        />
-      </div>
-    );
-  };
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [isExternal, signedUrl]);
 
   useEffect(() => {
     const fetchSignedUrl = async () => {
