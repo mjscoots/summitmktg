@@ -43,6 +43,15 @@ export default function DashboardPage() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         <OnboardingAlert />
 
+        {/* Point system banner */}
+        <button
+          onClick={() => setShowPointSystem(true)}
+          className="w-full mb-3 p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-left flex items-center gap-2 hover:bg-yellow-500/15 transition-colors"
+        >
+          <Info className="w-4 h-4 text-yellow-400 shrink-0" />
+          <span className="text-xs text-yellow-200/80 font-medium">Point system revised — hours logged is now #1. <span className="underline">See details</span></span>
+        </button>
+
         {isManager ? (
           <CommandCenterHeader />
         ) : (
