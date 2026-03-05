@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, Activity, Video, FileText, Users } from 'lucide-react';
+import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, Activity, Video, FileText, Users, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
@@ -13,10 +13,14 @@ import {
 } from "@/components/ui/dialog";
 
 const POINTS = {
-  HOUR_LOGGED: 40,
-  LESSON_COMPLETED: 100,
+  HOUR_LOGGED: 100,
+  LESSON_FIRST_3: 60,
+  LESSON_NEXT_3: 30,
+  LESSON_BEYOND: 10,
   VIDEO_WATCHED: 40,
-  STREAK_DAY: 15,
+  STREAK_DAY: 25,
+  DAILY_LOGIN: 75,
+  CHAT_MESSAGE: 20,
   MANUAL_CHAPTER: 30,
   ONE_ON_ONE: 50,
 };
@@ -31,7 +35,6 @@ interface LeaderboardEntry {
   nickname: string | null;
   avatar_url: string | null;
   totalPoints: number;
-  // Weekly-specific fields
   lessonsCompleted: number;
   totalLessons: number;
   streakDays: number;
@@ -44,10 +47,13 @@ interface LeaderboardEntry {
   breakdown: {
     hoursPoints: number;
     thresholdBonus: number;
+    loginPoints: number;
+    streakPoints: number;
+    chatPoints: number;
     lessonsPoints: number;
     videoPoints: number;
-    streakPoints: number;
     manualPoints: number;
+    reactionPoints: number;
     oneOnOnePoints: number;
   };
   weeklyBadge: string | null;
@@ -59,9 +65,9 @@ function displayName(entry: LeaderboardEntry) {
 
 const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: string; check: (e: LeaderboardEntry, rank: number) => boolean }[] = [
   { id: 'champion', icon: Crown, label: 'Weekly Champion', color: 'text-yellow-500', check: (_, rank) => rank === 1 },
-  { id: 'quiz-master', icon: Target, label: 'Quiz Master', color: 'text-purple-500', check: (e) => e.avgQuizScore >= 95 },
-  { id: 'grinder', icon: Clock, label: 'Grinder', color: 'text-blue-500', check: (e) => e.hoursThisWeek >= 5 },
-  { id: 'fast-learner', icon: Zap, label: 'Fast Learner', color: 'text-amber-500', check: (e) => e.lessonsCompleted >= 10 },
+  { id: 'grinder', icon: Clock, label: 'Grinder (5h+)', color: 'text-blue-500', check: (e) => e.hoursThisWeek >= 5 },
+  { id: 'consistent', icon: Flame, label: 'Consistent (7d+)', color: 'text-orange-500', check: (e) => e.streakDays >= 7 },
+  { id: 'social', icon: MessageSquare, label: 'Social', color: 'text-emerald-500', check: (e) => (e.breakdown.chatPoints || 0) >= 200 },
 ];
 
 export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardProps) {
@@ -81,7 +87,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
         let leaderboard: LeaderboardEntry[] = [];
 
         if (mode === 'overall') {
-          // ALL-TIME: Use get_all_time_leaderboard RPC
           const { data, error } = await (supabase as any).rpc('get_all_time_leaderboard', { _limit: 50 });
           if (error) {
             console.error('All-time leaderboard RPC error:', error);
@@ -95,7 +100,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
             full_name: row.full_name,
             nickname: row.nickname || null,
             avatar_url: row.avatar_url,
-            totalPoints: row.cumulative_points || 0,
+            totalPoints: row.total_points || 0,
             lessonsCompleted: 0,
             totalLessons: 1,
             streakDays: row.current_streak || 0,
@@ -105,11 +110,10 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
             isActiveToday: false,
             timeThisWeekMinutes: 0,
             teamName: row.team_name || null,
-            breakdown: { hoursPoints: 0, thresholdBonus: 0, lessonsPoints: 0, videoPoints: 0, streakPoints: 0, manualPoints: 0, oneOnOnePoints: 0 },
+            breakdown: { hoursPoints: 0, thresholdBonus: 0, loginPoints: 0, streakPoints: 0, chatPoints: 0, lessonsPoints: 0, videoPoints: 0, manualPoints: 0, reactionPoints: 0, oneOnOnePoints: 0 },
             weeklyBadge: null,
           }));
         } else {
-          // WEEKLY: Use get_current_leaderboard RPC
           const { data, error } = await (supabase as any).rpc('get_current_leaderboard');
           if (error) {
             console.error('Weekly leaderboard RPC error:', error);
@@ -138,16 +142,18 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               breakdown: {
                 hoursPoints: row.hours_points || 0,
                 thresholdBonus: row.threshold_bonus || 0,
+                loginPoints: row.login_points || 0,
+                streakPoints: row.streak_points || 0,
+                chatPoints: row.chat_points || 0,
                 lessonsPoints: row.lesson_points || 0,
                 videoPoints: row.video_points || 0,
-                streakPoints: row.streak_points || 0,
                 manualPoints: row.manual_points || 0,
+                reactionPoints: row.reaction_points || 0,
                 oneOnOnePoints: row.one_on_one_points || 0,
               },
               weeklyBadge: null,
             }));
 
-          // Assign weekly badges
           leaderboard.forEach((entry, index) => {
             for (const badge of WEEKLY_BADGES) {
               if (badge.check(entry, index + 1)) {
@@ -171,14 +177,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     const interval = setInterval(() => fetchLeaderboard(true), 30000);
     return () => clearInterval(interval);
   }, [mode]);
-
-  useEffect(() => {
-    if (entries.length > 0) {
-      console.log(`[Leaderboard ${mode}] Top 5:`, entries.slice(0, 5).map((u, i) => ({
-        rank: i + 1, name: u.full_name, points: u.totalPoints,
-      })));
-    }
-  }, [entries, mode]);
 
   const getBadgeInfo = (badgeId: string | null) => {
     if (!badgeId) return null;
@@ -231,14 +229,28 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
 
         return (
           <div className="mx-4 mt-4 space-y-2">
+            {/* Compact rank bar */}
             <div className={cn("p-4 rounded-xl border bg-gradient-to-r flex items-center gap-3 relative overflow-hidden", accentClass)}>
               {rank === 1 && <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-yellow-500/5 animate-pulse" />}
               <div className="w-12 h-12 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center shrink-0 shadow-lg">
                 <span className="text-base font-black text-primary">#{rank}</span>
               </div>
               <div className="flex-1 min-w-0 relative">
-                <p className="text-sm font-bold text-foreground truncate">
-                  {rank === 1 ? "👑 You're the king. Stay dangerous." : rank <= 3 ? `🔥 Top 3! ${me.totalPoints.toLocaleString()} pts — keep pushing.` : `Top ${topPct}% — ${me.totalPoints.toLocaleString()} pts`}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                    Rank #{rank} • Top {topPct}%
+                  </span>
+                  {isWeekly && <span className="text-[9px] font-bold text-muted-foreground uppercase">Weekly</span>}
+                  {!isWeekly && <span className="text-[9px] font-bold text-muted-foreground uppercase">All-Time</span>}
+                </div>
+                <p className="text-sm font-bold text-foreground mt-1">
+                  {me.totalPoints.toLocaleString()} pts
+                  {rival && pointsToNext > 0 && (
+                    <span className="text-xs text-muted-foreground font-normal ml-2">
+                      {pointsToNext} pts to pass {displayName(rival)}
+                      {chaser && chaserGap < 300 && chaserGap > 0 && ` • ${chaserGap} pts ahead of ${displayName(chaser)}`}
+                    </span>
+                  )}
                 </p>
                 <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
                   {isWeekly && me.timeThisWeekMinutes > 0 && (
@@ -257,37 +269,14 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             </div>
 
-            {rival && pointsToNext > 0 && (
-              <div className="p-3.5 rounded-xl border border-destructive/30 bg-gradient-to-r from-destructive/10 to-transparent flex items-center gap-3 relative overflow-hidden">
-                <div className="p-2 rounded-lg bg-destructive/15 border border-destructive/20">
-                  <Target className="w-4 h-4 text-destructive" />
-                </div>
-                <div className="flex-1 min-w-0 relative">
-                  <p className="text-xs font-black text-foreground">
-                    <span className="text-destructive">{pointsToNext.toLocaleString()} pts</span> behind {displayName(rival)}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-medium">1 lesson = 100 pts. Close the gap NOW.</p>
-                </div>
-              </div>
-            )}
-
-            {chaser && chaserGap < 300 && chaserGap > 0 && (
-              <div className="p-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center gap-2.5">
-                <Zap className="w-4 h-4 text-amber-500 animate-pulse" />
-                <p className="text-[11px] text-amber-400 font-bold">
-                  ⚠️ {displayName(chaser)} is <span className="text-amber-300">{chaserGap} pts</span> behind — they're coming for your spot
-                </p>
-              </div>
-            )}
-
             {/* Weekly threshold progress */}
             {isWeekly && me.timeThisWeekMinutes > 0 && (
               <div className="p-3 rounded-xl border border-border/30 bg-muted/20">
                 <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Weekly Time Bonus</div>
                 {[
-                  { min: 210, bonus: 500, label: '30 min/day' },
-                  { min: 315, bonus: 1000, label: '45 min/day' },
-                  { min: 420, bonus: 1500, label: '60 min/day' },
+                  { min: 300, bonus: 500, label: '5 hrs' },
+                  { min: 600, bonus: 1200, label: '10 hrs' },
+                  { min: 900, bonus: 2000, label: '15 hrs' },
                 ].map(t => {
                   const pct = Math.min(100, Math.round((me.timeThisWeekMinutes / t.min) * 100));
                   const reached = me.timeThisWeekMinutes >= t.min;
@@ -412,16 +401,17 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
             <div className="space-y-3 pt-2">
               {isWeekly ? (
                 <>
-                  {/* Weekly breakdown */}
                   <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">Point Breakdown</div>
                   {[
-                    { icon: Clock, label: 'Hours Logged', detail: `${selectedEntry.hoursThisWeek} hrs × ${POINTS.HOUR_LOGGED}/hr`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
+                    { icon: Clock, label: 'Hours Logged', detail: `${selectedEntry.hoursThisWeek}h × ${POINTS.HOUR_LOGGED}/hr`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
                     ...(selectedEntry.breakdown.thresholdBonus > 0 ? [{ icon: Zap, label: 'Weekly Threshold Bonus', detail: `${selectedEntry.timeThisWeekMinutes} min this week`, value: selectedEntry.breakdown.thresholdBonus, color: 'text-yellow-500' }] : []),
-                    { icon: BookOpen, label: 'Lessons Completed', detail: `${selectedEntry.lessonsCompleted} × ${POINTS.LESSON_COMPLETED}`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-success' },
-                    { icon: Video, label: 'Videos Watched', detail: `${POINTS.VIDEO_WATCHED} pts per watch (rewatches count!)`, value: selectedEntry.breakdown.videoPoints, color: 'text-purple-500' },
-                    { icon: Flame, label: 'Training Streak', detail: `${selectedEntry.streakDays} days × ${POINTS.STREAK_DAY}/day + milestones`, value: selectedEntry.breakdown.streakPoints, color: 'text-orange-500' },
-                    { icon: FileText, label: 'Manual Chapters', detail: `${POINTS.MANUAL_CHAPTER} pts per chapter`, value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
-                    { icon: Users, label: 'Weekly 1:1s', detail: `${POINTS.ONE_ON_ONE} pts each`, value: selectedEntry.breakdown.oneOnOnePoints, color: 'text-pink-500' },
+                    { icon: Flame, label: 'Login + Streak', detail: `${POINTS.DAILY_LOGIN}/day login + ${POINTS.STREAK_DAY}/day streak`, value: (selectedEntry.breakdown.loginPoints || 0) + (selectedEntry.breakdown.streakPoints || 0), color: 'text-orange-500' },
+                    { icon: MessageSquare, label: 'Chat', detail: `${POINTS.CHAT_MESSAGE}/msg (cap 600/day)`, value: selectedEntry.breakdown.chatPoints || 0, color: 'text-emerald-500' },
+                    { icon: BookOpen, label: 'Lessons', detail: `Diminishing: 60→30→10 (cap 300/day)`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-green-500' },
+                    { icon: Video, label: 'Videos', detail: `${POINTS.VIDEO_WATCHED}/watch (cap 200/day)`, value: selectedEntry.breakdown.videoPoints, color: 'text-purple-500' },
+                    { icon: FileText, label: 'Manual', detail: `${POINTS.MANUAL_CHAPTER}/chapter`, value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
+                    ...(selectedEntry.breakdown.reactionPoints > 0 ? [{ icon: Star, label: 'Reactions', detail: `+10 received / +2 given`, value: selectedEntry.breakdown.reactionPoints, color: 'text-pink-500' }] : []),
+                    { icon: Users, label: 'Weekly 1:1s', detail: `${POINTS.ONE_ON_ONE}/each`, value: selectedEntry.breakdown.oneOnOnePoints, color: 'text-pink-500' },
                   ].filter(item => item.value > 0).map(({ icon: Icon, label, detail, value, color }) => (
                     <div key={label} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-2">
@@ -437,7 +427,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 </>
               ) : (
                 <>
-                  {/* All-time summary */}
                   <div className="p-4 bg-muted/50 rounded-lg text-center">
                     <p className="text-xs text-muted-foreground font-medium mb-1">Cumulative Score</p>
                     <p className="text-3xl font-black text-primary">{selectedEntry.totalPoints.toLocaleString()}</p>

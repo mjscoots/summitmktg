@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
-import { Trophy, Flame, Swords, Calendar, Zap, Mountain, Users } from 'lucide-react';
+import { Trophy, Flame, Swords, Calendar, Zap, Mountain, Users, Info } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { PointSystemModal } from '@/components/points/PointSystemModal';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak';
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
   const { role } = useAuth();
+  const [showPointSystem, setShowPointSystem] = useState(false);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
@@ -54,7 +56,18 @@ export default function LeaderboardPage() {
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Dashboard" />
 
-          {/* Aggressive Header */}
+          {/* Point system revised banner */}
+          <button
+            onClick={() => setShowPointSystem(true)}
+            className="w-full mb-4 p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-left flex items-center gap-2 hover:bg-yellow-500/15 transition-colors"
+          >
+            <Info className="w-4 h-4 text-yellow-400 shrink-0" />
+            <span className="text-xs text-yellow-200/80 font-medium">
+              Point system has been revised. Hours logged is now #1. <span className="underline">Click to see updates</span>
+            </span>
+          </button>
+
+          {/* Header */}
           <div className="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-r from-yellow-950 via-amber-900/60 to-red-900/40 border border-yellow-500/20">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(234,179,8,0.15),transparent_50%)]" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl" />
@@ -120,6 +133,8 @@ export default function LeaderboardPage() {
           </div>
         </main>
       </div>
+
+      <PointSystemModal open={showPointSystem} onOpenChange={setShowPointSystem} />
     </AppLayout>
   );
 }
