@@ -108,16 +108,17 @@ export function StreakLeaderboard() {
       {/* Bonus schedule banner */}
       <div className="mx-4 mt-4 p-2.5 rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/5 border border-orange-500/15">
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground justify-center flex-wrap">
-          <span className="font-semibold text-orange-400">Daily Login Bonus:</span>
-          <span>+15 pts/day</span>
+          <span className="font-semibold text-orange-400">Daily Login: +75</span>
           <span>·</span>
-          <span>7d = +150</span>
+          <span>Streak: +25/day</span>
           <span>·</span>
-          <span>14d = +300</span>
+          <span>3d = +100</span>
           <span>·</span>
-          <span>21d = +500</span>
+          <span>7d = +300</span>
           <span>·</span>
-          <span>30d = +1000</span>
+          <span>14d = +700</span>
+          <span>·</span>
+          <span>30d = +2,000</span>
         </div>
       </div>
 
