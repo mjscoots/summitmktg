@@ -170,9 +170,9 @@ export default function NotepadPage() {
     if (!allNotes?.length) return;
     let content = '# MY TRAINING NOTES\n\n';
     content += `Generated: ${new Date().toLocaleString()}\n\n`;
-    Object.entries(notesByCategory).forEach(([category, notes]) => {
+    (Object.entries(notesByCategory) as [string, NoteWithVideo[]][]).forEach(([category, notes]) => {
       content += `## ${category.toUpperCase()}\n\n`;
-      notes.forEach(note => {
+      notes.forEach((note: NoteWithVideo) => {
         content += `### ${note.training_videos?.title}\n`;
         content += `Last edited: ${note.updated_at ? new Date(note.updated_at).toLocaleString() : 'N/A'}\n\n`;
         content += `${note.notes || '(empty)'}\n\n---\n\n`;
