@@ -55,6 +55,7 @@ interface LeaderboardEntry {
     manualPoints: number;
     reactionPoints: number;
     oneOnOnePoints: number;
+    legacyPoints?: number;
   };
   weeklyBadge: string | null;
 }
