@@ -124,7 +124,6 @@ export default function NotepadPage() {
       .select('id, notes, updated_at, video_id, training_videos!video_notes_video_id_fkey (id, title, category, video_url, duration_minutes)')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
-    console.log('[Notepad] fetch result:', { userId: user.id, data, error });
     if (!error) setAllNotes((data || []) as unknown as NoteWithVideo[]);
     setIsLoading(false);
   }, [user]);
