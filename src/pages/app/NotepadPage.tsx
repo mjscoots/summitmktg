@@ -109,26 +109,26 @@ function NoteCard({ note, onSave }: { note: NoteWithVideo; onSave: () => void })
 
 export default function NotepadPage() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [allNotes, setAllNotes] = useState<NoteWithVideo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  const { data: allNotes, isLoading } = useQuery({
-    queryKey: ['user-notes', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('video_notes')
-        .select('id, notes, updated_at, video_id, training_videos (id, title, category, video_url, duration_seconds)')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
-      if (error) throw error;
-      return (data || []) as unknown as NoteWithVideo[];
-    },
-    enabled: !!user,
-  });
+  const fetchNotes = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('video_notes')
+      .select('id, notes, updated_at, video_id, training_videos (id, title, category, video_url, duration_seconds)')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+    if (!error) setAllNotes((data || []) as unknown as NoteWithVideo[]);
+    setIsLoading(false);
+  }, [user]);
+
+  useEffect(() => { fetchNotes(); }, [fetchNotes]);
 
   const notesByCategory = useMemo(() => {
     if (!allNotes) return {};
