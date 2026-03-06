@@ -60,7 +60,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
   // Guidance tips
   const tips: string[] = [];
   if (data.capsToday.hours.earned < 300) tips.push(`You can earn ${600 - data.capsToday.hours.earned} more pts from hours today.`);
-  if (data.capsToday.chat.earned === 0) tips.push('Send messages in chat to earn up to 600 pts/day.');
+  if (data.capsToday.chat.earned === 0) tips.push('Send messages in chat to earn up to 400 pts/day.');
   if (data.currentStreak > 0 && data.timeTodayMinutes < 20) tips.push('Do 20 min of training today to keep your streak!');
   if (data.nextThreshold.targetMinutes && data.nextThreshold.remainingMinutes > 0) {
     tips.push(`${data.nextThreshold.remainingMinutes} min to next weekly bonus (+${data.nextThreshold.bonus} pts).`);

@@ -14,7 +14,7 @@ const SECTIONS = [
     icon: Clock, color: 'text-blue-500', title: 'Hours Logged',
     subtitle: 'Primary point driver',
     items: [
-      { label: 'Per hour of qualified learning time', pts: '+100' },
+      { label: 'Per hour of qualified learning time', pts: '+120' },
       { label: 'Daily cap', pts: '600' },
       { label: '90-sec idle auto-pause · Tab must be in focus', pts: null },
     ],
@@ -36,9 +36,9 @@ const SECTIONS = [
     icon: MessageSquare, color: 'text-emerald-500', title: 'Chat',
     subtitle: '≥10 chars, no spam',
     items: [
-      { label: 'Per qualifying message', pts: '+20' },
-      { label: 'Hourly cap (10 msgs/hr)', pts: '200' },
-      { label: 'Daily cap', pts: '600' },
+      { label: 'Per qualifying message', pts: '+15' },
+      { label: 'Hourly cap (~13 msgs/hr)', pts: '200' },
+      { label: 'Daily cap', pts: '400' },
     ],
   },
   {
@@ -46,7 +46,9 @@ const SECTIONS = [
     subtitle: 'Chat engagement',
     items: [
       { label: 'Your message gets a reaction', pts: '+10' },
+      { label: 'Reactions received daily cap', pts: '100' },
       { label: 'Reacting to others', pts: '+2' },
+      { label: 'Reactions given daily cap', pts: '50' },
     ],
   },
   {
@@ -57,22 +59,25 @@ const SECTIONS = [
       { label: 'Next 3 per day', pts: '+30 ea' },
       { label: 'Beyond 6 per day', pts: '+10 ea' },
       { label: 'Daily cap', pts: '300' },
-      { label: 'Quiz bonus: 80%+ / 90%+ / 100%', pts: '+25 / +40 / +60' },
+      { label: 'Quiz bonus: 80%+ / 90%+ / 100%', pts: '+20 / +40 / +75' },
     ],
   },
   {
     icon: Video, color: 'text-purple-500', title: 'Videos',
-    subtitle: 'Rewatches count',
+    subtitle: '70% completion required',
     items: [
-      { label: 'Per video watched', pts: '+40' },
+      { label: 'Unique video watch', pts: '+40' },
+      { label: 'Rewatch same day', pts: '+10' },
       { label: 'Daily cap', pts: '200' },
     ],
   },
   {
-    icon: FileText, color: 'text-cyan-500', title: 'Manual Chapters',
-    subtitle: 'Chapter completion',
+    icon: FileText, color: 'text-cyan-500', title: 'Manual Reading',
+    subtitle: 'Veteran rep review',
     items: [
-      { label: 'Per chapter completed', pts: '+30' },
+      { label: 'Per 15 minutes of reading', pts: '+50' },
+      { label: 'Daily cap', pts: '300' },
+      { label: 'Counts toward learning time', pts: null },
     ],
   },
   {
@@ -115,7 +120,7 @@ export function PointSystemModal({ open, onOpenChange }: PointSystemModalProps) 
         <div className="space-y-3 pt-1">
           <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20 text-[11px] text-muted-foreground leading-relaxed">
             <Shield className="w-3.5 h-3.5 text-primary inline mr-1 -mt-0.5" />
-            <strong>Hours logged is the #1 driver.</strong> Rushing lessons won't dominate. Past points are preserved.
+            <strong>Hours logged is the #1 driver.</strong> 120 pts/hr. Rushing lessons won't dominate. Past points are preserved — new system applies moving forward.
           </div>
 
           {SECTIONS.map(({ icon: Icon, color, title, subtitle, items }) => (

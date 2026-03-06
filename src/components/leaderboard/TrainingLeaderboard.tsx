@@ -13,15 +13,15 @@ import {
 } from "@/components/ui/dialog";
 
 const POINTS = {
-  HOUR_LOGGED: 100,
+  HOUR_LOGGED: 120,
   LESSON_FIRST_3: 60,
   LESSON_NEXT_3: 30,
   LESSON_BEYOND: 10,
   VIDEO_WATCHED: 40,
   STREAK_DAY: 25,
   DAILY_LOGIN: 75,
-  CHAT_MESSAGE: 20,
-  MANUAL_CHAPTER: 30,
+  CHAT_MESSAGE: 15,
+  MANUAL_CHAPTER: 50,
   ONE_ON_ONE: 50,
 };
 
@@ -282,6 +282,24 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             </div>
 
+            {/* Motivation Prompts */}
+            {(() => {
+              const tips: string[] = [];
+              const hoursRemaining = Math.max(0, 5 - me.hoursThisWeek);
+              if (hoursRemaining > 0 && isWeekly) tips.push(`${hoursRemaining.toFixed(1)}h more training could earn +${Math.round(hoursRemaining * 120)} pts.`);
+              if (pointsToNext > 0 && pointsToNext <= 500) tips.push(`${pointsToNext} pts to pass ${displayName(rival!)} — keep grinding.`);
+              if (me.breakdown.chatPoints < 200 && isWeekly) tips.push(`Chat activity could earn you ${400 - me.breakdown.chatPoints} more pts this week.`);
+              if (tips.length === 0) return null;
+              return (
+                <div className="mt-2 p-3 rounded-lg bg-muted/30 border border-border/20">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">💡 How to climb</p>
+                  {tips.slice(0, 2).map((tip, i) => (
+                    <p key={i} className="text-[11px] text-muted-foreground">• {tip}</p>
+                  ))}
+                </div>
+              );
+            })()}
+
           </div>
         );
       })()}
@@ -393,11 +411,11 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                     { icon: Clock, label: 'Hours Logged', detail: `${selectedEntry.hoursThisWeek}h × ${POINTS.HOUR_LOGGED}/hr`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
                     ...(selectedEntry.breakdown.thresholdBonus > 0 ? [{ icon: Zap, label: 'Weekly Threshold Bonus', detail: `${selectedEntry.timeThisWeekMinutes} min this week`, value: selectedEntry.breakdown.thresholdBonus, color: 'text-yellow-500' }] : []),
                     { icon: Flame, label: 'Login + Streak', detail: `${POINTS.DAILY_LOGIN}/day login + ${POINTS.STREAK_DAY}/day streak`, value: (selectedEntry.breakdown.loginPoints || 0) + (selectedEntry.breakdown.streakPoints || 0), color: 'text-orange-500' },
-                    { icon: MessageSquare, label: 'Chat', detail: `${POINTS.CHAT_MESSAGE}/msg (cap 600/day)`, value: selectedEntry.breakdown.chatPoints || 0, color: 'text-emerald-500' },
+                    { icon: MessageSquare, label: 'Chat', detail: `${POINTS.CHAT_MESSAGE}/msg (cap 400/day)`, value: selectedEntry.breakdown.chatPoints || 0, color: 'text-emerald-500' },
                     { icon: BookOpen, label: 'Lessons', detail: `Diminishing: 60→30→10 (cap 300/day)`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-green-500' },
                     { icon: Video, label: 'Videos', detail: `${POINTS.VIDEO_WATCHED}/watch (cap 200/day)`, value: selectedEntry.breakdown.videoPoints, color: 'text-purple-500' },
-                    { icon: FileText, label: 'Manual', detail: `${POINTS.MANUAL_CHAPTER}/chapter`, value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
-                    ...(selectedEntry.breakdown.reactionPoints > 0 ? [{ icon: Star, label: 'Reactions', detail: `+10 received / +2 given`, value: selectedEntry.breakdown.reactionPoints, color: 'text-pink-500' }] : []),
+                    { icon: FileText, label: 'Manual', detail: `${POINTS.MANUAL_CHAPTER}/15 min (cap 300/day)`, value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
+                    ...(selectedEntry.breakdown.reactionPoints > 0 ? [{ icon: Star, label: 'Reactions', detail: `+10 received (cap 100) / +2 given (cap 50)`, value: selectedEntry.breakdown.reactionPoints, color: 'text-pink-500' }] : []),
                     { icon: Users, label: 'Weekly 1:1s', detail: `${POINTS.ONE_ON_ONE}/each`, value: selectedEntry.breakdown.oneOnOnePoints, color: 'text-pink-500' },
                   ].filter(item => item.value > 0).map(({ icon: Icon, label, detail, value, color }) => (
                     <div key={label} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
