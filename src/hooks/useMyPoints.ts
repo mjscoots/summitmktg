@@ -54,10 +54,10 @@ export function useMyPoints() {
         legacyPoints: raw.legacy_points || 0,
         capsToday: {
           hours: raw.caps_today?.hours || { earned: 0, max: 600 },
-          chat: raw.caps_today?.chat || { earned: 0, max: 600 },
+          chat: raw.caps_today?.chat || { earned: 0, max: 400 },
           lesson: raw.caps_today?.lesson || { earned: 0, max: 300 },
           video: raw.caps_today?.video || { earned: 0, max: 200 },
-          manual: raw.caps_today?.manual || { earned: 0, max: 470 },
+          manual: raw.caps_today?.manual || { earned: 0, max: 300 },
         },
         timeTodayMinutes: raw.time_today_minutes || 0,
         timeWeekMinutes: raw.time_week_minutes || 0,

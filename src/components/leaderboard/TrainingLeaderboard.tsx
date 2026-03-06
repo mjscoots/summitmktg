@@ -282,6 +282,24 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             </div>
 
+            {/* Motivation Prompts */}
+            {(() => {
+              const tips: string[] = [];
+              const hoursRemaining = Math.max(0, 5 - me.hoursThisWeek);
+              if (hoursRemaining > 0 && isWeekly) tips.push(`${hoursRemaining.toFixed(1)}h more training could earn +${Math.round(hoursRemaining * 120)} pts.`);
+              if (pointsToNext > 0 && pointsToNext <= 500) tips.push(`${pointsToNext} pts to pass ${displayName(rival!)} — keep grinding.`);
+              if (me.breakdown.chatPoints < 200 && isWeekly) tips.push(`Chat activity could earn you ${400 - me.breakdown.chatPoints} more pts this week.`);
+              if (tips.length === 0) return null;
+              return (
+                <div className="mt-2 p-3 rounded-lg bg-muted/30 border border-border/20">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">💡 How to climb</p>
+                  {tips.slice(0, 2).map((tip, i) => (
+                    <p key={i} className="text-[11px] text-muted-foreground">• {tip}</p>
+                  ))}
+                </div>
+              );
+            })()}
+
           </div>
         );
       })()}
