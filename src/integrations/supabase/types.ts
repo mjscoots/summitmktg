@@ -2602,15 +2602,27 @@ export type Database = {
         Args: { _limit?: number }
         Returns: {
           avatar_url: string
+          chat_points: number
           current_streak: number
           full_name: string
           legacy_points: number
+          lesson_points: number
+          lessons_completed: number
+          login_points: number
+          manual_points: number
           new_event_points: number
           new_hours_points: number
           nickname: string
+          one_on_one_points: number
+          reaction_points: number
+          streak_points: number
           team_name: string
+          threshold_bonus: number
           total_points: number
+          total_time_minutes: number
           user_id: string
+          video_points: number
+          videos_watched: number
         }[]
       }
       get_current_leaderboard: {
