@@ -42,6 +42,7 @@ const managerNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
   { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+  { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
   { label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' },
   { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
   { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
