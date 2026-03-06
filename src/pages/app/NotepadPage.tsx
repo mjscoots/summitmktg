@@ -121,7 +121,7 @@ export default function NotepadPage() {
     setIsLoading(true);
     const { data, error } = await supabase
       .from('video_notes')
-      .select('id, notes, updated_at, video_id, training_videos (id, title, category, video_url, duration_seconds)')
+      .select('id, notes, updated_at, video_id, training_videos (id, title, category, video_url, duration_minutes)')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
     if (!error) setAllNotes((data || []) as unknown as NoteWithVideo[]);
