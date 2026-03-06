@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, StickyNote } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
