@@ -206,7 +206,7 @@ function TeamTab({ managerName }: { managerName: string }) {
           user_id: uid,
           full_name: p?.full_name || 'Unknown',
           last_active_at: p?.last_active_at || null,
-          trainingPct: lessonIds.size > 0 ? Math.round(((lessonMap.get(uid) || 0) / lessonIds.size) * 100) : 0,
+          trainingPct: items.totalCount > 0 ? Math.round(((completedCounts.get(uid) || 0) / items.totalCount) * 100) : 0,
           checklistDone: checkMap.get(uid) || false,
         };
       });
