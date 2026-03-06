@@ -26,7 +26,7 @@ interface NoteWithVideo {
     title: string;
     category: string;
     video_url: string | null;
-    duration_minutes: number | null;
+    duration_seconds: number | null;
   } | null;
 }
 
@@ -121,7 +121,7 @@ export default function NotepadPage() {
     setIsLoading(true);
     const { data, error } = await supabase
       .from('video_notes')
-      .select('id, notes, updated_at, video_id, training_videos!video_notes_video_id_fkey (id, title, category, video_url, duration_minutes)')
+      .select('id, notes, updated_at, video_id, training_videos (id, title, category, video_url, duration_seconds)')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
     if (!error) setAllNotes((data || []) as unknown as NoteWithVideo[]);
