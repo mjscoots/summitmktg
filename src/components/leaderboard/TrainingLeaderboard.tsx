@@ -414,20 +414,30 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 </>
               ) : (
                 <>
-                  <div className="p-4 bg-muted/50 rounded-lg text-center">
-                    <p className="text-xs text-muted-foreground font-medium mb-1">Cumulative Score</p>
-                    <p className="text-3xl font-black text-primary">{selectedEntry.totalPoints.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground mt-1">All-time points across all weeks</p>
-                  </div>
-                  {selectedEntry.streakDays > 0 && (
-                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                      <Flame className="w-5 h-5 text-orange-500" />
-                      <div>
-                        <p className="text-sm font-medium">Current Streak</p>
-                        <p className="text-xs text-muted-foreground">{selectedEntry.streakDays} day{selectedEntry.streakDays !== 1 ? 's' : ''}</p>
+                  <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">All-Time Breakdown</div>
+                  {[
+                    { icon: Clock, label: 'Hours Logged', detail: `${Math.round((selectedEntry.timeThisWeekMinutes || 0) / 60)}h total time`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
+                    ...(selectedEntry.breakdown.thresholdBonus > 0 ? [{ icon: Zap, label: 'Weekly Time Bonuses', detail: 'Cumulative threshold bonuses', value: selectedEntry.breakdown.thresholdBonus, color: 'text-yellow-500' }] : []),
+                    { icon: Flame, label: 'Login + Streak', detail: `${selectedEntry.streakDays}d current streak`, value: (selectedEntry.breakdown.loginPoints || 0) + (selectedEntry.breakdown.streakPoints || 0), color: 'text-orange-500' },
+                    { icon: MessageSquare, label: 'Chat', detail: 'Messages & engagement', value: selectedEntry.breakdown.chatPoints || 0, color: 'text-emerald-500' },
+                    { icon: BookOpen, label: 'Lessons', detail: `${selectedEntry.lessonsCompleted} completed`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-green-500' },
+                    { icon: Video, label: 'Videos', detail: 'Training videos watched', value: selectedEntry.breakdown.videoPoints, color: 'text-purple-500' },
+                    { icon: FileText, label: 'Manual', detail: 'Manual chapters', value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
+                    ...(selectedEntry.breakdown.reactionPoints > 0 ? [{ icon: Star, label: 'Reactions', detail: 'Given & received', value: selectedEntry.breakdown.reactionPoints, color: 'text-pink-500' }] : []),
+                    { icon: Users, label: '1:1 Sessions', detail: `${POINTS.ONE_ON_ONE} pts each`, value: selectedEntry.breakdown.oneOnOnePoints, color: 'text-pink-500' },
+                    ...((selectedEntry.breakdown.legacyPoints || 0) > 0 ? [{ icon: Trophy, label: 'Legacy Points', detail: 'Pre-system migration', value: selectedEntry.breakdown.legacyPoints || 0, color: 'text-amber-500' }] : []),
+                  ].filter(item => item.value > 0).map(({ icon: Icon, label, detail, value, color }) => (
+                    <div key={label} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Icon className={cn('w-5 h-5', color)} />
+                        <div>
+                          <p className="text-sm font-medium">{label}</p>
+                          <p className="text-xs text-muted-foreground">{detail}</p>
+                        </div>
                       </div>
+                      <span className={cn('text-lg font-bold', color)}>+{value.toLocaleString()}</span>
                     </div>
-                  )}
+                  ))}
                 </>
               )}
 
