@@ -421,7 +421,70 @@ export function MemberProfileModal({
                 </div>
               )}
 
-              {/* Training Progress Bar */}
+              {/* All-Time Points Breakdown */}
+              {!isNLC && allTimeBreakdown && allTimeBreakdown.total > 0 && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <button
+                    onClick={() => setAllTimeExpanded(!allTimeExpanded)}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <p className="text-xs font-semibold text-foreground">All-Time Points</p>
+                      {allTimeBreakdown.rank > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
+                          #{allTimeBreakdown.rank}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-foreground tabular-nums">{allTimeBreakdown.total.toLocaleString()} pts</span>
+                      {allTimeExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {allTimeExpanded && (
+                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
+                      {/* Activity stats */}
+                      <div className="flex gap-2 mb-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {Math.round(allTimeBreakdown.totalTimeMinutes / 60)}h logged
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {allTimeBreakdown.lessonsCompleted} lessons
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {allTimeBreakdown.videosWatched} videos
+                        </span>
+                      </div>
+                      {[
+                        { label: 'Hours Logged', value: allTimeBreakdown.hours, icon: Clock, color: 'text-blue-400' },
+                        { label: 'Time Bonuses', value: allTimeBreakdown.threshold, icon: Target, color: 'text-primary' },
+                        { label: 'Daily Login', value: allTimeBreakdown.login, icon: Zap, color: 'text-primary' },
+                        { label: 'Streak', value: allTimeBreakdown.streak, icon: Flame, color: 'text-orange-400' },
+                        { label: 'Lessons', value: allTimeBreakdown.lessons, icon: BookOpen, color: 'text-primary' },
+                        { label: 'Videos', value: allTimeBreakdown.video, icon: Video, color: 'text-primary' },
+                        { label: 'Chat', value: allTimeBreakdown.chat, icon: MessageSquare, color: 'text-emerald-400' },
+                        { label: 'Reactions', value: allTimeBreakdown.reactions, icon: Star, color: 'text-primary' },
+                        { label: 'Manual', value: allTimeBreakdown.manual, icon: FileText, color: 'text-primary' },
+                        { label: '1:1 Sessions', value: allTimeBreakdown.oneOnOne, icon: Users, color: 'text-primary' },
+                        { label: 'Legacy Points', value: allTimeBreakdown.legacy, icon: Trophy, color: 'text-amber-500' },
+                      ]
+                        .filter(item => item.value > 0)
+                        .sort((a, b) => b.value - a.value)
+                        .map(item => (
+                          <div key={item.label} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <item.icon className={cn("w-3.5 h-3.5", item.color)} />
+                              <span className="text-xs text-muted-foreground">{item.label}</span>
+                            </div>
+                            <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {!isNLC && (
                 <div className="p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center justify-between mb-1.5">
