@@ -311,7 +311,7 @@ export default function NotepadPage() {
 
             {/* Main content */}
             <div className="flex-1 min-w-0 space-y-6">
-              {Object.entries(filteredByCategory).map(([category, notes]) => (
+              {(Object.entries(filteredByCategory) as [string, NoteWithVideo[]][]).map(([category, notes]) => (
                 <div key={category}>
                   <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                     {category}
