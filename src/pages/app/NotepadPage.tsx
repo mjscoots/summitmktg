@@ -161,7 +161,7 @@ export default function NotepadPage() {
     }, {});
   }, [filteredNotes, selectedCategory]);
 
-  const refetch = () => queryClient.invalidateQueries({ queryKey: ['user-notes'] });
+  const refetch = () => fetchNotes();
 
   const totalChars = allNotes?.reduce((s, n) => s + (n.notes?.length || 0), 0) || 0;
   const categories = Object.keys(notesByCategory);
