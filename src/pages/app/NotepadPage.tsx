@@ -26,7 +26,7 @@ interface NoteWithVideo {
     title: string;
     category: string;
     video_url: string | null;
-    duration_seconds: number | null;
+    duration_minutes: number | null;
   } | null;
 }
 
