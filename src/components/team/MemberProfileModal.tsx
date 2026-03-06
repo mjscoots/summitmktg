@@ -165,6 +165,36 @@ export function MemberProfileModal({
           }
         }
       } catch (e) { /* non-critical */ }
+
+      // All-time breakdown
+      try {
+        const { data: atData } = await (supabase as any).rpc('get_all_time_leaderboard', { _limit: 100 });
+        if (atData) {
+          const atEntry = (atData as any[]).find((r: any) => r.user_id === member.user_id);
+          if (atEntry) {
+            const allEntries = atData as any[];
+            const atRank = allEntries.findIndex((r: any) => r.user_id === member.user_id) + 1;
+            setAllTimeBreakdown({
+              total: atEntry.total_points || 0,
+              legacy: atEntry.legacy_points || 0,
+              hours: atEntry.new_hours_points || 0,
+              threshold: atEntry.threshold_bonus || 0,
+              login: atEntry.login_points || 0,
+              streak: atEntry.streak_points || 0,
+              chat: atEntry.chat_points || 0,
+              lessons: atEntry.lesson_points || 0,
+              video: atEntry.video_points || 0,
+              manual: atEntry.manual_points || 0,
+              reactions: atEntry.reaction_points || 0,
+              oneOnOne: atEntry.one_on_one_points || 0,
+              totalTimeMinutes: atEntry.total_time_minutes || 0,
+              lessonsCompleted: Number(atEntry.lessons_completed) || 0,
+              videosWatched: Number(atEntry.videos_watched) || 0,
+              rank: atRank,
+            });
+          }
+        }
+      } catch (e) { /* non-critical */ }
     };
     fetchExtra();
   }, [open, member?.user_id]);
