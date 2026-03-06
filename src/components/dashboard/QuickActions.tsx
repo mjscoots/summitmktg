@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, Swords } from 'lucide-react';
+import { Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, Swords, StickyNote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
