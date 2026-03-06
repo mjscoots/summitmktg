@@ -111,7 +111,9 @@ export function MemberProfileModal({
       setStreakDays(0);
       setTeamName(null);
       setPointsBreakdown(null);
+      setAllTimeBreakdown(null);
       setPointsExpanded(false);
+      setAllTimeExpanded(false);
     }
   }, [open, member?.user_id]);
 
