@@ -122,23 +122,13 @@ function PulseTab({ managerName }: { managerName: string }) {
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
 
-      // Training %
-      const { data: courses } = await supabase
-        .from('training_courses')
-        .select('id, target_role, training_modules ( id, training_lessons ( id, is_active ) )')
-        .eq('is_active', true);
-      const lessonIds = new Set<string>();
-      (courses || []).forEach((c: any) => {
-        if (c.target_role !== null && c.target_role !== 'rookie') return;
-        c.training_modules?.forEach((m: any) => m.training_lessons?.forEach((l: any) => { if (l.is_active !== false) lessonIds.add(l.id); }));
-      });
+      // Training % — canonical calc including lessons + videos
+      const items = await getReachableRookieTrainingItems();
+      const completedCounts = await getCompletedTrainingCounts(repIds, items);
       let avgTraining = 0;
-      if (lessonIds.size > 0) {
-        const { data: prog } = await supabase.from('lesson_progress').select('user_id, lesson_id').in('user_id', repIds).not('completed_at', 'is', null);
-        const map = new Map<string, number>();
-        (prog || []).forEach((p: any) => { if (lessonIds.has(p.lesson_id)) map.set(p.user_id, (map.get(p.user_id) || 0) + 1); });
+      if (items.totalCount > 0) {
         let total = 0;
-        repIds.forEach((uid: string) => { total += Math.round(((map.get(uid) || 0) / lessonIds.size) * 100); });
+        repIds.forEach((uid: string) => { total += Math.round(((completedCounts.get(uid) || 0) / items.totalCount) * 100); });
         avgTraining = Math.round(total / repIds.length);
       }
 
