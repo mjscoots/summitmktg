@@ -55,6 +55,7 @@ interface LeaderboardEntry {
     manualPoints: number;
     reactionPoints: number;
     oneOnOnePoints: number;
+    legacyPoints?: number;
   };
   weeklyBadge: string | null;
 }
@@ -101,16 +102,28 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
             nickname: row.nickname || null,
             avatar_url: row.avatar_url,
             totalPoints: row.total_points || 0,
-            lessonsCompleted: 0,
+            lessonsCompleted: Number(row.lessons_completed) || 0,
             totalLessons: 1,
             streakDays: row.current_streak || 0,
-            hoursThisWeek: 0,
+            hoursThisWeek: Math.round((row.total_time_minutes || 0) / 60 * 10) / 10,
             avgQuizScore: 0,
             progressPct: 0,
             isActiveToday: false,
-            timeThisWeekMinutes: 0,
+            timeThisWeekMinutes: row.total_time_minutes || 0,
             teamName: row.team_name || null,
-            breakdown: { hoursPoints: 0, thresholdBonus: 0, loginPoints: 0, streakPoints: 0, chatPoints: 0, lessonsPoints: 0, videoPoints: 0, manualPoints: 0, reactionPoints: 0, oneOnOnePoints: 0 },
+            breakdown: {
+              hoursPoints: row.new_hours_points || 0,
+              thresholdBonus: row.threshold_bonus || 0,
+              loginPoints: row.login_points || 0,
+              streakPoints: row.streak_points || 0,
+              chatPoints: row.chat_points || 0,
+              lessonsPoints: row.lesson_points || 0,
+              videoPoints: row.video_points || 0,
+              manualPoints: row.manual_points || 0,
+              reactionPoints: row.reaction_points || 0,
+              oneOnOnePoints: row.one_on_one_points || 0,
+              legacyPoints: row.legacy_points || 0,
+            },
             weeklyBadge: null,
           }));
         } else {
@@ -269,32 +282,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             </div>
 
-            {/* Weekly threshold progress */}
-            {isWeekly && me.timeThisWeekMinutes > 0 && (
-              <div className="p-3 rounded-xl border border-border/30 bg-muted/20">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Weekly Time Bonus</div>
-                {[
-                  { min: 300, bonus: 500, label: '5 hrs' },
-                  { min: 600, bonus: 1200, label: '10 hrs' },
-                  { min: 900, bonus: 2000, label: '15 hrs' },
-                ].map(t => {
-                  const pct = Math.min(100, Math.round((me.timeThisWeekMinutes / t.min) * 100));
-                  const reached = me.timeThisWeekMinutes >= t.min;
-                  return (
-                    <div key={t.min} className="flex items-center gap-2 mb-1">
-                      <div className="flex-1">
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className={cn("h-full rounded-full transition-all", reached ? "bg-success" : "bg-primary/60")} style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                      <span className={cn("text-[10px] font-bold tabular-nums min-w-[80px] text-right", reached ? "text-success" : "text-muted-foreground")}>
-                        {reached ? `✅ +${t.bonus}` : `${me.timeThisWeekMinutes}/${t.min} min`}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         );
       })()}
@@ -427,20 +414,30 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                 </>
               ) : (
                 <>
-                  <div className="p-4 bg-muted/50 rounded-lg text-center">
-                    <p className="text-xs text-muted-foreground font-medium mb-1">Cumulative Score</p>
-                    <p className="text-3xl font-black text-primary">{selectedEntry.totalPoints.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground mt-1">All-time points across all weeks</p>
-                  </div>
-                  {selectedEntry.streakDays > 0 && (
-                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                      <Flame className="w-5 h-5 text-orange-500" />
-                      <div>
-                        <p className="text-sm font-medium">Current Streak</p>
-                        <p className="text-xs text-muted-foreground">{selectedEntry.streakDays} day{selectedEntry.streakDays !== 1 ? 's' : ''}</p>
+                  <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">All-Time Breakdown</div>
+                  {[
+                    { icon: Clock, label: 'Hours Logged', detail: `${Math.round((selectedEntry.timeThisWeekMinutes || 0) / 60)}h total time`, value: selectedEntry.breakdown.hoursPoints, color: 'text-blue-500' },
+                    ...(selectedEntry.breakdown.thresholdBonus > 0 ? [{ icon: Zap, label: 'Weekly Time Bonuses', detail: 'Cumulative threshold bonuses', value: selectedEntry.breakdown.thresholdBonus, color: 'text-yellow-500' }] : []),
+                    { icon: Flame, label: 'Login + Streak', detail: `${selectedEntry.streakDays}d current streak`, value: (selectedEntry.breakdown.loginPoints || 0) + (selectedEntry.breakdown.streakPoints || 0), color: 'text-orange-500' },
+                    { icon: MessageSquare, label: 'Chat', detail: 'Messages & engagement', value: selectedEntry.breakdown.chatPoints || 0, color: 'text-emerald-500' },
+                    { icon: BookOpen, label: 'Lessons', detail: `${selectedEntry.lessonsCompleted} completed`, value: selectedEntry.breakdown.lessonsPoints, color: 'text-green-500' },
+                    { icon: Video, label: 'Videos', detail: 'Training videos watched', value: selectedEntry.breakdown.videoPoints, color: 'text-purple-500' },
+                    { icon: FileText, label: 'Manual', detail: 'Manual chapters', value: selectedEntry.breakdown.manualPoints, color: 'text-teal-500' },
+                    ...(selectedEntry.breakdown.reactionPoints > 0 ? [{ icon: Star, label: 'Reactions', detail: 'Given & received', value: selectedEntry.breakdown.reactionPoints, color: 'text-pink-500' }] : []),
+                    { icon: Users, label: '1:1 Sessions', detail: `${POINTS.ONE_ON_ONE} pts each`, value: selectedEntry.breakdown.oneOnOnePoints, color: 'text-pink-500' },
+                    ...((selectedEntry.breakdown.legacyPoints || 0) > 0 ? [{ icon: Trophy, label: 'Legacy Points', detail: 'Pre-system migration', value: selectedEntry.breakdown.legacyPoints || 0, color: 'text-amber-500' }] : []),
+                  ].filter(item => item.value > 0).map(({ icon: Icon, label, detail, value, color }) => (
+                    <div key={label} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Icon className={cn('w-5 h-5', color)} />
+                        <div>
+                          <p className="text-sm font-medium">{label}</p>
+                          <p className="text-xs text-muted-foreground">{detail}</p>
+                        </div>
                       </div>
+                      <span className={cn('text-lg font-bold', color)}>+{value.toLocaleString()}</span>
                     </div>
-                  )}
+                  ))}
                 </>
               )}
 

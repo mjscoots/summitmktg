@@ -85,7 +85,9 @@ export function MemberProfileModal({
   const [streakDays, setStreakDays] = useState(0);
   const [teamName, setTeamName] = useState<string | null>(null);
   const [pointsBreakdown, setPointsBreakdown] = useState<any>(null);
+  const [allTimeBreakdown, setAllTimeBreakdown] = useState<any>(null);
   const [pointsExpanded, setPointsExpanded] = useState(false);
+  const [allTimeExpanded, setAllTimeExpanded] = useState(false);
 
   // Fetch pillars if not provided
   useEffect(() => {
@@ -109,7 +111,9 @@ export function MemberProfileModal({
       setStreakDays(0);
       setTeamName(null);
       setPointsBreakdown(null);
+      setAllTimeBreakdown(null);
       setPointsExpanded(false);
+      setAllTimeExpanded(false);
     }
   }, [open, member?.user_id]);
 
@@ -157,6 +161,36 @@ export function MemberProfileModal({
               reactions: myEntry.reaction_points || 0,
               oneOnOne: myEntry.one_on_one_points || 0,
               rank: myEntry.rank || 0,
+            });
+          }
+        }
+      } catch (e) { /* non-critical */ }
+
+      // All-time breakdown
+      try {
+        const { data: atData } = await (supabase as any).rpc('get_all_time_leaderboard', { _limit: 100 });
+        if (atData) {
+          const atEntry = (atData as any[]).find((r: any) => r.user_id === member.user_id);
+          if (atEntry) {
+            const allEntries = atData as any[];
+            const atRank = allEntries.findIndex((r: any) => r.user_id === member.user_id) + 1;
+            setAllTimeBreakdown({
+              total: atEntry.total_points || 0,
+              legacy: atEntry.legacy_points || 0,
+              hours: atEntry.new_hours_points || 0,
+              threshold: atEntry.threshold_bonus || 0,
+              login: atEntry.login_points || 0,
+              streak: atEntry.streak_points || 0,
+              chat: atEntry.chat_points || 0,
+              lessons: atEntry.lesson_points || 0,
+              video: atEntry.video_points || 0,
+              manual: atEntry.manual_points || 0,
+              reactions: atEntry.reaction_points || 0,
+              oneOnOne: atEntry.one_on_one_points || 0,
+              totalTimeMinutes: atEntry.total_time_minutes || 0,
+              lessonsCompleted: Number(atEntry.lessons_completed) || 0,
+              videosWatched: Number(atEntry.videos_watched) || 0,
+              rank: atRank,
             });
           }
         }
@@ -387,7 +421,70 @@ export function MemberProfileModal({
                 </div>
               )}
 
-              {/* Training Progress Bar */}
+              {/* All-Time Points Breakdown */}
+              {!isNLC && allTimeBreakdown && allTimeBreakdown.total > 0 && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <button
+                    onClick={() => setAllTimeExpanded(!allTimeExpanded)}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <p className="text-xs font-semibold text-foreground">All-Time Points</p>
+                      {allTimeBreakdown.rank > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
+                          #{allTimeBreakdown.rank}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-foreground tabular-nums">{allTimeBreakdown.total.toLocaleString()} pts</span>
+                      {allTimeExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {allTimeExpanded && (
+                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
+                      {/* Activity stats */}
+                      <div className="flex gap-2 mb-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {Math.round(allTimeBreakdown.totalTimeMinutes / 60)}h logged
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {allTimeBreakdown.lessonsCompleted} lessons
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {allTimeBreakdown.videosWatched} videos
+                        </span>
+                      </div>
+                      {[
+                        { label: 'Hours Logged', value: allTimeBreakdown.hours, icon: Clock, color: 'text-blue-400' },
+                        { label: 'Time Bonuses', value: allTimeBreakdown.threshold, icon: Target, color: 'text-primary' },
+                        { label: 'Daily Login', value: allTimeBreakdown.login, icon: Zap, color: 'text-primary' },
+                        { label: 'Streak', value: allTimeBreakdown.streak, icon: Flame, color: 'text-orange-400' },
+                        { label: 'Lessons', value: allTimeBreakdown.lessons, icon: BookOpen, color: 'text-primary' },
+                        { label: 'Videos', value: allTimeBreakdown.video, icon: Video, color: 'text-primary' },
+                        { label: 'Chat', value: allTimeBreakdown.chat, icon: MessageSquare, color: 'text-emerald-400' },
+                        { label: 'Reactions', value: allTimeBreakdown.reactions, icon: Star, color: 'text-primary' },
+                        { label: 'Manual', value: allTimeBreakdown.manual, icon: FileText, color: 'text-primary' },
+                        { label: '1:1 Sessions', value: allTimeBreakdown.oneOnOne, icon: Users, color: 'text-primary' },
+                        { label: 'Legacy Points', value: allTimeBreakdown.legacy, icon: Trophy, color: 'text-amber-500' },
+                      ]
+                        .filter(item => item.value > 0)
+                        .sort((a, b) => b.value - a.value)
+                        .map(item => (
+                          <div key={item.label} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <item.icon className={cn("w-3.5 h-3.5", item.color)} />
+                              <span className="text-xs text-muted-foreground">{item.label}</span>
+                            </div>
+                            <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {!isNLC && (
                 <div className="p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center justify-between mb-1.5">

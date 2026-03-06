@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { supabase } from '@/integrations/supabase/client';
+import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 import { Swords, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -121,23 +122,13 @@ function PulseTab({ managerName }: { managerName: string }) {
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
 
-      // Training %
-      const { data: courses } = await supabase
-        .from('training_courses')
-        .select('id, target_role, training_modules ( id, training_lessons ( id, is_active ) )')
-        .eq('is_active', true);
-      const lessonIds = new Set<string>();
-      (courses || []).forEach((c: any) => {
-        if (c.target_role !== null && c.target_role !== 'rookie') return;
-        c.training_modules?.forEach((m: any) => m.training_lessons?.forEach((l: any) => { if (l.is_active !== false) lessonIds.add(l.id); }));
-      });
+      // Training % — canonical calc including lessons + videos
+      const items = await getReachableRookieTrainingItems();
+      const completedCounts = await getCompletedTrainingCounts(repIds, items);
       let avgTraining = 0;
-      if (lessonIds.size > 0) {
-        const { data: prog } = await supabase.from('lesson_progress').select('user_id, lesson_id').in('user_id', repIds).not('completed_at', 'is', null);
-        const map = new Map<string, number>();
-        (prog || []).forEach((p: any) => { if (lessonIds.has(p.lesson_id)) map.set(p.user_id, (map.get(p.user_id) || 0) + 1); });
+      if (items.totalCount > 0) {
         let total = 0;
-        repIds.forEach((uid: string) => { total += Math.round(((map.get(uid) || 0) / lessonIds.size) * 100); });
+        repIds.forEach((uid: string) => { total += Math.round(((completedCounts.get(uid) || 0) / items.totalCount) * 100); });
         avgTraining = Math.round(total / repIds.length);
       }
 
@@ -202,18 +193,9 @@ function TeamTab({ managerName }: { managerName: string }) {
       const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, last_active_at').in('user_id', repIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
 
-      const { data: courses } = await supabase
-        .from('training_courses')
-        .select('id, target_role, training_modules ( id, training_lessons ( id, is_active ) )')
-        .eq('is_active', true);
-      const lessonIds = new Set<string>();
-      (courses || []).forEach((c: any) => {
-        if (c.target_role !== null && c.target_role !== 'rookie') return;
-        c.training_modules?.forEach((m: any) => m.training_lessons?.forEach((l: any) => { if (l.is_active !== false) lessonIds.add(l.id); }));
-      });
-      const { data: prog } = await supabase.from('lesson_progress').select('user_id, lesson_id').in('user_id', repIds).not('completed_at', 'is', null);
-      const lessonMap = new Map<string, number>();
-      (prog || []).forEach((p: any) => { if (lessonIds.has(p.lesson_id)) lessonMap.set(p.user_id, (lessonMap.get(p.user_id) || 0) + 1); });
+      // Training — canonical calc including lessons + videos
+      const items = await getReachableRookieTrainingItems();
+      const completedCounts = await getCompletedTrainingCounts(repIds, items);
 
       const { data: bp } = await supabase.from('bootcamp_progress').select('user_id, bootcamp_completed').in('user_id', repIds);
       const checkMap = new Map((bp || []).map(b => [b.user_id, b.bootcamp_completed]));
@@ -224,7 +206,7 @@ function TeamTab({ managerName }: { managerName: string }) {
           user_id: uid,
           full_name: p?.full_name || 'Unknown',
           last_active_at: p?.last_active_at || null,
-          trainingPct: lessonIds.size > 0 ? Math.round(((lessonMap.get(uid) || 0) / lessonIds.size) * 100) : 0,
+          trainingPct: items.totalCount > 0 ? Math.round(((completedCounts.get(uid) || 0) / items.totalCount) * 100) : 0,
           checklistDone: checkMap.get(uid) || false,
         };
       });
