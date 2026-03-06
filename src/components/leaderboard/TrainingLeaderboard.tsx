@@ -269,32 +269,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               </div>
             </div>
 
-            {/* Weekly threshold progress */}
-            {isWeekly && me.timeThisWeekMinutes > 0 && (
-              <div className="p-3 rounded-xl border border-border/30 bg-muted/20">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Weekly Time Bonus</div>
-                {[
-                  { min: 300, bonus: 500, label: '5 hrs' },
-                  { min: 600, bonus: 1200, label: '10 hrs' },
-                  { min: 900, bonus: 2000, label: '15 hrs' },
-                ].map(t => {
-                  const pct = Math.min(100, Math.round((me.timeThisWeekMinutes / t.min) * 100));
-                  const reached = me.timeThisWeekMinutes >= t.min;
-                  return (
-                    <div key={t.min} className="flex items-center gap-2 mb-1">
-                      <div className="flex-1">
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className={cn("h-full rounded-full transition-all", reached ? "bg-success" : "bg-primary/60")} style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                      <span className={cn("text-[10px] font-bold tabular-nums min-w-[80px] text-right", reached ? "text-success" : "text-muted-foreground")}>
-                        {reached ? `✅ +${t.bonus}` : `${me.timeThisWeekMinutes}/${t.min} min`}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         );
       })()}
