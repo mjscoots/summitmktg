@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, Swords, StickyNote } from 'lucide-react';
+import { Calendar, CalendarDays, ClipboardList, GraduationCap, Trophy, MessagesSquare, Link2, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
@@ -26,7 +26,6 @@ export function QuickActions() {
   const commonActions: QuickAction[] = [
     { icon: <GraduationCap className="w-4 h-4" />, label: 'Training', shortLabel: 'Train', iconColor: 'text-green-400', onClick: () => navigate('/app/training') },
     { icon: <MessagesSquare className="w-4 h-4" />, label: 'Community', shortLabel: 'Chat', iconColor: 'text-blue-300', onClick: () => navigate('/app/chat'), badge: unreadCount },
-    { icon: <StickyNote className="w-4 h-4" />, label: 'Notepad', shortLabel: 'Notes', iconColor: 'text-amber-400', onClick: () => navigate('/app/notepad') },
     { icon: <Swords className="w-4 h-4" />, label: 'War Room', shortLabel: 'War', iconColor: 'text-red-400', onClick: () => navigate('/app/war-room') },
     { icon: <CalendarDays className="w-4 h-4" />, label: 'Calendar', shortLabel: 'Cal', iconColor: 'text-red-400', onClick: () => navigate('/app/calendar') },
     { icon: <Trophy className="w-4 h-4" />, label: 'Leaderboard', shortLabel: 'Rank', iconColor: 'text-yellow-400', onClick: () => navigate('/app/leaderboard') },
