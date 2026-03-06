@@ -193,18 +193,9 @@ function TeamTab({ managerName }: { managerName: string }) {
       const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, last_active_at').in('user_id', repIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
 
-      const { data: courses } = await supabase
-        .from('training_courses')
-        .select('id, target_role, training_modules ( id, training_lessons ( id, is_active ) )')
-        .eq('is_active', true);
-      const lessonIds = new Set<string>();
-      (courses || []).forEach((c: any) => {
-        if (c.target_role !== null && c.target_role !== 'rookie') return;
-        c.training_modules?.forEach((m: any) => m.training_lessons?.forEach((l: any) => { if (l.is_active !== false) lessonIds.add(l.id); }));
-      });
-      const { data: prog } = await supabase.from('lesson_progress').select('user_id, lesson_id').in('user_id', repIds).not('completed_at', 'is', null);
-      const lessonMap = new Map<string, number>();
-      (prog || []).forEach((p: any) => { if (lessonIds.has(p.lesson_id)) lessonMap.set(p.user_id, (lessonMap.get(p.user_id) || 0) + 1); });
+      // Training — canonical calc including lessons + videos
+      const items = await getReachableRookieTrainingItems();
+      const completedCounts = await getCompletedTrainingCounts(repIds, items);
 
       const { data: bp } = await supabase.from('bootcamp_progress').select('user_id, bootcamp_completed').in('user_id', repIds);
       const checkMap = new Map((bp || []).map(b => [b.user_id, b.bootcamp_completed]));
