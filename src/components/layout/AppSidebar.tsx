@@ -117,7 +117,7 @@ export function AppSidebar() {
     sections.push(toolsSection);
   } else {
     sections.push({ title: 'Tools', items: [
-      { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
+      { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
       { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
     ] });
   }
