@@ -718,6 +718,54 @@ export type Database = {
           },
         ]
       }
+      daily_challenges: {
+        Row: {
+          bonus_awarded: boolean
+          bonus_points: number
+          challenge_date: string
+          chat_messages_current: number
+          chat_messages_target: number
+          created_at: string
+          id: string
+          lessons_current: number
+          lessons_target: number
+          train_minutes_current: number
+          train_minutes_target: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bonus_awarded?: boolean
+          bonus_points?: number
+          challenge_date?: string
+          chat_messages_current?: number
+          chat_messages_target?: number
+          created_at?: string
+          id?: string
+          lessons_current?: number
+          lessons_target?: number
+          train_minutes_current?: number
+          train_minutes_target?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bonus_awarded?: boolean
+          bonus_points?: number
+          challenge_date?: string
+          chat_messages_current?: number
+          chat_messages_target?: number
+          created_at?: string
+          id?: string
+          lessons_current?: number
+          lessons_target?: number
+          train_minutes_current?: number
+          train_minutes_target?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_login_streaks: {
         Row: {
           created_at: string
@@ -2649,6 +2697,7 @@ export type Database = {
           video_points: number
         }[]
       }
+      get_daily_challenge: { Args: { _user_id: string }; Returns: Json }
       get_downline_from_edges: {
         Args: { _manager_user_id: string }
         Returns: {
