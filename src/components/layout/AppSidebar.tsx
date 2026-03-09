@@ -21,6 +21,13 @@ import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { usePendingRSVP } from '@/hooks/usePendingRSVP';
 
+interface DirectNavItem {
+  label: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
+  iconColor?: string;
+}
+
 interface NavItem {
   label: string;
   path: string;
