@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, StickyNote, BookOpen, Video, ChevronRight } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, ChevronRight } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
