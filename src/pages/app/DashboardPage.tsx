@@ -135,6 +135,9 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Daily Challenge */}
+        <DailyChallenge />
+
         {/* Next Point Opportunity */}
         {pointsData && <NextPointOpportunity data={pointsData} />}
 
