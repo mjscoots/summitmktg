@@ -301,6 +301,20 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               );
             })()}
 
+            {/* Next Rank Push */}
+            {(() => {
+              if (myRank <= 0) return null;
+              const pointsGap = entries[myRank - 1].totalPoints - me.totalPoints;
+              if (pointsGap <= 0) return null;
+              return (
+                <NextRankPush 
+                  pointsToNext={pointsGap} 
+                  rivalName={displayName(entries[myRank - 1])}
+                  currentRank={rank}
+                />
+              );
+            })()}
+
           </div>
         );
       })()}
