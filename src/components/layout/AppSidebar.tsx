@@ -130,6 +130,29 @@ export function AppSidebar() {
     return 0;
   };
 
+  // Determine which section contains the active route
+  const activeSection = useMemo(() => {
+    for (const section of sections) {
+      if (section.items.some(item => isActive(item.path))) {
+        return section.title;
+      }
+    }
+    return null;
+  }, [location.pathname]);
+
+  const [openSection, setOpenSection] = useState<string | null>(activeSection);
+
+  // Update open section when route changes
+  useMemo(() => {
+    if (activeSection && activeSection !== openSection) {
+      setOpenSection(activeSection);
+    }
+  }, [activeSection]);
+
+  const getSectionBadge = useCallback((section: NavSection) => {
+    return section.items.reduce((sum, item) => sum + getBadge(item.path), 0);
+  }, [unreadChat, pendingRSVP]);
+
   return (
     <Sidebar
       data-tour="sidebar"
