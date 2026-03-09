@@ -1,17 +1,35 @@
 
 
-## Add Zoom Trainings to Manager Video Library
+## Sidebar Cleanup
 
-A small update to include the "Zoom Trainings" category alongside "Advanced Training" and "Manager Training" in the Manager Videos page.
+**Changes to `src/components/layout/AppSidebar.tsx`:**
 
-### Changes
+1. **Remove "Videos"** from the Learn section — Training already leads to video content, no need for a separate tab.
 
-**File: `src/pages/app/ManagerTrainingVideosPage.tsx`**
-- Add `'Zoom Trainings'` to the `MANAGER_CATEGORIES` array (line 18)
-- Add `'Zoom Trainings'` to the `.in('category', ...)` database query filter (line 41)
+2. **Move "Resources"** from Learn → Tools section (renamed stays "Resources").
 
-**File: `src/components/dashboard/TrainingTiles.tsx`**
-- Update the manager video progress calculation to also include `'Zoom Trainings'` videos in the count
+3. **Remove "Notepad"** from Tools section entirely.
 
-Both changes are single-line additions -- no new files or structural changes needed.
+**Resulting sidebar structure:**
+
+```text
+Home
+
+▶ Learn
+    Training
+
+▶ Compete
+    Leaderboard
+
+▶ Community
+    Community
+    War Room        (manager only)
+
+▶ Tools
+    Forms           (manager only)
+    Resources
+    Calendar
+```
+
+Learn and Compete become single-item sections. Since they only have one item each, clicking the section header will still accordion-expand to reveal the single item — keeps the pattern consistent. No other files need changes.
 
