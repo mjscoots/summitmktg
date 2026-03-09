@@ -38,39 +38,14 @@ interface NavItem {
 interface NavSection {
   title: string;
   items: NavItem[];
-  managerOnly?: boolean;
 }
 
-const learnSection: NavSection = {
-  title: 'Learn',
-  items: [
-    { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-  ],
-};
-
-const competeSection: NavSection = {
-  title: 'Compete',
-  items: [
-    { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
-  ],
-};
-
-const communitySection: NavSection = {
-  title: 'Community',
-  items: [
-    { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
-    { label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' },
-  ],
-};
-
-const toolsSection: NavSection = {
-  title: 'Tools',
-  items: [
-    { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
-    { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
-    { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
-  ],
-};
+// Direct nav items (no dropdown)
+const directNavItems: DirectNavItem[] = [
+  { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
+  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+];
 
 export function AppSidebar() {
   const navigate = useNavigate();
