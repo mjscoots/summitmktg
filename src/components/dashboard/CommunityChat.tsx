@@ -116,17 +116,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
-  const [activeChannel, setActiveChannel] = useState<ChannelId>('general');
-  const [activeRoom, setActiveRoom] = useState<RoomType>('rookie');
+  const activeChannel: ChannelId = 'general';
   const inputRef = useRef<HTMLInputElement>(null);
-  const [channels, setChannels] = useState<Array<{ id: string; label: string; icon: string; color: string }>>([...DEFAULT_CHANNELS]);
-  const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [newChannelName, setNewChannelName] = useState('');
-  const [creatingChannel, setCreatingChannel] = useState(false);
-  const [editingChannelId, setEditingChannelId] = useState<string | null>(null);
-  const [editChannelLabel, setEditChannelLabel] = useState('');
+  const [channels] = useState<Array<{ id: string; label: string; icon: string; color: string }>>([...DEFAULT_CHANNELS]);
 
-  const effectiveChannel = activeChannel === 'ai-coach' ? 'ai-coach' : (activeRoom === 'vet' ? `${activeChannel}:vet` : activeChannel);
+  const effectiveChannel = 'general';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
