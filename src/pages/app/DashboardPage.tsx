@@ -12,6 +12,7 @@ import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { TodaysProgress } from '@/components/dashboard/TodaysProgress';
 import { ContinueLearning } from '@/components/dashboard/ContinueLearning';
 import { DailyMomentum } from '@/components/dashboard/DailyMomentum';
+import { DailyChallenge } from '@/components/dashboard/DailyChallenge';
 import { NextPointOpportunity } from '@/components/dashboard/NextPointOpportunity';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
