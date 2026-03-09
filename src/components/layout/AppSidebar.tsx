@@ -1,12 +1,13 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Users, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, StickyNote } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, StickyNote, BookOpen, Video } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   SidebarFooter,
@@ -24,36 +25,46 @@ interface NavItem {
   path: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
   iconColor?: string;
-  requiredRole?: 'manager' | 'admin' | 'owner';
 }
 
-// Primary nav items (top section)
-const rookieNavItems: NavItem[] = [
-  { label: 'Home', path: '/app', icon: Home },
-  { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
-  { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
-  { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
-];
+interface NavSection {
+  title: string;
+  items: NavItem[];
+  managerOnly?: boolean;
+}
 
-const managerNavItems: NavItem[] = [
-  { label: 'Home', path: '/app', icon: Home },
-  { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
-  { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
-  { label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' },
-  { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
-  { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
-];
+const learnSection: NavSection = {
+  title: 'Learn',
+  items: [
+    { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
+    { label: 'Videos', path: '/app/training/videos', icon: Video, iconColor: 'text-purple-400' },
+    { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
+  ],
+};
 
-// Bottom admin items (above footer) — Team removed, now inside War Room
-const bottomNavItems: NavItem[] = [
-  { label: 'Admin', path: '/admin/team', icon: Shield, requiredRole: 'admin' },
-];
+const competeSection: NavSection = {
+  title: 'Compete',
+  items: [
+    { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
+  ],
+};
+
+const communitySection: NavSection = {
+  title: 'Community',
+  items: [
+    { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+    { label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' },
+  ],
+};
+
+const toolsSection: NavSection = {
+  title: 'Tools',
+  items: [
+    { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
+    { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
+    { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
+  ],
+};
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -78,26 +89,45 @@ export function AppSidebar() {
 
   const isActive = (path: string) => {
     if (path === '/app') return location.pathname === '/app';
-    // Forms path also matches interviews and weekly-one-on-ones
     if (path === '/app/forms') {
       return location.pathname.startsWith('/app/forms') || 
              location.pathname.startsWith('/app/interviews') || 
              location.pathname.startsWith('/app/weekly-one-on-ones');
     }
-    // 1:1 Prep path
-    if (path === '/app/one-on-ones/prep') {
-      return location.pathname.startsWith('/app/one-on-ones');
+    if (path === '/app/training/videos') {
+      return location.pathname === '/app/training/videos';
+    }
+    if (path === '/app/training') {
+      return location.pathname.startsWith('/app/training') && !location.pathname.startsWith('/app/training/videos');
     }
     return location.pathname.startsWith(path);
   };
 
-  const navItems = isManager ? managerNavItems : rookieNavItems;
+  // Build sections based on role
+  const sections: NavSection[] = [];
+  sections.push(learnSection);
+  sections.push(competeSection);
+  
+  if (isManager) {
+    sections.push(communitySection);
+  } else {
+    sections.push({ title: 'Community', items: [{ label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' }] });
+  }
 
-  const visibleBottomItems = bottomNavItems.filter((item) => {
-    if (item.requiredRole === 'admin') return isAdmin;
-    if (item.requiredRole === 'manager') return isManager;
-    return true;
-  });
+  if (isManager) {
+    sections.push(toolsSection);
+  } else {
+    sections.push({ title: 'Tools', items: [
+      { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
+      { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
+    ] });
+  }
+
+  const getBadge = (path: string) => {
+    if (path === '/app/chat') return unreadChat;
+    if (path === '/app/calendar') return pendingRSVP;
+    return 0;
+  };
 
   return (
     <Sidebar
@@ -126,104 +156,118 @@ export function AppSidebar() {
         </button>
       </SidebarHeader>
 
-      {/* Main nav */}
+      {/* Home */}
       <SidebarContent className="px-1.5 py-1 flex flex-col flex-1">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
-              {navItems.map((item) => {
-                const active = isActive(item.path);
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <button
-                      data-tour={item.label.toLowerCase()}
-                      onClick={() => {
-                        if (item.path === '/app/chat') markChatRead();
-                        navigate(item.path);
-                        if (isMobile) setOpenMobile(false);
-                      }}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
-                        active 
-                          ? "bg-primary/15 text-primary"
-                          : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-                      )}
-                    >
-                      <item.icon 
-                        className={cn(
-                          "w-4 h-4 flex-shrink-0",
-                          active ? "text-primary" : item.iconColor || ""
-                        )} 
-                        strokeWidth={1.75} 
-                      />
-                      {!collapsed && (
-                        <span className="text-[13px] font-medium">{item.label}</span>
-                      )}
-                      {item.path === '/app/chat' && unreadChat > 0 && (
-                        <span className={cn(
-                          "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
-                          collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
-                        )}>
-                          {unreadChat > 99 ? '99+' : unreadChat}
-                        </span>
-                      )}
-                      {item.path === '/app/calendar' && pendingRSVP > 0 && (
-                        <span className={cn(
-                          "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
-                          collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
-                        )}>
-                          {pendingRSVP > 99 ? '99+' : pendingRSVP}
-                        </span>
-                      )}
-                    </button>
-                  </SidebarMenuItem>
-                );
-              })}
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <button
+                  data-tour="home"
+                  onClick={() => { navigate('/app'); if (isMobile) setOpenMobile(false); }}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150",
+                    isActive('/app')
+                      ? "bg-primary/15 text-primary"
+                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                  )}
+                >
+                  <Home className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                  {!collapsed && <span className="text-[13px] font-medium">Home</span>}
+                </button>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Bottom admin section */}
-        {visibleBottomItems.length > 0 && (
-          <SidebarGroup>
-            <Separator className="mb-2 bg-sidebar-border" />
+        {/* Grouped sections */}
+        {sections.map((section) => (
+          <SidebarGroup key={section.title}>
+            {!collapsed && (
+              <SidebarGroupLabel className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest px-2.5 mb-0.5">
+                {section.title}
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0.5">
-                {visibleBottomItems.map((item) => {
+                {section.items.map((item) => {
                   const active = isActive(item.path);
+                  const badge = getBadge(item.path);
+
                   return (
                     <SidebarMenuItem key={item.path}>
                       <button
+                        data-tour={item.label.toLowerCase()}
                         onClick={() => {
+                          if (item.path === '/app/chat') markChatRead();
                           navigate(item.path);
                           if (isMobile) setOpenMobile(false);
                         }}
                         className={cn(
                           "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
                           active 
-                          ? "bg-primary/15 text-primary"
-                          : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent"
+                            ? "bg-primary/15 text-primary"
+                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                         )}
                       >
-                        <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                        <item.icon 
+                          className={cn(
+                            "w-4 h-4 flex-shrink-0",
+                            active ? "text-primary" : item.iconColor || ""
+                          )} 
+                          strokeWidth={1.75} 
+                        />
                         {!collapsed && (
                           <span className="text-[13px] font-medium">{item.label}</span>
                         )}
-                        {item.label === 'Admin' && adminCounts.total > 0 && (
+                        {badge > 0 && (
                           <span className={cn(
                             "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
                             collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
                           )}>
-                            {adminCounts.total > 99 ? '99+' : adminCounts.total}
+                            {badge > 99 ? '99+' : badge}
                           </span>
                         )}
                       </button>
                     </SidebarMenuItem>
                   );
                 })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Admin section */}
+        {isAdmin && (
+          <SidebarGroup>
+            <Separator className="mb-2 bg-sidebar-border" />
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-0.5">
+                <SidebarMenuItem>
+                  <button
+                    onClick={() => { navigate('/admin/team'); if (isMobile) setOpenMobile(false); }}
+                    className={cn(
+                      "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
+                      isActive('/admin/team')
+                        ? "bg-primary/15 text-primary"
+                        : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent"
+                    )}
+                  >
+                    <Shield className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                    {!collapsed && <span className="text-[13px] font-medium">Admin</span>}
+                    {adminCounts.total > 0 && (
+                      <span className={cn(
+                        "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
+                        collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
+                      )}>
+                        {adminCounts.total > 99 ? '99+' : adminCounts.total}
+                      </span>
+                    )}
+                  </button>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -234,10 +278,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-1.5 border-t border-sidebar-border">
         <div
           data-tour="profile"
-          onClick={() => {
-            navigate('/app/profile');
-            if (isMobile) setOpenMobile(false);
-          }}
+          onClick={() => { navigate('/app/profile'); if (isMobile) setOpenMobile(false); }}
           className={cn(
             "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all duration-200",
             "hover:bg-sidebar-accent",
@@ -261,7 +302,6 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Theme toggle */}
         <button
           onClick={toggleThemeMode}
           className={cn(
