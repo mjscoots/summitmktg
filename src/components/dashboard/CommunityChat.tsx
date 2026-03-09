@@ -139,52 +139,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const isOwner = role === 'owner';
 
   // Load channels from DB
-  useEffect(() => {
-    const fetchChannels = async () => {
-      const { data } = await supabase
-        .from('chat_channels')
-        .select('slug, label, icon, color, display_order')
-        .eq('is_active', true)
-        .order('display_order');
-      if (data && data.length > 0) {
-        setChannels(data.map(ch => ({ id: ch.slug, label: ch.label, icon: ch.icon, color: ch.color })));
-      }
-    };
-    fetchChannels();
-  }, []);
 
-  const handleCreateChannel = async () => {
-    if (!newChannelName.trim() || creatingChannel) return;
-    setCreatingChannel(true);
-    const slug = newChannelName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const { error } = await supabase.from('chat_channels').insert({
-      slug,
-      label: newChannelName.trim(),
-      icon: 'Hash',
-      color: 'text-muted-foreground',
-      created_by: user?.id,
-      display_order: channels.length + 1,
-    });
-    if (error) {
-      toast.error(error.message.includes('duplicate') ? 'Channel already exists' : 'Failed to create channel');
-    } else {
-      setChannels(prev => [...prev, { id: slug, label: newChannelName.trim(), icon: 'Hash', color: 'text-muted-foreground' }]);
-      setActiveChannel(slug);
-      setNewChannelName('');
-      setShowCreateChannel(false);
-      toast.success('Channel created!');
-    }
-    setCreatingChannel(false);
-  };
-
-  const handleRenameChannel = async (slug: string) => {
-    if (!editChannelLabel.trim()) { setEditingChannelId(null); return; }
-    const { error } = await supabase.from('chat_channels').update({ label: editChannelLabel.trim() }).eq('slug', slug);
-    if (error) { toast.error('Failed to rename channel'); return; }
-    setChannels(prev => prev.map(ch => ch.id === slug ? { ...ch, label: editChannelLabel.trim() } : ch));
-    setEditingChannelId(null);
-    toast.success('Channel renamed');
-  };
 
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
