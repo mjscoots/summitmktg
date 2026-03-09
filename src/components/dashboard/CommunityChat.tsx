@@ -75,16 +75,12 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
 };
 
 const DEFAULT_CHANNELS = [
-  { id: 'general', label: 'Feed', icon: 'Hash', color: 'text-muted-foreground' },
-  { id: 'announcements', label: 'Announcements', icon: 'Megaphone', color: 'text-amber-500' },
-  { id: 'feedback', label: 'Feedback', icon: 'Lightbulb', color: 'text-emerald-500' },
-  { id: 'ai-coach', label: 'AI Coach', icon: 'Sparkles', color: 'text-primary' },
+  { id: 'general', label: 'General', icon: 'Hash', color: 'text-muted-foreground' },
 ] as const;
 
 const QUICK_REPLY_CHIPS = ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'] as const;
 
 type ChannelId = string;
-type RoomType = 'rookie' | 'vet';
 
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
