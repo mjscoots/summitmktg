@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Crown, Star, Zap, Activity, Video, FileText, Users, MessageSquare } from 'lucide-react';
+import { NextRankPush } from '@/components/leaderboard/NextRankPush';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
@@ -297,6 +298,20 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                     <p key={i} className="text-[11px] text-muted-foreground">• {tip}</p>
                   ))}
                 </div>
+              );
+            })()}
+
+            {/* Next Rank Push */}
+            {(() => {
+              if (myRank <= 0) return null;
+              const pointsGap = entries[myRank - 1].totalPoints - me.totalPoints;
+              if (pointsGap <= 0) return null;
+              return (
+                <NextRankPush 
+                  pointsToNext={pointsGap} 
+                  rivalName={displayName(entries[myRank - 1])}
+                  currentRank={rank}
+                />
               );
             })()}
 
