@@ -38,8 +38,6 @@ const learnSection: NavSection = {
   title: 'Learn',
   items: [
     { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-    { label: 'Videos', path: '/app/training/videos', icon: Video, iconColor: 'text-purple-400' },
-    { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
   ],
 };
 
@@ -62,7 +60,7 @@ const toolsSection: NavSection = {
   title: 'Tools',
   items: [
     { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
-    { label: 'Notepad', path: '/app/notepad', icon: StickyNote, iconColor: 'text-amber-400' },
+    { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
     { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
   ],
 };
