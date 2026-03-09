@@ -205,61 +205,103 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Grouped sections */}
-        {sections.map((section) => (
-          <SidebarGroup key={section.title}>
-            {!collapsed && (
-              <SidebarGroupLabel className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest px-2.5 mb-0.5">
-                {section.title}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-0.5">
-                {section.items.map((item) => {
-                  const active = isActive(item.path);
-                  const badge = getBadge(item.path);
+        {sections.map((section) => {
+          const isOpen = openSection === section.title;
+          const sectionBadge = getSectionBadge(section);
 
-                  return (
-                    <SidebarMenuItem key={item.path}>
-                      <button
-                        data-tour={item.label.toLowerCase()}
-                        onClick={() => {
-                          if (item.path === '/app/chat') markChatRead();
-                          navigate(item.path);
-                          if (isMobile) setOpenMobile(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
-                          active 
-                            ? "bg-primary/15 text-primary"
-                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-                        )}
-                      >
-                        <item.icon 
-                          className={cn(
-                            "w-4 h-4 flex-shrink-0",
-                            active ? "text-primary" : item.iconColor || ""
-                          )} 
-                          strokeWidth={1.75} 
-                        />
-                        {!collapsed && (
-                          <span className="text-[13px] font-medium">{item.label}</span>
-                        )}
-                        {badge > 0 && (
-                          <span className={cn(
-                            "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
-                            collapsed ? "absolute -top-1 -right-1 w-4 h-4" : "ml-auto min-w-[18px] h-[18px] px-1"
-                          )}>
-                            {badge > 99 ? '99+' : badge}
-                          </span>
-                        )}
-                      </button>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+          return (
+            <SidebarGroup key={section.title} className="py-0">
+              {!collapsed ? (
+                <Collapsible open={isOpen} onOpenChange={(open) => setOpenSection(open ? section.title : null)}>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest hover:text-muted-foreground hover:bg-sidebar-accent transition-all duration-150 group">
+                    <span>{section.title}</span>
+                    <div className="flex items-center gap-1">
+                      {sectionBadge > 0 && !isOpen && (
+                        <span className="flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
+                          {sectionBadge > 99 ? '99+' : sectionBadge}
+                        </span>
+                      )}
+                      <ChevronRight className={cn(
+                        "w-3 h-3 transition-transform duration-200",
+                        isOpen && "rotate-90"
+                      )} />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+                    <SidebarGroupContent>
+                      <SidebarMenu className="space-y-0.5 mt-0.5">
+                        {section.items.map((item) => {
+                          const active = isActive(item.path);
+                          const badge = getBadge(item.path);
+                          return (
+                            <SidebarMenuItem key={item.path}>
+                              <button
+                                data-tour={item.label.toLowerCase()}
+                                onClick={() => {
+                                  if (item.path === '/app/chat') markChatRead();
+                                  navigate(item.path);
+                                  if (isMobile) setOpenMobile(false);
+                                }}
+                                className={cn(
+                                  "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
+                                  active 
+                                    ? "bg-primary/15 text-primary"
+                                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                                )}
+                              >
+                                <item.icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : item.iconColor || "")} strokeWidth={1.75} />
+                                <span className="text-[13px] font-medium">{item.label}</span>
+                                {badge > 0 && (
+                                  <span className="ml-auto flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
+                                    {badge > 99 ? '99+' : badge}
+                                  </span>
+                                )}
+                              </button>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : (
+                /* Collapsed: show all icons */
+                <SidebarGroupContent>
+                  <SidebarMenu className="space-y-0.5">
+                    {section.items.map((item) => {
+                      const active = isActive(item.path);
+                      const badge = getBadge(item.path);
+                      return (
+                        <SidebarMenuItem key={item.path}>
+                          <button
+                            onClick={() => {
+                              if (item.path === '/app/chat') markChatRead();
+                              navigate(item.path);
+                              if (isMobile) setOpenMobile(false);
+                            }}
+                            className={cn(
+                              "w-full flex items-center justify-center px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
+                              active 
+                                ? "bg-primary/15 text-primary"
+                                : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                            )}
+                          >
+                            <item.icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : item.iconColor || "")} strokeWidth={1.75} />
+                            {badge > 0 && (
+                              <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none">
+                                {badge > 99 ? '99+' : badge}
+                              </span>
+                            )}
+                          </button>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              )}
+            </SidebarGroup>
+          );
+        })}
 
         {/* Spacer */}
         <div className="flex-1" />
