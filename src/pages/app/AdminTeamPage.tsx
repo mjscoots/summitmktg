@@ -152,12 +152,12 @@ export default function AdminTeamPage() {
 
     const bootcampMap = new Map((bootcampRes.data || []).map(b => [b.user_id, b]));
     const roleMap = new Map((roleRes.data || []).map(r => [r.user_id, r.role]));
-    const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id));
+    const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin' || r.role === 'owner').map(r => r.user_id));
     const teamsMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
 
     const allReps: RepRow[] = (profilesRes.data || []).map(p => {
       const userRole = roleMap.get(p.user_id) || 'rookie';
-      const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin';
+      const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin' || userRole === 'owner';
       return {
         ...p,
         bootcamp_completed: isManagerOrAdmin ? true : (bootcampMap.get(p.user_id)?.bootcamp_completed ?? true),
@@ -350,7 +350,7 @@ export default function AdminTeamPage() {
   const handleSaveEdit = async () => {
     if (!editUser) return;
     setEditLoading(true);
-    const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin';
+    const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin' || editForm.role === 'owner';
     const { error: profileError } = await supabase.from('profiles').update({
       full_name: editForm.full_name,
       phone: editForm.phone || null,
@@ -679,7 +679,7 @@ export default function AdminTeamPage() {
                         <td className="px-3 py-2.5">{statusBadge(rep.status)}</td>
                         <td className="px-3 py-2.5 text-white/60 text-xs truncate" title={getTeamName(rep.team_id)}>{getTeamName(rep.team_id)}</td>
                         <td className="px-3 py-2.5">
-                          {rep.role === 'manager' || rep.role === 'admin' ? (
+                          {rep.role === 'manager' || rep.role === 'admin' || rep.role === 'owner' ? (
                             <span className="text-muted-foreground text-[9px] font-medium">N/A</span>
                           ) : (
                             <Badge variant={rep.bootcamp_completed ? 'default' : 'destructive'} className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">
@@ -916,7 +916,7 @@ export default function AdminTeamPage() {
                   setEditForm(f => ({
                     ...f,
                     role: newRole,
-                    experience: (newRole === 'manager' || newRole === 'admin') ? 'veteran' : f.experience,
+                    experience: (newRole === 'manager' || newRole === 'admin' || newRole === 'owner') ? 'veteran' : f.experience,
                   }));
                 }}>
                   <option value="rookie">Rookie</option>

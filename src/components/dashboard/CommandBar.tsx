@@ -10,7 +10,7 @@ export function CommandBar() {
   const navigate = useNavigate();
   const { role } = useAuth();
   const { streakData } = useStreak();
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   return (
     <div className="flex flex-wrap items-center gap-3 mb-8">

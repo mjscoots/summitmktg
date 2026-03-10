@@ -203,8 +203,8 @@ export default function TeamPage() {
     }
     // Sort: managers first (by team size desc), then rookies by training %
     return members.sort((a, b) => {
-      const aIsManager = a.role === 'manager' || a.role === 'admin';
-      const bIsManager = b.role === 'manager' || b.role === 'admin';
+      const aIsManager = a.role === 'manager' || a.role === 'admin' || a.role === 'owner';
+      const bIsManager = b.role === 'manager' || b.role === 'admin' || b.role === 'owner';
       if (aIsManager && !bIsManager) return -1;
       if (!aIsManager && bIsManager) return 1;
       if (!aIsManager && !bIsManager) {
@@ -683,7 +683,7 @@ export default function TeamPage() {
                   <tbody>
                     {filteredMembers.map(member => {
                       const progress = getProgress(member.user_id);
-                      const isVeteran = member.role === 'manager' || member.role === 'admin';
+                      const isVeteran = member.role === 'manager' || member.role === 'admin' || member.role === 'owner';
                       const progressColor = progress.percentage >= 100 ? 'text-green-400' :
                         progress.percentage >= 71 ? 'text-primary' :
                         progress.percentage >= 41 ? 'text-yellow-500' : 'text-destructive';

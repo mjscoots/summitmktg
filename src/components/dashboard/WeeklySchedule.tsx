@@ -20,7 +20,7 @@ export function WeeklySchedule() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Map app role to database role
-  const dbRole = role === 'manager' || role === 'admin' ? 'manager' : 'rookie';
+  const dbRole = role === 'manager' || role === 'admin' || role === 'owner' ? 'manager' : 'rookie';
 
   useEffect(() => {
     const fetchSchedule = async () => {

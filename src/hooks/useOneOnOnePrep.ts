@@ -118,7 +118,7 @@ export function useOneOnOnePrep(filterRole: 'rookie' | 'manager' = 'rookie') {
       const filteredMembers = members.filter(m => {
         const memberRole = roleMap.get(m.user_id) || 'rookie';
         if (filterRole === 'rookie') return memberRole === 'rookie';
-        if (filterRole === 'manager') return memberRole === 'manager' || memberRole === 'admin';
+        if (filterRole === 'manager') return memberRole === 'manager' || memberRole === 'admin' || memberRole === 'owner';
         return true;
       });
 

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 export function useManagerNotifications() {
   const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   useEffect(() => {
     if (!isManager) return;
