@@ -256,6 +256,15 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
+               {/* Calculators */}
+               <Route path="/app/calculators" element={
+                 <ProtectedRoute>
+                   <BootcampGate>
+                     <CalculatorsPage />
+                   </BootcampGate>
+                 </ProtectedRoute>
+               } />
+
                {/* Calendar */}
                <Route path="/app/calendar" element={
                 <ProtectedRoute>

@@ -8,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Link2, ArrowUpDown, Check } from 'lucide-react';
+import { Plus, Link2, ArrowUpDown, Check, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { SortableLinkCard } from '@/components/links/SortableLinkCard';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { cn } from '@/lib/utils';
 
 interface ManagedLink {
   id: string;
@@ -26,17 +27,18 @@ interface ManagedLink {
   is_active: boolean;
 }
 
+type PageTab = 'links' | 'phone-numbers';
+
 export default function LinksPage() {
   const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isAdmin = role === 'admin' || role === 'owner';
 
   const [links, setLinks] = useState<ManagedLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'rookie' | 'manager'>(isManager ? 'manager' : 'rookie');
   const [showAdd, setShowAdd] = useState(false);
   const [editingLink, setEditingLink] = useState<ManagedLink | null>(null);
   const [isReordering, setIsReordering] = useState(false);
+  const [activeTab, setActiveTab] = useState<PageTab>('links');
 
   // Form state
   const [title, setTitle] = useState('');
@@ -62,11 +64,8 @@ export default function LinksPage() {
 
   useEffect(() => { fetchLinks(); }, []);
 
-  const filteredLinks = links.filter(l => {
-    if (activeTab === 'rookie') return l.target_role === 'rookie' || l.target_role === 'all';
-    if (activeTab === 'manager') return l.target_role === 'manager' || l.target_role === 'all';
-    return true;
-  });
+  // Show all links — no role filter
+  const filteredLinks = links;
 
   const resetForm = () => {
     setTitle(''); setUrl(''); setDescription(''); setTargetRole('all'); setIcon('link');
@@ -121,14 +120,12 @@ export default function LinksPage() {
     const newIndex = filteredLinks.findIndex(l => l.id === over.id);
     const reordered = arrayMove(filteredLinks, oldIndex, newIndex);
 
-    // Optimistic update
     const updatedLinks = links.map(l => {
       const newPos = reordered.findIndex(r => r.id === l.id);
       return newPos >= 0 ? { ...l, display_order: newPos } : l;
     });
     setLinks(updatedLinks.sort((a, b) => a.display_order - b.display_order));
 
-    // Persist to DB
     const updates = reordered.map((link, idx) =>
       supabase.from('managed_links').update({ display_order: idx }).eq('id', link.id)
     );
@@ -145,16 +142,21 @@ export default function LinksPage() {
     toast.success('Link order saved');
   };
 
+  const TABS: { id: PageTab; label: string; icon: typeof Link2 }[] = [
+    { id: 'links', label: 'Links', icon: Link2 },
+    { id: 'phone-numbers', label: 'Phone Numbers', icon: Phone },
+  ];
+
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Dashboard" />
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Links</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Quick access to important resources</p>
+            <h1 className="text-xl font-bold text-foreground">Resources</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Links & phone numbers</p>
           </div>
-          {isAdmin && (
+          {isAdmin && activeTab === 'links' && (
             <div className="flex gap-2">
               {filteredLinks.length > 1 && (
                 <Button
@@ -209,62 +211,71 @@ export default function LinksPage() {
           )}
         </div>
 
-        {/* Role toggle */}
-        {isManager && (
-          <div className="flex gap-1 mb-5 bg-muted/30 rounded-lg p-1 w-fit">
-            <button
-              onClick={() => { setActiveTab('rookie'); setIsReordering(false); }}
-              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all ${
-                activeTab === 'rookie'
-                  ? 'bg-primary/15 text-primary shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Rookie Links
-            </button>
-            <button
-              onClick={() => { setActiveTab('manager'); setIsReordering(false); }}
-              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all ${
-                activeTab === 'manager'
-                  ? 'bg-primary/15 text-primary shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Manager Links
-            </button>
+        {/* Tab toggle: Links / Phone Numbers */}
+        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30 w-fit">
+          <div className="flex">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => { setActiveTab(tab.id); setIsReordering(false); }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200",
+                    activeTab === tab.id
+                      ? "bg-card text-foreground shadow-md border border-border/50"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("w-3.5 h-3.5", activeTab === tab.id && "text-primary")} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-        )}
+        </div>
 
-        {/* Links grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-28 rounded-xl bg-muted/20 animate-pulse" />
-            ))}
-          </div>
-        ) : filteredLinks.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Link2 className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No links added yet</p>
-            {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Link" to get started</p>}
-          </Card>
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={filteredLinks.map(l => l.id)} strategy={rectSortingStrategy}>
+        {activeTab === 'links' && (
+          <>
+            {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {filteredLinks.map(link => (
-                  <SortableLinkCard
-                    key={link.id}
-                    link={link}
-                    isAdmin={isAdmin}
-                    isReordering={isReordering}
-                    onEdit={openEdit}
-                    onDelete={handleDelete}
-                  />
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-28 rounded-xl bg-muted/20 animate-pulse" />
                 ))}
               </div>
-            </SortableContext>
-          </DndContext>
+            ) : filteredLinks.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Link2 className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No links added yet</p>
+                {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Link" to get started</p>}
+              </Card>
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={filteredLinks.map(l => l.id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {filteredLinks.map(link => (
+                      <SortableLinkCard
+                        key={link.id}
+                        link={link}
+                        isAdmin={isAdmin}
+                        isReordering={isReordering}
+                        onEdit={openEdit}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
+          </>
+        )}
+
+        {activeTab === 'phone-numbers' && (
+          <Card className="p-8 text-center">
+            <Phone className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">No phone numbers added yet</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Phone numbers will appear here once added</p>
+          </Card>
         )}
       </div>
     </AppLayout>
