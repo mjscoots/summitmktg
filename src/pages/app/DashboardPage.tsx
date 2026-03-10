@@ -134,6 +134,9 @@ export default function DashboardPage() {
         {/* Quick Actions — moved to top */}
         <QuickActions />
 
+        {/* To-Do List */}
+        <TodoList />
+
         {/* See My Points button */}
         <button
           onClick={() => setShowPoints(true)}

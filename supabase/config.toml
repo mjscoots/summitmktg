@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.weekly-champion-notify]
 verify_jwt = false
+
+[functions.parse-tasks]
+verify_jwt = false
