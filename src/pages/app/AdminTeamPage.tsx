@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video, ArrowUpDown } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video, ArrowUpDown } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
-const LazyAssignments = lazy(() => import('@/components/admin/AssignmentsTab'));
+
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
@@ -124,7 +124,7 @@ export default function AdminTeamPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
-  const [rosterSubTab, setRosterSubTab] = useState<'sync' | 'import' | 'assign'>('sync');
+  const [rosterSubTab, setRosterSubTab] = useState<'roster' | 'import'>('roster');
   const [passwordResetTarget, setPasswordResetTarget] = useState<{ email: string; full_name: string } | null>(null);
   const [customPassword, setCustomPassword] = useState('');
 
@@ -776,14 +776,14 @@ export default function AdminTeamPage() {
             </div>
           </TabsContent>
 
-          {/* ========== ROSTER & ASSIGN TAB (combined) ========== */}
+          {/* ========== ROSTER & ASSIGN TAB ========== */}
           <TabsContent value="roster">
             <div className="flex items-center gap-2 mb-4">
               <Button
                 size="sm"
-                variant={rosterSubTab === 'sync' ? 'default' : 'outline'}
-                className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'sync' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
-                onClick={() => setRosterSubTab('sync')}
+                variant={rosterSubTab === 'roster' ? 'default' : 'outline'}
+                className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'roster' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
+                onClick={() => setRosterSubTab('roster')}
               >
                 <Users className="w-3 h-3" /> Roster
               </Button>
@@ -795,32 +795,22 @@ export default function AdminTeamPage() {
               >
                 <Upload className="w-3 h-3" /> Mass Import
               </Button>
-              <Button
-                size="sm"
-                variant={rosterSubTab === 'assign' ? 'default' : 'outline'}
-                className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'assign' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
-                onClick={() => setRosterSubTab('assign')}
-              >
-                <ClipboardList className="w-3 h-3" /> Assignments
-              </Button>
             </div>
             <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-              {rosterSubTab === 'sync' ? (
+              {rosterSubTab === 'roster' ? (
                 <LazyRosterStatus
-                  profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, phone: (r as any).phone, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status, team_id: r.team_id, role: r.role }))}
+                  profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, phone: (r as any).phone, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status, team_id: r.team_id, role: r.role, created_at: r.created_at }))}
                   managers={managers}
                   teams={teamsSimple}
                   onRefresh={fetchData}
                 />
-              ) : rosterSubTab === 'import' ? (
+              ) : (
                 <LazyMassImport
                   profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email }))}
                   managers={managers}
                   teams={teamsSimple}
                   onRefresh={fetchData}
                 />
-              ) : (
-                <LazyAssignments managers={managers} teams={teamsSimple} onRefresh={fetchData} />
               )}
             </Suspense>
           </TabsContent>
