@@ -916,7 +916,7 @@ export default function AdminTeamPage() {
                   setEditForm(f => ({
                     ...f,
                     role: newRole,
-                    experience: (newRole === 'manager' || newRole === 'admin') ? 'veteran' : f.experience,
+                    experience: (newRole === 'manager' || newRole === 'admin' || newRole === 'owner') ? 'veteran' : f.experience,
                   }));
                 }}>
                   <option value="rookie">Rookie</option>
