@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,6 +12,9 @@ import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { getTeamColor } from '@/lib/teamColors';
 import type { TeamMember } from '@/lib/hierarchyUtils';
+
+// Lazy-load the full team structure page content
+const TeamStructureContent = lazy(() => import('./MyTeamPage').then(mod => ({ default: mod.default })));
 
 type WarRoomTab = 'downline' | 'teams' | 'pulse' | 'activity';
 
