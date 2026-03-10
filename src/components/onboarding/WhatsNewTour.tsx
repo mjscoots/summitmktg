@@ -88,6 +88,8 @@ export function WhatsNewTour() {
   const handleDismiss = async () => {
     setOpen(false);
     setDismissed(true);
+    // Immediately mark in localStorage so it never shows again this session
+    localStorage.setItem(`whats_new_seen_${CURRENT_RELEASE}`, 'true');
     if (user) {
       await supabase
         .from('profiles')
