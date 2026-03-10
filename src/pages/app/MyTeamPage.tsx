@@ -2,10 +2,10 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck, X, ChevronDown } from 'lucide-react';
+import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Button } from '@/components/ui/button';
-import { TeamCard } from '@/components/team/TeamCard';
+
 import { PillarTreeView } from '@/components/team/PillarTreeView';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
@@ -493,7 +493,7 @@ export default function MyTeamPage() {
           </>
         )}
 
-        {/* ===== TEAMS VIEW ===== */}
+        {/* ===== TEAMS VIEW (Team Structure) ===== */}
         {viewMode === 'teams' && (
           <>
             {isLoading ? (
@@ -510,22 +510,30 @@ export default function MyTeamPage() {
                 onDataChange={() => fetchData()}
               />
             ) : (
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredTeams.map((team, index) => (
-                  <div
-                    key={team.id}
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <TeamCard
-                      team={team}
-                      onClick={() => setSelectedPillar(team.slug)}
-                      canUploadLogo={isManagerRole}
-                      isAdmin={isAdmin}
-                      onLogoUpdate={fetchData}
-                    />
-                  </div>
-                ))}
+              <div className="space-y-4">
+                {filteredTeams.map((team) => {
+                  const pillar = pillarData.find(p => p.id === team.id);
+                  if (!pillar) return null;
+                  const ownerName = PILLAR_OWNERS[team.slug];
+                  const tree = buildTree(enrichedRoster, ownerName);
+                  return (
+                    <div key={team.id} className="border border-border/30 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setSelectedPillar(team.slug)}
+                        className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 hover:bg-muted/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                          <span className="font-bold text-foreground">{team.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {team.totalMembers} members
+                          </span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </>

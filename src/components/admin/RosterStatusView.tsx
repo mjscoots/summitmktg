@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { Search, Edit2, UserCheck, Mail, Phone, ChevronRight } from 'lucide-react';
+import { Search, UserCheck, Mail, Phone, ChevronRight, Users } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -31,12 +31,12 @@ const STATUS_TABS = [
 
 type StatusTab = typeof STATUS_TABS[number]['key'];
 
-const STATUS_COLORS: Record<string, { badge: string; dot: string }> = {
-  summer_ready: { badge: 'bg-green-500/15 text-green-400 border-green-500/30', dot: 'bg-green-400' },
-  onboarded: { badge: 'bg-blue-500/15 text-blue-400 border-blue-500/30', dot: 'bg-blue-400' },
-  contract_signed: { badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30', dot: 'bg-amber-400' },
-  info_added: { badge: 'bg-orange-500/15 text-orange-400 border-orange-500/30', dot: 'bg-orange-400' },
-  pending: { badge: 'bg-muted/30 text-muted-foreground border-muted', dot: 'bg-muted-foreground' },
+const STATUS_COLORS: Record<string, { badge: string }> = {
+  summer_ready: { badge: 'bg-green-500/15 text-green-400 border-green-500/30' },
+  onboarded: { badge: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+  contract_signed: { badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
+  info_added: { badge: 'bg-orange-500/15 text-orange-400 border-orange-500/30' },
+  pending: { badge: 'bg-muted/30 text-muted-foreground border-muted' },
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -52,6 +52,21 @@ function StatusBadge({ status }: { status: string }) {
     <Badge variant="outline" className={`text-[9px] h-4 px-1.5 ${colors.badge}`}>
       {labels[status] || 'Pending'}
     </Badge>
+  );
+}
+
+function RoleBadge({ role }: { role: string }) {
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  return (
+    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${
+      role === 'admin' || role === 'owner'
+        ? 'bg-purple-500/20 text-purple-400'
+        : isManager
+        ? 'bg-primary/20 text-primary'
+        : 'bg-green-500/20 text-green-400'
+    }`}>
+      {role === 'owner' ? 'Owner' : role === 'admin' ? 'Admin' : isManager ? 'Manager' : 'Rookie'}
+    </span>
   );
 }
 
@@ -81,6 +96,11 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
   const [selectedProfile, setSelectedProfile] = useState<ProfileRow | null>(null);
   const [editingStatus, setEditingStatus] = useState<string>('');
 
+  const getTeamName = (teamId: string | null | undefined) => {
+    if (!teamId) return '—';
+    return teams.find(t => t.id === teamId)?.name || '—';
+  };
+
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { all: profiles.length };
     for (const p of profiles) {
@@ -105,11 +125,6 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
     }
     return list.sort((a, b) => a.full_name.localeCompare(b.full_name));
   }, [profiles, activeTab, search]);
-
-  const getTeamName = (teamId: string | null | undefined) => {
-    if (!teamId) return '—';
-    return teams.find(t => t.id === teamId)?.name || '—';
-  };
 
   const handleUpdateStatus = async (userId: string, newStatus: string) => {
     const { error } = await supabase.from('profiles').update({ onboarding_status: newStatus } as any).eq('user_id', userId);
@@ -140,7 +155,6 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
         {STATUS_TABS.map(tab => {
           const count = statusCounts[tab.key] || 0;
           const isActive = activeTab === tab.key;
-          const colors = tab.key === 'all' ? null : STATUS_COLORS[tab.key];
           return (
             <button
               key={tab.key}
@@ -171,8 +185,9 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
 
       {/* Results */}
       <div className="border border-white/10 rounded-lg overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_140px_100px_40px] sm:grid-cols-[1fr_160px_160px_120px_40px] gap-0 bg-white/[0.02] border-b border-white/10 px-4 py-2">
+        <div className="hidden sm:grid grid-cols-[1fr_80px_120px_120px_100px_32px] gap-0 bg-white/[0.02] border-b border-white/10 px-4 py-2">
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Name</span>
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Role</span>
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Manager</span>
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Team</span>
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Status</span>
@@ -183,7 +198,7 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
             <button
               key={p.user_id}
               onClick={() => { setSelectedProfile(p); setEditingStatus(p.onboarding_status || 'pending'); }}
-              className="w-full grid grid-cols-[1fr_120px_140px_100px_40px] sm:grid-cols-[1fr_160px_160px_120px_40px] gap-0 items-center px-4 py-2.5 hover:bg-white/[0.04] transition-colors text-left"
+              className="w-full sm:grid sm:grid-cols-[1fr_80px_120px_120px_100px_32px] flex flex-col gap-1 sm:gap-0 items-start sm:items-center px-4 py-2.5 hover:bg-white/[0.04] transition-colors text-left"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <UserAvatar avatarUrl={p.avatar_url} fullName={p.full_name} size="sm" />
@@ -192,10 +207,11 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
                   <p className="text-[10px] text-muted-foreground truncate">{p.email}</p>
                 </div>
               </div>
+              <div><RoleBadge role={p.role || 'rookie'} /></div>
               <span className="text-xs text-muted-foreground truncate">{p.direct_manager || '—'}</span>
               <span className="text-xs text-muted-foreground truncate">{getTeamName(p.team_id)}</span>
               <StatusBadge status={p.onboarding_status || 'pending'} />
-              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 hidden sm:block" />
             </button>
           ))}
           {filtered.length === 0 && (
@@ -215,7 +231,11 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
                   <UserAvatar avatarUrl={selectedProfile.avatar_url} fullName={selectedProfile.full_name} size="lg" />
                   <div>
                     <span className="block text-foreground">{selectedProfile.full_name}</span>
-                    <span className="text-xs text-muted-foreground">{selectedProfile.email}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <RoleBadge role={selectedProfile.role || 'rookie'} />
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground">{getTeamName(selectedProfile.team_id)}</span>
+                    </div>
                   </div>
                 </DialogTitle>
               </DialogHeader>
@@ -237,6 +257,15 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
                     </div>
                   </div>
                 )}
+
+                {/* Team */}
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <Users className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Team</p>
+                    <p className="text-sm text-foreground">{getTeamName(selectedProfile.team_id)}</p>
+                  </div>
+                </div>
 
                 {/* Onboarding Status */}
                 <div className="p-3 bg-muted/30 rounded-lg space-y-2">
@@ -276,12 +305,6 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* Team */}
-                <div className="p-3 bg-muted/30 rounded-lg">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Team</p>
-                  <p className="text-sm text-foreground">{getTeamName(selectedProfile.team_id)}</p>
                 </div>
               </div>
             </>
