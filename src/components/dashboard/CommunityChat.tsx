@@ -233,12 +233,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => { supabase.removeChannel(channel); };
   }, [user?.id, onNewMessage, effectiveChannel]);
 
-  const allChannelMessages = activeChannel === 'ai-coach' ? localAiMessages : messages.filter(m => m.channel === effectiveChannel);
+  const allChannelMessages = messages.filter(m => m.channel === effectiveChannel);
   const channelMessages = allChannelMessages;
 
   useEffect(() => {
     scrollToBottom(false);
-  }, [channelMessages.length, activeChannel, activeRoom, scrollToBottom]);
+  }, [channelMessages.length, scrollToBottom]);
 
   // Post of the Day
   useEffect(() => {
