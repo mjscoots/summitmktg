@@ -41,20 +41,19 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             </header>
 
             {/* Mobile header */}
-            <header className="lg:hidden sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 py-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <SidebarTrigger className="w-9 h-9 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary border border-primary/20 rounded-lg shadow-sm" />
-                  {/* Clickable Summit Logo */}
+            <header className="lg:hidden sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-2 py-2">
+              <div className="flex items-center justify-between gap-1">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <SidebarTrigger className="w-8 h-8 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary border border-primary/20 rounded-lg shadow-sm" />
                   <button
                     onClick={() => navigate('/app')}
-                    className="flex items-center gap-2 px-2 py-1 rounded-md transition-all duration-200 hover:bg-white/10 active:scale-95 cursor-pointer"
+                    className="flex items-center gap-1 px-1.5 py-1 rounded-md transition-all duration-200 hover:bg-white/10 active:scale-95 cursor-pointer"
                   >
-                    <Mountain className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-black tracking-tight hover:text-primary transition-colors">SUMMIT</span>
+                    <Mountain className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-black tracking-tight hover:text-primary transition-colors">SUMMIT</span>
                   </button>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">
                   <StatusBar />
                   <NotificationBell />
                 </div>
