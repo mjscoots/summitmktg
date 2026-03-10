@@ -8,6 +8,8 @@ interface StreakData {
   longestStreak: number;
   lastLoginDate: string | null;
   totalDaysActive: number;
+  previousStreak: number;
+  restoresRemaining: number;
 }
 
 const DEFAULT_STREAK_DATA: StreakData = {
@@ -15,9 +17,9 @@ const DEFAULT_STREAK_DATA: StreakData = {
   longestStreak: 0,
   lastLoginDate: null,
   totalDaysActive: 0,
+  previousStreak: 0,
+  restoresRemaining: 3,
 };
-
-const STREAK_MILESTONES = [1, 3, 7, 14, 21, 30, 60, 90];
 
 export function useStreak() {
   const { user } = useAuth();
@@ -25,6 +27,7 @@ export function useStreak() {
   const [newMilestone, setNewMilestone] = useState<number | null>(null);
   const [showStreakCelebration, setShowStreakCelebration] = useState(false);
   const [pointsAwarded, setPointsAwarded] = useState(0);
+  const [isRestoring, setIsRestoring] = useState(false);
   const hasRecordedRef = useRef(false);
 
   // Always load existing streak data on mount
@@ -35,7 +38,7 @@ export function useStreak() {
       try {
         const { data: streakRow } = await supabase
           .from('daily_login_streaks')
-          .select('current_streak, longest_streak, total_days_active, last_login_date')
+          .select('current_streak, longest_streak, total_days_active, last_login_date, previous_streak, streak_restores_remaining')
           .eq('user_id', user.id)
           .single();
 
@@ -45,6 +48,8 @@ export function useStreak() {
             longestStreak: streakRow.longest_streak,
             lastLoginDate: streakRow.last_login_date,
             totalDaysActive: streakRow.total_days_active,
+            previousStreak: (streakRow as any).previous_streak ?? 0,
+            restoresRemaining: (streakRow as any).streak_restores_remaining ?? 3,
           });
         }
       } catch { /* no streak row yet */ }
@@ -79,15 +84,21 @@ export function useStreak() {
           already_recorded: boolean;
         };
 
-        // Fetch actual totalDaysActive from DB
+        // Fetch actual data from DB (includes restore fields)
         let totalDaysActive = result.current_streak;
+        let previousStreak = 0;
+        let restoresRemaining = 3;
         try {
           const { data: streakRow } = await supabase
             .from('daily_login_streaks')
-            .select('total_days_active')
+            .select('total_days_active, previous_streak, streak_restores_remaining')
             .eq('user_id', user.id)
             .single();
-          if (streakRow) totalDaysActive = streakRow.total_days_active;
+          if (streakRow) {
+            totalDaysActive = streakRow.total_days_active;
+            previousStreak = (streakRow as any).previous_streak ?? 0;
+            restoresRemaining = (streakRow as any).streak_restores_remaining ?? 3;
+          }
         } catch { /* use fallback */ }
 
         setStreakData({
@@ -95,6 +106,8 @@ export function useStreak() {
           longestStreak: result.longest_streak,
           lastLoginDate: new Date().toISOString().split('T')[0],
           totalDaysActive,
+          previousStreak,
+          restoresRemaining,
         });
 
         if (!result.already_recorded) {
@@ -139,6 +152,36 @@ export function useStreak() {
     recordLogin();
   }, [user?.id]);
 
+  const restoreStreak = useCallback(async () => {
+    if (!user?.id || isRestoring) return false;
+    setIsRestoring(true);
+    try {
+      const { data, error } = await (supabase.rpc as any)('restore_streak', { _user_id: user.id });
+      if (error || !data?.success) {
+        console.error('[Streak] Restore failed:', error || data?.error);
+        setIsRestoring(false);
+        return false;
+      }
+
+      setStreakData(prev => ({
+        ...prev,
+        currentStreak: data.restored_streak,
+        previousStreak: 0,
+        restoresRemaining: data.restores_remaining,
+        lastLoginDate: new Date().toISOString().split('T')[0],
+        longestStreak: Math.max(prev.longestStreak, data.restored_streak),
+      }));
+
+      setShowStreakCelebration(true);
+      setIsRestoring(false);
+      return true;
+    } catch (err) {
+      console.error('Streak restore failed:', err);
+      setIsRestoring(false);
+      return false;
+    }
+  }, [user?.id, isRestoring]);
+
   const clearMilestone = useCallback(() => {
     setNewMilestone(null);
   }, []);
@@ -175,5 +218,7 @@ export function useStreak() {
     clearStreakCelebration,
     getStreakMessage,
     pointsAwarded,
+    restoreStreak,
+    isRestoring,
   };
 }
