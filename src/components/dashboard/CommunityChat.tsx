@@ -432,8 +432,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
               <div
                 id={`msg-${msg.id}`}
+                onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-muted/30 transition-colors",
+                  "group/msg relative px-4 hover:bg-muted/30 transition-colors select-none",
                   grouped ? "py-0.5" : "pt-3 pb-1",
                   msg.is_pinned && "bg-amber-500/[0.03] border-l-2 border-amber-500/30",
                   postOfTheDayId === msg.id && "post-of-the-day"
