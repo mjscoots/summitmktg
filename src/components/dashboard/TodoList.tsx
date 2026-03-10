@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { format, differenceInDays, startOfDay } from 'date-fns';
 import {
   ListTodo, Plus, Upload, Trash2, User, ChevronDown,
   AlertTriangle, ArrowUp, Minus, ArrowDown, Loader2, Sparkles, CalendarIcon, Pencil
@@ -186,9 +186,33 @@ export function TodoList() {
     }
   };
 
-  // Always sort by priority (urgent → low), completed at bottom
+  // Compute effective priority: due dates approaching boost priority
+  const getEffectivePriority = (todo: TodoItem): number => {
+    const basePriority = PRIORITY_ORDER.indexOf(todo.priority); // 0=urgent, 3=low
+    if (!todo.due_date || todo.is_completed) return basePriority;
+    
+    const today = startOfDay(new Date());
+    const due = startOfDay(new Date(todo.due_date + 'T00:00:00'));
+    const daysLeft = differenceInDays(due, today);
+    
+    if (daysLeft < 0) return 0; // Overdue → treat as urgent
+    if (daysLeft === 0) return 0; // Due today → urgent
+    if (daysLeft <= 1) return Math.min(basePriority, 0); // Due tomorrow → urgent
+    if (daysLeft <= 3) return Math.min(basePriority, 1); // Within 3 days → at least high
+    if (daysLeft <= 7) return Math.min(basePriority, 2); // Within a week → at least medium
+    return basePriority;
+  };
+
+  // Sort: completed at bottom, then by effective priority, then by due date proximity
   const sortedTodos = [...todos].sort((a, b) => {
     if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
+    const aPri = getEffectivePriority(a);
+    const bPri = getEffectivePriority(b);
+    if (aPri !== bPri) return aPri - bPri;
+    // Same effective priority: items with closer due dates first
+    if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+    if (a.due_date) return -1;
+    if (b.due_date) return 1;
     return PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority);
   });
 
