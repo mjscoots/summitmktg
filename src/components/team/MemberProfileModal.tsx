@@ -84,6 +84,7 @@ export function MemberProfileModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const [streakDays, setStreakDays] = useState(0);
   const [teamName, setTeamName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [pointsBreakdown, setPointsBreakdown] = useState<any>(null);
   const [allTimeBreakdown, setAllTimeBreakdown] = useState<any>(null);
   const [pointsExpanded, setPointsExpanded] = useState(false);
@@ -93,23 +94,21 @@ export function MemberProfileModal({
   useEffect(() => {
     if (pillars.length === 0 && open) {
       const fetchPillars = async () => {
-        const { data } = await supabase
-          .from('teams')
-          .select('id, name, slug')
-          .order('name');
+        const { data } = await supabase.from('teams').select('id, name, slug').order('name');
         setLocalPillars(data || []);
       };
       fetchPillars();
     }
   }, [pillars, open]);
 
-  // Reset edit mode when modal closes or member changes
+  // Reset state when modal closes
   useEffect(() => {
     if (!open) {
       setIsEditMode(false);
       setOnboardingStatus(null);
       setStreakDays(0);
       setTeamName(null);
+      setAvatarUrl(null);
       setPointsBreakdown(null);
       setAllTimeBreakdown(null);
       setPointsExpanded(false);
@@ -121,20 +120,19 @@ export function MemberProfileModal({
   useEffect(() => {
     if (!open || !member) return;
     const fetchExtra = async () => {
-      // Onboarding status + team
       const { data: pData } = await supabase
         .from('profiles')
-        .select('onboarding_status, team_id')
+        .select('onboarding_status, team_id, avatar_url')
         .eq('user_id', member.user_id)
         .single();
       if (pData) {
         setOnboardingStatus(pData.onboarding_status);
+        setAvatarUrl(pData.avatar_url);
         if (pData.team_id) {
           const { data: tData } = await supabase.from('teams').select('name').eq('id', pData.team_id).single();
           if (tData) setTeamName(tData.name);
         }
       }
-      // Streak
       const { data: sData } = await supabase
         .from('daily_login_streaks')
         .select('current_streak')
@@ -142,7 +140,7 @@ export function MemberProfileModal({
         .single();
       if (sData) setStreakDays(sData.current_streak || 0);
 
-      // Points breakdown — weekly
+      // Weekly points
       try {
         const { data: lbData } = await (supabase as any).rpc('get_current_leaderboard');
         if (lbData) {
@@ -164,19 +162,17 @@ export function MemberProfileModal({
             });
           }
         }
-      } catch (e) { /* non-critical */ }
+      } catch {}
 
-      // All-time breakdown
+      // All-time points
       try {
         const { data: atData } = await (supabase as any).rpc('get_all_time_leaderboard', { _limit: 100 });
         if (atData) {
           const atEntry = (atData as any[]).find((r: any) => r.user_id === member.user_id);
           if (atEntry) {
-            const allEntries = atData as any[];
-            const atRank = allEntries.findIndex((r: any) => r.user_id === member.user_id) + 1;
+            const atRank = (atData as any[]).findIndex((r: any) => r.user_id === member.user_id) + 1;
             setAllTimeBreakdown({
               total: atEntry.total_points || 0,
-              legacy: atEntry.legacy_points || 0,
               hours: atEntry.new_hours_points || 0,
               threshold: atEntry.threshold_bonus || 0,
               login: atEntry.login_points || 0,
@@ -194,7 +190,7 @@ export function MemberProfileModal({
             });
           }
         }
-      } catch (e) { /* non-critical */ }
+      } catch {}
     };
     fetchExtra();
   }, [open, member?.user_id]);
@@ -236,12 +232,12 @@ export function MemberProfileModal({
   const handleEditSave = () => { setIsEditMode(false); onStatusChange?.(); };
 
   const isAdminOrOwner = currentUserRole === 'admin' || currentUserRole === 'owner';
+  const isManagerRole = currentUserRole === 'manager' || isAdminOrOwner;
 
   const handleDeleteUser = async () => {
     if (!member || !isAdminOrOwner) return;
     setIsDeleting(true);
     try {
-      // Deep-clean all user data
       const uid = member.user_id;
       await Promise.all([
         supabase.from('chat_messages').delete().eq('user_id', uid),
@@ -260,7 +256,6 @@ export function MemberProfileModal({
         supabase.from('downline_edges').delete().eq('parent_user_id', uid),
         supabase.from('user_roles').delete().eq('user_id', uid),
       ]);
-      // Delete profile last
       await supabase.from('profiles').delete().eq('user_id', uid);
       toast.success(`${member.full_name} has been removed`);
       setDeleteConfirmOpen(false);
@@ -282,6 +277,23 @@ export function MemberProfileModal({
   const isSelf = user?.id === member.user_id;
   const teamColor = getTeamColor(getPillarName(member.pillar));
 
+  // Point breakdown items helper (no "Legacy Points" label)
+  const makeBreakdownItems = (bd: any, isAllTime = false) => {
+    const items = [
+      { label: 'Hours Logged', value: bd.hours, icon: Clock, color: 'text-blue-400' },
+      { label: 'Time Bonuses', value: bd.threshold, icon: Target, color: 'text-primary' },
+      { label: 'Daily Login', value: bd.login, icon: Zap, color: 'text-primary' },
+      { label: 'Streak', value: bd.streak, icon: Flame, color: 'text-orange-400' },
+      { label: 'Lessons', value: bd.lessons, icon: BookOpen, color: 'text-primary' },
+      { label: 'Videos', value: bd.video, icon: Video, color: 'text-primary' },
+      { label: 'Chat', value: bd.chat, icon: MessageSquare, color: 'text-emerald-400' },
+      { label: 'Reactions', value: bd.reactions, icon: Star, color: 'text-primary' },
+      { label: 'Manual', value: bd.manual, icon: FileText, color: 'text-primary' },
+      { label: '1:1 Sessions', value: bd.oneOnOne, icon: Users, color: 'text-primary' },
+    ];
+    return items.filter(i => i.value > 0).sort((a, b) => b.value - a.value);
+  };
+
   return (
     <>
     <Dialog open={open} onOpenChange={onClose}>
@@ -292,46 +304,47 @@ export function MemberProfileModal({
           style={{ background: `linear-gradient(90deg, hsl(${teamColor.hsl}), hsl(${teamColor.hsl} / 0.3))` }}
         />
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
+          <DialogTitle className="sr-only">{getDisplayName(member.full_name)}</DialogTitle>
+          {/* Centered avatar + name layout */}
+          <div className="flex flex-col items-center text-center pt-2">
             <div className={cn(
-              "w-14 h-14 rounded-full flex items-center justify-center border-2",
+              "w-20 h-20 rounded-full flex items-center justify-center border-3 mb-3 overflow-hidden",
               isNLC ? "bg-muted border-muted-foreground/20" : cn(teamColor.bgTint, "border-current/10")
             )} style={!isNLC ? { borderColor: `hsl(${teamColor.hsl} / 0.3)` } : undefined}>
-              <User className={cn("w-7 h-7", isNLC ? "text-muted-foreground" : teamColor.text)} />
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={member.full_name} className="w-full h-full object-cover" />
+              ) : (
+                <User className={cn("w-10 h-10", isNLC ? "text-muted-foreground" : teamColor.text)} />
+              )}
             </div>
-            <div className="flex-1 min-w-0">
-              <span className={cn("block text-lg font-black", isNLC ? "text-destructive" : teamColor.text)}>
-                {getDisplayName(member.full_name)}
+            <h2 className={cn("text-lg font-black", isNLC ? "text-destructive" : teamColor.text)}>
+              {getDisplayName(member.full_name)}
+            </h2>
+            <div className="flex items-center gap-2 mt-1 flex-wrap justify-center">
+              <span className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
+                isNLC ? "bg-destructive/15 text-destructive"
+                  : cn(teamColor.bgBadge, teamColor.text)
+              )}>
+                {isNLC ? 'NLC' : isMgr ? 'Manager' : 'Rookie'}
               </span>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                <span className={cn(
-                  "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                  isNLC ? "bg-destructive/15 text-destructive"
-                    : isMgr ? cn(teamColor.bgBadge, teamColor.text)
-                    : cn(teamColor.bgBadge, teamColor.text)
-                )}>
-                  {isNLC ? 'NLC' : isMgr ? 'Manager' : 'Rookie'}
-                </span>
-                {isSelf && (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">You</span>
-                )}
-                {streakDays > 0 && !isNLC && (
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-400">
-                    <Flame className={cn("w-3 h-3", streakDays >= 7 && "animate-pulse")} />
-                    {streakDays}d
-                  </span>
-                )}
-              </div>
+              {isSelf && <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">You</span>}
             </div>
             {editPermission.canEdit && !isEditMode && (
-              <Button variant="outline" size="sm" onClick={() => setIsEditMode(true)} className="flex-shrink-0">
-                <Pencil className="w-4 h-4 mr-2" />Edit
+              <Button variant="outline" size="sm" onClick={() => setIsEditMode(true)} className="mt-2">
+                <Pencil className="w-3.5 h-3.5 mr-1.5" />Edit
               </Button>
             )}
-          </DialogTitle>
+            {/* Allow managers to enter edit mode too */}
+            {!editPermission.canEdit && isManagerRole && !isSelf && !isEditMode && (
+              <Button variant="outline" size="sm" onClick={() => setIsEditMode(true)} className="mt-2">
+                <Pencil className="w-3.5 h-3.5 mr-1.5" />Edit Info
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto -mx-6 px-6" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-1 overflow-y-auto -mx-6 px-6" style={{ maxHeight: 'calc(85vh - 180px)' }}>
           {isEditMode ? (
             <MemberEditForm
               member={member}
@@ -344,147 +357,33 @@ export function MemberProfileModal({
           ) : (
             <div className="space-y-3 py-4">
 
-              {/* ── Quick Stats Row ── */}
+              {/* Quick Stats Row */}
               {!isNLC && (
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="text-center p-3 bg-muted/30 rounded-lg">
-                    <GraduationCap className="w-4 h-4 text-primary mx-auto mb-1" />
-                    <p className="text-lg font-black text-foreground tabular-nums">{progress.percentage}%</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Training</p>
-                  </div>
-                  <div className="text-center p-3 bg-muted/30 rounded-lg">
-                    <Flame className="w-4 h-4 text-orange-400 mx-auto mb-1" />
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="text-center p-2.5 bg-muted/30 rounded-lg">
+                    <Flame className="w-3.5 h-3.5 text-orange-400 mx-auto mb-0.5" />
                     <p className="text-lg font-black text-foreground tabular-nums">{streakDays}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Day Streak</p>
+                    <p className="text-[9px] text-muted-foreground font-medium">Streak</p>
                   </div>
-                  <div className="text-center p-3 bg-muted/30 rounded-lg">
-                    <Clock className="w-4 h-4 text-primary mx-auto mb-1" />
-                    <p className="text-lg font-black text-foreground tabular-nums">
-                      {formatTimeMinutes((member as any).time_this_week_minutes || 0)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground font-medium">This Week</p>
+                  <div className="text-center p-2.5 bg-muted/30 rounded-lg">
+                    <Trophy className="w-3.5 h-3.5 text-primary mx-auto mb-0.5" />
+                    <p className="text-lg font-black text-foreground tabular-nums">{pointsBreakdown?.total?.toLocaleString() || 0}</p>
+                    <p className="text-[9px] text-muted-foreground font-medium">Weekly</p>
+                  </div>
+                  <div className="text-center p-2.5 bg-muted/30 rounded-lg">
+                    <Star className="w-3.5 h-3.5 text-yellow-500 mx-auto mb-0.5" />
+                    <p className="text-lg font-black text-foreground tabular-nums">{allTimeBreakdown?.total?.toLocaleString() || 0}</p>
+                    <p className="text-[9px] text-muted-foreground font-medium">All-Time</p>
+                  </div>
+                  <div className="text-center p-2.5 bg-muted/30 rounded-lg">
+                    <GraduationCap className="w-3.5 h-3.5 text-primary mx-auto mb-0.5" />
+                    <p className="text-lg font-black text-foreground tabular-nums">{progress.percentage}%</p>
+                    <p className="text-[9px] text-muted-foreground font-medium">Training</p>
                   </div>
                 </div>
               )}
 
-              {/* Points Breakdown */}
-              {!isNLC && pointsBreakdown && pointsBreakdown.total > 0 && (
-                <div className="p-3 bg-muted/30 rounded-lg">
-                  <button
-                    onClick={() => setPointsExpanded(!pointsExpanded)}
-                    className="w-full flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Trophy className="w-4 h-4 text-primary" />
-                      <p className="text-xs font-semibold text-foreground">Weekly Points</p>
-                      {pointsBreakdown.rank > 0 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                          #{pointsBreakdown.rank}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-black text-primary tabular-nums">{pointsBreakdown.total.toLocaleString()} pts</span>
-                      {pointsExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                    </div>
-                  </button>
-                  {pointsExpanded && (
-                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
-                      {[
-                        { label: 'Hours Logged', value: pointsBreakdown.hours, icon: Clock, color: 'text-blue-400' },
-                        { label: 'Time Bonus', value: pointsBreakdown.threshold, icon: Target, color: 'text-primary' },
-                        { label: 'Daily Login', value: pointsBreakdown.login, icon: Zap, color: 'text-primary' },
-                        { label: 'Streak', value: pointsBreakdown.streak, icon: Flame, color: 'text-orange-400' },
-                        { label: 'Lessons', value: pointsBreakdown.lessons, icon: BookOpen, color: 'text-primary' },
-                        { label: 'Videos', value: pointsBreakdown.video, icon: Video, color: 'text-primary' },
-                        { label: 'Chat', value: pointsBreakdown.chat, icon: MessageSquare, color: 'text-emerald-400' },
-                        { label: 'Reactions', value: pointsBreakdown.reactions, icon: Star, color: 'text-primary' },
-                        { label: 'Manual', value: pointsBreakdown.manual, icon: FileText, color: 'text-primary' },
-                        { label: '1:1 Sessions', value: pointsBreakdown.oneOnOne, icon: Users, color: 'text-primary' },
-                      ]
-                        .filter(item => item.value > 0)
-                        .sort((a, b) => b.value - a.value)
-                        .map(item => (
-                          <div key={item.label} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <item.icon className={cn("w-3.5 h-3.5", item.color)} />
-                              <span className="text-xs text-muted-foreground">{item.label}</span>
-                            </div>
-                            <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
-                          </div>
-                        ))}
-                      {pointsBreakdown.total === 0 && (
-                        <p className="text-xs text-muted-foreground text-center">No points this week</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* All-Time Points Breakdown */}
-              {!isNLC && allTimeBreakdown && allTimeBreakdown.total > 0 && (
-                <div className="p-3 bg-muted/30 rounded-lg">
-                  <button
-                    onClick={() => setAllTimeExpanded(!allTimeExpanded)}
-                    className="w-full flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <p className="text-xs font-semibold text-foreground">All-Time Points</p>
-                      {allTimeBreakdown.rank > 0 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">
-                          #{allTimeBreakdown.rank}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-black text-foreground tabular-nums">{allTimeBreakdown.total.toLocaleString()} pts</span>
-                      {allTimeExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                    </div>
-                  </button>
-                  {allTimeExpanded && (
-                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
-                      {/* Activity stats */}
-                      <div className="flex gap-2 mb-2">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                          {Math.round(allTimeBreakdown.totalTimeMinutes / 60)}h logged
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                          {allTimeBreakdown.lessonsCompleted} lessons
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                          {allTimeBreakdown.videosWatched} videos
-                        </span>
-                      </div>
-                      {[
-                        { label: 'Hours Logged', value: allTimeBreakdown.hours, icon: Clock, color: 'text-blue-400' },
-                        { label: 'Time Bonuses', value: allTimeBreakdown.threshold, icon: Target, color: 'text-primary' },
-                        { label: 'Daily Login', value: allTimeBreakdown.login, icon: Zap, color: 'text-primary' },
-                        { label: 'Streak', value: allTimeBreakdown.streak, icon: Flame, color: 'text-orange-400' },
-                        { label: 'Lessons', value: allTimeBreakdown.lessons, icon: BookOpen, color: 'text-primary' },
-                        { label: 'Videos', value: allTimeBreakdown.video, icon: Video, color: 'text-primary' },
-                        { label: 'Chat', value: allTimeBreakdown.chat, icon: MessageSquare, color: 'text-emerald-400' },
-                        { label: 'Reactions', value: allTimeBreakdown.reactions, icon: Star, color: 'text-primary' },
-                        { label: 'Manual', value: allTimeBreakdown.manual, icon: FileText, color: 'text-primary' },
-                        { label: '1:1 Sessions', value: allTimeBreakdown.oneOnOne, icon: Users, color: 'text-primary' },
-                        { label: 'Legacy Points', value: allTimeBreakdown.legacy, icon: Trophy, color: 'text-amber-500' },
-                      ]
-                        .filter(item => item.value > 0)
-                        .sort((a, b) => b.value - a.value)
-                        .map(item => (
-                          <div key={item.label} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <item.icon className={cn("w-3.5 h-3.5", item.color)} />
-                              <span className="text-xs text-muted-foreground">{item.label}</span>
-                            </div>
-                            <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
+              {/* Training Progress bar */}
               {!isNLC && (
                 <div className="p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center justify-between mb-1.5">
@@ -502,6 +401,104 @@ export function MemberProfileModal({
                       )}
                       style={{ width: `${progress.percentage}%` }}
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* Weekly Points Breakdown */}
+              {!isNLC && pointsBreakdown && pointsBreakdown.total > 0 && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <button onClick={() => setPointsExpanded(!pointsExpanded)} className="w-full flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-primary" />
+                      <p className="text-xs font-semibold text-foreground">Weekly Points</p>
+                      {pointsBreakdown.rank > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">#{pointsBreakdown.rank}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-primary tabular-nums">{pointsBreakdown.total.toLocaleString()} pts</span>
+                      {pointsExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {pointsExpanded && (
+                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
+                      {makeBreakdownItems(pointsBreakdown).map(item => (
+                        <div key={item.label} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <item.icon className={cn("w-3.5 h-3.5", item.color)} />
+                            <span className="text-xs text-muted-foreground">{item.label}</span>
+                          </div>
+                          <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* All-Time Points Breakdown */}
+              {!isNLC && allTimeBreakdown && allTimeBreakdown.total > 0 && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <button onClick={() => setAllTimeExpanded(!allTimeExpanded)} className="w-full flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <p className="text-xs font-semibold text-foreground">All-Time Points</p>
+                      {allTimeBreakdown.rank > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">#{allTimeBreakdown.rank}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-foreground tabular-nums">{allTimeBreakdown.total.toLocaleString()} pts</span>
+                      {allTimeExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  {allTimeExpanded && (
+                    <div className="mt-3 space-y-1.5 border-t border-border/30 pt-3">
+                      <div className="flex gap-2 mb-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {Math.round(allTimeBreakdown.totalTimeMinutes / 60)}h logged
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {allTimeBreakdown.lessonsCompleted} lessons
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          {allTimeBreakdown.videosWatched} videos
+                        </span>
+                      </div>
+                      {makeBreakdownItems(allTimeBreakdown, true).map(item => (
+                        <div key={item.label} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <item.icon className={cn("w-3.5 h-3.5", item.color)} />
+                            <span className="text-xs text-muted-foreground">{item.label}</span>
+                          </div>
+                          <span className="text-xs font-bold text-foreground tabular-nums">+{item.value.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Activity Status — most important for managers */}
+              {!isNLC && (
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    <div className={cn(
+                      "w-3 h-3 rounded-full",
+                      (member as any).is_active_now 
+                        ? "bg-success animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]" 
+                        : "bg-muted-foreground/40"
+                    )} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Last Active</p>
+                    <p className={cn(
+                      "text-sm font-semibold",
+                      (member as any).is_active_now ? "text-success" : "text-foreground"
+                    )}>
+                      {formatLastActive((member as any).last_active_at)}
+                    </p>
                   </div>
                 </div>
               )}
@@ -531,35 +528,12 @@ export function MemberProfileModal({
                 </div>
               )}
 
-              {/* Activity Status */}
-              {!isNLC && (
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                    <div className={cn(
-                      "w-3 h-3 rounded-full",
-                      (member as any).is_active_now 
-                        ? "bg-success animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.5)]" 
-                        : "bg-muted-foreground/40"
-                    )} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">Last Active</p>
-                    <p className={cn(
-                      "text-sm font-semibold",
-                      (member as any).is_active_now ? "text-success" : "text-foreground"
-                    )}>
-                      {formatLastActive((member as any).last_active_at)}
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {/* Daily Training Time Breakdown */}
               {!isNLC && (currentUserRole === 'admin' || currentUserRole === 'manager' || currentUserRole === 'owner') && (
                 <DailyTimeBreakdown userId={member.user_id} />
               )}
 
-              {/* Phone */}
+              {/* Contact Info */}
               <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                 <Phone className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <div>
@@ -568,7 +542,6 @@ export function MemberProfileModal({
                 </div>
               </div>
 
-              {/* Email */}
               <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                 <Mail className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <div>
@@ -646,7 +619,7 @@ export function MemberProfileModal({
                 <MemberStatusToggle
                   member={member}
                   roster={roster}
-                  canEdit={editPermission.canEdit}
+                  canEdit={editPermission.canEdit || isManagerRole}
                   disabledReason={editPermission.reason}
                   onStatusChange={() => { onStatusChange?.(); onClose(); }}
                   size="md"

@@ -94,8 +94,7 @@ export default function MembersPage() {
 
   // Filter members
   const filteredMembers = useMemo(() => {
-    return enrichedRoster.filter(member => {
-      // Search filter
+    const filtered = enrichedRoster.filter(member => {
       if (searchQuery) {
         const query = normalizeName(searchQuery);
         if (!normalizeName(member.full_name).includes(query) &&
@@ -103,25 +102,21 @@ export default function MembersPage() {
           return false;
         }
       }
-
-      // Pillar filter
-      if (pillarFilter !== 'all' && member.pillar !== pillarFilter) {
-        return false;
-      }
-
-      // Role filter
+      if (pillarFilter !== 'all' && member.pillar !== pillarFilter) return false;
       if (roleFilter !== 'all') {
         const isMgr = isManager(enrichedRoster, member.full_name);
         if (roleFilter === 'manager' && !isMgr) return false;
         if (roleFilter === 'rookie' && isMgr) return false;
       }
-
-      // Status filter
-      if (statusFilter !== 'all' && member.status !== statusFilter) {
-        return false;
-      }
-
+      if (statusFilter !== 'all' && member.status !== statusFilter) return false;
       return true;
+    });
+    // Sort: disabled/NLC users at the bottom
+    return filtered.sort((a, b) => {
+      const aDisabled = a.status === 'nlc' ? 1 : 0;
+      const bDisabled = b.status === 'nlc' ? 1 : 0;
+      if (aDisabled !== bDisabled) return aDisabled - bDisabled;
+      return a.full_name.localeCompare(b.full_name);
     });
   }, [enrichedRoster, searchQuery, pillarFilter, roleFilter, statusFilter]);
 
