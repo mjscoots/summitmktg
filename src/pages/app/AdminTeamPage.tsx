@@ -16,7 +16,7 @@ const LazyAssignments = lazy(() => import('@/components/admin/AssignmentsTab'));
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
-const LazyRosterSync = lazy(() => import('@/components/admin/RosterSyncTab'));
+const LazyRosterStatus = lazy(() => import('@/components/admin/RosterStatusView'));
 const LazyMassImport = lazy(() => import('@/components/admin/MassImportTab'));
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
 const LazySubmittedVideos = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
