@@ -7,7 +7,6 @@ import { AnnouncementsFeed } from '@/components/dashboard/AnnouncementsFeed';
 import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
-import { NotSummerReadyPanel } from '@/components/dashboard/NotSummerReadyPanel';
 
 import { Bell, Calendar, GraduationCap, Trophy, Users, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -82,21 +81,16 @@ export default function ManagerDashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <NotSummerReadyPanel />
+          <div className="bg-card rounded-xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="w-5 h-5 text-primary" />
+              <h2 className="font-semibold text-foreground">Weekly Leaderboard</h2>
+              <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
+                <Users className="w-3 h-3" />
+                All Team Members
+              </span>
             </div>
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Trophy className="w-5 h-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Weekly Leaderboard</h2>
-                <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
-                  <Users className="w-3 h-3" />
-                  All Team Members
-                </span>
-              </div>
-              <WeeklyLeaderboard />
-            </div>
+            <WeeklyLeaderboard />
           </div>
         </main>
       </div>
