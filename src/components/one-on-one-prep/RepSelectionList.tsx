@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { cn } from '@/lib/utils';
-import { Check, ChevronDown, GripVertical, Loader2, RotateCcw } from 'lucide-react';
+import { Check, ChevronDown, GripVertical, Loader2, RotateCcw, Plus, Search } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -24,6 +24,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface RepSelectionListProps {
   orderedReps: PrepRep[];
