@@ -679,7 +679,7 @@ export default function AdminTeamPage() {
                         <td className="px-3 py-2.5">{statusBadge(rep.status)}</td>
                         <td className="px-3 py-2.5 text-white/60 text-xs truncate" title={getTeamName(rep.team_id)}>{getTeamName(rep.team_id)}</td>
                         <td className="px-3 py-2.5">
-                          {rep.role === 'manager' || rep.role === 'admin' ? (
+                          {rep.role === 'manager' || rep.role === 'admin' || rep.role === 'owner' ? (
                             <span className="text-muted-foreground text-[9px] font-medium">N/A</span>
                           ) : (
                             <Badge variant={rep.bootcamp_completed ? 'default' : 'destructive'} className="text-[9px] px-1.5 py-0 leading-tight whitespace-nowrap">
