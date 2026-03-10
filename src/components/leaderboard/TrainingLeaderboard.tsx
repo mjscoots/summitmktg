@@ -490,7 +490,7 @@ function PodiumSlot({
     >
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
         <div className={cn("rounded-full p-0.5", isChampion ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600" : "")}>
-          <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg"
+          <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg" rank={rank} totalEntries={20}
             className={cn("shadow-lg", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
         </div>
         {isChampion ? (
