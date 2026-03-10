@@ -110,7 +110,6 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
               <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                 {action.label}
               </div>
-              <div className="text-[10px] text-muted-foreground">{action.subtitle}</div>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               <span className="text-xs font-bold text-primary">{action.points}</span>

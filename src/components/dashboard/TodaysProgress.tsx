@@ -119,12 +119,7 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
         </div>
       </div>
 
-      {/* Opportunity hint */}
-      {dailyPointsRemaining > 0 && (
-        <p className="text-[11px] text-muted-foreground mt-2">
-          You can earn <span className="text-primary font-bold">+{dailyPointsRemaining} more points</span> today from training time.
-        </p>
-      )}
+      {/* Removed verbose opportunity hint */}
     </div>
   );
 }

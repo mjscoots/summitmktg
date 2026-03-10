@@ -76,12 +76,12 @@ export default function LeaderboardPage() {
                 </h1>
                 <p className="text-xs text-yellow-200/60 font-bold uppercase tracking-widest mt-0.5">Outwork everyone. No excuses.</p>
               </div>
-              {/* Points Guide Button */}
+              {/* Points Guide Button — prominent */}
               <button
                 onClick={() => setShowPointSystem(true)}
-                className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-yellow-500/15 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/25 transition-colors text-xs font-bold uppercase tracking-wide"
+                className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-yellow-500/20 border-2 border-yellow-500/40 text-yellow-200 hover:bg-yellow-500/30 transition-colors text-sm font-black uppercase tracking-wide shadow-lg shadow-yellow-500/10"
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
                 Points Guide
               </button>
             </div>
