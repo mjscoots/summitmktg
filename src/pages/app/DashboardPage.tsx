@@ -68,6 +68,27 @@ export default function DashboardPage() {
     check();
   }, [user]);
 
+  // Fetch today's chat message count
+  useEffect(() => {
+    if (!user) return;
+    const fetchChatCount = async () => {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const { count } = await supabase
+          .from('chat_messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_ai', false)
+          .gte('created_at', today.toISOString());
+        setChatMsgCount(count || 0);
+      } catch {}
+    };
+    fetchChatCount();
+    const interval = setInterval(fetchChatCount, 15_000);
+    return () => clearInterval(interval);
+  }, [user]);
+
   // Fetch daily challenge
   const fetchChallenge = useCallback(async () => {
     if (!user) return;
