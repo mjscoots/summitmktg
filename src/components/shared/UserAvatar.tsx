@@ -12,6 +12,10 @@ interface UserAvatarProps {
   isOnline?: boolean;
   tierPct?: number;
   teamName?: string | null;
+  /** Leaderboard rank (1-based). Lower = stronger glow. */
+  rank?: number;
+  /** Total number of entries on leaderboard, used to scale glow intensity */
+  totalEntries?: number;
 }
  
  // Generate a consistent color based on name hash
