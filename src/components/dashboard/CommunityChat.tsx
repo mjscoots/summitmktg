@@ -365,7 +365,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const canPostInChannel = true;
 
   return (
-    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
+    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]" style={{ height: '100%', maxHeight: '100%' }}>
       {/* Pinned */}
       {(() => {
         const pinned = channelMessages.filter(m => m.is_pinned);
@@ -551,7 +551,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Modern Input Bar */}
       {canPostInChannel ? (
-        <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md mb-[env(safe-area-inset-bottom,0px)]">
+        <div className="px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md sticky bottom-0">
           {(
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {getDailyChips().map((chip) => (
@@ -648,7 +648,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
           </div>
-          <div className="pb-[max(env(safe-area-inset-bottom,0px),16px)] lg:pb-0" />
+          
         </div>
       ) : (
         <div className="px-4 py-3 flex-shrink-0 border-t border-border/30">

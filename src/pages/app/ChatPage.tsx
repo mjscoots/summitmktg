@@ -26,7 +26,7 @@ export default function ChatPage() {
 
   return (
     <AppLayout fullHeight>
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100dvh' }}>
         <div className="flex-1 min-h-0">
           <CommunityChat />
         </div>
