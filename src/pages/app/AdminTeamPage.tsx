@@ -16,7 +16,7 @@ const LazyAssignments = lazy(() => import('@/components/admin/AssignmentsTab'));
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
 const LazyTrainingCMS = lazy(() => import('@/pages/app/AdminTrainingEditor').then(m => ({ default: m.TrainingCMSContent })));
-const LazyRosterSync = lazy(() => import('@/components/admin/RosterSyncTab'));
+const LazyRosterStatus = lazy(() => import('@/components/admin/RosterStatusView'));
 const LazyMassImport = lazy(() => import('@/components/admin/MassImportTab'));
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
 const LazySubmittedVideos = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
@@ -785,7 +785,7 @@ export default function AdminTeamPage() {
                 className={`text-xs h-7 gap-1.5 ${rosterSubTab === 'sync' ? 'bg-primary text-primary-foreground' : 'border-white/10 text-muted-foreground hover:bg-white/5'}`}
                 onClick={() => setRosterSubTab('sync')}
               >
-                <RefreshCw className="w-3 h-3" /> Sync
+                <Users className="w-3 h-3" /> Roster
               </Button>
               <Button
                 size="sm"
@@ -806,9 +806,10 @@ export default function AdminTeamPage() {
             </div>
             <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
               {rosterSubTab === 'sync' ? (
-                <LazyRosterSync
-                  profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status }))}
+                <LazyRosterStatus
+                  profiles={reps.map(r => ({ user_id: r.user_id, full_name: r.full_name, email: r.email, phone: (r as any).phone, direct_manager: r.direct_manager, status: r.status, avatar_url: (r as any).avatar_url, onboarding_status: (r as any).onboarding_status, team_id: r.team_id, role: r.role }))}
                   managers={managers}
+                  teams={teamsSimple}
                   onRefresh={fetchData}
                 />
               ) : rosterSubTab === 'import' ? (
