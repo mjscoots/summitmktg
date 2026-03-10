@@ -494,21 +494,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           );
         })}
 
-        {isAiLoading && activeChannel === 'ai-coach' && (
-          <div className="px-4 pt-3 pb-1">
-            <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0"><Bot className="w-4 h-4 text-primary" /></div>
-              <div>
-                <div className="flex items-baseline gap-2 mb-1"><span className="text-sm font-semibold text-primary">AI Coach</span></div>
-                <div className="flex gap-1 py-1">
-                   <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {typingUsers.length > 0 && (
           <div className="px-4 py-1.5 flex items-center gap-2">
