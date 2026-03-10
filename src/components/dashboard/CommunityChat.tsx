@@ -78,7 +78,21 @@ const DEFAULT_CHANNELS = [
   { id: 'general', label: 'General', icon: 'Hash', color: 'text-muted-foreground' },
 ] as const;
 
-const QUICK_REPLY_CHIPS = ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'] as const;
+const DAILY_CHIP_SETS = [
+  ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'],
+  ['💪 Grind time', '🚀 Send it', '👑 We run this'],
+  ['⚔️ War mode', '💰 Money time', '🏆 Champions only'],
+  ['🔥 No days off', '✅ Locked in', '⛰️ To the top'],
+  ['💪 Beast mode', '🚀 Full send', '👑 Stay hungry'],
+  ['⚔️ Game day', '💰 Close it', '🏆 Built different'],
+  ['🔥 All gas', '✅ Let\'s eat', '⛰️ Peak energy'],
+];
+
+const getDailyChips = () => {
+  const dayIndex = Math.floor(Date.now() / 86400000) % DAILY_CHIP_SETS.length;
+  return DAILY_CHIP_SETS[dayIndex];
+};
+
 
 type ChannelId = string;
 
