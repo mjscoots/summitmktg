@@ -182,7 +182,12 @@ export function AppSidebar() {
         <SidebarGroup className="py-0">
           {!collapsed ? (
             <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest hover:text-muted-foreground hover:bg-sidebar-accent transition-all duration-150 group">
+              <CollapsibleTrigger className={cn(
+                "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-all duration-150 group",
+                toolsHasActive
+                  ? "text-primary text-[11px] font-extrabold uppercase tracking-widest"
+                  : "text-sidebar-foreground/60 text-[11px] font-bold uppercase tracking-widest hover:text-sidebar-foreground hover:bg-sidebar-accent"
+              )}>
                 <span>Tools</span>
                 <div className="flex items-center gap-1">
                   {toolsBadge > 0 && !toolsOpen && (
