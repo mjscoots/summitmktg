@@ -415,6 +415,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               <div
                 id={`msg-${msg.id}`}
                 onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
+                onTouchEnd={() => { if (!msg.is_ai) handleTouchDoubleTap(msg.id); }}
                 className={cn(
                   "group/msg relative px-4 hover:bg-muted/30 transition-colors select-none",
                   grouped ? "py-0.5" : "pt-3 pb-1",
