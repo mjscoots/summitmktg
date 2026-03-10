@@ -127,100 +127,201 @@ export default function WarRoomPage() {
   );
 }
 
-/* ── Teams Tab (Tree View) ── */
+/* ── Teams Tab (Full Org Tree) ── */
 function TeamsTab({ managerName }: { managerName: string }) {
-  const [teams, setTeams] = useState<{ id: string; name: string; slug: string; members: { user_id: string; full_name: string; role: string }[] }[]>([]);
+  const { profile, role } = useAuth();
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
+  const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
+  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
+
+  const memberUserIds = useMemo(() => allMembers.map(m => m.user_id), [allMembers]);
+  const { getProgress } = useTrainingProgress(memberUserIds);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data: teamsData } = await supabase.from('teams').select('id, name, slug').order('name');
-      if (!teamsData) { setLoading(false); return; }
+    const fetchData = async () => {
+      const [profilesRes, teamsRes, rolesRes] = await Promise.all([
+        supabase.from('profiles').select('*').order('full_name'),
+        supabase.from('teams').select('id, name, slug, leader_id').order('name'),
+        supabase.from('user_roles').select('user_id, role'),
+      ]);
 
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, team_id, status')
-        .neq('status', 'nlc');
+      const profiles = profilesRes.data || [];
+      const teams = teamsRes.data || [];
+      const roles = rolesRes.data || [];
 
-      const { data: rolesData } = await supabase.from('user_roles').select('user_id, role');
-      const roleMap = new Map((rolesData || []).map(r => [r.user_id, r.role]));
+      const managerIds = new Set(roles.filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id));
+      setManagerRoles(managerIds);
 
-      const result = teamsData.map(t => ({
-        ...t,
-        members: (profiles || [])
-          .filter(p => p.team_id === t.id)
-          .map(p => ({
-            user_id: p.user_id,
-            full_name: p.full_name,
-            role: roleMap.get(p.user_id) || 'rookie',
-          }))
-          .sort((a, b) => {
-            const aIsManager = a.role === 'manager' || a.role === 'admin' || a.role === 'owner';
-            const bIsManager = b.role === 'manager' || b.role === 'admin' || b.role === 'owner';
-            if (aIsManager && !bIsManager) return -1;
-            if (!aIsManager && bIsManager) return 1;
-            return a.full_name.localeCompare(b.full_name);
-          }),
+      const members: TeamMember[] = profiles.map(p => ({
+        id: p.id,
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        phone: p.phone,
+        status: p.status,
+        experience: p.experience,
+        direct_manager: getEffectiveManager(p.direct_manager),
+        role: managerIds.has(p.user_id) ? 'manager' : 'rookie',
+        isNLC: p.status === 'nlc',
+        last_active_at: p.last_active_at,
+        is_active_now: p.is_active_now,
+        avatar_url: p.avatar_url,
+        team_id: p.team_id,
       }));
 
-      setTeams(result);
-      // Auto-expand all
-      setExpandedTeams(new Set(result.map(t => t.id)));
+      setAllMembers(members);
+      setPillars(teams);
+
+      // Fetch daily time
+      try {
+        const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+        const day = pstNow.getDay();
+        const diffToMon = day === 0 ? -6 : 1 - day;
+        const monday = new Date(pstNow);
+        monday.setDate(pstNow.getDate() + diffToMon);
+        monday.setHours(0, 0, 0, 0);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const { data: dailyData } = await supabase.from('daily_training_time').select('user_id, date, total_minutes').gte('date', fmt(monday)).lte('date', fmt(sunday)) as any;
+        if (dailyData) {
+          const byUser = new Map<string, any[]>();
+          (dailyData as any[]).forEach((r: any) => { if (!byUser.has(r.user_id)) byUser.set(r.user_id, []); byUser.get(r.user_id)!.push(r); });
+          const map = new Map<string, { days: { minutes: number }[]; totalMinutes: number }>();
+          byUser.forEach((userRows, userId) => {
+            const days: { minutes: number }[] = [];
+            let total = 0;
+            for (let i = 0; i < 7; i++) {
+              const d = new Date(monday);
+              d.setDate(monday.getDate() + i);
+              const dateStr = fmt(d);
+              const match = userRows.find((r: any) => r.date === dateStr);
+              const mins = match?.total_minutes ?? 0;
+              days.push({ minutes: mins });
+              total += mins;
+            }
+            map.set(userId, { days, totalMinutes: total });
+          });
+          setDailyTimeMap(map);
+        }
+      } catch {}
+
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, []);
 
-  const toggleTeam = (id: string) => {
-    setExpandedTeams(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const visibleMembers = useMemo(() => allMembers.filter(m => m.status !== 'nlc'), [allMembers]);
+  const { enrichedRoster } = useMemo(() => {
+    if (visibleMembers.length === 0 || pillars.length === 0) return { enrichedRoster: [] };
+    return assignPillarsToRoster(visibleMembers, pillars);
+  }, [visibleMembers, pillars]);
+
+  const toggleNode = (id: string) => {
+    setExpandedNodes(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  };
+  const expandAll = () => setExpandedNodes(new Set(allMembers.map(m => m.id)));
+  const collapseAll = () => setExpandedNodes(new Set());
+
+  const renderTreeNode = (node: TeamMember, roster: TeamMember[], depth: number = 0) => {
+    const children = roster.filter(m => m.direct_manager && normalizeName(m.direct_manager) === normalizeName(node.full_name));
+    const hasChildren = children.length > 0;
+    const isVeteran = node.role === 'manager' || node.role === 'admin' || node.experience === 'veteran';
+    const isExpanded = searchQuery.length > 0 || expandedNodes.has(node.id);
+
+    if (searchQuery && !node.full_name.toLowerCase().includes(searchQuery.toLowerCase()) && !children.some(c => c.full_name.toLowerCase().includes(searchQuery.toLowerCase()))) {
+      return null;
+    }
+
+    return (
+      <div key={node.id} className="select-none">
+        <div
+          className={cn("flex items-center gap-2 py-2 px-3 rounded-lg transition-colors group hover:bg-muted/50", depth === 0 && "bg-muted/30")}
+          style={{ marginLeft: `${depth * 24}px` }}
+        >
+          <div className="w-5 h-5 flex items-center justify-center cursor-pointer" onClick={() => hasChildren && toggleNode(node.id)}>
+            {hasChildren ? (isExpanded ? <ChevronDownIcon className="w-4 h-4 text-muted-foreground" /> : <ChevronRightIcon className="w-4 h-4 text-muted-foreground" />) : <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />}
+          </div>
+          <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-green-500")} />
+          <button onClick={() => setSelectedMember(node)} className={cn("font-medium text-sm hover:underline text-left", isVeteran ? "text-primary" : "text-green-400")}>
+            {getDisplayName(node.full_name)}
+          </button>
+          <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide", isVeteran ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400")}>
+            {isVeteran ? 'Manager' : 'Rookie'}
+          </span>
+          {(() => {
+            const weekData = dailyTimeMap.get(node.user_id);
+            const defaultDays = Array(7).fill({ minutes: 0 });
+            return <MiniWeekChart days={weekData?.days ?? defaultDays} totalMinutes={weekData?.totalMinutes ?? 0} className="ml-1" />;
+          })()}
+          <div className="flex-1" />
+          {hasChildren && <span className="text-xs text-muted-foreground mr-2">{children.length} {children.length === 1 ? 'report' : 'reports'}</span>}
+        </div>
+        {isExpanded && hasChildren && (
+          <div className="border-l border-border/30 ml-5">
+            {children.map(child => renderTreeNode(child, roster, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
   };
 
-  if (loading) return <SummitLoader label="Loading teams..." />;
+  if (loading) return <SummitLoader label="Loading team structure..." />;
+
+  // Count members per team
+  const teamCounts = new Map<string, number>();
+  pillars.forEach(p => teamCounts.set(p.id, 0));
+  allMembers.filter(m => m.status !== 'nlc').forEach(m => { if (m.team_id) teamCounts.set(m.team_id, (teamCounts.get(m.team_id) || 0) + 1); });
 
   return (
     <>
-      <div className="space-y-3">
-        {teams.map(team => {
-          const color = getTeamColor(team.name);
-          const isExpanded = expandedTeams.has(team.id);
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search team members..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+        </div>
+        <div className="flex gap-2">
+          <button onClick={expandAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">Expand All</button>
+          <button onClick={collapseAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">Collapse All</button>
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-6 mb-4 text-sm">
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-primary" /><span className="text-muted-foreground">Manager / Veteran</span></div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500" /><span className="text-muted-foreground">Rookie</span></div>
+      </div>
+
+      {/* Pillar Trees */}
+      <div className="space-y-4">
+        {pillars.map(pillar => {
+          const ownerName = PILLAR_OWNERS[pillar.slug];
+          const owner = enrichedRoster.find(m => normalizeName(m.full_name) === normalizeName(ownerName));
+          const tree = owner ? buildHierarchyTree(enrichedRoster, ownerName) : null;
+          const count = teamCounts.get(pillar.id) || 0;
+
           return (
-            <div key={team.id} className="bg-card rounded-xl border border-border/50 overflow-hidden">
-              <button
-                onClick={() => toggleTeam(team.id)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors"
-              >
-                <div className={cn("w-3 h-3 rounded-full", color.bg)} />
-                <span className={cn("text-sm font-bold", color.text)}>{team.name}</span>
-                <span className="text-xs text-muted-foreground ml-auto">{team.members.length} members</span>
-                <ArrowDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
-              </button>
-              {isExpanded && team.members.length > 0 && (
-                <div className="border-t border-border/30">
-                  {team.members.map(m => {
-                    const isManager = m.role === 'manager' || m.role === 'admin' || m.role === 'owner';
-                    return (
-                      <button
-                        key={m.user_id}
-                        onClick={() => setSelectedMember({ id: m.user_id, user_id: m.user_id, full_name: m.full_name, email: '', status: null, experience: null, direct_manager: null })}
-                        className="w-full flex items-center gap-3 px-6 py-2 hover:bg-muted/20 transition-colors text-left"
-                      >
-                        <div className={cn("w-1.5 h-1.5 rounded-full", isManager ? color.bg : "bg-muted-foreground/30")} />
-                        <span className={cn("text-sm font-medium", color.text)}>{m.full_name}</span>
-                        <span className="text-[10px] text-muted-foreground ml-auto uppercase">{isManager ? 'Manager' : 'Rookie'}</span>
-                      </button>
-                    );
-                  })}
+            <div key={pillar.id} className="bg-card rounded-xl border border-border/50 p-5">
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border/30">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-primary" />
                 </div>
-              )}
-              {isExpanded && team.members.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-4 border-t border-border/30">No members</p>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">{pillar.name}</h3>
+                  {ownerName && <p className="text-xs text-muted-foreground">Led by {getDisplayName(ownerName)}</p>}
+                </div>
+                <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">{count} members</span>
+              </div>
+              {tree ? (
+                <div className="space-y-1">{renderTreeNode(tree, enrichedRoster)}</div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-4 text-center">{searchQuery ? 'No members match your search' : 'Leader not found'}</p>
               )}
             </div>
           );
@@ -231,13 +332,13 @@ function TeamsTab({ managerName }: { managerName: string }) {
         member={selectedMember}
         open={!!selectedMember}
         onClose={() => setSelectedMember(null)}
-        roster={[]}
+        roster={allMembers}
+        pillars={pillars}
       />
     </>
   );
 }
 
-/* ── Pulse Tab ── */
 function PulseTab({ managerName }: { managerName: string }) {
   const [stats, setStats] = useState({ trainingPct: 0, checklistPct: 0, oneOnOnePct: 0, totalReps: 0 });
   const [loading, setLoading] = useState(true);
