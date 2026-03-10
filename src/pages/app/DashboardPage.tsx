@@ -10,6 +10,7 @@ import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader'
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { ContinueLearning } from '@/components/dashboard/ContinueLearning';
+import { TodoList } from '@/components/dashboard/TodoList';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
