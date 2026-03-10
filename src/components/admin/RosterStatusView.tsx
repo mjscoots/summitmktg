@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { Search, UserCheck, Mail, Phone, ChevronRight, Users } from 'lucide-react';
+import { Search, UserCheck, Mail, Phone, ChevronRight, Users, ArrowUpDown } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -81,6 +81,7 @@ interface ProfileRow {
   onboarding_status?: string | null;
   team_id?: string | null;
   role?: string;
+  created_at?: string | null;
 }
 
 interface RosterStatusViewProps {
@@ -90,11 +91,21 @@ interface RosterStatusViewProps {
   onRefresh: () => void;
 }
 
+type SortKey = 'name' | 'team' | 'role' | 'date';
+
 export default function RosterStatusView({ profiles, managers, teams, onRefresh }: RosterStatusViewProps) {
   const [activeTab, setActiveTab] = useState<StatusTab>('all');
   const [search, setSearch] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<ProfileRow | null>(null);
   const [editingStatus, setEditingStatus] = useState<string>('');
+  const [sortBy, setSortBy] = useState<SortKey>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  // Filter out admin/owner roles
+  const visibleProfiles = useMemo(() => 
+    profiles.filter(p => p.role !== 'admin' && p.role !== 'owner'),
+    [profiles]
+  );
 
   const getTeamName = (teamId: string | null | undefined) => {
     if (!teamId) return '—';
@@ -102,16 +113,16 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
   };
 
   const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: profiles.length };
-    for (const p of profiles) {
+    const counts: Record<string, number> = { all: visibleProfiles.length };
+    for (const p of visibleProfiles) {
       const s = p.onboarding_status || 'pending';
       counts[s] = (counts[s] || 0) + 1;
     }
     return counts;
-  }, [profiles]);
+  }, [visibleProfiles]);
 
   const filtered = useMemo(() => {
-    let list = profiles;
+    let list = visibleProfiles;
     if (activeTab !== 'all') {
       list = list.filter(p => (p.onboarding_status || 'pending') === activeTab);
     }
@@ -123,8 +134,16 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
         (p.direct_manager || '').toLowerCase().includes(q)
       );
     }
-    return list.sort((a, b) => a.full_name.localeCompare(b.full_name));
-  }, [profiles, activeTab, search]);
+    const dir = sortDir === 'asc' ? 1 : -1;
+    return [...list].sort((a, b) => {
+      switch (sortBy) {
+        case 'team': return dir * getTeamName(a.team_id).localeCompare(getTeamName(b.team_id));
+        case 'role': return dir * (a.role || 'rookie').localeCompare(b.role || 'rookie');
+        case 'date': return dir * (new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        default: return dir * a.full_name.localeCompare(b.full_name);
+      }
+    });
+  }, [visibleProfiles, activeTab, search, sortBy, sortDir]);
 
   const handleUpdateStatus = async (userId: string, newStatus: string) => {
     const { error } = await supabase.from('profiles').update({ onboarding_status: newStatus } as any).eq('user_id', userId);
@@ -143,6 +162,17 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Manager Updated' });
+      setSelectedProfile(null);
+      onRefresh();
+    }
+  };
+
+  const handleUpdateTeam = async (userId: string, teamId: string) => {
+    const { error } = await supabase.from('profiles').update({ team_id: teamId || null } as any).eq('user_id', userId);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Team Updated' });
       setSelectedProfile(null);
       onRefresh();
     }
@@ -172,15 +202,37 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
         })}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name, email, or manager..."
-          className="pl-9 bg-white/5 border-white/10"
-        />
+      {/* Search + Sort */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name, email, or manager..."
+            className="pl-9 bg-white/5 border-white/10"
+          />
+        </div>
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
+          <SelectTrigger className="w-36 bg-white/5 border-white/10 text-xs">
+            <SelectValue placeholder="Sort by..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name">Name</SelectItem>
+            <SelectItem value="team">Team</SelectItem>
+            <SelectItem value="role">Role</SelectItem>
+            <SelectItem value="date">Date Added</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-9 px-2 border-white/10 text-muted-foreground hover:text-foreground"
+          onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+        >
+          <ArrowUpDown className="w-3.5 h-3.5 mr-1" />
+          <span className="text-xs">{sortDir === 'asc' ? 'A→Z' : 'Z→A'}</span>
+        </Button>
       </div>
 
       {/* Results */}
@@ -258,15 +310,6 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
                   </div>
                 )}
 
-                {/* Team */}
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                  <Users className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Team</p>
-                    <p className="text-sm text-foreground">{getTeamName(selectedProfile.team_id)}</p>
-                  </div>
-                </div>
-
                 {/* Onboarding Status */}
                 <div className="p-3 bg-muted/30 rounded-lg space-y-2">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Onboarding Status</p>
@@ -302,6 +345,23 @@ export default function RosterStatusView({ profiles, managers, teams, onRefresh 
                     <SelectContent>
                       {managers.map(m => (
                         <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Team */}
+                <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Team</p>
+                  <p className="text-sm text-foreground">{getTeamName(selectedProfile.team_id)}</p>
+                  <Select onValueChange={(v) => handleUpdateTeam(selectedProfile.user_id, v)}>
+                    <SelectTrigger className="h-8 bg-white/5 border-white/10 text-xs">
+                      <SelectValue placeholder="Change team..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className="text-xs">No Team</SelectItem>
+                      {teams.map(t => (
+                        <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
