@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { CheckCircle2, Upload, Video, X } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { CheckCircle2 } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { BootcampVideoUpload } from '@/components/bootcamp/BootcampVideoUpload';
 
 const QUESTIONS = [
   'Your name',
@@ -23,9 +21,7 @@ export default function BootcampPhase2() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { progress, isLoading, updatePhase } = useBootcamp();
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !progress?.phase_1_complete) {
@@ -36,42 +32,12 @@ export default function BootcampPhase2() {
     }
   }, [isLoading, progress, navigate]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const validTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo'];
-    if (!validTypes.includes(file.type)) {
-      toast({ title: 'Invalid file type', description: 'Please upload MP4, MOV, WebM, or AVI', variant: 'destructive' });
-      return;
-    }
-    if (file.size > 1024 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Max file size is 1GB', variant: 'destructive' });
-      return;
-    }
-    setVideoFile(file);
-  };
-
-  const handleSubmit = async () => {
-    if (!videoFile || !user || submitting) return;
+  const handleUploadComplete = async (path: string) => {
+    if (submitting) return;
     setSubmitting(true);
-
-    try {
-      setUploading(true);
-      const ext = videoFile.name.split('.').pop();
-      const path = `${user.id}/motivation.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('bootcamp-videos')
-        .upload(path, videoFile, { upsert: true });
-      if (uploadError) throw uploadError;
-      setUploading(false);
-
-      const success = await updatePhase(2, { motivation_video_url: path });
-      if (success) {
-        navigate('/bootcamp/phase-3', { replace: true });
-      }
-    } catch (err: any) {
-      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
-      setUploading(false);
+    const success = await updatePhase(2, { motivation_video_url: path });
+    if (success) {
+      navigate('/bootcamp/phase-3', { replace: true });
     }
     setSubmitting(false);
   };
@@ -118,38 +84,12 @@ export default function BootcampPhase2() {
             After recording, upload your video below to complete this module.
           </p>
 
-          <div className="mb-8">
-            {videoFile ? (
-              <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">
-                <Video className="w-5 h-5 text-white/60 shrink-0" />
-                <span className="text-sm text-white truncate flex-1">{videoFile.name}</span>
-                <button onClick={() => setVideoFile(null)} className="text-white/40 hover:text-white">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-white/10 rounded-lg p-8 cursor-pointer hover:border-white/20 transition-colors">
-                <Upload className="w-8 h-8 text-white/30" />
-                <span className="text-sm text-white/40">Click to upload video</span>
-                <span className="text-xs text-white/20">MP4, MOV, WebM, AVI · Max 1GB</span>
-                <input
-                  type="file"
-                  accept="video/mp4,video/quicktime,video/webm,video/x-msvideo"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
-
-          <Button
-            onClick={handleSubmit}
-            disabled={!videoFile || submitting}
-            size="lg"
-            className="w-full bg-white text-black hover:bg-white/90 font-black text-base h-12 disabled:opacity-30"
-          >
-            {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'COMPLETE MODULE →'}
-          </Button>
+          <BootcampVideoUpload
+            userId={user?.id || ''}
+            storagePath={`${user?.id}/motivation`}
+            onUploadComplete={handleUploadComplete}
+            disabled={submitting}
+          />
         </div>
       </div>
     </div>
