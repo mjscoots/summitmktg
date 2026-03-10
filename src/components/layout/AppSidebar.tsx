@@ -183,12 +183,15 @@ export function AppSidebar() {
           {!collapsed ? (
             <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
               <CollapsibleTrigger className={cn(
-                "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-all duration-150 group",
+                "w-full flex items-center justify-between px-2.5 py-2 rounded-md transition-all duration-150 group border",
                 toolsHasActive
-                  ? "text-primary text-[11px] font-extrabold uppercase tracking-widest"
-                  : "text-sidebar-foreground/60 text-[11px] font-bold uppercase tracking-widest hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                  ? "text-primary text-[12px] font-extrabold uppercase tracking-widest bg-primary/10 border-primary/20"
+                  : "text-sidebar-foreground/70 text-[12px] font-extrabold uppercase tracking-widest hover:text-sidebar-foreground hover:bg-sidebar-accent border-border/40 hover:border-border/60"
               )}>
-                <span>Tools</span>
+                <span className="flex items-center gap-1.5">
+                  <Wrench className={cn("w-3.5 h-3.5", toolsHasActive ? "text-primary" : "text-sidebar-foreground/50")} />
+                  Tools
+                </span>
                 <div className="flex items-center gap-1">
                   {toolsBadge > 0 && !toolsOpen && (
                     <span className="flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
