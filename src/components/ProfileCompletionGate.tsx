@@ -102,7 +102,14 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
   const handleSkip = () => {
     if (user) {
-      sessionStorage.setItem(`profile_gate_skipped_${user.id}`, 'true');
+      // If no avatar, only skip for today — they'll be asked again tomorrow
+      if (!avatarUrl) {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        localStorage.setItem(`profile_gate_skipped_${user.id}_${today}`, 'true');
+      } else {
+        // Has avatar, full session skip
+        sessionStorage.setItem(`profile_gate_skipped_${user.id}`, 'true');
+      }
     }
     setSkipped(true);
   };
