@@ -818,6 +818,13 @@ export default function AdminTeamPage() {
             </Suspense>
           </TabsContent>
 
+          {/* ========== CHECKLIST (VIEWABLE VIDEOS) TAB ========== */}
+          <TabsContent value="checklist">
+            <Suspense fallback={<TableSkeleton columns={3} rows={5} />}>
+              <LazySubmittedVideos />
+            </Suspense>
+          </TabsContent>
+
           {/* ========== SYSTEM CONTROLS TAB ========== */}
           {isSuperAdmin && (
             <TabsContent value="system">
