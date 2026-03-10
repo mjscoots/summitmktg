@@ -152,7 +152,7 @@ export default function AdminTeamPage() {
 
     const bootcampMap = new Map((bootcampRes.data || []).map(b => [b.user_id, b]));
     const roleMap = new Map((roleRes.data || []).map(r => [r.user_id, r.role]));
-    const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id));
+    const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin' || r.role === 'owner').map(r => r.user_id));
     const teamsMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
 
     const allReps: RepRow[] = (profilesRes.data || []).map(p => {
