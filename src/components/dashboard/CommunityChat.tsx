@@ -75,16 +75,12 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
 };
 
 const DEFAULT_CHANNELS = [
-  { id: 'general', label: 'Feed', icon: 'Hash', color: 'text-muted-foreground' },
-  { id: 'announcements', label: 'Announcements', icon: 'Megaphone', color: 'text-amber-500' },
-  { id: 'feedback', label: 'Feedback', icon: 'Lightbulb', color: 'text-emerald-500' },
-  { id: 'ai-coach', label: 'AI Coach', icon: 'Sparkles', color: 'text-primary' },
+  { id: 'general', label: 'General', icon: 'Hash', color: 'text-muted-foreground' },
 ] as const;
 
 const QUICK_REPLY_CHIPS = ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'] as const;
 
 type ChannelId = string;
-type RoomType = 'rookie' | 'vet';
 
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
@@ -120,17 +116,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
-  const [activeChannel, setActiveChannel] = useState<ChannelId>('general');
-  const [activeRoom, setActiveRoom] = useState<RoomType>('rookie');
+  const activeChannel: ChannelId = 'general';
   const inputRef = useRef<HTMLInputElement>(null);
-  const [channels, setChannels] = useState<Array<{ id: string; label: string; icon: string; color: string }>>([...DEFAULT_CHANNELS]);
-  const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [newChannelName, setNewChannelName] = useState('');
-  const [creatingChannel, setCreatingChannel] = useState(false);
-  const [editingChannelId, setEditingChannelId] = useState<string | null>(null);
-  const [editChannelLabel, setEditChannelLabel] = useState('');
+  const [channels] = useState<Array<{ id: string; label: string; icon: string; color: string }>>([...DEFAULT_CHANNELS]);
 
-  const effectiveChannel = activeChannel === 'ai-coach' ? 'ai-coach' : (activeRoom === 'vet' ? `${activeChannel}:vet` : activeChannel);
+  const effectiveChannel = 'general';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
@@ -149,52 +139,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const isOwner = role === 'owner';
 
   // Load channels from DB
-  useEffect(() => {
-    const fetchChannels = async () => {
-      const { data } = await supabase
-        .from('chat_channels')
-        .select('slug, label, icon, color, display_order')
-        .eq('is_active', true)
-        .order('display_order');
-      if (data && data.length > 0) {
-        setChannels(data.map(ch => ({ id: ch.slug, label: ch.label, icon: ch.icon, color: ch.color })));
-      }
-    };
-    fetchChannels();
-  }, []);
 
-  const handleCreateChannel = async () => {
-    if (!newChannelName.trim() || creatingChannel) return;
-    setCreatingChannel(true);
-    const slug = newChannelName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const { error } = await supabase.from('chat_channels').insert({
-      slug,
-      label: newChannelName.trim(),
-      icon: 'Hash',
-      color: 'text-muted-foreground',
-      created_by: user?.id,
-      display_order: channels.length + 1,
-    });
-    if (error) {
-      toast.error(error.message.includes('duplicate') ? 'Channel already exists' : 'Failed to create channel');
-    } else {
-      setChannels(prev => [...prev, { id: slug, label: newChannelName.trim(), icon: 'Hash', color: 'text-muted-foreground' }]);
-      setActiveChannel(slug);
-      setNewChannelName('');
-      setShowCreateChannel(false);
-      toast.success('Channel created!');
-    }
-    setCreatingChannel(false);
-  };
-
-  const handleRenameChannel = async (slug: string) => {
-    if (!editChannelLabel.trim()) { setEditingChannelId(null); return; }
-    const { error } = await supabase.from('chat_channels').update({ label: editChannelLabel.trim() }).eq('slug', slug);
-    if (error) { toast.error('Failed to rename channel'); return; }
-    setChannels(prev => prev.map(ch => ch.id === slug ? { ...ch, label: editChannelLabel.trim() } : ch));
-    setEditingChannelId(null);
-    toast.success('Channel renamed');
-  };
 
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
@@ -288,12 +233,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => { supabase.removeChannel(channel); };
   }, [user?.id, onNewMessage, effectiveChannel]);
 
-  const allChannelMessages = activeChannel === 'ai-coach' ? localAiMessages : messages.filter(m => m.channel === effectiveChannel);
+  const allChannelMessages = messages.filter(m => m.channel === effectiveChannel);
   const channelMessages = allChannelMessages;
 
   useEffect(() => {
     scrollToBottom(false);
-  }, [channelMessages.length, activeChannel, activeRoom, scrollToBottom]);
+  }, [channelMessages.length, scrollToBottom]);
 
   // Post of the Day
   useEffect(() => {
@@ -311,70 +256,29 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const switchChannel = (ch: ChannelId) => {
-    setActiveChannel(ch);
-    setReplyingTo(null);
-    setEditingId(null);
-    setUnreadChannels(prev => { const next = new Set(prev); next.delete(ch); return next; });
-    scrollToBottom(false);
+  // Double-click to react with 🔥
+  const handleDoubleClickReact = async (msgId: string) => {
+    if (!user) return;
+    const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
+    if (existing) {
+      await supabase.from('chat_reactions').delete().eq('id', existing.id);
+    } else {
+      await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
+    }
   };
 
   const handleSend = async () => {
     if (!input.trim() || isSending || !user) return;
     const content = input.trim();
-    const isAiChannel = activeChannel === 'ai-coach';
     setInput(''); stopTyping(); setIsSending(true);
     const currentReplyTo = replyingTo?.id || null;
     setReplyingTo(null);
 
     try {
-      if (isAiChannel) {
-        const localUserMsg: ChatMessage = { id: `local-${Date.now()}`, user_id: user.id, content, is_ai: false, channel: 'ai-coach', created_at: new Date().toISOString(), reply_to: null, is_pinned: false };
-        setLocalAiMessages(prev => [...prev, localUserMsg]);
-        setIsAiLoading(true);
-        try {
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          const accessToken = currentSession?.access_token;
-          if (!accessToken) throw new Error('Not authenticated');
-          const recentAiMessages = localAiMessages.slice(-10).map(m => ({ role: m.is_ai ? 'assistant' as const : 'user' as const, content: m.content }));
-          recentAiMessages.push({ role: 'user', content });
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-            body: JSON.stringify({ messages: recentAiMessages }),
-          });
-          if (!response.ok) throw new Error('AI request failed');
-          const reader = response.body?.getReader();
-          if (!reader) throw new Error('No response body');
-          const decoder = new TextDecoder();
-          let aiContent = '', textBuffer = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            textBuffer += decoder.decode(value, { stream: true });
-            let newlineIndex: number;
-            while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-              let line = textBuffer.slice(0, newlineIndex);
-              textBuffer = textBuffer.slice(newlineIndex + 1);
-              if (line.endsWith('\r')) line = line.slice(0, -1);
-              if (line.startsWith(':') || line.trim() === '') continue;
-              if (!line.startsWith('data: ')) continue;
-              const jsonStr = line.slice(6).trim();
-              if (jsonStr === '[DONE]') break;
-              try { const parsed = JSON.parse(jsonStr); const c = parsed.choices?.[0]?.delta?.content; if (c) aiContent += c; } catch { textBuffer = line + '\n' + textBuffer; break; }
-            }
-          }
-          if (aiContent) {
-            setLocalAiMessages(prev => [...prev, { id: `local-ai-${Date.now()}`, user_id: user.id, content: aiContent, is_ai: true, channel: 'ai-coach', created_at: new Date().toISOString(), reply_to: null, is_pinned: false }]);
-          }
-        } catch (aiError) { console.error('AI error:', aiError); toast.error('AI Coach is unavailable right now'); } finally { setIsAiLoading(false); }
-      } else {
-        const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
-        if (error) throw error;
-        // Award chat points (non-blocking, with anti-spam)
-        if (msg) {
-          (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id }).catch(() => {});
-        }
+      const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
+      if (error) throw error;
+      if (msg) {
+        (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id }).catch(() => {});
       }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send message'); } finally { setIsSending(false); }
   };
@@ -430,78 +334,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   };
 
   const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
-  const canPostInChannel = activeChannel !== 'announcements' || isManager;
+  const canPostInChannel = true;
 
   return (
     <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
-      {/* Channel tabs — minimal top bar */}
-      <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-border/40 bg-background/95 backdrop-blur-md flex-shrink-0 z-30">
-        {channels.map(ch => {
-          const Icon = ICON_MAP[ch.icon] || Hash;
-          const isActive = activeChannel === ch.id;
-          const hasUnread = unreadChannels.has(ch.id);
-          return (
-            <button
-              key={ch.id}
-              onClick={() => switchChannel(ch.id)}
-              onDoubleClick={() => { if (isOwner) { setEditingChannelId(ch.id); setEditChannelLabel(ch.label); } }}
-              className={cn(
-                "relative flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full transition-all whitespace-nowrap border font-chat-display",
-                isActive
-                  ? "bg-primary/15 text-foreground border-primary/40 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                  : "text-muted-foreground border-transparent hover:text-foreground hover:border-border/60 hover:bg-muted/30"
-              )}
-            >
-              <Icon className={cn("w-3.5 h-3.5", isActive ? ch.color : "")} />
-              {editingChannelId === ch.id ? (
-                <input
-                  type="text"
-                  value={editChannelLabel}
-                  onChange={e => setEditChannelLabel(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') handleRenameChannel(ch.id); if (e.key === 'Escape') setEditingChannelId(null); }}
-                  onBlur={() => handleRenameChannel(ch.id)}
-                  className="bg-transparent text-foreground text-xs w-20 focus:outline-none border-b border-primary/50"
-                  autoFocus
-                  onClick={e => e.stopPropagation()}
-                />
-              ) : <span className="tracking-wide">{ch.label}</span>}
-              {hasUnread && !isActive && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
-              )}
-            </button>
-          );
-        })}
-        {isAdmin && (
-          <button
-            onClick={() => setShowCreateChannel(!showCreateChannel)}
-            className={cn("flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap", showCreateChannel ? "text-primary" : "text-muted-foreground/50 hover:text-muted-foreground")}
-            title="Create new channel"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* Create Channel Form */}
-      {showCreateChannel && isAdmin && (
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-border/40 bg-muted/30 flex-shrink-0">
-          <Hash className="w-4 h-4 text-muted-foreground" />
-          <input type="text" value={newChannelName} onChange={e => setNewChannelName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateChannel()} placeholder="Channel name..." className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none" autoFocus />
-          <button onClick={handleCreateChannel} disabled={!newChannelName.trim() || creatingChannel} className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">{creatingChannel ? 'Creating...' : 'Create'}</button>
-          <button onClick={() => { setShowCreateChannel(false); setNewChannelName(''); }} className="p-1 text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
-        </div>
-      )}
-
-      {/* Rookie / Vet toggle */}
-      {activeChannel !== 'ai-coach' && (
-        <div className="flex items-center gap-3 px-4 py-1.5 border-b border-border/30 bg-muted/20 flex-shrink-0 z-20">
-          <div className="flex items-center bg-muted/40 rounded-xl p-0.5 border border-border/50">
-            <button onClick={() => { setActiveRoom('rookie'); requestAnimationFrame(() => requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }))); }} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'rookie' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Rookie</button>
-            <button onClick={() => { setActiveRoom('vet'); requestAnimationFrame(() => requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }))); }} className={cn("px-3 py-1 text-[11px] font-semibold rounded-lg transition-all", activeRoom === 'vet' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>Vet</button>
-          </div>
-        </div>
-      )}
-
       {/* Pinned */}
       {(() => {
         const pinned = channelMessages.filter(m => m.is_pinned);
@@ -552,8 +388,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
               <div
                 id={`msg-${msg.id}`}
+                onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-muted/30 transition-colors",
+                  "group/msg relative px-4 hover:bg-muted/30 transition-colors select-none",
                   grouped ? "py-0.5" : "pt-3 pb-1",
                   msg.is_pinned && "bg-amber-500/[0.03] border-l-2 border-amber-500/30",
                   postOfTheDayId === msg.id && "post-of-the-day"
@@ -650,28 +487,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   </div>
                 </div>
 
-                {activeChannel !== 'ai-coach' && <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} />}
-                {activeChannel !== 'ai-coach' && idx === channelMessages.length - 1 && <ReadReceipts messageId={msg.id} profileMap={profileMap} isLastInGroup={true} />}
+                <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} />
+                {idx === channelMessages.length - 1 && <ReadReceipts messageId={msg.id} profileMap={profileMap} isLastInGroup={true} />}
               </div>
             </div>
           );
         })}
 
-        {isAiLoading && activeChannel === 'ai-coach' && (
-          <div className="px-4 pt-3 pb-1">
-            <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0"><Bot className="w-4 h-4 text-primary" /></div>
-              <div>
-                <div className="flex items-baseline gap-2 mb-1"><span className="text-sm font-semibold text-primary">AI Coach</span></div>
-                <div className="flex gap-1 py-1">
-                   <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {typingUsers.length > 0 && (
           <div className="px-4 py-1.5 flex items-center gap-2">
@@ -701,7 +523,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {/* Modern Input Bar */}
       {canPostInChannel ? (
         <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md">
-          {activeChannel !== 'ai-coach' && (
+          {(
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {QUICK_REPLY_CHIPS.map((chip) => (
                 <button
@@ -737,7 +559,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-xl"
           )}>
             {/* Left icons */}
-            {activeChannel !== 'ai-coach' && (
+            {(
               <>
                 <ChatImageUpload onSend={handleSendFile} />
                 <button
@@ -783,15 +605,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   }
                 }
               }}
-              placeholder={activeChannel === 'ai-coach' ? 'Ask Summit Coach anything...' : 'Drop your update, win the day…'}
+              placeholder="Drop your update, win the day…"
               className="flex-1 bg-transparent text-foreground font-chat-input text-sm px-3 py-2.5 focus:outline-none placeholder:text-muted-foreground"
-              disabled={isSending || isAiLoading}
+              disabled={isSending}
             />
 
             {/* Send */}
             <button
               onClick={handleSend}
-              disabled={!input.trim() || isSending || isAiLoading}
+              disabled={!input.trim() || isSending}
               className={cn("p-2 mr-1 rounded-lg transition-all flex-shrink-0", input.trim() ? "text-primary hover:bg-primary/10 hover:scale-105 active:scale-95" : "text-muted-foreground/40")}
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

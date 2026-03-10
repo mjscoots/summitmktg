@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -28,42 +28,12 @@ interface NavItem {
   iconColor?: string;
 }
 
-interface NavSection {
-  title: string;
-  items: NavItem[];
-  managerOnly?: boolean;
-}
-
-const learnSection: NavSection = {
-  title: 'Learn',
-  items: [
-    { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
-  ],
-};
-
-const competeSection: NavSection = {
-  title: 'Compete',
-  items: [
-    { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
-  ],
-};
-
-const communitySection: NavSection = {
-  title: 'Community',
-  items: [
-    { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
-    { label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' },
-  ],
-};
-
-const toolsSection: NavSection = {
-  title: 'Tools',
-  items: [
-    { label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' },
-    { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
-    { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
-  ],
-};
+// Direct nav items (no dropdown)
+const directNavItems: NavItem[] = [
+  { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-green-400' },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
+  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' },
+];
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -93,34 +63,18 @@ export function AppSidebar() {
              location.pathname.startsWith('/app/interviews') || 
              location.pathname.startsWith('/app/weekly-one-on-ones');
     }
-    if (path === '/app/training/videos') {
-      return location.pathname === '/app/training/videos';
-    }
     if (path === '/app/training') {
-      return location.pathname.startsWith('/app/training') && !location.pathname.startsWith('/app/training/videos');
+      return location.pathname.startsWith('/app/training');
     }
     return location.pathname.startsWith(path);
   };
 
-  // Build sections based on role
-  const sections: NavSection[] = [];
-  sections.push(learnSection);
-  sections.push(competeSection);
-  
-  if (isManager) {
-    sections.push(communitySection);
-  } else {
-    sections.push({ title: 'Community', items: [{ label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-blue-300' }] });
-  }
-
-  if (isManager) {
-    sections.push(toolsSection);
-  } else {
-    sections.push({ title: 'Tools', items: [
-      { label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' },
-      { label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' },
-    ] });
-  }
+  // Build tools section based on role
+  const toolsItems: NavItem[] = [];
+  if (isManager) toolsItems.push({ label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' });
+  toolsItems.push({ label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' });
+  toolsItems.push({ label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' });
+  if (isManager) toolsItems.push({ label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' });
 
   const getBadge = (path: string) => {
     if (path === '/app/chat') return unreadChat;
@@ -128,27 +82,16 @@ export function AppSidebar() {
     return 0;
   };
 
-  // Determine which section contains the active route
-  const activeSection = useMemo(() => {
-    for (const section of sections) {
-      if (section.items.some(item => isActive(item.path))) {
-        return section.title;
-      }
-    }
-    return null;
-  }, [location.pathname]);
+  const toolsHasActive = toolsItems.some(item => isActive(item.path));
+  const [toolsOpen, setToolsOpen] = useState(toolsHasActive);
 
-  const [openSection, setOpenSection] = useState<string | null>(activeSection);
-
-  // Update open section when route changes
+  // Auto-open tools when navigating into it
   useMemo(() => {
-    if (activeSection && activeSection !== openSection) {
-      setOpenSection(activeSection);
-    }
-  }, [activeSection]);
+    if (toolsHasActive && !toolsOpen) setToolsOpen(true);
+  }, [toolsHasActive]);
 
-  const getSectionBadge = useCallback((section: NavSection) => {
-    return section.items.reduce((sum, item) => sum + getBadge(item.path), 0);
+  const toolsBadge = useMemo(() => {
+    return toolsItems.reduce((sum, item) => sum + getBadge(item.path), 0);
   }, [unreadChat, pendingRSVP]);
 
   return (
@@ -160,16 +103,12 @@ export function AppSidebar() {
       )}
       collapsible="icon"
     >
-      {/* Header */}
       <SidebarHeader className="px-3 pt-4 pb-3">
         <button 
           className="flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-all duration-200 hover:bg-muted/50 active:scale-95"
           onClick={() => navigate('/app')}
         >
-          <Mountain className={cn(
-            "text-primary flex-shrink-0 transition-colors",
-            collapsed ? "w-5 h-5" : "w-4 h-4"
-          )} />
+          <Mountain className={cn("text-primary flex-shrink-0 transition-colors", collapsed ? "w-5 h-5" : "w-4 h-4")} />
           {!collapsed && (
             <span className="text-sm font-black tracking-tight uppercase text-sidebar-foreground hover:text-primary transition-colors">
               Summit
@@ -178,115 +117,101 @@ export function AppSidebar() {
         </button>
       </SidebarHeader>
 
-      {/* Home */}
       <SidebarContent className="px-1.5 py-1 flex flex-col flex-1">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-0.5">
+              {/* Home */}
               <SidebarMenuItem>
                 <button
                   data-tour="home"
                   onClick={() => { navigate('/app'); if (isMobile) setOpenMobile(false); }}
                   className={cn(
                     "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150",
-                    isActive('/app')
-                      ? "bg-primary/15 text-primary"
-                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                    isActive('/app') ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
+                    collapsed && "justify-center"
                   )}
                 >
                   <Home className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
                   {!collapsed && <span className="text-[13px] font-medium">Home</span>}
                 </button>
               </SidebarMenuItem>
+
+              {/* Direct nav: Training, Leaderboard, Community */}
+              {directNavItems.map((item) => {
+                const active = isActive(item.path);
+                const badge = getBadge(item.path);
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <button
+                      data-tour={item.label.toLowerCase()}
+                      onClick={() => {
+                        if (item.path === '/app/chat') markChatRead();
+                        navigate(item.path);
+                        if (isMobile) setOpenMobile(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
+                        active ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
+                        collapsed && "justify-center"
+                      )}
+                    >
+                      <item.icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : item.iconColor || "")} strokeWidth={1.75} />
+                      {!collapsed && <span className="text-[13px] font-medium">{item.label}</span>}
+                      {badge > 0 && (
+                        collapsed ? (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none">
+                            {badge > 99 ? '99+' : badge}
+                          </span>
+                        ) : (
+                          <span className="ml-auto flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
+                            {badge > 99 ? '99+' : badge}
+                          </span>
+                        )
+                      )}
+                    </button>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Grouped sections */}
-        {sections.map((section) => {
-          const isOpen = openSection === section.title;
-          const sectionBadge = getSectionBadge(section);
-
-          return (
-            <SidebarGroup key={section.title} className="py-0">
-              {!collapsed ? (
-                <Collapsible open={isOpen} onOpenChange={(open) => setOpenSection(open ? section.title : null)}>
-                  <CollapsibleTrigger className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest hover:text-muted-foreground hover:bg-sidebar-accent transition-all duration-150 group">
-                    <span>{section.title}</span>
-                    <div className="flex items-center gap-1">
-                      {sectionBadge > 0 && !isOpen && (
-                        <span className="flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
-                          {sectionBadge > 99 ? '99+' : sectionBadge}
-                        </span>
-                      )}
-                      <ChevronRight className={cn(
-                        "w-3 h-3 transition-transform duration-200",
-                        isOpen && "rotate-90"
-                      )} />
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-                    <SidebarGroupContent>
-                      <SidebarMenu className="space-y-0.5 mt-0.5">
-                        {section.items.map((item) => {
-                          const active = isActive(item.path);
-                          const badge = getBadge(item.path);
-                          return (
-                            <SidebarMenuItem key={item.path}>
-                              <button
-                                data-tour={item.label.toLowerCase()}
-                                onClick={() => {
-                                  if (item.path === '/app/chat') markChatRead();
-                                  navigate(item.path);
-                                  if (isMobile) setOpenMobile(false);
-                                }}
-                                className={cn(
-                                  "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
-                                  active 
-                                    ? "bg-primary/15 text-primary"
-                                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-                                )}
-                              >
-                                <item.icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : item.iconColor || "")} strokeWidth={1.75} />
-                                <span className="text-[13px] font-medium">{item.label}</span>
-                                {badge > 0 && (
-                                  <span className="ml-auto flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
-                                    {badge > 99 ? '99+' : badge}
-                                  </span>
-                                )}
-                              </button>
-                            </SidebarMenuItem>
-                          );
-                        })}
-                      </SidebarMenu>
-                    </SidebarGroupContent>
-                  </CollapsibleContent>
-                </Collapsible>
-              ) : (
-                /* Collapsed: show all icons */
+        {/* Tools dropdown */}
+        <SidebarGroup className="py-0">
+          {!collapsed ? (
+            <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest hover:text-muted-foreground hover:bg-sidebar-accent transition-all duration-150 group">
+                <span>Tools</span>
+                <div className="flex items-center gap-1">
+                  {toolsBadge > 0 && !toolsOpen && (
+                    <span className="flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
+                      {toolsBadge > 99 ? '99+' : toolsBadge}
+                    </span>
+                  )}
+                  <ChevronRight className={cn("w-3 h-3 transition-transform duration-200", toolsOpen && "rotate-90")} />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
                 <SidebarGroupContent>
-                  <SidebarMenu className="space-y-0.5">
-                    {section.items.map((item) => {
+                  <SidebarMenu className="space-y-0.5 mt-0.5">
+                    {toolsItems.map((item) => {
                       const active = isActive(item.path);
                       const badge = getBadge(item.path);
                       return (
                         <SidebarMenuItem key={item.path}>
                           <button
-                            onClick={() => {
-                              if (item.path === '/app/chat') markChatRead();
-                              navigate(item.path);
-                              if (isMobile) setOpenMobile(false);
-                            }}
+                            data-tour={item.label.toLowerCase()}
+                            onClick={() => { navigate(item.path); if (isMobile) setOpenMobile(false); }}
                             className={cn(
-                              "w-full flex items-center justify-center px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
-                              active 
-                                ? "bg-primary/15 text-primary"
-                                : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                              "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
+                              active ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                             )}
                           >
                             <item.icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : item.iconColor || "")} strokeWidth={1.75} />
+                            <span className="text-[13px] font-medium">{item.label}</span>
                             {badge > 0 && (
-                              <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none">
+                              <span className="ml-auto flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
                                 {badge > 99 ? '99+' : badge}
                               </span>
                             )}
@@ -296,15 +221,42 @@ export function AppSidebar() {
                     })}
                   </SidebarMenu>
                 </SidebarGroupContent>
-              )}
-            </SidebarGroup>
-          );
-        })}
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-0.5">
+                {toolsItems.map((item) => {
+                  const active = isActive(item.path);
+                  const badge = getBadge(item.path);
+                  return (
+                    <SidebarMenuItem key={item.path}>
+                      <button
+                        onClick={() => { navigate(item.path); if (isMobile) setOpenMobile(false); }}
+                        className={cn(
+                          "w-full flex items-center justify-center px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
+                          active ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                        )}
+                      >
+                        <item.icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : item.iconColor || "")} strokeWidth={1.75} />
+                        {badge > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none">
+                            {badge > 99 ? '99+' : badge}
+                          </span>
+                        )}
+                      </button>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          )}
+        </SidebarGroup>
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Admin section */}
+        {/* Admin */}
         {isAdmin && (
           <SidebarGroup>
             <Separator className="mb-2 bg-sidebar-border" />
@@ -315,9 +267,8 @@ export function AppSidebar() {
                     onClick={() => { navigate('/admin/team'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
                       "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
-                      isActive('/admin/team')
-                        ? "bg-primary/15 text-primary"
-                        : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent"
+                      isActive('/admin/team') ? "bg-primary/15 text-primary" : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent",
+                      collapsed && "justify-center"
                     )}
                   >
                     <Shield className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
@@ -361,7 +312,7 @@ export function AppSidebar() {
               <p className="text-xs font-medium text-sidebar-foreground truncate">
                 {profile?.full_name?.split(' ')[0] || 'User'}
               </p>
-              <p className={cn("text-[10px] uppercase tracking-wide", isOwner ? "text-yellow-400 font-bold" : "text-primary/80")}>{roleLabel}</p>
+              <p className={cn("text-[10px] uppercase tracking-wide", isOwner ? "text-yellow-500 font-bold" : "text-primary/80")}>{roleLabel}</p>
             </div>
           )}
         </div>
@@ -375,11 +326,7 @@ export function AppSidebar() {
           )}
           title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
-          {themeMode === 'dark' ? (
-            <Sun className="w-4 h-4" strokeWidth={1.75} />
-          ) : (
-            <Moon className="w-4 h-4" strokeWidth={1.75} />
-          )}
+          {themeMode === 'dark' ? <Sun className="w-4 h-4" strokeWidth={1.75} /> : <Moon className="w-4 h-4" strokeWidth={1.75} />}
           {!collapsed && <span className="text-xs">{themeMode === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
         </button>
 
