@@ -279,7 +279,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                   <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
                     {entry.streakDays > 0 && (
                       <span className="flex items-center gap-0.5">
-                        <Flame className="w-3 h-3 text-orange-400/70" /> {entry.streakDays}d
+                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-green-400" : entry.streakDays >= 7 ? "text-green-500" : entry.streakDays >= 3 ? "text-blue-400" : "text-muted-foreground")} /> {entry.streakDays}d
                       </span>
                     )}
                     {entry.hoursThisWeek > 0 && (

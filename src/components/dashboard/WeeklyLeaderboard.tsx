@@ -153,7 +153,12 @@ export function WeeklyLeaderboard() {
             <div className="flex items-center gap-3 mt-2 ml-11 flex-wrap">
               {entry.current_streak > 0 && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Flame className={cn("w-3 h-3", entry.current_streak >= 7 ? "text-orange-500" : "text-orange-400/70")} />
+                  <Flame className={cn("w-3 h-3", 
+                    entry.current_streak >= 14 ? "text-green-400" :
+                    entry.current_streak >= 7 ? "text-green-500" :
+                    entry.current_streak >= 3 ? "text-blue-400" :
+                    "text-muted-foreground"
+                  )} />
                   {entry.current_streak}d
                 </span>
               )}
