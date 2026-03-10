@@ -347,7 +347,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               <div className="w-8 flex justify-center">
                 <span className={cn("text-sm font-bold tabular-nums", rank <= 5 ? "text-foreground" : "text-muted-foreground")}>{rank}</span>
               </div>
-              <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" />
+              <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" rank={rank} totalEntries={entries.length} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className={cn("text-sm font-semibold truncate", isCurrentUser ? "text-primary" : "text-foreground")}>
