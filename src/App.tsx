@@ -55,6 +55,7 @@ const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
 const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
 const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 const NotepadPage = lazy(() => import("./pages/app/NotepadPage"));
+const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
 
 function LazyFallback() {
   return (
