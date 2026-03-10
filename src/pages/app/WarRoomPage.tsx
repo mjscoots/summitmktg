@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,15 +6,17 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
-import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network } from 'lucide-react';
+import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network, ChevronDown as ChevronDownIcon, ChevronRight as ChevronRightIcon, Search, UserPlus, MoreHorizontal, Pencil, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { getTeamColor } from '@/lib/teamColors';
+import { MiniWeekChart } from '@/components/team/MiniWeekChart';
+import { Input } from '@/components/ui/input';
+import { useTrainingProgress } from '@/hooks/useTrainingProgress';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { TeamMember } from '@/lib/hierarchyUtils';
-
-// Lazy-load the full team structure page content
-const TeamStructureContent = lazy(() => import('./MyTeamPage').then(mod => ({ default: mod.default })));
+import { getDisplayName, getEffectiveManager, PILLAR_OWNERS, assignPillarsToRoster, buildTree as buildHierarchyTree, isManager as checkIsManager, findPersonByName, normalizeName } from '@/lib/hierarchyUtils';
 
 type WarRoomTab = 'downline' | 'teams' | 'pulse' | 'activity';
 
