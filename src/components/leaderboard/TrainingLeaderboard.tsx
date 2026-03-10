@@ -347,7 +347,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               <div className="w-8 flex justify-center">
                 <span className={cn("text-sm font-bold tabular-nums", rank <= 5 ? "text-foreground" : "text-muted-foreground")}>{rank}</span>
               </div>
-              <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" />
+              <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" rank={rank} totalEntries={entries.length} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className={cn("text-sm font-semibold truncate", isCurrentUser ? "text-primary" : "text-foreground")}>
@@ -490,7 +490,7 @@ function PodiumSlot({
     >
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
         <div className={cn("rounded-full p-0.5", isChampion ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600" : "")}>
-          <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg"
+          <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg" rank={rank} totalEntries={20}
             className={cn("shadow-lg", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
         </div>
         {isChampion ? (

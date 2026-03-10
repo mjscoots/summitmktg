@@ -1,4 +1,5 @@
 import { ReactNode, useState, useRef, useEffect } from 'react';
+import { format } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Camera, Loader2, User, CheckCircle2, Phone, Globe, UserCheck, X } from 'lucide-react';
@@ -62,19 +63,25 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         
         setAvatarUrl((data as any).avatar_url);
 
+        // Profile is "complete" only if avatar exists
+        // Other fields (name, phone) still checked for the full gate
+        const hasAvatar = !!(data as any).avatar_url;
         const complete = !!(
           (data as any).full_name?.trim() &&
           (data as any).phone?.trim() &&
-          (data as any).avatar_url
+          hasAvatar
         );
         setIsComplete(complete);
       }
       setIsChecking(false);
     };
 
-    // Check if user already skipped this session
-    const wasSkipped = sessionStorage.getItem(`profile_gate_skipped_${user.id}`);
-    if (wasSkipped) {
+    // Daily skip: if user has no avatar, only skip for today (reappears tomorrow)
+    // If profile is otherwise incomplete but has avatar, use session skip
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const dailyKey = `profile_gate_skipped_${user.id}_${today}`;
+    const sessionKey = `profile_gate_skipped_${user.id}`;
+    if (localStorage.getItem(dailyKey) === 'true' || sessionStorage.getItem(sessionKey) === 'true') {
       setSkipped(true);
     }
 
@@ -95,7 +102,14 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
 
   const handleSkip = () => {
     if (user) {
-      sessionStorage.setItem(`profile_gate_skipped_${user.id}`, 'true');
+      // If no avatar, only skip for today — they'll be asked again tomorrow
+      if (!avatarUrl) {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        localStorage.setItem(`profile_gate_skipped_${user.id}_${today}`, 'true');
+      } else {
+        // Has avatar, full session skip
+        sessionStorage.setItem(`profile_gate_skipped_${user.id}`, 'true');
+      }
     }
     setSkipped(true);
   };
