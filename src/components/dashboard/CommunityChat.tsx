@@ -334,7 +334,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   };
 
   const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
-  const canPostInChannel = activeChannel !== 'announcements' || isManager;
+  const canPostInChannel = true;
 
   return (
     <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]">
