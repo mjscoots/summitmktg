@@ -538,7 +538,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {/* Modern Input Bar */}
       {canPostInChannel ? (
         <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md">
-          {activeChannel !== 'ai-coach' && (
+          {(
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {QUICK_REPLY_CHIPS.map((chip) => (
                 <button
