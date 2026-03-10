@@ -102,6 +102,7 @@ export default function CalendarPage() {
   const { role, user, profile } = useAuth();
   const { timezone } = useUserTimezone();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [todoEvents, setTodoEvents] = useState<CalendarEvent[]>([]);
   const [attendance, setAttendance] = useState<Record<string, Attendance[]>>({});
   const [userAttendance, setUserAttendance] = useState<Record<string, 'attending' | 'not_attending'>>({});
   const [isLoading, setIsLoading] = useState(true);
