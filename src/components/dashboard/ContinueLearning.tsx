@@ -35,7 +35,7 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
     actions.push({
       icon: <BookOpen className="w-4 h-4" />,
       label: 'Resume Lesson',
-      subtitle: 'Continue where you left off',
+      subtitle: '',
       points: `+${Math.min(60, lessonRemaining)} pts`,
       route: '/app/training',
       priority: hoursRemaining > 0 ? 1 : 2,
@@ -47,7 +47,7 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
     actions.push({
       icon: <Brain className="w-4 h-4" />,
       label: 'Take Next Quiz',
-      subtitle: 'Score 100% for +75 bonus',
+      subtitle: '',
       points: '+75 pts possible',
       route: '/app/training',
       priority: 3,
@@ -58,8 +58,8 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
   if (manualRemaining > 0) {
     actions.push({
       icon: <FileText className="w-4 h-4" />,
-      label: 'Review Sales Manual',
-      subtitle: '15 min = 50 pts',
+      label: 'Sales Manual',
+      subtitle: '',
       points: `+${Math.min(50, manualRemaining)} pts`,
       route: '/app/training',
       priority: 4,
@@ -70,8 +70,8 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
   if (videoRemaining > 0) {
     actions.push({
       icon: <Play className="w-4 h-4" />,
-      label: 'Watch Training Video',
-      subtitle: '70% completion to earn',
+      label: 'Training Video',
+      subtitle: '',
       points: `+${Math.min(40, videoRemaining)} pts`,
       route: '/app/training/videos',
       priority: 5,
@@ -110,7 +110,6 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
               <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                 {action.label}
               </div>
-              <div className="text-[10px] text-muted-foreground">{action.subtitle}</div>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               <span className="text-xs font-bold text-primary">{action.points}</span>

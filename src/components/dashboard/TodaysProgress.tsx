@@ -80,11 +80,21 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
 
         <div className="bg-muted/30 rounded-lg p-3">
           <div className="flex items-center gap-1.5 mb-1">
-            <Flame className="w-3.5 h-3.5 text-orange-400" />
+            <Flame className={cn("w-3.5 h-3.5", 
+              data.currentStreak >= 14 ? "text-green-400" :
+              data.currentStreak >= 7 ? "text-green-500" :
+              data.currentStreak >= 3 ? "text-blue-400" :
+              "text-muted-foreground"
+            )} />
             <span className="text-[10px] text-muted-foreground uppercase font-medium">Streak</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-black text-foreground tabular-nums">{data.currentStreak}</span>
+            <span className={cn("text-xl font-black tabular-nums",
+              data.currentStreak >= 14 ? "text-green-400" :
+              data.currentStreak >= 7 ? "text-green-500" :
+              data.currentStreak >= 3 ? "text-blue-400" :
+              "text-foreground"
+            )}>{data.currentStreak}</span>
             <span className="text-xs text-muted-foreground">{data.currentStreak === 1 ? 'day' : 'days'}</span>
           </div>
         </div>
@@ -109,12 +119,7 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
         </div>
       </div>
 
-      {/* Opportunity hint */}
-      {dailyPointsRemaining > 0 && (
-        <p className="text-[11px] text-muted-foreground mt-2">
-          You can earn <span className="text-primary font-bold">+{dailyPointsRemaining} more points</span> today from training time.
-        </p>
-      )}
+      {/* Removed verbose opportunity hint */}
     </div>
   );
 }
