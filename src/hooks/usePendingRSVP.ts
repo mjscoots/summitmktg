@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { isFuture, isToday, isAfter, isBefore, addDays, addMonths, format } from 'date-fns';
+import { isFuture, isToday, isAfter, isBefore, addDays, addMonths, startOfWeek, endOfWeek, format } from 'date-fns';
 
 interface CalendarEvent {
   id: string;
@@ -17,7 +17,9 @@ interface CalendarEvent {
   created_by: string | null;
 }
 
-const MANDATORY_TYPES = new Set(['call', 'deadline', 'mandatory', 'training', 'meeting']);
+const isRecurring = (event: CalendarEvent) => {
+  return event.recurrence_type && event.recurrence_type !== 'none';
+};
 
 export function usePendingRSVP() {
   const { user } = useAuth();
@@ -28,6 +30,9 @@ export function usePendingRSVP() {
 
     const check = async () => {
       try {
+        const weekStart = startOfWeek(new Date());
+        const weekEnd = endOfWeek(new Date());
+
         // Fetch user's assigned event IDs
         const { data: assignments } = await supabase
           .from('calendar_event_assignees')
@@ -48,19 +53,19 @@ export function usePendingRSVP() {
           e.created_by === user.id || e.manager_id === user.id || e.is_team_wide || assignedIds.has(e.id)
         );
 
-        // Expand recurring events for the next 30 days
-        const now = new Date();
-        const horizon = addDays(now, 30);
-        const allInstances: { id: string; date: Date; event_type: string | null }[] = [];
+        // Expand recurring events for the current week only
+        const allInstances: { id: string; date: Date; event_type: string | null; recurring: boolean }[] = [];
 
         relevant.forEach(event => {
           const baseDate = new Date(event.event_date);
-          // Add base instance
-          if ((isFuture(baseDate) || isToday(baseDate)) && !isAfter(baseDate, horizon)) {
-            allInstances.push({ id: event.id, date: baseDate, event_type: event.event_type });
+          const recurring = isRecurring(event);
+          
+          // Add base instance if within this week
+          if ((isFuture(baseDate) || isToday(baseDate)) && !isAfter(baseDate, weekEnd) && !isBefore(baseDate, weekStart)) {
+            allInstances.push({ id: event.id, date: baseDate, event_type: event.event_type, recurring: !!recurring });
           }
 
-          if (!event.recurrence_type || event.recurrence_type === 'none') return;
+          if (!recurring) return;
 
           const interval = event.recurrence_interval || 1;
           const recEnd = event.recurrence_end_date ? new Date(event.recurrence_end_date) : null;
@@ -81,24 +86,33 @@ export function usePendingRSVP() {
           cursor = advance(cursor);
           while (count < maxCount) {
             if (recEnd && isAfter(cursor, recEnd)) break;
-            if (isAfter(cursor, horizon)) break;
-            if ((isFuture(cursor) || isToday(cursor))) {
-              allInstances.push({ id: event.id, date: cursor, event_type: event.event_type });
+            if (isAfter(cursor, weekEnd)) break;
+            if ((isFuture(cursor) || isToday(cursor)) && !isBefore(cursor, weekStart)) {
+              allInstances.push({ id: event.id, date: cursor, event_type: event.event_type, recurring: true });
             }
             cursor = advance(cursor);
             count++;
           }
         });
 
-        // Get user's existing attendance records
+        // Get user's existing attendance records with updated_at
         const { data: attendanceData } = await supabase
           .from('calendar_attendance')
-          .select('event_id')
+          .select('event_id, updated_at')
           .eq('user_id', user.id);
-        const respondedIds = new Set((attendanceData || []).map(a => a.event_id));
+        const attendanceMap = new Map((attendanceData || []).map(a => [a.event_id, a.updated_at]));
 
-        // Count upcoming events without a response (all events, not just mandatory)
-        const pending = allInstances.filter(inst => !respondedIds.has(inst.id));
+        // Count events without a current-week response
+        const pending = allInstances.filter(inst => {
+          const updatedAt = attendanceMap.get(inst.id);
+          if (!updatedAt) return true; // No response at all
+          // For recurring events, require weekly re-confirmation
+          if (inst.recurring) {
+            return new Date(updatedAt) < weekStart;
+          }
+          return false;
+        });
+        
         setPendingCount(pending.length);
       } catch {
         setPendingCount(0);
