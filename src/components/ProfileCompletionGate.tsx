@@ -76,9 +76,12 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
       setIsChecking(false);
     };
 
-    // Check if user already skipped this session
-    const wasSkipped = sessionStorage.getItem(`profile_gate_skipped_${user.id}`);
-    if (wasSkipped) {
+    // Daily skip: if user has no avatar, only skip for today (reappears tomorrow)
+    // If profile is otherwise incomplete but has avatar, use session skip
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const dailyKey = `profile_gate_skipped_${user.id}_${today}`;
+    const sessionKey = `profile_gate_skipped_${user.id}`;
+    if (localStorage.getItem(dailyKey) === 'true' || sessionStorage.getItem(sessionKey) === 'true') {
       setSkipped(true);
     }
 
