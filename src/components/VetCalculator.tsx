@@ -472,9 +472,20 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <div className="pb-3 border-b border-border/50">
             <p className="text-primary font-bold uppercase text-xs mb-2">Spreads</p>
             <div className="space-y-2 font-mono text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Direct Rookies ({(rookieNetSpread * 100).toFixed(1)}% net, incl. 5% incentive)</span>
-                <span className="text-foreground">{formatCurrency(directRookieActiveTotal)} × {(rookieNetSpread * 100).toFixed(1)}% = {formatCurrency(directRookieSpreadEarnings)}</span>
+              {/* Direct Rookies with explicit 5% incentive */}
+              <div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Direct Rookies Gross Spread</span>
+                  <span className="text-foreground">{(marketingDealRate * 100).toFixed(1)}% − {(rookieCommissionRate * 100).toFixed(0)}% = {(rookieGrossSpread * 100).toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between text-destructive">
+                  <span>− 5% Incentive Cost (Rookies only)</span>
+                  <span>−5.0%</span>
+                </div>
+                <div className="flex justify-between font-medium">
+                  <span className="text-muted-foreground">Net Spread on Rookies</span>
+                  <span className="text-foreground">{formatCurrency(directRookieActiveTotal)} × {(rookieNetSpread * 100).toFixed(1)}% = {formatCurrency(directRookieSpreadEarnings)}</span>
+                </div>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Vets/Managers Personal ({(vetManagerNetSpread * 100).toFixed(1)}% net)</span>
