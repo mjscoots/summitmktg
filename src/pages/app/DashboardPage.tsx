@@ -199,8 +199,8 @@ export default function DashboardPage() {
               </div>
               <div className="bg-muted/30 rounded-lg p-2.5 text-center">
                 <MessageSquare className="w-3.5 h-3.5 text-blue-400 mx-auto mb-0.5" />
-                <p className="text-lg font-black text-foreground tabular-nums">{pointsData.capsToday.chat.earned}</p>
-                <p className="text-[9px] text-muted-foreground uppercase font-medium">Chat</p>
+                <p className="text-lg font-black text-foreground tabular-nums">{chatMsgCount}</p>
+                <p className="text-[9px] text-muted-foreground uppercase font-medium">Msgs</p>
               </div>
               <div className="bg-muted/30 rounded-lg p-2.5 text-center">
                 <Flame className="w-3.5 h-3.5 text-orange-400 mx-auto mb-0.5" />
