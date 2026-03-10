@@ -31,7 +31,7 @@ type PageTab = 'links' | 'phone-numbers';
 
 export default function LinksPage() {
   const { role } = useAuth();
-  const isAdmin = role === 'admin' || role === 'owner';
+  const isAdmin = role === 'admin' || role === 'owner' || role === 'manager';
 
   const [links, setLinks] = useState<ManagedLink[]>([]);
   const [loading, setLoading] = useState(true);
