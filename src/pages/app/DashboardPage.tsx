@@ -10,6 +10,7 @@ import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader'
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { ContinueLearning } from '@/components/dashboard/ContinueLearning';
+import { TodoList } from '@/components/dashboard/TodoList';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
@@ -133,6 +134,9 @@ export default function DashboardPage() {
         {/* Quick Actions — moved to top */}
         <QuickActions />
 
+        {/* To-Do List */}
+        <TodoList />
+
         {/* See My Points button */}
         <button
           onClick={() => setShowPoints(true)}
@@ -251,14 +255,6 @@ export default function DashboardPage() {
         {/* Continue Learning */}
         {pointsData && <ContinueLearning data={pointsData} isComplete={trainingComplete} />}
 
-        {/* Training complete state */}
-        {trainingComplete && (
-          <div className="mb-4 bg-card rounded-xl border border-success/30 p-5 text-center">
-            <CheckCircle className="w-8 h-8 text-success mx-auto mb-2" />
-            <h3 className="text-lg font-bold text-foreground">You're Fully Certified.</h3>
-            <p className="text-xs text-muted-foreground mt-1">All training complete. Keep pushing.</p>
-          </div>
-        )}
 
         {/* Onboarding Quest (Rookie only) */}
         {!isManager && <OnboardingQuest />}

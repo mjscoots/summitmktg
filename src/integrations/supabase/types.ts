@@ -1904,6 +1904,48 @@ export type Database = {
         }
         Relationships: []
       }
+      todo_items: {
+        Row: {
+          assigned_by: string | null
+          assigned_by_name: string | null
+          completed_at: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_completed: boolean
+          priority: Database["public"]["Enums"]["todo_priority"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          assigned_by_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_completed?: boolean
+          priority?: Database["public"]["Enums"]["todo_priority"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          assigned_by_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_completed?: boolean
+          priority?: Database["public"]["Enums"]["todo_priority"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       training_content: {
         Row: {
           content_html: string | null
@@ -2870,6 +2912,7 @@ export type Database = {
         | "manager_mission"
         | "recruit_goal"
       source_form_type: "rookie_1_on_1" | "manager_1_on_1"
+      todo_priority: "urgent" | "high" | "medium" | "low"
       user_status:
         | "active"
         | "contract_signed"
@@ -3014,6 +3057,7 @@ export const Constants = {
         "recruit_goal",
       ],
       source_form_type: ["rookie_1_on_1", "manager_1_on_1"],
+      todo_priority: ["urgent", "high", "medium", "low"],
       user_status: [
         "active",
         "contract_signed",

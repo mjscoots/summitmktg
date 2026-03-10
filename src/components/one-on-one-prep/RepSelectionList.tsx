@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { cn } from '@/lib/utils';
-import { Check, ChevronDown, GripVertical, Loader2, RotateCcw } from 'lucide-react';
+import { Check, ChevronDown, GripVertical, Loader2, RotateCcw, Plus, Search } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -24,6 +24,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface RepSelectionListProps {
   orderedReps: PrepRep[];
@@ -152,6 +162,7 @@ export function RepSelectionList({
   totalReps,
   completedCount,
 }: RepSelectionListProps) {
+  const { user, profile } = useAuth();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -160,6 +171,11 @@ export function RepSelectionList({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const [showAddRep, setShowAddRep] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
 
   const { incompleteReps, completedReps } = useMemo(() => {
     const incomplete = orderedReps.filter(r => !completedRepIds.has(r.user_id));
@@ -171,17 +187,52 @@ export function RepSelectionList({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    // Find indices in the incomplete list
     const oldIncIdx = incompleteReps.findIndex(r => r.user_id === active.id);
     const newIncIdx = incompleteReps.findIndex(r => r.user_id === over.id);
     if (oldIncIdx === -1 || newIncIdx === -1) return;
 
-    // Map back to full orderedReps indices
     const oldFullIdx = orderedReps.findIndex(r => r.user_id === active.id);
     const newFullIdx = orderedReps.findIndex(r => r.user_id === over.id);
     if (oldFullIdx !== -1 && newFullIdx !== -1) {
       onReorder(oldFullIdx, newFullIdx);
     }
+  };
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.length < 2) { setSearchResults([]); return; }
+    setSearching(true);
+    const { data } = await supabase
+      .from('profiles')
+      .select('user_id, full_name, email, avatar_url')
+      .ilike('full_name', `%${query}%`)
+      .neq('status', 'nlc')
+      .limit(10);
+    const existingIds = new Set(orderedReps.map(r => r.user_id));
+    setSearchResults((data || []).filter(p => !existingIds.has(p.user_id) && p.user_id !== user?.id));
+    setSearching(false);
+  };
+
+  const handleAddRep = async (repUserId: string, repName: string) => {
+    if (!user || !profile) return;
+    const { error } = await supabase.from('downline_edges').insert({
+      parent_user_id: user.id,
+      child_user_id: repUserId,
+      edge_type: 'manages',
+    });
+    if (error) {
+      if (error.code === '23505') {
+        toast.info(`${repName} is already in your downline.`);
+      } else {
+        toast.error('Failed to add rep');
+      }
+      return;
+    }
+    toast.success(`${repName} added to your 1:1 list!`);
+    setShowAddRep(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    onReset();
   };
 
   if (loading) {
@@ -197,6 +248,18 @@ export function RepSelectionList({
     return (
       <div className="text-center py-16 text-muted-foreground text-sm">
         No team members found.
+        <Button variant="outline" size="sm" className="mt-3 mx-auto block" onClick={() => setShowAddRep(true)}>
+          <Plus className="w-4 h-4 mr-1" /> Add Rep
+        </Button>
+        <AddRepDialog
+          open={showAddRep}
+          onOpenChange={setShowAddRep}
+          searchQuery={searchQuery}
+          onSearch={handleSearch}
+          searchResults={searchResults}
+          searching={searching}
+          onAddRep={handleAddRep}
+        />
       </div>
     );
   }
@@ -248,7 +311,7 @@ export function RepSelectionList({
         </div>
       )}
 
-      {/* Completed section — collapsed by default */}
+      {/* Completed section */}
       {completedReps.length > 0 && (
         <Collapsible defaultOpen={false}>
           <CollapsibleTrigger className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-green-600 hover:text-green-500 transition-colors w-full group">
@@ -266,6 +329,90 @@ export function RepSelectionList({
           </CollapsibleContent>
         </Collapsible>
       )}
+
+      {/* Add Rep button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full border-dashed"
+        onClick={() => setShowAddRep(true)}
+      >
+        <Plus className="w-4 h-4 mr-1" /> Add Rep
+      </Button>
+
+      <AddRepDialog
+        open={showAddRep}
+        onOpenChange={setShowAddRep}
+        searchQuery={searchQuery}
+        onSearch={handleSearch}
+        searchResults={searchResults}
+        searching={searching}
+        onAddRep={handleAddRep}
+      />
     </div>
+  );
+}
+
+function AddRepDialog({
+  open,
+  onOpenChange,
+  searchQuery,
+  onSearch,
+  searchResults,
+  searching,
+  onAddRep,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  searchQuery: string;
+  onSearch: (q: string) => void;
+  searchResults: any[];
+  searching: boolean;
+  onAddRep: (userId: string, name: string) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Add Rep to 1:1 List</DialogTitle>
+        </DialogHeader>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            placeholder="Search by name..."
+            className="pl-9"
+            autoFocus
+          />
+        </div>
+        <div className="max-h-60 overflow-y-auto space-y-1">
+          {searching && <p className="text-xs text-muted-foreground text-center py-4">Searching...</p>}
+          {!searching && searchQuery.length >= 2 && searchResults.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-4">No results found</p>
+          )}
+          {searchResults.map(p => (
+            <button
+              key={p.user_id}
+              onClick={() => onAddRep(p.user_id, p.full_name)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-colors text-left"
+            >
+              {p.avatar_url ? (
+                <img src={p.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                  {p.full_name?.charAt(0)}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{p.full_name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{p.email}</p>
+              </div>
+              <Plus className="w-4 h-4 text-primary ml-auto flex-shrink-0" />
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
