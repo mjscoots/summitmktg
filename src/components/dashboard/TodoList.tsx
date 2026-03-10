@@ -471,11 +471,13 @@ function TodoRow({
   onToggle,
   onDelete,
   onEdit,
+  onPriorityChange,
 }: {
   todo: TodoItem;
   onToggle: () => void;
   onDelete: () => void;
   onEdit: () => void;
+  onPriorityChange: (priority: Priority) => void;
 }) {
   const cfg = PRIORITY_CONFIG[todo.priority];
   const PriorityIcon = cfg.icon;
@@ -496,7 +498,27 @@ function TodoRow({
           className="flex-shrink-0"
         />
       </div>
-      <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", cfg.color)} />
+      {/* Inline priority dropdown */}
+      <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+        <Select value={todo.priority} onValueChange={(v) => onPriorityChange(v as Priority)}>
+          <SelectTrigger className="h-6 w-6 p-0 border-0 bg-transparent shadow-none focus:ring-0 [&>svg]:hidden justify-center">
+            <PriorityIcon className={cn("w-3 h-3", cfg.color)} />
+          </SelectTrigger>
+          <SelectContent align="start" className="min-w-[120px]">
+            {PRIORITY_ORDER.map(p => {
+              const c = PRIORITY_CONFIG[p];
+              return (
+                <SelectItem key={p} value={p}>
+                  <span className={cn("flex items-center gap-1.5", c.color)}>
+                    <c.icon className="w-3 h-3" />
+                    {c.label}
+                  </span>
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="flex-1 min-w-0">
         <p className={cn("text-sm", todo.is_completed && "line-through text-muted-foreground")}>
           {todo.title}
