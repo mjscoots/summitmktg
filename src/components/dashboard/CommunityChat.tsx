@@ -78,7 +78,21 @@ const DEFAULT_CHANNELS = [
   { id: 'general', label: 'General', icon: 'Hash', color: 'text-muted-foreground' },
 ] as const;
 
-const QUICK_REPLY_CHIPS = ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'] as const;
+const DAILY_CHIP_SETS = [
+  ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'],
+  ['💪 Grind time', '🚀 Send it', '👑 We run this'],
+  ['⚔️ War mode', '💰 Money time', '🏆 Champions only'],
+  ['🔥 No days off', '✅ Locked in', '⛰️ To the top'],
+  ['💪 Beast mode', '🚀 Full send', '👑 Stay hungry'],
+  ['⚔️ Game day', '💰 Close it', '🏆 Built different'],
+  ['🔥 All gas', '✅ Let\'s eat', '⛰️ Peak energy'],
+];
+
+const getDailyChips = () => {
+  const dayIndex = Math.floor(Date.now() / 86400000) % DAILY_CHIP_SETS.length;
+  return DAILY_CHIP_SETS[dayIndex];
+};
+
 
 type ChannelId = string;
 
@@ -256,6 +270,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => clearInterval(interval);
   }, []);
 
+  // Double-tap to react with 🔥 (touch support for mobile)
+  const lastTapRef = useRef<{ id: string; time: number }>({ id: '', time: 0 });
+  const handleTouchDoubleTap = (msgId: string) => {
+    const now = Date.now();
+    if (lastTapRef.current.id === msgId && now - lastTapRef.current.time < 350) {
+      handleDoubleClickReact(msgId);
+      lastTapRef.current = { id: '', time: 0 };
+    } else {
+      lastTapRef.current = { id: msgId, time: now };
+    }
+  };
+
   // Double-click to react with 🔥
   const handleDoubleClickReact = async (msgId: string) => {
     if (!user) return;
@@ -389,6 +415,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               <div
                 id={`msg-${msg.id}`}
                 onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
+                onTouchEnd={() => { if (!msg.is_ai) handleTouchDoubleTap(msg.id); }}
                 className={cn(
                   "group/msg relative px-4 hover:bg-muted/30 transition-colors select-none",
                   grouped ? "py-0.5" : "pt-3 pb-1",
@@ -525,7 +552,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md">
           {(
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-              {QUICK_REPLY_CHIPS.map((chip) => (
+              {getDailyChips().map((chip) => (
                 <button
                   key={chip}
                   type="button"
