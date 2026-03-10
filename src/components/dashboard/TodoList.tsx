@@ -3,9 +3,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import {
-  ListTodo, Plus, Upload, Trash2, GripVertical, User, ChevronDown,
-  AlertTriangle, ArrowUp, Minus, ArrowDown, Loader2, Sparkles
+  ListTodo, Plus, Upload, Trash2, User, ChevronDown,
+  AlertTriangle, ArrowUp, Minus, ArrowDown, Loader2, Sparkles, CalendarIcon, Pencil
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -30,8 +31,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low';
+type FilterTab = 'all' | 'urgent' | 'high' | 'medium' | 'low';
 
 interface TodoItem {
   id: string;
@@ -43,6 +51,7 @@ interface TodoItem {
   assigned_by_name: string | null;
   display_order: number;
   created_at: string;
+  due_date: string | null;
 }
 
 const PRIORITY_CONFIG: Record<Priority, { icon: typeof AlertTriangle; label: string; color: string; bg: string }> = {
@@ -54,7 +63,13 @@ const PRIORITY_CONFIG: Record<Priority, { icon: typeof AlertTriangle; label: str
 
 const PRIORITY_ORDER: Priority[] = ['urgent', 'high', 'medium', 'low'];
 
-type SortMode = 'custom' | 'priority';
+const FILTER_TABS: { key: FilterTab; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'urgent', label: 'Urgent' },
+  { key: 'high', label: 'High' },
+  { key: 'medium', label: 'Medium' },
+  { key: 'low', label: 'Low' },
+];
 
 export function TodoList() {
   const { user } = useAuth();
@@ -62,10 +77,14 @@ export function TodoList() {
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState<Priority>('medium');
-  const [sortMode, setSortMode] = useState<SortMode>('custom');
+  const [filterTab, setFilterTab] = useState<FilterTab>('all');
   const [showUpload, setShowUpload] = useState(false);
   const [uploadText, setUploadText] = useState('');
   const [parsing, setParsing] = useState(false);
+  const [editTodo, setEditTodo] = useState<TodoItem | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editPriority, setEditPriority] = useState<Priority>('medium');
+  const [editDueDate, setEditDueDate] = useState<Date | undefined>(undefined);
 
   const fetchTodos = useCallback(async () => {
     if (!user) return;
@@ -80,7 +99,6 @@ export function TodoList() {
 
   useEffect(() => { fetchTodos(); }, [fetchTodos]);
 
-  // Realtime
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -117,8 +135,22 @@ export function TodoList() {
     fetchTodos();
   };
 
-  const updatePriority = async (id: string, priority: Priority) => {
-    await supabase.from('todo_items').update({ priority } as any).eq('id', id);
+  const openEditModal = (todo: TodoItem) => {
+    setEditTodo(todo);
+    setEditTitle(todo.title);
+    setEditPriority(todo.priority);
+    setEditDueDate(todo.due_date ? new Date(todo.due_date + 'T00:00:00') : undefined);
+  };
+
+  const saveEdit = async () => {
+    if (!editTodo || !editTitle.trim()) return;
+    await supabase.from('todo_items').update({
+      title: editTitle.trim(),
+      priority: editPriority,
+      due_date: editDueDate ? format(editDueDate, 'yyyy-MM-dd') : null,
+    } as any).eq('id', editTodo.id);
+    setEditTodo(null);
+    toast.success('Task updated');
     fetchTodos();
   };
 
@@ -154,18 +186,25 @@ export function TodoList() {
     }
   };
 
-  const sortedTodos = sortMode === 'priority'
-    ? [...todos].sort((a, b) => {
-        if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
-        return PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority);
-      })
-    : [...todos].sort((a, b) => {
-        if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
-        return a.display_order - b.display_order;
-      });
+  // Always sort by priority (urgent → low), completed at bottom
+  const sortedTodos = [...todos].sort((a, b) => {
+    if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
+    return PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority);
+  });
 
-  const activeTodos = sortedTodos.filter(t => !t.is_completed);
-  const completedTodos = sortedTodos.filter(t => t.is_completed);
+  const filteredTodos = filterTab === 'all'
+    ? sortedTodos
+    : sortedTodos.filter(t => t.priority === filterTab);
+
+  const activeTodos = filteredTodos.filter(t => !t.is_completed);
+  const completedTodos = filteredTodos.filter(t => t.is_completed);
+
+  // Counts per priority for tab badges
+  const priorityCounts = todos.reduce((acc, t) => {
+    if (!t.is_completed) acc[t.priority] = (acc[t.priority] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const activeTotal = todos.filter(t => !t.is_completed).length;
 
   if (loading) {
     return (
@@ -184,32 +223,42 @@ export function TodoList() {
         <div className="flex items-center gap-2">
           <ListTodo className="w-4 h-4 text-primary" />
           <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">To-Do List</h2>
-          {activeTodos.length > 0 && (
+          {activeTotal > 0 && (
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-              {activeTodos.length}
+              {activeTotal}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setSortMode(sortMode === 'priority' ? 'custom' : 'priority')}
-            className={cn(
-              "text-[10px] px-2 py-1 rounded-md border transition-all",
-              sortMode === 'priority'
-                ? "bg-primary/10 border-primary/30 text-primary"
-                : "border-border/50 text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {sortMode === 'priority' ? '⬆ Priority' : '☰ Custom'}
-          </button>
-          <button
-            onClick={() => setShowUpload(true)}
-            className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-md border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
-          >
-            <Sparkles className="w-3 h-3" />
-            Upload Tasks
-          </button>
-        </div>
+        <button
+          onClick={() => setShowUpload(true)}
+          className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-md border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+        >
+          <Sparkles className="w-3 h-3" />
+          Upload Tasks
+        </button>
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-1 mb-3 overflow-x-auto">
+        {FILTER_TABS.map(tab => {
+          const count = tab.key === 'all' ? activeTotal : (priorityCounts[tab.key] || 0);
+          const isActive = filterTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setFilterTab(tab.key)}
+              className={cn(
+                "text-[10px] font-semibold px-2.5 py-1 rounded-md border whitespace-nowrap transition-all",
+                isActive
+                  ? "bg-primary/10 border-primary/30 text-primary"
+                  : "border-border/50 text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab.label}
+              {count > 0 && <span className="ml-1 opacity-70">{count}</span>}
+            </button>
+          );
+        })}
       </div>
 
       {/* Add task inline */}
@@ -255,7 +304,7 @@ export function TodoList() {
               todo={todo}
               onToggle={() => toggleComplete(todo)}
               onDelete={() => deleteTodo(todo.id)}
-              onPriorityChange={(p) => updatePriority(todo.id, p)}
+              onEdit={() => openEditModal(todo)}
             />
           ))}
         </div>
@@ -275,12 +324,93 @@ export function TodoList() {
                 todo={todo}
                 onToggle={() => toggleComplete(todo)}
                 onDelete={() => deleteTodo(todo.id)}
-                onPriorityChange={(p) => updatePriority(todo.id, p)}
+                onEdit={() => openEditModal(todo)}
               />
             ))}
           </CollapsibleContent>
         </Collapsible>
       )}
+
+      {/* Edit Task Dialog */}
+      <Dialog open={!!editTodo} onOpenChange={(open) => !open && setEditTodo(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="w-4 h-4 text-primary" />
+              Edit Task
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Title</label>
+              <Input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Priority</label>
+              <Select value={editPriority} onValueChange={(v) => setEditPriority(v as Priority)}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRIORITY_ORDER.map(p => {
+                    const cfg = PRIORITY_CONFIG[p];
+                    return (
+                      <SelectItem key={p} value={p}>
+                        <span className={cn("flex items-center gap-1.5", cfg.color)}>
+                          <cfg.icon className="w-3.5 h-3.5" />
+                          {cfg.label}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Due Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-9",
+                      !editDueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    {editDueDate ? format(editDueDate, 'PPP') : 'No due date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={editDueDate}
+                    onSelect={setEditDueDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              {editDueDate && (
+                <button
+                  onClick={() => setEditDueDate(undefined)}
+                  className="text-[10px] text-muted-foreground hover:text-destructive mt-1 transition-colors"
+                >
+                  Remove due date
+                </button>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTodo(null)}>Cancel</Button>
+            <Button onClick={saveEdit} disabled={!editTitle.trim()}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Upload Tasks Dialog */}
       <Dialog open={showUpload} onOpenChange={setShowUpload}>
@@ -316,59 +446,57 @@ function TodoRow({
   todo,
   onToggle,
   onDelete,
-  onPriorityChange,
+  onEdit,
 }: {
   todo: TodoItem;
   onToggle: () => void;
   onDelete: () => void;
-  onPriorityChange: (p: Priority) => void;
+  onEdit: () => void;
 }) {
   const cfg = PRIORITY_CONFIG[todo.priority];
   const PriorityIcon = cfg.icon;
+  const isOverdue = todo.due_date && !todo.is_completed && new Date(todo.due_date + 'T23:59:59') < new Date();
 
   return (
-    <div className={cn(
-      "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all group",
-      todo.is_completed ? "opacity-50 border-border/30 bg-muted/20" : cn("border-border/50", cfg.bg)
-    )}>
-      <Checkbox
-        checked={todo.is_completed}
-        onCheckedChange={onToggle}
-        className="flex-shrink-0"
-      />
+    <div
+      className={cn(
+        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all group cursor-pointer",
+        todo.is_completed ? "opacity-50 border-border/30 bg-muted/20" : cn("border-border/50 hover:border-primary/20", cfg.bg)
+      )}
+      onClick={onEdit}
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={todo.is_completed}
+          onCheckedChange={onToggle}
+          className="flex-shrink-0"
+        />
+      </div>
+      <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", cfg.color)} />
       <div className="flex-1 min-w-0">
         <p className={cn("text-sm", todo.is_completed && "line-through text-muted-foreground")}>
           {todo.title}
         </p>
-        {todo.assigned_by_name && (
-          <div className="flex items-center gap-1 mt-0.5">
-            <User className="w-2.5 h-2.5 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground">From {todo.assigned_by_name}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 mt-0.5">
+          {todo.assigned_by_name && (
+            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <User className="w-2.5 h-2.5" />
+              From {todo.assigned_by_name}
+            </span>
+          )}
+          {todo.due_date && (
+            <span className={cn(
+              "flex items-center gap-0.5 text-[10px]",
+              isOverdue ? "text-red-500 font-semibold" : "text-muted-foreground"
+            )}>
+              <CalendarIcon className="w-2.5 h-2.5" />
+              {format(new Date(todo.due_date + 'T00:00:00'), 'MMM d')}
+            </span>
+          )}
+        </div>
       </div>
-      {!todo.is_completed && (
-        <Select value={todo.priority} onValueChange={(v) => onPriorityChange(v as Priority)}>
-          <SelectTrigger className="w-fit h-6 text-[10px] border-0 bg-transparent px-1 gap-0.5">
-            <PriorityIcon className={cn("w-3 h-3", cfg.color)} />
-          </SelectTrigger>
-          <SelectContent>
-            {PRIORITY_ORDER.map(p => {
-              const c = PRIORITY_CONFIG[p];
-              return (
-                <SelectItem key={p} value={p}>
-                  <span className={cn("flex items-center gap-1 text-xs", c.color)}>
-                    <c.icon className="w-3 h-3" />
-                    {c.label}
-                  </span>
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-      )}
       <button
-        onClick={onDelete}
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
         className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all flex-shrink-0"
       >
         <Trash2 className="w-3.5 h-3.5" />
