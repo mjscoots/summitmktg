@@ -5,7 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Button } from '@/components/ui/button';
-import { TeamCard } from '@/components/team/TeamCard';
+
 import { PillarTreeView } from '@/components/team/PillarTreeView';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
