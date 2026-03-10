@@ -448,7 +448,7 @@ export default function AdminTeamPage() {
     setSettingsLoading(false);
   };
 
-  const [userSort, setUserSort] = useState<'alpha' | 'latest' | 'team' | 'role' | 'bootcamp'>('alpha');
+  const [userSort, setUserSort] = useState<'alpha' | 'latest' | 'team' | 'role' | 'bootcamp'>('latest');
 
   const filtered = reps.filter(r =>
     r.full_name.toLowerCase().includes(search.toLowerCase()) ||
