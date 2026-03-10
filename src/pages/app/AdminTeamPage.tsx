@@ -157,7 +157,7 @@ export default function AdminTeamPage() {
 
     const allReps: RepRow[] = (profilesRes.data || []).map(p => {
       const userRole = roleMap.get(p.user_id) || 'rookie';
-      const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin';
+      const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin' || userRole === 'owner';
       return {
         ...p,
         bootcamp_completed: isManagerOrAdmin ? true : (bootcampMap.get(p.user_id)?.bootcamp_completed ?? true),
