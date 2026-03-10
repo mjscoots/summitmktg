@@ -320,6 +320,34 @@ export default function CalendarPage() {
     finally { setIsLoading(false); }
   };
 
+  // Fetch todo items with due dates as virtual calendar events
+  const fetchTodoEvents = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('todo_items')
+      .select('id, title, due_date, is_completed, priority')
+      .eq('user_id', user.id)
+      .not('due_date', 'is', null);
+    const todos: CalendarEvent[] = ((data as any[]) || [])
+      .filter(t => !t.is_completed && t.due_date)
+      .map(t => ({
+        id: `todo-${t.id}`,
+        title: `📋 ${t.title}`,
+        description: `Priority: ${t.priority}`,
+        event_date: new Date(t.due_date + 'T09:00:00').toISOString(),
+        end_date: null,
+        location: null,
+        event_type: 'general',
+        is_team_wide: false,
+        manager_id: null,
+        created_by: user.id,
+        _virtual: true,
+      }));
+    setTodoEvents(todos);
+  }, [user]);
+
+  useEffect(() => { fetchTodoEvents(); }, [fetchTodoEvents]);
+
   useEffect(() => { fetchEvents(); }, [user, isManager]);
 
   const handleAttendanceToggle = async (eventId: string, status: 'attending' | 'not_attending') => {
