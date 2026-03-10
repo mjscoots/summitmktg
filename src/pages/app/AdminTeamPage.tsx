@@ -124,7 +124,7 @@ export default function AdminTeamPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
-  const [rosterSubTab, setRosterSubTab] = useState<'sync' | 'import' | 'assign'>('sync');
+  const [rosterSubTab, setRosterSubTab] = useState<'roster' | 'import'>('roster');
   const [passwordResetTarget, setPasswordResetTarget] = useState<{ email: string; full_name: string } | null>(null);
   const [customPassword, setCustomPassword] = useState('');
 
