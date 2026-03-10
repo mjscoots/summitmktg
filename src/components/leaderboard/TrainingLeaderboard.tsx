@@ -410,15 +410,15 @@ function PodiumSlot({
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
         <div className={cn("rounded-full p-0.5", isChampion ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600" : "")}>
           <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg" rank={rank} totalEntries={20}
-            className={cn("shadow-lg", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
+            className={cn("shadow-md", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
         </div>
         {isChampion ? (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Crown className="w-6 h-6 text-yellow-500 drop-shadow-lg" /></div>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Crown className="w-6 h-6 text-yellow-500 drop-shadow-md" /></div>
         ) : (
-          <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md", rankBg)}>{rank}</div>
+          <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm", rankBg)}>{rank}</div>
         )}
       </div>
-      <p className={cn("font-bold text-foreground mt-2 truncate text-center", isChampion ? "text-sm max-w-[100px]" : "text-xs max-w-[80px]")}>{displayName(entry)}</p>
+      <p className={cn("font-bold text-foreground mt-2 truncate text-center", isChampion ? "text-base max-w-[110px]" : rank === 2 ? "text-sm max-w-[90px]" : "text-[13px] max-w-[85px]")}>{displayName(entry)}</p>
       <p className={cn("font-black text-primary tabular-nums", isChampion ? "text-xl" : "text-sm")}>{entry.totalPoints.toLocaleString()}</p>
       <span className="text-[9px] text-muted-foreground font-semibold -mt-0.5">PTS</span>
       <div className={cn("rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2", podiumH, `bg-gradient-to-t ${podiumGradient}`, isChampion ? "w-28" : "w-22")}>
