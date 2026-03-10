@@ -135,6 +135,11 @@ export function TodoList() {
     fetchTodos();
   };
 
+  const updatePriority = async (id: string, priority: Priority) => {
+    await supabase.from('todo_items').update({ priority } as any).eq('id', id);
+    fetchTodos();
+  };
+
   const openEditModal = (todo: TodoItem) => {
     setEditTodo(todo);
     setEditTitle(todo.title);
