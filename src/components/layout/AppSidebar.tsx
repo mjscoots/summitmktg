@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, ChevronRight } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, ChevronRight, Calculator } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -74,6 +74,7 @@ export function AppSidebar() {
   if (isManager) toolsItems.push({ label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' });
   toolsItems.push({ label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' });
   toolsItems.push({ label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' });
+  toolsItems.push({ label: 'Calculators', path: '/app/calculators', icon: Calculator, iconColor: 'text-emerald-400' });
   if (isManager) toolsItems.push({ label: 'Stats', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' });
 
   const getBadge = (path: string) => {
