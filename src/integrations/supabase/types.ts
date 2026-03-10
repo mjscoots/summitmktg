@@ -773,7 +773,9 @@ export type Database = {
           id: string
           last_login_date: string | null
           longest_streak: number
+          previous_streak: number
           streak_points_awarded: number
+          streak_restores_remaining: number
           total_days_active: number
           updated_at: string
           user_id: string
@@ -784,7 +786,9 @@ export type Database = {
           id?: string
           last_login_date?: string | null
           longest_streak?: number
+          previous_streak?: number
           streak_points_awarded?: number
+          streak_restores_remaining?: number
           total_days_active?: number
           updated_at?: string
           user_id: string
@@ -795,7 +799,9 @@ export type Database = {
           id?: string
           last_login_date?: string | null
           longest_streak?: number
+          previous_streak?: number
           streak_points_awarded?: number
+          streak_restores_remaining?: number
           total_days_active?: number
           updated_at?: string
           user_id?: string
@@ -2898,6 +2904,7 @@ export type Database = {
         Args: { _category: string; _user_id: string }
         Returns: undefined
       }
+      restore_streak: { Args: { _user_id: string }; Returns: Json }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string
