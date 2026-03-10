@@ -620,9 +620,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   }
                 }
               }}
-              placeholder={activeChannel === 'ai-coach' ? 'Ask Summit Coach anything...' : 'Drop your update, win the day…'}
+              placeholder="Drop your update, win the day…"
               className="flex-1 bg-transparent text-foreground font-chat-input text-sm px-3 py-2.5 focus:outline-none placeholder:text-muted-foreground"
-              disabled={isSending || isAiLoading}
+              disabled={isSending}
             />
 
             {/* Send */}
