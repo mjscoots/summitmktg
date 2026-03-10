@@ -181,23 +181,7 @@ export function CommandCenterHeader() {
       </div>
 
       {/* 2 KPI Strip */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <button
-          onClick={() => navigate('/app/team')}
-          className="bg-card rounded-xl border border-border/60 p-4 text-left hover:border-primary/40 transition-colors group"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <GraduationCap className="w-4 h-4 text-primary/60" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Team Training Completion</span>
-          </div>
-          <span className={cn(
-            "text-2xl font-black tabular-nums",
-            stats.teamCompletion >= 75 ? "text-success" : stats.teamCompletion >= 50 ? "text-yellow-400" : "text-destructive"
-          )}>
-            {isLoading ? '—' : `${stats.teamCompletion}%`}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">All Summit Training Progress</p>
-        </button>
+        <div className="grid grid-cols-1 gap-3 mb-4">
 
         <button
           onClick={() => navigate('/app/team')}
