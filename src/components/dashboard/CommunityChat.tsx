@@ -574,7 +574,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-xl"
           )}>
             {/* Left icons */}
-            {activeChannel !== 'ai-coach' && (
+            {(
               <>
                 <ChatImageUpload onSend={handleSendFile} />
                 <button
