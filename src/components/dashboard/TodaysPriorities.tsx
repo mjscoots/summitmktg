@@ -30,7 +30,7 @@ export function TodaysPriorities() {
   const { role, profile } = useAuth();
    const { needsAttention, needsCheckIn, members, teamName, isLoading } = useTeamData();
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   if (!isManager) {
     return null;

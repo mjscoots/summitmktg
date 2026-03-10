@@ -16,7 +16,7 @@ export function useSmartNotifications() {
   const { user, role } = useAuth();
   const { prefs, loaded } = useNotificationPreferences(user?.id);
   const hasCheckedRef = useRef(false);
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   useEffect(() => {
     if (!user?.id || hasCheckedRef.current || !loaded) return;

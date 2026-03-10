@@ -62,7 +62,7 @@ export default function MyTeamPage() {
   const [bootcampMap, setBootcampMap] = useState<Map<string, { completed: boolean; exempt: boolean; phases: number }>>(new Map());
   const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
 
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
   const isManagerRole = role === 'manager' || role === 'admin' || role === 'owner';
 
   // Listen for manager notifications (real-time toasts)

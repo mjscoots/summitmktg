@@ -38,7 +38,7 @@ export function AICoachChat() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isManager = role === 'manager' || role === 'admin';
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
 
   const scrollToBottom = () => {
