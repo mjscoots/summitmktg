@@ -334,6 +334,7 @@ export function TodoList() {
               onToggle={() => toggleComplete(todo)}
               onDelete={() => deleteTodo(todo.id)}
               onEdit={() => openEditModal(todo)}
+              onPriorityChange={(p) => updatePriority(todo.id, p)}
             />
           ))}
         </div>
