@@ -203,8 +203,8 @@ export default function TeamPage() {
     }
     // Sort: managers first (by team size desc), then rookies by training %
     return members.sort((a, b) => {
-      const aIsManager = a.role === 'manager' || a.role === 'admin';
-      const bIsManager = b.role === 'manager' || b.role === 'admin';
+      const aIsManager = a.role === 'manager' || a.role === 'admin' || a.role === 'owner';
+      const bIsManager = b.role === 'manager' || b.role === 'admin' || b.role === 'owner';
       if (aIsManager && !bIsManager) return -1;
       if (!aIsManager && bIsManager) return 1;
       if (!aIsManager && !bIsManager) {
