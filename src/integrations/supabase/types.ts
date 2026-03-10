@@ -1364,6 +1364,7 @@ export type Database = {
           id: string
           is_active_now: boolean | null
           last_active_at: string | null
+          last_seen_release: string | null
           legacy_points_snapshot: number | null
           nickname: string | null
           onboarding_status: string | null
@@ -1397,6 +1398,7 @@ export type Database = {
           id?: string
           is_active_now?: boolean | null
           last_active_at?: string | null
+          last_seen_release?: string | null
           legacy_points_snapshot?: number | null
           nickname?: string | null
           onboarding_status?: string | null
@@ -1430,6 +1432,7 @@ export type Database = {
           id?: string
           is_active_now?: boolean | null
           last_active_at?: string | null
+          last_seen_release?: string | null
           legacy_points_snapshot?: number | null
           nickname?: string | null
           onboarding_status?: string | null

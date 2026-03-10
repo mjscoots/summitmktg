@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { WhatsNewTour } from '@/components/onboarding/WhatsNewTour';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -63,6 +64,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             <main className={cn("flex-1 overflow-x-hidden", fullHeight && "min-h-0 overflow-hidden")}>
               {children}
             </main>
+            <WhatsNewTour />
             
           </div>
         </div>
