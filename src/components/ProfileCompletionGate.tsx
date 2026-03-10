@@ -63,10 +63,13 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         
         setAvatarUrl((data as any).avatar_url);
 
+        // Profile is "complete" only if avatar exists
+        // Other fields (name, phone) still checked for the full gate
+        const hasAvatar = !!(data as any).avatar_url;
         const complete = !!(
           (data as any).full_name?.trim() &&
           (data as any).phone?.trim() &&
-          (data as any).avatar_url
+          hasAvatar
         );
         setIsComplete(complete);
       }
