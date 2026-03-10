@@ -1,0 +1,1 @@
+ALTER TABLE public.todo_items ADD COLUMN due_date date DEFAULT NULL;

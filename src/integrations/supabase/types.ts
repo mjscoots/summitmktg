@@ -1911,6 +1911,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           display_order: number
+          due_date: string | null
           id: string
           is_completed: boolean
           priority: Database["public"]["Enums"]["todo_priority"]
@@ -1924,6 +1925,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           display_order?: number
+          due_date?: string | null
           id?: string
           is_completed?: boolean
           priority?: Database["public"]["Enums"]["todo_priority"]
@@ -1937,6 +1939,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           display_order?: number
+          due_date?: string | null
           id?: string
           is_completed?: boolean
           priority?: Database["public"]["Enums"]["todo_priority"]
