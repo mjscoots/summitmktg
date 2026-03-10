@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,13 +6,14 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
-import { Swords, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
+import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { getTeamColor } from '@/lib/teamColors';
 import type { TeamMember } from '@/lib/hierarchyUtils';
 
-type WarRoomTab = 'team' | 'pulse' | 'activity';
+type WarRoomTab = 'downline' | 'teams' | 'pulse' | 'activity';
 
 interface TeamMemberRow {
   user_id: string;
@@ -20,6 +21,8 @@ interface TeamMemberRow {
   last_active_at: string | null;
   trainingPct: number;
   checklistDone: boolean;
+  teamName: string | null;
+  pillarSlug: string | null;
 }
 
 interface TimeEntry {
@@ -29,27 +32,36 @@ interface TimeEntry {
   weeklyMinutes: number;
   requiredMinutes: number;
   status: 'acceptable' | 'below';
+  teamName: string | null;
 }
 
 /** Get Monday-based week start */
 function getMondayWeekStart(): Date {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun, 1=Mon...
-  const diff = day === 0 ? 6 : day - 1; // days since Monday
+  const day = now.getDay();
+  const diff = day === 0 ? 6 : day - 1;
   const monday = new Date(now);
   monday.setDate(now.getDate() - diff);
   monday.setHours(0, 0, 0, 0);
   return monday;
 }
 
+function getDaysInactive(lastActiveAt: string | null): number {
+  if (!lastActiveAt) return 999;
+  const now = new Date();
+  const active = new Date(lastActiveAt);
+  return Math.floor((now.getTime() - active.getTime()) / 86400000);
+}
+
 export default function WarRoomPage() {
   const navigate = useNavigate();
   const { profile, role } = useAuth();
   const firstName = profile?.full_name?.split(' ')[0] || 'Manager';
-  const [activeTab, setActiveTab] = useState<WarRoomTab>('team');
+  const [activeTab, setActiveTab] = useState<WarRoomTab>('downline');
 
   const TABS: { id: WarRoomTab; label: string; icon: typeof Activity }[] = [
-    { id: 'team', label: 'Team', icon: Users },
+    { id: 'downline', label: 'Downline', icon: Users },
+    { id: 'teams', label: 'Teams', icon: Network },
     { id: 'pulse', label: 'Pulse', icon: Activity },
     { id: 'activity', label: 'Activity', icon: Clock },
   ];
@@ -66,10 +78,10 @@ export default function WarRoomPage() {
             <div className="absolute inset-0 flex items-center px-6">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-red-500/20 border border-red-500/30">
-                  <Swords className="w-6 h-6 text-red-400" />
+                  <BarChart3 className="w-6 h-6 text-red-400" />
                 </div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">WAR ROOM</h1>
+                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">STATS</h1>
                   <p className="text-xs text-white/50">Your team's training, progress & accountability at a glance.</p>
                 </div>
               </div>
@@ -100,12 +112,123 @@ export default function WarRoomPage() {
             </div>
           </div>
 
-          {activeTab === 'team' && <TeamTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'downline' && <DownlineTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'teams' && <TeamsTab managerName={profile?.full_name || ''} />}
           {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} />}
           {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} />}
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+/* ── Teams Tab (Tree View) ── */
+function TeamsTab({ managerName }: { managerName: string }) {
+  const [teams, setTeams] = useState<{ id: string; name: string; slug: string; members: { user_id: string; full_name: string; role: string }[] }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data: teamsData } = await supabase.from('teams').select('id, name, slug').order('name');
+      if (!teamsData) { setLoading(false); return; }
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, team_id, status')
+        .neq('status', 'nlc');
+
+      const { data: rolesData } = await supabase.from('user_roles').select('user_id, role');
+      const roleMap = new Map((rolesData || []).map(r => [r.user_id, r.role]));
+
+      const result = teamsData.map(t => ({
+        ...t,
+        members: (profiles || [])
+          .filter(p => p.team_id === t.id)
+          .map(p => ({
+            user_id: p.user_id,
+            full_name: p.full_name,
+            role: roleMap.get(p.user_id) || 'rookie',
+          }))
+          .sort((a, b) => {
+            const aIsManager = a.role === 'manager' || a.role === 'admin' || a.role === 'owner';
+            const bIsManager = b.role === 'manager' || b.role === 'admin' || b.role === 'owner';
+            if (aIsManager && !bIsManager) return -1;
+            if (!aIsManager && bIsManager) return 1;
+            return a.full_name.localeCompare(b.full_name);
+          }),
+      }));
+
+      setTeams(result);
+      // Auto-expand all
+      setExpandedTeams(new Set(result.map(t => t.id)));
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  const toggleTeam = (id: string) => {
+    setExpandedTeams(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  if (loading) return <SummitLoader label="Loading teams..." />;
+
+  return (
+    <>
+      <div className="space-y-3">
+        {teams.map(team => {
+          const color = getTeamColor(team.name);
+          const isExpanded = expandedTeams.has(team.id);
+          return (
+            <div key={team.id} className="bg-card rounded-xl border border-border/50 overflow-hidden">
+              <button
+                onClick={() => toggleTeam(team.id)}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors"
+              >
+                <div className={cn("w-3 h-3 rounded-full", color.bg)} />
+                <span className={cn("text-sm font-bold", color.text)}>{team.name}</span>
+                <span className="text-xs text-muted-foreground ml-auto">{team.members.length} members</span>
+                <ArrowDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
+              </button>
+              {isExpanded && team.members.length > 0 && (
+                <div className="border-t border-border/30">
+                  {team.members.map(m => {
+                    const isManager = m.role === 'manager' || m.role === 'admin' || m.role === 'owner';
+                    return (
+                      <button
+                        key={m.user_id}
+                        onClick={() => setSelectedMember({ id: m.user_id, user_id: m.user_id, full_name: m.full_name, email: '', status: null, experience: null, direct_manager: null })}
+                        className="w-full flex items-center gap-3 px-6 py-2 hover:bg-muted/20 transition-colors text-left"
+                      >
+                        <div className={cn("w-1.5 h-1.5 rounded-full", isManager ? color.bg : "bg-muted-foreground/30")} />
+                        <span className={cn("text-sm font-medium", color.text)}>{m.full_name}</span>
+                        <span className="text-[10px] text-muted-foreground ml-auto uppercase">{isManager ? 'Manager' : 'Rookie'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {isExpanded && team.members.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-4 border-t border-border/30">No members</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <MemberProfileModal
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        roster={[]}
+      />
+    </>
   );
 }
 
@@ -122,7 +245,6 @@ function PulseTab({ managerName }: { managerName: string }) {
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
 
-      // Training % — canonical calc including lessons + videos
       const items = await getReachableRookieTrainingItems();
       const completedCounts = await getCompletedTrainingCounts(repIds, items);
       let avgTraining = 0;
@@ -132,12 +254,10 @@ function PulseTab({ managerName }: { managerName: string }) {
         avgTraining = Math.round(total / repIds.length);
       }
 
-      // Checklist %
       const { data: bp } = await supabase.from('bootcamp_progress').select('user_id, bootcamp_completed').in('user_id', repIds);
       const completedChecklist = (bp || []).filter((b: any) => b.bootcamp_completed).length;
       const checklistPct = repIds.length > 0 ? Math.round((completedChecklist / repIds.length) * 100) : 0;
 
-      // 1:1 Completion % (this week - Monday start)
       const weekStart = getMondayWeekStart();
       const { count: completedCount } = await supabase
         .from('scheduling_requests')
@@ -174,8 +294,8 @@ function PulseTab({ managerName }: { managerName: string }) {
   );
 }
 
-/* ── Team Tab ── */
-function TeamTab({ managerName }: { managerName: string }) {
+/* ── Downline Tab (formerly Team) ── */
+function DownlineTab({ managerName }: { managerName: string }) {
   const [members, setMembers] = useState<TeamMemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<'name' | 'training' | 'checklist' | 'activity'>('training');
@@ -190,10 +310,16 @@ function TeamTab({ managerName }: { managerName: string }) {
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
 
-      const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, last_active_at').in('user_id', repIds);
+      const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, last_active_at, team_id, pillar_slug').in('user_id', repIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
 
-      // Training — canonical calc including lessons + videos
+      // Get team names
+      const teamIds = [...new Set((profiles || []).map(p => p.team_id).filter(Boolean))] as string[];
+      const { data: teamsData } = teamIds.length > 0 
+        ? await supabase.from('teams').select('id, name').in('id', teamIds)
+        : { data: [] };
+      const teamMap = new Map((teamsData || []).map(t => [t.id, t.name]));
+
       const items = await getReachableRookieTrainingItems();
       const completedCounts = await getCompletedTrainingCounts(repIds, items);
 
@@ -208,6 +334,8 @@ function TeamTab({ managerName }: { managerName: string }) {
           last_active_at: p?.last_active_at || null,
           trainingPct: items.totalCount > 0 ? Math.round(((completedCounts.get(uid) || 0) / items.totalCount) * 100) : 0,
           checklistDone: checkMap.get(uid) || false,
+          teamName: p?.team_id ? teamMap.get(p.team_id) || null : null,
+          pillarSlug: p?.pillar_slug || null,
         };
       });
 
@@ -242,7 +370,7 @@ function TeamTab({ managerName }: { managerName: string }) {
     { key: 'activity', label: 'Last Active' },
   ];
 
-  if (loading) return <SummitLoader label="Loading team..." />;
+  if (loading) return <SummitLoader label="Loading downline..." />;
 
   const toTeamMember = (row: TeamMemberRow): TeamMember => ({
     id: row.user_id,
@@ -279,31 +407,39 @@ function TeamTab({ managerName }: { managerName: string }) {
         {/* Rows */}
         {sorted.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">No reps found</p>
-        ) : sorted.map((m) => (
-          <div key={m.user_id} className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/10 hover:bg-muted/20 transition-colors items-center">
-            <button onClick={() => setSelectedMember(toTeamMember(m))} className="text-sm font-medium text-primary hover:underline truncate text-left">
-              {m.full_name}
-            </button>
-            <div className="flex items-center gap-2">
-              <Progress value={m.trainingPct} className="h-1.5 flex-1 bg-muted max-w-[80px]" />
-              <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-yellow-400" : "text-destructive")}>{m.trainingPct}%</span>
+        ) : sorted.map((m) => {
+          const daysInactive = getDaysInactive(m.last_active_at);
+          const isInactive3Plus = daysInactive >= 3;
+          const teamColor = getTeamColor(m.teamName);
+          return (
+            <div key={m.user_id} className={cn(
+              "grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/10 hover:bg-muted/20 transition-colors items-center",
+              isInactive3Plus && "bg-destructive/5 border-l-2 border-l-destructive/40"
+            )}>
+              <button onClick={() => setSelectedMember(toTeamMember(m))} className={cn("text-sm font-bold hover:underline truncate text-left", teamColor.text)}>
+                {m.full_name}
+              </button>
+              <div className="flex items-center gap-2">
+                <Progress value={m.trainingPct} className="h-1.5 flex-1 bg-muted max-w-[80px]" />
+                <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-yellow-400" : "text-destructive")}>{m.trainingPct}%</span>
+              </div>
+              <span className={cn("text-xs font-semibold", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
+              <span className={cn("text-[11px]", isInactive3Plus ? "text-destructive font-semibold" : "text-muted-foreground")}>
+                {m.last_active_at ? (() => {
+                  const now = new Date();
+                  const active = new Date(m.last_active_at!);
+                  const diffMs = now.getTime() - active.getTime();
+                  const diffMins = Math.floor(diffMs / 60000);
+                  if (diffMins < 10) return 'Active Now';
+                  if (daysInactive === 0) return 'Today';
+                  if (daysInactive === 1) return 'Yesterday';
+                  return `${daysInactive} days ago`;
+                })() : 'Never'}
+                {isInactive3Plus && <AlertTriangle className="w-3 h-3 inline ml-1 text-destructive" />}
+              </span>
             </div>
-            <span className={cn("text-xs font-semibold", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
-            <span className="text-[11px] text-muted-foreground">
-              {m.last_active_at ? (() => {
-                const now = new Date();
-                const active = new Date(m.last_active_at!);
-                const diffMs = now.getTime() - active.getTime();
-                const diffMins = Math.floor(diffMs / 60000);
-                const diffDays = Math.floor(diffMs / 86400000);
-                if (diffMins < 10) return 'Active Now';
-                if (diffDays === 0) return 'Today';
-                if (diffDays === 1) return 'Yesterday';
-                return `${diffDays} days ago`;
-              })() : 'Never'}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <MemberProfileModal
@@ -334,10 +470,17 @@ function ActivityTab({ managerName }: { managerName: string }) {
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
 
-      const { data: profiles } = await supabase.from('profiles').select('user_id, full_name').in('user_id', repIds);
+      const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, team_id').in('user_id', repIds);
       const nameMap = new Map((profiles || []).map(p => [p.user_id, p.full_name]));
+      
+      // Get team names
+      const teamIds = [...new Set((profiles || []).map(p => p.team_id).filter(Boolean))] as string[];
+      const { data: teamsData } = teamIds.length > 0 
+        ? await supabase.from('teams').select('id, name').in('id', teamIds)
+        : { data: [] };
+      const teamMap = new Map((teamsData || []).map(t => [t.id, t.name]));
+      const profileTeamMap = new Map((profiles || []).map(p => [p.user_id, p.team_id ? teamMap.get(p.team_id) || null : null]));
 
-      // Monday-based week start
       const weekStart = getMondayWeekStart();
       const { data: timeData } = await supabase
         .from('daily_training_time')
@@ -362,6 +505,7 @@ function ActivityTab({ managerName }: { managerName: string }) {
           weeklyMinutes: weekly,
           requiredMinutes,
           status: weekly >= requiredMinutes ? 'acceptable' : 'below',
+          teamName: profileTeamMap.get(uid) || null,
         };
       });
 
@@ -437,6 +581,7 @@ function ActivityTab({ managerName }: { managerName: string }) {
           <p className="text-sm text-muted-foreground text-center py-8">No data yet</p>
         ) : sortedEntries.map((e) => {
           const isBottom = bottomThree.includes(e.user_id);
+          const teamColor = getTeamColor(e.teamName);
           return (
             <div
               key={e.user_id}
@@ -445,7 +590,7 @@ function ActivityTab({ managerName }: { managerName: string }) {
                 isBottom ? "bg-destructive/5 border-l-2 border-l-destructive/50" : "hover:bg-muted/20"
               )}
             >
-              <button onClick={() => setSelectedMember(toTeamMember(e))} className="text-sm font-medium text-primary hover:underline truncate text-left">
+              <button onClick={() => setSelectedMember(toTeamMember(e))} className={cn("text-sm font-bold hover:underline truncate text-left", teamColor.text)}>
                 {e.full_name}
               </button>
               <span className="text-xs font-bold tabular-nums text-foreground">{formatTime(e.totalMinutes)}</span>

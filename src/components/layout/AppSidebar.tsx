@@ -74,7 +74,7 @@ export function AppSidebar() {
   if (isManager) toolsItems.push({ label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-orange-400' });
   toolsItems.push({ label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' });
   toolsItems.push({ label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' });
-  if (isManager) toolsItems.push({ label: 'War Room', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' });
+  if (isManager) toolsItems.push({ label: 'Stats', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' });
 
   const getBadge = (path: string) => {
     if (path === '/app/chat') return unreadChat;
