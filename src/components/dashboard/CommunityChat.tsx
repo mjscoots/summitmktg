@@ -270,59 +270,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const handleSend = async () => {
     if (!input.trim() || isSending || !user) return;
     const content = input.trim();
-    const isAiChannel = activeChannel === 'ai-coach';
     setInput(''); stopTyping(); setIsSending(true);
     const currentReplyTo = replyingTo?.id || null;
     setReplyingTo(null);
 
     try {
-      if (isAiChannel) {
-        const localUserMsg: ChatMessage = { id: `local-${Date.now()}`, user_id: user.id, content, is_ai: false, channel: 'ai-coach', created_at: new Date().toISOString(), reply_to: null, is_pinned: false };
-        setLocalAiMessages(prev => [...prev, localUserMsg]);
-        setIsAiLoading(true);
-        try {
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          const accessToken = currentSession?.access_token;
-          if (!accessToken) throw new Error('Not authenticated');
-          const recentAiMessages = localAiMessages.slice(-10).map(m => ({ role: m.is_ai ? 'assistant' as const : 'user' as const, content: m.content }));
-          recentAiMessages.push({ role: 'user', content });
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-            body: JSON.stringify({ messages: recentAiMessages }),
-          });
-          if (!response.ok) throw new Error('AI request failed');
-          const reader = response.body?.getReader();
-          if (!reader) throw new Error('No response body');
-          const decoder = new TextDecoder();
-          let aiContent = '', textBuffer = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            textBuffer += decoder.decode(value, { stream: true });
-            let newlineIndex: number;
-            while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-              let line = textBuffer.slice(0, newlineIndex);
-              textBuffer = textBuffer.slice(newlineIndex + 1);
-              if (line.endsWith('\r')) line = line.slice(0, -1);
-              if (line.startsWith(':') || line.trim() === '') continue;
-              if (!line.startsWith('data: ')) continue;
-              const jsonStr = line.slice(6).trim();
-              if (jsonStr === '[DONE]') break;
-              try { const parsed = JSON.parse(jsonStr); const c = parsed.choices?.[0]?.delta?.content; if (c) aiContent += c; } catch { textBuffer = line + '\n' + textBuffer; break; }
-            }
-          }
-          if (aiContent) {
-            setLocalAiMessages(prev => [...prev, { id: `local-ai-${Date.now()}`, user_id: user.id, content: aiContent, is_ai: true, channel: 'ai-coach', created_at: new Date().toISOString(), reply_to: null, is_pinned: false }]);
-          }
-        } catch (aiError) { console.error('AI error:', aiError); toast.error('AI Coach is unavailable right now'); } finally { setIsAiLoading(false); }
-      } else {
-        const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
-        if (error) throw error;
-        // Award chat points (non-blocking, with anti-spam)
-        if (msg) {
-          (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id }).catch(() => {});
-        }
+      const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
+      if (error) throw error;
+      if (msg) {
+        (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id }).catch(() => {});
       }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send message'); } finally { setIsSending(false); }
   };
