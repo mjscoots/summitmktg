@@ -123,7 +123,7 @@ export function OnboardingQuest() {
     return () => clearInterval(interval);
   }, [checkCompletion]);
 
-  if (role === 'manager' || role === 'admin') return null;
+  if (role === 'manager' || role === 'admin' || role === 'owner') return null;
   if (loading) return null;
 
   const completedCount = steps.filter(s => s.completed).length;
