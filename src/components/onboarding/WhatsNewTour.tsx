@@ -65,8 +65,14 @@ export function WhatsNewTour() {
 
   useEffect(() => {
     if (!user || !profile || dismissed) return;
-    // If user has already seen this release, don't show
-    if ((profile as any).last_seen_release === CURRENT_RELEASE) return;
+    // Check localStorage first for immediate, reliable guard
+    const localKey = `whats_new_seen_${CURRENT_RELEASE}`;
+    if (localStorage.getItem(localKey) === 'true') return;
+    // Also check the profile DB value
+    if ((profile as any).last_seen_release === CURRENT_RELEASE) {
+      localStorage.setItem(localKey, 'true');
+      return;
+    }
     // Small delay so the app loads first
     const timer = setTimeout(() => setOpen(true), 1500);
     return () => clearTimeout(timer);
