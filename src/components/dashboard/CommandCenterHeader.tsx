@@ -181,24 +181,6 @@ export function CommandCenterHeader() {
       </div>
 
       {/* 2 KPI Strip */}
-        <div className="grid grid-cols-1 gap-3 mb-4">
-
-        <button
-          onClick={() => navigate('/app/team')}
-          className="bg-card rounded-xl border border-border/60 p-4 text-left hover:border-destructive/40 transition-colors"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="w-4 h-4 text-destructive/60" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Summer Checklist Incomplete</span>
-          </div>
-          <span className={cn(
-            "text-2xl font-black tabular-nums",
-            stats.checklistIncomplete > 0 ? "text-destructive" : "text-success"
-          )}>
-            {isLoading ? '—' : stats.checklistIncomplete}
-          </span>
-        </button>
-      </div>
 
       {/* Pending Pitch Approvals */}
       {pendingPitches.length > 0 && (
