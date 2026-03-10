@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck, X, ChevronDown } from 'lucide-react';
+import { Users, Search, AlertTriangle, UserPlus, Clock, TrendingUp, Activity, ShieldCheck, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Button } from '@/components/ui/button';
 import { TeamCard } from '@/components/team/TeamCard';
