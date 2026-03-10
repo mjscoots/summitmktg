@@ -551,7 +551,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Modern Input Bar */}
       {canPostInChannel ? (
-        <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md">
+        <div className="px-4 pb-3 pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md mb-[env(safe-area-inset-bottom,0px)]">
           {(
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {getDailyChips().map((chip) => (
