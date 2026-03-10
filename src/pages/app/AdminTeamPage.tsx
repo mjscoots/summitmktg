@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, ClipboardList, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video, ArrowUpDown } from 'lucide-react';
+import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video, ArrowUpDown } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 
