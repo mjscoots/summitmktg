@@ -270,6 +270,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => clearInterval(interval);
   }, []);
 
+  // Double-tap to react with 🔥 (touch support for mobile)
+  const lastTapRef = useRef<{ id: string; time: number }>({ id: '', time: 0 });
+  const handleTouchDoubleTap = (msgId: string) => {
+    const now = Date.now();
+    if (lastTapRef.current.id === msgId && now - lastTapRef.current.time < 350) {
+      handleDoubleClickReact(msgId);
+      lastTapRef.current = { id: '', time: 0 };
+    } else {
+      lastTapRef.current = { id: msgId, time: now };
+    }
+  };
+
   // Double-click to react with 🔥
   const handleDoubleClickReact = async (msgId: string) => {
     if (!user) return;
