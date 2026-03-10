@@ -176,8 +176,9 @@ export default function CalendarPage() {
       }
     });
 
-    return result;
-  }, [events, calendarDays]);
+    // Merge in todo due-date events
+    return [...result, ...todoEvents];
+  }, [events, calendarDays, todoEvents]);
 
   // Apply location filter
   const locationFilteredEvents = useMemo(() => {
