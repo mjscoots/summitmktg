@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { WhatsNewTour } from '@/components/onboarding/WhatsNewTour';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
