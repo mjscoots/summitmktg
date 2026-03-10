@@ -29,6 +29,7 @@ export default function DashboardPage() {
   const [showPointSystem, setShowPointSystem] = useState(false);
   const [trainingComplete, setTrainingComplete] = useState(false);
   const [challengeData, setChallengeData] = useState<any>(null);
+  const [chatMsgCount, setChatMsgCount] = useState(0);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
