@@ -182,7 +182,12 @@ export function AppSidebar() {
         <SidebarGroup className="py-0">
           {!collapsed ? (
             <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest hover:text-muted-foreground hover:bg-sidebar-accent transition-all duration-150 group">
+              <CollapsibleTrigger className={cn(
+                "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-all duration-150 group",
+                toolsHasActive
+                  ? "text-primary text-[11px] font-extrabold uppercase tracking-widest"
+                  : "text-sidebar-foreground/60 text-[11px] font-bold uppercase tracking-widest hover:text-sidebar-foreground hover:bg-sidebar-accent"
+              )}>
                 <span>Tools</span>
                 <div className="flex items-center gap-1">
                   {toolsBadge > 0 && !toolsOpen && (
@@ -267,13 +272,13 @@ export function AppSidebar() {
                   <button
                     onClick={() => { navigate('/admin/team'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
-                      "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-150 relative",
-                      isActive('/admin/team') ? "bg-primary/15 text-primary" : "text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent",
+                      "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all duration-150 relative",
+                      isActive('/admin/team') ? "bg-primary/15 text-primary font-bold" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent font-semibold",
                       collapsed && "justify-center"
                     )}
                   >
-                    <Shield className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
-                    {!collapsed && <span className="text-[13px] font-medium">Admin</span>}
+                    <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin/team') ? "text-primary" : "text-purple-400")} strokeWidth={2} />
+                    {!collapsed && <span className="text-[13px]">Admin</span>}
                     {adminCounts.total > 0 && (
                       <span className={cn(
                         "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",

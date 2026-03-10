@@ -619,6 +619,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
           </div>
+          <div className="pb-[env(safe-area-inset-bottom,0px)]" />
         </div>
       ) : (
         <div className="px-4 py-3 flex-shrink-0 border-t border-border/30">
