@@ -228,8 +228,8 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
         <div className="relative px-4 pt-10 pb-6 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/8 via-primary/3 to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-yellow-500/10 rounded-full blur-[80px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-yellow-500/5 rounded-full blur-[60px]" />
           <div className="relative flex items-end justify-center gap-4">
             <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
               podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent" ringColor="ring-gray-400/60"
