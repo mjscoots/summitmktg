@@ -32,21 +32,21 @@ export function StatusBar() {
   const momentumLabel = hoursToday < 1 ? 'Cold' : hoursToday < 2 ? 'Warming Up' : hoursToday < 4 ? 'Locked In' : 'Elite';
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 lg:gap-2">
       {/* Streak Pill */}
       <div
         className={cn(
-          "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all",
+          "flex items-center gap-1 px-1.5 lg:px-2.5 py-0.5 lg:py-1 rounded-full text-[10px] lg:text-xs font-medium transition-all whitespace-nowrap",
           streakData.currentStreak > 0
             ? "bg-orange-500/15 text-orange-400 border border-orange-500/30"
             : "bg-muted text-muted-foreground border border-border/50"
         )}
       >
         <Flame className={cn(
-          "w-3.5 h-3.5",
+          "w-3 h-3 lg:w-3.5 lg:h-3.5 flex-shrink-0",
           streakData.currentStreak > 0 ? "text-orange-400" : "text-muted-foreground"
         )} />
-        <span>{streakData.currentStreak} day{streakData.currentStreak !== 1 ? 's' : ''}</span>
+        <span>{streakData.currentStreak}d</span>
       </div>
 
       {/* Personal Training Progress */}
@@ -57,11 +57,11 @@ export function StatusBar() {
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all",
+              "flex items-center gap-1 px-1.5 lg:px-2.5 py-0.5 lg:py-1 rounded-full text-[10px] lg:text-xs font-medium border transition-all whitespace-nowrap",
               getMomentumBg(momentum)
             )}
           >
-            <Zap className={cn("w-3.5 h-3.5", getMomentumColor(momentum))} />
+            <Zap className={cn("w-3 h-3 lg:w-3.5 lg:h-3.5 flex-shrink-0", getMomentumColor(momentum))} />
             <span className={cn("font-medium", getMomentumColor(momentum))}>
               {momentum}%
             </span>
