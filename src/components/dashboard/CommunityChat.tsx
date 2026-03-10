@@ -256,12 +256,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const switchChannel = (ch: ChannelId) => {
-    setActiveChannel(ch);
-    setReplyingTo(null);
-    setEditingId(null);
-    setUnreadChannels(prev => { const next = new Set(prev); next.delete(ch); return next; });
-    scrollToBottom(false);
+  // Double-click to react with 🔥
+  const handleDoubleClickReact = async (msgId: string) => {
+    if (!user) return;
+    const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
+    if (existing) {
+      await supabase.from('chat_reactions').delete().eq('id', existing.id);
+    } else {
+      await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
+    }
   };
 
   const handleSend = async () => {
