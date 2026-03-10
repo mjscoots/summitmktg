@@ -64,6 +64,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             <main className={cn("flex-1 overflow-x-hidden", fullHeight && "min-h-0 overflow-hidden")}>
               {children}
             </main>
+            <WhatsNewTour />
             
           </div>
         </div>
