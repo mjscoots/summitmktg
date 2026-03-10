@@ -628,7 +628,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             {/* Send */}
             <button
               onClick={handleSend}
-              disabled={!input.trim() || isSending || isAiLoading}
+              disabled={!input.trim() || isSending}
               className={cn("p-2 mr-1 rounded-lg transition-all flex-shrink-0", input.trim() ? "text-primary hover:bg-primary/10 hover:scale-105 active:scale-95" : "text-muted-foreground/40")}
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
