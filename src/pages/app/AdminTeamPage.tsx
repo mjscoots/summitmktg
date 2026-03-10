@@ -350,7 +350,7 @@ export default function AdminTeamPage() {
   const handleSaveEdit = async () => {
     if (!editUser) return;
     setEditLoading(true);
-    const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin';
+    const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin' || editForm.role === 'owner';
     const { error: profileError } = await supabase.from('profiles').update({
       full_name: editForm.full_name,
       phone: editForm.phone || null,
