@@ -304,7 +304,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
       if (error) throw error;
       if (msg) {
-        (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id }).catch(() => {});
+        (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
+          .then((res: any) => { if (res.error) console.error('[ChatPoints] Award failed:', res.error); })
+          .catch((err: any) => console.error('[ChatPoints] RPC error:', err));
       }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send message'); } finally { setIsSending(false); }
   };

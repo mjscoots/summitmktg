@@ -29,6 +29,7 @@ export default function DashboardPage() {
   const [showPointSystem, setShowPointSystem] = useState(false);
   const [trainingComplete, setTrainingComplete] = useState(false);
   const [challengeData, setChallengeData] = useState<any>(null);
+  const [chatMsgCount, setChatMsgCount] = useState(0);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
@@ -65,6 +66,27 @@ export default function DashboardPage() {
       }
     };
     check();
+  }, [user]);
+
+  // Fetch today's chat message count
+  useEffect(() => {
+    if (!user) return;
+    const fetchChatCount = async () => {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const { count } = await supabase
+          .from('chat_messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_ai', false)
+          .gte('created_at', today.toISOString());
+        setChatMsgCount(count || 0);
+      } catch {}
+    };
+    fetchChatCount();
+    const interval = setInterval(fetchChatCount, 15_000);
+    return () => clearInterval(interval);
   }, [user]);
 
   // Fetch daily challenge
@@ -177,8 +199,8 @@ export default function DashboardPage() {
               </div>
               <div className="bg-muted/30 rounded-lg p-2.5 text-center">
                 <MessageSquare className="w-3.5 h-3.5 text-blue-400 mx-auto mb-0.5" />
-                <p className="text-lg font-black text-foreground tabular-nums">{pointsData.capsToday.chat.earned}</p>
-                <p className="text-[9px] text-muted-foreground uppercase font-medium">Chat</p>
+                <p className="text-lg font-black text-foreground tabular-nums">{chatMsgCount}</p>
+                <p className="text-[9px] text-muted-foreground uppercase font-medium">Msgs</p>
               </div>
               <div className="bg-muted/30 rounded-lg p-2.5 text-center">
                 <Flame className="w-3.5 h-3.5 text-orange-400 mx-auto mb-0.5" />
