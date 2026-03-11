@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Image, Pin, PinOff, BarChart3, Crown, Plus, MessageSquarePlus, Paperclip } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Image, Pin, PinOff, BarChart3, Crown, Plus, MessageSquarePlus, Paperclip, Flame } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
 import { TierBadge } from '@/components/shared/TierBadge';
@@ -27,6 +27,12 @@ import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
+import { useChatParticles, ParticleCanvas } from '@/components/chat/ChatParticles';
+import { BackgroundDust } from '@/components/chat/BackgroundDust';
+import { useMomentum, MomentumIndicator } from '@/components/chat/MomentumIndicator';
+import { ChatLeaderboardWidget } from '@/components/chat/ChatLeaderboardWidget';
+import { SmartPrompts } from '@/components/chat/SmartPrompts';
+import { getMessageHighlight, isHotThread } from '@/components/chat/messageHighlights';
 
 /** Render text with clickable links */
 function renderWithLinks(text: string) {
@@ -148,6 +154,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
+  const [justSentId, setJustSentId] = useState<string | null>(null);
+  const [showSmartPrompts, setShowSmartPrompts] = useState(true);
+  const { canvasRef, burst } = useChatParticles();
+  const { momentum, recordMessage } = useMomentum();
+  const sendBtnRef = useRef<HTMLButtonElement>(null);
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isAdmin = role === 'admin' || role === 'owner';
   const isOwner = role === 'owner';
@@ -256,17 +268,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   // Post of the Day
   useEffect(() => {
-    const fetchPostOfTheDay = async () => {
+    const fetchReactionCounts = async () => {
       const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
       const { data } = await supabase.from('chat_reactions').select('message_id').gte('created_at', todayStart.toISOString());
-      if (!data || data.length === 0) { setPostOfTheDayId(null); return; }
+      if (!data || data.length === 0) { setPostOfTheDayId(null); setReactionCounts({}); return; }
       const counts: Record<string, number> = {};
       data.forEach(r => { counts[r.message_id] = (counts[r.message_id] || 0) + 1; });
+      setReactionCounts(counts);
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
       setPostOfTheDayId(sorted[0] && sorted[0][1] >= 3 ? sorted[0][0] : null);
     };
-    fetchPostOfTheDay();
-    const interval = setInterval(fetchPostOfTheDay, 120000);
+    fetchReactionCounts();
+    const interval = setInterval(fetchReactionCounts, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -300,10 +313,28 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const currentReplyTo = replyingTo?.id || null;
     setReplyingTo(null);
 
+    // Determine particle type from daily chips
+    let particleType: 'normal' | 'flame' | 'lightning' | 'gold' = 'normal';
+    if (content.includes('All Gas') || content.includes('🔥')) particleType = 'flame';
+    else if (content.includes('Peak') || content.includes('⚡') || content.includes('⛰️')) particleType = 'lightning';
+    else if (content.includes('eat') || content.includes('💰') || content.includes('Money')) particleType = 'gold';
+
+    // Fire particle burst from send button
+    if (sendBtnRef.current && canvasRef.current) {
+      const btnRect = sendBtnRef.current.getBoundingClientRect();
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      burst(btnRect.left - canvasRect.left + btnRect.width / 2, btnRect.top - canvasRect.top + btnRect.height / 2, particleType);
+    }
+
+    // Track momentum
+    recordMessage();
+
     try {
       const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
       if (error) throw error;
       if (msg) {
+        setJustSentId(msg.id);
+        setTimeout(() => setJustSentId(null), 300);
         (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
           .then((res: any) => { if (res.error) console.error('[ChatPoints] Award failed:', res.error); })
           .catch((err: any) => console.error('[ChatPoints] RPC error:', err));
@@ -352,20 +383,26 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     }
   };
 
-  const getRoleColor = (r?: string) => { if (r === 'admin') return 'text-red-400'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
+  const getRoleColor = (r?: string) => { if (r === 'owner') return 'text-amber-400'; if (r === 'admin') return 'text-slate-300'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
   const getRoleBadge = (r?: string) => {
-    if (r === 'bot') return null; // No badge for bot — uses divider style
-    if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 uppercase tracking-wider">Owner</span>;
-    if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase tracking-wider">Admin</span>;
+    if (r === 'bot') return null;
+    if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 uppercase tracking-wider">Owner</span>;
+    if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-400/30 bg-slate-400/10 text-slate-300 uppercase tracking-wider">Admin</span>;
     if (r === 'manager') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 uppercase tracking-wider">Manager</span>;
-    return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 uppercase tracking-wider">Rookie</span>;
+    return null; // Clean — no badge for rookies
   };
 
   const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
   const canPostInChannel = true;
 
   return (
-    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]" style={{ height: '100%', maxHeight: '100%' }}>
+    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)] relative" style={{ height: '100%', maxHeight: '100%' }}>
+      <BackgroundDust />
+      <ParticleCanvas canvasRef={canvasRef} />
+
+      {/* Chat Leaderboard */}
+      <ChatLeaderboardWidget />
+
       {/* Pinned */}
       {(() => {
         const pinned = channelMessages.filter(m => m.is_pinned);
@@ -373,7 +410,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         const lastPinned = pinned[pinned.length - 1];
         const pinProfile = getProfile(lastPinned);
         return (
-          <button onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/10 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left">
+          <button onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/10 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left z-[1]">
             <Pin className="w-3 h-3 text-amber-500 flex-shrink-0" />
             <span className="text-[11px] font-semibold text-amber-500">{pinProfile.full_name}:</span>
             <span className="text-[11px] text-muted-foreground truncate">{lastPinned.content}</span>
@@ -382,7 +419,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       })()}
 
       {/* Messages */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative">
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
         {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
             <div className="w-14 h-14 rounded-full bg-muted/40 flex items-center justify-center mx-auto mb-4">
@@ -410,6 +447,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             );
           }
 
+          const msgReactionCount = reactionCounts[msg.id] || 0;
+          const highlight = getMessageHighlight(msgReactionCount);
+          const hot = isHotThread(msgReactionCount, msg.created_at);
+
           return (
             <div key={msg.id}>
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
@@ -419,12 +460,30 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
                 onTouchEnd={() => { if (!msg.is_ai) handleTouchDoubleTap(msg.id); }}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-muted/30 transition-colors select-none",
+                  "group/msg relative px-4 hover:bg-muted/30 transition-all select-none",
                   grouped ? "py-0.5" : "pt-3 pb-1",
                   msg.is_pinned && "bg-amber-500/[0.03] border-l-2 border-amber-500/30",
-                  postOfTheDayId === msg.id && "post-of-the-day"
+                  postOfTheDayId === msg.id && "post-of-the-day",
+                  highlight.className,
+                  hot && "animate-hot-pulse",
+                  justSentId === msg.id && "animate-msg-send"
                 )}
               >
+                {/* Hot Thread badge */}
+                {hot && !highlight.badge && (
+                  <div className="flex items-center gap-1.5 mb-1 ml-[52px]">
+                    <Flame className="w-3 h-3 text-orange-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-orange-500/90">Hot Thread</span>
+                  </div>
+                )}
+
+                {/* Top Insight badge */}
+                {highlight.badge && (
+                  <div className="flex items-center gap-1.5 mb-1 ml-[52px]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/90">{highlight.badge}</span>
+                  </div>
+                )}
+
                 {postOfTheDayId === msg.id && (
                   <div className="flex items-center gap-1.5 mb-1.5 ml-[52px]">
                     <Crown className="w-3.5 h-3.5 text-yellow-500" />
@@ -551,25 +610,46 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Modern Input Bar */}
       {canPostInChannel ? (
-        <div className="px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md sticky bottom-0">
-          {(
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-              {getDailyChips().map((chip) => (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => {
-                    setInput(chip);
-                    onTyping();
-                    inputRef.current?.focus();
-                  }}
-                  className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-chat-display text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/10 transition-colors whitespace-nowrap"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
+        <div className="px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md sticky bottom-0 z-[1]">
+          {/* Momentum Indicator */}
+          <MomentumIndicator count={momentum.count} visible={momentum.visible} />
+
+          {/* Smart Prompts (shown when input is empty) */}
+          {!input.trim() && (
+            <SmartPrompts
+              onSelect={(prompt) => {
+                setInput(prompt);
+                onTyping();
+                inputRef.current?.focus();
+              }}
+              visible={showSmartPrompts}
+            />
           )}
+
+          {/* Quick Action Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {getDailyChips().map((chip, i) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => {
+                  setInput(chip);
+                  onTyping();
+                  inputRef.current?.focus();
+                }}
+                className={cn(
+                  "relative overflow-hidden rounded-full border px-3 py-1.5 text-[11px] font-medium whitespace-nowrap",
+                  "transition-all duration-150 active:scale-95",
+                  "hover:shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)] hover:-translate-y-0.5",
+                  i === 0
+                    ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                    : "border-border/60 bg-muted/30 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5"
+                )}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
 
           {showGifs && <GifPicker onSelect={handleSendGif} onClose={() => setShowGifs(false)} />}
           {showPollCreator && <PollCreator onSubmit={handleCreatePoll} onClose={() => setShowPollCreator(false)} />}
@@ -588,25 +668,23 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-xl"
           )}>
             {/* Left icons */}
-            {(
-              <>
-                <ChatImageUpload onSend={handleSendFile} />
-                <button
-                  onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
-                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                  title="GIFs"
-                >
-                  <Image className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
-                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                  title="Poll"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                </button>
-              </>
-            )}
+            <>
+              <ChatImageUpload onSend={handleSendFile} />
+              <button
+                onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
+                className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+                title="GIFs"
+              >
+                <Image className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
+                className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+                title="Poll"
+              >
+                <BarChart3 className="w-4 h-4" />
+              </button>
+            </>
 
             {/* Input */}
             <input
@@ -641,9 +719,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
             {/* Send */}
             <button
+              ref={sendBtnRef}
               onClick={handleSend}
               disabled={!input.trim() || isSending}
-              className={cn("p-2 mr-1 rounded-lg transition-all flex-shrink-0", input.trim() ? "text-primary hover:bg-primary/10 hover:scale-105 active:scale-95" : "text-muted-foreground/40")}
+              className={cn(
+                "p-2 mr-1 rounded-lg transition-all flex-shrink-0 relative overflow-hidden",
+                input.trim() ? "text-primary hover:bg-primary/10 hover:scale-110 active:scale-90" : "text-muted-foreground/40"
+              )}
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>

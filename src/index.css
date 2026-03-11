@@ -305,6 +305,15 @@
   }
 }
 
+/* Hide scrollbar */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Post of the Day - golden glow */
 @layer components {
   .post-of-the-day {

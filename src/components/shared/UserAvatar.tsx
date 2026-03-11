@@ -10,6 +10,7 @@ interface UserAvatarProps {
   className?: string;
   showOnline?: boolean;
   isOnline?: boolean;
+  isTyping?: boolean;
   tierPct?: number;
   teamName?: string | null;
   /** Leaderboard rank (1-based). Lower = stronger glow. */
@@ -69,7 +70,7 @@ const dotSizeClasses = {
   lg: 'w-3 h-3 border-2',
 };
 
-export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, tierPct, teamName, rank, totalEntries }: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, isTyping, tierPct, teamName, rank, totalEntries }: UserAvatarProps) {
   const initials = useMemo(() => getInitials(fullName), [fullName]);
   const teamColor = useMemo(() => getTeamColor(teamName), [teamName]);
   const bgColor = useMemo(() => teamName ? teamColor.bg : getColorFromName(fullName), [teamName, teamColor, fullName]);
@@ -102,11 +103,20 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
     };
   }, [rank, totalEntries]);
 
+  // Presence ring around avatar
+  const presenceRingClass = showOnline
+    ? isTyping
+      ? 'ring-2 ring-orange-400 animate-pulse'
+      : isOnline
+        ? 'ring-2 ring-green-500'
+        : 'ring-1 ring-muted-foreground/20'
+    : '';
+
   const onlineDot = showOnline ? (
     <span className={cn(
       'absolute bottom-0 right-0 rounded-full border-background',
       dotSizeClasses[size],
-      isOnline ? 'bg-green-500' : 'bg-muted-foreground/40'
+      isTyping ? 'bg-orange-400 animate-pulse' : isOnline ? 'bg-green-500' : 'bg-muted-foreground/40'
     )} />
   ) : null;
 
@@ -117,6 +127,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
           'relative rounded-full overflow-visible flex-shrink-0',
           sizeClasses[size],
           tierBorder,
+          presenceRingClass,
           className
         )}
         style={rankGlowStyle}
@@ -138,6 +149,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
         sizeClasses[size],
         bgColor,
         tierBorder,
+        presenceRingClass,
         className
       )}
       style={rankGlowStyle}
