@@ -516,8 +516,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           <Bot className="w-4 h-4 text-primary" />
                         </div>
                       ) : (
-                        <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
-                          <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="md" showOnline isOnline={msgProfile.is_active_now} />
+                         <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
+                          <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="md" showOnline isOnline={msgProfile.is_active_now} className={getRoleBorderRing(msgProfile.role)} />
                         </button>
                       )
                     ) : (
