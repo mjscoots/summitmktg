@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
-import { Trophy, Flame, Swords, Calendar, Zap, Mountain, Users, Info } from 'lucide-react';
+import { Trophy, Flame, Calendar, Info, Mountain, Users } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak';
+
+const GRID_PATTERN =
+  "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]";
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
@@ -56,30 +59,32 @@ export default function LeaderboardPage() {
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Dashboard" />
 
-          {/* Header */}
-          <div className="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-r from-yellow-950 via-amber-900/60 to-red-900/40 border border-yellow-500/20">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(234,179,8,0.15),transparent_50%)]" />
-            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl" />
-            <div className="relative flex items-center gap-4 px-6 py-5">
-              <div className="relative">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-yellow-500/30 to-amber-600/20 border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
-                  <Swords className="w-7 h-7 text-yellow-400" />
-                </div>
-                <div className="absolute -top-1 -right-1">
-                  <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          {/* Hero Banner — Training page style */}
+          <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-600/30 via-yellow-500/15 to-orange-500/25" />
+            <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
+            {/* Golden spotlight glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(234,179,8,0.12),transparent_60%)]" />
+            <div className="absolute inset-0 flex items-center justify-between px-6">
+              <div className="flex flex-col items-start justify-center">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
                   LEADERBOARD
-                  <span className="text-yellow-400 animate-pulse">⚡</span>
                 </h1>
-                <p className="text-xs text-yellow-200/60 font-bold uppercase tracking-widest mt-0.5">Outwork everyone. No excuses.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Outwork everyone. No excuses.
+                </p>
               </div>
-              {/* Points Guide Button — prominent */}
+              {/* Points Guide — glowing pill */}
               <button
                 onClick={() => setShowPointSystem(true)}
-                className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-yellow-500/20 border-2 border-yellow-500/40 text-yellow-200 hover:bg-yellow-500/30 transition-colors text-sm font-black uppercase tracking-wide shadow-lg shadow-yellow-500/10"
+                className={cn(
+                  'shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full',
+                  'bg-warning/15 border border-warning/30',
+                  'text-warning text-xs font-bold uppercase tracking-wide',
+                  'transition-all duration-300',
+                  'hover:bg-warning/25 hover:border-warning/50',
+                  'hover:-translate-y-0.5 hover:shadow-[0_0_20px_-4px_rgba(234,179,8,0.4)]'
+                )}
               >
                 <Info className="w-4 h-4" />
                 Points Guide
@@ -87,31 +92,31 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Tab Bar */}
-          <div className="p-1 bg-gradient-to-r from-muted/80 to-muted/50 rounded-xl mb-4 border border-border/40">
-            <div className="flex">
-              {TABS.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs font-bold rounded-lg transition-all duration-200",
-                      activeTab === tab.id
-                        ? "bg-card text-foreground shadow-lg shadow-primary/10 border border-border/50"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Icon className={cn(
-                      "w-3.5 h-3.5",
-                      activeTab === tab.id && (tab.id === 'streak' ? "text-orange-500" : "text-primary")
-                    )} />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+          {/* Filter Tabs — pill style */}
+          <div className="flex gap-2 mb-4">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold rounded-xl',
+                    'transition-all duration-300 border-2',
+                    isActive
+                      ? 'bg-card border-primary/40 text-foreground shadow-[0_0_16px_-4px_hsl(var(--primary)/0.3)]'
+                      : 'bg-card/50 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60 hover:-translate-y-0.5'
+                  )}
+                >
+                  <Icon className={cn(
+                    'w-3.5 h-3.5',
+                    isActive && (tab.id === 'streak' ? 'text-orange-500' : 'text-primary')
+                  )} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Inclusion Banner — only for managers */}
