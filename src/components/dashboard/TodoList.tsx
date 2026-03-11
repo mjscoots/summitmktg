@@ -122,12 +122,28 @@ export function TodoList() {
     fetchTodos();
   };
 
+  const [justCompleted, setJustCompleted] = useState<Set<string>>(new Set());
+
   const toggleComplete = async (todo: TodoItem) => {
+    const nowCompleting = !todo.is_completed;
+    // Optimistic update for instant feedback
+    setTodos(prev => prev.map(t =>
+      t.id === todo.id
+        ? { ...t, is_completed: nowCompleting, completed_at: nowCompleting ? new Date().toISOString() : null }
+        : t
+    ));
+    if (nowCompleting) {
+      setJustCompleted(prev => new Set(prev).add(todo.id));
+      setTimeout(() => setJustCompleted(prev => {
+        const next = new Set(prev);
+        next.delete(todo.id);
+        return next;
+      }), 600);
+    }
     await supabase.from('todo_items').update({
-      is_completed: !todo.is_completed,
-      completed_at: !todo.is_completed ? new Date().toISOString() : null,
+      is_completed: nowCompleting,
+      completed_at: nowCompleting ? new Date().toISOString() : null,
     } as any).eq('id', todo.id);
-    fetchTodos();
   };
 
   const deleteTodo = async (id: string) => {
@@ -331,6 +347,7 @@ export function TodoList() {
             <TodoRow
               key={todo.id}
               todo={todo}
+              justCompleted={justCompleted.has(todo.id)}
               onToggle={() => toggleComplete(todo)}
               onDelete={() => deleteTodo(todo.id)}
               onEdit={() => openEditModal(todo)}
@@ -352,6 +369,7 @@ export function TodoList() {
               <TodoRow
                 key={todo.id}
                 todo={todo}
+                justCompleted={false}
                 onToggle={() => toggleComplete(todo)}
                 onDelete={() => deleteTodo(todo.id)}
                 onEdit={() => openEditModal(todo)}
@@ -475,12 +493,14 @@ export function TodoList() {
 
 function TodoRow({
   todo,
+  justCompleted,
   onToggle,
   onDelete,
   onEdit,
   onPriorityChange,
 }: {
   todo: TodoItem;
+  justCompleted: boolean;
   onToggle: () => void;
   onDelete: () => void;
   onEdit: () => void;
@@ -493,8 +513,9 @@ function TodoRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all group cursor-pointer",
-        todo.is_completed ? "opacity-50 border-border/30 bg-muted/20" : cn("border-border/50 hover:border-primary/20", cfg.bg)
+        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all duration-300 group cursor-pointer",
+        justCompleted && "!bg-emerald-500/15 !border-emerald-500/30 scale-[0.98]",
+        todo.is_completed && !justCompleted ? "opacity-50 border-border/30 bg-muted/20" : !justCompleted && cn("border-border/50 hover:border-primary/20", cfg.bg)
       )}
       onClick={onEdit}
     >
