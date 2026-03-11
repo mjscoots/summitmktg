@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ExternalLink, FileText, ArrowRight } from 'lucide-react';
+import { ExternalLink, FileText, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
@@ -23,10 +23,10 @@ const badgeGlows = [
   'shadow-[0_0_20px_-4px_rgba(245,158,11,0.5)]',
 ];
 
-const cardGlows = [
-  'hover:shadow-[0_4px_40px_-12px_rgba(59,130,246,0.15)]',
-  'hover:shadow-[0_4px_40px_-12px_rgba(139,92,246,0.15)]',
-  'hover:shadow-[0_4px_40px_-12px_rgba(245,158,11,0.15)]',
+const cardBorderAccents = [
+  'hover:border-blue-500/20',
+  'hover:border-violet-500/20',
+  'hover:border-amber-500/20',
 ];
 
 const interviewCards = [
@@ -72,59 +72,71 @@ export default function FormsPage() {
   return (
     <AppLayout>
       <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Back Button */}
         <PageBackButton to="/app/operations" label="Operations" />
 
-        {/* Header */}
-        <div className="flex items-start justify-between mb-10">
-          <div>
-            <div className="flex items-center gap-3.5 mb-2">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/20 shadow-[0_0_16px_-4px_rgba(249,115,22,0.3)]">
-                <FileText className="w-5 h-5 text-orange-400" />
+        {/* ── Hero Header ── */}
+        <div className="flex items-start justify-between mb-12">
+          <div className="flex items-start gap-4">
+            {/* Icon badge */}
+            <div className="relative mt-0.5">
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-orange-500/30 to-amber-400/20 blur-xl" />
+              <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/25 to-amber-500/15 border border-orange-400/20 flex items-center justify-center shadow-[0_0_24px_-6px_rgba(249,115,22,0.35)]">
+                <FileText className="w-5.5 h-5.5 text-orange-400" />
               </div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Forms</h1>
             </div>
-            <p className="text-muted-foreground text-sm ml-[52px]">
-              Interview forms and weekly check-ins
-            </p>
+            {/* Title block */}
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">
+                Forms
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1.5">
+                Interview forms and weekly check-ins
+              </p>
+            </div>
           </div>
 
           <a
             href="https://www.gethawx.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-lg hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-xl hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
           >
             <span>Hawx Admin</span>
             <ExternalLink className="w-4 h-4" />
           </a>
         </div>
 
-        {/* Main Section Toggle */}
-        <div className="flex gap-3 mb-8">
-          {[
-            { key: 'interviews' as FormSection, label: 'Interview Forms' },
-            { key: 'weekly-1on1s' as FormSection, label: 'Weekly 1:1 Forms' },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveSection(tab.key)}
-              className={cn(
-                'px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border',
-                activeSection === tab.key
-                  ? 'bg-white/[0.06] border-primary/40 text-foreground shadow-[0_0_16px_-6px_hsl(var(--primary)/0.35)] hover:shadow-[0_0_20px_-4px_hsl(var(--primary)/0.4)]'
-                  : 'bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:text-foreground hover:bg-white/[0.04] hover:-translate-y-0.5'
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* ── Section Toggle Tabs ── */}
+        <div className="relative mb-10">
+          <div className="absolute inset-x-0 bottom-0 h-px bg-white/[0.06]" />
+          <div className="flex gap-1">
+            {[
+              { key: 'interviews' as FormSection, label: 'Interview Forms' },
+              { key: 'weekly-1on1s' as FormSection, label: 'Weekly 1:1 Forms' },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveSection(tab.key)}
+                className={cn(
+                  'relative px-5 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg',
+                  activeSection === tab.key
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground/80'
+                )}
+              >
+                {tab.label}
+                {activeSection === tab.key && (
+                  <div className="absolute bottom-0 inset-x-2 h-0.5 rounded-full bg-gradient-to-r from-primary to-primary/60" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Content */}
+        {/* ── Content ── */}
         {activeSection === 'interviews' ? (
           <>
-            {/* Sub-tabs for interviews */}
+            {/* Sub-tabs */}
             <div className="flex gap-2 mb-8">
               {[
                 { key: 'forms' as InterviewSubTab, label: 'Forms' },
@@ -134,10 +146,10 @@ export default function FormsPage() {
                   key={sub.key}
                   onClick={() => setInterviewSubTab(sub.key)}
                   className={cn(
-                    'text-xs px-3.5 py-1.5 rounded-full border transition-all duration-150',
+                    'text-xs px-4 py-1.5 rounded-full border transition-all duration-200',
                     interviewSubTab === sub.key
-                      ? 'bg-primary/10 border-primary/30 text-primary font-medium'
-                      : 'border-white/[0.06] text-muted-foreground hover:text-foreground hover:border-white/10'
+                      ? 'bg-primary/10 border-primary/25 text-primary font-semibold'
+                      : 'border-white/[0.06] text-muted-foreground hover:text-foreground hover:border-white/10 hover:bg-white/[0.02]'
                   )}
                 >
                   {sub.label}
@@ -148,87 +160,81 @@ export default function FormsPage() {
             {interviewSubTab === 'forms' ? (
               <>
                 {/* Interview Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
                   {interviewCards.map((card, i) => (
                     <div
                       key={card.number}
                       onClick={() => navigate(card.path)}
                       className={cn(
-                        'group flex flex-col rounded-2xl p-6 cursor-pointer transition-all duration-300',
-                        'bg-[rgba(18,18,26,0.75)] backdrop-blur-sm',
-                        'border border-white/[0.06] hover:border-white/[0.12]',
-                        'shadow-[0_2px_20px_-6px_rgba(0,0,0,0.4)]',
+                        'group relative flex flex-col rounded-2xl cursor-pointer transition-all duration-300',
+                        'bg-card/60 backdrop-blur-sm',
+                        'border border-white/[0.06]',
+                        cardBorderAccents[i],
                         'hover:-translate-y-1',
-                        cardGlows[i]
+                        'hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)]'
                       )}
                     >
-                      <div className="flex items-start gap-4 mb-5">
-                        <div
-                          className={cn(
-                            'w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0',
-                            'bg-gradient-to-br',
-                            badgeGradients[i],
-                            badgeGlows[i],
-                            'transition-shadow duration-300 group-hover:shadow-lg'
-                          )}
-                        >
-                          <span className="text-white font-bold text-lg">{card.number}</span>
+                      {/* Card content */}
+                      <div className="p-6 pb-5">
+                        <div className="flex items-center gap-3.5 mb-4">
+                          <div
+                            className={cn(
+                              'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
+                              'bg-gradient-to-br',
+                              badgeGradients[i],
+                              badgeGlows[i],
+                              'transition-all duration-300 group-hover:scale-105'
+                            )}
+                          >
+                            <span className="text-white font-bold text-base">{card.number}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground text-[15px] leading-tight">{card.title}</h3>
+                          </div>
+                          <ChevronRight className="w-4.5 h-4.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-all duration-200 group-hover:translate-x-0.5 flex-shrink-0" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground text-base">{card.title}</h3>
-                          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{card.subtitle}</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed pl-[3.25rem]">{card.subtitle}</p>
                       </div>
 
-                      <div className="flex-1" />
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(card.path);
-                        }}
-                        className={cn(
-                          'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl',
-                          'bg-gradient-to-r from-[#3B82F6] to-[#2563EB]',
-                          'text-white font-medium text-sm',
-                          'transition-all duration-200',
-                          'hover:shadow-[0_0_20px_-4px_rgba(59,130,246,0.45)]',
-                          'hover:-translate-y-0.5',
-                          'active:translate-y-0'
-                        )}
-                      >
-                        <span>Open</span>
-                        <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                      </button>
+                      {/* Bottom accent line */}
+                      <div className={cn(
+                        'h-px mx-6 mb-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+                        'bg-gradient-to-r',
+                        badgeGradients[i]
+                      )} />
+                      <div className="h-4" />
                     </div>
                   ))}
                 </div>
 
-                {/* Interview Process Section */}
-                <div className="bg-[rgba(18,18,26,0.55)] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
-                  <h3 className="font-semibold text-foreground mb-2 text-base">Interview Process</h3>
-                  <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-                    Complete each interview form during your recruiting process. Select the interview you need — no sequence required.
-                  </p>
-                  <div className="space-y-3">
+                {/* Interview Process Summary */}
+                <div className="rounded-2xl border border-white/[0.06] bg-card/40 backdrop-blur-sm overflow-hidden">
+                  <div className="px-6 py-5 border-b border-white/[0.04]">
+                    <h3 className="font-semibold text-foreground text-[15px]">Interview Process</h3>
+                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                      Complete each interview form during your recruiting process. Select the interview you need — no sequence required.
+                    </p>
+                  </div>
+                  <div className="px-6 py-4 space-y-1">
                     {[
                       { num: 1, text: 'Initial screening and background' },
                       { num: 2, text: 'Commitment and understanding' },
                       { num: 3, text: 'Final decision and onboarding' },
                     ].map((item, i) => (
-                      <div key={item.num} className="flex items-center gap-3.5 text-sm">
+                      <div key={item.num} className="flex items-center gap-3.5 py-2 text-sm">
                         <div
                           className={cn(
-                            'w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0',
+                            'w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0',
                             'bg-gradient-to-br',
                             badgeGradients[i],
-                            'opacity-80'
+                            'opacity-85'
                           )}
                         >
-                          <span className="text-white font-semibold text-xs">{item.num}</span>
+                          <span className="text-white font-semibold text-[10px]">{item.num}</span>
                         </div>
                         <span className="text-foreground font-medium">Interview {item.num}</span>
-                        <span className="text-muted-foreground">— {item.text}</span>
+                        <span className="hidden sm:inline text-muted-foreground/70">—</span>
+                        <span className="hidden sm:inline text-muted-foreground">{item.text}</span>
                       </div>
                     ))}
                   </div>
