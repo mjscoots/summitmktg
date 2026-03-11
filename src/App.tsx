@@ -203,6 +203,20 @@ function LazyFallback() {
                    </BootcampGate>
                  </ProtectedRoute>
                } />
+               <Route path="/app/videos" element={
+                 <ProtectedRoute>
+                   <BootcampGate>
+                     <VideosPage />
+                   </BootcampGate>
+                 </ProtectedRoute>
+               } />
+               <Route path="/app/videos/:videoId" element={
+                 <ProtectedRoute>
+                   <BootcampGate>
+                     <VideoPlayerPage />
+                   </BootcampGate>
+                 </ProtectedRoute>
+               } />
                <Route path="/app/training/:courseSlug" element={
                  <ProtectedRoute>
                    <BootcampGate>
