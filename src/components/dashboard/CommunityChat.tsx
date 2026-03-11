@@ -313,10 +313,28 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const currentReplyTo = replyingTo?.id || null;
     setReplyingTo(null);
 
+    // Determine particle type from daily chips
+    let particleType: 'normal' | 'flame' | 'lightning' | 'gold' = 'normal';
+    if (content.includes('All Gas') || content.includes('🔥')) particleType = 'flame';
+    else if (content.includes('Peak') || content.includes('⚡') || content.includes('⛰️')) particleType = 'lightning';
+    else if (content.includes('eat') || content.includes('💰') || content.includes('Money')) particleType = 'gold';
+
+    // Fire particle burst from send button
+    if (sendBtnRef.current && canvasRef.current) {
+      const btnRect = sendBtnRef.current.getBoundingClientRect();
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      burst(btnRect.left - canvasRect.left + btnRect.width / 2, btnRect.top - canvasRect.top + btnRect.height / 2, particleType);
+    }
+
+    // Track momentum
+    recordMessage();
+
     try {
       const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
       if (error) throw error;
       if (msg) {
+        setJustSentId(msg.id);
+        setTimeout(() => setJustSentId(null), 300);
         (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
           .then((res: any) => { if (res.error) console.error('[ChatPoints] Award failed:', res.error); })
           .catch((err: any) => console.error('[ChatPoints] RPC error:', err));
