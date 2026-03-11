@@ -177,12 +177,15 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           };
         });
 
+        // Filter out hidden courses (videos)
+        const visibleCourses = coursesWithProgress.filter(c => !HIDDEN_COURSES.includes(c.slug));
+
         // Sort by priority
-        coursesWithProgress.sort((a, b) => 
+        visibleCourses.sort((a, b) => 
           (COURSE_PRIORITY[a.slug] || 99) - (COURSE_PRIORITY[b.slug] || 99)
         );
 
-        setCourses(coursesWithProgress);
+        setCourses(visibleCourses);
       } catch (err) {
         console.error('Error:', err);
       } finally {
