@@ -70,6 +70,9 @@ export interface UserRow {
   avatar_url?: string | null;
   onboarding_status?: string | null;
   organization?: string | null;
+  region?: string | null;
+  office_name?: string | null;
+  recruiter?: string | null;
   last_active_at?: string | null;
   bootcamp_completed?: boolean;
 }
