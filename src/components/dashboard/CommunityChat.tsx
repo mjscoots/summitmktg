@@ -1,55 +1,23 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Image, Pin, PinOff, BarChart3, Crown, Plus, MessageSquarePlus, Paperclip, Flame } from 'lucide-react';
-import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
-import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
-import { TierBadge } from '@/components/shared/TierBadge';
-import { ChatPoll, PollCreator } from './ChatPoll';
-import { ChatImageUpload, isImageMessage, isFileMessage, getImageUrl, getFileInfo, ChatImage, ChatFile } from './ChatImageUpload';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { UserAvatar } from '@/components/shared/UserAvatar';
-import { MessageReactions } from './MessageReactions';
-import { ReadReceipts } from './ReadReceipts';
+import { ChevronDown } from 'lucide-react';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
-import { sanitizeUrl } from '@/lib/sanitizeUrl';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
-import { useChatParticles, ParticleCanvas } from '@/components/chat/ChatParticles';
-import { BackgroundDust } from '@/components/chat/BackgroundDust';
-import { useMomentum, MomentumIndicator } from '@/components/chat/MomentumIndicator';
-import { ChatLeaderboardWidget } from '@/components/chat/ChatLeaderboardWidget';
-import { getMessageHighlight, isHotThread } from '@/components/chat/messageHighlights';
-
-/** Render text with clickable links */
-function renderWithLinks(text: string) {
-  const urlRegex = /(https?:\/\/[^\s<]+)/g;
-  const parts = text.split(urlRegex);
-  return parts.map((part, i) => {
-    if (/^https?:\/\//.test(part)) {
-      const safe = sanitizeUrl(part);
-      if (safe === '#') return <span key={i}>{part}</span>;
-      return (
-        <a key={i} href={safe} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 break-all">
-          {part}
-        </a>
-      );
-    }
-    return <span key={i}>{part}</span>;
-  });
-}
+import { GIF_PREFIX } from './GifPicker';
+import { STICKER_PREFIX } from './StickerPicker';
+import { ChatBubble } from '@/components/chat/ChatBubble';
+import { ChatComposer } from '@/components/chat/ChatComposer';
+import { ChatHeader } from '@/components/chat/ChatHeader';
+import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ChatMessage {
   id: string;
@@ -67,61 +35,27 @@ interface ProfileInfo {
   avatar_url: string | null;
   role?: string;
   is_active_now?: boolean;
-  tier_pct?: number;
-  weekly_points?: number;
 }
 
 interface CommunityChatProps {
   onNewMessage?: () => void;
 }
 
-const ICON_MAP: Record<string, React.ComponentType<any>> = {
-  Hash, Megaphone, Lightbulb, Sparkles, MessageSquarePlus,
-};
-
-const DEFAULT_CHANNELS = [
-  { id: 'general', label: 'General', icon: 'Hash', color: 'text-muted-foreground' },
-] as const;
-
-const DAILY_CHIP_SETS = [
-  ['🔥 LFG', '✅ Let\'s get it', '⛰️ Summit on top'],
-  ['💪 Grind time', '🚀 Send it', '👑 We run this'],
-  ['⚔️ War mode', '💰 Money time', '🏆 Champions only'],
-  ['🔥 No days off', '✅ Locked in', '⛰️ To the top'],
-  ['💪 Beast mode', '🚀 Full send', '👑 Stay hungry'],
-  ['⚔️ Game day', '💰 Close it', '🏆 Built different'],
-  ['🔥 All gas', '✅ Let\'s eat', '⛰️ Peak energy'],
-];
-
-const getDailyChips = () => {
-  const dayIndex = Math.floor(Date.now() / 86400000) % DAILY_CHIP_SETS.length;
-  return DAILY_CHIP_SETS[dayIndex];
-};
-
-
-type ChannelId = string;
-
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
   if (isToday(date)) label = 'Today';
   else if (isYesterday(date)) label = 'Yesterday';
-
   return (
-    <div className="flex items-center my-4 px-4">
-      <div className="flex-1 h-px bg-border/50" />
-      <span className="text-[11px] font-semibold text-muted-foreground px-3">{label}</span>
-      <div className="flex-1 h-px bg-border/50" />
+    <div className="flex items-center justify-center my-5">
+      <span className="text-[11px] font-medium text-muted-foreground/40 bg-background/80 px-3 py-1 rounded-full">{label}</span>
     </div>
   );
 }
 
-/** Bot message divider style */
-function BotMessage({ content }: { content: string }) {
+function SystemMessage({ content }: { content: string }) {
   return (
-    <div className="my-3 mx-4">
-      <div className="h-px bg-border/50 mb-3" />
-      <p className="text-[13px] text-muted-foreground italic text-center leading-relaxed">{content}</p>
-      <div className="h-px bg-border/50 mt-3" />
+    <div className="flex items-center justify-center my-4 px-6">
+      <span className="text-[12px] text-muted-foreground/40 text-center leading-relaxed italic">{content}</span>
     </div>
   );
 }
@@ -131,59 +65,33 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [isAiLoading, setIsAiLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
-  const activeChannel: ChannelId = 'general';
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [channels] = useState<Array<{ id: string; label: string; icon: string; color: string }>>([...DEFAULT_CHANNELS]);
-
-  const effectiveChannel = 'general';
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const profileMapRef = useRef<Record<string, ProfileInfo>>({});
   const [showScrollDown, setShowScrollDown] = useState(false);
-  const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
-  const [unreadChannels, setUnreadChannels] = useState<Set<ChannelId>>(new Set());
-  const [localAiMessages, setLocalAiMessages] = useState<ChatMessage[]>([]);
-  const [showGifs, setShowGifs] = useState(false);
-  const [showPollCreator, setShowPollCreator] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
-  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
-  const [justSentId, setJustSentId] = useState<string | null>(null);
-  
-  const { canvasRef, burst } = useChatParticles();
-  const { momentum, recordMessage } = useMomentum();
-  const sendBtnRef = useRef<HTMLButtonElement>(null);
+  const [contextMenu, setContextMenu] = useState<{ position: { x: number; y: number }; msgId: string } | null>(null);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
+
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const isAdmin = role === 'admin' || role === 'owner';
-  const isOwner = role === 'owner';
-
-  // Load channels from DB
-
 
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
   const scrollToBottom = useCallback((smooth = true) => {
     const container = containerRef.current;
     if (!container) return;
-
-    const doScroll = () => {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: smooth ? 'smooth' : 'auto',
-      });
-    };
-
-    // Initial + retries to account for async layout/media rendering
+    const doScroll = () => container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
     doScroll();
     requestAnimationFrame(doScroll);
-    setTimeout(doScroll, 120);
-    setTimeout(doScroll, 320);
+    setTimeout(doScroll, 150);
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -200,8 +108,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(200);
-
-      if (error) { console.error('Error fetching messages:', error); return; }
+      if (error) { console.error('Error:', error); return; }
 
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
       if (userIds.length > 0) {
@@ -213,9 +120,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         const roleMap: Record<string, string> = {};
         (rolesRes.data || []).forEach(r => {
           const prev = roleMap[r.user_id];
-          if (!prev || (rolePriority[r.role] ?? 0) > (rolePriority[prev] ?? 0)) {
-            roleMap[r.user_id] = r.role;
-          }
+          if (!prev || (rolePriority[r.role] ?? 0) > (rolePriority[prev] ?? 0)) roleMap[r.user_id] = r.role;
         });
         const map: Record<string, ProfileInfo> = {};
         (profilesRes.data || []).forEach(p => {
@@ -245,9 +150,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           }
         }
         setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
-        if (newMsg.user_id !== user?.id && newMsg.channel !== effectiveChannel) {
-          setUnreadChannels(prev => new Set([...prev, newMsg.channel as ChannelId]));
-        }
         if (newMsg.user_id !== user?.id) onNewMessage?.();
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages' }, (payload) => {
@@ -256,53 +158,34 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id, onNewMessage, effectiveChannel]);
+  }, [user?.id, onNewMessage]);
 
-  const allChannelMessages = messages.filter(m => m.channel === effectiveChannel);
-  const channelMessages = allChannelMessages;
+  const channelMessages = messages.filter(m => (m.channel || 'general') === 'general');
 
+  useEffect(() => { scrollToBottom(false); }, [channelMessages.length, scrollToBottom]);
+
+  // Read receipts
   useEffect(() => {
-    scrollToBottom(false);
-  }, [channelMessages.length, scrollToBottom]);
+    if (!user || channelMessages.length === 0) return;
+    const otherMessages = channelMessages.filter(m => m.user_id !== user.id && !m.is_ai).slice(-5);
+    if (otherMessages.length === 0) return;
+    supabase.from('chat_read_receipts').upsert(otherMessages.map(m => ({ message_id: m.id, user_id: user.id })), { onConflict: 'message_id,user_id' });
+  }, [channelMessages.length, user?.id]);
 
-  // Post of the Day
-  useEffect(() => {
-    const fetchReactionCounts = async () => {
-      const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
-      const { data } = await supabase.from('chat_reactions').select('message_id').gte('created_at', todayStart.toISOString());
-      if (!data || data.length === 0) { setPostOfTheDayId(null); setReactionCounts({}); return; }
-      const counts: Record<string, number> = {};
-      data.forEach(r => { counts[r.message_id] = (counts[r.message_id] || 0) + 1; });
-      setReactionCounts(counts);
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-      setPostOfTheDayId(sorted[0] && sorted[0][1] >= 3 ? sorted[0][0] : null);
-    };
-    fetchReactionCounts();
-    const interval = setInterval(fetchReactionCounts, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Double-tap to react with 🔥 (touch support for mobile)
-  const lastTapRef = useRef<{ id: string; time: number }>({ id: '', time: 0 });
-  const handleTouchDoubleTap = (msgId: string) => {
-    const now = Date.now();
-    if (lastTapRef.current.id === msgId && now - lastTapRef.current.time < 350) {
-      handleDoubleClickReact(msgId);
-      lastTapRef.current = { id: '', time: 0 };
-    } else {
-      lastTapRef.current = { id: msgId, time: now };
-    }
+  const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
+    if (!prev || curr.reply_to || curr.is_ai !== prev.is_ai || curr.user_id !== prev.user_id) return false;
+    return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() < 5 * 60 * 1000;
   };
 
-  // Double-click to react with 🔥
-  const handleDoubleClickReact = async (msgId: string) => {
-    if (!user) return;
-    const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
-    if (existing) {
-      await supabase.from('chat_reactions').delete().eq('id', existing.id);
-    } else {
-      await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
-    }
+  // Should we show a timestamp for this message? Show every ~10 min gap or on first message
+  const shouldShowTime = (curr: ChatMessage, prev: ChatMessage | null) => {
+    if (!prev) return true;
+    return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() > 10 * 60 * 1000;
+  };
+
+  const getProfile = (msg: ChatMessage): ProfileInfo => {
+    if (msg.is_ai) return { full_name: 'Summit AI', avatar_url: null, role: 'bot' };
+    return profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
   };
 
   const handleSend = async () => {
@@ -312,62 +195,89 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const currentReplyTo = replyingTo?.id || null;
     setReplyingTo(null);
 
-    // Determine particle type from daily chips
-    let particleType: 'normal' | 'flame' | 'lightning' | 'gold' = 'normal';
-    if (content.includes('All Gas') || content.includes('🔥')) particleType = 'flame';
-    else if (content.includes('Peak') || content.includes('⚡') || content.includes('⛰️')) particleType = 'lightning';
-    else if (content.includes('eat') || content.includes('💰') || content.includes('Money')) particleType = 'gold';
-
-    // Fire particle burst from send button
-    if (sendBtnRef.current && canvasRef.current) {
-      const btnRect = sendBtnRef.current.getBoundingClientRect();
-      const canvasRect = canvasRef.current.getBoundingClientRect();
-      burst(btnRect.left - canvasRect.left + btnRect.width / 2, btnRect.top - canvasRect.top + btnRect.height / 2, particleType);
-    }
-
-    // Track momentum
-    recordMessage();
-
     try {
-      const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: effectiveChannel }).select('id').single();
+      const { data: msg, error } = await supabase.from('chat_messages').insert({
+        user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: 'general'
+      }).select('id').single();
       if (error) throw error;
       if (msg) {
-        setJustSentId(msg.id);
-        setTimeout(() => setJustSentId(null), 300);
         (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
-          .then((res: any) => { if (res.error) console.error('[ChatPoints] Award failed:', res.error); })
-          .catch((err: any) => console.error('[ChatPoints] RPC error:', err));
+          .then((res: any) => { if (res.error) console.error('[ChatPoints]', res.error); })
+          .catch(() => {});
       }
-    } catch (error) { console.error('Send error:', error); toast.error('Failed to send message'); } finally { setIsSending(false); }
+    } catch (error) { console.error('Send error:', error); toast.error('Failed to send'); } finally { setIsSending(false); }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
-  const handleEdit = async (msgId: string) => { if (!editText.trim()) return; const { error } = await supabase.from('chat_messages').update({ content: editText.trim() }).eq('id', msgId); if (error) { toast.error('Failed to edit'); return; } setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: editText.trim() } : m)); setEditingId(null); setEditText(''); };
-  const handleDelete = async (msgId: string) => { const { error } = await supabase.from('chat_messages').delete().eq('id', msgId); if (error) { toast.error('Failed to delete'); return; } setMessages(prev => prev.filter(m => m.id !== msgId)); };
-  const handlePin = async (msgId: string, currentlyPinned: boolean) => { const { error } = await supabase.from('chat_messages').update({ is_pinned: !currentlyPinned }).eq('id', msgId); if (error) { toast.error('Failed to update pin'); return; } setMessages(prev => prev.map(m => m.id === msgId ? { ...m, is_pinned: !currentlyPinned } : m)); toast.success(currentlyPinned ? 'Unpinned' : 'Pinned'); };
-  const handleSendFile = async (content: string) => { if (!user) return; const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: effectiveChannel }); if (error) { toast.error('Failed to send'); return; } setReplyingTo(null); scrollToBottom(); };
-  const handleCreatePoll = async (question: string, options: string[]) => { if (!user) return; setShowPollCreator(false); const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: effectiveChannel }).select('id').single(); if (error || !msg) { toast.error('Failed to create poll'); return; } await supabase.from('chat_polls').insert({ message_id: msg.id, question, options, created_by: user.id }); scrollToBottom(); };
-  const handleSendGif = async (gifUrl: string) => { if (!user) return; setShowGifs(false); const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: effectiveChannel }); if (error) { toast.error('Failed to send GIF'); return; } setReplyingTo(null); scrollToBottom(); };
+  const handleEdit = async (msgId: string) => {
+    if (!editText.trim()) return;
+    const { error } = await supabase.from('chat_messages').update({ content: editText.trim() }).eq('id', msgId);
+    if (error) { toast.error('Failed to edit'); return; }
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: editText.trim() } : m));
+    setEditingId(null); setEditText('');
+  };
 
-  // Read receipts
-  useEffect(() => {
-    if (!user || channelMessages.length === 0) return;
-    const otherMessages = channelMessages.filter(m => m.user_id !== user.id && !m.is_ai).slice(-5);
-    if (otherMessages.length === 0) return;
-    supabase.from('chat_read_receipts').upsert(otherMessages.map(m => ({ message_id: m.id, user_id: user.id })), { onConflict: 'message_id,user_id' });
-  }, [channelMessages.length, user?.id, effectiveChannel]);
+  const handleDelete = async (msgId: string) => {
+    const { error } = await supabase.from('chat_messages').delete().eq('id', msgId);
+    if (error) { toast.error('Failed to delete'); return; }
+    setMessages(prev => prev.filter(m => m.id !== msgId));
+  };
 
-  const getProfile = (msg: ChatMessage): ProfileInfo => {
-    if (msg.is_ai) {
-      if (msg.channel === 'ai-coach') return { full_name: 'AI Coach', avatar_url: null, role: 'bot' };
-      return { full_name: 'Summit', avatar_url: null, role: 'bot' };
+  const handlePin = async (msgId: string) => {
+    const msg = messages.find(m => m.id === msgId);
+    if (!msg) return;
+    const { error } = await supabase.from('chat_messages').update({ is_pinned: !msg.is_pinned }).eq('id', msgId);
+    if (error) { toast.error('Failed to pin'); return; }
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, is_pinned: !m.is_pinned } : m));
+    toast.success(msg.is_pinned ? 'Unpinned' : 'Pinned');
+  };
+
+  const handleDoubleTapReact = async (msgId: string) => {
+    if (!user) return;
+    const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
+    if (existing) {
+      await supabase.from('chat_reactions').delete().eq('id', existing.id);
+    } else {
+      await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
     }
-    return profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
   };
-  const isOwnMessage = (msg: ChatMessage) => msg.user_id === user?.id && !msg.is_ai;
-  const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
-    if (!prev || curr.reply_to || curr.is_ai !== prev.is_ai || curr.user_id !== prev.user_id) return false;
-    return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() < 5 * 60 * 1000;
+
+  const handleSendFile = async (content: string) => {
+    if (!user) return;
+    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: 'general' });
+    if (error) { toast.error('Failed to send'); return; }
+    setReplyingTo(null); scrollToBottom();
+  };
+
+  const handleSendGif = async (gifUrl: string) => {
+    if (!user) return;
+    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: 'general' });
+    setReplyingTo(null); scrollToBottom();
+  };
+
+  const handleSendSticker = async (sticker: any) => {
+    if (!user) return;
+    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: 'general' });
+    setReplyingTo(null); scrollToBottom();
+  };
+
+  const handleCreatePoll = async (question: string, options: string[]) => {
+    if (!user) return;
+    const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: 'general' }).select('id').single();
+    if (error || !msg) { toast.error('Failed to create poll'); return; }
+    await supabase.from('chat_polls').insert({ message_id: msg.id, question, options, created_by: user.id });
+    scrollToBottom();
+  };
+
+  const handleContextMenu = (e: React.MouseEvent | React.TouchEvent, msgId: string) => {
+    let x: number, y: number;
+    if ('touches' in e) {
+      const touch = e.changedTouches?.[0] || e.touches?.[0];
+      if (!touch) return;
+      x = touch.clientX; y = touch.clientY;
+    } else {
+      x = e.clientX; y = e.clientY;
+    }
+    setContextMenu({ position: { x, y }, msgId });
   };
 
   const handleProfileClick = async (userId: string) => {
@@ -382,345 +292,125 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     }
   };
 
-  const getRoleColor = (r?: string) => { if (r === 'owner') return 'text-amber-400'; if (r === 'admin') return 'text-slate-300'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
-  const getRoleBorderRing = (r?: string) => {
-    if (r === 'owner') return 'ring-2 ring-amber-500/60';
-    if (r === 'admin') return 'ring-2 ring-slate-400/50';
-    if (r === 'manager') return 'ring-2 ring-blue-500/50';
-    return '';
-  };
-  const getRoleBadge = (r?: string) => {
-    if (r === 'bot') return null;
-    if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 uppercase tracking-wider">Owner</span>;
-    if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-400/30 bg-slate-400/10 text-slate-300 uppercase tracking-wider">Admin</span>;
-    if (r === 'manager') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 uppercase tracking-wider">Manager</span>;
-    return null;
-  };
-
-  const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
-  const canPostInChannel = true;
+  const contextMsg = contextMenu ? messages.find(m => m.id === contextMenu.msgId) : null;
+  const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
 
   return (
-    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)] relative" style={{ height: '100%', maxHeight: '100%' }}>
-      <BackgroundDust />
-      <ParticleCanvas canvasRef={canvasRef} />
+    <div className="h-full min-h-0 flex flex-col overflow-hidden bg-background relative" style={{ height: '100%', maxHeight: '100%' }}>
+      {/* Header */}
+      <ChatHeader
+        channelName="Team Chat"
+        subtitle="Summit crew"
+        pinnedCount={pinnedCount}
+        onPinnedClick={() => {
+          const pinned = channelMessages.filter(m => m.is_pinned);
+          if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }}
+      />
 
-      {/* Chat Leaderboard */}
-      <ChatLeaderboardWidget />
-
-      {/* Pinned */}
-      {(() => {
-        const pinned = channelMessages.filter(m => m.is_pinned);
-        if (pinned.length === 0) return null;
-        const lastPinned = pinned[pinned.length - 1];
-        const pinProfile = getProfile(lastPinned);
-        return (
-          <button onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/10 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left z-[1]">
-            <Pin className="w-3 h-3 text-amber-500 flex-shrink-0" />
-            <span className="text-[11px] font-semibold text-amber-500">{pinProfile.full_name}:</span>
-            <span className="text-[11px] text-muted-foreground truncate">{lastPinned.content}</span>
-          </button>
-        );
-      })()}
-
-      {/* Messages */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
+      {/* Messages thread */}
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0">
         {channelMessages.length === 0 && (
-          <div className="text-center py-16 px-4">
-            <div className="w-14 h-14 rounded-full bg-muted/40 flex items-center justify-center mx-auto mb-4">
-              {(() => { const Icon = ICON_MAP[activeChannelConfig.icon] || Hash; return <Icon className={cn("w-7 h-7", activeChannelConfig.color)} />; })()}
-            </div>
-            <h3 className="text-lg font-bold text-foreground mb-1">#{activeChannelConfig.label}</h3>
-            <p className="text-sm text-muted-foreground">Start the conversation.</p>
+          <div className="text-center py-20 px-4">
+            <p className="text-lg font-semibold text-foreground/30">No messages yet</p>
+            <p className="text-sm text-muted-foreground/30 mt-1">Start the conversation</p>
           </div>
         )}
 
         {channelMessages.map((msg, idx) => {
           const prev = idx > 0 ? channelMessages[idx - 1] : null;
-          const grouped = isSameSender(msg, prev);
+          const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
           const showDate = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at));
-          const msgProfile = getProfile(msg);
-          const own = isOwnMessage(msg);
+          const grouped = isSameSender(msg, prev);
+          const isLastInGroup = !next || !isSameSender(next, msg);
+          const isFirstInGroup = !grouped;
+          const showTime = shouldShowTime(msg, prev);
+          const own = msg.user_id === user?.id && !msg.is_ai;
 
-          // Bot messages render as centered dividers
+          // System / bot messages
           if (msg.is_ai && msg.channel !== 'ai-coach') {
             return (
               <div key={msg.id}>
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                <BotMessage content={msg.content} />
+                <SystemMessage content={msg.content} />
               </div>
             );
           }
 
-          const msgReactionCount = reactionCounts[msg.id] || 0;
-          const highlight = getMessageHighlight(msgReactionCount);
-          const hot = isHotThread(msgReactionCount, msg.created_at);
-
-          // iMessage-style grouping: check if next message is same sender for tail logic
-          const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
-          const isLastInGroup = !next || !isSameSender(next, msg);
-          const isFirstInGroup = !grouped;
-
           return (
             <div key={msg.id}>
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-
-              <div
-                id={`msg-${msg.id}`}
-                onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
-                onTouchEnd={() => { if (!msg.is_ai) handleTouchDoubleTap(msg.id); }}
-                className={cn(
-                  "group/msg relative px-3 transition-all select-none",
-                  grouped ? "py-[2px]" : "pt-2 pb-[2px]",
-                  justSentId === msg.id && "animate-msg-send"
-                )}
-              >
-                {/* Hover toolbar */}
-                {!msg.is_ai && (
-                   <div className={cn(
-                     "absolute -top-3 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border/60 rounded-md shadow-lg px-0.5 py-0.5 z-10",
-                     own ? "left-4" : "right-4"
-                   )}>
-                    <button onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors" title="Reply"><Reply className="w-3.5 h-3.5" /></button>
-                    {own && <button onClick={() => { setEditingId(msg.id); setEditText(msg.content); }} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>}
-                    {isManager && <button onClick={() => handlePin(msg.id, msg.is_pinned)} className={cn("p-1.5 rounded transition-colors", msg.is_pinned ? "text-amber-500 hover:text-amber-400" : "text-muted-foreground hover:text-foreground hover:bg-muted/60")} title={msg.is_pinned ? "Unpin" : "Pin"}>{msg.is_pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}</button>}
-                    {(own || isManager) && <button onClick={() => setDeleteConfirm({ open: true, msgId: msg.id })} className="p-1.5 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
-                  </div>
-                )}
-
-                <div className={cn("flex items-end gap-2", own ? "flex-row-reverse" : "flex-row")}>
-                  {/* Avatar — only for others, only on last in group */}
-                  <div className="w-7 flex-shrink-0">
-                    {!own && isLastInGroup && !msg.is_ai ? (
-                      <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
-                        <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="sm" showOnline isOnline={msgProfile.is_active_now} className={getRoleBorderRing(msgProfile.role)} />
-                      </button>
-                    ) : own ? null : <div className="w-7" />}
-                  </div>
-
-                  {/* Bubble */}
-                  <div className={cn("max-w-[75%] min-w-0 relative", own && "ml-auto")}>
-                    {/* Sender name for others, first in group */}
-                    {!own && isFirstInGroup && !msg.is_ai && (
-                      <div className="flex items-center gap-1.5 mb-0.5 ml-1">
-                        <button onClick={() => handleProfileClick(msg.user_id)} className={cn("text-xs font-semibold hover:underline cursor-pointer", getRoleColor(msgProfile.role))}>
-                          {msgProfile.full_name}
-                        </button>
-                        {getRoleBadge(msgProfile.role)}
-                      </div>
-                    )}
-
-                    {/* Reply context */}
-                    {msg.reply_to && (() => {
-                      const parentMsg = channelMessages.find(m => m.id === msg.reply_to);
-                      if (!parentMsg) return null;
-                      const parentProfile = getProfile(parentMsg);
-                      return (
-                        <div className={cn("flex items-center gap-1.5 mb-0.5 text-[11px] cursor-pointer hover:opacity-80 transition-opacity ml-1", own && "justify-end mr-1 ml-0")} onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
-                          <CornerDownRight className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
-                          <span className="font-semibold text-muted-foreground">{parentProfile.full_name}</span>
-                          <span className="text-muted-foreground/50 truncate max-w-[160px]">{parentMsg.content}</span>
-                        </div>
-                      );
-                    })()}
-
-                    {/* The bubble itself */}
-                    <div className={cn(
-                      "relative px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words",
-                      own
-                        ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
-                        : "bg-muted/60 text-foreground rounded-2xl rounded-bl-md",
-                      // Grouped rounding
-                      own && grouped && "rounded-tr-md",
-                      own && isLastInGroup && "rounded-br-2xl",
-                      !own && grouped && "rounded-tl-md",
-                      !own && isLastInGroup && "rounded-bl-2xl",
-                      msg.is_pinned && "ring-1 ring-amber-500/40",
-                    )}>
-                      {/* Message body */}
-                      {editingId === msg.id ? (
-                        <div>
-                          <input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }} className="w-full bg-transparent text-inherit text-sm focus:outline-none" autoFocus />
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] opacity-70">esc to cancel · enter to save</span>
-                          </div>
-                        </div>
-                      ) : isStickerMessage(msg.content) ? (
-                        (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className="w-28 h-28 object-contain" /> : <span className="text-muted-foreground">[Unknown sticker]</span>; })()
-                      ) : isGifMessage(msg.content) ? (
-                        (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className="max-w-[240px] rounded-lg" loading="lazy" /> : <span className="text-muted-foreground">[GIF unavailable]</span>; })()
-                      ) : isImageMessage(msg.content) ? (
-                        <ChatImage url={getImageUrl(msg.content)} />
-                      ) : isFileMessage(msg.content) ? (
-                        (() => { const info = getFileInfo(msg.content); return info ? <ChatFile info={info} /> : <span className="text-muted-foreground">[File unavailable]</span>; })()
-                      ) : msg.content.startsWith('📊 Poll:') ? (
-                        <div><p className="leading-relaxed">{renderWithLinks(msg.content)}</p><ChatPoll messageId={msg.id} profileMap={profileMap} /></div>
-                      ) : (
-                        <span>{renderWithLinks(msg.content)}</span>
-                      )}
-                    </div>
-
-                    {/* Tapback-style reactions — overlay on bubble corner */}
-                    <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} isOwnMessage={own} />
-
-                    {/* Timestamp on last in group */}
-                    {isLastInGroup && (
-                      <div className={cn("text-[10px] text-muted-foreground/50 mt-0.5 px-1", own ? "text-right" : "text-left")}>
-                        {format(new Date(msg.created_at), 'h:mm a')}
-                      </div>
-                    )}
-                  </div>
+              {showTime && !showDate && isFirstInGroup && (
+                <div className="flex justify-center my-3">
+                  <span className="text-[10px] text-muted-foreground/30">
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                  </span>
                 </div>
-
-                {idx === channelMessages.length - 1 && <ReadReceipts messageId={msg.id} profileMap={profileMap} isLastInGroup={true} />}
-              </div>
+              )}
+              <ChatBubble
+                message={msg}
+                isOwn={own}
+                isFirstInGroup={isFirstInGroup}
+                isLastInGroup={isLastInGroup}
+                showTimestamp={isLastInGroup && !showTime}
+                profile={getProfile(msg)}
+                profileMap={profileMap}
+                allMessages={channelMessages}
+                onProfileClick={handleProfileClick}
+                onContextMenu={handleContextMenu}
+                onDoubleTap={handleDoubleTapReact}
+                isEditing={editingId === msg.id}
+                editText={editText}
+                onEditChange={setEditText}
+                onEditSave={() => handleEdit(msg.id)}
+                onEditCancel={() => { setEditingId(null); setEditText(''); }}
+              />
             </div>
           );
         })}
-
-
-        {typingUsers.length > 0 && (
-          <div className="px-4 py-1.5 flex items-center gap-2">
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {typingUsers.length === 1 ? `${typingUsers[0].fullName} is typing...` : typingUsers.length === 2 ? `${typingUsers[0].fullName} and ${typingUsers[1].fullName} are typing...` : `${typingUsers[0].fullName} and ${typingUsers.length - 1} others are typing...`}
-            </span>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} className="h-6" />
+        <div ref={messagesEndRef} className="h-4" />
       </div>
 
-      {/* Scroll FAB */}
+      {/* Scroll to bottom */}
       {showScrollDown && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
-          <button onClick={() => scrollToBottom()} className="bg-card border border-border/60 shadow-lg rounded-full p-2 text-muted-foreground hover:text-foreground transition-colors">
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
+          <button onClick={() => scrollToBottom()} className="bg-card/90 backdrop-blur-xl border border-border/30 shadow-xl rounded-full p-2 text-muted-foreground/50 hover:text-foreground transition-colors">
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* Modern Input Bar */}
-      {canPostInChannel ? (
-        <div className="px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md sticky bottom-0 z-[1]">
-          {/* Momentum Indicator */}
-          <MomentumIndicator count={momentum.count} visible={momentum.visible} />
+      {/* Composer */}
+      <ChatComposer
+        input={input}
+        onInputChange={setInput}
+        onSend={handleSend}
+        onSendFile={handleSendFile}
+        onSendGif={handleSendGif}
+        onSendSticker={handleSendSticker}
+        onCreatePoll={handleCreatePoll}
+        isSending={isSending}
+        replyingTo={replyingTo ? { full_name: getProfile(replyingTo).full_name, content: replyingTo.content } : null}
+        onCancelReply={() => setReplyingTo(null)}
+        onTyping={onTyping}
+        typingUsers={typingUsers}
+      />
 
-
-          {/* Quick Action Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {getDailyChips().map((chip, i) => (
-              <button
-                key={chip}
-                type="button"
-                onClick={() => {
-                  setInput(chip);
-                  onTyping();
-                  inputRef.current?.focus();
-                }}
-                className={cn(
-                  "relative overflow-hidden rounded-full border px-3 py-1.5 text-[11px] font-medium whitespace-nowrap",
-                  "transition-all duration-150 active:scale-95",
-                  "hover:shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)] hover:-translate-y-0.5",
-                  i === 0
-                    ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
-                    : "border-border/60 bg-muted/30 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5"
-                )}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
-          {showGifs && <GifPicker onSelect={handleSendGif} onClose={() => setShowGifs(false)} />}
-          {showPollCreator && <PollCreator onSubmit={handleCreatePoll} onClose={() => setShowPollCreator(false)} />}
-
-          {replyingTo && (
-            <div className="flex items-center gap-2 px-3 py-1.5 mb-1 bg-muted/30 rounded-t-lg border border-b-0 border-border/40 text-xs">
-              <Reply className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground">Replying to</span>
-              <span className="font-semibold text-foreground/60 truncate">{getProfile(replyingTo).full_name}</span>
-              <button onClick={() => setReplyingTo(null)} className="p-0.5 text-muted-foreground/50 hover:text-foreground rounded transition-colors ml-auto flex-shrink-0"><X className="w-3.5 h-3.5" /></button>
-            </div>
-          )}
-
-          <div className={cn(
-            "flex items-center gap-1 bg-card/80 border border-border/60 focus-within:border-primary/50 focus-within:shadow-[0_0_0_1px_hsl(var(--primary)/0.25)] transition-all",
-            replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-xl"
-          )}>
-            {/* Left icons */}
-            <>
-              <ChatImageUpload onSend={handleSendFile} />
-              <button
-                onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
-                className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                title="GIFs"
-              >
-                <Image className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
-                className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                title="Poll"
-              >
-                <BarChart3 className="w-4 h-4" />
-              </button>
-            </>
-
-            {/* Input */}
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => { setInput(e.target.value); onTyping(); }}
-              onKeyDown={handleKeyDown}
-              onPaste={async (e) => {
-                const items = e.clipboardData?.items;
-                if (!items || !user) return;
-                for (const item of Array.from(items)) {
-                  if (item.type.startsWith('image/')) {
-                    e.preventDefault();
-                    const file = item.getAsFile();
-                    if (!file) return;
-                    try {
-                      const { uploadChatFile } = await import('@/components/dashboard/ChatImageUpload');
-                      await uploadChatFile(file, user.id, handleSendFile);
-                      toast.success('Image uploaded');
-                    } catch {
-                      toast.error('Failed to upload pasted image');
-                    }
-                    return;
-                  }
-                }
-              }}
-              placeholder="Drop your update, win the day…"
-              className="flex-1 bg-transparent text-foreground font-chat-input text-sm px-3 py-2.5 focus:outline-none placeholder:text-muted-foreground"
-              disabled={isSending}
-            />
-
-            {/* Send */}
-            <button
-              ref={sendBtnRef}
-              onClick={handleSend}
-              disabled={!input.trim() || isSending}
-              className={cn(
-                "p-2 mr-1 rounded-lg transition-all flex-shrink-0 relative overflow-hidden",
-                input.trim() ? "text-primary hover:bg-primary/10 hover:scale-110 active:scale-90" : "text-muted-foreground/40"
-              )}
-            >
-              {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </button>
-          </div>
-          
-        </div>
-      ) : (
-        <div className="px-4 py-3 flex-shrink-0 border-t border-border/30">
-          <p className="text-xs text-muted-foreground/50 text-center">Only managers can post in Announcements</p>
-        </div>
+      {/* Context menu */}
+      {contextMenu && contextMsg && (
+        <MessageContextMenu
+          messageId={contextMsg.id}
+          isOwn={contextMsg.user_id === user?.id}
+          isManager={isManager}
+          isPinned={contextMsg.is_pinned}
+          position={contextMenu.position}
+          onClose={() => setContextMenu(null)}
+          onReply={() => setReplyingTo(contextMsg)}
+          onEdit={() => { setEditingId(contextMsg.id); setEditText(contextMsg.content); }}
+          onDelete={() => setDeleteConfirm({ open: true, msgId: contextMsg.id })}
+          onPin={() => handlePin(contextMsg.id)}
+          messageContent={contextMsg.content}
+        />
       )}
 
       <MemberProfileModal open={selectedMember !== null} onClose={() => setSelectedMember(null)} member={selectedMember} roster={[]} />
