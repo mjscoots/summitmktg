@@ -42,10 +42,13 @@ const COURSE_ICONS: Record<string, React.ReactNode> = {
 };
 
 // Courses that are for rookies (show green)
-const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
+const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual'];
 
-// Video library courses (no progress tracking, just lesson count)
+// Video library courses — hidden from tiles (consolidated into Videos page)
 const VIDEO_COURSES = ['training-videos', 'manager-videos'];
+
+// Courses to exclude from tiles entirely (videos are on the Videos page now)
+const HIDDEN_COURSES = ['training-videos', 'manager-videos'];
 
 // Fixed lesson count overrides for display
 const LESSON_COUNT_OVERRIDES: Record<string, number> = {
