@@ -480,12 +480,20 @@ function TodoRow({
   const isOverdue = todo.due_date && !todo.is_completed && new Date(todo.due_date + 'T23:59:59') < new Date();
 
   return (
+    const priorityBg = !todo.is_completed && !justCompleted
+      ? todo.priority === 'urgent' ? 'bg-red-500/12 border border-red-500/20'
+      : todo.priority === 'high' ? 'bg-orange-500/8 border border-orange-500/15'
+      : ''
+      : '';
+
+    return (
     <div
       className={cn(
         "relative flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all group cursor-pointer overflow-hidden",
         justCompleted && "!bg-emerald-500/10 scale-[0.98] duration-200",
         !justCompleted && "duration-200",
-        todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/30"
+        todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/30",
+        priorityBg
       )}
       onClick={onEdit}
     >
