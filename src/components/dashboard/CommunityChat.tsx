@@ -610,25 +610,46 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
       {/* Modern Input Bar */}
       {canPostInChannel ? (
-        <div className="px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md sticky bottom-0">
-          {(
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-              {getDailyChips().map((chip) => (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => {
-                    setInput(chip);
-                    onTyping();
-                    inputRef.current?.focus();
-                  }}
-                  className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-chat-display text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/10 transition-colors whitespace-nowrap"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
+        <div className="px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 flex-shrink-0 relative space-y-2 border-t border-border/30 bg-background/80 backdrop-blur-md sticky bottom-0 z-[1]">
+          {/* Momentum Indicator */}
+          <MomentumIndicator count={momentum.count} visible={momentum.visible} />
+
+          {/* Smart Prompts (shown when input is empty) */}
+          {!input.trim() && (
+            <SmartPrompts
+              onSelect={(prompt) => {
+                setInput(prompt);
+                onTyping();
+                inputRef.current?.focus();
+              }}
+              visible={showSmartPrompts}
+            />
           )}
+
+          {/* Quick Action Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {getDailyChips().map((chip, i) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => {
+                  setInput(chip);
+                  onTyping();
+                  inputRef.current?.focus();
+                }}
+                className={cn(
+                  "relative overflow-hidden rounded-full border px-3 py-1.5 text-[11px] font-medium whitespace-nowrap",
+                  "transition-all duration-150 active:scale-95",
+                  "hover:shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)] hover:-translate-y-0.5",
+                  i === 0
+                    ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                    : "border-border/60 bg-muted/30 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5"
+                )}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
 
           {showGifs && <GifPicker onSelect={handleSendGif} onClose={() => setShowGifs(false)} />}
           {showPollCreator && <PollCreator onSubmit={handleCreatePoll} onClose={() => setShowPollCreator(false)} />}
@@ -647,25 +668,23 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             replyingTo ? "rounded-b-lg rounded-t-none" : "rounded-xl"
           )}>
             {/* Left icons */}
-            {(
-              <>
-                <ChatImageUpload onSend={handleSendFile} />
-                <button
-                  onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
-                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                  title="GIFs"
-                >
-                  <Image className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
-                  className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-                  title="Poll"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                </button>
-              </>
-            )}
+            <>
+              <ChatImageUpload onSend={handleSendFile} />
+              <button
+                onClick={() => { setShowGifs(!showGifs); setShowPollCreator(false); }}
+                className={cn("p-2 rounded-lg transition-all flex-shrink-0", showGifs ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+                title="GIFs"
+              >
+                <Image className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => { setShowPollCreator(!showPollCreator); setShowGifs(false); }}
+                className={cn("p-2 rounded-lg transition-all flex-shrink-0", showPollCreator ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+                title="Poll"
+              >
+                <BarChart3 className="w-4 h-4" />
+              </button>
+            </>
 
             {/* Input */}
             <input
@@ -700,9 +719,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
             {/* Send */}
             <button
+              ref={sendBtnRef}
               onClick={handleSend}
               disabled={!input.trim() || isSending}
-              className={cn("p-2 mr-1 rounded-lg transition-all flex-shrink-0", input.trim() ? "text-primary hover:bg-primary/10 hover:scale-105 active:scale-95" : "text-muted-foreground/40")}
+              className={cn(
+                "p-2 mr-1 rounded-lg transition-all flex-shrink-0 relative overflow-hidden",
+                input.trim() ? "text-primary hover:bg-primary/10 hover:scale-110 active:scale-90" : "text-muted-foreground/40"
+              )}
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
