@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { usePriorityTasks, PriorityTask } from '@/hooks/usePriorityTasks';
 import { Checkbox } from '@/components/ui/checkbox';
 import { MessageSquare, Mic, Target, Users, RefreshCw, Loader2 } from 'lucide-react';
