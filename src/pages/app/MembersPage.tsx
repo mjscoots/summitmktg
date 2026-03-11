@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   TeamMember,
   PILLAR_OWNERS,
@@ -146,6 +147,9 @@ export default function MembersPage() {
   return (
     <AppLayout>
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {/* Back Button */}
+        <PageBackButton to="/app" label="Dashboard" />
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-foreground flex items-center gap-3">

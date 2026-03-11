@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Progress } from '@/components/ui/progress';
 import { Video, Loader2, Film, Star, Bookmark } from 'lucide-react';
-import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
@@ -141,10 +141,8 @@ export default function TrainingVideosPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Breadcrumbs items={[
-          { label: 'Training', to: '/app/training' },
-          { label: 'Videos' },
-        ]} />
+        {/* Back Button */}
+        <PageBackButton to="/app/training" label="Training" />
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">

@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   ScriptTip, ChecklistItem, QuestionCard,
   FieldLabel, FieldHint, YesNoToggle,
@@ -110,9 +111,8 @@ export default function Interview1Page() {
   return (
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-        <button onClick={() => navigate('/app/interviews')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" /><span>Back to Forms</span>
-        </button>
+        {/* Back Button */}
+        <PageBackButton to="/app/interviews" label="Forms" />
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">

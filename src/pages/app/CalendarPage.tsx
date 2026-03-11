@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
 import { SummitLoader } from '@/components/shared/SummitLoader';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -640,6 +641,9 @@ export default function CalendarPage() {
   return (
     <AppLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        {/* Back Button */}
+        <PageBackButton to="/app/operations" label="Operations" />
+
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">

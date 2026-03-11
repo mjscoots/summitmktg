@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic } from 'lucide-react';
-import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -254,11 +254,8 @@ export default function TrainingCoursePage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={[
-          { label: 'Training', to: '/app/training' },
-          { label: course.title },
-        ]} />
+        {/* Back Button */}
+        <PageBackButton to="/app/training" label="Training" />
 
         {/* Course Header */}
         <div className="mb-8">

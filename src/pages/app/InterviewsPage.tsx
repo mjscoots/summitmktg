@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Pencil, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 
 const interviewCards = [
   {
@@ -49,6 +50,9 @@ export default function InterviewsPage() {
   return (
     <AppLayout>
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Back Button */}
+        <PageBackButton to="/app/operations" label="Operations" />
+
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>

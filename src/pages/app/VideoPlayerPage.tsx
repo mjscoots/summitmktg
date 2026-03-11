@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, CheckCircle, Loader2, Video, Play, Bookmark } from 'lucide-react';
-import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getVideoThumbnailUrl } from '@/lib/videoUtils';
@@ -205,11 +205,8 @@ export default function VideoPlayerPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Breadcrumbs items={[
-          { label: 'Training', to: '/app/training' },
-          { label: 'Videos', to: '/app/training/videos' },
-          { label: video.title },
-        ]} />
+        {/* Back Button */}
+        <PageBackButton to="/app/training/videos" label="Videos" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Video Area */}
