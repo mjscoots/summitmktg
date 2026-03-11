@@ -115,6 +115,7 @@ export function MemberProfileModal({
       setAllTimeBreakdown(null);
       setPointsExpanded(false);
       setAllTimeExpanded(false);
+      setPropsSent(false);
     }
   }, [open, member?.user_id]);
 
