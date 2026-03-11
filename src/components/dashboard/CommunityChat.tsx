@@ -154,6 +154,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [postOfTheDayId, setPostOfTheDayId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
+  const [justSentId, setJustSentId] = useState<string | null>(null);
+  const [showSmartPrompts, setShowSmartPrompts] = useState(true);
+  const { canvasRef, burst } = useChatParticles();
+  const { momentum, recordMessage } = useMomentum();
+  const sendBtnRef = useRef<HTMLButtonElement>(null);
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isAdmin = role === 'admin' || role === 'owner';
   const isOwner = role === 'owner';
