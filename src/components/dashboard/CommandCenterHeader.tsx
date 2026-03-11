@@ -1,10 +1,11 @@
-import { GraduationCap, AlertTriangle, Clock, Mic } from 'lucide-react';
+import { Clock, Mic } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface PendingPitch {
   id: string;
@@ -15,18 +16,9 @@ interface PendingPitch {
   lesson_title: string;
 }
 
-interface Stats {
-  teamCompletion: number;
-  checklistIncomplete: number;
-}
-
 export function CommandCenterHeader() {
   const { profile, role } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<Stats>({
-    teamCompletion: 0,
-    checklistIncomplete: 0,
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPitches, setPendingPitches] = useState<PendingPitch[]>([]);
 
@@ -34,90 +26,7 @@ export function CommandCenterHeader() {
   const isOwner = role === 'owner';
 
   useEffect(() => {
-    const fetchStats = async () => {
-      if (!profile?.full_name) return;
-      try {
-        const { data: downline } = await supabase
-          .rpc('get_user_downline', { _manager_name: profile.full_name });
-
-        const members = downline || [];
-        const rookieUserIds: string[] = [];
-
-        members.forEach((m: any) => {
-          if (m.role !== 'manager' && m.role !== 'admin') {
-            rookieUserIds.push(m.user_id);
-          }
-        });
-
-        // Summer Checklist incomplete
-        let checklistIncomplete = 0;
-        if (rookieUserIds.length > 0) {
-          const { count } = await supabase
-            .from('bootcamp_progress')
-            .select('*', { count: 'exact', head: true })
-            .in('user_id', rookieUserIds)
-            .eq('bootcamp_completed', false);
-          checklistIncomplete = count || 0;
-        }
-
-        // Training progress — average across ALL active reps
-        let avgProgress = 0;
-
-        if (rookieUserIds.length > 0) {
-          const { data: courses } = await supabase
-            .from('training_courses')
-            .select(`id, target_role, training_modules ( id, training_lessons ( id, is_active ) )`)
-            .eq('is_active', true);
-
-          const reachableLessonIds = new Set<string>();
-          (courses || []).forEach((course: any) => {
-            // Include all courses (rookie + manager training)
-            course.training_modules?.forEach((mod: any) => {
-              mod.training_lessons?.forEach((lesson: any) => {
-                if (lesson.is_active !== false) reachableLessonIds.add(lesson.id);
-              });
-            });
-          });
-
-          const totalLessons = reachableLessonIds.size;
-          if (totalLessons > 0) {
-            const { data: progressData } = await supabase
-              .from('lesson_progress')
-              .select('user_id, lesson_id')
-              .in('user_id', rookieUserIds)
-              .not('completed_at', 'is', null);
-
-            const completionMap = new Map<string, number>();
-            (progressData || []).forEach((p: any) => {
-              if (reachableLessonIds.has(p.lesson_id)) {
-                completionMap.set(p.user_id, (completionMap.get(p.user_id) || 0) + 1);
-              }
-            });
-
-            let totalProgress = 0;
-            rookieUserIds.forEach((uid) => {
-              const completed = completionMap.get(uid) || 0;
-              const pct = Math.round((completed / totalLessons) * 100);
-              totalProgress += pct;
-            });
-            avgProgress = rookieUserIds.length > 0 ? Math.round(totalProgress / rookieUserIds.length) : 0;
-          }
-        }
-
-        setStats({
-          teamCompletion: avgProgress,
-          checklistIncomplete,
-        });
-      } catch (err) {
-        console.error('Error fetching stats:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStats();
-    const interval = setInterval(fetchStats, 60000);
-    return () => clearInterval(interval);
+    if (profile?.full_name) setIsLoading(false);
   }, [profile?.full_name]);
 
   // Fetch pending pitch approvals
@@ -159,47 +68,35 @@ export function CommandCenterHeader() {
   }, []);
 
   return (
-    <div className="mb-6">
-      {/* Hero */}
-      <div className="relative h-24 rounded-xl overflow-hidden mb-4">
-        <div className={cn(
-          "absolute inset-0 bg-gradient-to-r",
-          isOwner
-            ? "from-slate-900 via-yellow-950/80 to-yellow-500/30"
-            : "from-slate-900 via-blue-950 to-primary/40"
-        )} />
-        <div className="absolute inset-0 flex items-center px-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Welcome back, <span className={isOwner ? "text-yellow-400" : "text-primary"}>{firstName}</span>
-            </h1>
-            <p className="text-xs text-white/50 mt-1">
-              {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
-            </p>
-          </div>
-        </div>
+    <div className="mb-4">
+      {/* Compact hero */}
+      <div className="mb-3">
+        <h1 className="text-lg font-bold text-foreground leading-tight">
+          Welcome back, <span className={isOwner ? "text-yellow-400" : "text-primary"}>{firstName}</span>
+        </h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
+        </p>
       </div>
-
-      {/* 2 KPI Strip */}
 
       {/* Pending Pitch Approvals */}
       {pendingPitches.length > 0 && (
-        <div className="bg-card rounded-lg border border-border/40 p-3">
+        <div className="bg-card rounded-xl border border-border p-3">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-primary" />
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Pending Pitch Approvals ({pendingPitches.length})
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Pending Pitches ({pendingPitches.length})
               </p>
             </div>
             <button
               onClick={() => navigate('/app/pitch-approvals')}
               className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
             >
-              Review All →
+              Review →
             </button>
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             {pendingPitches.map((pitch) => {
               const hoursAgo = (Date.now() - new Date(pitch.submitted_at).getTime()) / (1000 * 60 * 60);
               const isOverdue = hoursAgo >= 24;
@@ -207,14 +104,13 @@ export function CommandCenterHeader() {
                 <button
                   key={pitch.id}
                   onClick={() => navigate('/app/pitch-approvals')}
-                  className="w-full flex items-center justify-between text-xs py-1 px-1.5 rounded hover:bg-muted/50 transition-colors"
+                  className="w-full flex items-center justify-between text-xs py-1.5 px-2 rounded-lg hover:bg-muted/30 transition-colors"
                 >
-                  <span className="text-foreground font-medium flex items-center gap-1">
-                    <Mic className="w-3 h-3 text-primary/60" />
+                  <span className="text-foreground flex items-center gap-1.5">
+                    <Mic className="w-3 h-3 text-muted-foreground" />
                     {pitch.user_name} — {pitch.lesson_title}
                   </span>
-                  <span className={cn("text-[10px] flex items-center gap-0.5", isOverdue ? "text-destructive font-semibold" : "text-muted-foreground")}>
-                    {isOverdue && <AlertTriangle className="w-3 h-3" />}
+                  <span className={cn("text-[10px]", isOverdue ? "text-destructive font-medium" : "text-muted-foreground")}>
                     {formatDistanceToNow(new Date(pitch.submitted_at), { addSuffix: true })}
                   </span>
                 </button>

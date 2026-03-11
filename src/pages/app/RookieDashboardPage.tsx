@@ -12,7 +12,32 @@ import { WeeklyLeaderboard } from '@/components/dashboard/WeeklyLeaderboard';
 import { RookieXPPanel } from '@/components/dashboard/RookieXPPanel';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { StreakDisplay } from '@/components/training/StreakDisplay';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Bell, Calendar, GraduationCap, Trophy, Sparkles } from 'lucide-react';
+
+function RookieSkeleton() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="border-b border-border bg-background/95 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <Skeleton className="h-6 w-32" />
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-56" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <Skeleton className="h-20 rounded-xl" />
+        <Skeleton className="h-40 rounded-xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-40 rounded-xl" />
+          <Skeleton className="h-40 rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function RookieDashboardPage() {
   const { role, isLoading, profile } = useAuth();
@@ -26,13 +51,7 @@ export default function RookieDashboardPage() {
     }
   }, [role, isLoading, isImpersonating, navigate]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
+  if (isLoading) return <RookieSkeleton />;
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Rookie';
 
@@ -41,68 +60,65 @@ export default function RookieDashboardPage() {
       <div className="min-h-screen bg-background">
         <DashboardHeader />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          {/* Welcome + XP Panel */}
-          <div className="mb-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          {/* Welcome — compact */}
+          <div className="mb-6">
             <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <h1 className="text-2xl font-black text-foreground tracking-tight">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h1 className="text-xl font-bold text-foreground">
                 LET'S GO, <span className="text-primary">{firstName.toUpperCase()}</span>
               </h1>
             </div>
-            <p className="text-muted-foreground text-sm mb-4">
+            <p className="text-muted-foreground text-xs mb-3">
               Earn XP by completing lessons, passing quizzes, and keeping your streak alive.
             </p>
             <RookieXPPanel />
-            <div className="mt-4 max-w-sm">
+            <div className="mt-3 max-w-sm">
               <StreakDisplay variant="compact" clickable />
             </div>
           </div>
 
-          {/* TRAINING FIRST */}
-          <div className="mb-10">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="p-2 bg-primary/15 rounded-lg">
-                <GraduationCap className="w-6 h-6 text-primary" />
-              </div>
-              <h2 className="font-bold text-xl text-foreground">Training</h2>
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+          {/* Training */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <GraduationCap className="w-5 h-5 text-primary" />
+              <h2 className="font-semibold text-lg text-foreground">Training</h2>
+              <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                 +25 XP / LESSON
               </span>
             </div>
             <TrainingTiles />
           </div>
 
-          {/* Top Row: Announcements + Weekly Calendar */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-card rounded-xl border border-border p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Bell className="w-5 h-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Announcements</h2>
+          {/* Announcements + Calendar */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Bell className="w-4 h-4 text-primary" />
+                <h2 className="font-semibold text-sm text-foreground">Announcements</h2>
               </div>
               <AnnouncementsFeed />
             </div>
-            <div className="bg-card rounded-xl border border-border p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="w-5 h-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Weekly Calendar</h2>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar className="w-4 h-4 text-primary" />
+                <h2 className="font-semibold text-sm text-foreground">Weekly Calendar</h2>
               </div>
               <WeeklySchedule />
             </div>
           </div>
 
-          {/* Weekly Leaderboard */}
-          <div className="bg-card rounded-xl border border-border p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="w-5 h-5 text-primary" />
-              <h2 className="font-semibold text-foreground">Weekly Leaderboard</h2>
-              <span className="text-xs text-muted-foreground ml-auto">Rookies Only</span>
+          {/* Leaderboard */}
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Trophy className="w-4 h-4 text-primary" />
+              <h2 className="font-semibold text-sm text-foreground">Weekly Leaderboard</h2>
+              <span className="text-[10px] text-muted-foreground ml-auto">Rookies Only</span>
             </div>
             <WeeklyLeaderboard />
           </div>
         </main>
 
-        {/* Streak Celebration Popup */}
         {showStreakCelebration && streakData.currentStreak > 0 && (
           <StreakCelebration
             streak={streakData.currentStreak}
