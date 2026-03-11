@@ -11,7 +11,7 @@ import {
 export function StatusBar() {
   const { streakData } = useStreak();
   const { progress, isLoading } = usePersonalTrainingProgress();
-  const percentage = progress.percentage;
+  const percentage = progress.overall;
 
   return (
     <Tooltip>
