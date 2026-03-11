@@ -50,6 +50,9 @@ export default function InterviewsPage() {
   return (
     <AppLayout>
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Back Button */}
+        <PageBackButton to="/app/operations" label="Operations" />
+
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>

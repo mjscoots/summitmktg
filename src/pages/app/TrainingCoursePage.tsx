@@ -254,11 +254,8 @@ export default function TrainingCoursePage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={[
-          { label: 'Training', to: '/app/training' },
-          { label: course.title },
-        ]} />
+        {/* Back Button */}
+        <PageBackButton to="/app/training" label="Training" />
 
         {/* Course Header */}
         <div className="mb-8">
