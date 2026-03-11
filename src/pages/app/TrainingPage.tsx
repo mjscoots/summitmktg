@@ -101,10 +101,6 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          <div className="mb-6">
-            <StreakDisplay variant="large" />
-          </div>
-
           {showWelcome && lessonsCompleted < 15 && (
             <WelcomeBanner
               userName={user?.user_metadata?.full_name}
