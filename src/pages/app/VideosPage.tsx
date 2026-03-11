@@ -206,9 +206,21 @@ export default function VideosPage() {
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
             {displayedVideos.map(video => (
               <div key={video.id} className="relative group/card">
+                {/* NEW badge for videos added within the last 7 days */}
+                {video.created_at && (Date.now() - new Date(video.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
+                  <div className="absolute top-2 left-2 z-20 px-2 py-0.5 bg-gradient-to-r from-success to-emerald-500 text-white rounded-full text-[10px] font-bold tracking-wide shadow-sm">
+                    NEW
+                  </div>
+                )}
+
                 {/* Manager badge for manager-specific videos */}
                 {isManager && video.target_role === 'manager' && (
-                  <div className="absolute top-2 left-2 z-20 flex items-center gap-1 px-2 py-0.5 bg-primary/90 text-primary-foreground rounded-full text-[10px] font-bold tracking-wide">
+                  <div className={cn(
+                    "absolute z-20 flex items-center gap-1 px-2 py-0.5 bg-primary/90 text-primary-foreground rounded-full text-[10px] font-bold tracking-wide",
+                    video.created_at && (Date.now() - new Date(video.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000
+                      ? "top-8 left-2"
+                      : "top-2 left-2"
+                  )}>
                     <Shield className="w-3 h-3" />
                     MGR
                   </div>
