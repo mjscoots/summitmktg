@@ -244,7 +244,15 @@ export default function TrainingPage() {
         </div>
 
         {isManager ? (
-          <PageBackButton to="/app/training" label="Back" onClick={() => { setView('selection'); }} />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setView('selection')}
+            className="gap-1.5 text-muted-foreground hover:text-foreground -ml-2 mb-4"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back
+          </Button>
         ) : (
           <PageBackButton to="/app" label="Back" />
         )}
