@@ -138,7 +138,7 @@ export function TodoList() {
         const next = new Set(prev);
         next.delete(todo.id);
         return next;
-      }), 600);
+      }), 1200);
     }
     await supabase.from('todo_items').update({
       is_completed: nowCompleting,
@@ -513,17 +513,25 @@ function TodoRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all duration-300 group cursor-pointer",
-        justCompleted && "!bg-emerald-500/15 !border-emerald-500/30 scale-[0.98]",
+        "relative flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all group cursor-pointer overflow-hidden",
+        justCompleted && "!bg-emerald-500/15 !border-emerald-500/30 scale-[0.98] duration-200 shadow-[0_0_12px_-2px_hsl(var(--chart-2)/0.4)]",
+        !justCompleted && "duration-300",
         todo.is_completed && !justCompleted ? "opacity-50 border-border/30 bg-muted/20" : !justCompleted && cn("border-border/50 hover:border-primary/20", cfg.bg)
       )}
       onClick={onEdit}
     >
+      {/* Completion sweep effect */}
+      {justCompleted && (
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-emerald-400/10 to-transparent animate-[sweep_0.6s_ease-out_forwards] pointer-events-none" />
+      )}
       <div onClick={(e) => e.stopPropagation()}>
         <Checkbox
           checked={todo.is_completed}
           onCheckedChange={onToggle}
-          className="flex-shrink-0"
+          className={cn(
+            "flex-shrink-0 transition-all duration-300",
+            justCompleted && "scale-110 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+          )}
         />
       </div>
       {/* Inline priority dropdown */}
@@ -548,7 +556,11 @@ function TodoRow({
         </Select>
       </div>
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm", todo.is_completed && "line-through text-muted-foreground")}>
+        <p className={cn(
+          "text-sm transition-all duration-500",
+          justCompleted && "text-emerald-600 dark:text-emerald-400 line-through",
+          todo.is_completed && !justCompleted && "line-through text-muted-foreground"
+        )}>
           {todo.title}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
