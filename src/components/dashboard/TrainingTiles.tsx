@@ -295,15 +295,17 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 )
               )}
             >
-              {/* Gradient overlay - appears on hover */}
+              {/* Subtle grid texture overlay */}
+              <div className="absolute inset-0 rounded-xl opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
+              {/* Gradient overlay - always visible for texture */}
               <div className={cn(
-                "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-400 pointer-events-none",
-                !isComingSoon && "group-hover:opacity-100",
+                "absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-400",
                 course.progress === 100
-                  ? "bg-gradient-to-br from-success/5 to-transparent"
+                  ? "bg-gradient-to-br from-success/8 via-transparent to-success/3"
                   : isRookie
-                    ? "bg-gradient-to-br from-green-500/5 to-transparent"
-                    : "bg-gradient-to-br from-blue-500/5 to-transparent"
+                    ? "bg-gradient-to-br from-green-500/8 via-transparent to-green-500/3"
+                    : "bg-gradient-to-br from-blue-500/8 via-transparent to-blue-500/3",
+                !isComingSoon && "group-hover:opacity-150"
               )} />
 
               {/* Card Content - Flex container for perfect alignment */}
