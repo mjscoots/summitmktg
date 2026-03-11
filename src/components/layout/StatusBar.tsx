@@ -10,7 +10,8 @@ import {
 
 export function StatusBar() {
   const { streakData } = useStreak();
-  const { percentage, isLoading } = usePersonalTrainingProgress();
+  const { progress, isLoading } = usePersonalTrainingProgress();
+  const percentage = progress.percentage;
 
   return (
     <Tooltip>
