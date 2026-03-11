@@ -203,9 +203,8 @@ export default function Interview3Page() {
   return (
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-        <button onClick={() => navigate('/app/interviews')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" /><span>Back to Forms</span>
-        </button>
+        {/* Back Button */}
+        <PageBackButton to="/app/interviews" label="Forms" />
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
