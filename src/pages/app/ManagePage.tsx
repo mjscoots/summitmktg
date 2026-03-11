@@ -106,13 +106,17 @@ export default function ManagePage() {
                 key={card.id}
                 onClick={() => navigate(card.path)}
                 className={cn(
-                  'group relative p-8 bg-card rounded-xl text-left',
+                  'group relative p-6 bg-card rounded-xl text-left overflow-hidden',
                   'border-2 border-border/50 cursor-pointer',
                   'transition-all duration-300 hover:scale-[1.02]',
                   card.hoverBorder,
                   card.hoverShadow
                 )}
               >
+                {/* Grid texture */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
+                {/* Subtle color gradient */}
+                <div className="absolute inset-0 pointer-events-none rounded-xl bg-gradient-to-br from-current/[0.04] via-transparent to-current/[0.02]" />
                 {card.tag && (
                   <div className="absolute top-3 right-3">
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
@@ -121,15 +125,15 @@ export default function ManagePage() {
                   </div>
                 )}
                 <div className={cn(
-                  'p-4 rounded-xl w-fit mb-4 transition-colors',
+                  'p-3 rounded-xl w-fit mb-3 transition-colors relative',
                   card.colorClass
                 )}>
-                  <Icon className="w-10 h-10" />
+                  <Icon className="w-8 h-8" />
                 </div>
-                <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-foreground transition-colors">
+                <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-foreground transition-colors relative">
                   {card.label}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground relative">
                   {card.description}
                 </p>
               </button>
