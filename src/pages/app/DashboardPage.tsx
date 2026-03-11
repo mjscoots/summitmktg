@@ -15,7 +15,7 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gift, Zap } from 'lucide-react';
+import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gift, Zap, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -23,46 +23,31 @@ import { toast } from 'sonner';
 function DashboardSkeleton() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 space-y-4 animate-fade-in">
-      {/* Header skeleton */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="space-y-2">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-3.5 w-32" />
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl bg-muted/20 p-4 space-y-2">
+              <Skeleton className="h-3 w-8 mx-auto" />
+              <Skeleton className="h-7 w-12 mx-auto" />
+              <Skeleton className="h-2 w-10 mx-auto" />
+            </div>
+          ))}
         </div>
-        <Skeleton className="h-8 w-20 rounded-full" />
       </div>
-      {/* Quick actions skeleton */}
       <div className="flex gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-24 rounded-lg" />
+          <Skeleton key={i} className="h-9 w-28 rounded-full" />
         ))}
       </div>
-      {/* Task card skeleton */}
-      <div className="rounded-xl border border-border p-4 space-y-3">
+      <div className="glass-card rounded-2xl p-5 space-y-3">
         <Skeleton className="h-4 w-24" />
-        <div className="space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <Skeleton className="h-4 w-4 rounded" />
-              <Skeleton className="h-4 flex-1" />
-              <Skeleton className="h-4 w-12" />
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Dashboard card skeleton */}
-      <div className="rounded-xl border border-border p-4 space-y-3">
-        <Skeleton className="h-4 w-36" />
-        <div className="grid grid-cols-4 gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-lg p-3 space-y-2">
-              <Skeleton className="h-3 w-8 mx-auto" />
-              <Skeleton className="h-6 w-10 mx-auto" />
-              <Skeleton className="h-2 w-6 mx-auto" />
-            </div>
-          ))}
-        </div>
-        <Skeleton className="h-2 w-full rounded-full" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 flex-1" />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -78,6 +63,7 @@ export default function DashboardPage() {
   const [trainingComplete, setTrainingComplete] = useState(false);
   const [challengeData, setChallengeData] = useState<any>(null);
   const [chatMsgCount, setChatMsgCount] = useState(0);
+  const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
@@ -116,7 +102,7 @@ export default function DashboardPage() {
     check();
   }, [user]);
 
-  // Fetch today's chat message count
+  // Fetch today's chat message count + leaderboard rank
   useEffect(() => {
     if (!user) return;
     const fetchChatCount = async () => {
@@ -132,7 +118,19 @@ export default function DashboardPage() {
         setChatMsgCount(count || 0);
       } catch {}
     };
+
+    const fetchRank = async () => {
+      try {
+        const { data } = await (supabase.rpc as any)('get_current_leaderboard');
+        if (data) {
+          const myEntry = data.find((e: any) => e.user_id === user.id);
+          if (myEntry) setLeaderboardRank(Number(myEntry.rank));
+        }
+      } catch {}
+    };
+
     fetchChatCount();
+    fetchRank();
     const interval = setInterval(fetchChatCount, 15_000);
     return () => clearInterval(interval);
   }, [user]);
@@ -180,120 +178,126 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto px-4 py-4 animate-fade-in">
+      <div className="max-w-5xl mx-auto px-4 py-4 animate-fade-in ambient-glow relative z-10">
         <OnboardingAlert />
 
         {isManager ? (
           <CommandCenterHeader />
         ) : (
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">
-                What's up, {firstName}
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Complete training. Build momentum.
-              </p>
-            </div>
+          /* ── HERO CARD ── */
+          <div className="glass-card rounded-2xl p-5 mb-5 relative overflow-hidden">
+            {/* Gradient glow behind hero */}
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full opacity-30 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
+            
+            <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight mb-1 relative z-10">
+              Welcome back, <span className="gradient-text">{firstName}</span>
+            </h1>
+            <p className="text-xs text-muted-foreground mb-4 relative z-10">
+              Complete training. Build momentum.
+            </p>
+
+            {/* Hero stats row */}
+            {pointsData && (
+              <div className="grid grid-cols-4 gap-2 relative z-10">
+                {[
+                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-amber-400' },
+                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary' },
+                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400' },
+                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-orange-400' },
+                ].map(({ icon: Icon, value, label, color }) => (
+                  <div key={label} className="rounded-xl bg-muted/15 border border-border/30 p-2.5 text-center group hover:border-primary/20 transition-all duration-200">
+                    <Icon className={cn("w-3.5 h-3.5 mx-auto mb-1", color)} />
+                    <p className="text-lg font-bold text-foreground tabular-nums leading-tight animate-count-up">{value}</p>
+                    <p className="text-[7px] text-muted-foreground uppercase font-semibold tracking-wider mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* Quick Actions */}
         <QuickActions />
 
-        {/* To-Do List */}
+        {/* Mission Board (To-Do) */}
         <TodoList />
 
-        {/* See My Points — compact card */}
+        {/* See My Points — glass card */}
         <button
           onClick={() => setShowPoints(true)}
-          className="w-full mb-4 px-4 py-2.5 rounded-xl bg-card border border-border flex items-center gap-2.5 hover:border-primary/30 transition-all group"
+          className="w-full mb-5 px-4 py-3 glass-card rounded-xl flex items-center gap-2.5 glass-card-hover group"
         >
-          <Trophy className="w-4 h-4 text-primary" />
-          <span className="text-sm font-semibold text-foreground">My Points</span>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--gradient-gold)' }}>
+            <Trophy className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-sm font-bold text-foreground">My Points</span>
           <span className="text-xs text-muted-foreground ml-auto group-hover:text-foreground transition-colors">View →</span>
         </button>
 
         {/* ── TODAY'S DASHBOARD ── */}
         {pointsData ? (
-          <div className="bg-card rounded-xl border border-border p-4 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-4 h-4 text-primary" />
-              <h2 className="text-sm font-bold text-foreground">Today</h2>
-              <span className={cn("ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full",
-                hoursToday < 1 ? "bg-muted text-muted-foreground" :
-                hoursToday < 2 ? "bg-blue-500/10 text-blue-400" :
-                hoursToday < 4 ? "bg-orange-500/10 text-orange-400" :
-                "bg-yellow-500/10 text-yellow-400"
+          <div className="glass-card rounded-2xl p-5 mb-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
+                <Zap className="w-3 h-3 text-white" />
+              </div>
+              <h2 className="text-sm font-bold text-foreground">Today's Progress</h2>
+              <span className={cn("ml-auto text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider",
+                hoursToday < 1 ? "bg-muted/40 text-muted-foreground" :
+                hoursToday < 2 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                hoursToday < 4 ? "bg-orange-500/10 text-orange-400 border border-orange-500/20" :
+                "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
               )}>
                 {momentumLevel}
               </span>
             </div>
 
-            {/* Stats row — minimal */}
-            <div className="grid grid-cols-4 gap-1.5 mb-3">
-              {[
-                { icon: Clock, value: hoursToday.toFixed(1), label: 'Hrs', color: 'text-primary' },
-                { icon: Trophy, value: dailyPointsEarned, label: 'Pts', color: 'text-yellow-400' },
-                { icon: MessageSquare, value: chatMsgCount, label: 'Msgs', color: 'text-blue-400' },
-                { icon: Flame, value: pointsData.currentStreak, label: 'Streak', color: 'text-orange-400' },
-              ].map(({ icon: Icon, value, label, color }) => (
-                <div key={label} className="rounded-lg bg-muted/20 p-2 text-center">
-                  <Icon className={cn("w-3 h-3 mx-auto mb-0.5", color)} />
-                  <p className="text-base font-bold text-foreground tabular-nums leading-tight">{value}</p>
-                  <p className="text-[8px] text-muted-foreground uppercase font-medium">{label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Elite bar — slimmer */}
-            <div className="mb-3">
-              <div className="flex items-center justify-between mb-1">
+            {/* Elite progress bar */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-medium text-muted-foreground">Elite Goal</span>
-                <span className="text-[10px] text-muted-foreground tabular-nums">{hoursToday.toFixed(1)}/{eliteGoal}h</span>
+                <span className="text-[10px] text-muted-foreground tabular-nums">{hoursToday.toFixed(1)} / {eliteGoal}h</span>
               </div>
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="progress-track">
                 <div
-                  className={cn(
-                    "h-full rounded-full transition-all duration-700",
-                    elitePercent === 100
-                      ? "bg-gradient-to-r from-yellow-500 to-amber-400"
-                      : "bg-primary"
-                  )}
-                  style={{ width: `${elitePercent}%` }}
+                  className={cn("progress-fill", elitePercent === 100 && "!bg-none")}
+                  style={{
+                    width: `${elitePercent}%`,
+                    ...(elitePercent === 100 ? { background: 'var(--gradient-gold)' } : {}),
+                  }}
                 />
               </div>
             </div>
 
-            {/* Daily Challenge — minimal */}
+            {/* Daily Challenge */}
             {challengeData && (
-              <div className={cn("p-3 rounded-lg", challengeData.all_complete ? "bg-success/5" : "bg-muted/10")}>
-                <div className="flex items-center gap-2 mb-2">
+              <div className={cn("p-3.5 rounded-xl border", challengeData.all_complete ? "bg-success/5 border-success/20" : "bg-muted/10 border-border/30")}>
+                <div className="flex items-center gap-2 mb-2.5">
                   <Target className={cn("w-3.5 h-3.5", challengeData.all_complete ? "text-success" : "text-muted-foreground")} />
-                  <span className="text-xs font-semibold text-foreground">Daily Challenge</span>
-                  <span className={cn("ml-auto text-[10px] font-medium",
+                  <span className="text-xs font-bold text-foreground">Daily Challenge</span>
+                  <span className={cn("ml-auto text-[10px] font-semibold",
                     challengeData.all_complete ? "text-success" : "text-muted-foreground"
                   )}>{challengeCompleted}/{challengeTotal}</span>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {challengeData.objectives?.map((obj: any) => {
                     const Icon = OBJECTIVE_ICONS[obj.type] || Target;
                     const color = OBJECTIVE_COLORS[obj.type] || 'text-primary';
                     const percent = Math.min((obj.current / obj.target) * 100, 100);
                     return (
-                      <div key={obj.type} className="flex items-center gap-2">
+                      <div key={obj.type} className="flex items-center gap-2.5">
                         <div className={cn("shrink-0", obj.complete ? "text-success" : color)}>
-                          {obj.complete ? <CheckCircle className="w-3 h-3" /> : <Icon className="w-3 h-3" />}
+                          {obj.complete ? <CheckCircle className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className={cn("text-[11px]", obj.complete ? "text-success line-through" : "text-foreground")}>{obj.label}</span>
+                            <span className={cn("text-[11px] font-medium", obj.complete ? "text-success line-through" : "text-foreground")}>{obj.label}</span>
                             <span className="text-[10px] text-muted-foreground tabular-nums">
                               {obj.type === 'training' ? `${Math.round(obj.current)}/${obj.target}m` : `${obj.current}/${obj.target}`}
                             </span>
                           </div>
-                          <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
-                            <div className={cn("h-full rounded-full transition-all", obj.complete ? "bg-success" : "bg-primary")} style={{ width: `${percent}%` }} />
+                          <div className="progress-track mt-1">
+                            <div className={cn("h-full rounded-full transition-all duration-700", obj.complete ? "bg-success" : "")} style={{ width: `${percent}%`, ...(!obj.complete ? { background: 'var(--gradient-primary)' } : {}) }} />
                           </div>
                         </div>
                       </div>
@@ -301,23 +305,23 @@ export default function DashboardPage() {
                   })}
                 </div>
                 {challengeData.all_complete && (
-                  <div className="mt-2 flex items-center gap-1.5 text-success">
-                    <Gift className="w-3 h-3" />
-                    <span className="text-[10px] font-medium">+{challengeData.bonus_points} pts earned!</span>
+                  <div className="mt-2.5 flex items-center gap-1.5 text-success">
+                    <Gift className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-semibold">+{challengeData.bonus_points} pts earned!</span>
                   </div>
                 )}
               </div>
             )}
           </div>
         ) : pointsLoading ? (
-          <div className="bg-card rounded-xl border border-border p-4 mb-4 space-y-3">
+          <div className="glass-card rounded-2xl p-5 mb-5 space-y-3">
             <Skeleton className="h-4 w-24" />
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-4 gap-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-lg bg-muted/20 p-2 space-y-1.5">
+                <div key={i} className="rounded-xl bg-muted/20 p-3 space-y-2">
                   <Skeleton className="h-3 w-3 mx-auto" />
-                  <Skeleton className="h-5 w-8 mx-auto" />
-                  <Skeleton className="h-2 w-6 mx-auto" />
+                  <Skeleton className="h-6 w-10 mx-auto" />
+                  <Skeleton className="h-2 w-8 mx-auto" />
                 </div>
               ))}
             </div>

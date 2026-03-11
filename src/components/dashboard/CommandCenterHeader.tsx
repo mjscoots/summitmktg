@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface PendingPitch {
   id: string;
@@ -29,7 +28,6 @@ export function CommandCenterHeader() {
     if (profile?.full_name) setIsLoading(false);
   }, [profile?.full_name]);
 
-  // Fetch pending pitch approvals
   useEffect(() => {
     const fetchPitches = async () => {
       const { data: pitchData } = await supabase
@@ -68,35 +66,37 @@ export function CommandCenterHeader() {
   }, []);
 
   return (
-    <div className="mb-4">
-      {/* Compact hero */}
-      <div className="mb-3">
-        <h1 className="text-lg font-bold text-foreground leading-tight">
-          Welcome back, <span className={isOwner ? "text-yellow-400" : "text-primary"}>{firstName}</span>
+    <div className="mb-5">
+      {/* Glass hero */}
+      <div className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden">
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-25 blur-3xl pointer-events-none" style={{ background: isOwner ? 'var(--gradient-gold)' : 'var(--gradient-primary)' }} />
+        
+        <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight relative z-10">
+          Welcome back, <span className={isOwner ? "gradient-text-gold" : "gradient-text"}>{firstName}</span>
         </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-xs text-muted-foreground mt-0.5 relative z-10">
           {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
         </p>
       </div>
 
       {/* Pending Pitch Approvals */}
       {pendingPitches.length > 0 && (
-        <div className="bg-card rounded-xl border border-border p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
+        <div className="glass-card rounded-xl p-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-primary" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Pending Pitches ({pendingPitches.length})
               </p>
             </div>
             <button
               onClick={() => navigate('/app/pitch-approvals')}
-              className="text-[10px] font-medium text-primary hover:text-primary/80 transition-colors"
+              className="text-[10px] font-semibold text-primary hover:text-primary/80 transition-colors"
             >
               Review →
             </button>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {pendingPitches.map((pitch) => {
               const hoursAgo = (Date.now() - new Date(pitch.submitted_at).getTime()) / (1000 * 60 * 60);
               const isOverdue = hoursAgo >= 24;
@@ -104,13 +104,13 @@ export function CommandCenterHeader() {
                 <button
                   key={pitch.id}
                   onClick={() => navigate('/app/pitch-approvals')}
-                  className="w-full flex items-center justify-between text-xs py-1.5 px-2 rounded-lg hover:bg-muted/30 transition-colors"
+                  className="w-full flex items-center justify-between text-xs py-2 px-2.5 rounded-lg hover:bg-muted/20 transition-colors"
                 >
-                  <span className="text-foreground flex items-center gap-1.5">
-                    <Mic className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-foreground/80 flex items-center gap-2">
+                    <Mic className="w-3 h-3 text-muted-foreground/50" />
                     {pitch.user_name} — {pitch.lesson_title}
                   </span>
-                  <span className={cn("text-[10px]", isOverdue ? "text-destructive font-medium" : "text-muted-foreground")}>
+                  <span className={cn("text-[10px]", isOverdue ? "text-destructive font-medium" : "text-muted-foreground/60")}>
                     {formatDistanceToNow(new Date(pitch.submitted_at), { addSuffix: true })}
                   </span>
                 </button>
