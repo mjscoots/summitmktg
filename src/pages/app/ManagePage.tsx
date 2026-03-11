@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Swords, Calculator, FileText, Mic } from 'lucide-react';
+import { Swords, Calculator, FileText, Mic, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const GRID_PATTERN =
@@ -23,8 +24,8 @@ interface ManageCard {
 
 const cards: ManageCard[] = [
   {
-    id: 'stats',
-    label: 'Stats',
+    id: 'overview',
+    label: 'Overview',
     description: 'View team metrics and performance statistics',
     icon: Swords,
     path: '/app/war-room',
@@ -57,10 +58,10 @@ const cards: ManageCard[] = [
     managerOnly: true,
   },
   {
-    id: 'pitch-approval',
-    label: 'Pitch Approval',
-    description: 'Submit and review rep pitch recordings',
-    icon: Mic,
+    id: 'pitch-videos',
+    label: 'Pitch Approvals & Rep Videos',
+    description: 'Review pitch submissions and all rep video recordings',
+    icon: Video,
     path: '/app/pitch-approvals',
     colorClass: 'text-purple-400 bg-purple-500/15 group-hover:bg-purple-500/25',
     hoverBorder: 'hover:border-purple-500/40',
