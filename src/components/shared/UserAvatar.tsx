@@ -10,6 +10,7 @@ interface UserAvatarProps {
   className?: string;
   showOnline?: boolean;
   isOnline?: boolean;
+  isTyping?: boolean;
   tierPct?: number;
   teamName?: string | null;
   /** Leaderboard rank (1-based). Lower = stronger glow. */
