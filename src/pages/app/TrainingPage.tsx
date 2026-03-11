@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
-import { StreakDisplay } from '@/components/training/StreakDisplay';
+
 import { BookOpen, Users, ChevronLeft } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
@@ -101,10 +101,6 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          <div className="mb-6">
-            <StreakDisplay variant="large" />
-          </div>
-
           {showWelcome && lessonsCompleted < 15 && (
             <WelcomeBanner
               userName={user?.user_metadata?.full_name}
@@ -139,10 +135,6 @@ export default function TrainingPage() {
               </h1>
               <p className="text-sm text-muted-foreground mt-1">Sharpen your edge. Lead with excellence.</p>
             </div>
-          </div>
-
-          <div className="mb-6">
-            <StreakDisplay variant="large" />
           </div>
 
           {/* Two Selection Cards — bigger, cleaner */}
