@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   Video,
   Plus,
