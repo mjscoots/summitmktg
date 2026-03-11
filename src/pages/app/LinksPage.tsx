@@ -150,7 +150,7 @@ export default function LinksPage() {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
-        <PageBackButton to="/app" label="Dashboard" />
+        <PageBackButton to="/app/operations" label="Operations" />
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-bold text-foreground">Resources</h1>

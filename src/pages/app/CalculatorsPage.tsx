@@ -19,7 +19,7 @@ export default function CalculatorsPage() {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <PageBackButton to="/app" label="Dashboard" />
+        <PageBackButton to="/app/analytics" label="Analytics" />
 
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/20">

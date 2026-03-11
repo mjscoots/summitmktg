@@ -56,6 +56,8 @@ const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
 const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 const NotepadPage = lazy(() => import("./pages/app/NotepadPage"));
 const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
+const OperationsPage = lazy(() => import("./pages/app/OperationsPage"));
+const AnalyticsPage = lazy(() => import("./pages/app/AnalyticsPage"));
 
 function LazyFallback() {
   return (
@@ -323,14 +325,32 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-             {/* War Room */}
-             <Route path="/app/war-room" element={
-               <ProtectedRoute>
-                 <BootcampGate>
-                   <WarRoomPage />
-                 </BootcampGate>
-               </ProtectedRoute>
-             } />
+              {/* Operations Hub */}
+              <Route path="/app/operations" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <OperationsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* Analytics Hub */}
+              <Route path="/app/analytics" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <AnalyticsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* War Room */}
+              <Route path="/app/war-room" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <WarRoomPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
 
              {/* Notepad */}
              <Route path="/app/notepad" element={

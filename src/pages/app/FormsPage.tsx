@@ -71,19 +71,9 @@ export default function FormsPage() {
 
   return (
     <AppLayout>
-      {/* Subtle radial background glow */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(30,58,138,0.08) 0%, transparent 70%)',
-          }}
-        />
-      </div>
-
       <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Back Button */}
-        <PageBackButton to="/app" label="Dashboard" />
+        <PageBackButton to="/app/operations" label="Operations" />
 
         {/* Header */}
         <div className="flex items-start justify-between mb-10">
@@ -173,7 +163,6 @@ export default function FormsPage() {
                       )}
                     >
                       <div className="flex items-start gap-4 mb-5">
-                        {/* Number Badge */}
                         <div
                           className={cn(
                             'w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0',
@@ -193,7 +182,6 @@ export default function FormsPage() {
 
                       <div className="flex-1" />
 
-                      {/* Open Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

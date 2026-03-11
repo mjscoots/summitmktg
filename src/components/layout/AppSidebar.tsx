@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Calendar, Mountain, Shield, MessagesSquare, FileText, Link2, Sun, Moon, Swords, ChevronRight, Calculator, Wrench } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessagesSquare, Sun, Moon, Wrench, BarChart3 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -16,10 +16,8 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
-import { usePendingRSVP } from '@/hooks/usePendingRSVP';
 
 interface NavItem {
   label: string;
@@ -28,10 +26,13 @@ interface NavItem {
   iconColor?: string;
 }
 
-const directNavItems: NavItem[] = [
+const mainNavItems: NavItem[] = [
+  { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-blue-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
   { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-purple-400' },
+  { label: 'Operations', path: '/app/operations', icon: Wrench, iconColor: 'text-green-400' },
+  { label: 'Analytics', path: '/app/analytics', icon: BarChart3, iconColor: 'text-emerald-400' },
 ];
 
 export function AppSidebar() {
@@ -43,24 +44,28 @@ export function AppSidebar() {
   const collapsed = state === 'collapsed';
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
   const adminCounts = useAdminCounts();
-  const pendingRSVP = usePendingRSVP();
 
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
-  const isManager = role === 'manager' || isAdmin;
-  const roleLabel = isOwner ? 'OWNER' : role === 'admin' ? 'ADMIN' : isManager ? 'MANAGER' : 'ROOKIE';
+  const roleLabel = isOwner ? 'OWNER' : role === 'admin' ? 'ADMIN' : (role === 'manager' || isAdmin) ? 'MANAGER' : 'ROOKIE';
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
+  // Operations paths — any of these make the Operations nav item active
+  const operationsPaths = ['/app/operations', '/app/forms', '/app/interviews', '/app/weekly-one-on-ones', '/app/calendar', '/app/links'];
+  // Analytics paths
+  const analyticsPaths = ['/app/analytics', '/app/war-room', '/app/calculators'];
+
   const isActive = (path: string) => {
     if (path === '/app') return location.pathname === '/app';
-    if (path === '/app/forms') {
-      return location.pathname.startsWith('/app/forms') || 
-             location.pathname.startsWith('/app/interviews') || 
-             location.pathname.startsWith('/app/weekly-one-on-ones');
+    if (path === '/app/operations') {
+      return operationsPaths.some(p => location.pathname.startsWith(p));
+    }
+    if (path === '/app/analytics') {
+      return analyticsPaths.some(p => location.pathname.startsWith(p));
     }
     if (path === '/app/training') {
       return location.pathname.startsWith('/app/training');
@@ -68,29 +73,10 @@ export function AppSidebar() {
     return location.pathname.startsWith(path);
   };
 
-  const toolsItems: NavItem[] = [];
-  if (isManager) toolsItems.push({ label: 'Forms', path: '/app/forms', icon: FileText, iconColor: 'text-green-400' });
-  toolsItems.push({ label: 'Resources', path: '/app/links', icon: Link2, iconColor: 'text-purple-400' });
-  toolsItems.push({ label: 'Calendar', path: '/app/calendar', icon: Calendar, iconColor: 'text-red-400' });
-  toolsItems.push({ label: 'Calculators', path: '/app/calculators', icon: Calculator, iconColor: 'text-emerald-400' });
-  if (isManager) toolsItems.push({ label: 'Stats', path: '/app/war-room', icon: Swords, iconColor: 'text-red-400' });
-
   const getBadge = (path: string) => {
     if (path === '/app/chat') return unreadChat;
-    if (path === '/app/calendar') return pendingRSVP;
     return 0;
   };
-
-  const toolsHasActive = toolsItems.some(item => isActive(item.path));
-  const [toolsOpen, setToolsOpen] = useState(toolsHasActive);
-
-  useMemo(() => {
-    if (toolsHasActive && !toolsOpen) setToolsOpen(true);
-  }, [toolsHasActive]);
-
-  const toolsBadge = useMemo(() => {
-    return toolsItems.reduce((sum, item) => sum + getBadge(item.path), 0);
-  }, [unreadChat, pendingRSVP]);
 
   const NavButton = ({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) => (
     <button
@@ -170,67 +156,13 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {/* Home */}
-              <SidebarMenuItem>
-                <NavButton item={{ label: 'Home', path: '/app', icon: Home }} active={isActive('/app')} badge={0} />
-              </SidebarMenuItem>
-
-              {/* Direct nav: Training, Leaderboard, Community */}
-              {directNavItems.map((item) => (
+              {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Tools dropdown */}
-        <SidebarGroup className="py-0 mt-1">
-          {!collapsed ? (
-            <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
-              <CollapsibleTrigger className={cn(
-                "w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group border",
-                toolsHasActive
-                  ? "text-primary text-[11px] font-extrabold uppercase tracking-widest bg-primary/8 border-primary/15"
-                  : "text-sidebar-foreground/50 text-[11px] font-extrabold uppercase tracking-widest hover:text-sidebar-foreground hover:bg-sidebar-accent border-transparent hover:border-border/30"
-              )}>
-                <span className="flex items-center gap-2">
-                  <Wrench className={cn("w-3.5 h-3.5", toolsHasActive ? "text-primary" : "text-sidebar-foreground/40")} />
-                  Tools
-                </span>
-                <div className="flex items-center gap-1">
-                  {toolsBadge > 0 && !toolsOpen && (
-                    <span className="flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1">
-                      {toolsBadge > 99 ? '99+' : toolsBadge}
-                    </span>
-                  )}
-                  <ChevronRight className={cn("w-3 h-3 transition-transform duration-200", toolsOpen && "rotate-90")} />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-                <SidebarGroupContent>
-                  <SidebarMenu className="space-y-0.5 mt-1">
-                    {toolsItems.map((item) => (
-                      <SidebarMenuItem key={item.path}>
-                        <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </Collapsible>
-          ) : (
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
-                {toolsItems.map((item) => (
-                  <SidebarMenuItem key={item.path}>
-                    <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          )}
         </SidebarGroup>
 
         {/* Spacer */}

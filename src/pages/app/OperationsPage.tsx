@@ -1,0 +1,136 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { PageBackButton } from '@/components/shared/PageBackButton';
+import { Wrench, FileText, Calendar, Link2, ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface OpCard {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  path: string;
+  gradient: string;
+  glow: string;
+  managerOnly?: boolean;
+}
+
+const cards: OpCard[] = [
+  {
+    id: 'forms',
+    label: 'Forms',
+    description: 'Interview forms and weekly check-ins',
+    icon: FileText,
+    path: '/app/forms',
+    gradient: 'from-orange-500 to-amber-500',
+    glow: 'shadow-[0_0_20px_-4px_rgba(249,115,22,0.4)]',
+    managerOnly: true,
+  },
+  {
+    id: 'calendar',
+    label: 'Calendar',
+    description: 'Team events, calls, and scheduling',
+    icon: Calendar,
+    path: '/app/calendar',
+    gradient: 'from-red-500 to-rose-500',
+    glow: 'shadow-[0_0_20px_-4px_rgba(239,68,68,0.4)]',
+  },
+  {
+    id: 'resources',
+    label: 'Resources',
+    description: 'Links, phone numbers, and tools',
+    icon: Link2,
+    path: '/app/links',
+    gradient: 'from-violet-500 to-purple-500',
+    glow: 'shadow-[0_0_20px_-4px_rgba(139,92,246,0.4)]',
+  },
+];
+
+export default function OperationsPage() {
+  const { role } = useAuth();
+  const navigate = useNavigate();
+  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+
+  const availableCards = cards.filter(c => !c.managerOnly || isManager);
+
+  return (
+    <AppLayout>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <PageBackButton to="/app" label="Dashboard" />
+
+        {/* Header */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3.5 mb-2">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-blue-500/10 border border-primary/20 shadow-[0_0_16px_-4px_hsl(var(--primary)/0.3)]">
+              <Wrench className="w-5 h-5 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">Operations</h1>
+          </div>
+          <p className="text-muted-foreground text-sm ml-[52px]">
+            Operational tools for running your team
+          </p>
+        </div>
+
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {availableCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={card.id}
+                onClick={() => navigate(card.path)}
+                className={cn(
+                  'group flex flex-col rounded-2xl p-6 cursor-pointer transition-all duration-300',
+                  'bg-[rgba(18,18,26,0.75)] backdrop-blur-sm',
+                  'border border-white/[0.06] hover:border-white/[0.12]',
+                  'shadow-[0_2px_20px_-6px_rgba(0,0,0,0.4)]',
+                  'hover:-translate-y-1 hover:shadow-[0_4px_40px_-12px_rgba(59,130,246,0.15)]'
+                )}
+              >
+                <div className="flex items-start gap-4 mb-5">
+                  <div
+                    className={cn(
+                      'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0',
+                      'bg-gradient-to-br',
+                      card.gradient,
+                      card.glow,
+                      'transition-shadow duration-300 group-hover:shadow-lg'
+                    )}
+                  >
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground text-lg">{card.label}</h3>
+                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{card.description}</p>
+                  </div>
+                </div>
+
+                <div className="flex-1" />
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(card.path);
+                  }}
+                  className={cn(
+                    'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl',
+                    'bg-gradient-to-r from-[#3B82F6] to-[#2563EB]',
+                    'text-white font-medium text-sm',
+                    'transition-all duration-200',
+                    'hover:shadow-[0_0_20px_-4px_rgba(59,130,246,0.45)]',
+                    'hover:-translate-y-0.5',
+                    'active:translate-y-0'
+                  )}
+                >
+                  <span>Open</span>
+                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </main>
+    </AppLayout>
+  );
+}
