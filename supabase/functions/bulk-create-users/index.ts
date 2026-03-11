@@ -116,6 +116,16 @@ Deno.serve(async (req) => {
 
         if (createError) {
           if (createError.message?.includes("already been registered") || createError.message?.includes("already exists")) {
+            // Still auto-approve existing users when imported by admin
+            const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+            const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
+            if (existingUser) {
+              await supabaseAdmin.from("profiles").update({
+                approved: true,
+                status: "active",
+                ...(u.onboarding_status ? { onboarding_status: u.onboarding_status } : {}),
+              }).eq("user_id", existingUser.id);
+            }
             results.success.push(`${u.email} (already exists)`);
             continue;
           }
@@ -123,12 +133,27 @@ Deno.serve(async (req) => {
         }
 
         if (authUser?.user) {
+          // Auto-approve admin-created users + set pipeline status
+          const profileUpdates: Record<string, unknown> = {
+            approved: true,
+            status: "active",
+          };
           if (u.onboarding_status) {
-            await supabaseAdmin
-              .from("profiles")
-              .update({ onboarding_status: u.onboarding_status })
-              .eq("user_id", authUser.user.id);
+            profileUpdates.onboarding_status = u.onboarding_status;
           }
+          await supabaseAdmin
+            .from("profiles")
+            .update(profileUpdates)
+            .eq("user_id", authUser.user.id);
+
+          // Also set role
+          await supabaseAdmin
+            .from("user_roles")
+            .upsert(
+              { user_id: authUser.user.id, role: u.role || "rookie" },
+              { onConflict: "user_id,role" }
+            );
+
           results.success.push(u.email);
         }
       } catch (error) {

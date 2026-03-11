@@ -109,8 +109,8 @@ export default function AdminUsersTab({
   const [managerFilter, setManagerFilter] = useState<string>('all');
   const [experienceFilter, setExperienceFilter] = useState<string>('all');
   const [websiteFilter, setWebsiteFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<SortKey>('date');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState<SortKey>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showFilters, setShowFilters] = useState(false);
 
   // Detail modal for inline editing
@@ -190,9 +190,14 @@ export default function AdminUsersTab({
       );
     }
 
-    // Sort
+    // Sort — always push unapproved/no-account users to the bottom
     const dir = sortDir === 'asc' ? 1 : -1;
     return [...list].sort((a, b) => {
+      // Primary: approved active users first, unapproved/pending at bottom
+      const aApproved = a.approved && a.status === 'active' ? 0 : 1;
+      const bApproved = b.approved && b.status === 'active' ? 0 : 1;
+      if (aApproved !== bApproved) return aApproved - bApproved;
+
       switch (sortBy) {
         case 'team': return dir * getTeamName(a.team_id).localeCompare(getTeamName(b.team_id));
         case 'role': return dir * (a.role || 'rookie').localeCompare(b.role || 'rookie');
