@@ -38,18 +38,23 @@ export function QuickActions() {
 
   return (
     <>
-      <div className="mb-4">
-        <div className="flex flex-wrap gap-1.5">
+      <div className="mb-5">
+        <div className="flex flex-wrap gap-2">
           {actions.map((action, idx) => (
             <button
               key={idx}
               onClick={action.onClick}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
+                "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200",
+                "hover:-translate-y-0.5 active:scale-95",
                 action.primary
-                  ? "bg-primary/10 border border-primary/25 text-primary hover:bg-primary/15"
-                  : "bg-card border border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+                  ? "text-primary-foreground hover:shadow-[0_0_20px_-5px_hsl(217_91%_60%/0.4)]"
+                  : "text-muted-foreground hover:text-foreground hover:shadow-[0_4px_16px_-4px_hsl(0_0%_0%/0.3)]",
               )}
+              style={action.primary
+                ? { background: 'var(--gradient-primary)' }
+                : { background: 'hsl(var(--glass-bg))', border: '1px solid hsl(var(--glass-border))' }
+              }
             >
               {action.icon}
               <span className="hidden sm:inline">{action.label}</span>
