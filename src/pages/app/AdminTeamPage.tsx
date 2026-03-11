@@ -552,7 +552,7 @@ export default function AdminTeamPage() {
               Roster & Assign
             </TabsTrigger>
             <TabsTrigger value="checklist" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Video className="w-3 h-3 mr-1" /> Checklist
+              <Video className="w-3 h-3 mr-1" /> Rep Videos
             </TabsTrigger>
             {isSuperAdmin && (
               <TabsTrigger value="system" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
