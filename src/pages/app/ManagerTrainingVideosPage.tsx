@@ -114,15 +114,8 @@ export default function ManagerTrainingVideosPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/app/training')}
-          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground gap-1.5"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Training
-        </Button>
+        {/* Back Button */}
+        <PageBackButton to="/app/training" label="Training" />
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">

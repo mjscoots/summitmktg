@@ -57,7 +57,8 @@ export default function PitchApprovalsPage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <Breadcrumbs items={[{ label: 'Pitch Approvals' }]} />
+        {/* Back Button */}
+        <PageBackButton to="/app" label="Dashboard" />
 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
