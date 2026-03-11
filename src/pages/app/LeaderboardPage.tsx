@@ -60,7 +60,7 @@ export default function LeaderboardPage() {
           <PageBackButton to="/app" label="Dashboard" />
 
           {/* Hero Banner — Training page style */}
-          <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+          <div className="relative h-24 rounded-xl overflow-hidden mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-amber-600/30 via-yellow-500/15 to-orange-500/25" />
             <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
             {/* Golden spotlight glow */}
