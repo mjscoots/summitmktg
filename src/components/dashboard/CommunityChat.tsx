@@ -614,17 +614,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           {/* Momentum Indicator */}
           <MomentumIndicator count={momentum.count} visible={momentum.visible} />
 
-          {/* Smart Prompts (shown when input is empty) */}
-          {!input.trim() && (
-            <SmartPrompts
-              onSelect={(prompt) => {
-                setInput(prompt);
-                onTyping();
-                inputRef.current?.focus();
-              }}
-              visible={showSmartPrompts}
-            />
-          )}
 
           {/* Quick Action Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
