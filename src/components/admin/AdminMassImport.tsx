@@ -441,7 +441,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         for (let i = 0; i < usersToCreate.length; i += BATCH_SIZE) {
           const batch = usersToCreate.slice(i, i + BATCH_SIZE);
           const { data, error } = await supabase.functions.invoke('bulk-create-users', {
-            body: { users: batch },
+            body: { users: batch, is_import: true },
           });
 
           if (error) throw error;

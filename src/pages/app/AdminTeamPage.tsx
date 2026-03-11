@@ -107,10 +107,11 @@ export default function AdminTeamPage() {
       };
     });
 
-    const pending = users.filter(r => r.status === 'pending' && !r.approved);
-    const approved = users.filter(r => r.status !== 'pending' || r.approved);
+    // Pending = signed up via website but not yet approved (no onboarding_status from import)
+    const pending = users.filter(r => r.status === 'pending' && !r.approved && !r.onboarding_status);
+    const allOthers = users.filter(r => !(r.status === 'pending' && !r.approved && !r.onboarding_status));
     setPendingUsers(pending);
-    setAllUsers(approved);
+    setAllUsers(allOthers);
 
     const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin' || r.role === 'owner').map(r => r.user_id));
     const mgrs = (profilesRes.data || []).filter(p => managerIds.has(p.user_id)).map(p => ({ user_id: p.user_id, full_name: p.full_name }));
