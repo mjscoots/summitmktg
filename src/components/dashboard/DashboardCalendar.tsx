@@ -58,7 +58,7 @@ export function DashboardCalendar() {
         toast.error('No events could be parsed from the text.');
         return;
       }
-      const tz = profile?.timezone || 'America/Los_Angeles';
+      const tz = (profile as any)?.timezone || 'America/Los_Angeles';
       const inserts = parsed.map(e => ({
         title: e.title,
         event_date: `${e.date}T${e.start_time}:00`,
