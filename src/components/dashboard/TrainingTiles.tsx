@@ -309,7 +309,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
               )} />
 
               {/* Card Content - Flex container for perfect alignment */}
-              <div className="p-5 flex flex-col h-full relative">
+              <div className="p-4 flex flex-col h-full relative">
                 
                 {/* === HEADER REGION (fixed height ~48px) === */}
                 <div className="flex items-start justify-between mb-4 min-h-[48px]">
