@@ -252,24 +252,18 @@ export default function AdminVideos() {
         <DashboardHeader />
 
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          {/* Back Button */}
+          <PageBackButton to="/app" label="Dashboard" />
+
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/app')}
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-black text-foreground tracking-tight">
-                  MANAGE <span className="text-primary">VIDEOS</span>
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  Upload and manage training videos
-                </p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-black text-foreground tracking-tight">
+                MANAGE <span className="text-primary">VIDEOS</span>
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Upload and manage training videos
+              </p>
             </div>
             <Button onClick={() => setShowUploadDialog(true)}>
               <Plus className="w-4 h-4 mr-2" />
