@@ -30,9 +30,10 @@ interface MessageReactionsProps {
   messageId: string;
   profileMap: Record<string, { full_name: string }>;
   messageAuthorId?: string;
+  isOwnMessage?: boolean;
 }
 
-export function MessageReactions({ messageId, profileMap, messageAuthorId }: MessageReactionsProps) {
+export function MessageReactions({ messageId, profileMap, messageAuthorId, isOwnMessage = false }: MessageReactionsProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [showPicker, setShowPicker] = useState<'quick' | 'full' | false>(false);
@@ -180,7 +181,12 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
   };
 
   return (
-    <div className="flex items-center gap-1 flex-wrap mt-1 ml-[52px]">
+    <div className={cn(
+      "flex items-center gap-1 flex-wrap",
+      reactions.length > 0 ? "-mt-1 mb-1" : "mt-0",
+      isOwnMessage ? "justify-end" : "justify-start",
+      isOwnMessage ? "mr-1" : "ml-1"
+    )}>
       {reactions.map(reaction => {
         const hasReacted = reaction.users.includes(user?.id || '');
         return (
@@ -189,15 +195,15 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
             onClick={() => toggleReaction(reaction.emoji)}
             title={getTooltip(reaction)}
             className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs border transition-all duration-150",
-              "hover:bg-muted/80",
+              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs border transition-all duration-150",
+              "hover:scale-110 active:scale-95",
               hasReacted
-                ? "bg-primary/10 border-primary/40 text-primary"
-                : "bg-[hsl(220,14%,10%)] border-border/40 text-muted-foreground"
+                ? "bg-primary/15 border-primary/40 text-primary shadow-sm"
+                : "bg-muted/80 border-border/40 text-muted-foreground hover:bg-muted"
             )}
           >
-            <span className="text-sm leading-none">{reaction.emoji}</span>
-            <span className="font-bold tabular-nums text-[11px]">{reaction.count}</span>
+            <span className="text-xs leading-none">{reaction.emoji}</span>
+            <span className="font-semibold tabular-nums text-[10px]">{reaction.count}</span>
           </button>
         );
       })}
@@ -206,36 +212,39 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
         <button
           onClick={() => setShowPicker(showPicker ? false : 'quick')}
           className={cn(
-            "inline-flex items-center justify-center w-7 h-7 rounded-md border transition-all duration-150",
-            "border-transparent text-muted-foreground/40",
-            "hover:border-border/50 hover:bg-muted/40 hover:text-muted-foreground",
+            "inline-flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-150",
+            "border-transparent text-muted-foreground/30",
+            "hover:border-border/50 hover:bg-muted/60 hover:text-muted-foreground",
             reactions.length === 0 && "opacity-0 group-hover/msg:opacity-100"
           )}
           title="Add Reaction"
         >
-          <SmilePlus className="w-4 h-4" />
+          <SmilePlus className="w-3.5 h-3.5" />
         </button>
 
         {/* Summit quick reactions */}
         {showPicker === 'quick' && (
-          <div className="absolute bottom-full mb-2 left-0 z-50 bg-[hsl(220,14%,8%)] border border-border/50 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150">
-            <div className="flex items-center gap-0.5 p-1.5">
+          <div className={cn(
+            "absolute bottom-full mb-2 z-50 bg-card border border-border/50 rounded-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150",
+            isOwnMessage ? "right-0" : "left-0"
+          )}>
+            <div className="flex items-center gap-0.5 p-1">
               {SUMMIT_REACTIONS.map(r => (
                 <button
                   key={r.emoji}
                   onClick={() => toggleReaction(r.emoji)}
                   title={r.label}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-lg transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted text-base transition-all hover:scale-125 active:scale-90"
                 >
                   {r.emoji}
                 </button>
               ))}
               <button
                 onClick={() => setShowPicker('full')}
-                className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground transition-colors ml-0.5 border-l border-border/50 pl-1"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground transition-colors"
                 title="More"
               >
-                <SmilePlus className="w-4 h-4" />
+                <SmilePlus className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -243,8 +252,11 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
 
         {/* Full picker */}
         {showPicker === 'full' && (
-          <div className="absolute bottom-full mb-2 left-0 z-50 bg-[hsl(220,14%,8%)] border border-border/50 rounded-xl shadow-2xl w-[280px] max-h-[320px] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
-            <div className="overflow-y-auto max-h-[280px] p-2">
+          <div className={cn(
+            "absolute bottom-full mb-2 z-50 bg-card border border-border/50 rounded-xl shadow-2xl w-[260px] max-h-[280px] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150",
+            isOwnMessage ? "right-0" : "left-0"
+          )}>
+            <div className="overflow-y-auto max-h-[240px] p-2">
               {ALL_EMOJIS.map(cat => (
                 <div key={cat.label} className="mb-2">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 px-1">
@@ -255,7 +267,7 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
                       <button
                         key={emoji}
                         onClick={() => toggleReaction(emoji)}
-                        className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted text-lg transition-colors"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted text-base transition-all hover:scale-110"
                       >
                         {emoji}
                       </button>
