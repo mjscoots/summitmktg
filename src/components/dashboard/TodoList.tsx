@@ -122,12 +122,28 @@ export function TodoList() {
     fetchTodos();
   };
 
+  const [justCompleted, setJustCompleted] = useState<Set<string>>(new Set());
+
   const toggleComplete = async (todo: TodoItem) => {
+    const nowCompleting = !todo.is_completed;
+    // Optimistic update for instant feedback
+    setTodos(prev => prev.map(t =>
+      t.id === todo.id
+        ? { ...t, is_completed: nowCompleting, completed_at: nowCompleting ? new Date().toISOString() : null }
+        : t
+    ));
+    if (nowCompleting) {
+      setJustCompleted(prev => new Set(prev).add(todo.id));
+      setTimeout(() => setJustCompleted(prev => {
+        const next = new Set(prev);
+        next.delete(todo.id);
+        return next;
+      }), 600);
+    }
     await supabase.from('todo_items').update({
-      is_completed: !todo.is_completed,
-      completed_at: !todo.is_completed ? new Date().toISOString() : null,
+      is_completed: nowCompleting,
+      completed_at: nowCompleting ? new Date().toISOString() : null,
     } as any).eq('id', todo.id);
-    fetchTodos();
   };
 
   const deleteTodo = async (id: string) => {
