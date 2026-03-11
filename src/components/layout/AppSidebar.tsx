@@ -65,8 +65,8 @@ export function AppSidebar() {
     if (path === '/app/operations') {
       return operationsPaths.some(p => location.pathname.startsWith(p));
     }
-    if (path === '/app/analytics') {
-      return analyticsPaths.some(p => location.pathname.startsWith(p));
+    if (path === '/app/manage') {
+      return managePaths.some(p => location.pathname.startsWith(p));
     }
     if (path === '/app/training') {
       return location.pathname.startsWith('/app/training');
