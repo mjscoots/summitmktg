@@ -268,17 +268,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   // Post of the Day
   useEffect(() => {
-    const fetchPostOfTheDay = async () => {
+    const fetchReactionCounts = async () => {
       const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
       const { data } = await supabase.from('chat_reactions').select('message_id').gte('created_at', todayStart.toISOString());
-      if (!data || data.length === 0) { setPostOfTheDayId(null); return; }
+      if (!data || data.length === 0) { setPostOfTheDayId(null); setReactionCounts({}); return; }
       const counts: Record<string, number> = {};
       data.forEach(r => { counts[r.message_id] = (counts[r.message_id] || 0) + 1; });
+      setReactionCounts(counts);
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
       setPostOfTheDayId(sorted[0] && sorted[0][1] >= 3 ? sorted[0][0] : null);
     };
-    fetchPostOfTheDay();
-    const interval = setInterval(fetchPostOfTheDay, 120000);
+    fetchReactionCounts();
+    const interval = setInterval(fetchReactionCounts, 60000);
     return () => clearInterval(interval);
   }, []);
 
