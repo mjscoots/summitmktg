@@ -28,10 +28,13 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
+  { label: 'Chat', path: '/app/chat', icon: MessageCircle, iconColor: 'text-rose-400' },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-blue-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
-  { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-purple-400' },
-  { label: 'Operations', path: '/app/operations', icon: Wrench, iconColor: 'text-green-400' },
+];
+
+const bottomNavItems: NavItem[] = [
+  { label: 'Hub', path: '/app/operations', icon: Wrench, iconColor: 'text-violet-400' },
   { label: 'Manage', path: '/app/manage', icon: Settings2, iconColor: 'text-emerald-400' },
 ];
 
