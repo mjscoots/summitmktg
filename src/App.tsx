@@ -325,14 +325,32 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-             {/* War Room */}
-             <Route path="/app/war-room" element={
-               <ProtectedRoute>
-                 <BootcampGate>
-                   <WarRoomPage />
-                 </BootcampGate>
-               </ProtectedRoute>
-             } />
+              {/* Operations Hub */}
+              <Route path="/app/operations" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <OperationsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* Analytics Hub */}
+              <Route path="/app/analytics" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <AnalyticsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* War Room */}
+              <Route path="/app/war-room" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <WarRoomPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
 
              {/* Notepad */}
              <Route path="/app/notepad" element={
