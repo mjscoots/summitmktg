@@ -340,14 +340,8 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Operations Hub */}
-              <Route path="/app/operations" element={
-                <ProtectedRoute>
-                  <BootcampGate>
-                    <OperationsPage />
-                  </BootcampGate>
-                </ProtectedRoute>
-              } />
+               {/* Redirect old Hub/Operations to Calendar */}
+               <Route path="/app/operations" element={<Navigate to="/app/calendar" replace />} />
 
               {/* Manage Hub (replaces Analytics) */}
               <Route path="/app/manage" element={
