@@ -127,6 +127,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
           'relative rounded-full overflow-visible flex-shrink-0',
           sizeClasses[size],
           tierBorder,
+          presenceRingClass,
           className
         )}
         style={rankGlowStyle}
