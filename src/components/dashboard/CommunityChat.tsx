@@ -456,6 +456,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           const highlight = getMessageHighlight(msgReactionCount);
           const hot = isHotThread(msgReactionCount, msg.created_at);
 
+          // iMessage-style grouping: check if next message is same sender for tail logic
+          const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
+          const isLastInGroup = !next || !isSameSender(next, msg);
+          const isFirstInGroup = !grouped;
+
           return (
             <div key={msg.id}>
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
@@ -465,40 +470,17 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
                 onTouchEnd={() => { if (!msg.is_ai) handleTouchDoubleTap(msg.id); }}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-muted/30 transition-all select-none",
-                  grouped ? "py-0.5" : "pt-3 pb-1",
-                  msg.is_pinned && "bg-amber-500/[0.03] border-l-2 border-amber-500/30",
-                  postOfTheDayId === msg.id && "post-of-the-day",
-                  highlight.className,
-                  hot && "animate-hot-pulse",
+                  "group/msg relative px-3 transition-all select-none",
+                  grouped ? "py-[2px]" : "pt-2 pb-[2px]",
                   justSentId === msg.id && "animate-msg-send"
                 )}
               >
-                {/* Hot Thread badge */}
-                {hot && !highlight.badge && (
-                  <div className="flex items-center gap-1.5 mb-1 ml-[52px]">
-                    <Flame className="w-3 h-3 text-orange-500" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-orange-500/90">Hot Thread</span>
-                  </div>
-                )}
-
-                {/* Top Insight badge */}
-                {highlight.badge && (
-                  <div className="flex items-center gap-1.5 mb-1 ml-[52px]">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/90">{highlight.badge}</span>
-                  </div>
-                )}
-
-                {postOfTheDayId === msg.id && (
-                  <div className="flex items-center gap-1.5 mb-1.5 ml-[52px]">
-                    <Crown className="w-3.5 h-3.5 text-yellow-500" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-500/90">Post of the Day</span>
-                  </div>
-                )}
-
                 {/* Hover toolbar */}
                 {!msg.is_ai && (
-                   <div className="absolute -top-3 right-4 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border/60 rounded-md shadow-lg px-0.5 py-0.5 z-10">
+                   <div className={cn(
+                     "absolute -top-3 hidden group-hover/msg:flex items-center gap-0.5 bg-card border border-border/60 rounded-md shadow-lg px-0.5 py-0.5 z-10",
+                     own ? "left-4" : "right-4"
+                   )}>
                     <button onClick={() => { setReplyingTo(msg); inputRef.current?.focus(); }} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors" title="Reply"><Reply className="w-3.5 h-3.5" /></button>
                     {own && <button onClick={() => { setEditingId(msg.id); setEditText(msg.content); }} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>}
                     {isManager && <button onClick={() => handlePin(msg.id, msg.is_pinned)} className={cn("p-1.5 rounded transition-colors", msg.is_pinned ? "text-amber-500 hover:text-amber-400" : "text-muted-foreground hover:text-foreground hover:bg-muted/60")} title={msg.is_pinned ? "Unpin" : "Pin"}>{msg.is_pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}</button>}
@@ -506,81 +488,90 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                   </div>
                 )}
 
-                <div className={cn("flex gap-3", own && "flex-row-reverse")}>
-                  {/* Avatar */}
-                  <div className="w-9 flex-shrink-0">
-                    {!grouped ? (
-                      msg.is_ai ? (
-                        <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-                          <Bot className="w-4 h-4 text-primary" />
-                        </div>
-                      ) : (
-                         <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
-                          <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="md" showOnline isOnline={msgProfile.is_active_now} className={getRoleBorderRing(msgProfile.role)} />
-                        </button>
-                      )
-                    ) : (
-                      <span className="text-[10px] text-transparent group-hover/msg:text-muted-foreground/50 transition-colors w-9 text-right leading-[22px] tabular-nums">
-                        {format(new Date(msg.created_at), 'h:mm')}
-                      </span>
-                    )}
+                <div className={cn("flex items-end gap-2", own ? "flex-row-reverse" : "flex-row")}>
+                  {/* Avatar — only for others, only on last in group */}
+                  <div className="w-7 flex-shrink-0">
+                    {!own && isLastInGroup && !msg.is_ai ? (
+                      <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
+                        <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="sm" showOnline isOnline={msgProfile.is_active_now} className={getRoleBorderRing(msgProfile.role)} />
+                      </button>
+                    ) : own ? null : <div className="w-7" />}
                   </div>
 
-                  {/* Content */}
-                  <div className={cn("flex-1 min-w-0", own && "text-right")}>
+                  {/* Bubble */}
+                  <div className={cn("max-w-[75%] min-w-0 relative", own && "ml-auto")}>
+                    {/* Sender name for others, first in group */}
+                    {!own && isFirstInGroup && !msg.is_ai && (
+                      <div className="flex items-center gap-1.5 mb-0.5 ml-1">
+                        <button onClick={() => handleProfileClick(msg.user_id)} className={cn("text-xs font-semibold hover:underline cursor-pointer", getRoleColor(msgProfile.role))}>
+                          {msgProfile.full_name}
+                        </button>
+                        {getRoleBadge(msgProfile.role)}
+                      </div>
+                    )}
+
                     {/* Reply context */}
                     {msg.reply_to && (() => {
                       const parentMsg = channelMessages.find(m => m.id === msg.reply_to);
                       if (!parentMsg) return null;
                       const parentProfile = getProfile(parentMsg);
                       return (
-                        <div className={cn("flex items-center gap-1.5 mb-1 text-xs cursor-pointer hover:text-foreground/60 transition-colors", own && "justify-end")} onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
+                        <div className={cn("flex items-center gap-1.5 mb-0.5 text-[11px] cursor-pointer hover:opacity-80 transition-opacity ml-1", own && "justify-end mr-1 ml-0")} onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
                           <CornerDownRight className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
-                          <span className={cn("font-semibold text-[11px]", getRoleColor(parentProfile.role))}>{parentProfile.full_name}</span>
-                          <span className="text-muted-foreground/50 truncate max-w-[200px]">{parentMsg.content}</span>
+                          <span className="font-semibold text-muted-foreground">{parentProfile.full_name}</span>
+                          <span className="text-muted-foreground/50 truncate max-w-[160px]">{parentMsg.content}</span>
                         </div>
                       );
                     })()}
 
-                    {/* Header */}
-                    {!grouped && (
-                      <div className={cn("flex items-center gap-2 mb-0.5", own && "justify-end")}>
-                        <button onClick={() => !msg.is_ai && handleProfileClick(msg.user_id)} className={cn("text-sm font-semibold hover:underline cursor-pointer", msg.is_ai ? 'text-primary' : getRoleColor(msgProfile.role))}>
-                          {msgProfile.full_name}
-                        </button>
-                        {getRoleBadge(msgProfile.role)}
-                        {!msg.is_ai && msgProfile.tier_pct != null && msgProfile.tier_pct >= 25 && <TierBadge percentage={msgProfile.tier_pct} size="xs" />}
-                        <span className="text-[10px] text-muted-foreground/60">
-                          {isToday(new Date(msg.created_at)) ? `Today at ${format(new Date(msg.created_at), 'h:mm a')}` : isYesterday(new Date(msg.created_at)) ? `Yesterday at ${format(new Date(msg.created_at), 'h:mm a')}` : format(new Date(msg.created_at), 'MM/dd/yyyy h:mm a')}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Message body */}
-                    {editingId === msg.id ? (
-                      <div className="bg-muted/40 rounded-lg p-2 border border-primary/30">
-                        <input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }} className="w-full bg-transparent text-foreground text-sm focus:outline-none" autoFocus />
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <span className="text-[10px] text-muted-foreground">esc to <button onClick={() => setEditingId(null)} className="text-primary hover:underline">cancel</button> · enter to <button onClick={() => handleEdit(msg.id)} className="text-primary hover:underline">save</button></span>
+                    {/* The bubble itself */}
+                    <div className={cn(
+                      "relative px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words",
+                      own
+                        ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
+                        : "bg-muted/60 text-foreground rounded-2xl rounded-bl-md",
+                      // Grouped rounding
+                      own && grouped && "rounded-tr-md",
+                      own && isLastInGroup && "rounded-br-2xl",
+                      !own && grouped && "rounded-tl-md",
+                      !own && isLastInGroup && "rounded-bl-2xl",
+                      msg.is_pinned && "ring-1 ring-amber-500/40",
+                    )}>
+                      {/* Message body */}
+                      {editingId === msg.id ? (
+                        <div>
+                          <input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleEdit(msg.id); if (e.key === 'Escape') setEditingId(null); }} className="w-full bg-transparent text-inherit text-sm focus:outline-none" autoFocus />
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] opacity-70">esc to cancel · enter to save</span>
+                          </div>
                         </div>
+                      ) : isStickerMessage(msg.content) ? (
+                        (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className="w-28 h-28 object-contain" /> : <span className="text-muted-foreground">[Unknown sticker]</span>; })()
+                      ) : isGifMessage(msg.content) ? (
+                        (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className="max-w-[240px] rounded-lg" loading="lazy" /> : <span className="text-muted-foreground">[GIF unavailable]</span>; })()
+                      ) : isImageMessage(msg.content) ? (
+                        <ChatImage url={getImageUrl(msg.content)} />
+                      ) : isFileMessage(msg.content) ? (
+                        (() => { const info = getFileInfo(msg.content); return info ? <ChatFile info={info} /> : <span className="text-muted-foreground">[File unavailable]</span>; })()
+                      ) : msg.content.startsWith('📊 Poll:') ? (
+                        <div><p className="leading-relaxed">{renderWithLinks(msg.content)}</p><ChatPoll messageId={msg.id} profileMap={profileMap} /></div>
+                      ) : (
+                        <span>{renderWithLinks(msg.content)}</span>
+                      )}
+                    </div>
+
+                    {/* Tapback-style reactions — overlay on bubble corner */}
+                    <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} isOwnMessage={own} />
+
+                    {/* Timestamp on last in group */}
+                    {isLastInGroup && (
+                      <div className={cn("text-[10px] text-muted-foreground/50 mt-0.5 px-1", own ? "text-right" : "text-left")}>
+                        {format(new Date(msg.created_at), 'h:mm a')}
                       </div>
-                    ) : isStickerMessage(msg.content) ? (
-                      (() => { const sticker = getStickerFromMessage(msg.content); return sticker ? <img src={sticker.src} alt={sticker.label} className={cn("w-32 h-32 object-contain rounded-lg", own && "ml-auto")} /> : <p className="text-sm text-muted-foreground">[Unknown sticker]</p>; })()
-                    ) : isGifMessage(msg.content) ? (
-                      (() => { const gifUrl = getGifUrl(msg.content); return gifUrl ? <img src={gifUrl} alt="GIF" className={cn("max-w-[280px] rounded-lg", own && "ml-auto")} loading="lazy" /> : <p className="text-sm text-muted-foreground">[GIF unavailable]</p>; })()
-                    ) : isImageMessage(msg.content) ? (
-                      <ChatImage url={getImageUrl(msg.content)} />
-                    ) : isFileMessage(msg.content) ? (
-                      (() => { const info = getFileInfo(msg.content); return info ? <ChatFile info={info} /> : <p className="text-sm text-muted-foreground">[File unavailable]</p>; })()
-                    ) : msg.content.startsWith('📊 Poll:') ? (
-                      <div><p className="text-sm text-foreground/80 leading-relaxed">{renderWithLinks(msg.content)}</p><ChatPoll messageId={msg.id} profileMap={profileMap} /></div>
-                    ) : (
-                      <p className={cn("text-sm leading-relaxed whitespace-pre-wrap break-words", own ? "text-foreground/90" : "text-foreground/70")}>{renderWithLinks(msg.content)}</p>
                     )}
                   </div>
                 </div>
 
-                <MessageReactions messageId={msg.id} profileMap={profileMap} messageAuthorId={msg.user_id} />
                 {idx === channelMessages.length - 1 && <ReadReceipts messageId={msg.id} profileMap={profileMap} isLastInGroup={true} />}
               </div>
             </div>
