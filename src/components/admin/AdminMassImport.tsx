@@ -388,7 +388,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       const updatedNames: string[] = [];
       const failedRows: { value: string; reason: string }[] = [...skipped];
 
-      // Step 3: Create new users
+      // Step 3: Create new users in batches of 50
       if (newUsers.length > 0) {
         const usersToCreate = newUsers.map(u => ({
           full_name: u.full_name,
@@ -400,15 +400,19 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           onboarding_status: u.pipeline_status,
         }));
 
-        const { data, error } = await supabase.functions.invoke('bulk-create-users', {
-          body: { users: usersToCreate },
-        });
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < usersToCreate.length; i += BATCH_SIZE) {
+          const batch = usersToCreate.slice(i, i + BATCH_SIZE);
+          const { data, error } = await supabase.functions.invoke('bulk-create-users', {
+            body: { users: batch },
+          });
 
-        if (error) throw error;
-        if (data?.success) createdNames.push(...data.success.map((e: string) => newUsers.find(u => u.email === e)?.full_name || e));
-        if (data?.failed) {
-          for (const f of data.failed) {
-            failedRows.push({ value: f.email, reason: f.error });
+          if (error) throw error;
+          if (data?.success) createdNames.push(...data.success.map((e: string) => newUsers.find(u => u.email === e)?.full_name || e));
+          if (data?.failed) {
+            for (const f of data.failed) {
+              failedRows.push({ value: f.email, reason: f.error });
+            }
           }
         }
       }
