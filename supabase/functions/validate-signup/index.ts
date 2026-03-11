@@ -286,14 +286,25 @@ Deno.serve(async (req) => {
       );
     }
 
-    // If we matched a preloaded profile, update that profile with the new auth user_id
+    // If we matched a preloaded profile, claim it for the new auth user
     if (claimProfileId && authData?.user) {
+      // The handle_new_user trigger may have created a duplicate profile for the new auth user
+      // Delete it so we can reassign the preloaded profile to this auth user
+      if (claimProfileId !== authData.user.id) {
+        await supabaseAdmin
+          .from("profiles")
+          .delete()
+          .eq("user_id", authData.user.id);
+      }
+
       // Update the preloaded profile to point to the new auth user
       const profileUpdate: Record<string, unknown> = {
+        user_id: authData.user.id,
         approved: true,
         status: "active",
         full_name: fullName,
         phone: trimmedPhone,
+        email: trimmedEmail,
       };
       if (!preservedFields.direct_manager) {
         profileUpdate.direct_manager = trimmedDirectManager;
@@ -303,6 +314,14 @@ Deno.serve(async (req) => {
         .from("profiles")
         .update(profileUpdate)
         .eq("user_id", claimProfileId);
+
+      // Also ensure user_roles is set
+      await supabaseAdmin
+        .from("user_roles")
+        .upsert(
+          { user_id: authData.user.id, role: role || "rookie" },
+          { onConflict: "user_id,role" }
+        );
     }
 
     // Log signup

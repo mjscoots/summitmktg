@@ -91,9 +91,8 @@ interface AdminUsersTabProps {
   superAdminEmail: string;
 }
 
-type SubView = 'list' | 'import';
 type SortKey = 'name' | 'team' | 'role' | 'date' | 'pipeline' | 'status';
-type QuickFilter = 'all' | 'active' | 'not_in_app' | 'onboarded' | 'summer_ready' | 'nlc';
+type QuickFilter = 'all' | 'in_app' | 'not_in_app' | 'active' | 'nlc';
 
 export default function AdminUsersTab({
   users, managers, teams, isAdmin, isSuperAdmin, onRefresh,
@@ -101,7 +100,7 @@ export default function AdminUsersTab({
 }: AdminUsersTabProps) {
   const navigate = useNavigate();
   const { startImpersonating } = useRookieView();
-  const [subView, setSubView] = useState<SubView>('list');
+  const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
   const [pipelineFilter, setPipelineFilter] = useState<string>('all');
@@ -117,70 +116,63 @@ export default function AdminUsersTab({
     return teams.find(t => t.id === teamId)?.name || '—';
   };
 
-  // Compute stats (deduplicated by user_id)
+  // ── Stats ──
+  // In-App = approved === true (person has signed up / been explicitly approved)
+  // Not In-App = approved !== true (imported record, hasn't signed up yet)
   const stats = useMemo(() => {
     const total = users.length;
-    const active = users.filter(u => u.status === 'active').length;
-    const nlc = users.filter(u => u.status === 'nlc').length;
     const inApp = users.filter(u => u.approved === true).length;
-    const notInApp = users.filter(u => !u.approved).length;
+    const notInApp = users.filter(u => u.approved !== true).length;
+    const active = users.filter(u => u.status === 'active' && u.approved === true).length;
+    const nlc = users.filter(u => u.status === 'nlc').length;
     const pipelineCounts: Record<string, number> = {};
     for (const s of PIPELINE_STATUSES) pipelineCounts[s.key] = 0;
     for (const u of users) {
-      if (u.status === 'nlc') continue; // NLC users don't count in pipeline
+      if (u.status === 'nlc') continue;
       const ps = u.onboarding_status || 'pending';
       pipelineCounts[ps] = (pipelineCounts[ps] || 0) + 1;
     }
-    return { total, active, nlc, inApp, notInApp, pipelineCounts };
+    return { total, inApp, notInApp, active, nlc, pipelineCounts };
   }, [users]);
 
-  // Filter & sort
+  // ── Filter & Sort ──
   const filtered = useMemo(() => {
     let list = users;
 
     // Quick filter
     switch (quickFilter) {
-      case 'active':
-        list = list.filter(u => u.status === 'active');
+      case 'in_app':
+        list = list.filter(u => u.approved === true);
         break;
       case 'not_in_app':
-        list = list.filter(u => !u.approved);
+        list = list.filter(u => u.approved !== true);
         break;
-      case 'onboarded':
-        list = list.filter(u => u.onboarding_status === 'onboarded');
-        break;
-      case 'summer_ready':
-        list = list.filter(u => u.onboarding_status === 'summer_ready');
+      case 'active':
+        list = list.filter(u => u.status === 'active' && u.approved === true);
         break;
       case 'nlc':
         list = list.filter(u => u.status === 'nlc');
         break;
       default:
-        // Hide NLC by default unless explicitly viewing NLC
+        // Hide NLC by default
         list = list.filter(u => u.status !== 'nlc');
     }
 
-    // Pipeline filter (stacks with quick filter)
+    // Pipeline filter
     if (pipelineFilter !== 'all') {
       list = list.filter(u => (u.onboarding_status || 'pending') === pipelineFilter);
     }
 
     // Team filter
     if (teamFilter !== 'all') {
-      if (teamFilter === 'none') {
-        list = list.filter(u => !u.team_id);
-      } else {
-        list = list.filter(u => u.team_id === teamFilter);
-      }
+      if (teamFilter === 'none') list = list.filter(u => !u.team_id);
+      else list = list.filter(u => u.team_id === teamFilter);
     }
 
     // Manager filter
     if (managerFilter !== 'all') {
-      if (managerFilter === 'none') {
-        list = list.filter(u => !u.direct_manager);
-      } else {
-        list = list.filter(u => u.direct_manager === managerFilter);
-      }
+      if (managerFilter === 'none') list = list.filter(u => !u.direct_manager);
+      else list = list.filter(u => u.direct_manager === managerFilter);
     }
 
     // Search
@@ -194,12 +186,12 @@ export default function AdminUsersTab({
       );
     }
 
-    // Sort — approved/active first, then secondary sort
+    // Sort — In-App first, then secondary
     const dir = sortDir === 'asc' ? 1 : -1;
     return [...list].sort((a, b) => {
-      const aApproved = a.approved && a.status === 'active' ? 0 : 1;
-      const bApproved = b.approved && b.status === 'active' ? 0 : 1;
-      if (aApproved !== bApproved) return aApproved - bApproved;
+      const aInApp = a.approved === true ? 0 : 1;
+      const bInApp = b.approved === true ? 0 : 1;
+      if (aInApp !== bInApp) return aInApp - bInApp;
 
       switch (sortBy) {
         case 'team': return dir * getTeamName(a.team_id).localeCompare(getTeamName(b.team_id));
@@ -252,306 +244,269 @@ export default function AdminUsersTab({
 
   const QUICK_FILTERS: { key: QuickFilter; label: string }[] = [
     { key: 'all', label: 'All' },
-    { key: 'active', label: 'Active' },
+    { key: 'in_app', label: 'In-App' },
     { key: 'not_in_app', label: 'Not In-App' },
-    { key: 'onboarded', label: 'Onboarded' },
-    { key: 'summer_ready', label: 'Summer Ready' },
+    { key: 'active', label: 'Active' },
     { key: 'nlc', label: 'NLC' },
   ];
 
   return (
     <div className="space-y-4">
-      {/* Sub-view toggle */}
-      <div className="flex items-center gap-2">
+      {/* ── Header Row: Title + Mass Import Button ── */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" /> People
+        </h2>
         <Button
           size="sm"
-          variant={subView === 'list' ? 'default' : 'outline'}
-          className={`text-xs h-7 gap-1.5 ${subView === 'list' ? 'bg-primary text-primary-foreground' : 'border-border/30 text-muted-foreground hover:bg-muted/20'}`}
-          onClick={() => setSubView('list')}
+          variant="outline"
+          className="text-xs h-7 gap-1.5 border-border/30 text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+          onClick={() => setImportOpen(true)}
         >
-          <Users className="w-3 h-3" /> Users
-        </Button>
-        <Button
-          size="sm"
-          variant={subView === 'import' ? 'default' : 'outline'}
-          className={`text-xs h-7 gap-1.5 ${subView === 'import' ? 'bg-primary text-primary-foreground' : 'border-border/30 text-muted-foreground hover:bg-muted/20'}`}
-          onClick={() => setSubView('import')}
-        >
-          <Upload className="w-3 h-3" /> Import
+          <Upload className="w-3 h-3" /> Mass Import
         </Button>
       </div>
 
-      {subView === 'import' ? (
-        <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
-          <LazyMassImport
-            profiles={users.map(u => ({ user_id: u.user_id, full_name: u.full_name, email: u.email, phone: u.phone, region: u.region, organization: u.organization, office_name: u.office_name, direct_manager: u.direct_manager, experience: u.experience, team_id: u.team_id }))}
-            managers={managers}
-            teams={teams}
-            onRefresh={onRefresh}
-          />
-        </Suspense>
-      ) : (
-        <>
-          {/* ── Summary Cards ── */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-            <button
-              onClick={() => { setQuickFilter('all'); setPipelineFilter('all'); }}
-              className={cn(
-                'p-2 rounded-lg border text-center transition-all',
-                quickFilter === 'all' && pipelineFilter === 'all'
-                  ? 'border-primary bg-primary/10 ring-1 ring-primary/30'
-                  : 'border-border/30 bg-card/50 hover:bg-card/80'
-              )}
-            >
-              <p className="text-lg font-black text-foreground">{stats.total}</p>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Total</p>
-            </button>
-            <button
-              onClick={() => { setQuickFilter('all'); setPipelineFilter('all'); }}
-              className={cn(
-                'p-2 rounded-lg border text-center transition-all',
-                'border-border/30 bg-card/50 hover:bg-card/80'
-              )}
-            >
-              <p className="text-lg font-black text-blue-400">{stats.inApp}</p>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">In-App</p>
-            </button>
-            <button
-              onClick={() => { setQuickFilter('not_in_app'); setPipelineFilter('all'); }}
-              className={cn(
-                'p-2 rounded-lg border text-center transition-all',
-                quickFilter === 'not_in_app'
-                  ? 'border-primary bg-primary/10 ring-1 ring-primary/30'
-                  : 'border-border/30 bg-card/50 hover:bg-card/80'
-              )}
-            >
-              <p className="text-lg font-black text-amber-400">{stats.notInApp}</p>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Not In-App</p>
-            </button>
-            <button
-              onClick={() => { setQuickFilter('active'); setPipelineFilter('all'); }}
-              className={cn(
-                'p-2 rounded-lg border text-center transition-all',
-                quickFilter === 'active'
-                  ? 'border-green-500/40 bg-green-500/10 ring-1 ring-green-500/30'
-                  : 'border-border/30 bg-card/50 hover:bg-card/80'
-              )}
-            >
-              <p className="text-lg font-black text-green-400">{stats.active}</p>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Active</p>
-            </button>
-            <button
-              onClick={() => { setQuickFilter('nlc'); setPipelineFilter('all'); }}
-              className={cn(
-                'p-2 rounded-lg border text-center transition-all',
-                quickFilter === 'nlc'
-                  ? 'border-red-500/40 bg-red-500/10 ring-1 ring-red-500/30'
-                  : 'border-border/30 bg-card/50 hover:bg-card/80'
-              )}
-            >
-              <p className="text-lg font-black text-red-400">{stats.nlc}</p>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">NLC</p>
-            </button>
-          </div>
+      {/* ── Summary Cards ── */}
+      <div className="grid grid-cols-5 gap-2">
+        {[
+          { key: 'all' as QuickFilter, count: stats.total, label: 'Total', colorClass: 'text-foreground' },
+          { key: 'in_app' as QuickFilter, count: stats.inApp, label: 'In-App', colorClass: 'text-blue-400' },
+          { key: 'not_in_app' as QuickFilter, count: stats.notInApp, label: 'Not In-App', colorClass: 'text-amber-400' },
+          { key: 'active' as QuickFilter, count: stats.active, label: 'Active', colorClass: 'text-green-400' },
+          { key: 'nlc' as QuickFilter, count: stats.nlc, label: 'NLC', colorClass: 'text-red-400' },
+        ].map(card => (
+          <button
+            key={card.key}
+            onClick={() => { setQuickFilter(card.key); setPipelineFilter('all'); }}
+            className={cn(
+              'p-2 rounded-lg border text-center transition-all cursor-pointer',
+              quickFilter === card.key
+                ? 'border-primary/50 bg-primary/10 ring-1 ring-primary/30'
+                : 'border-border/30 bg-card/50 hover:bg-card/80 hover:border-border/50'
+            )}
+          >
+            <p className={`text-lg font-black ${card.colorClass}`}>{card.count}</p>
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{card.label}</p>
+          </button>
+        ))}
+      </div>
 
-          {/* Pipeline stat chips */}
-          <div className="flex flex-wrap gap-1.5">
-            {PIPELINE_STATUSES.map(s => (
-              <button
-                key={s.key}
-                onClick={() => { setPipelineFilter(pipelineFilter === s.key ? 'all' : s.key); setQuickFilter('all'); }}
-                className={cn(
-                  'px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all',
-                  pipelineFilter === s.key
-                    ? `${s.bg} ${s.color} ring-1 ring-current/30`
-                    : 'border-border/20 text-muted-foreground hover:text-foreground hover:bg-muted/20'
-                )}
-              >
-                {s.label} · {stats.pipelineCounts[s.key] || 0}
-              </button>
-            ))}
-          </div>
+      {/* ── Pipeline Chips ── */}
+      <div className="flex flex-wrap gap-1.5">
+        {PIPELINE_STATUSES.map(s => (
+          <button
+            key={s.key}
+            onClick={() => { setPipelineFilter(pipelineFilter === s.key ? 'all' : s.key); setQuickFilter('all'); }}
+            className={cn(
+              'px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all cursor-pointer',
+              pipelineFilter === s.key
+                ? `${s.bg} ${s.color} ring-1 ring-current/30`
+                : 'border-border/20 text-muted-foreground hover:text-foreground hover:bg-muted/20'
+            )}
+          >
+            {s.label} · {stats.pipelineCounts[s.key] || 0}
+          </button>
+        ))}
+      </div>
 
-          {/* ── Search + Filters Bar ── */}
-          <div className="flex flex-col gap-2">
-            {/* Quick filter chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
-              {QUICK_FILTERS.map(f => (
-                <button
-                  key={f.key}
-                  onClick={() => { setQuickFilter(f.key); if (f.key !== 'all') setPipelineFilter('all'); }}
+      {/* ── Filter Bar ── */}
+      <div className="flex flex-col gap-2">
+        {/* Quick filter chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+          {QUICK_FILTERS.map(f => (
+            <button
+              key={f.key}
+              onClick={() => { setQuickFilter(f.key); if (f.key !== 'all') setPipelineFilter('all'); }}
+              className={cn(
+                'px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all cursor-pointer',
+                quickFilter === f.key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Search + dropdowns */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search name, email, phone, manager..."
+              className="pl-9 h-8 bg-card/50 border-border/30 text-xs"
+            />
+          </div>
+          <Select value={managerFilter} onValueChange={setManagerFilter}>
+            <SelectTrigger className="h-8 w-[140px] bg-card/50 border-border/30 text-xs">
+              <SelectValue placeholder="Manager" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Managers</SelectItem>
+              <SelectItem value="none">No Manager</SelectItem>
+              {managers.map(m => <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={teamFilter} onValueChange={setTeamFilter}>
+            <SelectTrigger className="h-8 w-[120px] bg-card/50 border-border/30 text-xs">
+              <SelectValue placeholder="Team" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Teams</SelectItem>
+              <SelectItem value="none">No Team</SelectItem>
+              {teams.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
+            <SelectTrigger className="h-8 w-[100px] bg-card/50 border-border/30 text-xs">
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="pipeline">Pipeline</SelectItem>
+              <SelectItem value="team">Team</SelectItem>
+              <SelectItem value="role">Role</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+            onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+          </Button>
+          {hasActiveFilters && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 px-2 text-xs text-muted-foreground gap-1"
+              onClick={() => { setTeamFilter('all'); setManagerFilter('all'); setPipelineFilter('all'); setQuickFilter('all'); }}
+            >
+              <X className="w-3 h-3" /> Clear
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Master Table ── */}
+      <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
+        <table className="w-full table-fixed text-sm">
+          <thead>
+            <tr className="border-b border-border/20 bg-card/30">
+              <th className="w-[160px] text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
+              <th className="w-[85px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
+              <th className="w-[40px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Act</th>
+              <th className="w-[35px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">NLC</th>
+              <th className="w-[35px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">
+                <Globe className="w-3 h-3 mx-auto" />
+              </th>
+              <th className="w-[100px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden lg:table-cell">Manager</th>
+              <th className="w-[80px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden lg:table-cell">Team</th>
+              <th className="w-[50px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden xl:table-cell">Role</th>
+              {isAdmin && (
+                <th className="w-[90px] text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Actions</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(user => {
+              const isActive = user.status === 'active';
+              const isNLC = user.status === 'nlc';
+              const isInApp = user.approved === true;
+              return (
+                <tr
+                  key={user.user_id}
                   className={cn(
-                    'px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all',
-                    quickFilter === f.key
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    'border-b border-border/10 hover:bg-card/40 transition-colors cursor-pointer',
+                    isNLC && 'opacity-50',
+                    !isInApp && !isNLC && 'opacity-70'
                   )}
+                  onClick={() => { setDetailUser(user); setEditingPipeline(user.onboarding_status || 'pending'); }}
                 >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search + dropdowns row */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                <Input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search name, email, phone, manager..."
-                  className="pl-9 h-8 bg-card/50 border-border/30 text-xs"
-                />
-              </div>
-              <Select value={managerFilter} onValueChange={setManagerFilter}>
-                <SelectTrigger className="h-8 w-[140px] bg-card/50 border-border/30 text-xs">
-                  <SelectValue placeholder="Manager" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Managers</SelectItem>
-                  <SelectItem value="none">No Manager</SelectItem>
-                  {managers.map(m => <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={teamFilter} onValueChange={setTeamFilter}>
-                <SelectTrigger className="h-8 w-[120px] bg-card/50 border-border/30 text-xs">
-                  <SelectValue placeholder="Team" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Teams</SelectItem>
-                  <SelectItem value="none">No Team</SelectItem>
-                  {teams.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
-                <SelectTrigger className="h-8 w-[100px] bg-card/50 border-border/30 text-xs">
-                  <SelectValue placeholder="Sort" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="pipeline">Pipeline</SelectItem>
-                  <SelectItem value="team">Team</SelectItem>
-                  <SelectItem value="role">Role</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 px-2 text-muted-foreground hover:text-foreground"
-                onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
-              >
-                <ArrowUpDown className="w-3.5 h-3.5" />
-              </Button>
-              {hasActiveFilters && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 px-2 text-xs text-muted-foreground gap-1"
-                  onClick={() => { setTeamFilter('all'); setManagerFilter('all'); setPipelineFilter('all'); setQuickFilter('all'); }}
-                >
-                  <X className="w-3 h-3" /> Clear
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* ── Master Table ── */}
-          <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
-            <table className="w-full table-fixed text-sm">
-              <thead>
-                <tr className="border-b border-border/20 bg-card/30">
-                  <th className="w-[160px] text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
-                  <th className="w-[85px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
-                  <th className="w-[40px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Act</th>
-                  <th className="w-[35px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">NLC</th>
-                  <th className="w-[35px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">
-                    <Globe className="w-3 h-3 mx-auto" />
-                  </th>
-                  <th className="w-[100px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden lg:table-cell">Manager</th>
-                  <th className="w-[80px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden lg:table-cell">Team</th>
-                  <th className="w-[50px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden xl:table-cell">Role</th>
+                  <td className="px-3 py-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <UserAvatar avatarUrl={user.avatar_url} fullName={user.full_name} size="sm" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate">{user.full_name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-2 py-1.5">
+                    <PipelineBadge status={user.onboarding_status || 'pending'} />
+                  </td>
+                  <td className="px-1 py-1.5 text-center">
+                    <span className={cn('inline-block w-2 h-2 rounded-full', isActive ? 'bg-green-400' : 'bg-muted-foreground/30')} />
+                  </td>
+                  <td className="px-1 py-1.5 text-center">
+                    {isNLC && <span className="inline-block w-2 h-2 rounded-full bg-red-400" />}
+                  </td>
+                  <td className="px-1 py-1.5 text-center">
+                    {isInApp ? (
+                      <span className="text-green-400 text-[10px]">✓</span>
+                    ) : (
+                      <span className="text-muted-foreground/40 text-[10px]">—</span>
+                    )}
+                  </td>
+                  <td className="px-2 py-1.5 text-xs text-muted-foreground truncate hidden lg:table-cell">{user.direct_manager || '—'}</td>
+                  <td className="px-2 py-1.5 text-xs text-muted-foreground truncate hidden lg:table-cell">{getTeamName(user.team_id)}</td>
+                  <td className="px-2 py-1.5 hidden xl:table-cell"><RoleBadge role={user.role || 'rookie'} /></td>
                   {isAdmin && (
-                    <th className="w-[90px] text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Actions</th>
+                    <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-0.5">
+                        <button onClick={() => { startImpersonating({ user_id: user.user_id, full_name: user.full_name, email: user.email }); navigate('/app/rookie'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => onEditUser(user)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => onResetPassword(user.email, user.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => onToggleStatus(user.user_id, user.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
+                          {isNLC ? '✓' : '✗'}
+                        </button>
+                        {user.role !== 'admin' && user.role !== 'owner' && (
+                          <button onClick={() => onPromoteDemote(user.user_id, user.role)} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
+                        )}
+                        {user.role === 'admin' && user.email !== superAdminEmail && (
+                          <button onClick={() => onPromoteDemote(user.user_id, user.role)} className="p-1 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
+                        )}
+                        {user.email !== superAdminEmail && isSuperAdmin && (
+                          <button onClick={() => onDeleteUser(user)} className="p-1 rounded text-destructive/60 hover:text-destructive hover:bg-destructive/5" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+                        )}
+                      </div>
+                    </td>
                   )}
                 </tr>
-              </thead>
-              <tbody>
-                {filtered.map(user => {
-                  const isActive = user.status === 'active';
-                  const isNLC = user.status === 'nlc';
-                  const isInApp = user.approved === true;
-                  return (
-                    <tr
-                      key={user.user_id}
-                      className={cn(
-                        'border-b border-border/10 hover:bg-card/40 transition-colors cursor-pointer',
-                        isNLC && 'opacity-50',
-                        !isInApp && !isNLC && 'opacity-70'
-                      )}
-                      onClick={() => { setDetailUser(user); setEditingPipeline(user.onboarding_status || 'pending'); }}
-                    >
-                      <td className="px-3 py-1.5">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <UserAvatar avatarUrl={user.avatar_url} fullName={user.full_name} size="sm" />
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-foreground truncate">{user.full_name}</p>
-                            <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-2 py-1.5">
-                        <PipelineBadge status={user.onboarding_status || 'pending'} />
-                      </td>
-                      <td className="px-1 py-1.5 text-center">
-                        <span className={cn('inline-block w-2 h-2 rounded-full', isActive ? 'bg-green-400' : 'bg-muted-foreground/30')} />
-                      </td>
-                      <td className="px-1 py-1.5 text-center">
-                        {isNLC && <span className="inline-block w-2 h-2 rounded-full bg-red-400" />}
-                      </td>
-                      <td className="px-1 py-1.5 text-center">
-                        {isInApp ? (
-                          <span className="text-green-400 text-[10px]">✓</span>
-                        ) : (
-                          <span className="text-muted-foreground/40 text-[10px]">—</span>
-                        )}
-                      </td>
-                      <td className="px-2 py-1.5 text-xs text-muted-foreground truncate hidden lg:table-cell">{user.direct_manager || '—'}</td>
-                      <td className="px-2 py-1.5 text-xs text-muted-foreground truncate hidden lg:table-cell">{getTeamName(user.team_id)}</td>
-                      <td className="px-2 py-1.5 hidden xl:table-cell"><RoleBadge role={user.role || 'rookie'} /></td>
-                      {isAdmin && (
-                        <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-0.5">
-                            <button onClick={() => { startImpersonating({ user_id: user.user_id, full_name: user.full_name, email: user.email }); navigate('/app/rookie'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => onEditUser(user)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => onResetPassword(user.email, user.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => onToggleStatus(user.user_id, user.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
-                              {isNLC ? '✓' : '✗'}
-                            </button>
-                            {user.role !== 'admin' && user.role !== 'owner' && (
-                              <button onClick={() => onPromoteDemote(user.user_id, user.role)} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
-                            )}
-                            {user.role === 'admin' && user.email !== superAdminEmail && (
-                              <button onClick={() => onPromoteDemote(user.user_id, user.role)} className="p-1 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
-                            )}
-                            {user.email !== superAdminEmail && isSuperAdmin && (
-                              <button onClick={() => onDeleteUser(user)} className="p-1 rounded text-destructive/60 hover:text-destructive hover:bg-destructive/5" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                            )}
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-                {filtered.length === 0 && (
-                  <tr><td colSpan={isAdmin ? 9 : 8} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-[10px] text-muted-foreground text-right">{filtered.length} of {users.length} users shown</p>
-        </>
-      )}
+              );
+            })}
+            {filtered.length === 0 && (
+              <tr><td colSpan={isAdmin ? 9 : 8} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[10px] text-muted-foreground text-right">{filtered.length} of {users.length} users shown</p>
+
+      {/* ── Mass Import Dialog ── */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-4 h-4 text-primary" /> Mass Import
+            </DialogTitle>
+          </DialogHeader>
+          <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+            <LazyMassImport
+              profiles={users.map(u => ({ user_id: u.user_id, full_name: u.full_name, email: u.email, phone: u.phone, region: u.region, organization: u.organization, office_name: u.office_name, direct_manager: u.direct_manager, experience: u.experience, team_id: u.team_id }))}
+              managers={managers}
+              teams={teams}
+              onRefresh={() => { onRefresh(); setImportOpen(false); }}
+            />
+          </Suspense>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Detail / Quick-Edit Modal ── */}
       <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
@@ -567,7 +522,7 @@ export default function AdminUsersTab({
                       <RoleBadge role={detailUser.role || 'rookie'} />
                       <span className="text-xs text-muted-foreground">•</span>
                       <span className="text-xs text-muted-foreground">{getTeamName(detailUser.team_id)}</span>
-                      {!detailUser.approved && (
+                      {detailUser.approved !== true && (
                         <>
                           <span className="text-xs text-muted-foreground">•</span>
                           <span className="text-[9px] font-medium text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full">Not In-App</span>
