@@ -33,7 +33,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
   { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-purple-400' },
   { label: 'Operations', path: '/app/operations', icon: Wrench, iconColor: 'text-green-400' },
-  { label: 'Analytics', path: '/app/analytics', icon: BarChart3, iconColor: 'text-emerald-400' },
+  { label: 'Manage', path: '/app/manage', icon: Settings2, iconColor: 'text-emerald-400' },
 ];
 
 export function AppSidebar() {
