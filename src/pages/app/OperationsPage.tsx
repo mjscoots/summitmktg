@@ -56,16 +56,16 @@ export default function OperationsPage() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Dashboard" />
 
-        {/* Hero Banner — matches Training page */}
-        <div className="relative h-40 rounded-xl overflow-hidden mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-blue-500/15 to-teal-500/20" />
+        {/* Hero Banner */}
+        <div className="relative h-24 rounded-xl overflow-hidden mb-6">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/25 via-rose-500/15 to-violet-500/25" />
           <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
-              OPERATIONS
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight drop-shadow-sm">
+              HUB
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Tools for running and managing your team
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Calendar, resources & team tools
             </p>
           </div>
         </div>

@@ -168,6 +168,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Hub + Manage section with gap */}
+        <SidebarGroup className="mt-3">
+          <Separator className="mb-2 bg-sidebar-border/30" />
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {bottomNavItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* Spacer */}
         <div className="flex-1" />
 
