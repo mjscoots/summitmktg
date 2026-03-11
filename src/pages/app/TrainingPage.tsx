@@ -224,7 +224,7 @@ export default function TrainingPage() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <PageBackButton to="/app" label="Dashboard" />
+        {/* Single back button - goes to selection for managers, dashboard for rookies */}
         <div className="relative h-24 rounded-xl overflow-hidden mb-6">
           <div className={cn(
             "absolute inset-0",
