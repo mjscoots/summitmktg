@@ -47,22 +47,22 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
             <span className="text-xs font-bold text-destructive">
               Streak lost ({streakData.previousStreak} days)
             </span>
-            {canRestore && (
-              <button
-                onClick={handleRestore}
-                disabled={isRestoring}
-                className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline mt-0.5"
-              >
+            {canRestore &&
+            <button
+              onClick={handleRestore}
+              disabled={isRestoring}
+              className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline mt-0.5">
+              
                 <RotateCcw className="w-3 h-3" />
                 {isRestoring ? 'Restoring...' : 'Restore now'}
                 <span className="text-muted-foreground font-normal ml-1">
                   ({streakData.restoresRemaining} remaining)
                 </span>
               </button>
-            )}
+            }
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     if (streakCount === 0) return null;
@@ -80,14 +80,14 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
           clickable && "cursor-pointer hover:scale-105 hover:from-warning/30 hover:border-warning/50",
           !clickable && "cursor-default",
           className
-        )}
-      >
+        )}>
+        
         <span className="text-2xl font-black text-warning">
           {streakCount}
         </span>
         <Flame className="w-5 h-5 text-warning animate-pulse" />
-      </button>
-    );
+      </button>);
+
   }
 
   // Large variant for training page
@@ -106,21 +106,21 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
             Streak Lost — {streakData.previousStreak} days
           </span>
         </div>
-        {canRestore && (
-          <button
-            onClick={handleRestore}
-            disabled={isRestoring}
-            className="relative z-10 mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 text-primary text-sm font-bold hover:bg-primary/25 transition-all"
-          >
+        {canRestore &&
+        <button
+          onClick={handleRestore}
+          disabled={isRestoring}
+          className="relative z-10 mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 text-primary text-sm font-bold hover:bg-primary/25 transition-all">
+          
             <RotateCcw className="w-3.5 h-3.5" />
             {isRestoring ? 'Restoring...' : 'Restore Streak'}
             <span className="text-xs text-muted-foreground font-normal ml-1">
               ({streakData.restoresRemaining} remaining)
             </span>
           </button>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   }
 
   if (streakCount === 0) return null;
@@ -133,9 +133,9 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
         "rounded-xl border border-warning/25",
         "relative overflow-hidden",
         className
-      )}
-    >
-      <div className="absolute inset-0 bg-gradient-radial from-warning/20 to-transparent opacity-50" />
+      )}>
+      
+      
       <div className="relative z-10 flex items-center gap-2">
         <Flame className="w-5 h-5 text-warning animate-pulse" />
         <span className="font-black text-2xl text-warning">
@@ -146,6 +146,6 @@ export function StreakDisplay({ variant = 'large', className, clickable = false 
       <p className="relative z-10 text-xs text-warning/80 mt-1 font-medium">
         {streakCount === 1 ? "You showed up. That's everything." : "Keep it going!"}
       </p>
-    </div>
-  );
+    </div>);
+
 }
