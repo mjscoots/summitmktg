@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { users } = await req.json() as { users: UserData[] };
+    const { users, is_import } = await req.json() as { users: UserData[]; is_import?: boolean };
 
     if (!Array.isArray(users) || users.length === 0) {
       return new Response(
