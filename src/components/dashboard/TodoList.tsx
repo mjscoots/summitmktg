@@ -493,12 +493,14 @@ export function TodoList() {
 
 function TodoRow({
   todo,
+  justCompleted,
   onToggle,
   onDelete,
   onEdit,
   onPriorityChange,
 }: {
   todo: TodoItem;
+  justCompleted: boolean;
   onToggle: () => void;
   onDelete: () => void;
   onEdit: () => void;
@@ -511,8 +513,9 @@ function TodoRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all group cursor-pointer",
-        todo.is_completed ? "opacity-50 border-border/30 bg-muted/20" : cn("border-border/50 hover:border-primary/20", cfg.bg)
+        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all duration-300 group cursor-pointer",
+        justCompleted && "!bg-emerald-500/15 !border-emerald-500/30 scale-[0.98]",
+        todo.is_completed && !justCompleted ? "opacity-50 border-border/30 bg-muted/20" : !justCompleted && cn("border-border/50 hover:border-primary/20", cfg.bg)
       )}
       onClick={onEdit}
     >
