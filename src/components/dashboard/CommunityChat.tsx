@@ -396,7 +396,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const canPostInChannel = true;
 
   return (
-    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)]" style={{ height: '100%', maxHeight: '100%' }}>
+    <div className="h-full min-h-0 flex flex-col rounded-xl overflow-hidden border border-border/50 bg-gradient-to-b from-background via-card to-background shadow-[0_14px_42px_-24px_hsl(var(--primary)/0.45)] relative" style={{ height: '100%', maxHeight: '100%' }}>
+      <BackgroundDust />
+      <ParticleCanvas canvasRef={canvasRef} />
+
+      {/* Chat Leaderboard */}
+      <ChatLeaderboardWidget />
+
       {/* Pinned */}
       {(() => {
         const pinned = channelMessages.filter(m => m.is_pinned);
@@ -404,7 +410,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         const lastPinned = pinned[pinned.length - 1];
         const pinProfile = getProfile(lastPinned);
         return (
-          <button onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/10 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left">
+          <button onClick={() => document.getElementById(`msg-${lastPinned.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="flex items-center gap-2 px-4 py-1.5 border-b border-amber-500/10 bg-amber-500/5 hover:bg-amber-500/10 transition-colors flex-shrink-0 text-left z-[1]">
             <Pin className="w-3 h-3 text-amber-500 flex-shrink-0" />
             <span className="text-[11px] font-semibold text-amber-500">{pinProfile.full_name}:</span>
             <span className="text-[11px] text-muted-foreground truncate">{lastPinned.content}</span>
@@ -413,7 +419,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       })()}
 
       {/* Messages */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative">
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
         {channelMessages.length === 0 && (
           <div className="text-center py-16 px-4">
             <div className="w-14 h-14 rounded-full bg-muted/40 flex items-center justify-center mx-auto mb-4">
