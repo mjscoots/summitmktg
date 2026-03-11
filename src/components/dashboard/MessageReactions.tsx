@@ -30,6 +30,7 @@ interface MessageReactionsProps {
   messageId: string;
   profileMap: Record<string, { full_name: string }>;
   messageAuthorId?: string;
+  isOwnMessage?: boolean;
 }
 
 export function MessageReactions({ messageId, profileMap, messageAuthorId }: MessageReactionsProps) {
