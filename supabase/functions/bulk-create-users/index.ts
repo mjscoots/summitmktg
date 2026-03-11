@@ -116,6 +116,16 @@ Deno.serve(async (req) => {
 
         if (createError) {
           if (createError.message?.includes("already been registered") || createError.message?.includes("already exists")) {
+            // Still auto-approve existing users when imported by admin
+            const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+            const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
+            if (existingUser) {
+              await supabaseAdmin.from("profiles").update({
+                approved: true,
+                status: "active",
+                ...(u.onboarding_status ? { onboarding_status: u.onboarding_status } : {}),
+              }).eq("user_id", existingUser.id);
+            }
             results.success.push(`${u.email} (already exists)`);
             continue;
           }
