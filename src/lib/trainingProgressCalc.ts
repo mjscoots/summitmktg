@@ -2,8 +2,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Canonical function to get the full set of required rookie training item IDs.
- * Includes: active lessons from rookie courses + required training videos.
- * Used by ALL training progress views to ensure consistent numbers.
+ * Only includes: active lessons from rookie courses.
+ * Videos are tracked independently and do NOT count toward training progress.
  */
 export interface RookieTrainingItems {
   lessonIds: Set<string>;
@@ -12,7 +12,7 @@ export interface RookieTrainingItems {
 }
 
 export async function getReachableRookieTrainingItems(): Promise<RookieTrainingItems> {
-  // 1. Get lesson IDs from active rookie courses/modules
+  // Get lesson IDs from active rookie courses/modules
   const { data: courses } = await supabase
     .from('training_courses')
     .select(`
@@ -45,25 +45,18 @@ export async function getReachableRookieTrainingItems(): Promise<RookieTrainingI
     });
   });
 
-  // 2. Get required training video IDs
-  const { data: videos } = await supabase
-    .from('training_videos')
-    .select('id')
-    .eq('is_active', true)
-    .eq('is_required', true);
-
+  // Videos no longer count toward progress
   const videoIds = new Set<string>();
-  (videos || []).forEach(v => videoIds.add(v.id));
 
   return {
     lessonIds,
     videoIds,
-    totalCount: lessonIds.size + videoIds.size,
+    totalCount: lessonIds.size,
   };
 }
 
 /**
- * Count completed items (lessons + videos) for given user IDs.
+ * Count completed items (lessons only) for given user IDs.
  */
 export async function getCompletedTrainingCounts(
   userIds: string[],
@@ -71,19 +64,12 @@ export async function getCompletedTrainingCounts(
 ): Promise<Map<string, number>> {
   if (userIds.length === 0) return new Map();
 
-  // Fetch lesson completions
+  // Fetch lesson completions only
   const { data: lessonProgress } = await supabase
     .from('lesson_progress')
     .select('user_id, lesson_id')
     .in('user_id', userIds)
     .not('completed_at', 'is', null);
-
-  // Fetch video completions
-  const { data: videoProgress } = await supabase
-    .from('video_progress')
-    .select('user_id, video_id')
-    .in('user_id', userIds)
-    .eq('watched', true);
 
   const seen = new Map<string, Set<string>>();
 
@@ -93,12 +79,6 @@ export async function getCompletedTrainingCounts(
     seen.get(lp.user_id)!.add('l_' + lp.lesson_id);
   });
 
-  (videoProgress || []).forEach(vp => {
-    if (!items.videoIds.has(vp.video_id)) return;
-    if (!seen.has(vp.user_id)) seen.set(vp.user_id, new Set());
-    seen.get(vp.user_id)!.add('v_' + vp.video_id);
-  });
-
   const counts = new Map<string, number>();
   seen.forEach((itemSet, userId) => {
     counts.set(userId, itemSet.size);
@@ -106,4 +86,3 @@ export async function getCompletedTrainingCounts(
 
   return counts;
 }
-

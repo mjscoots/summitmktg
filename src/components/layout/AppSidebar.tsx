@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessagesSquare, Sun, Moon, Wrench, BarChart3 } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessagesSquare, Sun, Moon, Wrench, BarChart3, Play } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +29,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Training', path: '/app/training', icon: GraduationCap, iconColor: 'text-blue-400' },
+  { label: 'Videos', path: '/app/videos', icon: Play, iconColor: 'text-red-400' },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
   { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-purple-400' },
   { label: 'Operations', path: '/app/operations', icon: Wrench, iconColor: 'text-green-400' },

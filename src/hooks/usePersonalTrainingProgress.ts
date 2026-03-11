@@ -50,8 +50,8 @@ export function usePersonalTrainingProgress() {
     try {
       const isManagerRole = role === 'manager' || role === 'admin' || role === 'owner';
 
-      // Fetch courses, lesson progress, required videos, and video progress in parallel
-      const [coursesRes, lessonProgressRes, requiredVideosRes, videoProgressRes] = await Promise.all([
+      // Fetch courses and lesson progress only (videos no longer count)
+      const [coursesRes, lessonProgressRes] = await Promise.all([
         supabase
           .from('training_courses')
           .select(`
@@ -68,16 +68,6 @@ export function usePersonalTrainingProgress() {
           .select('lesson_id')
           .eq('user_id', user.id)
           .not('completed_at', 'is', null),
-        supabase
-          .from('training_videos')
-          .select('id')
-          .eq('is_active', true)
-          .eq('is_required', true),
-        supabase
-          .from('video_progress')
-          .select('video_id')
-          .eq('user_id', user.id)
-          .eq('watched', true),
       ]);
 
       const courses = coursesRes.data as CourseWithModules[] | null;
@@ -89,18 +79,6 @@ export function usePersonalTrainingProgress() {
       const completedLessonIds = new Set(
         lessonProgressRes.data?.map(lp => lp.lesson_id) || []
       );
-      const requiredVideoIds = new Set(
-        requiredVideosRes.data?.map(v => v.id) || []
-      );
-      const watchedVideoIds = new Set(
-        videoProgressRes.data?.map(vp => vp.video_id) || []
-      );
-
-      // Count watched required videos
-      let completedVideoCount = 0;
-      requiredVideoIds.forEach(id => {
-        if (watchedVideoIds.has(id)) completedVideoCount++;
-      });
 
       // Filter courses based on role
       const relevantCourses = courses.filter(course => {
@@ -110,7 +88,7 @@ export function usePersonalTrainingProgress() {
         return course.target_role === 'rookie' || course.target_role === null;
       });
 
-      // Calculate progress per course (lesson-based)
+      // Calculate progress per course (lesson-based only)
       const courseProgress: CourseProgress[] = relevantCourses.map(course => {
         let totalLessons = 0;
         let completedCount = 0;
@@ -137,7 +115,7 @@ export function usePersonalTrainingProgress() {
         };
       });
 
-      // Calculate overall progress including required videos
+      // Calculate overall progress (lessons only, no videos)
       let overallProgress = 0;
 
       if (isManagerRole) {
@@ -150,11 +128,8 @@ export function usePersonalTrainingProgress() {
           return course?.target_role === 'manager';
         });
 
-        // Rookie progress includes required videos (matching canonical calc)
-        const rookieLessonTotal = rookieCourses.reduce((sum, c) => sum + c.totalLessons, 0);
-        const rookieLessonCompleted = rookieCourses.reduce((sum, c) => sum + c.completedLessons, 0);
-        const rookieTotal = rookieLessonTotal + requiredVideoIds.size;
-        const rookieCompleted = rookieLessonCompleted + completedVideoCount;
+        const rookieTotal = rookieCourses.reduce((sum, c) => sum + c.totalLessons, 0);
+        const rookieCompleted = rookieCourses.reduce((sum, c) => sum + c.completedLessons, 0);
         const rookieProgress = rookieTotal > 0 ? (rookieCompleted / rookieTotal) * 100 : 0;
 
         const managerTotal = managerCourses.reduce((sum, c) => sum + c.totalLessons, 0);
@@ -167,15 +142,12 @@ export function usePersonalTrainingProgress() {
           overallProgress = Math.round((rookieProgress * 0.6) + (managerProgress * 0.4));
         }
       } else {
-        // Rookie overall: lessons + required videos (matching canonical calc)
         const totalLessons = courseProgress.reduce((sum, c) => sum + c.totalLessons, 0);
         const completedTotal = courseProgress.reduce((sum, c) => sum + c.completedLessons, 0);
-        const total = totalLessons + requiredVideoIds.size;
-        const completed = completedTotal + completedVideoCount;
-        overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
+        overallProgress = totalLessons > 0 ? Math.round((completedTotal / totalLessons) * 100) : 0;
       }
 
-      // Post bot shoutout when training hits 100% (guarded by ref + DB dedup)
+      // Post bot shoutout when training hits 100%
       if (overallProgress === 100 && user?.id && !hasPostedShoutoutRef.current) {
         hasPostedShoutoutRef.current = true;
         try {
