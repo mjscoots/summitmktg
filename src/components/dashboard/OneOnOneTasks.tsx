@@ -74,10 +74,11 @@ export function OneOnOneTasks() {
             <div
               key={task.id}
               className={cn(
-                "flex items-start gap-3 p-3 rounded-lg border transition-all",
-                task.is_completed
+                "flex items-start gap-3 p-3 rounded-lg border transition-all duration-300",
+                justCompleted.has(task.id) && "!bg-emerald-500/15 !border-emerald-500/30 scale-[0.98]",
+                task.is_completed && !justCompleted.has(task.id)
                   ? "bg-muted/30 border-border/50 opacity-60"
-                  : "bg-primary/5 border-primary/20 hover:bg-primary/10"
+                  : !justCompleted.has(task.id) && "bg-primary/5 border-primary/20 hover:bg-primary/10"
               )}
             >
               <Checkbox
