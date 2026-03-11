@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { BarChart3, Swords, Calculator, ArrowRight } from 'lucide-react';
+import { BarChart3, Swords, Calculator, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AnalyticsCard {
@@ -95,28 +95,8 @@ export default function AnalyticsPage() {
                     <h3 className="font-semibold text-foreground text-lg">{card.label}</h3>
                     <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{card.description}</p>
                   </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-foreground transition-colors flex-shrink-0 mt-1" />
                 </div>
-
-                <div className="flex-1" />
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(card.path);
-                  }}
-                  className={cn(
-                    'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl',
-                    'bg-gradient-to-r from-[#3B82F6] to-[#2563EB]',
-                    'text-white font-medium text-sm',
-                    'transition-all duration-200',
-                    'hover:shadow-[0_0_20px_-4px_rgba(59,130,246,0.45)]',
-                    'hover:-translate-y-0.5',
-                    'active:translate-y-0'
-                  )}
-                >
-                  <span>Open</span>
-                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                </button>
               </div>
             );
           })}
