@@ -71,7 +71,7 @@ export function AppSidebar() {
       return managePaths.some(p => location.pathname.startsWith(p));
     }
     if (path === '/app/training') {
-      return location.pathname.startsWith('/app/training');
+      return location.pathname.startsWith('/app/training') || location.pathname.startsWith('/app/videos');
     }
     return location.pathname.startsWith(path);
   };
