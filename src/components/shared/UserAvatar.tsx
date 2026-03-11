@@ -149,6 +149,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
         sizeClasses[size],
         bgColor,
         tierBorder,
+        presenceRingClass,
         className
       )}
       style={rankGlowStyle}
