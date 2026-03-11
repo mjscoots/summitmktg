@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { BarChart3, Swords, Calculator, ArrowRight } from 'lucide-react';
+import { BarChart3, Swords, Calculator, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AnalyticsCard {

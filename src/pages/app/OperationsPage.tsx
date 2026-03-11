@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Wrench, FileText, Calendar, Link2, ArrowRight } from 'lucide-react';
+import { Wrench, FileText, Calendar, Link2, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OpCard {
