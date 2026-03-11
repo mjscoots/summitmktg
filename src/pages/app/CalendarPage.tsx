@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
 import { SummitLoader } from '@/components/shared/SummitLoader';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
