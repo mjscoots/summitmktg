@@ -14,8 +14,8 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { SortableLinkCard } from '@/components/links/SortableLinkCard';
 import { cn } from '@/lib/utils';
-import { RookieCalculator } from '@/components/RookieCalculator';
-import { VetCalculator } from '@/components/VetCalculator';
+import RookieCalculator from '@/components/RookieCalculator';
+import VetCalculator from '@/components/VetCalculator';
 
 interface ManagedLink {
   id: string;
