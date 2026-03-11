@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   TeamMember,
   PILLAR_OWNERS,
