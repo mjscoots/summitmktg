@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { useManagerPitchApprovals, PitchApprovalWithDetails } from '@/hooks/usePitchApprovals';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Mic, Clock, CheckCircle2, XCircle, Loader2, AlertTriangle, Filter } from 'lucide-react';
