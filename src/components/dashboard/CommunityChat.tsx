@@ -31,7 +31,6 @@ import { useChatParticles, ParticleCanvas } from '@/components/chat/ChatParticle
 import { BackgroundDust } from '@/components/chat/BackgroundDust';
 import { useMomentum, MomentumIndicator } from '@/components/chat/MomentumIndicator';
 import { ChatLeaderboardWidget } from '@/components/chat/ChatLeaderboardWidget';
-import { SmartPrompts } from '@/components/chat/SmartPrompts';
 import { getMessageHighlight, isHotThread } from '@/components/chat/messageHighlights';
 
 /** Render text with clickable links */
@@ -156,7 +155,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [justSentId, setJustSentId] = useState<string | null>(null);
-  const [showSmartPrompts, setShowSmartPrompts] = useState(true);
+  
   const { canvasRef, burst } = useChatParticles();
   const { momentum, recordMessage } = useMomentum();
   const sendBtnRef = useRef<HTMLButtonElement>(null);
@@ -384,12 +383,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   };
 
   const getRoleColor = (r?: string) => { if (r === 'owner') return 'text-amber-400'; if (r === 'admin') return 'text-slate-300'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
+  const getRoleBorderRing = (r?: string) => {
+    if (r === 'owner') return 'ring-2 ring-amber-500/60';
+    if (r === 'admin') return 'ring-2 ring-slate-400/50';
+    if (r === 'manager') return 'ring-2 ring-blue-500/50';
+    return '';
+  };
   const getRoleBadge = (r?: string) => {
     if (r === 'bot') return null;
     if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 uppercase tracking-wider">Owner</span>;
     if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-400/30 bg-slate-400/10 text-slate-300 uppercase tracking-wider">Admin</span>;
     if (r === 'manager') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 uppercase tracking-wider">Manager</span>;
-    return null; // Clean — no badge for rookies
+    return null;
   };
 
   const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
@@ -510,8 +515,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                           <Bot className="w-4 h-4 text-primary" />
                         </div>
                       ) : (
-                        <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
-                          <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="md" showOnline isOnline={msgProfile.is_active_now} />
+                         <button onClick={() => handleProfileClick(msg.user_id)} className="focus:outline-none">
+                          <UserAvatar avatarUrl={msgProfile.avatar_url} fullName={msgProfile.full_name} size="md" showOnline isOnline={msgProfile.is_active_now} className={getRoleBorderRing(msgProfile.role)} />
                         </button>
                       )
                     ) : (
@@ -614,17 +619,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           {/* Momentum Indicator */}
           <MomentumIndicator count={momentum.count} visible={momentum.visible} />
 
-          {/* Smart Prompts (shown when input is empty) */}
-          {!input.trim() && (
-            <SmartPrompts
-              onSelect={(prompt) => {
-                setInput(prompt);
-                onTyping();
-                inputRef.current?.focus();
-              }}
-              visible={showSmartPrompts}
-            />
-          )}
 
           {/* Quick Action Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
