@@ -116,15 +116,16 @@ Deno.serve(async (req) => {
 
         if (createError) {
           if (createError.message?.includes("already been registered") || createError.message?.includes("already exists")) {
-            // Still auto-approve existing users when imported by admin
             const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
-              await supabaseAdmin.from("profiles").update({
-                approved: true,
+              const updateData: Record<string, unknown> = {
                 status: "active",
                 ...(u.onboarding_status ? { onboarding_status: u.onboarding_status } : {}),
-              }).eq("user_id", existingUser.id);
+              };
+              // For imports: don't overwrite approved status if already set to true
+              if (!is_import) updateData.approved = true;
+              await supabaseAdmin.from("profiles").update(updateData).eq("user_id", existingUser.id);
             }
             results.success.push(`${u.email} (already exists)`);
             continue;
@@ -133,11 +134,12 @@ Deno.serve(async (req) => {
         }
 
         if (authUser?.user) {
-          // Auto-approve admin-created users + set pipeline status
-          const profileUpdates: Record<string, unknown> = {
-            approved: true,
-            status: "active",
-          };
+          // For imports: keep approved=false — person is "Not In-App" until they actually sign up
+          // For admin-created users: auto-approve as "In-App"
+          const profileUpdates: Record<string, unknown> = is_import
+            ? { approved: false, status: "active" }
+            : { approved: true, status: "active" };
+
           if (u.onboarding_status) {
             profileUpdates.onboarding_status = u.onboarding_status;
           }
