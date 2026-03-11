@@ -103,11 +103,20 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
     };
   }, [rank, totalEntries]);
 
+  // Presence ring around avatar
+  const presenceRingClass = showOnline
+    ? isTyping
+      ? 'ring-2 ring-orange-400 animate-pulse'
+      : isOnline
+        ? 'ring-2 ring-green-500'
+        : 'ring-1 ring-muted-foreground/20'
+    : '';
+
   const onlineDot = showOnline ? (
     <span className={cn(
       'absolute bottom-0 right-0 rounded-full border-background',
       dotSizeClasses[size],
-      isOnline ? 'bg-green-500' : 'bg-muted-foreground/40'
+      isTyping ? 'bg-orange-400 animate-pulse' : isOnline ? 'bg-green-500' : 'bg-muted-foreground/40'
     )} />
   ) : null;
 
