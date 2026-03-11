@@ -118,7 +118,7 @@ export default function AdminTeamPage() {
     setManagers(mgrs);
 
     const teamsList: TeamRow[] = (teamsRes.data || []).map(t => {
-      const members = approved.filter(r => r.team_id === t.id);
+      const members = allOthers.filter(r => r.team_id === t.id);
       return {
         ...t,
         member_count: members.length,
