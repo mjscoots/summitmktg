@@ -42,10 +42,13 @@ const COURSE_ICONS: Record<string, React.ReactNode> = {
 };
 
 // Courses that are for rookies (show green)
-const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
+const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual'];
 
-// Video library courses (no progress tracking, just lesson count)
+// Video library courses — hidden from tiles (consolidated into Videos page)
 const VIDEO_COURSES = ['training-videos', 'manager-videos'];
+
+// Courses to exclude from tiles entirely (videos are on the Videos page now)
+const HIDDEN_COURSES = ['training-videos', 'manager-videos'];
 
 // Fixed lesson count overrides for display
 const LESSON_COUNT_OVERRIDES: Record<string, number> = {
@@ -174,12 +177,15 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           };
         });
 
+        // Filter out hidden courses (videos)
+        const visibleCourses = coursesWithProgress.filter(c => !HIDDEN_COURSES.includes(c.slug));
+
         // Sort by priority
-        coursesWithProgress.sort((a, b) => 
+        visibleCourses.sort((a, b) => 
           (COURSE_PRIORITY[a.slug] || 99) - (COURSE_PRIORITY[b.slug] || 99)
         );
 
-        setCourses(coursesWithProgress);
+        setCourses(visibleCourses);
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -260,8 +266,8 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
               onClick={() => !isLockedCourse && !isComingSoon && handleCourseClick(course.slug)}
               className={cn(
                 "group relative bg-card rounded-xl border flex flex-col",
-                // Fixed height for all cards
-                "h-[340px]",
+                // Compact card height
+                "h-[280px]",
                 "transition-all duration-400 ease-out",
                 // Locked or Coming Soon state
                 (isLockedCourse || isComingSoon)
@@ -289,19 +295,21 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 )
               )}
             >
-              {/* Gradient overlay - appears on hover */}
+              {/* Subtle grid texture overlay */}
+              <div className="absolute inset-0 rounded-xl opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
+              {/* Gradient overlay - always visible for texture */}
               <div className={cn(
-                "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-400 pointer-events-none",
-                !isComingSoon && "group-hover:opacity-100",
+                "absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-400",
                 course.progress === 100
-                  ? "bg-gradient-to-br from-success/5 to-transparent"
+                  ? "bg-gradient-to-br from-success/8 via-transparent to-success/3"
                   : isRookie
-                    ? "bg-gradient-to-br from-green-500/5 to-transparent"
-                    : "bg-gradient-to-br from-blue-500/5 to-transparent"
+                    ? "bg-gradient-to-br from-green-500/8 via-transparent to-green-500/3"
+                    : "bg-gradient-to-br from-blue-500/8 via-transparent to-blue-500/3",
+                !isComingSoon && "group-hover:opacity-150"
               )} />
 
               {/* Card Content - Flex container for perfect alignment */}
-              <div className="p-5 flex flex-col h-full relative">
+              <div className="p-4 flex flex-col h-full relative">
                 
                 {/* === HEADER REGION (fixed height ~48px) === */}
                 <div className="flex items-start justify-between mb-4 min-h-[48px]">

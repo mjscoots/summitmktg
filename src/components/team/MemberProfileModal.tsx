@@ -24,6 +24,7 @@ import {
   Target,
   ChevronDown,
   ChevronUp,
+  Rocket,
 } from 'lucide-react';
 import { getTeamColor } from '@/lib/teamColors';
 import {
@@ -89,6 +90,7 @@ export function MemberProfileModal({
   const [allTimeBreakdown, setAllTimeBreakdown] = useState<any>(null);
   const [pointsExpanded, setPointsExpanded] = useState(false);
   const [allTimeExpanded, setAllTimeExpanded] = useState(false);
+  const [propsSent, setPropsSent] = useState(false);
 
   // Fetch pillars if not provided
   useEffect(() => {
@@ -113,6 +115,7 @@ export function MemberProfileModal({
       setAllTimeBreakdown(null);
       setPointsExpanded(false);
       setAllTimeExpanded(false);
+      setPropsSent(false);
     }
   }, [open, member?.user_id]);
 
@@ -339,6 +342,40 @@ export function MemberProfileModal({
             {!editPermission.canEdit && isManagerRole && !isSelf && !isEditMode && (
               <Button variant="outline" size="sm" onClick={() => setIsEditMode(true)} className="mt-2">
                 <Pencil className="w-3.5 h-3.5 mr-1.5" />Edit Info
+              </Button>
+            )}
+            {/* Send Props button */}
+            {!isSelf && !isNLC && !isEditMode && (
+              <Button
+                variant={propsSent ? "ghost" : "default"}
+                size="sm"
+                disabled={propsSent}
+                className={cn(
+                  "mt-2 ml-2 gap-1.5",
+                  propsSent 
+                    ? "text-success" 
+                    : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-[0_0_15px_-5px_rgba(249,115,22,0.4)]"
+                )}
+                onClick={async () => {
+                  if (!user || !member || propsSent) return;
+                  setPropsSent(true);
+                  try {
+                    const senderName = profile?.full_name?.split(' ')[0] || 'Someone';
+                    await supabase.from('user_notifications').insert({
+                      user_id: member.user_id,
+                      title: '🔥 Props received!',
+                      message: `${senderName} just sent you props — keep grinding!`,
+                      link: '/app/leaderboard',
+                    });
+                    toast.success(`Props sent to ${getDisplayName(member.full_name)}!`);
+                  } catch {
+                    toast.error('Failed to send props');
+                    setPropsSent(false);
+                  }
+                }}
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                {propsSent ? 'Props Sent!' : 'Send Props'}
               </Button>
             )}
           </div>
