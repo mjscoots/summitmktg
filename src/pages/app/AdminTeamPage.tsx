@@ -504,6 +504,10 @@ export default function AdminTeamPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Back Button */}
+        <PageBackButton to="/app" label="Dashboard" />
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-2">
