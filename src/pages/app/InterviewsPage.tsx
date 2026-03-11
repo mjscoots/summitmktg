@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Pencil, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 
 const interviewCards = [
   {
