@@ -84,14 +84,14 @@ export default function ManagePage() {
         <PageBackButton to="/app" label="Dashboard" />
 
         {/* Hero Banner */}
-        <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+        <div className="relative h-24 rounded-xl overflow-hidden mb-6">
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/25 via-teal-500/15 to-primary/20" />
           <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight drop-shadow-sm">
               MANAGE
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Leadership tools and performance controls
             </p>
           </div>

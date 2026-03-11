@@ -60,14 +60,14 @@ export default function LeaderboardPage() {
           <PageBackButton to="/app" label="Dashboard" />
 
           {/* Hero Banner — Training page style */}
-          <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+          <div className="relative h-24 rounded-xl overflow-hidden mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-amber-600/30 via-yellow-500/15 to-orange-500/25" />
             <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
             {/* Golden spotlight glow */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(234,179,8,0.12),transparent_60%)]" />
             <div className="absolute inset-0 flex items-center justify-between px-6">
               <div className="flex flex-col items-start justify-center">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight drop-shadow-sm">
                   LEADERBOARD
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
