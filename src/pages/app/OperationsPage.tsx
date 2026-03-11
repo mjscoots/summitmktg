@@ -23,18 +23,6 @@ const GRID_PATTERN =
 
 const cards: OpCard[] = [
   {
-    id: 'forms',
-    label: 'Forms',
-    description: 'Interview forms and weekly check-ins',
-    icon: FileText,
-    path: '/app/forms',
-    colorClass: 'text-orange-400 bg-orange-500/15 group-hover:bg-orange-500/25',
-    hoverBorder: 'hover:border-orange-500/40',
-    hoverShadow: 'hover:shadow-[0_0_30px_-10px_rgba(249,115,22,0.4)]',
-    tag: 'MANAGE',
-    managerOnly: true,
-  },
-  {
     id: 'calendar',
     label: 'Calendar',
     description: 'Team events, calls, and scheduling',
