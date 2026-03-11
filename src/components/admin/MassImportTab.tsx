@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { toast } from '@/hooks/use-toast';
@@ -36,61 +35,140 @@ interface ParsedUser {
   matchedName?: string;
 }
 
-function parseInput(text: string, existingProfiles: { full_name: string }[], managerList: { full_name: string }[]): ParsedUser[] {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  const parsed: ParsedUser[] = [];
+/* ── Status normalization ── */
+const STATUS_MAP: Record<string, string> = {
+  'summer ready': 'summer_ready',
+  'summerready': 'summer_ready',
+  'summer_ready': 'summer_ready',
+  'onboarded': 'onboarded',
+  'contract signed': 'contract_signed',
+  'contractsigned': 'contract_signed',
+  'contract_signed': 'contract_signed',
+  'info added': 'info_added',
+  'infoadded': 'info_added',
+  'info_added': 'info_added',
+  'pending': 'pending',
+};
 
-  for (const line of lines) {
+function normalizeStatus(raw: string): string {
+  const key = raw.toLowerCase().replace(/[_\-]/g, ' ').trim();
+  return STATUS_MAP[key] || STATUS_MAP[key.replace(/\s+/g, '')] || 'pending';
+}
+
+/* ── Detect best delimiter for a block of text ── */
+function detectDelimiter(lines: string[]): 'tab' | 'pipe' | 'comma' | 'none' {
+  let tabCount = 0, pipeCount = 0, commaCount = 0;
+  const sample = lines.slice(0, Math.min(5, lines.length));
+  for (const line of sample) {
+    if (line.includes('\t')) tabCount++;
+    if (line.includes('|')) pipeCount++;
+    if (line.includes(',')) commaCount++;
+  }
+  // Prefer tab (spreadsheet paste), then pipe, then comma
+  if (tabCount >= sample.length * 0.5) return 'tab';
+  if (pipeCount >= sample.length * 0.5) return 'pipe';
+  if (commaCount >= sample.length * 0.5) return 'comma';
+  return 'none';
+}
+
+/* ── Smart column detection ── */
+function detectColumns(headerCells: string[]): { nameIdx: number; managerIdx: number; statusIdx: number; emailIdx: number; phoneIdx: number } {
+  const result = { nameIdx: 0, managerIdx: -1, statusIdx: -1, emailIdx: -1, phoneIdx: -1 };
+  
+  for (let i = 0; i < headerCells.length; i++) {
+    const h = headerCells[i].toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    if (h.includes('name') && !h.includes('manager') && !h.includes('team') && result.nameIdx === 0) result.nameIdx = i;
+    else if (h.includes('manager') || h.includes('reports to') || h.includes('supervisor')) result.managerIdx = i;
+    else if (h.includes('status') || h.includes('stage') || h.includes('onboarding')) result.statusIdx = i;
+    else if (h.includes('email') || h.includes('e-mail')) result.emailIdx = i;
+    else if (h.includes('phone') || h.includes('cell') || h.includes('mobile')) result.phoneIdx = i;
+  }
+  return result;
+}
+
+function isHeaderRow(cells: string[]): boolean {
+  const headerWords = ['name', 'manager', 'email', 'phone', 'status', 'role', 'team', 'rep'];
+  const matches = cells.filter(c => headerWords.some(w => c.toLowerCase().includes(w))).length;
+  return matches >= 2;
+}
+
+/* ── Main parse function ── */
+function parseInput(
+  text: string,
+  existingProfiles: { full_name: string }[],
+  managerList: { full_name: string }[]
+): ParsedUser[] {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) return [];
+
+  const delimiter = detectDelimiter(lines);
+  const parsed: ParsedUser[] = [];
+  
+  let colMap = { nameIdx: 0, managerIdx: -1, statusIdx: -1, emailIdx: -1, phoneIdx: -1 };
+  let startLine = 0;
+
+  // If structured delimiter, check for header row
+  if (delimiter !== 'none') {
+    const splitter = delimiter === 'tab' ? '\t' : delimiter === 'pipe' ? '|' : ',';
+    const firstCells = lines[0].split(splitter).map(c => c.trim());
+    if (isHeaderRow(firstCells)) {
+      colMap = detectColumns(firstCells);
+      startLine = 1;
+    } else if (delimiter === 'pipe' || delimiter === 'comma') {
+      // For pipe/comma without headers, assume: name, manager, status
+      colMap = { nameIdx: 0, managerIdx: 1, statusIdx: 2, emailIdx: -1, phoneIdx: -1 };
+    } else {
+      // Tab without header: assume name, manager, status, email, phone
+      colMap = { nameIdx: 0, managerIdx: 1, statusIdx: 2, emailIdx: 3, phoneIdx: 4 };
+    }
+  }
+
+  for (let i = startLine; i < lines.length; i++) {
+    const line = lines[i];
     let full_name = '';
     let email = '';
     let phone = '';
     let direct_manager = '';
     let onboarding_status = 'pending';
 
-    // Check numbered format: "1. Name | Manager: ..."
-    const numberedMatch = line.match(/^\d+\.\s*(.+)/);
-    const cleanLine = numberedMatch ? numberedMatch[1] : line;
+    // Strip leading number: "1. " or "1) " or "1 "
+    const cleanLine = line.replace(/^\d+[\.\)\-]\s*/, '');
 
-    if (cleanLine.includes('|')) {
-      const parts = cleanLine.split('|').map(p => p.trim());
-      full_name = parts[0];
-      
-      // Part 2: could be manager name or "Manager: Name"
-      if (parts[1]) {
-        const managerPrefixed = parts[1].match(/^manager:\s*(.+)/i);
-        if (managerPrefixed) {
-          direct_manager = managerPrefixed[1].trim();
-        } else {
-          // Try to match against known managers
-          const bestMatch = managerList.find(m => matchNames(m.full_name, parts[1]) > 0.7);
-          if (bestMatch) {
-            direct_manager = bestMatch.full_name;
-          } else {
-            direct_manager = parts[1]; // Use as-is
-          }
-        }
+    if (delimiter === 'tab') {
+      const cells = cleanLine.split('\t').map(c => c.trim());
+      full_name = cells[colMap.nameIdx] || '';
+      if (colMap.managerIdx >= 0 && cells[colMap.managerIdx]) {
+        direct_manager = cells[colMap.managerIdx].replace(/^manager:\s*/i, '');
       }
-
-      // Part 3: status
-      if (parts[2]) {
-        const statusPrefixed = parts[2].match(/^status:\s*(.+)/i);
-        const rawStatus = statusPrefixed ? statusPrefixed[1].trim() : parts[2].trim();
-        const statusMap: Record<string, string> = {
-          'summer ready': 'summer_ready',
-          'onboarded': 'onboarded',
-          'contract signed': 'contract_signed',
-          'info added': 'info_added',
-          'pending': 'pending',
-        };
-        onboarding_status = statusMap[rawStatus.toLowerCase()] || 'pending';
+      if (colMap.statusIdx >= 0 && cells[colMap.statusIdx]) {
+        onboarding_status = normalizeStatus(cells[colMap.statusIdx].replace(/^status:\s*/i, ''));
       }
-    } else if (cleanLine.includes(',')) {
-      const parts = cleanLine.split(',').map(p => p.trim());
-      full_name = parts[0] || '';
-      email = parts[1] || '';
-      phone = parts[2] || '';
-      direct_manager = parts[3] || '';
+      if (colMap.emailIdx >= 0 && cells[colMap.emailIdx]) email = cells[colMap.emailIdx];
+      if (colMap.phoneIdx >= 0 && cells[colMap.phoneIdx]) phone = cells[colMap.phoneIdx];
+    } else if (delimiter === 'pipe') {
+      const cells = cleanLine.split('|').map(c => c.trim());
+      full_name = cells[colMap.nameIdx] || '';
+      if (colMap.managerIdx >= 0 && cells[colMap.managerIdx]) {
+        direct_manager = cells[colMap.managerIdx].replace(/^manager:\s*/i, '');
+      }
+      if (colMap.statusIdx >= 0 && cells[colMap.statusIdx]) {
+        onboarding_status = normalizeStatus(cells[colMap.statusIdx].replace(/^status:\s*/i, ''));
+      }
+      if (colMap.emailIdx >= 0 && cells[colMap.emailIdx]) email = cells[colMap.emailIdx];
+      if (colMap.phoneIdx >= 0 && cells[colMap.phoneIdx]) phone = cells[colMap.phoneIdx];
+    } else if (delimiter === 'comma') {
+      const cells = cleanLine.split(',').map(c => c.trim());
+      full_name = cells[colMap.nameIdx] || '';
+      if (colMap.managerIdx >= 0 && cells[colMap.managerIdx]) {
+        direct_manager = cells[colMap.managerIdx].replace(/^manager:\s*/i, '');
+      }
+      if (colMap.statusIdx >= 0 && cells[colMap.statusIdx]) {
+        onboarding_status = normalizeStatus(cells[colMap.statusIdx].replace(/^status:\s*/i, ''));
+      }
+      if (colMap.emailIdx >= 0 && cells[colMap.emailIdx]) email = cells[colMap.emailIdx];
+      if (colMap.phoneIdx >= 0 && cells[colMap.phoneIdx]) phone = cells[colMap.phoneIdx];
     } else {
+      // Plain names — one per line
       full_name = cleanLine;
     }
 
@@ -153,6 +231,14 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
     const parsed = parseInput(rawText, profiles, managers);
     setParsedUsers(parsed);
     setResults(null);
+    
+    if (parsed.length === 0) {
+      toast({ title: 'No names detected', description: 'Check your formatting and try again.', variant: 'destructive' });
+    } else {
+      const existing = parsed.filter(u => u.alreadyExists).length;
+      const newCount = parsed.length - existing;
+      toast({ title: `Parsed ${parsed.length} entries`, description: `${newCount} new, ${existing} already exist` });
+    }
   };
 
   const handleRemove = (id: string) => {
@@ -203,6 +289,12 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
     }
   };
 
+  const detectedFormat = rawText.trim() ? (
+    rawText.includes('\t') ? 'Tab-separated (spreadsheet)' :
+    rawText.includes('|') ? 'Pipe-separated' :
+    rawText.includes(',') ? 'Comma-separated' : 'Plain names'
+  ) : null;
+
   return (
     <div className="space-y-6">
       {/* Input Area */}
@@ -210,34 +302,34 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-1">Paste Names</h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Paste a list — one per line. Supports: 
-            <span className="text-foreground/50 ml-1">"Name | Manager Name | Status"</span> or 
-            <span className="text-foreground/50 ml-1">"Name, email, phone, manager"</span> or plain names. Manager names are auto-matched.
+            Paste a list — one per line. Supports tab-separated (from spreadsheets), pipe-separated, comma-separated, or plain names.
+            Manager names are auto-matched. Headers are auto-detected.
           </p>
         </div>
         <Textarea
           value={rawText}
           onChange={e => setRawText(e.target.value)}
-          placeholder={`Paste names here...\n\nExamples:\nJohn Smith | Jane Doe | summer ready\nBob Wilson | Manager: Jane Doe\nPlain Name`}
-          className="min-h-[160px] bg-white/5 border-white/10 font-mono text-xs"
+          placeholder={`Paste names here...\n\nSupported formats:\n• Tab-separated from spreadsheet (Name ⇥ Manager ⇥ Status)\n• Name | Manager Name | Status\n• Name, email, phone, manager\n• Plain names (one per line)`}
+          className="min-h-[160px] bg-muted/30 border-border/50 font-mono text-xs"
         />
         <div className="flex items-center gap-3">
-          <Button onClick={handleParse} disabled={!rawText.trim()} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button onClick={handleParse} disabled={!rawText.trim()} className="gap-1.5">
             <Upload className="w-3.5 h-3.5" /> Parse Names
           </Button>
           <span className="text-xs text-muted-foreground">
             {rawText.split('\n').filter(l => l.trim()).length} lines detected
+            {detectedFormat && <span className="ml-1.5 text-primary/70">· {detectedFormat}</span>}
           </span>
         </div>
       </div>
 
       {/* Default Settings */}
       {parsedUsers.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-lg">
+        <div className="flex flex-col sm:flex-row gap-3 p-3 bg-muted/20 border border-border/40 rounded-lg">
           <div className="flex-1">
             <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Default Manager</label>
             <Select value={defaultManager} onValueChange={setDefaultManager}>
-              <SelectTrigger className="h-8 bg-white/5 border-white/10 text-xs">
+              <SelectTrigger className="h-8 bg-background border-border/50 text-xs">
                 <SelectValue placeholder="Select default..." />
               </SelectTrigger>
               <SelectContent>
@@ -250,7 +342,7 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
           <div className="flex-1">
             <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Default Team</label>
             <Select value={defaultTeam} onValueChange={setDefaultTeam}>
-              <SelectTrigger className="h-8 bg-white/5 border-white/10 text-xs">
+              <SelectTrigger className="h-8 bg-background border-border/50 text-xs">
                 <SelectValue placeholder="Select team..." />
               </SelectTrigger>
               <SelectContent>
@@ -265,14 +357,14 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
 
       {/* Already Exists Warning */}
       {existingUsers.length > 0 && (
-        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+        <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-semibold text-amber-400">{existingUsers.length} Already in App (will be skipped)</span>
+            <AlertTriangle className="w-4 h-4 text-warning" />
+            <span className="text-xs font-semibold text-warning">{existingUsers.length} Already in App (will be skipped)</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {existingUsers.map(u => (
-              <span key={u.id} className="text-[10px] px-2 py-0.5 bg-amber-500/10 rounded text-amber-300">
+              <span key={u.id} className="text-[10px] px-2 py-0.5 bg-warning/10 rounded text-warning">
                 {u.full_name} → {u.matchedName}
               </span>
             ))}
@@ -285,13 +377,13 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">
-              <UserPlus className="w-4 h-4 inline mr-1.5 text-green-400" />
+              <UserPlus className="w-4 h-4 inline mr-1.5 text-success" />
               {newUsers.length} New Users to Import
             </h3>
             <Button
               onClick={handleImport}
               disabled={importing}
-              className="gap-1.5 bg-green-600 text-white hover:bg-green-700"
+              className="gap-1.5 bg-success text-success-foreground hover:bg-success/90"
             >
               {importing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
               Import {newUsers.length} Users
@@ -300,12 +392,12 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {newUsers.map(user => (
-              <div key={user.id} className="p-3 rounded-xl border border-white/10 bg-white/[0.02] group relative">
+              <div key={user.id} className="p-3 rounded-xl border border-border/40 bg-muted/10 group relative">
                 <button
                   onClick={() => handleRemove(user.id)}
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/10"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted/30"
                 >
-                  <Trash2 className="w-3 h-3 text-red-400" />
+                  <Trash2 className="w-3 h-3 text-destructive" />
                 </button>
                 <div className="flex items-center gap-3 mb-2">
                   <UserAvatar fullName={user.full_name} size="sm" />
@@ -313,14 +405,19 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
                     <p className="text-sm font-medium text-foreground truncate">{user.full_name}</p>
                     <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
                   </div>
-                  <Badge variant="outline" className="text-[9px] h-4">{user.role}</Badge>
-                  <Badge variant="outline" className={`text-[9px] h-4 ${user.onboarding_status === 'summer_ready' ? 'text-green-400 border-green-500/30' : user.onboarding_status === 'onboarded' ? 'text-blue-400 border-blue-500/30' : user.onboarding_status === 'contract_signed' ? 'text-amber-400 border-amber-500/30' : 'text-muted-foreground'}`}>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded border border-border/40 text-muted-foreground">{user.role}</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
+                    user.onboarding_status === 'summer_ready' ? 'text-success border-success/30' :
+                    user.onboarding_status === 'onboarded' ? 'text-primary border-primary/30' :
+                    user.onboarding_status === 'contract_signed' ? 'text-warning border-warning/30' :
+                    'text-muted-foreground border-border/40'
+                  }`}>
                     {(user.onboarding_status || 'pending').replace(/_/g, ' ')}
-                  </Badge>
+                  </span>
                 </div>
                 {user.direct_manager && (
                   <p className="text-[10px] text-muted-foreground ml-10 truncate">
-                    Manager: <span className="text-white/60">{user.direct_manager}</span>
+                    Manager: <span className="text-foreground/60">{user.direct_manager}</span>
                   </p>
                 )}
               </div>
@@ -333,27 +430,27 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
       {results && (
         <div className="space-y-3">
           {results.success.length > 0 && (
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-xs font-semibold text-green-400">{results.success.length} Created Successfully</span>
+                <CheckCircle className="w-4 h-4 text-success" />
+                <span className="text-xs font-semibold text-success">{results.success.length} Created Successfully</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {results.success.map((email, i) => (
-                  <span key={i} className="text-[10px] px-2 py-0.5 bg-green-500/10 rounded text-green-300">{email}</span>
+                  <span key={i} className="text-[10px] px-2 py-0.5 bg-success/10 rounded text-success">{email}</span>
                 ))}
               </div>
             </div>
           )}
           {results.failed.length > 0 && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-4 h-4 text-red-400" />
-                <span className="text-xs font-semibold text-red-400">{results.failed.length} Failed</span>
+                <XCircle className="w-4 h-4 text-destructive" />
+                <span className="text-xs font-semibold text-destructive">{results.failed.length} Failed</span>
               </div>
               <div className="space-y-1">
                 {results.failed.map((f, i) => (
-                  <p key={i} className="text-[10px] text-red-300">{f.email}: {f.error}</p>
+                  <p key={i} className="text-[10px] text-destructive">{f.email}: {f.error}</p>
                 ))}
               </div>
             </div>
