@@ -58,7 +58,7 @@ const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 const NotepadPage = lazy(() => import("./pages/app/NotepadPage"));
 const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
 const OperationsPage = lazy(() => import("./pages/app/OperationsPage"));
-const AnalyticsPage = lazy(() => import("./pages/app/AnalyticsPage"));
+const ManagePage = lazy(() => import("./pages/app/ManagePage"));
 
 function LazyFallback() {
   return (
