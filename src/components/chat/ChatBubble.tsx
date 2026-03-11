@@ -3,13 +3,12 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { CornerDownRight } from 'lucide-react';
+import { CornerDownRight, SmilePlus, Reply } from 'lucide-react';
 import { isStickerMessage, getStickerFromMessage } from '@/components/dashboard/StickerPicker';
 import { isGifMessage, getGifUrl } from '@/components/dashboard/GifPicker';
 import { isImageMessage, getImageUrl, ChatImage, isFileMessage, getFileInfo, ChatFile } from '@/components/dashboard/ChatImageUpload';
 import { ChatPoll } from '@/components/dashboard/ChatPoll';
 
-/** Render text with clickable links */
 function renderWithLinks(text: string) {
   const urlRegex = /(https?:\/\/[^\s<]+)/g;
   const parts = text.split(urlRegex);
@@ -51,6 +50,7 @@ interface ChatBubbleProps {
   onProfileClick: (userId: string) => void;
   onContextMenu: (e: React.MouseEvent | React.TouchEvent, msgId: string) => void;
   onDoubleTap: (msgId: string) => void;
+  onReply?: (msgId: string) => void;
   isEditing: boolean;
   editText: string;
   onEditChange: (text: string) => void;
@@ -70,6 +70,7 @@ export function ChatBubble({
   onProfileClick,
   onContextMenu,
   onDoubleTap,
+  onReply,
   isEditing,
   editText,
   onEditChange,
@@ -78,9 +79,9 @@ export function ChatBubble({
 }: ChatBubbleProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
+  const [hovered, setHovered] = useState(false);
   const lastTapRef = useRef<number>(0);
 
-  // Fetch + subscribe reactions
   useEffect(() => {
     const fetchReactions = async () => {
       const { data } = await supabase
@@ -128,7 +129,6 @@ export function ChatBubble({
 
   let longPressTimer: ReturnType<typeof setTimeout>;
   const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
     longPressTimer = setTimeout(() => {
       onContextMenu(e, message.id);
     }, 500);
@@ -144,7 +144,7 @@ export function ChatBubble({
     if (r === 'owner') return 'text-amber-400';
     if (r === 'admin') return 'text-slate-300';
     if (r === 'manager') return 'text-blue-400';
-    return 'text-foreground/70';
+    return 'text-foreground/60';
   };
 
   const getRoleBorderRing = (r?: string) => {
@@ -154,10 +154,8 @@ export function ChatBubble({
     return '';
   };
 
-  // Reply context
   const parentMsg = message.reply_to ? allMessages.find(m => m.id === message.reply_to) : null;
 
-  // Render message content
   const renderContent = () => {
     if (isEditing) {
       return (
@@ -170,7 +168,7 @@ export function ChatBubble({
             className="w-full bg-transparent text-inherit text-sm focus:outline-none"
             autoFocus
           />
-          <span className="text-[10px] opacity-50 mt-1 block">esc cancel · enter save</span>
+          <span className="text-[10px] opacity-40 mt-1 block">esc cancel · enter save</span>
         </div>
       );
     }
@@ -203,14 +201,21 @@ export function ChatBubble({
   return (
     <div
       id={`msg-${message.id}`}
-      className={cn("relative px-4", isFirstInGroup ? "pt-2" : "pt-[2px]", isLastInGroup ? "pb-1" : "pb-[2px]")}
+      className={cn(
+        "relative px-3",
+        isFirstInGroup ? "pt-1.5" : "pt-[1px]",
+        isLastInGroup ? "pb-0.5" : "pb-[1px]",
+        "group"
+      )}
       onContextMenu={handleContextMenu}
       onDoubleClick={() => onDoubleTap(message.id)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchCancel}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className={cn("flex items-end gap-2.5", isOwn ? "flex-row-reverse" : "flex-row")}>
+      <div className={cn("flex items-end gap-2", isOwn ? "flex-row-reverse" : "flex-row")}>
         {/* Avatar */}
         <div className="w-7 flex-shrink-0">
           {!isOwn && isLastInGroup && !message.is_ai ? (
@@ -227,7 +232,7 @@ export function ChatBubble({
           ) : isOwn ? null : <div className="w-7" />}
         </div>
 
-        <div className={cn("max-w-[72%] min-w-0", isOwn && "ml-auto")}>
+        <div className={cn("max-w-[75%] min-w-0 relative", isOwn && "ml-auto")}>
           {/* Name */}
           {!isOwn && isFirstInGroup && !message.is_ai && (
             <button
@@ -242,13 +247,13 @@ export function ChatBubble({
           {parentMsg && (
             <div
               className={cn(
-                "flex items-center gap-1.5 mb-1 text-[11px] cursor-pointer hover:opacity-70 transition-opacity ml-1",
+                "flex items-center gap-1.5 mb-0.5 text-[11px] cursor-pointer hover:opacity-70 transition-opacity ml-1",
                 isOwn && "justify-end mr-1 ml-0"
               )}
               onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
             >
-              <CornerDownRight className="w-3 h-3 text-muted-foreground/40 flex-shrink-0" />
-              <span className="text-muted-foreground/60 truncate max-w-[180px]">
+              <CornerDownRight className="w-3 h-3 text-muted-foreground/30 flex-shrink-0" />
+              <span className="text-muted-foreground/50 truncate max-w-[180px]">
                 {parentMsg.content.slice(0, 60)}
               </span>
             </div>
@@ -258,40 +263,60 @@ export function ChatBubble({
           <div className={cn(
             "relative text-[14px] leading-relaxed whitespace-pre-wrap break-words select-text",
             hasMediaContent ? "rounded-2xl" : cn(
-              "px-3.5 py-2",
+              "px-3 py-[7px]",
               isOwn
                 ? "bg-primary text-primary-foreground"
                 : message.is_ai
-                  ? "bg-accent/40 border border-accent/30"
-                  : "bg-muted/50",
-              // iMessage-style corner rounding
+                  ? "bg-accent/30 border border-accent/20"
+                  : "bg-[hsl(var(--muted)/0.35)]",
+              // iMessage corner rounding
               isOwn ? cn(
-                "rounded-[20px]",
-                isFirstInGroup && isLastInGroup && "rounded-[20px]",
-                isFirstInGroup && !isLastInGroup && "rounded-br-[6px]",
-                !isFirstInGroup && !isLastInGroup && "rounded-r-[6px]",
-                !isFirstInGroup && isLastInGroup && "rounded-tr-[6px]",
+                "rounded-[18px]",
+                isFirstInGroup && !isLastInGroup && "rounded-br-[5px]",
+                !isFirstInGroup && !isLastInGroup && "rounded-r-[5px]",
+                !isFirstInGroup && isLastInGroup && "rounded-tr-[5px]",
               ) : cn(
-                "rounded-[20px]",
-                isFirstInGroup && isLastInGroup && "rounded-[20px]",
-                isFirstInGroup && !isLastInGroup && "rounded-bl-[6px]",
-                !isFirstInGroup && !isLastInGroup && "rounded-l-[6px]",
-                !isFirstInGroup && isLastInGroup && "rounded-tl-[6px]",
+                "rounded-[18px]",
+                isFirstInGroup && !isLastInGroup && "rounded-bl-[5px]",
+                !isFirstInGroup && !isLastInGroup && "rounded-l-[5px]",
+                !isFirstInGroup && isLastInGroup && "rounded-tl-[5px]",
               ),
             ),
-            message.is_pinned && "ring-1 ring-amber-500/30",
+            message.is_pinned && "ring-1 ring-amber-500/20",
           )}>
-            {/* AI badge */}
             {message.is_ai && isFirstInGroup && (
-              <span className="text-[10px] font-semibold text-primary/80 block mb-0.5">Summit AI</span>
+              <span className="text-[10px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}
             {renderContent()}
           </div>
 
+          {/* Hover actions - desktop only */}
+          {hovered && !isEditing && (
+            <div className={cn(
+              "absolute top-0 hidden lg:flex items-center gap-0.5 -translate-y-1/2",
+              isOwn ? "left-0 -translate-x-full pr-1" : "right-0 translate-x-full pl-1"
+            )}>
+              <button
+                onClick={() => onDoubleTap(message.id)}
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
+              >
+                <SmilePlus className="w-3 h-3" />
+              </button>
+              {onReply && (
+                <button
+                  onClick={() => onReply(message.id)}
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
+                >
+                  <Reply className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Compact reactions */}
           {reactions.length > 0 && (
             <div className={cn("flex items-center gap-0.5 mt-0.5", isOwn ? "justify-end mr-1" : "ml-1")}>
-              <div className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-card/90 border border-border/30 shadow-sm backdrop-blur-sm">
+              <div className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-card/80 border border-border/20 shadow-sm backdrop-blur-sm">
                 {reactions.slice(0, 4).map(r => (
                   <button
                     key={r.emoji}
@@ -305,7 +330,7 @@ export function ChatBubble({
                   </button>
                 ))}
                 {reactions.reduce((sum, r) => sum + r.count, 0) > 1 && (
-                  <span className="text-[10px] font-medium text-muted-foreground ml-0.5">
+                  <span className="text-[10px] font-medium text-muted-foreground/40 ml-0.5">
                     {reactions.reduce((sum, r) => sum + r.count, 0)}
                   </span>
                 )}
@@ -315,7 +340,7 @@ export function ChatBubble({
 
           {/* Timestamp */}
           {showTimestamp && isLastInGroup && (
-            <div className={cn("text-[10px] text-muted-foreground/40 mt-0.5 px-1", isOwn ? "text-right" : "text-left")}>
+            <div className={cn("text-[10px] text-muted-foreground/30 mt-0.5 px-1", isOwn ? "text-right" : "text-left")}>
               {new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
             </div>
           )}
