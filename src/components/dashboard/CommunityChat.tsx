@@ -31,7 +31,6 @@ import { useChatParticles, ParticleCanvas } from '@/components/chat/ChatParticle
 import { BackgroundDust } from '@/components/chat/BackgroundDust';
 import { useMomentum, MomentumIndicator } from '@/components/chat/MomentumIndicator';
 import { ChatLeaderboardWidget } from '@/components/chat/ChatLeaderboardWidget';
-import { SmartPrompts } from '@/components/chat/SmartPrompts';
 import { getMessageHighlight, isHotThread } from '@/components/chat/messageHighlights';
 
 /** Render text with clickable links */
