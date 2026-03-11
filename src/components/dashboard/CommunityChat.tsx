@@ -14,6 +14,8 @@ import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
+import { BackgroundDust } from '@/components/chat/BackgroundDust';
+import { SummitLoader } from '@/components/shared/SummitLoader';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -46,16 +48,16 @@ function DateSeparator({ date }: { date: Date }) {
   if (isToday(date)) label = 'Today';
   else if (isYesterday(date)) label = 'Yesterday';
   return (
-    <div className="flex items-center justify-center my-5">
-      <span className="text-[11px] font-medium text-muted-foreground/40 bg-background/80 px-3 py-1 rounded-full">{label}</span>
+    <div className="flex items-center justify-center my-4">
+      <span className="text-[10px] font-medium text-muted-foreground/30 bg-card/50 backdrop-blur-sm px-3 py-0.5 rounded-full">{label}</span>
     </div>
   );
 }
 
 function SystemMessage({ content }: { content: string }) {
   return (
-    <div className="flex items-center justify-center my-4 px-6">
-      <span className="text-[12px] text-muted-foreground/40 text-center leading-relaxed italic">{content}</span>
+    <div className="flex items-center justify-center my-3 px-6">
+      <span className="text-[11px] text-muted-foreground/30 text-center leading-relaxed italic">{content}</span>
     </div>
   );
 }
@@ -63,6 +65,7 @@ function SystemMessage({ content }: { content: string }) {
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -77,7 +80,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
 
@@ -91,24 +93,25 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const doScroll = () => container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
     doScroll();
     requestAnimationFrame(doScroll);
-    setTimeout(doScroll, 150);
+    setTimeout(doScroll, 100);
   }, []);
 
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 100);
+    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 120);
   }, []);
 
   // Fetch messages + profiles
   useEffect(() => {
     const fetchMessages = async () => {
+      setLoading(true);
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(200);
-      if (error) { console.error('Error:', error); return; }
+      if (error) { console.error('Error:', error); setLoading(false); return; }
 
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
       if (userIds.length > 0) {
@@ -129,6 +132,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         setProfileMap(map);
       }
       setMessages(([...(data || [])].reverse()).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
+      setLoading(false);
     };
     fetchMessages();
   }, []);
@@ -162,7 +166,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const channelMessages = messages.filter(m => (m.channel || 'general') === 'general');
 
-  useEffect(() => { scrollToBottom(false); }, [channelMessages.length, scrollToBottom]);
+  useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading]);
 
   // Read receipts
   useEffect(() => {
@@ -177,7 +181,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() < 5 * 60 * 1000;
   };
 
-  // Should we show a timestamp for this message? Show every ~10 min gap or on first message
   const shouldShowTime = (curr: ChatMessage, prev: ChatMessage | null) => {
     if (!prev) return true;
     return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() > 10 * 60 * 1000;
@@ -241,6 +244,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     }
   };
 
+  const handleReplyFromHover = (msgId: string) => {
+    const msg = channelMessages.find(m => m.id === msgId);
+    if (msg) setReplyingTo(msg);
+  };
+
   const handleSendFile = async (content: string) => {
     if (!user) return;
     const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: 'general' });
@@ -296,28 +304,46 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
 
   return (
-    <div className="h-full min-h-0 flex flex-col overflow-hidden bg-background relative" style={{ height: '100%', maxHeight: '100%' }}>
+    <div className="h-full min-h-0 flex flex-col overflow-hidden relative" style={{ height: '100%', maxHeight: '100%' }}>
+      {/* Cosmic background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-background" />
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 30% 20%, hsl(var(--primary)) 0%, transparent 50%), radial-gradient(circle at 70% 80%, hsl(var(--accent)) 0%, transparent 50%)',
+          }}
+        />
+        <BackgroundDust />
+      </div>
+
       {/* Header */}
-      <ChatHeader
-        channelName="Team Chat"
-        subtitle="Summit crew"
-        pinnedCount={pinnedCount}
-        onPinnedClick={() => {
-          const pinned = channelMessages.filter(m => m.is_pinned);
-          if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }}
-      />
+      <div className="relative z-[1]">
+        <ChatHeader
+          channelName="Team Chat"
+          subtitle="Summit Crew"
+          pinnedCount={pinnedCount}
+          onPinnedClick={() => {
+            const pinned = channelMessages.filter(m => m.is_pinned);
+            if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }}
+        />
+      </div>
 
       {/* Messages thread */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0">
-        {channelMessages.length === 0 && (
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
+        {loading && (
+          <SummitLoader label="Loading messages..." className="py-20" />
+        )}
+
+        {!loading && channelMessages.length === 0 && (
           <div className="text-center py-20 px-4">
-            <p className="text-lg font-semibold text-foreground/30">No messages yet</p>
-            <p className="text-sm text-muted-foreground/30 mt-1">Start the conversation</p>
+            <p className="text-lg font-semibold text-foreground/20">No messages yet</p>
+            <p className="text-sm text-muted-foreground/20 mt-1">Start the conversation</p>
           </div>
         )}
 
-        {channelMessages.map((msg, idx) => {
+        {!loading && channelMessages.map((msg, idx) => {
           const prev = idx > 0 ? channelMessages[idx - 1] : null;
           const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
           const showDate = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at));
@@ -327,7 +353,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           const showTime = shouldShowTime(msg, prev);
           const own = msg.user_id === user?.id && !msg.is_ai;
 
-          // System / bot messages
           if (msg.is_ai && msg.channel !== 'ai-coach') {
             return (
               <div key={msg.id}>
@@ -341,8 +366,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             <div key={msg.id}>
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
               {showTime && !showDate && isFirstInGroup && (
-                <div className="flex justify-center my-3">
-                  <span className="text-[10px] text-muted-foreground/30">
+                <div className="flex justify-center my-2">
+                  <span className="text-[10px] text-muted-foreground/25">
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                   </span>
                 </div>
@@ -359,6 +384,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onProfileClick={handleProfileClick}
                 onContextMenu={handleContextMenu}
                 onDoubleTap={handleDoubleTapReact}
+                onReply={handleReplyFromHover}
                 isEditing={editingId === msg.id}
                 editText={editText}
                 onEditChange={setEditText}
@@ -368,33 +394,35 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             </div>
           );
         })}
-        <div ref={messagesEndRef} className="h-4" />
+        <div ref={messagesEndRef} className="h-3" />
       </div>
 
       {/* Scroll to bottom */}
       {showScrollDown && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
-          <button onClick={() => scrollToBottom()} className="bg-card/90 backdrop-blur-xl border border-border/30 shadow-xl rounded-full p-2 text-muted-foreground/50 hover:text-foreground transition-colors">
+          <button onClick={() => scrollToBottom()} className="bg-card/80 backdrop-blur-xl border border-border/20 shadow-xl rounded-full p-2 text-muted-foreground/40 hover:text-foreground transition-all hover:shadow-2xl">
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* Composer */}
-      <ChatComposer
-        input={input}
-        onInputChange={setInput}
-        onSend={handleSend}
-        onSendFile={handleSendFile}
-        onSendGif={handleSendGif}
-        onSendSticker={handleSendSticker}
-        onCreatePoll={handleCreatePoll}
-        isSending={isSending}
-        replyingTo={replyingTo ? { full_name: getProfile(replyingTo).full_name, content: replyingTo.content } : null}
-        onCancelReply={() => setReplyingTo(null)}
-        onTyping={onTyping}
-        typingUsers={typingUsers}
-      />
+      <div className="relative z-[1]">
+        <ChatComposer
+          input={input}
+          onInputChange={setInput}
+          onSend={handleSend}
+          onSendFile={handleSendFile}
+          onSendGif={handleSendGif}
+          onSendSticker={handleSendSticker}
+          onCreatePoll={handleCreatePoll}
+          isSending={isSending}
+          replyingTo={replyingTo ? { full_name: getProfile(replyingTo).full_name, content: replyingTo.content } : null}
+          onCancelReply={() => setReplyingTo(null)}
+          onTyping={onTyping}
+          typingUsers={typingUsers}
+        />
+      </div>
 
       {/* Context menu */}
       {contextMenu && contextMsg && (
