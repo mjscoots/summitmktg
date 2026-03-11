@@ -109,8 +109,8 @@ export default function AdminUsersTab({
   const [managerFilter, setManagerFilter] = useState<string>('all');
   const [experienceFilter, setExperienceFilter] = useState<string>('all');
   const [websiteFilter, setWebsiteFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<SortKey>('date');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState<SortKey>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showFilters, setShowFilters] = useState(false);
 
   // Detail modal for inline editing
