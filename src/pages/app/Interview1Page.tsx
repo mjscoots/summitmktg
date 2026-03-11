@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import {
   ScriptTip, ChecklistItem, QuestionCard,
   FieldLabel, FieldHint, YesNoToggle,
