@@ -349,14 +349,16 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Analytics Hub */}
-              <Route path="/app/analytics" element={
+              {/* Manage Hub (replaces Analytics) */}
+              <Route path="/app/manage" element={
                 <ProtectedRoute>
                   <BootcampGate>
-                    <AnalyticsPage />
+                    <ManagePage />
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+              {/* Redirect old analytics route */}
+              <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
 
               {/* War Room */}
               <Route path="/app/war-room" element={
