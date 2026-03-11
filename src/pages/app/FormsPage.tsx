@@ -226,6 +226,23 @@ export function FormsContent() {
         ) : (
           <WeeklyOneOnOnesContent />
         )}
+    </div>
+  );
+}
+
+export default function FormsPage() {
+  return (
+    <AppLayout>
+      <main className="relative z-10 px-4 sm:px-6 py-8">
+        <PageBackButton to="/app/operations" label="Operations" />
+        <div className="flex items-center gap-3.5 mb-2">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/20 shadow-[0_0_16px_-4px_rgba(249,115,22,0.3)]">
+            <FileText className="w-5 h-5 text-orange-400" />
+          </div>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Forms</h1>
+        </div>
+        <p className="text-muted-foreground text-sm ml-[52px] mb-8">Interview forms and weekly check-ins</p>
+        <FormsContent />
       </main>
     </AppLayout>
   );
