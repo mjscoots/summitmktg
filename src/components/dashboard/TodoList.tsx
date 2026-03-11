@@ -478,8 +478,6 @@ function TodoRow({
   const cfg = PRIORITY_CONFIG[todo.priority];
   const PriorityIcon = cfg.icon;
   const isOverdue = todo.due_date && !todo.is_completed && new Date(todo.due_date + 'T23:59:59') < new Date();
-
-  return (
     const priorityBg = !todo.is_completed && !justCompleted
       ? todo.priority === 'urgent' ? 'bg-red-500/12 border border-red-500/20'
       : todo.priority === 'high' ? 'bg-orange-500/8 border border-orange-500/15'

@@ -222,8 +222,34 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <QuickActions />
 
-        {/* Mission Board (To-Do) */}
-        <TodoList />
+        {/* Mission Board Toggle: To-Do / Calendar */}
+        <div className="flex gap-1 mb-2">
+          <button
+            onClick={() => setDashboardView('todo')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+              dashboardView === 'todo'
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <ListTodo className="w-3.5 h-3.5" />
+            To-Do
+          </button>
+          <button
+            onClick={() => setDashboardView('calendar')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+              dashboardView === 'calendar'
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <CalendarIcon className="w-3.5 h-3.5" />
+            Calendar
+          </button>
+        </div>
+        {dashboardView === 'todo' ? <TodoList /> : <DashboardCalendar />}
 
         {/* See My Points — glass card */}
         <button
