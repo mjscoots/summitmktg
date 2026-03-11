@@ -137,10 +137,6 @@ export default function TrainingPage() {
             </div>
           </div>
 
-          <div className="mb-6">
-            <StreakDisplay variant="large" />
-          </div>
-
           {/* Two Selection Cards — bigger, cleaner */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <button
