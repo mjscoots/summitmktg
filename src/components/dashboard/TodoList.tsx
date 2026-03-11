@@ -369,6 +369,7 @@ export function TodoList() {
               <TodoRow
                 key={todo.id}
                 todo={todo}
+                justCompleted={false}
                 onToggle={() => toggleComplete(todo)}
                 onDelete={() => deleteTodo(todo.id)}
                 onEdit={() => openEditModal(todo)}
