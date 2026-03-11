@@ -243,16 +243,10 @@ export default function TrainingPage() {
           </div>
         </div>
 
-        {isManager && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setView('selection')}
-            className="mb-4 -ml-2 -mt-2 text-muted-foreground hover:text-foreground gap-1.5"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back
-          </Button>
+        {isManager ? (
+          <PageBackButton to="/app/training" label="Back" onClick={() => { setView('selection'); }} />
+        ) : (
+          <PageBackButton to="/app" label="Back" />
         )}
 
         {isRookieView && showWelcome && lessonsCompleted < 15 && (
