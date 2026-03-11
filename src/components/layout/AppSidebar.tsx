@@ -56,7 +56,7 @@ export function AppSidebar() {
   };
 
   // Operations paths — any of these make the Operations nav item active
-  const operationsPaths = ['/app/operations', '/app/forms', '/app/interviews', '/app/weekly-one-on-ones', '/app/calendar', '/app/links'];
+  const operationsPaths = ['/app/operations', '/app/calendar', '/app/links'];
   // Analytics paths
   const managePaths = ['/app/manage', '/app/war-room', '/app/calculators', '/app/forms', '/app/pitch-approvals'];
 
