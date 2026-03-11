@@ -70,6 +70,9 @@ export interface UserRow {
   avatar_url?: string | null;
   onboarding_status?: string | null;
   organization?: string | null;
+  region?: string | null;
+  office_name?: string | null;
+  recruiter?: string | null;
   last_active_at?: string | null;
   bootcamp_completed?: boolean;
 }
@@ -270,7 +273,7 @@ export default function AdminUsersTab({
       {subView === 'import' ? (
         <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
           <LazyMassImport
-            profiles={users.map(u => ({ user_id: u.user_id, full_name: u.full_name, email: u.email }))}
+            profiles={users.map(u => ({ user_id: u.user_id, full_name: u.full_name, email: u.email, phone: u.phone, region: u.region, organization: u.organization, office_name: u.office_name, direct_manager: u.direct_manager, experience: u.experience, team_id: u.team_id }))}
             managers={managers}
             teams={teams}
             onRefresh={onRefresh}

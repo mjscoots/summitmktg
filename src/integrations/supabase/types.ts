@@ -1373,6 +1373,7 @@ export type Database = {
           last_seen_release: string | null
           legacy_points_snapshot: number | null
           nickname: string | null
+          office_name: string | null
           onboarding_status: string | null
           organization: string | null
           otp_verified: boolean | null
@@ -1407,6 +1408,7 @@ export type Database = {
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
           nickname?: string | null
+          office_name?: string | null
           onboarding_status?: string | null
           organization?: string | null
           otp_verified?: boolean | null
@@ -1441,6 +1443,7 @@ export type Database = {
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
           nickname?: string | null
+          office_name?: string | null
           onboarding_status?: string | null
           organization?: string | null
           otp_verified?: boolean | null
