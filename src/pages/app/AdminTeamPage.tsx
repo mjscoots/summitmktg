@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, RotateCcw, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Mail, Trash2, Users, Settings, Plus, Play, Download, FileText, Eye, Book, Loader2, RefreshCw, Upload, Mic, MessageSquareText, AlertTriangle, Video, ArrowUpDown } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 
 
 import { TableSkeleton, CardsSkeleton } from '@/components/admin/AdminTabSkeleton';
