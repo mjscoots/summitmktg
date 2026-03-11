@@ -65,14 +65,6 @@ const PIPELINE_MAP: Record<string, string> = {
   'summer_ready': 'summer_ready',
 };
 
-const PIPELINE_LABELS: Record<string, string> = {
-  pending: 'Prospect Added',
-  contract_signed: 'Contract Signed',
-  info_added: 'Info Added',
-  onboarded: 'Onboarded',
-  summer_ready: 'Summer Ready',
-};
-
 // Values that should NEVER become user records
 const JUNK_VALUES = new Set([
   'the academy', 'undecided', 'decided', 'active', 'inactive',
@@ -80,12 +72,13 @@ const JUNK_VALUES = new Set([
   'info added', 'onboarded', 'summer ready', 'name', 'contact',
   'region', 'recruiter', 'office name', 'experience', 'status',
   'actions', 'office', 'region / recruiter', 'region/recruiter',
+  'n/a', 'none', 'tbd', 'unknown',
 ]);
 
 function isJunkValue(val: string): boolean {
   const lower = val.toLowerCase().trim();
   if (JUNK_VALUES.has(lower)) return true;
-  if (/^\d+$/.test(lower)) return true; // row numbers
+  if (/^\d+$/.test(lower)) return true;
   if (lower.length < 3) return true;
   return false;
 }
@@ -112,7 +105,6 @@ function isPhone(val: string): boolean {
 function isLikelyName(val: string): boolean {
   const parts = val.trim().split(/\s+/);
   if (parts.length < 2) return false;
-  // All parts should be mostly alpha
   return parts.every(p => /^[A-Za-z'\-\.]+$/.test(p));
 }
 
@@ -133,6 +125,57 @@ function normalizeForMatch(name: string): string {
   return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
+/** Check if a name is a known manager name — these should NOT become new reps */
+function isKnownManagerName(name: string, managerList: { full_name: string }[], existingProfiles: MassImportProps['profiles']): boolean {
+  const norm = normalizeForMatch(name);
+  // Check against manager list
+  for (const m of managerList) {
+    if (normalizeForMatch(m.full_name) === norm) return true;
+    if (matchNames(m.full_name, name) > 0.85) return true;
+  }
+  return false;
+}
+
+/** Deduplicate parsed results — merge entries that point to the same person */
+function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
+  const seen = new Map<string, ParsedUser>();
+  const result: ParsedUser[] = [];
+
+  for (const u of users) {
+    // Build dedup keys
+    const emailKey = u.email?.toLowerCase();
+    const phoneKey = u.phone?.replace(/\D/g, '');
+    const nameKey = normalizeForMatch(u.full_name);
+
+    const existingByEmail = emailKey ? seen.get(`email:${emailKey}`) : undefined;
+    const existingByPhone = phoneKey && phoneKey.length >= 7 ? seen.get(`phone:${phoneKey}`) : undefined;
+    const existingByName = seen.get(`name:${nameKey}`);
+
+    const existing = existingByEmail || existingByPhone || existingByName;
+
+    if (existing) {
+      // Merge: keep stronger pipeline, fill blanks
+      if (u.pipeline_status !== 'pending' && existing.pipeline_status === 'pending') {
+        existing.pipeline_status = u.pipeline_status;
+      }
+      if (u.phone && !existing.phone) existing.phone = u.phone;
+      if (u.email && !existing.email) existing.email = u.email;
+      if (u.region && !existing.region) existing.region = u.region;
+      if (u.office_name && !existing.office_name) existing.office_name = u.office_name;
+      if (u.recruiter_or_manager && !existing.recruiter_or_manager) existing.recruiter_or_manager = u.recruiter_or_manager;
+      continue; // Skip duplicate
+    }
+
+    // Register dedup keys
+    if (emailKey) seen.set(`email:${emailKey}`, u);
+    if (phoneKey && phoneKey.length >= 7) seen.set(`phone:${phoneKey}`, u);
+    seen.set(`name:${nameKey}`, u);
+    result.push(u);
+  }
+
+  return result;
+}
+
 /* ── STRICT BLOCK PARSER ── */
 function parseBlocks(
   text: string,
@@ -140,8 +183,11 @@ function parseBlocks(
   managerList: { full_name: string }[]
 ): { parsed: ParsedUser[]; skipped: { value: string; reason: string }[] } {
   const lines = text.split('\n');
-  const parsed: ParsedUser[] = [];
+  const rawParsed: ParsedUser[] = [];
   const skipped: { value: string; reason: string }[] = [];
+
+  // Build a set of known manager names for quick lookup
+  const managerNamesNorm = new Set(managerList.map(m => normalizeForMatch(m.full_name)));
 
   // Split into blocks by standalone number lines
   const blocks: string[][] = [];
@@ -158,7 +204,6 @@ function parseBlocks(
   }
   if (currentBlock.length > 0) blocks.push(currentBlock);
 
-  // If no numbered blocks detected, try line-by-line grouping
   if (blocks.length === 0) {
     const allLines = lines.map(l => l.trim()).filter(Boolean);
     if (allLines.length > 0) blocks.push(allLines);
@@ -182,19 +227,15 @@ function parseBlocks(
     let experience = 'rookie';
     let active = true;
 
-    // Parse each line by content type detection
     const unclassified: string[] = [];
 
     for (let i = 0; i < block.length; i++) {
       let line = block[i];
-      // Strip markdown link formatting
       line = line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').trim();
-
       if (!line) continue;
 
       // Skip junk
       if (isJunkValue(line)) {
-        // But check if it's a compound line: "Undecided    Rookie    Active"
         const parts = line.split(/\s{2,}|\t+/);
         for (const part of parts) {
           const p = part.trim();
@@ -204,7 +245,7 @@ function parseBlocks(
         continue;
       }
 
-      // Check compound line (tab or multi-space separated): "Undecided    Rookie    Active"
+      // Check compound line
       if (line.includes('\t') || /\s{3,}/.test(line)) {
         const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
         if (parts.length >= 2) {
@@ -212,28 +253,16 @@ function parseBlocks(
           for (const part of parts) {
             if (isExperienceLabel(part)) { experience = part.toLowerCase() === 'veteran' ? 'veteran' : 'rookie'; handled++; }
             else if (isActiveLabel(part)) { active = part.toLowerCase() === 'active'; handled++; }
-            else if (isJunkValue(part)) { if (!office_name && part.toLowerCase() !== 'undecided') office_name = part; else if (part.toLowerCase() === 'undecided') office_name = 'Undecided'; handled++; }
+            else if (isJunkValue(part)) { if (part.toLowerCase() === 'undecided') office_name = 'Undecided'; handled++; }
           }
           if (handled >= 2) continue;
         }
       }
 
-      // Email
       if (isEmail(line) && !email) { email = line.toLowerCase(); continue; }
-
-      // Phone
       if (isPhone(line) && !phone && !isLikelyName(line)) { phone = line; continue; }
-
-      // Pipeline status
-      if (isPipelineStatus(line)) {
-        pipeline_status = normalizePipeline(line);
-        continue;
-      }
-
-      // Experience label standalone
+      if (isPipelineStatus(line)) { pipeline_status = normalizePipeline(line); continue; }
       if (isExperienceLabel(line)) { experience = line.toLowerCase() === 'veteran' ? 'veteran' : 'rookie'; continue; }
-
-      // Active label standalone  
       if (isActiveLabel(line)) { active = line.toLowerCase() === 'active'; continue; }
 
       // First plausible name
@@ -242,12 +271,10 @@ function parseBlocks(
         continue;
       }
 
-      // Remaining unclassified lines
       unclassified.push(line);
     }
 
-    // Classify unclassified lines by position
-    // Expected order after name+status+phone+email: region, manager, office
+    // Classify unclassified lines
     for (let i = 0; i < unclassified.length; i++) {
       const val = unclassified[i];
       if (isJunkValue(val)) continue;
@@ -259,27 +286,32 @@ function parseBlocks(
         continue;
       }
 
-      // If looks like a name, could be manager/recruiter
       if (isLikelyName(val) && !recruiter_or_manager) {
         recruiter_or_manager = val;
         continue;
       }
 
-      // Otherwise assign to region or office
       if (!region) { region = val; continue; }
       if (!office_name) { office_name = val; continue; }
     }
 
     // Validate: must have a real name
     if (!full_name || isJunkValue(full_name)) {
-      if (full_name) skipped.push({ value: full_name, reason: 'Does not look like a valid person name' });
+      if (full_name) skipped.push({ value: full_name, reason: 'Not a valid person name' });
       continue;
     }
 
-    // Final junk check on the name
-    if (JUNK_VALUES.has(full_name.toLowerCase().trim())) {
-      skipped.push({ value: full_name, reason: 'Matched a known label/junk value' });
-      continue;
+    // *** CRITICAL: If this name is a known manager being imported as a "row", 
+    // treat it as a manager reference and skip creating a new rep record ***
+    const nameNorm = normalizeForMatch(full_name);
+    if (managerNamesNorm.has(nameNorm)) {
+      // Check if this person already exists in profiles — only skip if they already have an account
+      const existingManager = existingProfiles.find(p => normalizeForMatch(p.full_name) === nameNorm);
+      if (existingManager) {
+        // Manager already exists, skip creating duplicate
+        skipped.push({ value: full_name, reason: 'Already exists as a manager — skipped' });
+        continue;
+      }
     }
 
     // Generate email if not found
@@ -296,31 +328,31 @@ function parseBlocks(
     const normalizedImport = normalizeForMatch(full_name);
 
     for (const p of existingProfiles) {
-      const nameScore = matchNames(p.full_name, full_name);
       const normalizedExisting = normalizeForMatch(p.full_name);
       const normalizedMatch = normalizedImport === normalizedExisting;
       const emailMatch = email && p.email && p.email.toLowerCase() === email.toLowerCase();
-      const phoneMatch = phone && p.phone && p.phone.replace(/\D/g, '') === phone.replace(/\D/g, '');
+      const phoneDigits = phone.replace(/\D/g, '');
+      const profilePhoneDigits = (p.phone || '').replace(/\D/g, '');
+      const phoneMatch = phoneDigits.length >= 7 && profilePhoneDigits.length >= 7 && phoneDigits === profilePhoneDigits;
+      const nameScore = matchNames(p.full_name, full_name);
 
-      if (emailMatch || phoneMatch || nameScore > 0.7 || normalizedMatch) {
+      if (emailMatch || phoneMatch || nameScore > 0.8 || normalizedMatch) {
         alreadyExists = true;
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
-        // Determine what fields to update
         if (pipeline_status !== 'pending') updateFields.push('pipeline');
         if (phone && !p.phone) updateFields.push('phone');
         if (email && !p.email) updateFields.push('email');
         if (region && !p.region) updateFields.push('region');
         if (office_name && !p.office_name) updateFields.push('office_name');
         if (experience && !p.experience) updateFields.push('experience');
-        // Never overwrite direct_manager if already set
         if (recruiter_or_manager && !p.direct_manager) updateFields.push('manager');
         break;
       }
     }
 
-    parsed.push({
+    rawParsed.push({
       id: crypto.randomUUID(),
       full_name,
       email,
@@ -338,15 +370,19 @@ function parseBlocks(
     });
   }
 
+  // Deduplicate within this import batch
+  const parsed = deduplicateParsed(rawParsed);
+
   return { parsed, skipped };
 }
 
 /* ── LOADING STEPS ── */
 const LOADING_STEPS = [
-  'Importing users...',
-  'Matching existing users...',
+  'Importing...',
+  'Matching existing people...',
+  'Merging duplicates...',
   'Updating statuses...',
-  'Finalizing import...',
+  'Finalizing...',
 ];
 
 /* ── COMPONENT ── */
@@ -368,7 +404,6 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
 
     try {
       // Step 1: Parse
-      setLoadingStep(0);
       const { parsed, skipped } = parseBlocks(rawText, profiles, managers);
 
       if (parsed.length === 0) {
@@ -386,9 +421,11 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
 
       const createdNames: string[] = [];
       const updatedNames: string[] = [];
+      const mergedCount = existingUsers.filter(u => u.updateFields.length > 0).length;
       const failedRows: { value: string; reason: string }[] = [...skipped];
 
       // Step 3: Create new users in batches of 50
+      setLoadingStep(2);
       if (newUsers.length > 0) {
         const usersToCreate = newUsers.map(u => ({
           full_name: u.full_name,
@@ -418,7 +455,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       }
 
       // Step 4: Update existing users
-      setLoadingStep(2);
+      setLoadingStep(3);
       for (const user of existingUsers) {
         if (!user.matchedUserId || user.updateFields.length === 0) continue;
         try {
@@ -443,13 +480,13 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       }
 
       // Step 5: Finalize
-      setLoadingStep(3);
+      setLoadingStep(4);
       await new Promise(r => setTimeout(r, 200));
 
       setResults({
         created: createdNames.length,
         updated: updatedNames.length,
-        merged: existingUsers.filter(u => u.updateFields.length > 0).length,
+        merged: mergedCount,
         skipped: failedRows.length,
         details: {
           newUsers: createdNames,
@@ -458,13 +495,12 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         },
       });
 
-      // Clear input
       setRawText('');
       onRefresh();
 
       toast({
         title: 'Import Complete',
-        description: `${createdNames.length} created, ${updatedNames.length} updated, ${failedRows.length} skipped`,
+        description: `${createdNames.length} created, ${updatedNames.length} updated, ${mergedCount} merged, ${failedRows.length} skipped`,
       });
     } catch (err: any) {
       toast({ title: 'Import Failed', description: err.message, variant: 'destructive' });
@@ -477,82 +513,79 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
 
   return (
     <div className="space-y-5">
-      {/* Results Summary (shown after import) */}
+      {/* Results Summary */}
       {results && (
-        <div className="space-y-4">
-          <div className="p-5 bg-card border border-border/40 rounded-xl">
-            <h3 className="text-base font-bold text-foreground mb-4">Import Complete</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
-                <p className="text-2xl font-black text-green-400">{results.created}</p>
-                <p className="text-[10px] text-green-400/70 uppercase tracking-wider">New Users</p>
-              </div>
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-center">
-                <p className="text-2xl font-black text-blue-400">{results.updated}</p>
-                <p className="text-[10px] text-blue-400/70 uppercase tracking-wider">Updated</p>
-              </div>
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-center">
-                <p className="text-2xl font-black text-amber-400">{results.merged}</p>
-                <p className="text-[10px] text-amber-400/70 uppercase tracking-wider">Merged</p>
-              </div>
-              <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
-                <p className="text-2xl font-black text-muted-foreground">{results.skipped}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Skipped</p>
-              </div>
+        <div className="p-5 bg-card border border-border/40 rounded-xl space-y-4">
+          <h3 className="text-base font-bold text-foreground">Import Complete</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
+              <p className="text-2xl font-black text-green-400">{results.created}</p>
+              <p className="text-[10px] text-green-400/70 uppercase tracking-wider">New</p>
             </div>
-
-            {/* Expandable Details */}
-            <button
-              onClick={() => setShowDetails(!showDetails)}
-              className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              {showDetails ? 'Hide Details' : 'View Details'}
-            </button>
-
-            {showDetails && (
-              <div className="mt-3 space-y-3">
-                {results.details.newUsers.length > 0 && (
-                  <div className="p-3 bg-green-500/5 border border-green-500/10 rounded-lg">
-                    <p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1.5">
-                      <CheckCircle className="w-3 h-3 inline mr-1" />{results.details.newUsers.length} New Users Created
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {results.details.newUsers.map((n, i) => (
-                        <span key={i} className="text-[10px] px-2 py-0.5 bg-green-500/10 rounded text-green-400">{n}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {results.details.updatedUsers.length > 0 && (
-                  <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg">
-                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1.5">
-                      <RefreshCw className="w-3 h-3 inline mr-1" />{results.details.updatedUsers.length} Users Updated
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {results.details.updatedUsers.map((n, i) => (
-                        <span key={i} className="text-[10px] px-2 py-0.5 bg-blue-500/10 rounded text-blue-400">{n}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {results.details.skippedRows.length > 0 && (
-                  <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                      <XCircle className="w-3 h-3 inline mr-1" />{results.details.skippedRows.length} Skipped
-                    </p>
-                    <div className="space-y-0.5">
-                      {results.details.skippedRows.map((s, i) => (
-                        <p key={i} className="text-[10px] text-muted-foreground">
-                          <span className="text-foreground/60">{s.value}</span> — {s.reason}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-center">
+              <p className="text-2xl font-black text-blue-400">{results.updated}</p>
+              <p className="text-[10px] text-blue-400/70 uppercase tracking-wider">Updated</p>
+            </div>
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-center">
+              <p className="text-2xl font-black text-amber-400">{results.merged}</p>
+              <p className="text-[10px] text-amber-400/70 uppercase tracking-wider">Merged</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-muted-foreground">{results.skipped}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Skipped</p>
+            </div>
           </div>
+
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showDetails ? 'Hide Details' : 'View Details'}
+          </button>
+
+          {showDetails && (
+            <div className="space-y-3">
+              {results.details.newUsers.length > 0 && (
+                <div className="p-3 bg-green-500/5 border border-green-500/10 rounded-lg">
+                  <p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1.5">
+                    <CheckCircle className="w-3 h-3 inline mr-1" />{results.details.newUsers.length} New
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {results.details.newUsers.map((n, i) => (
+                      <span key={i} className="text-[10px] px-2 py-0.5 bg-green-500/10 rounded text-green-400">{n}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {results.details.updatedUsers.length > 0 && (
+                <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg">
+                  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1.5">
+                    <RefreshCw className="w-3 h-3 inline mr-1" />{results.details.updatedUsers.length} Updated
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {results.details.updatedUsers.map((n, i) => (
+                      <span key={i} className="text-[10px] px-2 py-0.5 bg-blue-500/10 rounded text-blue-400">{n}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {results.details.skippedRows.length > 0 && (
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+                    <XCircle className="w-3 h-3 inline mr-1" />{results.details.skippedRows.length} Skipped
+                  </p>
+                  <div className="space-y-0.5 max-h-40 overflow-y-auto">
+                    {results.details.skippedRows.map((s, i) => (
+                      <p key={i} className="text-[10px] text-muted-foreground">
+                        <span className="text-foreground/60">{s.value}</span> — {s.reason}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -561,18 +594,16 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-1">Paste User Data</h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Paste from GetHawx, spreadsheets, or any tabular format. The parser will detect names,
-            phone numbers, emails, pipeline stages, regions, and managers automatically.
+            Paste from GetHawx, spreadsheets, or any tabular format. Manager names are treated as references, not new reps.
           </p>
         </div>
         <Textarea
           value={rawText}
           onChange={e => setRawText(e.target.value)}
-          placeholder={`Paste here...\n\nExample format:\n1\nMason James Thomas\nContract Signed\n\n5098447604\nthanoceros44@gmail.com\nThe Academy\nBodhi Jordan Miller\nUndecided    Rookie    Active`}
+          placeholder={`Paste here...\n\nExample:\n1\nMason James Thomas\nContract Signed\n5098447604\nthanoceros44@gmail.com\nThe Academy\nBodhi Jordan Miller\nUndecided    Rookie    Active`}
           className="min-h-[180px] bg-muted/30 border-border/50 font-mono text-xs"
         />
 
-        {/* Default Settings */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <label className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 block">Default Manager</label>
@@ -613,7 +644,6 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           </span>
         </div>
 
-        {/* Loading State */}
         {importing && (
           <div className="p-4 bg-card border border-border/40 rounded-xl">
             <div className="space-y-2">
