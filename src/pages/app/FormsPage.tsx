@@ -50,7 +50,7 @@ const interviewCards = [
   },
 ];
 
-export function FormsContent() {
+export default function FormsPage() {
   const { role, isLoading } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<FormSection>('interviews');
@@ -58,30 +58,47 @@ export function FormsContent() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
   if (role !== 'manager' && role !== 'admin' && role !== 'owner') {
+    navigate('/app', { replace: true });
     return null;
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Hawx Admin link */}
-      <div className="flex justify-end mb-6">
-        <a
-          href="https://www.gethawx.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-lg hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
-        >
-          <span>Hawx Admin</span>
-          <ExternalLink className="w-4 h-4" />
-        </a>
-      </div>
+    <AppLayout>
+      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Back Button */}
+        <PageBackButton to="/app/operations" label="Operations" />
+
+        {/* Header */}
+        <div className="flex items-start justify-between mb-10">
+          <div>
+            <div className="flex items-center gap-3.5 mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/20 shadow-[0_0_16px_-4px_rgba(249,115,22,0.3)]">
+                <FileText className="w-5 h-5 text-orange-400" />
+              </div>
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Forms</h1>
+            </div>
+            <p className="text-muted-foreground text-sm ml-[52px]">
+              Interview forms and weekly check-ins
+            </p>
+          </div>
+
+          <a
+            href="https://www.gethawx.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-lg hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
+          >
+            <span>Hawx Admin</span>
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
 
         {/* Main Section Toggle */}
         <div className="flex gap-3 mb-8">
@@ -146,7 +163,6 @@ export function FormsContent() {
                       )}
                     >
                       <div className="flex items-start gap-4 mb-5">
-                        {/* Number Badge */}
                         <div
                           className={cn(
                             'w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0',
@@ -166,7 +182,6 @@ export function FormsContent() {
 
                       <div className="flex-1" />
 
-                      {/* Open Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -226,23 +241,6 @@ export function FormsContent() {
         ) : (
           <WeeklyOneOnOnesContent />
         )}
-    </div>
-  );
-}
-
-export default function FormsPage() {
-  return (
-    <AppLayout>
-      <main className="relative z-10 px-4 sm:px-6 py-8">
-        <PageBackButton to="/app/operations" label="Operations" />
-        <div className="flex items-center gap-3.5 mb-2">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/20 shadow-[0_0_16px_-4px_rgba(249,115,22,0.3)]">
-            <FileText className="w-5 h-5 text-orange-400" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">Forms</h1>
-        </div>
-        <p className="text-muted-foreground text-sm ml-[52px] mb-8">Interview forms and weekly check-ins</p>
-        <FormsContent />
       </main>
     </AppLayout>
   );

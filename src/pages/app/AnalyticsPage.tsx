@@ -2,10 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Wrench, FileText, Calendar, Link2, ArrowRight } from 'lucide-react';
+import { BarChart3, Swords, Calculator, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface OpCard {
+interface AnalyticsCard {
   id: string;
   label: string;
   description: string;
@@ -16,38 +16,29 @@ interface OpCard {
   managerOnly?: boolean;
 }
 
-const cards: OpCard[] = [
+const cards: AnalyticsCard[] = [
   {
-    id: 'forms',
-    label: 'Forms',
-    description: 'Interview forms and weekly check-ins',
-    icon: FileText,
-    path: '/app/forms',
-    gradient: 'from-orange-500 to-amber-500',
-    glow: 'shadow-[0_0_20px_-4px_rgba(249,115,22,0.4)]',
+    id: 'stats',
+    label: 'Stats',
+    description: 'Team training, progress, and accountability',
+    icon: Swords,
+    path: '/app/war-room',
+    gradient: 'from-red-500 to-orange-500',
+    glow: 'shadow-[0_0_20px_-4px_rgba(239,68,68,0.4)]',
     managerOnly: true,
   },
   {
-    id: 'calendar',
-    label: 'Calendar',
-    description: 'Team events, calls, and scheduling',
-    icon: Calendar,
-    path: '/app/calendar',
-    gradient: 'from-red-500 to-rose-500',
-    glow: 'shadow-[0_0_20px_-4px_rgba(239,68,68,0.4)]',
-  },
-  {
-    id: 'resources',
-    label: 'Resources',
-    description: 'Links, phone numbers, and tools',
-    icon: Link2,
-    path: '/app/links',
-    gradient: 'from-violet-500 to-purple-500',
-    glow: 'shadow-[0_0_20px_-4px_rgba(139,92,246,0.4)]',
+    id: 'calculators',
+    label: 'Calculators',
+    description: 'Estimate your earning potential',
+    icon: Calculator,
+    path: '/app/calculators',
+    gradient: 'from-emerald-500 to-teal-500',
+    glow: 'shadow-[0_0_20px_-4px_rgba(16,185,129,0.4)]',
   },
 ];
 
-export default function OperationsPage() {
+export default function AnalyticsPage() {
   const { role } = useAuth();
   const navigate = useNavigate();
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
@@ -62,18 +53,18 @@ export default function OperationsPage() {
         {/* Header */}
         <div className="mb-10">
           <div className="flex items-center gap-3.5 mb-2">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-blue-500/10 border border-primary/20 shadow-[0_0_16px_-4px_hsl(var(--primary)/0.3)]">
-              <Wrench className="w-5 h-5 text-primary" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/20 shadow-[0_0_16px_-4px_rgba(16,185,129,0.3)]">
+              <BarChart3 className="w-5 h-5 text-emerald-400" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">Operations</h1>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">Analytics</h1>
           </div>
           <p className="text-muted-foreground text-sm ml-[52px]">
-            Operational tools for running your team
+            Data and performance tools
           </p>
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {availableCards.map((card) => {
             const Icon = card.icon;
             return (
