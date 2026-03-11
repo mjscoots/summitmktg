@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessagesSquare, Sun, Moon, Wrench, BarChart3, Play } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessagesSquare, Sun, Moon, Wrench, Settings2, Play } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +33,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy, iconColor: 'text-yellow-400' },
   { label: 'Community', path: '/app/chat', icon: MessagesSquare, iconColor: 'text-purple-400' },
   { label: 'Operations', path: '/app/operations', icon: Wrench, iconColor: 'text-green-400' },
-  { label: 'Analytics', path: '/app/analytics', icon: BarChart3, iconColor: 'text-emerald-400' },
+  { label: 'Manage', path: '/app/manage', icon: Settings2, iconColor: 'text-emerald-400' },
 ];
 
 export function AppSidebar() {
@@ -56,17 +56,17 @@ export function AppSidebar() {
   };
 
   // Operations paths — any of these make the Operations nav item active
-  const operationsPaths = ['/app/operations', '/app/forms', '/app/interviews', '/app/weekly-one-on-ones', '/app/calendar', '/app/links'];
+  const operationsPaths = ['/app/operations', '/app/calendar', '/app/links'];
   // Analytics paths
-  const analyticsPaths = ['/app/analytics', '/app/war-room', '/app/calculators'];
+  const managePaths = ['/app/manage', '/app/war-room', '/app/calculators', '/app/forms', '/app/pitch-approvals'];
 
   const isActive = (path: string) => {
     if (path === '/app') return location.pathname === '/app';
     if (path === '/app/operations') {
       return operationsPaths.some(p => location.pathname.startsWith(p));
     }
-    if (path === '/app/analytics') {
-      return analyticsPaths.some(p => location.pathname.startsWith(p));
+    if (path === '/app/manage') {
+      return managePaths.some(p => location.pathname.startsWith(p));
     }
     if (path === '/app/training') {
       return location.pathname.startsWith('/app/training');

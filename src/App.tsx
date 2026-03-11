@@ -58,7 +58,7 @@ const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 const NotepadPage = lazy(() => import("./pages/app/NotepadPage"));
 const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
 const OperationsPage = lazy(() => import("./pages/app/OperationsPage"));
-const AnalyticsPage = lazy(() => import("./pages/app/AnalyticsPage"));
+const ManagePage = lazy(() => import("./pages/app/ManagePage"));
 
 function LazyFallback() {
   return (
@@ -349,14 +349,16 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Analytics Hub */}
-              <Route path="/app/analytics" element={
+              {/* Manage Hub (replaces Analytics) */}
+              <Route path="/app/manage" element={
                 <ProtectedRoute>
                   <BootcampGate>
-                    <AnalyticsPage />
+                    <ManagePage />
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+              {/* Redirect old analytics route */}
+              <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
 
               {/* War Room */}
               <Route path="/app/war-room" element={
