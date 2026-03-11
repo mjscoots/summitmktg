@@ -158,40 +158,44 @@ export default function TrainingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <button
               onClick={() => setView('rookie')}
-              className="group relative p-8 bg-card rounded-xl border-2 border-success/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.4)] text-left"
+              className="group relative p-6 bg-card rounded-xl border-2 border-success/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.4)] text-left overflow-hidden"
             >
+              <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-success/8 via-transparent to-success/3 pointer-events-none rounded-xl" />
               <div className="absolute top-3 right-3">
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
                   SALES
                 </span>
               </div>
-              <div className="p-4 rounded-xl bg-success/15 text-success w-fit mb-4 group-hover:bg-success/25 transition-colors">
-                <BookOpen className="w-10 h-10" />
+              <div className="p-3 rounded-xl bg-success/15 text-success w-fit mb-3 group-hover:bg-success/25 transition-colors relative">
+                <BookOpen className="w-8 h-8" />
               </div>
-              <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-success transition-colors">
+              <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-success transition-colors relative">
                 Sales Training
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground relative">
                 Learn Your Pitch, Summer Sales Manual, Videos
               </p>
             </button>
 
             <button
               onClick={() => setView('manager')}
-              className="group relative p-8 bg-card rounded-xl border-2 border-primary/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-primary/60 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.4)] text-left"
+              className="group relative p-6 bg-card rounded-xl border-2 border-primary/30 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-primary/60 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.4)] text-left overflow-hidden"
             >
+              <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-primary/3 pointer-events-none rounded-xl" />
               <div className="absolute top-3 right-3">
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30">
                   MANAGER
                 </span>
               </div>
-              <div className="p-4 rounded-xl bg-primary/15 text-primary w-fit mb-4 group-hover:bg-primary/25 transition-colors">
-                <Users className="w-10 h-10" />
+              <div className="p-3 rounded-xl bg-primary/15 text-primary w-fit mb-3 group-hover:bg-primary/25 transition-colors relative">
+                <Users className="w-8 h-8" />
               </div>
-              <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+              <h2 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors relative">
                 Manager Training
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground relative">
                 Manager Manual, Recruiting Resources, Manager Videos
               </p>
             </button>
