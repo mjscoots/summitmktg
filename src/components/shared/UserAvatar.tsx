@@ -70,7 +70,7 @@ const dotSizeClasses = {
   lg: 'w-3 h-3 border-2',
 };
 
-export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, tierPct, teamName, rank, totalEntries }: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, isTyping, tierPct, teamName, rank, totalEntries }: UserAvatarProps) {
   const initials = useMemo(() => getInitials(fullName), [fullName]);
   const teamColor = useMemo(() => getTeamColor(teamName), [teamName]);
   const bgColor = useMemo(() => teamName ? teamColor.bg : getColorFromName(fullName), [teamName, teamColor, fullName]);
