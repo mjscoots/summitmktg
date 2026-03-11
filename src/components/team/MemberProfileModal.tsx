@@ -90,6 +90,7 @@ export function MemberProfileModal({
   const [allTimeBreakdown, setAllTimeBreakdown] = useState<any>(null);
   const [pointsExpanded, setPointsExpanded] = useState(false);
   const [allTimeExpanded, setAllTimeExpanded] = useState(false);
+  const [propsSent, setPropsSent] = useState(false);
 
   // Fetch pillars if not provided
   useEffect(() => {
