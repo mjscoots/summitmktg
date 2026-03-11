@@ -29,7 +29,17 @@ const getTaskTypeBadge = (taskType: PriorityTask['task_type']) => {
 export function OneOnOneTasks() {
   const { tasks, loading, toggleTaskCompletion } = usePriorityTasks();
 
+  const [justCompleted, setJustCompleted] = useState<Set<string>>(new Set());
+
   const handleToggle = async (taskId: string, isCompleted: boolean) => {
+    if (!isCompleted) {
+      setJustCompleted(prev => new Set(prev).add(taskId));
+      setTimeout(() => setJustCompleted(prev => {
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      }), 600);
+    }
     const success = await toggleTaskCompletion(taskId, isCompleted);
     if (success) {
       toast.success(isCompleted ? 'Task unmarked' : 'Task completed!');
