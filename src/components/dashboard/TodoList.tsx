@@ -138,7 +138,7 @@ export function TodoList() {
         const next = new Set(prev);
         next.delete(todo.id);
         return next;
-      }), 600);
+      }), 1200);
     }
     await supabase.from('todo_items').update({
       is_completed: nowCompleting,
