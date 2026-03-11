@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessagesSquare, Sun, Moon, Wrench, Settings2 } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Sun, Moon, Wrench, Settings2 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
