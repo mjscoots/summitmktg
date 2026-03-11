@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 
-import { BookOpen, Users, ChevronLeft } from 'lucide-react';
+import { BookOpen, Users, ChevronLeft, Play, ChevronRight } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
@@ -112,6 +112,23 @@ export default function TrainingPage() {
           <GlobalTrainingProgress filterRole="rookie" />
           <TrainingTiles filterRole="rookie" />
 
+          {/* Videos Banner */}
+          <button
+            onClick={() => navigate('/app/videos')}
+            className="group w-full mt-6 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
+          >
+            <div className="p-3.5 rounded-xl bg-rose-500/15 text-rose-400 group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
+              <Play className="w-7 h-7" fill="currentColor" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-foreground group-hover:text-rose-400 transition-colors">
+                Sales Training Videos
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Watch training videos, walkthroughs, and recorded sessions</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-rose-400 transition-colors flex-shrink-0" />
+          </button>
+
           <div className="mt-6">
             <TrainingLeaderboardPanel />
           </div>
@@ -179,6 +196,23 @@ export default function TrainingPage() {
               </p>
             </button>
           </div>
+
+          {/* Videos Banner */}
+          <button
+            onClick={() => navigate('/app/videos')}
+            className="group w-full mt-5 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
+          >
+            <div className="p-3.5 rounded-xl bg-rose-500/15 text-rose-400 group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
+              <Play className="w-7 h-7" fill="currentColor" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-foreground group-hover:text-rose-400 transition-colors">
+                Sales Training Videos
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Watch training videos, walkthroughs, and recorded sessions</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-rose-400 transition-colors flex-shrink-0" />
+          </button>
         </div>
       </AppLayout>
     );
