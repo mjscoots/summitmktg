@@ -447,6 +447,10 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             );
           }
 
+          const msgReactionCount = reactionCounts[msg.id] || 0;
+          const highlight = getMessageHighlight(msgReactionCount);
+          const hot = isHotThread(msgReactionCount, msg.created_at);
+
           return (
             <div key={msg.id}>
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
@@ -456,12 +460,30 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onDoubleClick={() => { if (!msg.is_ai) handleDoubleClickReact(msg.id); }}
                 onTouchEnd={() => { if (!msg.is_ai) handleTouchDoubleTap(msg.id); }}
                 className={cn(
-                  "group/msg relative px-4 hover:bg-muted/30 transition-colors select-none",
+                  "group/msg relative px-4 hover:bg-muted/30 transition-all select-none",
                   grouped ? "py-0.5" : "pt-3 pb-1",
                   msg.is_pinned && "bg-amber-500/[0.03] border-l-2 border-amber-500/30",
-                  postOfTheDayId === msg.id && "post-of-the-day"
+                  postOfTheDayId === msg.id && "post-of-the-day",
+                  highlight.className,
+                  hot && "animate-hot-pulse",
+                  justSentId === msg.id && "animate-msg-send"
                 )}
               >
+                {/* Hot Thread badge */}
+                {hot && !highlight.badge && (
+                  <div className="flex items-center gap-1.5 mb-1 ml-[52px]">
+                    <Flame className="w-3 h-3 text-orange-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-orange-500/90">Hot Thread</span>
+                  </div>
+                )}
+
+                {/* Top Insight badge */}
+                {highlight.badge && (
+                  <div className="flex items-center gap-1.5 mb-1 ml-[52px]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/90">{highlight.badge}</span>
+                  </div>
+                )}
+
                 {postOfTheDayId === msg.id && (
                   <div className="flex items-center gap-1.5 mb-1.5 ml-[52px]">
                     <Crown className="w-3.5 h-3.5 text-yellow-500" />
