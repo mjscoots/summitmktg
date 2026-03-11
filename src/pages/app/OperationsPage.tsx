@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Wrench, FileText, Calendar, Link2, ChevronRight } from 'lucide-react';
+import { FileText, Calendar, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OpCard {
@@ -11,11 +11,15 @@ interface OpCard {
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   path: string;
-  gradient: string;
-  glow: string;
+  colorClass: string;
   hoverBorder: string;
+  hoverShadow: string;
+  tag?: string;
   managerOnly?: boolean;
 }
+
+const GRID_PATTERN =
+  "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]";
 
 const cards: OpCard[] = [
   {
@@ -24,9 +28,10 @@ const cards: OpCard[] = [
     description: 'Interview forms and weekly check-ins',
     icon: FileText,
     path: '/app/forms',
-    gradient: 'from-orange-500 to-amber-500',
-    glow: 'shadow-[0_0_24px_-6px_rgba(249,115,22,0.45)]',
-    hoverBorder: 'hover:border-orange-500/20',
+    colorClass: 'text-orange-400 bg-orange-500/15 group-hover:bg-orange-500/25',
+    hoverBorder: 'hover:border-orange-500/40',
+    hoverShadow: 'hover:shadow-[0_0_30px_-10px_rgba(249,115,22,0.4)]',
+    tag: 'MANAGE',
     managerOnly: true,
   },
   {
@@ -35,9 +40,9 @@ const cards: OpCard[] = [
     description: 'Team events, calls, and scheduling',
     icon: Calendar,
     path: '/app/calendar',
-    gradient: 'from-red-500 to-rose-500',
-    glow: 'shadow-[0_0_24px_-6px_rgba(239,68,68,0.45)]',
-    hoverBorder: 'hover:border-red-500/20',
+    colorClass: 'text-red-400 bg-red-500/15 group-hover:bg-red-500/25',
+    hoverBorder: 'hover:border-red-500/40',
+    hoverShadow: 'hover:shadow-[0_0_30px_-10px_rgba(239,68,68,0.4)]',
   },
   {
     id: 'resources',
@@ -45,9 +50,9 @@ const cards: OpCard[] = [
     description: 'Links, phone numbers, and tools',
     icon: Link2,
     path: '/app/links',
-    gradient: 'from-violet-500 to-purple-500',
-    glow: 'shadow-[0_0_24px_-6px_rgba(139,92,246,0.45)]',
-    hoverBorder: 'hover:border-violet-500/20',
+    colorClass: 'text-violet-400 bg-violet-500/15 group-hover:bg-violet-500/25',
+    hoverBorder: 'hover:border-violet-500/40',
+    hoverShadow: 'hover:shadow-[0_0_30px_-10px_rgba(139,92,246,0.4)]',
   },
 ];
 
@@ -60,94 +65,63 @@ export default function OperationsPage() {
 
   return (
     <AppLayout>
-      <main className="relative max-w-5xl mx-auto px-4 sm:px-6 py-8 overflow-hidden">
-        {/* Ambient background glow */}
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-primary/[0.04] blur-[120px]" />
-        </div>
-
+      <div className="max-w-5xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Dashboard" />
 
-        {/* ── Hero Header ── */}
-        <div className="mb-12">
-          <div className="flex items-start gap-4">
-            {/* Icon badge with glow halo */}
-            <div className="relative mt-0.5">
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/30 to-blue-400/20 blur-xl" />
-              <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/25 to-blue-500/15 border border-primary/20 flex items-center justify-center shadow-[0_0_24px_-6px_hsl(var(--primary)/0.4)]">
-                <Wrench className="w-5.5 h-5.5 text-primary" />
-              </div>
-            </div>
-            {/* Title block */}
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">
-                Operations
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5">
-                Operational tools for running your team
-              </p>
-            </div>
+        {/* Hero Banner — matches Training page */}
+        <div className="relative h-40 rounded-xl overflow-hidden mb-6">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-blue-500/15 to-teal-500/20" />
+          <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight drop-shadow-sm">
+              OPERATIONS
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Tools for running and managing your team
+            </p>
           </div>
         </div>
 
-        {/* ── Cards Grid ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Feature Cards — Training-style */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {availableCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div
+              <button
                 key={card.id}
                 onClick={() => navigate(card.path)}
                 className={cn(
-                  'group relative rounded-2xl p-5 cursor-pointer transition-all duration-300',
-                  'bg-[rgba(18,18,26,0.75)] backdrop-blur-sm',
-                  'border border-white/[0.06]',
+                  'group relative p-8 bg-card rounded-xl text-left',
+                  'border-2 border-border/50 cursor-pointer',
+                  'transition-all duration-300 hover:scale-[1.02]',
                   card.hoverBorder,
-                  'hover:-translate-y-1',
-                  'hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)]'
+                  card.hoverShadow
                 )}
               >
-                <div className="flex items-center gap-3.5">
-                  {/* Icon badge with glow */}
-                  <div className="relative flex-shrink-0">
-                    <div className={cn(
-                      'absolute inset-0 rounded-xl blur-lg opacity-0 group-hover:opacity-60 transition-opacity duration-500',
-                      'bg-gradient-to-br',
-                      card.gradient
-                    )} />
-                    <div
-                      className={cn(
-                        'relative w-11 h-11 rounded-xl flex items-center justify-center',
-                        'bg-gradient-to-br',
-                        card.gradient,
-                        card.glow,
-                        'transition-all duration-300 group-hover:scale-105'
-                      )}
-                    >
-                      <Icon className="w-5 h-5 text-white" />
-                    </div>
+                {card.tag && (
+                  <div className="absolute top-3 right-3">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-orange-500/15 text-orange-400 border border-orange-500/30">
+                      {card.tag}
+                    </span>
                   </div>
-
-                  {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground text-[15px] leading-tight">{card.label}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{card.description}</p>
-                  </div>
-
-                  <ChevronRight className="w-4.5 h-4.5 text-muted-foreground/30 group-hover:text-foreground/60 transition-all duration-200 group-hover:translate-x-0.5 flex-shrink-0" />
-                </div>
-
-                {/* Bottom accent line on hover */}
+                )}
                 <div className={cn(
-                  'absolute bottom-0 inset-x-4 h-px rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
-                  'bg-gradient-to-r',
-                  card.gradient
-                )} />
-              </div>
+                  'p-4 rounded-xl w-fit mb-4 transition-colors',
+                  card.colorClass
+                )}>
+                  <Icon className="w-10 h-10" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-foreground transition-colors">
+                  {card.label}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {card.description}
+                </p>
+              </button>
             );
           })}
         </div>
-      </main>
+      </div>
     </AppLayout>
   );
 }
