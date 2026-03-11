@@ -139,25 +139,32 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
       }
     });
 
-    if (hasReacted) {
-      await supabase
-        .from('chat_reactions')
-        .delete()
-        .eq('message_id', messageId)
-        .eq('user_id', user.id)
-        .eq('emoji', emoji);
-    } else {
-      await supabase
-        .from('chat_reactions')
-        .insert({ message_id: messageId, user_id: user.id, emoji });
-      // Award reaction points (non-blocking)
-      if (messageAuthorId) {
-        (supabase.rpc as any)('award_reaction_points', {
-          _reactor_user_id: user.id,
-          _author_user_id: messageAuthorId,
-          _message_id: messageId,
-        }).catch(() => {});
+    try {
+      if (hasReacted) {
+        const { error } = await supabase
+          .from('chat_reactions')
+          .delete()
+          .eq('message_id', messageId)
+          .eq('user_id', user.id)
+          .eq('emoji', emoji);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('chat_reactions')
+          .insert({ message_id: messageId, user_id: user.id, emoji });
+        if (error) throw error;
+        // Award reaction points (non-blocking)
+        if (messageAuthorId) {
+          supabase.rpc('award_reaction_points', {
+            _reactor_user_id: user.id,
+            _author_user_id: messageAuthorId,
+            _message_id: messageId,
+          }).catch(() => {});
+        }
       }
+    } catch (err) {
+      console.error('Reaction error:', err);
+      toast('Failed to react — try again', { duration: 2000 });
     }
 
     setShowPicker(false);
