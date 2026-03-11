@@ -155,7 +155,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [justSentId, setJustSentId] = useState<string | null>(null);
-  const [showSmartPrompts, setShowSmartPrompts] = useState(true);
+  
   const { canvasRef, burst } = useChatParticles();
   const { momentum, recordMessage } = useMomentum();
   const sendBtnRef = useRef<HTMLButtonElement>(null);
