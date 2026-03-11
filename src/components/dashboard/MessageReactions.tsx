@@ -155,7 +155,7 @@ export function MessageReactions({ messageId, profileMap, messageAuthorId }: Mes
         if (error) throw error;
         // Award reaction points (non-blocking)
         if (messageAuthorId) {
-          supabase.rpc('award_reaction_points', {
+          (supabase.rpc as any)('award_reaction_points', {
             _reactor_user_id: user.id,
             _author_user_id: messageAuthorId,
             _message_id: messageId,
