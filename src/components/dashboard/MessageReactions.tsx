@@ -33,7 +33,7 @@ interface MessageReactionsProps {
   isOwnMessage?: boolean;
 }
 
-export function MessageReactions({ messageId, profileMap, messageAuthorId }: MessageReactionsProps) {
+export function MessageReactions({ messageId, profileMap, messageAuthorId, isOwnMessage = false }: MessageReactionsProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [showPicker, setShowPicker] = useState<'quick' | 'full' | false>(false);
