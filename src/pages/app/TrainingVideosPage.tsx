@@ -141,10 +141,8 @@ export default function TrainingVideosPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Breadcrumbs items={[
-          { label: 'Training', to: '/app/training' },
-          { label: 'Videos' },
-        ]} />
+        {/* Back Button */}
+        <PageBackButton to="/app/training" label="Training" />
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">

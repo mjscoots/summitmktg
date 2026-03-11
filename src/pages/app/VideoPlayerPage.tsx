@@ -205,11 +205,8 @@ export default function VideoPlayerPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <Breadcrumbs items={[
-          { label: 'Training', to: '/app/training' },
-          { label: 'Videos', to: '/app/training/videos' },
-          { label: video.title },
-        ]} />
+        {/* Back Button */}
+        <PageBackButton to="/app/training/videos" label="Videos" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Video Area */}
