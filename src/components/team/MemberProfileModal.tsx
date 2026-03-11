@@ -24,6 +24,7 @@ import {
   Target,
   ChevronDown,
   ChevronUp,
+  Rocket,
 } from 'lucide-react';
 import { getTeamColor } from '@/lib/teamColors';
 import {
