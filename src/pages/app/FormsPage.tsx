@@ -50,7 +50,7 @@ const interviewCards = [
   },
 ];
 
-export default function FormsPage() {
+export function FormsContent() {
   const { role, isLoading } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<FormSection>('interviews');
@@ -58,57 +58,30 @@ export default function FormsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex items-center justify-center py-12">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
   if (role !== 'manager' && role !== 'admin' && role !== 'owner') {
-    navigate('/app', { replace: true });
     return null;
   }
 
   return (
-    <AppLayout>
-      {/* Subtle radial background glow */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(30,58,138,0.08) 0%, transparent 70%)',
-          }}
-        />
+    <div className="max-w-5xl mx-auto">
+      {/* Hawx Admin link */}
+      <div className="flex justify-end mb-6">
+        <a
+          href="https://www.gethawx.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-lg hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
+        >
+          <span>Hawx Admin</span>
+          <ExternalLink className="w-4 h-4" />
+        </a>
       </div>
-
-      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Back Button */}
-        <PageBackButton to="/app" label="Dashboard" />
-
-        {/* Header */}
-        <div className="flex items-start justify-between mb-10">
-          <div>
-            <div className="flex items-center gap-3.5 mb-2">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/20 shadow-[0_0_16px_-4px_rgba(249,115,22,0.3)]">
-                <FileText className="w-5 h-5 text-orange-400" />
-              </div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Forms</h1>
-            </div>
-            <p className="text-muted-foreground text-sm ml-[52px]">
-              Interview forms and weekly check-ins
-            </p>
-          </div>
-
-          <a
-            href="https://www.gethawx.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-lg hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
-          >
-            <span>Hawx Admin</span>
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        </div>
 
         {/* Main Section Toggle */}
         <div className="flex gap-3 mb-8">
