@@ -383,13 +383,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     }
   };
 
-  const getRoleColor = (r?: string) => { if (r === 'admin') return 'text-red-400'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
+  const getRoleColor = (r?: string) => { if (r === 'owner') return 'text-amber-400'; if (r === 'admin') return 'text-slate-300'; if (r === 'manager') return 'text-blue-400'; return 'text-foreground/80'; };
   const getRoleBadge = (r?: string) => {
-    if (r === 'bot') return null; // No badge for bot — uses divider style
-    if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 uppercase tracking-wider">Owner</span>;
-    if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 uppercase tracking-wider">Admin</span>;
+    if (r === 'bot') return null;
+    if (r === 'owner') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 uppercase tracking-wider">Owner</span>;
+    if (r === 'admin') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-400/30 bg-slate-400/10 text-slate-300 uppercase tracking-wider">Admin</span>;
     if (r === 'manager') return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 uppercase tracking-wider">Manager</span>;
-    return <span className="ml-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 uppercase tracking-wider">Rookie</span>;
+    return null; // Clean — no badge for rookies
   };
 
   const activeChannelConfig = channels.find(c => c.id === activeChannel) || channels[0];
