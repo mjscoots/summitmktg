@@ -266,8 +266,8 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
               onClick={() => !isLockedCourse && !isComingSoon && handleCourseClick(course.slug)}
               className={cn(
                 "group relative bg-card rounded-xl border flex flex-col",
-                // Fixed height for all cards
-                "h-[340px]",
+                // Compact card height
+                "h-[280px]",
                 "transition-all duration-400 ease-out",
                 // Locked or Coming Soon state
                 (isLockedCourse || isComingSoon)
