@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Image, Pin, PinOff, BarChart3, Crown, Plus, MessageSquarePlus, Paperclip } from 'lucide-react';
+import { Send, Bot, Loader2, Pencil, Trash2, X, Check, ChevronDown, Hash, AtSign, SmilePlus, Reply, CornerDownRight, Megaphone, Lightbulb, Sparkles, Image, Pin, PinOff, BarChart3, Crown, Plus, MessageSquarePlus, Paperclip, Flame } from 'lucide-react';
 import { StickerPicker, STICKER_PREFIX, isStickerMessage, getStickerFromMessage, type Sticker as StickerType } from './StickerPicker';
 import { GifPicker, GIF_PREFIX, isGifMessage, getGifUrl } from './GifPicker';
 import { TierBadge } from '@/components/shared/TierBadge';
@@ -27,6 +27,12 @@ import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
+import { useChatParticles, ParticleCanvas } from '@/components/chat/ChatParticles';
+import { BackgroundDust } from '@/components/chat/BackgroundDust';
+import { useMomentum, MomentumIndicator } from '@/components/chat/MomentumIndicator';
+import { ChatLeaderboardWidget } from '@/components/chat/ChatLeaderboardWidget';
+import { SmartPrompts } from '@/components/chat/SmartPrompts';
+import { getMessageHighlight, isHotThread } from '@/components/chat/messageHighlights';
 
 /** Render text with clickable links */
 function renderWithLinks(text: string) {
