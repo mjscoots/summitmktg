@@ -510,6 +510,20 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       const newUsers = parsed.filter(u => !u.alreadyExists);
       const existingUsers = parsed.filter(u => u.alreadyExists);
 
+      const importedDistribution = Object.fromEntries(
+        IMPORT_DISTRIBUTION_KEYS.map((k) => [k, 0])
+      ) as Record<(typeof IMPORT_DISTRIBUTION_KEYS)[number], number>;
+
+      for (const row of parsed) {
+        if (row.pipelineProvided) {
+          const key = row.pipeline_status as keyof typeof importedDistribution;
+          if (key in importedDistribution) importedDistribution[key]++;
+        }
+        if (row.repStatusProvided) {
+          importedDistribution[row.rep_status]++;
+        }
+      }
+
       // Step 2: Match
       setLoadingStep(1);
       await new Promise(r => setTimeout(r, 300));
@@ -530,6 +544,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           direct_manager: u.recruiter_or_manager || defaultManager,
           team_name: defaultTeam,
           onboarding_status: u.pipeline_status,
+          rep_status: u.rep_status,
         }));
 
         const BATCH_SIZE = 50;
@@ -555,8 +570,11 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         if (!user.matchedUserId || user.updateFields.length === 0) continue;
         try {
           const updates: Record<string, any> = {};
-          if (user.updateFields.includes('pipeline') && user.pipeline_status !== 'pending') {
+          if (user.updateFields.includes('pipeline')) {
             updates.onboarding_status = user.pipeline_status;
+          }
+          if (user.updateFields.includes('rep_status')) {
+            updates.status = user.rep_status;
           }
           if (user.updateFields.includes('phone') && user.phone) updates.phone = user.phone;
           if (user.updateFields.includes('email') && user.email) updates.email = user.email;
@@ -574,9 +592,50 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         }
       }
 
-      // Step 5: Finalize
+      // Step 5: Finalize + validation
       setLoadingStep(4);
       await new Promise(r => setTimeout(r, 200));
+
+      let validation: ImportResults['validation'];
+      try {
+        const canonicalDistribution = Object.fromEntries(
+          IMPORT_DISTRIBUTION_KEYS.map((k) => [k, 0])
+        ) as Record<(typeof IMPORT_DISTRIBUTION_KEYS)[number], number>;
+
+        const parsedByEmail = new Map(parsed.map((u) => [u.email.toLowerCase(), u]));
+        const importEmails = [...parsedByEmail.keys()];
+
+        if (importEmails.length > 0) {
+          const { data: canonicalRows } = await supabase
+            .from('profiles')
+            .select('email, onboarding_status, status')
+            .in('email', importEmails);
+
+          for (const row of canonicalRows || []) {
+            const source = parsedByEmail.get((row.email || '').toLowerCase());
+            if (!source) continue;
+            if (source.pipelineProvided) {
+              const key = (row.onboarding_status || 'pending') as keyof typeof canonicalDistribution;
+              if (key in canonicalDistribution) canonicalDistribution[key]++;
+            }
+            if (source.repStatusProvided) {
+              canonicalDistribution[row.status === 'nlc' ? 'nlc' : 'active']++;
+            }
+          }
+
+          const mismatches = IMPORT_DISTRIBUTION_KEYS
+            .filter((key) => importedDistribution[key] !== canonicalDistribution[key])
+            .map((key) => `${key}: imported ${importedDistribution[key]}, canonical ${canonicalDistribution[key]}`);
+
+          validation = {
+            imported: importedDistribution,
+            canonical: canonicalDistribution,
+            mismatches,
+          };
+        }
+      } catch {
+        validation = undefined;
+      }
 
       setResults({
         created: createdNames.length,
@@ -588,6 +647,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           updatedUsers: updatedNames,
           skippedRows: failedRows,
         },
+        validation,
       });
 
       setRawText('');
