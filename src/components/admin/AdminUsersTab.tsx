@@ -376,15 +376,15 @@ export default function AdminUsersTab({
 
       {/* ── Table ── */}
       <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
-        <table className="w-full table-fixed text-sm">
+        <table className="w-full text-sm min-w-[600px]">
           <thead>
             <tr className="border-b border-border/20 bg-card/30">
-              <th className="w-[180px] text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
-              <th className="w-[90px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
-              <th className="w-[95px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
-              <th className="w-[50px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Status</th>
+              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
+              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
+              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
+              <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
               {isAdmin && (
-                <th className="w-[90px] text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Actions</th>
+                <th className="text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-32">Actions</th>
               )}
             </tr>
           </thead>
