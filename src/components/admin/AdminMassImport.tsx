@@ -252,13 +252,15 @@ function parseBlocks(
 
     let full_name = '';
     let pipeline_status = 'pending';
+    let pipelineProvided = false;
     let phone = '';
     let email = '';
     let region = '';
     let recruiter_or_manager = '';
     let office_name = '';
     let experience = 'rookie';
-    let active = true;
+    let rep_status: 'active' | 'nlc' = 'active';
+    let repStatusProvided = false;
 
     const unclassified: string[] = [];
 
@@ -267,14 +269,17 @@ function parseBlocks(
       line = line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').trim();
       if (!line) continue;
 
-      // Skip junk
-      if (isJunkValue(line)) {
-        const parts = line.split(/\s{2,}|\t+/);
-        for (const part of parts) {
-          const p = part.trim();
-          if (isExperienceLabel(p)) experience = p.toLowerCase() === 'veteran' ? 'veteran' : 'rookie';
-          else if (isActiveLabel(p)) active = p.toLowerCase() === 'active';
-        }
+      const pipelineMatch = isPipelineStatus(line) ? normalizePipeline(line) : null;
+      if (pipelineMatch) {
+        pipeline_status = pipelineMatch;
+        pipelineProvided = true;
+        continue;
+      }
+
+      const repStatusMatch = normalizeRepStatus(line);
+      if (repStatusMatch) {
+        rep_status = repStatusMatch;
+        repStatusProvided = true;
         continue;
       }
 
@@ -284,19 +289,58 @@ function parseBlocks(
         if (parts.length >= 2) {
           let handled = 0;
           for (const part of parts) {
-            if (isExperienceLabel(part)) { experience = part.toLowerCase() === 'veteran' ? 'veteran' : 'rookie'; handled++; }
-            else if (isActiveLabel(part)) { active = part.toLowerCase() === 'active'; handled++; }
-            else if (isJunkValue(part)) { if (part.toLowerCase() === 'undecided') office_name = 'Undecided'; handled++; }
+            const partPipeline = isPipelineStatus(part) ? normalizePipeline(part) : null;
+            if (partPipeline) {
+              pipeline_status = partPipeline;
+              pipelineProvided = true;
+              handled++;
+              continue;
+            }
+
+            const partRepStatus = normalizeRepStatus(part);
+            if (partRepStatus) {
+              rep_status = partRepStatus;
+              repStatusProvided = true;
+              handled++;
+              continue;
+            }
+
+            if (isExperienceLabel(part)) {
+              experience = part.toLowerCase() === 'veteran' ? 'veteran' : 'rookie';
+              handled++;
+              continue;
+            }
+
+            if (isJunkValue(part)) {
+              if (part.toLowerCase() === 'undecided') office_name = 'Undecided';
+              handled++;
+            }
           }
           if (handled >= 2) continue;
         }
       }
 
+      // Skip junk
+      if (isJunkValue(line)) {
+        const parts = line.split(/\s{2,}|\t+/);
+        for (const part of parts) {
+          const p = part.trim();
+          if (isExperienceLabel(p)) {
+            experience = p.toLowerCase() === 'veteran' ? 'veteran' : 'rookie';
+            continue;
+          }
+          const pRepStatus = normalizeRepStatus(p);
+          if (pRepStatus) {
+            rep_status = pRepStatus;
+            repStatusProvided = true;
+          }
+        }
+        continue;
+      }
+
       if (isEmail(line) && !email) { email = line.toLowerCase(); continue; }
       if (isPhone(line) && !phone && !isLikelyName(line)) { phone = line; continue; }
-      if (isPipelineStatus(line)) { pipeline_status = normalizePipeline(line); continue; }
       if (isExperienceLabel(line)) { experience = line.toLowerCase() === 'veteran' ? 'veteran' : 'rookie'; continue; }
-      if (isActiveLabel(line)) { active = line.toLowerCase() === 'active'; continue; }
 
       // First plausible name
       if (!full_name && isLikelyName(line) && i < 3) {
@@ -310,6 +354,21 @@ function parseBlocks(
     // Classify unclassified lines
     for (let i = 0; i < unclassified.length; i++) {
       const val = unclassified[i];
+
+      const valPipeline = isPipelineStatus(val) ? normalizePipeline(val) : null;
+      if (valPipeline) {
+        pipeline_status = valPipeline;
+        pipelineProvided = true;
+        continue;
+      }
+
+      const valRepStatus = normalizeRepStatus(val);
+      if (valRepStatus) {
+        rep_status = valRepStatus;
+        repStatusProvided = true;
+        continue;
+      }
+
       if (isJunkValue(val)) continue;
 
       // Check if it matches a known manager
@@ -334,7 +393,7 @@ function parseBlocks(
       continue;
     }
 
-    // *** CRITICAL: If this name is a known manager being imported as a "row", 
+    // *** CRITICAL: If this name is a known manager being imported as a "row",
     // treat it as a manager reference and skip creating a new rep record ***
     const nameNorm = normalizeForMatch(full_name);
     if (managerNamesNorm.has(nameNorm)) {
@@ -374,7 +433,8 @@ function parseBlocks(
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
-        if (pipeline_status !== 'pending') updateFields.push('pipeline');
+        if (pipelineProvided && (p.onboarding_status || 'pending') !== pipeline_status) updateFields.push('pipeline');
+        if (repStatusProvided && (p.status || 'active') !== rep_status) updateFields.push('rep_status');
         if (phone && !p.phone) updateFields.push('phone');
         if (email && !p.email) updateFields.push('email');
         if (region && !p.region) updateFields.push('region');
@@ -395,7 +455,9 @@ function parseBlocks(
       office_name,
       experience,
       pipeline_status,
-      active,
+      pipelineProvided,
+      rep_status,
+      repStatusProvided,
       alreadyExists,
       matchedUserId,
       matchedName,
