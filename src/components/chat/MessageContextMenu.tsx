@@ -36,6 +36,7 @@ export function MessageContextMenu({
 }: MessageContextMenuProps) {
   const { user } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
+  const reactingRef = useRef(false);
   const [showFullEmoji, setShowFullEmoji] = useState(false);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export function MessageContextMenu({
 
   if (!position) return null;
 
-  const reactingRef = useRef(false);
+
   const handleReact = async (emoji: string) => {
     if (!user || reactingRef.current) return;
     reactingRef.current = true;
