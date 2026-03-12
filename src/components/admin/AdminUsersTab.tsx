@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import {
-  Search, Upload, Users, UserCheck, ArrowUpDown, Edit2, Eye, RotateCcw,
-  ChevronUp, ChevronDown, Trash2, X, Loader2, AlertTriangle
+  Search, Upload, Users, UserCheck, Edit2, Eye, RotateCcw,
+  ChevronUp, ChevronDown, Trash2, X, Loader2, AlertTriangle, Monitor, MonitorOff
 } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -35,10 +35,7 @@ class TableErrorBoundary extends Component<{ children: ReactNode; onRetry: () =>
         <div className="p-8 text-center space-y-3">
           <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto" />
           <p className="text-sm text-foreground font-medium">Table failed to render</p>
-          <p className="text-xs text-muted-foreground">Some data may be malformed. Try refreshing.</p>
-          <Button size="sm" variant="outline" onClick={() => { this.setState({ hasError: false }); this.props.onRetry(); }}>
-            Retry
-          </Button>
+          <Button size="sm" variant="outline" onClick={() => { this.setState({ hasError: false }); this.props.onRetry(); }}>Retry</Button>
         </div>
       );
     }
@@ -54,6 +51,15 @@ const PIPELINE_STATUSES = [
   { key: 'onboarded', label: 'Onboarded', color: 'text-blue-400', bg: 'bg-blue-500/15 border-blue-500/30' },
   { key: 'summer_ready', label: 'Summer Ready', color: 'text-green-400', bg: 'bg-green-500/15 border-green-500/30' },
 ] as const;
+
+/* ── Pipeline sort rank (higher = more important = sorted first) ── */
+const PIPELINE_RANK: Record<string, number> = {
+  summer_ready: 5,
+  onboarded: 4,
+  info_added: 3,
+  contract_signed: 2,
+  pending: 1,
+};
 
 function PipelineBadge({ status }: { status: string }) {
   const info = PIPELINE_STATUSES.find(s => s.key === status) || PIPELINE_STATUSES[0];
@@ -83,6 +89,21 @@ function StatusDot({ status }: { status: string | null }) {
   if (status === 'nlc') return <span className="inline-block w-2 h-2 rounded-full bg-red-400" title="NLC" />;
   if (status === 'active') return <span className="inline-block w-2 h-2 rounded-full bg-green-400" title="Active" />;
   return <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground/30" title="Disabled" />;
+}
+
+function AppStatusBadge({ approved }: { approved: boolean | null }) {
+  if (approved === true) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-400 bg-blue-500/15 px-1.5 py-0.5 rounded-full">
+        <Monitor className="w-2.5 h-2.5" /> In-App
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full">
+      <MonitorOff className="w-2.5 h-2.5" /> Not In-App
+    </span>
+  );
 }
 
 export interface UserRow {
@@ -122,8 +143,7 @@ interface AdminUsersTabProps {
   superAdminEmail: string;
 }
 
-type AccountFilter = 'all' | 'in_app' | 'not_in_app';
-type SortKey = 'name' | 'team' | 'pipeline' | 'date';
+type AppFilter = 'all' | 'in_app' | 'not_in_app';
 
 export default function AdminUsersTab({
   users, managers, teams, isAdmin, isSuperAdmin, onRefresh,
@@ -133,12 +153,11 @@ export default function AdminUsersTab({
   const { startImpersonating } = useRookieView();
   const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [accountFilter, setAccountFilter] = useState<AccountFilter>('all');
-  const [pipelineFilter, setPipelineFilter] = useState<string>('all');
-  const [teamFilter, setTeamFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('active');
+  const [progressFilter, setProgressFilter] = useState<string>('all');
   const [managerFilter, setManagerFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<SortKey>('name');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [teamFilter, setTeamFilter] = useState<string>('all');
+  const [appFilter, setAppFilter] = useState<AppFilter>('all');
   const [detailUser, setDetailUser] = useState<UserRow | null>(null);
   const [editingPipeline, setEditingPipeline] = useState('');
 
@@ -147,45 +166,39 @@ export default function AdminUsersTab({
     return teams.find(t => t.id === teamId)?.name || '—';
   };
 
-  // ── Stats ──
-  const stats = useMemo(() => {
-    const total = users.length;
-    const inApp = users.filter(u => u.approved === true).length;
-    const notInApp = users.filter(u => u.approved !== true).length;
-    const active = users.filter(u => u.status === 'active').length;
+  /* ── Compact summary stats ── */
+  const summaryStats = useMemo(() => {
+    const activeInApp = users.filter(u => u.status === 'active' && u.approved === true).length;
+    const onboardedNotInApp = users.filter(u => (u.onboarding_status === 'onboarded') && u.approved !== true && u.status !== 'nlc').length;
+    const summerReadyNotInApp = users.filter(u => (u.onboarding_status === 'summer_ready') && u.approved !== true && u.status !== 'nlc').length;
     const nlc = users.filter(u => u.status === 'nlc').length;
-    const pipelineCounts: Record<string, number> = {};
-    for (const s of PIPELINE_STATUSES) pipelineCounts[s.key] = 0;
-    for (const u of users) {
-      const ps = u.onboarding_status || 'pending';
-      pipelineCounts[ps] = (pipelineCounts[ps] || 0) + 1;
-    }
-    return { total, inApp, notInApp, active, nlc, pipelineCounts };
+    const total = users.length;
+    return { activeInApp, onboardedNotInApp, summerReadyNotInApp, nlc, total };
   }, [users]);
 
-  // ── Filter & Sort ──
+  /* ── Unique manager names for filter ── */
+  const managerNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const u of users) {
+      if (u.direct_manager) names.add(u.direct_manager);
+    }
+    return Array.from(names).sort();
+  }, [users]);
+
+  /* ── Filter & Sort ── */
   const filtered = useMemo(() => {
     let list = users;
 
-    // Account filter
-    switch (accountFilter) {
-      case 'in_app':
-        list = list.filter(u => u.approved === true);
-        break;
-      case 'not_in_app':
-        list = list.filter(u => u.approved !== true);
-        break;
+    // Status filter (default: Active — hides NLC unless selected)
+    if (statusFilter === 'active') {
+      list = list.filter(u => u.status !== 'nlc');
+    } else if (statusFilter === 'nlc') {
+      list = list.filter(u => u.status === 'nlc');
     }
 
-    // Pipeline filter
-    if (pipelineFilter !== 'all') {
-      list = list.filter(u => (u.onboarding_status || 'pending') === pipelineFilter);
-    }
-
-    // Team filter
-    if (teamFilter !== 'all') {
-      if (teamFilter === 'none') list = list.filter(u => !u.team_id);
-      else list = list.filter(u => u.team_id === teamFilter);
+    // Progress/pipeline filter
+    if (progressFilter !== 'all') {
+      list = list.filter(u => (u.onboarding_status || 'pending') === progressFilter);
     }
 
     // Manager filter
@@ -194,19 +207,31 @@ export default function AdminUsersTab({
       else list = list.filter(u => u.direct_manager === managerFilter);
     }
 
-    // Search
+    // Team filter
+    if (teamFilter !== 'all') {
+      if (teamFilter === 'none') list = list.filter(u => !u.team_id);
+      else list = list.filter(u => u.team_id === teamFilter);
+    }
+
+    // App status filter
+    if (appFilter === 'in_app') {
+      list = list.filter(u => u.approved === true);
+    } else if (appFilter === 'not_in_app') {
+      list = list.filter(u => u.approved !== true);
+    }
+
+    // Search (name, phone, manager, team)
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(u =>
         u.full_name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
         (u.phone || '').includes(q) ||
-        (u.direct_manager || '').toLowerCase().includes(q)
+        (u.direct_manager || '').toLowerCase().includes(q) ||
+        getTeamName(u.team_id).toLowerCase().includes(q)
       );
     }
 
-    // Sort
-    const dir = sortDir === 'asc' ? 1 : -1;
+    // Sort: priority-based
     return [...list].sort((a, b) => {
       // NLC always last
       const aNlc = a.status === 'nlc' ? 1 : 0;
@@ -218,17 +243,15 @@ export default function AdminUsersTab({
       const bInApp = b.approved === true ? 0 : 1;
       if (aInApp !== bInApp) return aInApp - bInApp;
 
-      switch (sortBy) {
-        case 'team': return dir * getTeamName(a.team_id).localeCompare(getTeamName(b.team_id));
-        case 'date': return dir * (new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-        case 'pipeline': {
-          const order = ['summer_ready', 'onboarded', 'contract_signed', 'info_added', 'pending'];
-          return dir * (order.indexOf(a.onboarding_status || 'pending') - order.indexOf(b.onboarding_status || 'pending'));
-        }
-        default: return dir * a.full_name.localeCompare(b.full_name);
-      }
+      // Pipeline rank (higher rank = more important = first)
+      const aRank = PIPELINE_RANK[a.onboarding_status || 'pending'] || 0;
+      const bRank = PIPELINE_RANK[b.onboarding_status || 'pending'] || 0;
+      if (aRank !== bRank) return bRank - aRank;
+
+      // Alphabetical
+      return a.full_name.localeCompare(b.full_name);
     });
-  }, [users, accountFilter, pipelineFilter, teamFilter, managerFilter, search, sortBy, sortDir]);
+  }, [users, statusFilter, progressFilter, managerFilter, teamFilter, appFilter, search]);
 
   const handleUpdatePipeline = async (userId: string, newStatus: string) => {
     const { error } = await supabase.from('profiles').update({ onboarding_status: newStatus } as any).eq('user_id', userId);
@@ -263,10 +286,10 @@ export default function AdminUsersTab({
     }
   };
 
-  const hasActiveFilters = pipelineFilter !== 'all' || teamFilter !== 'all' || managerFilter !== 'all';
+  const hasActiveFilters = statusFilter !== 'active' || progressFilter !== 'all' || teamFilter !== 'all' || managerFilter !== 'all' || appFilter !== 'all';
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* ── Header Row ── */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -282,131 +305,121 @@ export default function AdminUsersTab({
         </Button>
       </div>
 
-      {/* ── Top Counters ── */}
-      <div className="grid grid-cols-5 gap-2">
-        {[
-          { count: stats.total, label: 'Total', colorClass: 'text-foreground' },
-          { count: stats.inApp, label: 'In-App', colorClass: 'text-blue-400' },
-          { count: stats.notInApp, label: 'Not In-App', colorClass: 'text-amber-400' },
-          { count: stats.active, label: 'Active', colorClass: 'text-green-400' },
-          { count: stats.nlc, label: 'NLC', colorClass: 'text-red-400' },
-        ].map(card => (
-          <div
-            key={card.label}
-            className="p-2 rounded-lg border border-border/30 bg-card/50 text-center"
-          >
-            <p className={`text-lg font-black ${card.colorClass}`}>{card.count}</p>
-            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{card.label}</p>
-          </div>
-        ))}
+      {/* ── Search ── */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search name, phone, manager, team..."
+          className="pl-9 h-9 bg-card/50 border-border/30 text-xs"
+        />
       </div>
 
-      {/* ── Pipeline Chips (small, below counters) ── */}
-      <div className="flex flex-wrap gap-1">
-        {PIPELINE_STATUSES.map(s => (
-          <span key={s.key} className={`text-[9px] font-medium px-2 py-0.5 rounded-full border ${s.bg} ${s.color}`}>
-            {s.label}: {stats.pipelineCounts[s.key] || 0}
-          </span>
-        ))}
-      </div>
+      {/* ── Filter Bar (GetHawx-style) ── */}
+      <div className="flex flex-wrap gap-2">
+        {/* Status */}
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="h-8 w-[130px] bg-card/50 border-border/30 text-xs">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="nlc">NLC</SelectItem>
+          </SelectContent>
+        </Select>
 
-      {/* ── Filter Bar ── */}
-      <div className="flex flex-col gap-2">
-        {/* Account filter row: All | In-App | Not In-App */}
-        <div className="flex items-center gap-1.5">
-          {(['all', 'in_app', 'not_in_app'] as AccountFilter[]).map(f => {
-            const labels: Record<AccountFilter, string> = { all: 'All', in_app: 'In-App', not_in_app: 'Not In-App' };
-            return (
-              <button
-                key={f}
-                onClick={() => setAccountFilter(f)}
-                className={cn(
-                  'px-3 py-1 rounded-full text-[11px] font-medium whitespace-nowrap transition-all',
-                  accountFilter === f
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                )}
-              >
-                {labels[f]}
-              </button>
-            );
-          })}
-        </div>
+        {/* Progress Status */}
+        <Select value={progressFilter} onValueChange={setProgressFilter}>
+          <SelectTrigger className="h-8 w-[160px] bg-card/50 border-border/30 text-xs">
+            <SelectValue placeholder="Progress" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Progress</SelectItem>
+            {PIPELINE_STATUSES.map(s => (
+              <SelectItem key={s.key} value={s.key} className="text-xs">{s.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Search + dropdowns */}
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search name, phone, manager..."
-              className="pl-9 h-8 bg-card/50 border-border/30 text-xs"
-            />
-          </div>
-          {/* Pipeline dropdown */}
-          <Select value={pipelineFilter} onValueChange={setPipelineFilter}>
-            <SelectTrigger className="h-8 w-[150px] bg-card/50 border-border/30 text-xs">
-              <SelectValue placeholder="Pipeline" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Pipeline</SelectItem>
-              {PIPELINE_STATUSES.map(s => (
-                <SelectItem key={s.key} value={s.key} className="text-xs">{s.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={managerFilter} onValueChange={setManagerFilter}>
-            <SelectTrigger className="h-8 w-[140px] bg-card/50 border-border/30 text-xs">
-              <SelectValue placeholder="Manager" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Managers</SelectItem>
-              <SelectItem value="none">No Manager</SelectItem>
-              {managers.map(m => <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={teamFilter} onValueChange={setTeamFilter}>
-            <SelectTrigger className="h-8 w-[120px] bg-card/50 border-border/30 text-xs">
-              <SelectValue placeholder="Team" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              <SelectItem value="none">No Team</SelectItem>
-              {teams.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
+        {/* Direct Recruiter / Manager */}
+        <Select value={managerFilter} onValueChange={setManagerFilter}>
+          <SelectTrigger className="h-8 w-[170px] bg-card/50 border-border/30 text-xs">
+            <SelectValue placeholder="Recruiter / Manager" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Recruiters</SelectItem>
+            <SelectItem value="none">No Manager</SelectItem>
+            {managerNames.map(name => (
+              <SelectItem key={name} value={name} className="text-xs">{name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Team */}
+        <Select value={teamFilter} onValueChange={setTeamFilter}>
+          <SelectTrigger className="h-8 w-[130px] bg-card/50 border-border/30 text-xs">
+            <SelectValue placeholder="Team" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Teams</SelectItem>
+            <SelectItem value="none">No Team</SelectItem>
+            {teams.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+        {/* App Status */}
+        <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
+          <SelectTrigger className="h-8 w-[130px] bg-card/50 border-border/30 text-xs">
+            <SelectValue placeholder="App Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="in_app">In-App</SelectItem>
+            <SelectItem value="not_in_app">Not In-App</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {hasActiveFilters && (
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 px-2 text-muted-foreground hover:text-foreground"
-            onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+            className="h-8 px-2 text-xs text-muted-foreground gap-1"
+            onClick={() => { setStatusFilter('active'); setProgressFilter('all'); setTeamFilter('all'); setManagerFilter('all'); setAppFilter('all'); }}
           >
-            <ArrowUpDown className="w-3.5 h-3.5" />
+            <X className="w-3 h-3" /> Clear
           </Button>
-          {hasActiveFilters && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-8 px-2 text-xs text-muted-foreground gap-1"
-              onClick={() => { setTeamFilter('all'); setManagerFilter('all'); setPipelineFilter('all'); setAccountFilter('all'); }}
-            >
-              <X className="w-3 h-3" /> Clear
-            </Button>
-          )}
-        </div>
+        )}
       </div>
+
+      {/* ── Compact Summary Row ── */}
+      <div className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground px-1">
+        <span>Active In-App: <strong className="text-blue-400">{summaryStats.activeInApp}</strong></span>
+        <span className="text-border">|</span>
+        <span>Onboarded Not In-App: <strong className="text-orange-400">{summaryStats.onboardedNotInApp}</strong></span>
+        <span className="text-border">|</span>
+        <span>Summer Ready Not In-App: <strong className="text-green-400">{summaryStats.summerReadyNotInApp}</strong></span>
+        <span className="text-border">|</span>
+        <span>NLC: <strong className="text-red-400">{summaryStats.nlc}</strong></span>
+        <span className="text-border">|</span>
+        <span>Total: <strong className="text-foreground">{summaryStats.total}</strong></span>
+      </div>
+
+      {/* ── Results count ── */}
+      <p className="text-[10px] text-muted-foreground px-1">{filtered.length} of {users.length} shown</p>
 
       {/* ── Table ── */}
       <TableErrorBoundary onRetry={onRefresh}>
         <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[600px]">
+          <table className="w-full text-sm min-w-[650px]">
             <thead>
               <tr className="border-b border-border/20 bg-card/30">
                 <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
                 <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
-                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
+                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Progress</th>
                 <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
+                <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-20">App</th>
                 {isAdmin && (
                   <th className="text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-32">Actions</th>
                 )}
@@ -423,33 +436,31 @@ export default function AdminUsersTab({
                     className={cn(
                       'border-b border-border/10 hover:bg-card/40 transition-colors cursor-pointer',
                       isNLC && 'opacity-40',
-                      !isInApp && !isNLC && 'opacity-70'
                     )}
                     onClick={() => { setDetailUser(u); setEditingPipeline(u.onboarding_status || 'pending'); }}
                   >
-                    {/* Avatar + Name */}
+                    {/* Name */}
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name || 'Unknown'} size="sm" />
-                        <div className="min-w-0">
-                          <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name || 'Unknown'}</p>
-                          {!isInApp && (
-                            <span className="text-[9px] text-amber-400/70">Not In-App</span>
-                          )}
-                        </div>
+                        <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name || 'Unknown'}</p>
                       </div>
                     </td>
                     {/* Team */}
                     <td className="px-3 py-2 text-xs text-muted-foreground truncate hidden sm:table-cell">
                       {getTeamName(u.team_id)}
                     </td>
-                    {/* Pipeline */}
+                    {/* Progress */}
                     <td className="px-3 py-2">
                       <PipelineBadge status={u.onboarding_status || 'pending'} />
                     </td>
                     {/* Status dot */}
                     <td className="px-2 py-2 text-center">
                       <StatusDot status={u.status} />
+                    </td>
+                    {/* App Status */}
+                    <td className="px-2 py-2 text-center">
+                      <AppStatusBadge approved={u.approved} />
                     </td>
                     {/* Actions */}
                     {isAdmin && (
@@ -477,13 +488,12 @@ export default function AdminUsersTab({
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={isAdmin ? 5 : 4} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
+                <tr><td colSpan={isAdmin ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </TableErrorBoundary>
-      <p className="text-[10px] text-muted-foreground text-right">{filtered.length} of {users.length} users shown</p>
 
       {/* ── Mass Import Dialog ── */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
@@ -518,12 +528,8 @@ export default function AdminUsersTab({
                       <RoleBadge role={detailUser.role || 'rookie'} />
                       <span className="text-xs text-muted-foreground">•</span>
                       <span className="text-xs text-muted-foreground">{getTeamName(detailUser.team_id)}</span>
-                      {detailUser.approved !== true && (
-                        <>
-                          <span className="text-xs text-muted-foreground">•</span>
-                          <span className="text-[9px] font-medium text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full">Not In-App</span>
-                        </>
-                      )}
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <AppStatusBadge approved={detailUser.approved} />
                     </div>
                   </div>
                 </DialogTitle>
