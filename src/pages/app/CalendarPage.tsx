@@ -494,8 +494,8 @@ export default function CalendarPage() {
             {!compact && showTime && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 ml-3.5">
                 <Clock className="w-3 h-3" />
-                {formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}
-                {event.end_date && ` – ${formatInTimezone(new Date(event.end_date), timezone, 'h:mm a')}`}
+                {formatTimeLocal(event.event_date)}
+                {event.end_date && ` – ${formatTimeLocal(event.end_date)}`}
               </p>
             )}
             {!compact && !showTime && (
@@ -598,7 +598,7 @@ export default function CalendarPage() {
                         <p className="text-sm font-semibold text-foreground truncate">{event.title}</p>
                         <p className="text-xs text-muted-foreground">
                           <span className="font-bold">{format(new Date(event.event_date), 'EEE, MMM d')}</span>
-                          {hasTime(event.event_date) && ` · ${formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}`}
+                          {hasTime(event.event_date) && ` · ${formatTimeLocal(event.event_date)}`}
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
@@ -638,6 +638,12 @@ export default function CalendarPage() {
     </div>
   );
 
+  // Helper to format time with timezone label
+  const formatTimeLocal = (dateStr: string) => {
+    const tzShort = getTimezoneShort(timezone);
+    return `${formatInTimezone(new Date(dateStr), timezone, 'h:mm a')} ${tzShort}`;
+  };
+
   return (
     <AppLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
@@ -645,16 +651,13 @@ export default function CalendarPage() {
         <PageBackButton to="/app/operations" label="Operations" />
 
         {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CalendarIcon className="w-5 h-5 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Calendar</h1>
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Globe className="w-3 h-3" />
-                {getTimezoneShort(timezone)}
-              </span>
-            </div>
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black text-foreground tracking-tight">Calendar</h1>
+            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+              <Globe className="w-3 h-3" />
+              All times shown in {getTimezoneShort(timezone)} (your local time)
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {isManager && (
@@ -776,9 +779,9 @@ export default function CalendarPage() {
                           {hasTime(currentRSVPEvent.event_date) ? (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="w-4 h-4" />
-                              <span>{formatInTimezone(new Date(currentRSVPEvent.event_date), timezone, 'h:mm a')}</span>
+                              <span>{formatTimeLocal(currentRSVPEvent.event_date)}</span>
                               {currentRSVPEvent.end_date && (
-                                <span>– {formatInTimezone(new Date(currentRSVPEvent.end_date), timezone, 'h:mm a')}</span>
+                                <span>– {formatTimeLocal(currentRSVPEvent.end_date)}</span>
                               )}
                             </div>
                           ) : (
@@ -976,7 +979,7 @@ export default function CalendarPage() {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
                                       <span className="text-xs font-medium text-muted-foreground">
-                                        {showT ? formatInTimezone(new Date(event.event_date), timezone, 'h:mm a') : 'All day'}
+                                        {showT ? formatTimeLocal(event.event_date) : 'All day'}
                                       </span>
                                       {remote !== null && (
                                         <span className={cn(

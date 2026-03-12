@@ -200,9 +200,8 @@ export function EventDetailsModal({
               </p>
               <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
-                {formatInTimezone(eventDate, timezone, 'h:mm a')}
-                {endDate && ` - ${formatInTimezone(endDate, timezone, 'h:mm a')}`}
-                <span className="text-xs text-muted-foreground/60 ml-1">{getTimezoneShort(timezone)}</span>
+                {formatInTimezone(eventDate, timezone, 'h:mm a')} {getTimezoneShort(timezone)}
+                {endDate && ` – ${formatInTimezone(endDate, timezone, 'h:mm a')} ${getTimezoneShort(timezone)}`}
               </p>
               {getRecurrenceText() && (
                 <p className="text-xs text-primary flex items-center gap-1.5 mt-1">
