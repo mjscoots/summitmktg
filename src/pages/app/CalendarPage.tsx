@@ -979,7 +979,7 @@ export default function CalendarPage() {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
                                       <span className="text-xs font-medium text-muted-foreground">
-                                        {showT ? formatInTimezone(new Date(event.event_date), timezone, 'h:mm a') : 'All day'}
+                                        {showT ? formatTimeLocal(event.event_date) : 'All day'}
                                       </span>
                                       {remote !== null && (
                                         <span className={cn(
