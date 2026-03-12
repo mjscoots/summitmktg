@@ -136,11 +136,10 @@ Deno.serve(async (req) => {
         }
 
         if (authUser?.user) {
-          // For imports: keep approved=false — person is "Not In-App" until they actually sign up
-          // For admin-created users: auto-approve as "In-App"
+          const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
           const profileUpdates: Record<string, unknown> = is_import
-            ? { approved: false, status: "active" }
-            : { approved: true, status: "active" };
+            ? { approved: false, status: importedStatus }
+            : { approved: true, status: importedStatus };
 
           if (u.onboarding_status) {
             profileUpdates.onboarding_status = u.onboarding_status;
