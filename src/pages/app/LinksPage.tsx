@@ -238,20 +238,40 @@ export default function LinksPage() {
 
     if (massUploadType === 'phones') {
       const entries: { name: string; phone: string; label: string; display_order: number }[] = [];
+      const skipped: string[] = [];
+      const existingNormalized = new Set(phones.map(p => normalizePhone(p.phone)));
+
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const parts = line.includes('\t') ? line.split('\t') : line.split(',');
-        const name = parts[0]?.trim();
-        const rawPhone = parts[1]?.trim();
-        const label = parts[2]?.trim() || 'General';
-        if (name && rawPhone && isValidPhone(rawPhone)) {
-          entries.push({ name, phone: normalizePhone(rawPhone), label, display_order: phones.length + i });
+        const result = extractPhoneFromLine(lines[i]);
+        if (!result) {
+          skipped.push(lines[i]);
+          continue;
         }
+        // Duplicate detection
+        if (existingNormalized.has(result.phone)) {
+          // Update name for existing entry instead of creating duplicate
+          const existing = phones.find(p => normalizePhone(p.phone) === result.phone);
+          if (existing && result.name && result.name !== 'Unknown') {
+            await supabase.from('phone_numbers').update({ name: result.name }).eq('id', existing.id);
+          }
+          continue;
+        }
+        existingNormalized.add(result.phone);
+        entries.push({ name: result.name, phone: result.phone, label: 'General', display_order: phones.length + i });
       }
-      if (entries.length === 0) { toast.error('No valid entries found. Use format: Name, Number'); return; }
-      const { error } = await supabase.from('phone_numbers').insert(entries);
-      if (error) { toast.error('Upload failed'); return; }
-      toast.success(`${entries.length} phone numbers added`);
+
+      if (entries.length === 0 && skipped.length === 0) {
+        toast.info('All numbers already exist');
+      } else if (entries.length === 0) {
+        toast.error(`No valid phone numbers found. ${skipped.length} line(s) skipped.`);
+      } else {
+        const { error } = await supabase.from('phone_numbers').insert(entries);
+        if (error) { toast.error('Upload failed'); return; }
+        const msg = skipped.length > 0
+          ? `${entries.length} added, ${skipped.length} invalid skipped`
+          : `${entries.length} phone numbers added`;
+        toast.success(msg);
+      }
       fetchPhones();
     } else {
       const entries: { title: string; url: string; description: string | null; display_order: number }[] = [];
