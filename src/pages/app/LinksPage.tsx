@@ -43,17 +43,33 @@ type PageTab = 'links' | 'phone-numbers' | 'calculators' | 'notepad' | 'pay-scal
 /** Normalize a US phone number to (XXX) XXX-XXXX format */
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, '');
-  // Strip leading 1 for US numbers
   const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
   if (d.length === 10) {
     return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
   }
-  return raw; // Return as-is if not a standard 10-digit
+  return raw;
 }
 
-/** Check if raw phone input has at least 7 digits (lenient) */
+/** Check if raw phone input has at least 10 digits (US) */
 function isValidPhone(raw: string): boolean {
-  return raw.replace(/\D/g, '').length >= 7;
+  const digits = raw.replace(/\D/g, '');
+  const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  return d.length === 10;
+}
+
+/** Phone number regex: matches patterns like +1 (801) 458-4775, 801-555-1234, 8015551234 */
+const PHONE_REGEX = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}/;
+
+/** Extract phone number and name from a free-form line */
+function extractPhoneFromLine(line: string): { name: string; phone: string } | null {
+  const match = line.match(PHONE_REGEX);
+  if (!match) return null;
+  const rawPhone = match[0];
+  if (!isValidPhone(rawPhone)) return null;
+  const phone = normalizePhone(rawPhone);
+  // Everything that's not the phone number is the name
+  const name = line.replace(rawPhone, '').replace(/[,\t|→\->]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return { name: name || 'Unknown', phone };
 }
 
 export default function LinksPage() {
@@ -222,20 +238,40 @@ export default function LinksPage() {
 
     if (massUploadType === 'phones') {
       const entries: { name: string; phone: string; label: string; display_order: number }[] = [];
+      const skipped: string[] = [];
+      const existingNormalized = new Set(phones.map(p => normalizePhone(p.phone)));
+
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const parts = line.includes('\t') ? line.split('\t') : line.split(',');
-        const name = parts[0]?.trim();
-        const rawPhone = parts[1]?.trim();
-        const label = parts[2]?.trim() || 'General';
-        if (name && rawPhone && isValidPhone(rawPhone)) {
-          entries.push({ name, phone: normalizePhone(rawPhone), label, display_order: phones.length + i });
+        const result = extractPhoneFromLine(lines[i]);
+        if (!result) {
+          skipped.push(lines[i]);
+          continue;
         }
+        // Duplicate detection
+        if (existingNormalized.has(result.phone)) {
+          // Update name for existing entry instead of creating duplicate
+          const existing = phones.find(p => normalizePhone(p.phone) === result.phone);
+          if (existing && result.name && result.name !== 'Unknown') {
+            await supabase.from('phone_numbers').update({ name: result.name }).eq('id', existing.id);
+          }
+          continue;
+        }
+        existingNormalized.add(result.phone);
+        entries.push({ name: result.name, phone: result.phone, label: 'General', display_order: phones.length + i });
       }
-      if (entries.length === 0) { toast.error('No valid entries found. Use format: Name, Number'); return; }
-      const { error } = await supabase.from('phone_numbers').insert(entries);
-      if (error) { toast.error('Upload failed'); return; }
-      toast.success(`${entries.length} phone numbers added`);
+
+      if (entries.length === 0 && skipped.length === 0) {
+        toast.info('All numbers already exist');
+      } else if (entries.length === 0) {
+        toast.error(`No valid phone numbers found. ${skipped.length} line(s) skipped.`);
+      } else {
+        const { error } = await supabase.from('phone_numbers').insert(entries);
+        if (error) { toast.error('Upload failed'); return; }
+        const msg = skipped.length > 0
+          ? `${entries.length} added, ${skipped.length} invalid skipped`
+          : `${entries.length} phone numbers added`;
+        toast.success(msg);
+      }
       fetchPhones();
     } else {
       const entries: { title: string; url: string; description: string | null; display_order: number }[] = [];
@@ -309,12 +345,12 @@ export default function LinksPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {massUploadType === 'phones'
-                        ? 'Paste one per line: Name, Number  or  Name ⇥ Number ⇥ Label'
+                        ? 'Paste one per line — phone numbers are auto-detected. Any format works: Name +1 (801) 555-1234, 801-555-1234 Name, etc.'
                         : 'Paste one per line: Title, URL  or  Title ⇥ URL ⇥ Description'}
                     </p>
                     <Textarea
                       placeholder={massUploadType === 'phones'
-                        ? "John Smith, 555-123-4567\nJane Doe, 801-555-1234, Manager"
+                        ? "Kirsten Hawx Assistant +1 (801) 458-4775\nJohn Smith 801-555-3322\n8015554455"
                         : "Google Drive, https://drive.google.com\nSlack, https://slack.com, Team Chat"}
                       value={massUploadText}
                       onChange={e => setMassUploadText(e.target.value)}
