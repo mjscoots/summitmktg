@@ -142,10 +142,10 @@ interface VetCalculatorProps {
   onValuesChange?: (values: VetCalculatorValues) => void;
 }
 
-// Constants
-const ATTRITION_RATE = 0.20;
-const DEFAULT_AVG_ROOKIE_PRA = 175000;
-const DEFAULT_AVG_VET_PRA = 275000;
+// Constants — more conservative projections
+const ATTRITION_RATE = 0.25; // Was 20%, now 25% for more realistic estimates
+const DEFAULT_AVG_ROOKIE_PRA = 150000; // Was 175k, more conservative
+const DEFAULT_AVG_VET_PRA = 250000; // Was 275k, more conservative
 const DEFAULT_INCENTIVES_RATE = 0.05;
 
 const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
