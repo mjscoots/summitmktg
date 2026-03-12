@@ -506,8 +506,10 @@ function parseBlocks(
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
-        if (pipelineProvided && (p.onboarding_status || 'pending') !== pipeline_status) updateFields.push('pipeline');
-        if (repStatusProvided && (p.status || 'active') !== rep_status) updateFields.push('rep_status');
+        // ALWAYS send pipeline if provided — let edge function decide strongest
+        if (pipelineProvided) updateFields.push('pipeline');
+        // ALWAYS send rep_status if provided — NLC must always sync
+        if (repStatusProvided) updateFields.push('rep_status');
         if (phone && !p.phone) updateFields.push('phone');
         if (email && !p.email) updateFields.push('email');
         if (region && !p.region) updateFields.push('region');

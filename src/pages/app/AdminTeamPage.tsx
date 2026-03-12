@@ -263,51 +263,62 @@ export default function AdminTeamPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <PageBackButton to="/app" label="Dashboard" />
+      <div className="max-w-6xl mx-auto px-4 py-4">
+        {/* ═══ PREMIUM HERO HEADER ═══ */}
+        <div className="relative mb-6 -mx-4 px-4 pt-4 pb-5 overflow-hidden rounded-xl">
+          {/* Gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,60%,12%)] via-[hsl(225,50%,15%)] to-[hsl(230,40%,10%)] rounded-xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(217,80%,30%,0.15),transparent_60%)]" />
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0z\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3C/svg%3E")' }} />
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              <h1 className="text-xl font-black text-foreground tracking-tight">Admin</h1>
+          <div className="relative z-10">
+            <PageBackButton to="/app" label="Dashboard" />
+
+            <div className="flex items-start justify-between gap-4 mt-2">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <Shield className="w-6 h-6 text-primary" />
+                  <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Admin</h1>
+                </div>
+                <p className="text-sm text-white/50 mt-1">People management, teams & system controls</p>
+              </div>
+              {isAdmin && (
+                <div className="flex items-center gap-2 pt-1">
+                  <Button size="sm" onClick={() => setDemoOpen(true)} className="gap-1.5 bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/[0.12] hover:text-white font-semibold text-xs h-9 rounded-xl backdrop-blur-sm">
+                    <Play className="w-3.5 h-3.5" /> DEMO
+                  </Button>
+                  <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 h-9 rounded-xl shadow-lg shadow-primary/20">
+                    <UserPlus className="w-3.5 h-3.5" /> CREATE REP
+                  </Button>
+                </div>
+              )}
             </div>
-            <p className="text-sm text-muted-foreground mt-0.5">People management, teams & system controls</p>
           </div>
-          {isAdmin && (
-            <div className="flex items-center gap-2">
-              <Button size="sm" onClick={() => setDemoOpen(true)} className="gap-1.5 bg-transparent border border-primary/30 text-primary hover:bg-primary/10 font-semibold text-xs">
-                <Play className="w-3.5 h-3.5" /> DEMO
-              </Button>
-              <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 bg-transparent border border-border text-foreground hover:bg-muted/20 font-semibold text-xs">
-                <UserPlus className="w-3.5 h-3.5" /> CREATE REP
-              </Button>
-            </div>
-          )}
         </div>
 
         <Tabs defaultValue="users" className="w-full" onValueChange={(tab) => {
           const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications'> = { approvals: 'pendingApprovals', apps: 'pendingApplications' };
           if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
         }}>
-          <TabsList className="bg-card/30 border border-border/20 mb-4 flex-wrap h-auto gap-0.5 p-1">
-            <TabsTrigger value="users" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Users <span className="ml-1 text-[9px] text-muted-foreground">{allUsers.length}</span>
-            </TabsTrigger>
-            <TabsTrigger value="teams" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Teams <span className="ml-1 text-[9px] text-muted-foreground">{teams.length}</span>
-            </TabsTrigger>
-            <TabsTrigger value="approvals" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
-            </TabsTrigger>
-            <TabsTrigger value="apps" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Apps {adminCounts.pendingApplications > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
-            </TabsTrigger>
-            {isSuperAdmin && (
-              <TabsTrigger value="system" className="text-[11px] px-2.5 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">System</TabsTrigger>
-            )}
-          </TabsList>
+          <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 mb-4">
+            <TabsList className="bg-transparent p-0 h-auto gap-0.5">
+              <TabsTrigger value="users" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+                Users <span className="ml-1 text-[9px] opacity-70">{allUsers.length}</span>
+              </TabsTrigger>
+              <TabsTrigger value="teams" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+                Teams <span className="ml-1 text-[9px] opacity-70">{teams.length}</span>
+              </TabsTrigger>
+              <TabsTrigger value="approvals" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+                Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="apps" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+                Apps {adminCounts.pendingApplications > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
+              </TabsTrigger>
+              {isSuperAdmin && (
+                <TabsTrigger value="system" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">System</TabsTrigger>
+              )}
+            </TabsList>
+          </div>
 
           {/* ========== USERS TAB ========== */}
           <TabsContent value="users">
