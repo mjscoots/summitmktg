@@ -173,7 +173,6 @@ function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
   const result: ParsedUser[] = [];
 
   for (const u of users) {
-    // Build dedup keys
     const emailKey = u.email?.toLowerCase();
     const phoneKey = u.phone?.replace(/\D/g, '');
     const nameKey = normalizeForMatch(u.full_name);
@@ -185,19 +184,22 @@ function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
     const existing = existingByEmail || existingByPhone || existingByName;
 
     if (existing) {
-      // Merge: keep stronger pipeline, fill blanks
-      if (u.pipeline_status !== 'pending' && existing.pipeline_status === 'pending') {
-        existing.pipeline_status = u.pipeline_status;
+      if (u.pipelineProvided) {
+        existing.pipelineProvided = true;
+        existing.pipeline_status = strongestPipeline(existing.pipeline_status, u.pipeline_status);
+      }
+      if (u.repStatusProvided) {
+        existing.repStatusProvided = true;
+        existing.rep_status = existing.rep_status === 'nlc' || u.rep_status === 'nlc' ? 'nlc' : 'active';
       }
       if (u.phone && !existing.phone) existing.phone = u.phone;
       if (u.email && !existing.email) existing.email = u.email;
       if (u.region && !existing.region) existing.region = u.region;
       if (u.office_name && !existing.office_name) existing.office_name = u.office_name;
       if (u.recruiter_or_manager && !existing.recruiter_or_manager) existing.recruiter_or_manager = u.recruiter_or_manager;
-      continue; // Skip duplicate
+      continue;
     }
 
-    // Register dedup keys
     if (emailKey) seen.set(`email:${emailKey}`, u);
     if (phoneKey && phoneKey.length >= 7) seen.set(`phone:${phoneKey}`, u);
     seen.set(`name:${nameKey}`, u);
