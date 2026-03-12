@@ -271,7 +271,9 @@ function parseBlocks(
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
-    if (/^\d+$/.test(line)) {
+    // Only treat short digit strings (1-4 digits) as row number separators
+    // Phone numbers (7+ digits) must NOT be treated as separators
+    if (/^\d{1,4}$/.test(line)) {
       if (currentBlock.length > 0) blocks.push(currentBlock);
       currentBlock = [];
       continue;
@@ -330,14 +332,8 @@ function parseBlocks(
         continue;
       }
 
-      const repStatusMatch = normalizeRepStatus(line);
-      if (repStatusMatch && (!isLikelyName(line) || !!full_name)) {
-        rep_status = repStatusMatch;
-        repStatusProvided = true;
-        continue;
-      }
-
-      // Check compound line
+      // Check compound line BEFORE whole-line repStatus check
+      // so "Undecided    Rookie    NLC" gets split into its parts
       if (line.includes('\t') || /\s{3,}/.test(line)) {
         const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
         if (parts.length >= 2) {
@@ -367,11 +363,19 @@ function parseBlocks(
 
             if (isJunkValue(part)) {
               if (part.toLowerCase() === 'undecided') office_name = 'Undecided';
+              if (part.toLowerCase() === 'decided') office_name = 'Decided';
               handled++;
             }
           }
           if (handled >= 2) continue;
         }
+      }
+
+      const repStatusMatch = normalizeRepStatus(line);
+      if (repStatusMatch && (!isLikelyName(line) || !!full_name)) {
+        rep_status = repStatusMatch;
+        repStatusProvided = true;
+        continue;
       }
 
       // Skip junk
@@ -842,6 +846,36 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                       </p>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* NLC Validation */}
+              {results.validation && (
+                <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg">
+                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1.5">
+                    NLC Sync Validation
+                  </p>
+                  <div className="flex gap-4 text-xs">
+                    <span className="text-muted-foreground">
+                      NLC rows parsed: <span className="text-foreground font-semibold">{results.validation.imported.nlc || 0}</span>
+                    </span>
+                    <span className="text-muted-foreground">
+                      NLC rows applied: <span className="text-foreground font-semibold">{results.validation.canonical.nlc || 0}</span>
+                    </span>
+                    {(results.validation.imported.nlc || 0) !== (results.validation.canonical.nlc || 0) && (
+                      <span className="text-red-400 font-semibold">⚠ Mismatch</span>
+                    )}
+                    {(results.validation.imported.nlc || 0) === (results.validation.canonical.nlc || 0) && (results.validation.imported.nlc || 0) > 0 && (
+                      <span className="text-green-400 font-semibold">✓ Synced</span>
+                    )}
+                  </div>
+                  {results.validation.mismatches.length > 0 && (
+                    <div className="mt-2 space-y-0.5">
+                      {results.validation.mismatches.map((m, i) => (
+                        <p key={i} className="text-[10px] text-amber-400">{m}</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
