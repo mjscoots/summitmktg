@@ -29,20 +29,19 @@ export function useAdminCounts() {
     if (!isAdmin) return;
 
     const fetchCounts = async () => {
-      const [approvalsRes, applicationsRes, pitchesRes, feedbackRes] = await Promise.all([
+      const [approvalsRes, pitchesRes, feedbackRes] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending').eq('approved', false),
-        supabase.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('pitch_approval_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
         (supabase.from('app_feedback' as any) as any).select('*', { count: 'exact', head: true }).eq('status', 'new'),
       ]);
 
       const pendingApprovals = approvalsRes.count || 0;
-      const pendingApplications = applicationsRes.count || 0;
+      const pendingApplications = 0; // Applications are informational, not actionable
       const pendingPitches = pitchesRes.count || 0;
       const newFeedback = feedbackRes.count || 0;
 
-      // Only count items that are truly actionable
-      const total = pendingApprovals + pendingApplications + pendingPitches + newFeedback;
+      // Only count truly actionable items for the badge
+      const total = pendingApprovals + pendingPitches + newFeedback;
 
       setCounts({
         pendingApprovals,
