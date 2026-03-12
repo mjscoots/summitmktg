@@ -161,7 +161,7 @@ const Index = () => {
                 className="w-full group bg-primary/10 backdrop-blur-sm py-4 px-6 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <User className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
-                  <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors">
+                  <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors whitespace-nowrap">
                     Member Login
                   </span>
                 </div>
