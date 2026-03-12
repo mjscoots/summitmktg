@@ -15,6 +15,7 @@ interface UserData {
   team_name: string;
   password?: string;
   onboarding_status?: string;
+  rep_status?: "active" | "nlc";
 }
 
 Deno.serve(async (req) => {
