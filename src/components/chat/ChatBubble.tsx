@@ -117,11 +117,17 @@ export function ChatBubble({
     }
   };
 
+  const handleDoubleTap = (msgId: string) => {
+    setShowFireAnim(true);
+    setTimeout(() => setShowFireAnim(false), 800);
+    onDoubleTap(msgId);
+  };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       e.preventDefault();
-      onDoubleTap(message.id);
+      handleDoubleTap(message.id);
       lastTapRef.current = 0;
     } else {
       lastTapRef.current = now;
