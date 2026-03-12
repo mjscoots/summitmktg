@@ -490,7 +490,7 @@ function DownlineTab({ managerName }: { managerName: string }) {
     last_active_at: row.last_active_at,
   });
 
-  const [copied, setCopied] = useState(false);
+
 
   const inactiveRookies = members.filter(m => getDaysInactive(m.last_active_at) >= 3);
 
