@@ -1,11 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
   const [stars, setStars] = useState<Array<{id: number;x: number;y: number;size: number;opacity: number;delay: number;}>>([]);
+
+  // Preload logo then reveal
+  useEffect(() => {
+    const img = new Image();
+    img.src = summitLogo;
+    img.onload = () => setReady(true);
+    img.onerror = () => setReady(true);
+    // Fallback timeout
+    const t = setTimeout(() => setReady(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   // Generate stars on mount
   useEffect(() => {
