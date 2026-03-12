@@ -779,9 +779,9 @@ export default function CalendarPage() {
                           {hasTime(currentRSVPEvent.event_date) ? (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="w-4 h-4" />
-                              <span>{formatInTimezone(new Date(currentRSVPEvent.event_date), timezone, 'h:mm a')}</span>
+                              <span>{formatTimeLocal(currentRSVPEvent.event_date)}</span>
                               {currentRSVPEvent.end_date && (
-                                <span>– {formatInTimezone(new Date(currentRSVPEvent.end_date), timezone, 'h:mm a')}</span>
+                                <span>– {formatTimeLocal(currentRSVPEvent.end_date)}</span>
                               )}
                             </div>
                           ) : (
