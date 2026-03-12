@@ -9,13 +9,29 @@ const corsHeaders = {
 interface UserData {
   full_name: string;
   email: string;
-  phone: string;
-  role: "rookie" | "manager" | "admin";
-  direct_manager: string;
-  team_name: string;
+  phone?: string;
+  role?: "rookie" | "manager" | "admin";
+  direct_manager?: string;
+  team_name?: string;
   password?: string;
   onboarding_status?: string;
   rep_status?: "active" | "nlc";
+  region?: string;
+  office_name?: string;
+  experience?: string;
+  organization?: string;
+  // For updating existing matched users by user_id
+  matched_user_id?: string;
+  update_only?: boolean;
+}
+
+function normalizePhoneE164(raw: string | undefined | null): string | undefined {
+  if (!raw) return undefined;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length > 10) return `+${digits}`;
+  return undefined; // Invalid phone
 }
 
 Deno.serve(async (req) => {
@@ -75,22 +91,63 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (users.length > 50) {
+    if (users.length > 100) {
       return new Response(
-        JSON.stringify({ error: "Batch size limited to 50 users" }),
+        JSON.stringify({ error: "Batch size limited to 100 users" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const results: { success: string[]; failed: { email: string; error: string }[] } = {
+    const results: {
+      success: string[];
+      updated: string[];
+      failed: { email: string; error: string }[];
+    } = {
       success: [],
+      updated: [],
       failed: [],
     };
 
     for (const u of users) {
       try {
-        if (!u.email || !u.full_name) {
-          results.failed.push({ email: u.email || "unknown", error: "Email and full_name are required" });
+        if (!u.full_name) {
+          results.failed.push({ email: u.email || "unknown", error: "full_name is required" });
+          continue;
+        }
+
+        // ── UPDATE-ONLY MODE: just update an existing profile by user_id ──
+        if (u.update_only && u.matched_user_id) {
+          const updates: Record<string, unknown> = {};
+          if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
+          if (u.rep_status) updates.status = u.rep_status;
+          if (u.phone) updates.phone = u.phone;
+          if (u.region) updates.region = u.region;
+          if (u.office_name) updates.office_name = u.office_name;
+          if (u.experience) updates.experience = u.experience;
+          if (u.direct_manager) updates.direct_manager = u.direct_manager;
+          if (u.organization) updates.organization = u.organization;
+
+          if (Object.keys(updates).length > 0) {
+            const { error: updateErr } = await supabaseAdmin
+              .from("profiles")
+              .update(updates)
+              .eq("user_id", u.matched_user_id);
+
+            if (updateErr) {
+              console.error(`Update failed for ${u.full_name}:`, updateErr.message);
+              results.failed.push({ email: u.email || u.full_name, error: updateErr.message });
+            } else {
+              results.updated.push(u.full_name);
+            }
+          } else {
+            results.updated.push(`${u.full_name} (no changes)`);
+          }
+          continue;
+        }
+
+        // ── CREATE MODE: create a new auth user + profile ──
+        if (!u.email) {
+          results.failed.push({ email: u.full_name, error: "Email is required for new users" });
           continue;
         }
 
@@ -101,10 +158,11 @@ Deno.serve(async (req) => {
         }
 
         const password = u.password || crypto.randomUUID().slice(0, 16);
+        const normalizedPhone = normalizePhoneE164(u.phone);
 
         const { data: authUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
           email: u.email,
-          phone: u.phone ? `+1${u.phone.replace(/\D/g, "")}` : undefined,
+          phone: normalizedPhone,
           password,
           email_confirm: true,
           user_metadata: {
@@ -117,19 +175,25 @@ Deno.serve(async (req) => {
 
         if (createError) {
           if (createError.message?.includes("already been registered") || createError.message?.includes("already exists")) {
+            // User already has an auth account — update their profile
             const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
-              const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
-              const updateData: Record<string, unknown> = {
-                status: importedStatus,
-                ...(u.onboarding_status ? { onboarding_status: u.onboarding_status } : {}),
-              };
-              // For imports: don't overwrite approved status if already set to true
-              if (!is_import) updateData.approved = true;
-              await supabaseAdmin.from("profiles").update(updateData).eq("user_id", existingUser.id);
+              const updates: Record<string, unknown> = {};
+              if (u.rep_status) updates.status = u.rep_status;
+              if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
+              if (u.phone) updates.phone = u.phone;
+              if (u.region) updates.region = u.region;
+              if (u.office_name) updates.office_name = u.office_name;
+              if (u.experience) updates.experience = u.experience;
+              if (u.direct_manager) updates.direct_manager = u.direct_manager;
+              if (u.organization) updates.organization = u.organization;
+
+              if (Object.keys(updates).length > 0) {
+                await supabaseAdmin.from("profiles").update(updates).eq("user_id", existingUser.id);
+              }
             }
-            results.success.push(`${u.email} (already exists)`);
+            results.updated.push(`${u.full_name} (existing)`);
             continue;
           }
           throw createError;
@@ -141,15 +205,20 @@ Deno.serve(async (req) => {
             ? { approved: false, status: importedStatus }
             : { approved: true, status: importedStatus };
 
-          if (u.onboarding_status) {
-            profileUpdates.onboarding_status = u.onboarding_status;
-          }
+          if (u.onboarding_status) profileUpdates.onboarding_status = u.onboarding_status;
+          if (u.phone) profileUpdates.phone = u.phone;
+          if (u.region) profileUpdates.region = u.region;
+          if (u.office_name) profileUpdates.office_name = u.office_name;
+          if (u.experience) profileUpdates.experience = u.experience;
+          if (u.direct_manager) profileUpdates.direct_manager = u.direct_manager;
+          if (u.organization) profileUpdates.organization = u.organization;
+
           await supabaseAdmin
             .from("profiles")
             .update(profileUpdates)
             .eq("user_id", authUser.user.id);
 
-          // Also set role
+          // Set role
           await supabaseAdmin
             .from("user_roles")
             .upsert(
@@ -161,7 +230,7 @@ Deno.serve(async (req) => {
         }
       } catch (error) {
         results.failed.push({
-          email: u.email,
+          email: u.email || u.full_name,
           error: error instanceof Error ? error.message : "Unknown error",
         });
       }
