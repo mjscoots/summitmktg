@@ -400,6 +400,16 @@ function parseBlocks(
     for (let i = 0; i < unclassified.length; i++) {
       const val = unclassified[i];
 
+      if (!full_name) {
+        const inlineNameStatus = extractInlineNameAndRepStatus(val);
+        if (inlineNameStatus) {
+          full_name = inlineNameStatus.name;
+          rep_status = inlineNameStatus.repStatus;
+          repStatusProvided = true;
+          continue;
+        }
+      }
+
       const valPipeline = isPipelineStatus(val) ? normalizePipeline(val) : null;
       if (valPipeline) {
         pipeline_status = valPipeline;
@@ -408,7 +418,7 @@ function parseBlocks(
       }
 
       const valRepStatus = normalizeRepStatus(val);
-      if (valRepStatus) {
+      if (valRepStatus && (!isLikelyName(val) || !!full_name)) {
         rep_status = valRepStatus;
         repStatusProvided = true;
         continue;
@@ -430,6 +440,15 @@ function parseBlocks(
 
       if (!region) { region = val; continue; }
       if (!office_name) { office_name = val; continue; }
+    }
+
+    // Final fallback: if status wasn't captured by line, detect from whole block text
+    if (!repStatusProvided) {
+      const blockLevelStatus = normalizeRepStatus(block.join(' '));
+      if (blockLevelStatus) {
+        rep_status = blockLevelStatus;
+        repStatusProvided = true;
+      }
     }
 
     // Validate: must have a real name
