@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from 'react';
+import { useState, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import {
   Search, Upload, Users, UserCheck, ArrowUpDown, Edit2, Eye, RotateCcw,
-  ChevronUp, ChevronDown, Trash2, X, Loader2
+  ChevronUp, ChevronDown, Trash2, X, Loader2, AlertTriangle
 } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -20,6 +20,31 @@ import { useRookieView } from '@/contexts/RookieViewContext';
 import { useNavigate } from 'react-router-dom';
 
 const LazyMassImport = lazy(() => import('@/components/admin/AdminMassImport'));
+
+/* ── Inline Error Boundary for table ── */
+class TableErrorBoundary extends Component<{ children: ReactNode; onRetry: () => void }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode; onRetry: () => void }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error) { console.error('AdminUsersTab table error:', error); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 text-center space-y-3">
+          <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto" />
+          <p className="text-sm text-foreground font-medium">Table failed to render</p>
+          <p className="text-xs text-muted-foreground">Some data may be malformed. Try refreshing.</p>
+          <Button size="sm" variant="outline" onClick={() => { this.setState({ hasError: false }); this.props.onRetry(); }}>
+            Retry
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* ── Pipeline Statuses ── */
 const PIPELINE_STATUSES = [
