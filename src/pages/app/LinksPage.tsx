@@ -345,12 +345,12 @@ export default function LinksPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {massUploadType === 'phones'
-                        ? 'Paste one per line: Name, Number  or  Name ⇥ Number ⇥ Label'
+                        ? 'Paste one per line — phone numbers are auto-detected. Any format works: Name +1 (801) 555-1234, 801-555-1234 Name, etc.'
                         : 'Paste one per line: Title, URL  or  Title ⇥ URL ⇥ Description'}
                     </p>
                     <Textarea
                       placeholder={massUploadType === 'phones'
-                        ? "John Smith, 555-123-4567\nJane Doe, 801-555-1234, Manager"
+                        ? "Kirsten Hawx Assistant +1 (801) 458-4775\nJohn Smith 801-555-3322\n8015554455"
                         : "Google Drive, https://drive.google.com\nSlack, https://slack.com, Team Chat"}
                       value={massUploadText}
                       onChange={e => setMassUploadText(e.target.value)}
