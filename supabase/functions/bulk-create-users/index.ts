@@ -15,7 +15,7 @@ interface UserData {
   team_name?: string;
   password?: string;
   onboarding_status?: string;
-  rep_status?: "active" | "nlc";
+  rep_status?: string;
   region?: string;
   office_name?: string;
   experience?: string;
@@ -32,6 +32,25 @@ function normalizePhoneE164(raw: string | undefined | null): string | undefined 
   if (digits.length === 10) return `+1${digits}`;
   if (digits.length > 10) return `+${digits}`;
   return undefined; // Invalid phone
+}
+
+function normalizeImportRepStatus(raw: string | undefined | null): "active" | "nlc" | undefined {
+  if (!raw) return undefined;
+
+  const value = raw
+    .toLowerCase()
+    .trim()
+    .replace(/[_()]/g, " ")
+    .replace(/\s+/g, " ");
+
+  if (!value) return undefined;
+  if (/^active(s)?$/.test(value)) return "active";
+  if (/^(inactive|disabled|deactivated|dropped|quit|terminated|released|cut)$/.test(value)) return "nlc";
+  if (/\bno\s+longer\s+coming\b/.test(value)) return "nlc";
+  if (/\bn\s*[- ]?\s*nlc(s)?\b/.test(value)) return "nlc";
+  if (/\bnlc(s)?\b/.test(value)) return "nlc";
+
+  return undefined;
 }
 
 Deno.serve(async (req) => {
