@@ -175,7 +175,21 @@ export default function AdminTeamPage() {
 
   const handleDeleteUser = async () => {
     if (!deleteTarget) return;
-    try { await supabase.functions.invoke('admin-approve-user', { body: { action: 'delete_user', user_id: deleteTarget.user_id } }); toast({ title: 'User Deleted' }); setDeleteTarget(null); fetchData(); } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
+    const deletedUserId = deleteTarget.user_id;
+    // Optimistically remove from UI immediately
+    setAllUsers(prev => prev.filter(u => u.user_id !== deletedUserId));
+    setPendingUsers(prev => prev.filter(u => u.user_id !== deletedUserId));
+    setDeleteTarget(null);
+    toast({ title: 'User Deleted' });
+    try {
+      await supabase.functions.invoke('admin-approve-user', { body: { action: 'delete_user', user_id: deletedUserId } });
+      // Background refresh to sync any remaining state
+      fetchData();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      // Re-fetch to restore accurate state on failure
+      fetchData();
+    }
   };
 
   const handleResetPassword = async (email: string, newPassword: string) => {
