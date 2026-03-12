@@ -43,17 +43,33 @@ type PageTab = 'links' | 'phone-numbers' | 'calculators' | 'notepad' | 'pay-scal
 /** Normalize a US phone number to (XXX) XXX-XXXX format */
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, '');
-  // Strip leading 1 for US numbers
   const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
   if (d.length === 10) {
     return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
   }
-  return raw; // Return as-is if not a standard 10-digit
+  return raw;
 }
 
-/** Check if raw phone input has at least 7 digits (lenient) */
+/** Check if raw phone input has at least 10 digits (US) */
 function isValidPhone(raw: string): boolean {
-  return raw.replace(/\D/g, '').length >= 7;
+  const digits = raw.replace(/\D/g, '');
+  const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  return d.length === 10;
+}
+
+/** Phone number regex: matches patterns like +1 (801) 458-4775, 801-555-1234, 8015551234 */
+const PHONE_REGEX = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}/;
+
+/** Extract phone number and name from a free-form line */
+function extractPhoneFromLine(line: string): { name: string; phone: string } | null {
+  const match = line.match(PHONE_REGEX);
+  if (!match) return null;
+  const rawPhone = match[0];
+  if (!isValidPhone(rawPhone)) return null;
+  const phone = normalizePhone(rawPhone);
+  // Everything that's not the phone number is the name
+  const name = line.replace(rawPhone, '').replace(/[,\t|→\->]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return { name: name || 'Unknown', phone };
 }
 
 export default function LinksPage() {
