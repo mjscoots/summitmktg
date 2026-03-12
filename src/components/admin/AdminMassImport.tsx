@@ -11,7 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 
 interface MassImportProps {
-  profiles: { user_id: string; full_name: string; email: string; phone?: string | null; region?: string | null; organization?: string | null; office_name?: string | null; direct_manager?: string | null; experience?: string | null; team_id?: string | null }[];
+  profiles: { user_id: string; full_name: string; email: string; phone?: string | null; region?: string | null; organization?: string | null; office_name?: string | null; direct_manager?: string | null; experience?: string | null; team_id?: string | null; onboarding_status?: string | null; status?: string | null }[];
   managers: { user_id: string; full_name: string }[];
   teams: { id: string; name: string }[];
   onRefresh: () => void;
@@ -27,7 +27,9 @@ interface ParsedUser {
   office_name: string;
   experience: string;
   pipeline_status: string;
-  active: boolean;
+  pipelineProvided: boolean;
+  rep_status: 'active' | 'nlc';
+  repStatusProvided: boolean;
   alreadyExists: boolean;
   matchedUserId?: string;
   matchedName?: string;
@@ -44,6 +46,11 @@ interface ImportResults {
     newUsers: string[];
     updatedUsers: string[];
     skippedRows: { value: string; reason: string }[];
+  };
+  validation?: {
+    imported: Record<string, number>;
+    canonical: Record<string, number>;
+    mismatches: string[];
   };
 }
 
@@ -65,9 +72,27 @@ const PIPELINE_MAP: Record<string, string> = {
   'summer_ready': 'summer_ready',
 };
 
+const PIPELINE_RANK: Record<string, number> = {
+  pending: 0,
+  contract_signed: 1,
+  info_added: 2,
+  onboarded: 3,
+  summer_ready: 4,
+};
+
+const IMPORT_DISTRIBUTION_KEYS = [
+  'pending',
+  'contract_signed',
+  'info_added',
+  'onboarded',
+  'summer_ready',
+  'active',
+  'nlc',
+] as const;
+
 // Values that should NEVER become user records
 const JUNK_VALUES = new Set([
-  'the academy', 'undecided', 'decided', 'active', 'inactive',
+  'the academy', 'undecided', 'decided', 'active', 'inactive', 'nlc',
   'rookie', 'veteran', 'prospect added', 'contract signed',
   'info added', 'onboarded', 'summer ready', 'name', 'contact',
   'region', 'recruiter', 'office name', 'experience', 'status',
@@ -93,6 +118,17 @@ function normalizePipeline(raw: string): string {
   return PIPELINE_MAP[key] || PIPELINE_MAP[key.replace(/\s+/g, '')] || 'pending';
 }
 
+function strongestPipeline(a: string, b: string): string {
+  return (PIPELINE_RANK[b] ?? 0) > (PIPELINE_RANK[a] ?? 0) ? b : a;
+}
+
+function normalizeRepStatus(raw: string): 'active' | 'nlc' | null {
+  const key = raw.toLowerCase().trim().replace(/[_\-]/g, ' ');
+  if (['active'].includes(key)) return 'active';
+  if (['inactive', 'nlc', 'no longer coming', 'no longer coming nlc', 'disabled', 'deactivated'].includes(key)) return 'nlc';
+  return null;
+}
+
 function isEmail(val: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
 }
@@ -111,11 +147,6 @@ function isLikelyName(val: string): boolean {
 function isExperienceLabel(val: string): boolean {
   const l = val.toLowerCase().trim();
   return l === 'rookie' || l === 'veteran';
-}
-
-function isActiveLabel(val: string): boolean {
-  const l = val.toLowerCase().trim();
-  return l === 'active' || l === 'inactive';
 }
 
 /** Normalize a name for matching: lowercase, remove middle names, just first+last */
@@ -142,7 +173,6 @@ function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
   const result: ParsedUser[] = [];
 
   for (const u of users) {
-    // Build dedup keys
     const emailKey = u.email?.toLowerCase();
     const phoneKey = u.phone?.replace(/\D/g, '');
     const nameKey = normalizeForMatch(u.full_name);
@@ -154,19 +184,22 @@ function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
     const existing = existingByEmail || existingByPhone || existingByName;
 
     if (existing) {
-      // Merge: keep stronger pipeline, fill blanks
-      if (u.pipeline_status !== 'pending' && existing.pipeline_status === 'pending') {
-        existing.pipeline_status = u.pipeline_status;
+      if (u.pipelineProvided) {
+        existing.pipelineProvided = true;
+        existing.pipeline_status = strongestPipeline(existing.pipeline_status, u.pipeline_status);
+      }
+      if (u.repStatusProvided) {
+        existing.repStatusProvided = true;
+        existing.rep_status = existing.rep_status === 'nlc' || u.rep_status === 'nlc' ? 'nlc' : 'active';
       }
       if (u.phone && !existing.phone) existing.phone = u.phone;
       if (u.email && !existing.email) existing.email = u.email;
       if (u.region && !existing.region) existing.region = u.region;
       if (u.office_name && !existing.office_name) existing.office_name = u.office_name;
       if (u.recruiter_or_manager && !existing.recruiter_or_manager) existing.recruiter_or_manager = u.recruiter_or_manager;
-      continue; // Skip duplicate
+      continue;
     }
 
-    // Register dedup keys
     if (emailKey) seen.set(`email:${emailKey}`, u);
     if (phoneKey && phoneKey.length >= 7) seen.set(`phone:${phoneKey}`, u);
     seen.set(`name:${nameKey}`, u);
@@ -219,13 +252,15 @@ function parseBlocks(
 
     let full_name = '';
     let pipeline_status = 'pending';
+    let pipelineProvided = false;
     let phone = '';
     let email = '';
     let region = '';
     let recruiter_or_manager = '';
     let office_name = '';
     let experience = 'rookie';
-    let active = true;
+    let rep_status: 'active' | 'nlc' = 'active';
+    let repStatusProvided = false;
 
     const unclassified: string[] = [];
 
@@ -234,14 +269,17 @@ function parseBlocks(
       line = line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').trim();
       if (!line) continue;
 
-      // Skip junk
-      if (isJunkValue(line)) {
-        const parts = line.split(/\s{2,}|\t+/);
-        for (const part of parts) {
-          const p = part.trim();
-          if (isExperienceLabel(p)) experience = p.toLowerCase() === 'veteran' ? 'veteran' : 'rookie';
-          else if (isActiveLabel(p)) active = p.toLowerCase() === 'active';
-        }
+      const pipelineMatch = isPipelineStatus(line) ? normalizePipeline(line) : null;
+      if (pipelineMatch) {
+        pipeline_status = pipelineMatch;
+        pipelineProvided = true;
+        continue;
+      }
+
+      const repStatusMatch = normalizeRepStatus(line);
+      if (repStatusMatch) {
+        rep_status = repStatusMatch;
+        repStatusProvided = true;
         continue;
       }
 
@@ -251,19 +289,58 @@ function parseBlocks(
         if (parts.length >= 2) {
           let handled = 0;
           for (const part of parts) {
-            if (isExperienceLabel(part)) { experience = part.toLowerCase() === 'veteran' ? 'veteran' : 'rookie'; handled++; }
-            else if (isActiveLabel(part)) { active = part.toLowerCase() === 'active'; handled++; }
-            else if (isJunkValue(part)) { if (part.toLowerCase() === 'undecided') office_name = 'Undecided'; handled++; }
+            const partPipeline = isPipelineStatus(part) ? normalizePipeline(part) : null;
+            if (partPipeline) {
+              pipeline_status = partPipeline;
+              pipelineProvided = true;
+              handled++;
+              continue;
+            }
+
+            const partRepStatus = normalizeRepStatus(part);
+            if (partRepStatus) {
+              rep_status = partRepStatus;
+              repStatusProvided = true;
+              handled++;
+              continue;
+            }
+
+            if (isExperienceLabel(part)) {
+              experience = part.toLowerCase() === 'veteran' ? 'veteran' : 'rookie';
+              handled++;
+              continue;
+            }
+
+            if (isJunkValue(part)) {
+              if (part.toLowerCase() === 'undecided') office_name = 'Undecided';
+              handled++;
+            }
           }
           if (handled >= 2) continue;
         }
       }
 
+      // Skip junk
+      if (isJunkValue(line)) {
+        const parts = line.split(/\s{2,}|\t+/);
+        for (const part of parts) {
+          const p = part.trim();
+          if (isExperienceLabel(p)) {
+            experience = p.toLowerCase() === 'veteran' ? 'veteran' : 'rookie';
+            continue;
+          }
+          const pRepStatus = normalizeRepStatus(p);
+          if (pRepStatus) {
+            rep_status = pRepStatus;
+            repStatusProvided = true;
+          }
+        }
+        continue;
+      }
+
       if (isEmail(line) && !email) { email = line.toLowerCase(); continue; }
       if (isPhone(line) && !phone && !isLikelyName(line)) { phone = line; continue; }
-      if (isPipelineStatus(line)) { pipeline_status = normalizePipeline(line); continue; }
       if (isExperienceLabel(line)) { experience = line.toLowerCase() === 'veteran' ? 'veteran' : 'rookie'; continue; }
-      if (isActiveLabel(line)) { active = line.toLowerCase() === 'active'; continue; }
 
       // First plausible name
       if (!full_name && isLikelyName(line) && i < 3) {
@@ -277,6 +354,21 @@ function parseBlocks(
     // Classify unclassified lines
     for (let i = 0; i < unclassified.length; i++) {
       const val = unclassified[i];
+
+      const valPipeline = isPipelineStatus(val) ? normalizePipeline(val) : null;
+      if (valPipeline) {
+        pipeline_status = valPipeline;
+        pipelineProvided = true;
+        continue;
+      }
+
+      const valRepStatus = normalizeRepStatus(val);
+      if (valRepStatus) {
+        rep_status = valRepStatus;
+        repStatusProvided = true;
+        continue;
+      }
+
       if (isJunkValue(val)) continue;
 
       // Check if it matches a known manager
@@ -301,7 +393,7 @@ function parseBlocks(
       continue;
     }
 
-    // *** CRITICAL: If this name is a known manager being imported as a "row", 
+    // *** CRITICAL: If this name is a known manager being imported as a "row",
     // treat it as a manager reference and skip creating a new rep record ***
     const nameNorm = normalizeForMatch(full_name);
     if (managerNamesNorm.has(nameNorm)) {
@@ -341,7 +433,8 @@ function parseBlocks(
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
-        if (pipeline_status !== 'pending') updateFields.push('pipeline');
+        if (pipelineProvided && (p.onboarding_status || 'pending') !== pipeline_status) updateFields.push('pipeline');
+        if (repStatusProvided && (p.status || 'active') !== rep_status) updateFields.push('rep_status');
         if (phone && !p.phone) updateFields.push('phone');
         if (email && !p.email) updateFields.push('email');
         if (region && !p.region) updateFields.push('region');
@@ -362,7 +455,9 @@ function parseBlocks(
       office_name,
       experience,
       pipeline_status,
-      active,
+      pipelineProvided,
+      rep_status,
+      repStatusProvided,
       alreadyExists,
       matchedUserId,
       matchedName,
@@ -415,6 +510,20 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       const newUsers = parsed.filter(u => !u.alreadyExists);
       const existingUsers = parsed.filter(u => u.alreadyExists);
 
+      const importedDistribution = Object.fromEntries(
+        IMPORT_DISTRIBUTION_KEYS.map((k) => [k, 0])
+      ) as Record<(typeof IMPORT_DISTRIBUTION_KEYS)[number], number>;
+
+      for (const row of parsed) {
+        if (row.pipelineProvided) {
+          const key = row.pipeline_status as keyof typeof importedDistribution;
+          if (key in importedDistribution) importedDistribution[key]++;
+        }
+        if (row.repStatusProvided) {
+          importedDistribution[row.rep_status]++;
+        }
+      }
+
       // Step 2: Match
       setLoadingStep(1);
       await new Promise(r => setTimeout(r, 300));
@@ -435,6 +544,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           direct_manager: u.recruiter_or_manager || defaultManager,
           team_name: defaultTeam,
           onboarding_status: u.pipeline_status,
+          rep_status: u.rep_status,
         }));
 
         const BATCH_SIZE = 50;
@@ -460,8 +570,11 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         if (!user.matchedUserId || user.updateFields.length === 0) continue;
         try {
           const updates: Record<string, any> = {};
-          if (user.updateFields.includes('pipeline') && user.pipeline_status !== 'pending') {
+          if (user.updateFields.includes('pipeline')) {
             updates.onboarding_status = user.pipeline_status;
+          }
+          if (user.updateFields.includes('rep_status')) {
+            updates.status = user.rep_status;
           }
           if (user.updateFields.includes('phone') && user.phone) updates.phone = user.phone;
           if (user.updateFields.includes('email') && user.email) updates.email = user.email;
@@ -479,9 +592,50 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         }
       }
 
-      // Step 5: Finalize
+      // Step 5: Finalize + validation
       setLoadingStep(4);
       await new Promise(r => setTimeout(r, 200));
+
+      let validation: ImportResults['validation'];
+      try {
+        const canonicalDistribution = Object.fromEntries(
+          IMPORT_DISTRIBUTION_KEYS.map((k) => [k, 0])
+        ) as Record<(typeof IMPORT_DISTRIBUTION_KEYS)[number], number>;
+
+        const parsedByEmail = new Map(parsed.map((u) => [u.email.toLowerCase(), u]));
+        const importEmails = [...parsedByEmail.keys()];
+
+        if (importEmails.length > 0) {
+          const { data: canonicalRows } = await supabase
+            .from('profiles')
+            .select('email, onboarding_status, status')
+            .in('email', importEmails);
+
+          for (const row of canonicalRows || []) {
+            const source = parsedByEmail.get((row.email || '').toLowerCase());
+            if (!source) continue;
+            if (source.pipelineProvided) {
+              const key = (row.onboarding_status || 'pending') as keyof typeof canonicalDistribution;
+              if (key in canonicalDistribution) canonicalDistribution[key]++;
+            }
+            if (source.repStatusProvided) {
+              canonicalDistribution[row.status === 'nlc' ? 'nlc' : 'active']++;
+            }
+          }
+
+          const mismatches = IMPORT_DISTRIBUTION_KEYS
+            .filter((key) => importedDistribution[key] !== canonicalDistribution[key])
+            .map((key) => `${key}: imported ${importedDistribution[key]}, canonical ${canonicalDistribution[key]}`);
+
+          validation = {
+            imported: importedDistribution,
+            canonical: canonicalDistribution,
+            mismatches,
+          };
+        }
+      } catch {
+        validation = undefined;
+      }
 
       setResults({
         created: createdNames.length,
@@ -493,6 +647,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           updatedUsers: updatedNames,
           skippedRows: failedRows,
         },
+        validation,
       });
 
       setRawText('');

@@ -127,13 +127,11 @@ export default function AdminUsersTab({
     const total = users.length;
     const inApp = users.filter(u => u.approved === true).length;
     const notInApp = users.filter(u => u.approved !== true).length;
-    const active = users.filter(u => u.status === 'active' && u.approved === true).length;
-    // NLC = status === 'nlc' (not from pipeline)
+    const active = users.filter(u => u.status === 'active').length;
     const nlc = users.filter(u => u.status === 'nlc').length;
     const pipelineCounts: Record<string, number> = {};
     for (const s of PIPELINE_STATUSES) pipelineCounts[s.key] = 0;
     for (const u of users) {
-      if (u.status === 'nlc') continue;
       const ps = u.onboarding_status || 'pending';
       pipelineCounts[ps] = (pipelineCounts[ps] || 0) + 1;
     }

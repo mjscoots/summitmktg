@@ -15,6 +15,7 @@ interface UserData {
   team_name: string;
   password?: string;
   onboarding_status?: string;
+  rep_status?: "active" | "nlc";
 }
 
 Deno.serve(async (req) => {
@@ -119,8 +120,9 @@ Deno.serve(async (req) => {
             const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
+              const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
               const updateData: Record<string, unknown> = {
-                status: "active",
+                status: importedStatus,
                 ...(u.onboarding_status ? { onboarding_status: u.onboarding_status } : {}),
               };
               // For imports: don't overwrite approved status if already set to true
@@ -134,11 +136,10 @@ Deno.serve(async (req) => {
         }
 
         if (authUser?.user) {
-          // For imports: keep approved=false — person is "Not In-App" until they actually sign up
-          // For admin-created users: auto-approve as "In-App"
+          const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
           const profileUpdates: Record<string, unknown> = is_import
-            ? { approved: false, status: "active" }
-            : { approved: true, status: "active" };
+            ? { approved: false, status: importedStatus }
+            : { approved: true, status: importedStatus };
 
           if (u.onboarding_status) {
             profileUpdates.onboarding_status = u.onboarding_status;
