@@ -533,7 +533,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       const mergedCount = existingUsers.filter(u => u.updateFields.length > 0).length;
       const failedRows: { value: string; reason: string }[] = [...skipped];
 
-      // Step 3: Create new users in batches of 50
+      // Step 3: Create new users in batches via edge function
       setLoadingStep(2);
       if (newUsers.length > 0) {
         const usersToCreate = newUsers.map(u => ({
@@ -545,50 +545,79 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           team_name: defaultTeam,
           onboarding_status: u.pipeline_status,
           rep_status: u.rep_status,
+          region: u.region,
+          office_name: u.office_name,
+          experience: u.experience,
         }));
 
         const BATCH_SIZE = 50;
         for (let i = 0; i < usersToCreate.length; i += BATCH_SIZE) {
           const batch = usersToCreate.slice(i, i + BATCH_SIZE);
-          const { data, error } = await supabase.functions.invoke('bulk-create-users', {
-            body: { users: batch, is_import: true },
-          });
+          try {
+            const { data, error } = await supabase.functions.invoke('bulk-create-users', {
+              body: { users: batch, is_import: true },
+            });
 
-          if (error) throw error;
-          if (data?.success) createdNames.push(...data.success.map((e: string) => newUsers.find(u => u.email === e)?.full_name || e));
-          if (data?.failed) {
-            for (const f of data.failed) {
-              failedRows.push({ value: f.email, reason: f.error });
+            if (error) {
+              console.error('Batch create error:', error);
+              failedRows.push({ value: `Batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: error.message || 'Batch failed' });
+              continue;
             }
+            if (data?.success) createdNames.push(...data.success.map((e: string) => newUsers.find(u => u.email === e)?.full_name || e));
+            if (data?.updated) updatedNames.push(...data.updated);
+            if (data?.failed) {
+              for (const f of data.failed) {
+                failedRows.push({ value: f.email, reason: f.error });
+              }
+            }
+          } catch (batchErr: any) {
+            console.error('Batch invoke error:', batchErr);
+            failedRows.push({ value: `Batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: batchErr.message || 'Unknown batch error' });
           }
         }
       }
 
-      // Step 4: Update existing users
+      // Step 4: Update existing users via edge function (uses service role, bypasses RLS)
       setLoadingStep(3);
-      for (const user of existingUsers) {
-        if (!user.matchedUserId || user.updateFields.length === 0) continue;
-        try {
-          const updates: Record<string, any> = {};
-          if (user.updateFields.includes('pipeline')) {
-            updates.onboarding_status = user.pipeline_status;
-          }
-          if (user.updateFields.includes('rep_status')) {
-            updates.status = user.rep_status;
-          }
-          if (user.updateFields.includes('phone') && user.phone) updates.phone = user.phone;
-          if (user.updateFields.includes('email') && user.email) updates.email = user.email;
-          if (user.updateFields.includes('region') && user.region) updates.region = user.region;
-          if (user.updateFields.includes('office_name') && user.office_name) updates.office_name = user.office_name;
-          if (user.updateFields.includes('experience') && user.experience) updates.experience = user.experience;
-          if (user.updateFields.includes('manager') && user.recruiter_or_manager) updates.direct_manager = user.recruiter_or_manager;
+      const usersToUpdate = existingUsers.filter(u => u.matchedUserId && u.updateFields.length > 0);
+      if (usersToUpdate.length > 0) {
+        const updatePayload = usersToUpdate.map(u => ({
+          full_name: u.full_name,
+          email: u.email,
+          matched_user_id: u.matchedUserId,
+          update_only: true,
+          onboarding_status: u.updateFields.includes('pipeline') ? u.pipeline_status : undefined,
+          rep_status: u.updateFields.includes('rep_status') ? u.rep_status : undefined,
+          phone: u.updateFields.includes('phone') ? u.phone : undefined,
+          region: u.updateFields.includes('region') ? u.region : undefined,
+          office_name: u.updateFields.includes('office_name') ? u.office_name : undefined,
+          experience: u.updateFields.includes('experience') ? u.experience : undefined,
+          direct_manager: u.updateFields.includes('manager') ? u.recruiter_or_manager : undefined,
+        }));
 
-          if (Object.keys(updates).length > 0) {
-            const { error } = await supabase.from('profiles').update(updates as any).eq('user_id', user.matchedUserId);
-            if (!error) updatedNames.push(user.matchedName || user.full_name);
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < updatePayload.length; i += BATCH_SIZE) {
+          const batch = updatePayload.slice(i, i + BATCH_SIZE);
+          try {
+            const { data, error } = await supabase.functions.invoke('bulk-create-users', {
+              body: { users: batch, is_import: true },
+            });
+
+            if (error) {
+              console.error('Batch update error:', error);
+              failedRows.push({ value: `Update batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: error.message || 'Update batch failed' });
+              continue;
+            }
+            if (data?.updated) updatedNames.push(...data.updated);
+            if (data?.failed) {
+              for (const f of data.failed) {
+                failedRows.push({ value: f.email, reason: f.error });
+              }
+            }
+          } catch (batchErr: any) {
+            console.error('Update batch invoke error:', batchErr);
+            failedRows.push({ value: `Update batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: batchErr.message || 'Unknown error' });
           }
-        } catch (err: any) {
-          failedRows.push({ value: user.full_name, reason: err.message });
         }
       }
 
@@ -658,6 +687,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         description: `${createdNames.length} created, ${updatedNames.length} updated, ${mergedCount} merged, ${failedRows.length} skipped`,
       });
     } catch (err: any) {
+      console.error('Import failed:', err);
       toast({ title: 'Import Failed', description: err.message, variant: 'destructive' });
     } finally {
       setImporting(false);
