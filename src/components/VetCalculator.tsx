@@ -356,7 +356,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               <DollarSign className="w-4 h-4 text-primary/70" />
               <h4 className="text-sm font-medium text-foreground/80">Average Vet PRA Amount</h4>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">Summit vet average is $275,000.</p>
+            <p className="text-xs text-muted-foreground mb-2">Conservative vet average is $250,000.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <input
