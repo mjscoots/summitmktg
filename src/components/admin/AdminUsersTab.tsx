@@ -411,27 +411,23 @@ export default function AdminUsersTab({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-border/30 bg-card/40 p-3 backdrop-blur-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
-            <div>
-              <h2 className="text-sm font-semibold text-foreground">People</h2>
-              <p className="text-xs text-muted-foreground">Filter and action your roster fast</p>
-            </div>
-          </div>
-
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8 text-xs gap-1.5"
-            onClick={() => setImportOpen(true)}
-          >
-            <Upload className="w-3.5 h-3.5" />
-            Mass Import
-          </Button>
+    <div className="space-y-3">
+      {/* Section header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" />
+          <h2 className="text-sm font-bold text-foreground">People</h2>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{users.length}</span>
         </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 text-xs gap-1.5 rounded-xl"
+          onClick={() => setImportOpen(true)}
+        >
+          <Upload className="w-3.5 h-3.5" />
+          Mass Import
+        </Button>
       </div>
 
       <div className="rounded-xl border border-border/30 bg-card/40 p-2.5 backdrop-blur-sm">
