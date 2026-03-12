@@ -598,7 +598,7 @@ export default function CalendarPage() {
                         <p className="text-sm font-semibold text-foreground truncate">{event.title}</p>
                         <p className="text-xs text-muted-foreground">
                           <span className="font-bold">{format(new Date(event.event_date), 'EEE, MMM d')}</span>
-                          {hasTime(event.event_date) && ` · ${formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}`}
+                          {hasTime(event.event_date) && ` · ${formatTimeLocal(event.event_date)}`}
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
