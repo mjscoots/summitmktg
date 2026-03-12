@@ -125,7 +125,10 @@ function strongestPipeline(a: string, b: string): string {
 function normalizeRepStatus(raw: string): 'active' | 'nlc' | null {
   const key = raw.toLowerCase().trim().replace(/[_\-]/g, ' ');
   if (['active'].includes(key)) return 'active';
-  if (['inactive', 'nlc', 'no longer coming', 'no longer coming nlc', 'disabled', 'deactivated'].includes(key)) return 'nlc';
+  if (['inactive', 'nlc', 'no longer coming', 'no longer coming nlc', 'disabled', 'deactivated',
+       'no longer coming (nlc)', 'dropped', 'quit', 'terminated', 'released', 'cut'].includes(key)) return 'nlc';
+  // Also catch "NLC" appearing anywhere in the string
+  if (key.includes('nlc') || key.includes('no longer coming')) return 'nlc';
   return null;
 }
 
