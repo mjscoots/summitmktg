@@ -332,14 +332,8 @@ function parseBlocks(
         continue;
       }
 
-      const repStatusMatch = normalizeRepStatus(line);
-      if (repStatusMatch && (!isLikelyName(line) || !!full_name)) {
-        rep_status = repStatusMatch;
-        repStatusProvided = true;
-        continue;
-      }
-
-      // Check compound line
+      // Check compound line BEFORE whole-line repStatus check
+      // so "Undecided    Rookie    NLC" gets split into its parts
       if (line.includes('\t') || /\s{3,}/.test(line)) {
         const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
         if (parts.length >= 2) {
@@ -369,11 +363,19 @@ function parseBlocks(
 
             if (isJunkValue(part)) {
               if (part.toLowerCase() === 'undecided') office_name = 'Undecided';
+              if (part.toLowerCase() === 'decided') office_name = 'Decided';
               handled++;
             }
           }
           if (handled >= 2) continue;
         }
+      }
+
+      const repStatusMatch = normalizeRepStatus(line);
+      if (repStatusMatch && (!isLikelyName(line) || !!full_name)) {
+        rep_status = repStatusMatch;
+        repStatusProvided = true;
+        continue;
       }
 
       // Skip junk
