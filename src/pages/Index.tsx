@@ -32,6 +32,17 @@ const Index = () => {
     setStars(generatedStars);
   }, []);
 
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[hsl(220,30%,8%)] via-background to-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 animate-pulse">
+          <Mountain className="w-10 h-10 text-primary" />
+          <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[hsl(220,30%,8%)] via-background to-background flex flex-col relative overflow-hidden">
       {/* Starry background */}
