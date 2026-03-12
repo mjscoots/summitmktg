@@ -494,8 +494,8 @@ export default function CalendarPage() {
             {!compact && showTime && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 ml-3.5">
                 <Clock className="w-3 h-3" />
-                {formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}
-                {event.end_date && ` – ${formatInTimezone(new Date(event.end_date), timezone, 'h:mm a')}`}
+                {formatTimeLocal(event.event_date)}
+                {event.end_date && ` – ${formatTimeLocal(event.end_date)}`}
               </p>
             )}
             {!compact && !showTime && (
