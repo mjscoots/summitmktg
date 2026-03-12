@@ -1,11 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
   const [stars, setStars] = useState<Array<{id: number;x: number;y: number;size: number;opacity: number;delay: number;}>>([]);
+
+  // Preload logo then reveal
+  useEffect(() => {
+    const img = new Image();
+    img.src = summitLogo;
+    img.onload = () => setReady(true);
+    img.onerror = () => setReady(true);
+    // Fallback timeout
+    const t = setTimeout(() => setReady(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   // Generate stars on mount
   useEffect(() => {
@@ -19,6 +31,17 @@ const Index = () => {
     }));
     setStars(generatedStars);
   }, []);
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[hsl(220,30%,8%)] via-background to-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 animate-pulse">
+          <Mountain className="w-10 h-10 text-primary" />
+          <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[hsl(220,30%,8%)] via-background to-background flex flex-col relative overflow-hidden">
@@ -138,7 +161,7 @@ const Index = () => {
                 className="w-full group bg-primary/10 backdrop-blur-sm py-4 px-6 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <User className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
-                  <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors">
+                  <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors whitespace-nowrap">
                     Member Login
                   </span>
                 </div>
