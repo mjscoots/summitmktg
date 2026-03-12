@@ -120,8 +120,9 @@ Deno.serve(async (req) => {
             const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
+              const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
               const updateData: Record<string, unknown> = {
-                status: "active",
+                status: importedStatus,
                 ...(u.onboarding_status ? { onboarding_status: u.onboarding_status } : {}),
               };
               // For imports: don't overwrite approved status if already set to true
