@@ -419,11 +419,11 @@ export default function AdminUsersTab({
                     {getTeamName(u.team_id)}
                   </td>
                   {/* Pipeline */}
-                  <td className="px-2 py-1.5">
+                  <td className="px-3 py-2">
                     <PipelineBadge status={u.onboarding_status || 'pending'} />
                   </td>
                   {/* Status dot */}
-                  <td className="px-1 py-1.5 text-center">
+                  <td className="px-2 py-2 text-center">
                     <StatusDot status={u.status} />
                   </td>
                   {/* Actions */}
