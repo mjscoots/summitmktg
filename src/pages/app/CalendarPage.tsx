@@ -638,6 +638,12 @@ export default function CalendarPage() {
     </div>
   );
 
+  // Helper to format time with timezone label
+  const formatTimeLocal = (dateStr: string) => {
+    const tzShort = getTimezoneShort(timezone);
+    return `${formatInTimezone(new Date(dateStr), timezone, 'h:mm a')} ${tzShort}`;
+  };
+
   return (
     <AppLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
@@ -645,16 +651,13 @@ export default function CalendarPage() {
         <PageBackButton to="/app/operations" label="Operations" />
 
         {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CalendarIcon className="w-5 h-5 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Calendar</h1>
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Globe className="w-3 h-3" />
-                {getTimezoneShort(timezone)}
-              </span>
-            </div>
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black text-foreground tracking-tight">Calendar</h1>
+            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+              <Globe className="w-3 h-3" />
+              All times shown in {getTimezoneShort(timezone)} (your local time)
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {isManager && (
