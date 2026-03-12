@@ -82,6 +82,7 @@ export function ChatBubble({
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
   const lastTapRef = useRef<number>(0);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fetchReactions = async () => {
@@ -110,10 +111,14 @@ export function ChatBubble({
     if (!user) return;
     const existing = reactions.find(r => r.emoji === emoji);
     const hasReacted = existing?.users.includes(user.id);
-    if (hasReacted) {
-      await supabase.from('chat_reactions').delete().eq('message_id', message.id).eq('user_id', user.id).eq('emoji', emoji);
-    } else {
-      await supabase.from('chat_reactions').insert({ message_id: message.id, user_id: user.id, emoji });
+    try {
+      if (hasReacted) {
+        await supabase.from('chat_reactions').delete().eq('message_id', message.id).eq('user_id', user.id).eq('emoji', emoji);
+      } else {
+        await supabase.from('chat_reactions').insert({ message_id: message.id, user_id: user.id, emoji });
+      }
+    } catch (err) {
+      console.error('Reaction toggle error:', err);
     }
   };
 
@@ -123,7 +128,15 @@ export function ChatBubble({
     onDoubleTap(msgId);
   };
 
+  const clearLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
+    clearLongPress();
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       e.preventDefault();
@@ -134,13 +147,13 @@ export function ChatBubble({
     }
   };
 
-  let longPressTimer: ReturnType<typeof setTimeout>;
   const handleTouchStart = (e: React.TouchEvent) => {
-    longPressTimer = setTimeout(() => {
+    clearLongPress();
+    longPressTimerRef.current = setTimeout(() => {
       onContextMenu(e, message.id);
     }, 500);
   };
-  const handleTouchCancel = () => clearTimeout(longPressTimer);
+  const handleTouchCancel = () => clearLongPress();
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -329,7 +342,12 @@ export function ChatBubble({
 
           {/* Compact reactions */}
           {reactions.length > 0 && (
-            <div className={cn("flex items-center gap-0.5 mt-0.5", isOwn ? "justify-end mr-1" : "ml-1")}>
+            <div
+              className={cn("flex items-center gap-0.5 mt-0.5", isOwn ? "justify-end mr-1" : "ml-1")}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-card/80 border border-border/20 shadow-sm backdrop-blur-sm">
                 {reactions.slice(0, 4).map(r => (
                   <button
