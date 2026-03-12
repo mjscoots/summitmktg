@@ -58,6 +58,7 @@ function DashboardSkeleton() {
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { role, profile, user, isLoading } = useAuth();
+  const { isImpersonating, impersonatedUser } = useRookieView();
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   const { data: pointsData, isLoading: pointsLoading } = useMyPoints();
   const [showPoints, setShowPoints] = useState(false);
@@ -68,8 +69,9 @@ export default function DashboardPage() {
   const [chatMsgCount, setChatMsgCount] = useState(0);
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const firstName = profile?.full_name?.split(' ')[0] || 'there';
+  const isManager = !isImpersonating && (role === 'manager' || role === 'admin' || role === 'owner');
+  const displayName = isImpersonating && impersonatedUser ? impersonatedUser.full_name : profile?.full_name;
+  const firstName = displayName?.split(' ')[0] || 'there';
 
   // Check training completion
   useEffect(() => {

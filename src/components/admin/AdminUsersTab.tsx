@@ -430,7 +430,7 @@ export default function AdminUsersTab({
                   {isAdmin && (
                     <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-0.5">
-                        <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app/rookie'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
                         <button onClick={() => onEditUser(u)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
                         <button onClick={() => onResetPassword(u.email, u.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
                         <button onClick={() => onToggleStatus(u.user_id, u.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
