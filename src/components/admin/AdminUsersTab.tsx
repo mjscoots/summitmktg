@@ -500,7 +500,6 @@ export default function AdminUsersTab({
               teams={teams}
               onRefresh={() => { onRefresh(); setImportOpen(false); }}
             />
-            />
           </Suspense>
         </DialogContent>
       </Dialog>
