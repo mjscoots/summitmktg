@@ -20,10 +20,17 @@ interface UserData {
   office_name?: string;
   experience?: string;
   organization?: string;
-  // For updating existing matched users by user_id
   matched_user_id?: string;
   update_only?: boolean;
 }
+
+const PIPELINE_RANK: Record<string, number> = {
+  pending: 0,
+  contract_signed: 1,
+  info_added: 2,
+  onboarded: 3,
+  summer_ready: 4,
+};
 
 function normalizePhoneE164(raw: string | undefined | null): string | undefined {
   if (!raw) return undefined;
@@ -31,25 +38,31 @@ function normalizePhoneE164(raw: string | undefined | null): string | undefined 
   if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
   if (digits.length === 10) return `+1${digits}`;
   if (digits.length > 10) return `+${digits}`;
-  return undefined; // Invalid phone
+  return undefined;
 }
 
 function normalizeImportRepStatus(raw: string | undefined | null): "active" | "nlc" | undefined {
   if (!raw) return undefined;
-
-  const value = raw
-    .toLowerCase()
-    .trim()
-    .replace(/[_()]/g, " ")
-    .replace(/\s+/g, " ");
-
+  const value = raw.toLowerCase().trim().replace(/[_()]/g, " ").replace(/\s+/g, " ");
   if (!value) return undefined;
   if (/^active(s)?$/.test(value)) return "active";
   if (/^(inactive|disabled|deactivated|dropped|quit|terminated|released|cut)$/.test(value)) return "nlc";
   if (/\bno\s+longer\s+coming\b/.test(value)) return "nlc";
   if (/\bn\s*[- ]?\s*nlc(s)?\b/.test(value)) return "nlc";
   if (/\bnlc(s)?\b/.test(value)) return "nlc";
+  return undefined;
+}
 
+function normalizeImportPipeline(raw: string | undefined | null): string | undefined {
+  if (!raw) return undefined;
+  const v = raw.toLowerCase().replace(/[_\-]/g, " ").replace(/\s+/g, " ").trim();
+  if (/\bsummer\s*ready\b/.test(v)) return "summer_ready";
+  if (/\bonboard(ed|ing)?\b/.test(v)) return "onboarded";
+  if (/\binfo\s*added\b/.test(v)) return "info_added";
+  if (/\bcontract\s*signed\b/.test(v)) return "contract_signed";
+  if (/\bprospect\s*added\b/.test(v) || /\bpending\b/.test(v)) return "pending";
+  // Already normalized values
+  if (PIPELINE_RANK[raw] !== undefined) return raw;
   return undefined;
 }
 
@@ -73,7 +86,6 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Verify caller via token
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
 
@@ -86,7 +98,6 @@ Deno.serve(async (req) => {
 
     const callerId = userData.user.id;
 
-    // Verify caller is admin/owner
     const { data: callerRole, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
@@ -135,12 +146,33 @@ Deno.serve(async (req) => {
         }
 
         const normalizedRepStatus = normalizeImportRepStatus(u.rep_status);
+        const normalizedPipeline = normalizeImportPipeline(u.onboarding_status);
 
         // ── UPDATE-ONLY MODE: just update an existing profile by user_id ──
         if (u.update_only && u.matched_user_id) {
+          // Fetch current profile to compare pipeline
+          const { data: currentProfile } = await supabaseAdmin
+            .from("profiles")
+            .select("onboarding_status, status")
+            .eq("user_id", u.matched_user_id)
+            .maybeSingle();
+
           const updates: Record<string, unknown> = {};
-          if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
-          if (normalizedRepStatus) updates.status = normalizedRepStatus;
+
+          // Pipeline: only advance, never downgrade
+          if (normalizedPipeline) {
+            const currentRank = PIPELINE_RANK[currentProfile?.onboarding_status || "pending"] ?? 0;
+            const importedRank = PIPELINE_RANK[normalizedPipeline] ?? 0;
+            if (importedRank > currentRank) {
+              updates.onboarding_status = normalizedPipeline;
+            }
+          }
+
+          // Rep status: ALWAYS apply — NLC is authoritative from import
+          if (normalizedRepStatus) {
+            updates.status = normalizedRepStatus;
+          }
+
           if (u.phone) updates.phone = u.phone;
           if (u.region) updates.region = u.region;
           if (u.office_name) updates.office_name = u.office_name;
@@ -158,7 +190,8 @@ Deno.serve(async (req) => {
               console.error(`Update failed for ${u.full_name}:`, updateErr.message);
               results.failed.push({ email: u.email || u.full_name, error: updateErr.message });
             } else {
-              results.updated.push(u.full_name);
+              const changeDesc = Object.keys(updates).join(", ");
+              results.updated.push(`${u.full_name} (${changeDesc})`);
             }
           } else {
             results.updated.push(`${u.full_name} (no changes)`);
@@ -196,13 +229,30 @@ Deno.serve(async (req) => {
 
         if (createError) {
           if (createError.message?.includes("already been registered") || createError.message?.includes("already exists")) {
-            // User already has an auth account — update their profile
             const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
+              // Fetch current profile for pipeline comparison
+              const { data: currentProfile } = await supabaseAdmin
+                .from("profiles")
+                .select("onboarding_status, status")
+                .eq("user_id", existingUser.id)
+                .maybeSingle();
+
               const updates: Record<string, unknown> = {};
+
+              // Rep status: always authoritative
               if (normalizedRepStatus) updates.status = normalizedRepStatus;
-              if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
+
+              // Pipeline: only advance
+              if (normalizedPipeline) {
+                const currentRank = PIPELINE_RANK[currentProfile?.onboarding_status || "pending"] ?? 0;
+                const importedRank = PIPELINE_RANK[normalizedPipeline] ?? 0;
+                if (importedRank > currentRank) {
+                  updates.onboarding_status = normalizedPipeline;
+                }
+              }
+
               if (u.phone) updates.phone = u.phone;
               if (u.region) updates.region = u.region;
               if (u.office_name) updates.office_name = u.office_name;
@@ -226,7 +276,7 @@ Deno.serve(async (req) => {
             ? { approved: false, status: importedStatus }
             : { approved: true, status: importedStatus };
 
-          if (u.onboarding_status) profileUpdates.onboarding_status = u.onboarding_status;
+          if (normalizedPipeline) profileUpdates.onboarding_status = normalizedPipeline;
           if (u.phone) profileUpdates.phone = u.phone;
           if (u.region) profileUpdates.region = u.region;
           if (u.office_name) profileUpdates.office_name = u.office_name;
@@ -239,7 +289,6 @@ Deno.serve(async (req) => {
             .update(profileUpdates)
             .eq("user_id", authUser.user.id);
 
-          // Set role
           await supabaseAdmin
             .from("user_roles")
             .upsert(
