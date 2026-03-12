@@ -342,7 +342,12 @@ export function ChatBubble({
 
           {/* Compact reactions */}
           {reactions.length > 0 && (
-            <div className={cn("flex items-center gap-0.5 mt-0.5", isOwn ? "justify-end mr-1" : "ml-1")}>
+            <div
+              className={cn("flex items-center gap-0.5 mt-0.5", isOwn ? "justify-end mr-1" : "ml-1")}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-card/80 border border-border/20 shadow-sm backdrop-blur-sm">
                 {reactions.slice(0, 4).map(r => (
                   <button
