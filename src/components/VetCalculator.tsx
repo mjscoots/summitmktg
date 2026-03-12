@@ -520,7 +520,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
         {/* Disclaimer Note */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          Marketing deal is based on team active revenue (after 20% attrition). Personal earnings are calculated separately.
+          Marketing deal is based on team active revenue (after 25% attrition). Personal earnings are calculated separately.
         </p>
       </div>
 
