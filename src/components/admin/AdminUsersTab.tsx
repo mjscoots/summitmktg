@@ -524,6 +524,9 @@ export default function AdminUsersTab({
       {/* ── Detail / Quick-Edit Modal ── */}
       <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
         <DialogContent className="max-w-md bg-card border-border">
+          <DialogDescription className="sr-only">
+            View and edit person details including pipeline stage, team, and manager.
+          </DialogDescription>
           {detailUser && (
             <>
               <DialogHeader>
