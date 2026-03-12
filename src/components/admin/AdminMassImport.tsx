@@ -123,12 +123,43 @@ function strongestPipeline(a: string, b: string): string {
 }
 
 function normalizeRepStatus(raw: string): 'active' | 'nlc' | null {
-  const key = raw.toLowerCase().trim().replace(/[_\-]/g, ' ');
-  if (['active'].includes(key)) return 'active';
-  if (['inactive', 'nlc', 'no longer coming', 'no longer coming nlc', 'disabled', 'deactivated',
-       'no longer coming (nlc)', 'dropped', 'quit', 'terminated', 'released', 'cut'].includes(key)) return 'nlc';
-  // Also catch "NLC" appearing anywhere in the string
-  if (key.includes('nlc') || key.includes('no longer coming')) return 'nlc';
+  const key = raw
+    .toLowerCase()
+    .trim()
+    .replace(/[_()]/g, ' ')
+    .replace(/\s+/g, ' ');
+
+  if (!key) return null;
+  if (/^active(s)?$/.test(key)) return 'active';
+  if (/^(inactive|disabled|deactivated|dropped|quit|terminated|released|cut)$/.test(key)) return 'nlc';
+  if (/\bno\s+longer\s+coming\b/.test(key)) return 'nlc';
+  if (/\bn\s*[- ]?\s*nlc(s)?\b/.test(key)) return 'nlc';
+  if (/\bnlc(s)?\b/.test(key)) return 'nlc';
+
+  return null;
+}
+
+function extractInlineNameAndRepStatus(line: string): { name: string; repStatus: 'active' | 'nlc' } | null {
+  const normalizedLine = line.replace(/\s+/g, ' ').trim();
+
+  const nameThenStatus = normalizedLine.match(
+    /^(.+?)\s+(active|inactive|n\s*[- ]?\s*nlc(?:s)?|nlc(?:s)?|no\s+longer\s+coming(?:\s*\(nlc\))?)$/i
+  );
+  if (nameThenStatus) {
+    const name = nameThenStatus[1].trim();
+    const repStatus = normalizeRepStatus(nameThenStatus[2]);
+    if (repStatus && isLikelyName(name)) return { name, repStatus };
+  }
+
+  const statusThenName = normalizedLine.match(
+    /^(active|inactive|n\s*[- ]?\s*nlc(?:s)?|nlc(?:s)?|no\s+longer\s+coming(?:\s*\(nlc\))?)\s+(.+)$/i
+  );
+  if (statusThenName) {
+    const name = statusThenName[2].trim();
+    const repStatus = normalizeRepStatus(statusThenName[1]);
+    if (repStatus && isLikelyName(name)) return { name, repStatus };
+  }
+
   return null;
 }
 
@@ -272,6 +303,17 @@ function parseBlocks(
       line = line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').trim();
       if (!line) continue;
 
+      // Handle single-line rows like "John Smith N-NLCs"
+      if (!full_name) {
+        const inlineNameStatus = extractInlineNameAndRepStatus(line);
+        if (inlineNameStatus) {
+          full_name = inlineNameStatus.name;
+          rep_status = inlineNameStatus.repStatus;
+          repStatusProvided = true;
+          continue;
+        }
+      }
+
       const pipelineMatch = isPipelineStatus(line) ? normalizePipeline(line) : null;
       if (pipelineMatch) {
         pipeline_status = pipelineMatch;
@@ -280,7 +322,7 @@ function parseBlocks(
       }
 
       const repStatusMatch = normalizeRepStatus(line);
-      if (repStatusMatch) {
+      if (repStatusMatch && (!isLikelyName(line) || !!full_name)) {
         rep_status = repStatusMatch;
         repStatusProvided = true;
         continue;
@@ -358,6 +400,16 @@ function parseBlocks(
     for (let i = 0; i < unclassified.length; i++) {
       const val = unclassified[i];
 
+      if (!full_name) {
+        const inlineNameStatus = extractInlineNameAndRepStatus(val);
+        if (inlineNameStatus) {
+          full_name = inlineNameStatus.name;
+          rep_status = inlineNameStatus.repStatus;
+          repStatusProvided = true;
+          continue;
+        }
+      }
+
       const valPipeline = isPipelineStatus(val) ? normalizePipeline(val) : null;
       if (valPipeline) {
         pipeline_status = valPipeline;
@@ -366,7 +418,7 @@ function parseBlocks(
       }
 
       const valRepStatus = normalizeRepStatus(val);
-      if (valRepStatus) {
+      if (valRepStatus && (!isLikelyName(val) || !!full_name)) {
         rep_status = valRepStatus;
         repStatusProvided = true;
         continue;
@@ -388,6 +440,15 @@ function parseBlocks(
 
       if (!region) { region = val; continue; }
       if (!office_name) { office_name = val; continue; }
+    }
+
+    // Final fallback: if status wasn't captured by line, detect from whole block text
+    if (!repStatusProvided) {
+      const blockLevelStatus = normalizeRepStatus(block.join(' '));
+      if (blockLevelStatus) {
+        rep_status = blockLevelStatus;
+        repStatusProvided = true;
+      }
     }
 
     // Validate: must have a real name

@@ -15,7 +15,7 @@ interface UserData {
   team_name?: string;
   password?: string;
   onboarding_status?: string;
-  rep_status?: "active" | "nlc";
+  rep_status?: string;
   region?: string;
   office_name?: string;
   experience?: string;
@@ -32,6 +32,25 @@ function normalizePhoneE164(raw: string | undefined | null): string | undefined 
   if (digits.length === 10) return `+1${digits}`;
   if (digits.length > 10) return `+${digits}`;
   return undefined; // Invalid phone
+}
+
+function normalizeImportRepStatus(raw: string | undefined | null): "active" | "nlc" | undefined {
+  if (!raw) return undefined;
+
+  const value = raw
+    .toLowerCase()
+    .trim()
+    .replace(/[_()]/g, " ")
+    .replace(/\s+/g, " ");
+
+  if (!value) return undefined;
+  if (/^active(s)?$/.test(value)) return "active";
+  if (/^(inactive|disabled|deactivated|dropped|quit|terminated|released|cut)$/.test(value)) return "nlc";
+  if (/\bno\s+longer\s+coming\b/.test(value)) return "nlc";
+  if (/\bn\s*[- ]?\s*nlc(s)?\b/.test(value)) return "nlc";
+  if (/\bnlc(s)?\b/.test(value)) return "nlc";
+
+  return undefined;
 }
 
 Deno.serve(async (req) => {
@@ -115,11 +134,13 @@ Deno.serve(async (req) => {
           continue;
         }
 
+        const normalizedRepStatus = normalizeImportRepStatus(u.rep_status);
+
         // ── UPDATE-ONLY MODE: just update an existing profile by user_id ──
         if (u.update_only && u.matched_user_id) {
           const updates: Record<string, unknown> = {};
           if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
-          if (u.rep_status) updates.status = u.rep_status;
+          if (normalizedRepStatus) updates.status = normalizedRepStatus;
           if (u.phone) updates.phone = u.phone;
           if (u.region) updates.region = u.region;
           if (u.office_name) updates.office_name = u.office_name;
@@ -180,7 +201,7 @@ Deno.serve(async (req) => {
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
               const updates: Record<string, unknown> = {};
-              if (u.rep_status) updates.status = u.rep_status;
+              if (normalizedRepStatus) updates.status = normalizedRepStatus;
               if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
               if (u.phone) updates.phone = u.phone;
               if (u.region) updates.region = u.region;
@@ -200,7 +221,7 @@ Deno.serve(async (req) => {
         }
 
         if (authUser?.user) {
-          const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
+          const importedStatus = normalizedRepStatus === "nlc" ? "nlc" : "active";
           const profileUpdates: Record<string, unknown> = is_import
             ? { approved: false, status: importedStatus }
             : { approved: true, status: importedStatus };

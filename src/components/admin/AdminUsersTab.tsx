@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -502,13 +502,20 @@ export default function AdminUsersTab({
             <DialogTitle className="flex items-center gap-2">
               <Upload className="w-4 h-4 text-primary" /> Mass Import
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Import and sync reps in bulk, including pipeline and NLC status updates.
+            </DialogDescription>
           </DialogHeader>
           <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
             <LazyMassImport
               profiles={users.map(u => ({ user_id: u.user_id, full_name: u.full_name, email: u.email, phone: u.phone, region: u.region, organization: u.organization, office_name: u.office_name, direct_manager: u.direct_manager, experience: u.experience, team_id: u.team_id, onboarding_status: u.onboarding_status, status: u.status, recruiter: u.recruiter }))}
               managers={managers}
               teams={teams}
-              onRefresh={() => { onRefresh(); setImportOpen(false); }}
+              onRefresh={() => {
+                onRefresh();
+                setStatusFilter('all');
+                setImportOpen(false);
+              }}
             />
           </Suspense>
         </DialogContent>
@@ -517,6 +524,9 @@ export default function AdminUsersTab({
       {/* ── Detail / Quick-Edit Modal ── */}
       <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
         <DialogContent className="max-w-md bg-card border-border">
+          <DialogDescription className="sr-only">
+            View and edit person details including pipeline stage, team, and manager.
+          </DialogDescription>
           {detailUser && (
             <>
               <DialogHeader>
