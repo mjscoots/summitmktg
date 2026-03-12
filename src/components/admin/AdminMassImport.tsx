@@ -27,7 +27,9 @@ interface ParsedUser {
   office_name: string;
   experience: string;
   pipeline_status: string;
-  active: boolean;
+  pipelineProvided: boolean;
+  rep_status: 'active' | 'nlc';
+  repStatusProvided: boolean;
   alreadyExists: boolean;
   matchedUserId?: string;
   matchedName?: string;
@@ -44,6 +46,11 @@ interface ImportResults {
     newUsers: string[];
     updatedUsers: string[];
     skippedRows: { value: string; reason: string }[];
+  };
+  validation?: {
+    imported: Record<string, number>;
+    canonical: Record<string, number>;
+    mismatches: string[];
   };
 }
 
@@ -65,9 +72,27 @@ const PIPELINE_MAP: Record<string, string> = {
   'summer_ready': 'summer_ready',
 };
 
+const PIPELINE_RANK: Record<string, number> = {
+  pending: 0,
+  contract_signed: 1,
+  info_added: 2,
+  onboarded: 3,
+  summer_ready: 4,
+};
+
+const IMPORT_DISTRIBUTION_KEYS = [
+  'pending',
+  'contract_signed',
+  'info_added',
+  'onboarded',
+  'summer_ready',
+  'active',
+  'nlc',
+] as const;
+
 // Values that should NEVER become user records
 const JUNK_VALUES = new Set([
-  'the academy', 'undecided', 'decided', 'active', 'inactive',
+  'the academy', 'undecided', 'decided', 'active', 'inactive', 'nlc',
   'rookie', 'veteran', 'prospect added', 'contract signed',
   'info added', 'onboarded', 'summer ready', 'name', 'contact',
   'region', 'recruiter', 'office name', 'experience', 'status',
@@ -93,6 +118,17 @@ function normalizePipeline(raw: string): string {
   return PIPELINE_MAP[key] || PIPELINE_MAP[key.replace(/\s+/g, '')] || 'pending';
 }
 
+function strongestPipeline(a: string, b: string): string {
+  return (PIPELINE_RANK[b] ?? 0) > (PIPELINE_RANK[a] ?? 0) ? b : a;
+}
+
+function normalizeRepStatus(raw: string): 'active' | 'nlc' | null {
+  const key = raw.toLowerCase().trim().replace(/[_\-]/g, ' ');
+  if (['active'].includes(key)) return 'active';
+  if (['inactive', 'nlc', 'no longer coming', 'no longer coming nlc', 'disabled', 'deactivated'].includes(key)) return 'nlc';
+  return null;
+}
+
 function isEmail(val: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
 }
@@ -111,11 +147,6 @@ function isLikelyName(val: string): boolean {
 function isExperienceLabel(val: string): boolean {
   const l = val.toLowerCase().trim();
   return l === 'rookie' || l === 'veteran';
-}
-
-function isActiveLabel(val: string): boolean {
-  const l = val.toLowerCase().trim();
-  return l === 'active' || l === 'inactive';
 }
 
 /** Normalize a name for matching: lowercase, remove middle names, just first+last */
