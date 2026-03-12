@@ -271,7 +271,9 @@ function parseBlocks(
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
-    if (/^\d+$/.test(line)) {
+    // Only treat short digit strings (1-4 digits) as row number separators
+    // Phone numbers (7+ digits) must NOT be treated as separators
+    if (/^\d{1,4}$/.test(line)) {
       if (currentBlock.length > 0) blocks.push(currentBlock);
       currentBlock = [];
       continue;
