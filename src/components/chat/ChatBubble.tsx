@@ -215,7 +215,7 @@ export function ChatBubble({
         "group"
       )}
       onContextMenu={handleContextMenu}
-      onDoubleClick={() => onDoubleTap(message.id)}
+      onDoubleClick={() => handleDoubleTap(message.id)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchCancel}
