@@ -80,6 +80,7 @@ export function ChatBubble({
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [hovered, setHovered] = useState(false);
+  const [showFireAnim, setShowFireAnim] = useState(false);
   const lastTapRef = useRef<number>(0);
 
   useEffect(() => {
