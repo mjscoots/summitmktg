@@ -6,7 +6,7 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
-import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network, ChevronDown as ChevronDownIcon, ChevronRight as ChevronRightIcon, Search, UserPlus, MoreHorizontal, Pencil, UserX } from 'lucide-react';
+import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network, ChevronDown as ChevronDownIcon, ChevronRight as ChevronRightIcon, Search, UserPlus, MoreHorizontal, Pencil, UserX, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
