@@ -403,8 +403,8 @@ export default function AdminUsersTab({
                   onClick={() => { setDetailUser(u); setEditingPipeline(u.onboarding_status || 'pending'); }}
                 >
                   {/* Avatar + Name */}
-                  <td className="px-3 py-1.5">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name} size="sm" />
                       <div className="min-w-0">
                         <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name}</p>
@@ -415,7 +415,7 @@ export default function AdminUsersTab({
                     </div>
                   </td>
                   {/* Team */}
-                  <td className="px-2 py-1.5 text-xs text-muted-foreground truncate hidden sm:table-cell">
+                  <td className="px-3 py-2 text-xs text-muted-foreground truncate hidden sm:table-cell">
                     {getTeamName(u.team_id)}
                   </td>
                   {/* Pipeline */}
