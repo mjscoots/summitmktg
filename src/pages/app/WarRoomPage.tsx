@@ -6,7 +6,7 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
-import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network, ChevronDown as ChevronDownIcon, ChevronRight as ChevronRightIcon, Search, UserPlus, MoreHorizontal, Pencil, UserX } from 'lucide-react';
+import { BarChart3, Activity, Users, Clock, AlertTriangle, GraduationCap, ClipboardCheck, MessageSquare, ArrowUp, ArrowDown, Network, ChevronDown as ChevronDownIcon, ChevronRight as ChevronRightIcon, Search, UserPlus, MoreHorizontal, Pencil, UserX, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
@@ -407,6 +407,7 @@ function DownlineTab({ managerName }: { managerName: string }) {
   const [sortKey, setSortKey] = useState<'name' | 'training' | 'checklist' | 'activity'>('training');
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -489,8 +490,53 @@ function DownlineTab({ managerName }: { managerName: string }) {
     last_active_at: row.last_active_at,
   });
 
+
+
+  const inactiveRookies = members.filter(m => getDaysInactive(m.last_active_at) >= 3);
+
+  const handleCopyInactive = () => {
+    // Group by team
+    const byTeam = new Map<string, typeof inactiveRookies>();
+    for (const m of inactiveRookies) {
+      const team = m.teamName || 'No Team';
+      if (!byTeam.has(team)) byTeam.set(team, []);
+      byTeam.get(team)!.push(m);
+    }
+    // Sort teams alphabetically, names within each team alphabetically
+    const sortedTeams = [...byTeam.entries()].sort(([a], [b]) => a.localeCompare(b));
+    const lines: string[] = [`Inactive Rookies (3+ days) — ${new Date().toLocaleDateString()}`, ''];
+    for (const [team, reps] of sortedTeams) {
+      lines.push(team);
+      for (const r of reps.sort((a, b) => a.full_name.localeCompare(b.full_name))) {
+        const days = getDaysInactive(r.last_active_at);
+        lines.push(`  • ${r.full_name} — ${days === 999 ? 'Never active' : `${days} days`}`);
+      }
+      lines.push('');
+    }
+    navigator.clipboard.writeText(lines.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <>
+      {/* Copy Inactive Button */}
+      {inactiveRookies.length > 0 && (
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={handleCopyInactive}
+            className={cn(
+              "flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all",
+              copied
+                ? "bg-success/10 border-success/30 text-success"
+                : "bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20"
+            )}
+          >
+            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : `Copy Inactive (${inactiveRookies.length})`}
+          </button>
+        </div>
+      )}
       <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
         {/* Header */}
         <div className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/30 bg-muted/30">
