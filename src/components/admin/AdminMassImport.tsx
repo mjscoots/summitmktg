@@ -11,7 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 
 interface MassImportProps {
-  profiles: { user_id: string; full_name: string; email: string; phone?: string | null; region?: string | null; organization?: string | null; office_name?: string | null; direct_manager?: string | null; experience?: string | null; team_id?: string | null }[];
+  profiles: { user_id: string; full_name: string; email: string; phone?: string | null; region?: string | null; organization?: string | null; office_name?: string | null; direct_manager?: string | null; experience?: string | null; team_id?: string | null; onboarding_status?: string | null; status?: string | null }[];
   managers: { user_id: string; full_name: string }[];
   teams: { id: string; name: string }[];
   onRefresh: () => void;
