@@ -311,7 +311,7 @@ export function ChatBubble({
               isOwn ? "left-0 -translate-x-full pr-1" : "right-0 translate-x-full pl-1"
             )}>
               <button
-                onClick={() => onDoubleTap(message.id)}
+                onClick={() => handleDoubleTap(message.id)}
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
               >
                 <SmilePlus className="w-3 h-3" />
