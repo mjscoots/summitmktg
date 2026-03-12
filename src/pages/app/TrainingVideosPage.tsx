@@ -4,18 +4,48 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Progress } from '@/components/ui/progress';
-import { Video, Loader2, Film, Star, Bookmark } from 'lucide-react';
+import { Video, Film, Star, Bookmark, Search, X, ChevronLeft, ArrowLeft, CheckCircle, Clock, Play, FileText } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
-import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
 import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
-import { REQUIRED_CATEGORY_TABS, BONUS_CATEGORY_TABS, isBonusCategory } from '@/lib/trainingConstants';
+import { isBonusCategory } from '@/lib/trainingConstants';
+import { SummitLoader } from '@/components/shared/SummitLoader';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
-const CATEGORY_TABS = [...REQUIRED_CATEGORY_TABS, ...BONUS_CATEGORY_TABS];
+// 4 main category groups
+const CATEGORY_GROUPS = [
+  {
+    key: 'patps',
+    title: 'PATPs',
+    description: 'Proven scripts & pitch frameworks',
+    icon: '🎯',
+    categories: ['Introduction', 'Switchover', 'Fresh Account'],
+  },
+  {
+    key: 'core',
+    title: 'Core Training',
+    description: 'Master the fundamentals of selling',
+    icon: '💪',
+    categories: ['Body Language', 'Tonality'],
+  },
+  {
+    key: 'closing',
+    title: 'Objections & Closing',
+    description: 'Handle objections and close the deal',
+    icon: '🔥',
+    categories: ['Objections', 'Closing', 'Advanced Training', 'Mental Mastery'],
+  },
+  {
+    key: 'bonus',
+    title: 'Bonus & Zoom',
+    description: 'Extra resources & recorded sessions',
+    icon: '⭐',
+    categories: ['Manager Training', 'Zoom Trainings'],
+  },
+];
 
 export default function TrainingVideosPage() {
   const { user, role } = useAuth();
@@ -23,15 +53,11 @@ export default function TrainingVideosPage() {
   const [videos, setVideos] = useState<TrainingVideo[]>([]);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('All Videos');
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
   const [noteVideoIds, setNoteVideoIds] = useState<Set<string>>(new Set());
   const { bookmarkedIds } = useVideoBookmarks();
-
-  // Bookmarked videos data (with bookmarked_at timestamps)
   const [bookmarkData, setBookmarkData] = useState<Record<string, string>>({});
-
-  const [searchFilteredVideos, setSearchFilteredVideos] = useState<TrainingVideo[] | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!user) return;
@@ -65,74 +91,58 @@ export default function TrainingVideosPage() {
     fetchData();
   }, [user, role]);
 
-  const handleSearchResults = useCallback((filtered: TrainingVideo[], term: string) => {
-    setSearchTerm(term);
-    setSearchFilteredVideos(term ? filtered : null);
-  }, []);
-
-  const handleCategoryChange = useCallback((cat: string) => {
-    setActiveCategory(cat);
-  }, []);
-
-  // Special "Bookmarks" category
-  const isBookmarksTab = activeCategory === 'Bookmarks';
-
-  // Build a category order map for sorting
-  const CATEGORY_ORDER = [...REQUIRED_CATEGORY_TABS.filter(c => c !== 'All Videos'), ...BONUS_CATEGORY_TABS];
-  const getCatOrder = (cat: string) => {
-    const idx = CATEGORY_ORDER.indexOf(cat);
-    return idx >= 0 ? idx : 999;
-  };
-
-  const categoryFiltered = isBookmarksTab
-    ? videos.filter(v => bookmarkedIds.has(v.id)).sort((a, b) => {
-        const aDate = bookmarkData[a.id] || '';
-        const bDate = bookmarkData[b.id] || '';
-        return bDate.localeCompare(aDate);
-      })
-    : activeCategory === 'All Videos'
-      ? [...videos].sort((a, b) => {
-          // Bookmarked videos first
-          const aBookmarked = bookmarkedIds.has(a.id) ? 0 : 1;
-          const bBookmarked = bookmarkedIds.has(b.id) ? 0 : 1;
-          if (aBookmarked !== bBookmarked) return aBookmarked - bBookmarked;
-          // Then by category order
-          const catDiff = getCatOrder(a.category) - getCatOrder(b.category);
-          if (catDiff !== 0) return catDiff;
-          // Then by display_order within category
-          return (a.display_order ?? 0) - (b.display_order ?? 0);
-        })
-      : videos.filter(v => v.category === activeCategory);
-
-  const displayedVideos = searchTerm ? (searchFilteredVideos || []) : categoryFiltered;
-
   const requiredVideos = videos.filter(v => !isBonusCategory(v.category));
-  const bonusVideos = videos.filter(v => isBonusCategory(v.category));
   const requiredWatchedCount = requiredVideos.filter(v => watchedIds.has(v.id)).length;
-  const bonusWatchedCount = bonusVideos.filter(v => watchedIds.has(v.id)).length;
   const progressPercent = requiredVideos.length > 0 ? Math.round((requiredWatchedCount / requiredVideos.length) * 100) : 0;
 
-  const bookmarkCount = videos.filter(v => bookmarkedIds.has(v.id)).length;
+  // Get videos for a category group
+  const getGroupVideos = (groupKey: string) => {
+    const group = CATEGORY_GROUPS.find(g => g.key === groupKey);
+    if (!group) return [];
+    return videos.filter(v => group.categories.includes(v.category));
+  };
+
+  const getGroupWatchedCount = (groupKey: string) => {
+    return getGroupVideos(groupKey).filter(v => watchedIds.has(v.id)).length;
+  };
+
+  // Search results
+  const searchResults = searchQuery.trim()
+    ? videos.filter(v =>
+        v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (v.description && v.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : [];
 
   const renderHighlightedTitle = (title: string) => {
-    if (!searchTerm) return undefined;
-    const q = searchTerm.toLowerCase();
+    if (!searchQuery) return undefined;
+    const q = searchQuery.toLowerCase();
     const idx = title.toLowerCase().indexOf(q);
     if (idx === -1) return undefined;
     return (
       <>
         {title.slice(0, idx)}
-        <span className="font-bold text-primary">{title.slice(idx, idx + searchTerm.length)}</span>
-        {title.slice(idx + searchTerm.length)}
+        <span className="font-bold text-primary">{title.slice(idx, idx + searchQuery.length)}</span>
+        {title.slice(idx + searchQuery.length)}
       </>
     );
   };
 
+  // Currently displayed videos
+  const displayedVideos = searchQuery.trim()
+    ? searchResults
+    : activeGroup
+      ? getGroupVideos(activeGroup)
+      : [];
+
+  const activeGroupData = CATEGORY_GROUPS.find(g => g.key === activeGroup);
+
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex items-center justify-center py-20">
+          <SummitLoader label="Loading videos..." />
         </div>
       </AppLayout>
     );
@@ -141,190 +151,256 @@ export default function TrainingVideosPage() {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Back Button */}
         <PageBackButton to="/app/training" label="Training" />
 
+        {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
-            <Video className="w-7 h-7 text-primary" />
-            Training Videos
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Watch training content to level up your skills</p>
-        </div>
-
-        {/* Progress Card */}
-        <div className="bg-card rounded-xl border border-border p-5 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-foreground">Required Progress</span>
-            <span className="text-sm text-muted-foreground">
-              {requiredWatchedCount}/{requiredVideos.length} required videos watched
-            </span>
-          </div>
-          <Progress value={progressPercent} className="h-2.5" />
-          <div className="flex items-center justify-between mt-2">
-            <p className="text-xs text-muted-foreground">{progressPercent}% complete</p>
-            {bonusVideos.length > 0 && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Star className="w-3 h-3 text-yellow-400" />
-                {bonusWatchedCount} bonus watched
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <VideoSearchBar
-          videos={videos}
-          categoryTabs={CATEGORY_TABS}
-          activeCategory={activeCategory}
-          onFilteredVideos={handleSearchResults}
-          onCategoryChange={handleCategoryChange}
-          onNavigateToVideo={(id) => navigate(`/app/training/videos/${id}`)}
-        />
-
-        {/* Category Filter Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none items-center">
-          {/* All Videos tab */}
-          <button
-            onClick={() => {
-              setActiveCategory('All Videos');
-              setSearchTerm('');
-              setSearchFilteredVideos(null);
-            }}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-              activeCategory === 'All Videos'
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
-            )}
-          >
-            All Videos
-            <span className="ml-1.5 opacity-70">({requiredVideos.length})</span>
-          </button>
-
-          {/* Bookmarks tab — right after All Videos */}
-          <button
-            onClick={() => {
-              setActiveCategory('Bookmarks');
-              setSearchTerm('');
-              setSearchFilteredVideos(null);
-            }}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5",
-              activeCategory === 'Bookmarks'
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
-            )}
-          >
-            <Bookmark className="w-3.5 h-3.5" />
-            Bookmarks
-            {bookmarkCount > 0 && <span className="opacity-70">({bookmarkCount})</span>}
-          </button>
-
-          {/* Required category tabs (skip All Videos, already rendered) */}
-          {REQUIRED_CATEGORY_TABS.filter(cat => cat !== 'All Videos').map(cat => {
-            const count = videos.filter(v => v.category === cat).length;
-            if (count === 0) return null;
-            return (
-              <button
-                key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  setSearchTerm('');
-                  setSearchFilteredVideos(null);
-                }}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                  activeCategory === cat
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
-                )}
-              >
-                {cat}
-                <span className="ml-1.5 opacity-70">({count})</span>
-              </button>
-            );
-          })}
-
-          {/* Divider */}
-          {BONUS_CATEGORY_TABS.some(cat => videos.some(v => v.category === cat)) && (
-            <div className="flex items-center gap-2 mx-1">
-              <div className="w-px h-6 bg-border" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-500 whitespace-nowrap flex items-center gap-1">
-                <Star className="w-3 h-3" />
-                Bonus
-              </span>
-              <div className="w-px h-6 bg-border" />
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-black text-foreground tracking-tight">Videos</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Training library — watch, learn, level up</p>
             </div>
-          )}
-
-          {/* Bonus category tabs */}
-          {BONUS_CATEGORY_TABS.map(cat => {
-            const count = videos.filter(v => v.category === cat).length;
-            if (count === 0) return null;
-            return (
-              <button
-                key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  setSearchTerm('');
-                  setSearchFilteredVideos(null);
-                }}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                  activeCategory === cat
-                    ? "bg-yellow-500/90 text-white"
-                    : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border border-yellow-500/30"
-                )}
-              >
-                {cat}
-                <span className="ml-1.5 opacity-70">({count})</span>
-              </button>
-            );
-          })}
+            <div className="text-right">
+              <p className="text-2xl font-black text-foreground">{requiredWatchedCount}<span className="text-muted-foreground font-medium text-base">/{requiredVideos.length}</span></p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">watched</p>
+            </div>
+          </div>
+          <div className="mt-3">
+            <Progress value={progressPercent} className="h-2" />
+            <p className="text-[11px] text-muted-foreground mt-1">{progressPercent}% complete</p>
+          </div>
         </div>
 
-        {/* Video Grid */}
-        {displayedVideos.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            {isBookmarksTab ? (
-              <>
-                <Bookmark className="w-16 h-16 mx-auto mb-4 opacity-40" />
-                <p>No bookmarked videos yet.</p>
-                <p className="text-sm mt-1">Click ⭐ on any video to bookmark it for quick access.</p>
-              </>
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => { setSearchQuery(e.target.value); if (e.target.value) setActiveGroup(null); }}
+            placeholder="Search videos..."
+            className="w-full h-11 pl-10 pr-10 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Search Results */}
+        {searchQuery.trim() ? (
+          <>
+            <p className="text-xs text-muted-foreground mb-4">
+              {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"
+            </p>
+            {searchResults.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <Film className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="text-sm">No videos found</p>
+              </div>
             ) : (
-              <>
-                <Film className="w-16 h-16 mx-auto mb-4 opacity-40" />
-                {searchTerm ? (
-                  <>
-                    <p>No videos found for "{searchTerm}"</p>
-                    <p className="text-sm mt-1">Try searching a category like Introduction, Closing, or Body Language</p>
-                  </>
-                ) : (
-                  <>
-                    <p>No videos in this category yet.</p>
-                    <p className="text-sm mt-1">Check back soon!</p>
-                  </>
-                )}
-              </>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {searchResults.map(video => (
+                  <VideoCard
+                    key={video.id}
+                    video={video}
+                    isWatched={watchedIds.has(video.id)}
+                    onClick={() => navigate(`/app/training/videos/${video.id}`)}
+                    highlightTitle={renderHighlightedTitle(video.title)}
+                    hasNotes={noteVideoIds.has(video.id)}
+                    isBookmarked={bookmarkedIds.has(video.id)}
+                  />
+                ))}
+              </div>
             )}
-          </div>
+          </>
+        ) : activeGroup ? (
+          /* Category Detail View */
+          <>
+            <button
+              onClick={() => setActiveGroup(null)}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              All Categories
+            </button>
+
+            <div className="flex items-center gap-3 mb-5">
+              <span className="text-2xl">{activeGroupData?.icon}</span>
+              <div>
+                <h2 className="text-lg font-bold text-foreground">{activeGroupData?.title}</h2>
+                <p className="text-xs text-muted-foreground">
+                  {getGroupWatchedCount(activeGroup)}/{getGroupVideos(activeGroup).length} watched
+                </p>
+              </div>
+            </div>
+
+            {displayedVideos.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <Film className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="text-sm">No videos in this category yet</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {displayedVideos.map(video => (
+                  <VideoCard
+                    key={video.id}
+                    video={video}
+                    isWatched={watchedIds.has(video.id)}
+                    onClick={() => navigate(`/app/training/videos/${video.id}`)}
+                    hasNotes={noteVideoIds.has(video.id)}
+                    isBookmarked={bookmarkedIds.has(video.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-            {displayedVideos.map(video => (
-              <VideoCard
-                key={video.id}
-                video={video}
-                isWatched={watchedIds.has(video.id)}
-                onClick={() => navigate(`/app/training/videos/${video.id}`)}
-                highlightTitle={renderHighlightedTitle(video.title)}
-                hasNotes={noteVideoIds.has(video.id)}
-                isBookmarked={bookmarkedIds.has(video.id)}
-                bookmarkedAt={isBookmarksTab ? bookmarkData[video.id] : undefined}
-              />
-            ))}
-          </div>
+          /* Category Selection View — the 4 main boxes */
+          <>
+            {/* Bookmarks quick-access */}
+            {videos.filter(v => bookmarkedIds.has(v.id)).length > 0 && (
+              <button
+                onClick={() => setActiveGroup('bookmarks')}
+                className="w-full flex items-center gap-3 p-4 mb-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                  <Bookmark className="w-5 h-5 text-yellow-500" />
+                </div>
+                <div className="text-left flex-1">
+                  <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">Bookmarked Videos</p>
+                  <p className="text-[11px] text-muted-foreground">{videos.filter(v => bookmarkedIds.has(v.id)).length} saved</p>
+                </div>
+                <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180" />
+              </button>
+            )}
+
+            {/* 4 Main Category Boxes */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {CATEGORY_GROUPS.map(group => {
+                const groupVideos = videos.filter(v => group.categories.includes(v.category));
+                const watched = groupVideos.filter(v => watchedIds.has(v.id)).length;
+                const total = groupVideos.length;
+                const pct = total > 0 ? Math.round((watched / total) * 100) : 0;
+                const isBonus = group.key === 'bonus';
+
+                if (total === 0) return null;
+
+                return (
+                  <button
+                    key={group.key}
+                    onClick={() => setActiveGroup(group.key)}
+                    className={cn(
+                      "text-left p-5 rounded-xl border transition-all group",
+                      "bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
+                      isBonus ? "border-yellow-500/20" : "border-border"
+                    )}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-2xl">{group.icon}</span>
+                      {isBonus && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 uppercase tracking-wider">
+                          Optional
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors mb-0.5">
+                      {group.title}
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground mb-3">{group.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground font-medium">{total} video{total !== 1 ? 's' : ''}</span>
+                      <span className={cn(
+                        "text-xs font-bold",
+                        pct === 100 ? "text-success" : pct > 0 ? "text-primary" : "text-muted-foreground"
+                      )}>
+                        {watched}/{total}
+                      </span>
+                    </div>
+                    <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          pct === 100 ? "bg-success" : "bg-primary"
+                        )}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Recently Added — show newest videos with subtle "New" label */}
+            {(() => {
+              const sevenDaysAgo = new Date();
+              sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+              const newVideos = videos.filter(v => v.created_at && new Date(v.created_at) > sevenDaysAgo);
+              if (newVideos.length === 0) return null;
+              return (
+                <div className="mt-8">
+                  <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    Recently Added
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {newVideos.slice(0, 4).map(video => (
+                      <VideoCard
+                        key={video.id}
+                        video={video}
+                        isWatched={watchedIds.has(video.id)}
+                        onClick={() => navigate(`/app/training/videos/${video.id}`)}
+                        hasNotes={noteVideoIds.has(video.id)}
+                        isBookmarked={bookmarkedIds.has(video.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </>
+        )}
+
+        {/* Bookmarks sub-view */}
+        {activeGroup === 'bookmarks' && !searchQuery.trim() && (
+          <>
+            <button
+              onClick={() => setActiveGroup(null)}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              All Categories
+            </button>
+            <div className="flex items-center gap-3 mb-5">
+              <Bookmark className="w-5 h-5 text-yellow-500" />
+              <h2 className="text-lg font-bold text-foreground">Bookmarked Videos</h2>
+            </div>
+            {videos.filter(v => bookmarkedIds.has(v.id)).length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <Bookmark className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="text-sm">No bookmarked videos yet</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {videos.filter(v => bookmarkedIds.has(v.id)).sort((a, b) => {
+                  const aDate = bookmarkData[a.id] || '';
+                  const bDate = bookmarkData[b.id] || '';
+                  return bDate.localeCompare(aDate);
+                }).map(video => (
+                  <VideoCard
+                    key={video.id}
+                    video={video}
+                    isWatched={watchedIds.has(video.id)}
+                    onClick={() => navigate(`/app/training/videos/${video.id}`)}
+                    hasNotes={noteVideoIds.has(video.id)}
+                    isBookmarked={true}
+                    bookmarkedAt={bookmarkData[video.id]}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </AppLayout>
