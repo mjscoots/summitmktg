@@ -114,14 +114,14 @@ function PipelineBadge({ status }: { status: string }) {
 
   const className =
     key === 'summer_ready'
-      ? 'bg-primary text-primary-foreground border-primary/30'
+      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
       : key === 'onboarded'
-        ? 'bg-primary/10 text-primary border-primary/20'
+        ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
         : key === 'info_added'
-          ? 'bg-accent text-accent-foreground border-border'
+          ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30'
           : key === 'contract_signed'
-            ? 'bg-secondary text-secondary-foreground border-border'
-            : 'bg-muted text-muted-foreground border-border';
+            ? 'bg-orange-500/15 text-orange-400 border-orange-500/30'
+            : 'bg-red-500/15 text-red-400 border-red-500/30';
 
   return (
     <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap', className)}>
@@ -436,11 +436,11 @@ export default function AdminUsersTab({
                 <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400">Active {active}</span>
                 <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">NLC {nlc}</span>
                 <span className="w-px h-4 bg-border" />
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">Prospect {pending}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground">Signed {contractSigned}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground">Info Added {infoAdded}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Onboarded {onboarded}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground">Summer Ready {summerReady}</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">Prospect {pending}</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400">Signed {contractSigned}</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400">Info Added {infoAdded}</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400">Onboarded {onboarded}</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Summer Ready {summerReady}</span>
               </>
             );
           })()}
