@@ -64,6 +64,9 @@ export function AppSidebar() {
     if (path === '/app/manage') {
       return managePaths.some(p => location.pathname.startsWith(p));
     }
+    if (path === '/app/links') {
+      return location.pathname.startsWith('/app/links') || location.pathname.startsWith('/app/notepad');
+    }
     if (path === '/app/training') {
       return location.pathname.startsWith('/app/training') || location.pathname.startsWith('/app/videos');
     }
