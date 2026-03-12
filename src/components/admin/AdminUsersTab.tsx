@@ -6,102 +6,167 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import {
-  Search, Upload, Users, UserCheck, Edit2, Eye, RotateCcw,
-  ChevronUp, ChevronDown, Trash2, X, Loader2, AlertTriangle, Monitor, MonitorOff
+  Search,
+  Upload,
+  Users,
+  UserCheck,
+  Eye,
+  Loader2,
+  AlertTriangle,
+  Monitor,
+  MonitorOff,
+  MoreHorizontal,
 } from 'lucide-react';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useRookieView } from '@/contexts/RookieViewContext';
 import { useNavigate } from 'react-router-dom';
 
 const LazyMassImport = lazy(() => import('@/components/admin/AdminMassImport'));
 
-/* ── Inline Error Boundary for table ── */
 class TableErrorBoundary extends Component<{ children: ReactNode; onRetry: () => void }, { hasError: boolean }> {
   constructor(props: { children: ReactNode; onRetry: () => void }) {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch(error: Error) { console.error('AdminUsersTab table error:', error); }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('AdminUsersTab table error:', error);
+  }
+
   render() {
     if (this.state.hasError) {
       return (
         <div className="p-8 text-center space-y-3">
           <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto" />
           <p className="text-sm text-foreground font-medium">Table failed to render</p>
-          <Button size="sm" variant="outline" onClick={() => { this.setState({ hasError: false }); this.props.onRetry(); }}>Retry</Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              this.setState({ hasError: false });
+              this.props.onRetry();
+            }}
+          >
+            Retry
+          </Button>
         </div>
       );
     }
+
     return this.props.children;
   }
 }
 
-/* ── Pipeline Statuses ── */
 const PIPELINE_STATUSES = [
-  { key: 'pending', label: 'Prospect Added', color: 'text-muted-foreground', bg: 'bg-muted/30 border-muted' },
-  { key: 'contract_signed', label: 'Contract Signed', color: 'text-amber-400', bg: 'bg-amber-500/15 border-amber-500/30' },
-  { key: 'info_added', label: 'Info Added', color: 'text-orange-400', bg: 'bg-orange-500/15 border-orange-500/30' },
-  { key: 'onboarded', label: 'Onboarded', color: 'text-blue-400', bg: 'bg-blue-500/15 border-blue-500/30' },
-  { key: 'summer_ready', label: 'Summer Ready', color: 'text-green-400', bg: 'bg-green-500/15 border-green-500/30' },
+  { key: 'pending', label: 'Prospect Added' },
+  { key: 'contract_signed', label: 'Contract Signed' },
+  { key: 'info_added', label: 'Info Added' },
+  { key: 'onboarded', label: 'Onboarded' },
+  { key: 'summer_ready', label: 'Summer Ready' },
 ] as const;
 
-/* ── Pipeline sort rank (higher = more important = sorted first) ── */
 const PIPELINE_RANK: Record<string, number> = {
-  summer_ready: 5,
-  onboarded: 4,
-  info_added: 3,
-  contract_signed: 2,
   pending: 1,
+  contract_signed: 2,
+  info_added: 3,
+  onboarded: 4,
+  summer_ready: 5,
 };
 
-function PipelineBadge({ status }: { status: string }) {
-  const info = PIPELINE_STATUSES.find(s => s.key === status) || PIPELINE_STATUSES[0];
-  return (
-    <Badge variant="outline" className={`text-[9px] h-4 px-1.5 whitespace-nowrap ${info.color} ${info.bg}`}>
-      {info.label}
-    </Badge>
-  );
+function pipelineLabel(value: string | null | undefined) {
+  const key = value || 'pending';
+  return PIPELINE_STATUSES.find((s) => s.key === key)?.label || 'Prospect Added';
 }
 
-function RoleBadge({ role }: { role: string }) {
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+function displayName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length <= 2) return fullName;
+  return `${parts[0]} ${parts[parts.length - 1]}`;
+}
+
+function PipelineBadge({ status }: { status: string }) {
+  const key = status || 'pending';
+
+  const className =
+    key === 'summer_ready'
+      ? 'bg-primary text-primary-foreground border-primary/30'
+      : key === 'onboarded'
+        ? 'bg-primary/10 text-primary border-primary/20'
+        : key === 'info_added'
+          ? 'bg-accent text-accent-foreground border-border'
+          : key === 'contract_signed'
+            ? 'bg-secondary text-secondary-foreground border-border'
+            : 'bg-muted text-muted-foreground border-border';
+
   return (
-    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${
-      role === 'admin' || role === 'owner'
-        ? 'bg-purple-500/20 text-purple-400'
-        : isManager
-        ? 'bg-primary/20 text-primary'
-        : 'bg-green-500/20 text-green-400'
-    }`}>
-      {role === 'owner' ? 'Owner' : role === 'admin' ? 'Admin' : isManager ? 'Manager' : 'Rookie'}
+    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap', className)}>
+      {pipelineLabel(key)}
     </span>
   );
 }
 
+function RoleBadge({ role }: { role: string }) {
+  const normalized = role || 'rookie';
+  const variant = normalized === 'owner' || normalized === 'admin' ? 'default' : 'secondary';
+
+  return (
+    <Badge variant={variant} className="text-[10px] h-5 px-2 uppercase tracking-wide">
+      {normalized === 'owner' ? 'Owner' : normalized === 'admin' ? 'Admin' : normalized === 'manager' ? 'Manager' : 'Rookie'}
+    </Badge>
+  );
+}
+
 function StatusDot({ status }: { status: string | null }) {
-  if (status === 'nlc') return <span className="inline-block w-2 h-2 rounded-full bg-red-400" title="NLC" />;
-  if (status === 'active') return <span className="inline-block w-2 h-2 rounded-full bg-green-400" title="Active" />;
-  return <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground/30" title="Disabled" />;
+  if (status === 'nlc') {
+    return <span className="inline-block w-2.5 h-2.5 rounded-full bg-destructive" title="NLC" />;
+  }
+
+  if (status === 'active') {
+    return <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400" title="Active" />;
+  }
+
+  return <span className="inline-block w-2.5 h-2.5 rounded-full bg-muted-foreground/40" title="Disabled" />;
 }
 
 function AppStatusBadge({ approved }: { approved: boolean | null }) {
-  if (approved === true) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-400 bg-blue-500/15 px-1.5 py-0.5 rounded-full">
-        <Monitor className="w-2.5 h-2.5" /> In-App
-      </span>
-    );
-  }
+  const inApp = approved === true;
+
   return (
-    <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full">
-      <MonitorOff className="w-2.5 h-2.5" /> Not In-App
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium',
+        inApp
+          ? 'border-primary/30 bg-primary/10 text-primary'
+          : 'border-border bg-muted text-muted-foreground'
+      )}
+    >
+      {inApp ? <Monitor className="w-3 h-3" /> : <MonitorOff className="w-3 h-3" />}
+      {inApp ? 'In-App' : 'Not In-App'}
     </span>
   );
 }
@@ -115,6 +180,7 @@ export interface UserRow {
   status: string | null;
   approved: boolean | null;
   created_at: string | null;
+  updated_at?: string | null;
   team_id: string | null;
   role?: string;
   experience?: string | null;
@@ -144,358 +210,486 @@ interface AdminUsersTabProps {
 }
 
 type AppFilter = 'all' | 'in_app' | 'not_in_app';
+type SortOption = 'name' | 'team' | 'progress' | 'recent';
 
 export default function AdminUsersTab({
-  users, managers, teams, isAdmin, isSuperAdmin, onRefresh,
-  onEditUser, onResetPassword, onToggleStatus, onPromoteDemote, onDeleteUser, superAdminEmail,
+  users,
+  managers,
+  teams,
+  isAdmin,
+  isSuperAdmin,
+  onRefresh,
+  onEditUser,
+  onResetPassword,
+  onToggleStatus,
+  onPromoteDemote,
+  onDeleteUser,
+  superAdminEmail,
 }: AdminUsersTabProps) {
   const navigate = useNavigate();
   const { startImpersonating } = useRookieView();
+
   const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('active');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [progressFilter, setProgressFilter] = useState<string>('all');
-  const [managerFilter, setManagerFilter] = useState<string>('all');
+  const [recruiterFilter, setRecruiterFilter] = useState<string>('all');
   const [teamFilter, setTeamFilter] = useState<string>('all');
   const [appFilter, setAppFilter] = useState<AppFilter>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('progress');
   const [detailUser, setDetailUser] = useState<UserRow | null>(null);
   const [editingPipeline, setEditingPipeline] = useState('');
 
   const getTeamName = (teamId: string | null | undefined) => {
     if (!teamId) return '—';
-    return teams.find(t => t.id === teamId)?.name || '—';
+    return teams.find((t) => t.id === teamId)?.name || '—';
   };
 
-  /* ── Compact summary stats ── */
-  const summaryStats = useMemo(() => {
-    const activeInApp = users.filter(u => u.status === 'active' && u.approved === true).length;
-    const onboardedNotInApp = users.filter(u => (u.onboarding_status === 'onboarded') && u.approved !== true && u.status !== 'nlc').length;
-    const summerReadyNotInApp = users.filter(u => (u.onboarding_status === 'summer_ready') && u.approved !== true && u.status !== 'nlc').length;
-    const nlc = users.filter(u => u.status === 'nlc').length;
-    const total = users.length;
-    return { activeInApp, onboardedNotInApp, summerReadyNotInApp, nlc, total };
-  }, [users]);
-
-  /* ── Unique manager names for filter ── */
-  const managerNames = useMemo(() => {
+  const recruiterNames = useMemo(() => {
     const names = new Set<string>();
+
     for (const u of users) {
-      if (u.direct_manager) names.add(u.direct_manager);
+      const value = (u.direct_manager || u.recruiter || '').trim();
+      if (value) names.add(value);
     }
-    return Array.from(names).sort();
+
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
   }, [users]);
 
-  /* ── Filter & Sort ── */
+  const getOperationalPriority = (u: UserRow) => {
+    const progress = u.onboarding_status || 'pending';
+    const inApp = u.approved === true;
+    const isNlc = u.status === 'nlc';
+
+    if (isNlc) return 800;
+
+    if (inApp && progress === 'summer_ready') return 10;
+    if (inApp && progress === 'onboarded') return 20;
+    if (!inApp && progress === 'summer_ready') return 30;
+    if (!inApp && progress === 'onboarded') return 40;
+    if (!inApp && progress === 'info_added') return 50;
+    if (!inApp && progress === 'contract_signed') return 60;
+    if (progress === 'pending') return 70;
+
+    return 100;
+  };
+
   const filtered = useMemo(() => {
-    let list = users;
+    const list = users.filter((u) => {
+      const progress = u.onboarding_status || 'pending';
+      const recruiter = (u.direct_manager || u.recruiter || '').trim();
+      const teamName = getTeamName(u.team_id);
 
-    // Status filter (default: Active — hides NLC unless selected)
-    if (statusFilter === 'active') {
-      list = list.filter(u => u.status !== 'nlc');
-    } else if (statusFilter === 'nlc') {
-      list = list.filter(u => u.status === 'nlc');
-    }
+      if (statusFilter === 'active' && u.status !== 'active') return false;
+      if (statusFilter === 'nlc' && u.status !== 'nlc') return false;
 
-    // Progress/pipeline filter
-    if (progressFilter !== 'all') {
-      list = list.filter(u => (u.onboarding_status || 'pending') === progressFilter);
-    }
+      if (progressFilter !== 'all' && progress !== progressFilter) return false;
 
-    // Manager filter
-    if (managerFilter !== 'all') {
-      if (managerFilter === 'none') list = list.filter(u => !u.direct_manager);
-      else list = list.filter(u => u.direct_manager === managerFilter);
-    }
+      if (recruiterFilter !== 'all') {
+        if (recruiterFilter === 'none' && recruiter) return false;
+        if (recruiterFilter !== 'none' && recruiter !== recruiterFilter) return false;
+      }
 
-    // Team filter
-    if (teamFilter !== 'all') {
-      if (teamFilter === 'none') list = list.filter(u => !u.team_id);
-      else list = list.filter(u => u.team_id === teamFilter);
-    }
+      if (teamFilter !== 'all') {
+        if (teamFilter === 'none' && u.team_id) return false;
+        if (teamFilter !== 'none' && u.team_id !== teamFilter) return false;
+      }
 
-    // App status filter
-    if (appFilter === 'in_app') {
-      list = list.filter(u => u.approved === true);
-    } else if (appFilter === 'not_in_app') {
-      list = list.filter(u => u.approved !== true);
-    }
+      if (appFilter === 'in_app' && u.approved !== true) return false;
+      if (appFilter === 'not_in_app' && u.approved === true) return false;
 
-    // Search (name, phone, manager, team)
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(u =>
-        u.full_name.toLowerCase().includes(q) ||
-        (u.phone || '').includes(q) ||
-        (u.direct_manager || '').toLowerCase().includes(q) ||
-        getTeamName(u.team_id).toLowerCase().includes(q)
-      );
-    }
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const phone = (u.phone || '').toLowerCase();
 
-    // Sort: priority-based
+        return (
+          u.full_name.toLowerCase().includes(q) ||
+          recruiter.toLowerCase().includes(q) ||
+          teamName.toLowerCase().includes(q) ||
+          phone.includes(q)
+        );
+      }
+
+      return true;
+    });
+
     return [...list].sort((a, b) => {
-      // NLC always last
-      const aNlc = a.status === 'nlc' ? 1 : 0;
-      const bNlc = b.status === 'nlc' ? 1 : 0;
-      if (aNlc !== bNlc) return aNlc - bNlc;
+      if (sortBy === 'name') {
+        return a.full_name.localeCompare(b.full_name);
+      }
 
-      // In-App first
-      const aInApp = a.approved === true ? 0 : 1;
-      const bInApp = b.approved === true ? 0 : 1;
-      if (aInApp !== bInApp) return aInApp - bInApp;
+      if (sortBy === 'team') {
+        const byTeam = getTeamName(a.team_id).localeCompare(getTeamName(b.team_id));
+        if (byTeam !== 0) return byTeam;
+        return a.full_name.localeCompare(b.full_name);
+      }
 
-      // Pipeline rank (higher rank = more important = first)
+      if (sortBy === 'recent') {
+        const aTs = new Date(a.updated_at || a.created_at || 0).getTime();
+        const bTs = new Date(b.updated_at || b.created_at || 0).getTime();
+        if (aTs !== bTs) return bTs - aTs;
+      }
+
+      const aPriority = getOperationalPriority(a);
+      const bPriority = getOperationalPriority(b);
+      if (aPriority !== bPriority) return aPriority - bPriority;
+
       const aRank = PIPELINE_RANK[a.onboarding_status || 'pending'] || 0;
       const bRank = PIPELINE_RANK[b.onboarding_status || 'pending'] || 0;
       if (aRank !== bRank) return bRank - aRank;
 
-      // Alphabetical
       return a.full_name.localeCompare(b.full_name);
     });
-  }, [users, statusFilter, progressFilter, managerFilter, teamFilter, appFilter, search]);
+  }, [
+    users,
+    statusFilter,
+    progressFilter,
+    recruiterFilter,
+    teamFilter,
+    appFilter,
+    sortBy,
+    search,
+  ]);
+
+  const hasActiveFilters =
+    !!search.trim() ||
+    statusFilter !== 'all' ||
+    progressFilter !== 'all' ||
+    recruiterFilter !== 'all' ||
+    teamFilter !== 'all' ||
+    appFilter !== 'all' ||
+    sortBy !== 'progress';
 
   const handleUpdatePipeline = async (userId: string, newStatus: string) => {
-    const { error } = await supabase.from('profiles').update({ onboarding_status: newStatus } as any).eq('user_id', userId);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ onboarding_status: newStatus } as never)
+      .eq('user_id', userId);
+
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Pipeline Status Updated' });
-      setDetailUser(null);
-      onRefresh();
+      return;
     }
+
+    toast({ title: 'Progress Updated' });
+    setDetailUser(null);
+    onRefresh();
   };
 
   const handleUpdateManager = async (userId: string, managerName: string) => {
-    const { error } = await supabase.from('profiles').update({ direct_manager: managerName || null } as any).eq('user_id', userId);
+    const normalized = managerName || null;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ direct_manager: normalized, recruiter: normalized } as never)
+      .eq('user_id', userId);
+
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Manager Updated' });
-      setDetailUser(null);
-      onRefresh();
+      return;
     }
+
+    toast({ title: 'Recruiter / Manager Updated' });
+    setDetailUser(null);
+    onRefresh();
   };
 
   const handleUpdateTeam = async (userId: string, teamId: string) => {
-    const { error } = await supabase.from('profiles').update({ team_id: teamId || null } as any).eq('user_id', userId);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ team_id: teamId || null } as never)
+      .eq('user_id', userId);
+
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Team Updated' });
-      setDetailUser(null);
-      onRefresh();
+      return;
     }
+
+    toast({ title: 'Team Updated' });
+    setDetailUser(null);
+    onRefresh();
   };
 
-  const hasActiveFilters = statusFilter !== 'active' || progressFilter !== 'all' || teamFilter !== 'all' || managerFilter !== 'all' || appFilter !== 'all';
-
   return (
-    <div className="space-y-3">
-      {/* ── Header Row ── */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Users className="w-4 h-4 text-primary" /> People
-        </h2>
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-xs h-7 gap-1.5 border-border/30 text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/30"
-          onClick={() => setImportOpen(true)}
-        >
-          <Upload className="w-3 h-3" /> Mass Import
-        </Button>
-      </div>
+    <div className="space-y-4">
+      <div className="rounded-xl border border-border/30 bg-card/40 p-3 backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" />
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">People</h2>
+              <p className="text-xs text-muted-foreground">Filter and action your roster fast</p>
+            </div>
+          </div>
 
-      {/* ── Search ── */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search name, phone, manager, team..."
-          className="pl-9 h-9 bg-card/50 border-border/30 text-xs"
-        />
-      </div>
-
-      {/* ── Filter Bar (GetHawx-style) ── */}
-      <div className="flex flex-wrap gap-2">
-        {/* Status */}
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/50 border-border/30 text-xs">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="nlc">NLC</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Progress Status */}
-        <Select value={progressFilter} onValueChange={setProgressFilter}>
-          <SelectTrigger className="h-8 w-[160px] bg-card/50 border-border/30 text-xs">
-            <SelectValue placeholder="Progress" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Progress</SelectItem>
-            {PIPELINE_STATUSES.map(s => (
-              <SelectItem key={s.key} value={s.key} className="text-xs">{s.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Direct Recruiter / Manager */}
-        <Select value={managerFilter} onValueChange={setManagerFilter}>
-          <SelectTrigger className="h-8 w-[170px] bg-card/50 border-border/30 text-xs">
-            <SelectValue placeholder="Recruiter / Manager" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Recruiters</SelectItem>
-            <SelectItem value="none">No Manager</SelectItem>
-            {managerNames.map(name => (
-              <SelectItem key={name} value={name} className="text-xs">{name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Team */}
-        <Select value={teamFilter} onValueChange={setTeamFilter}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/50 border-border/30 text-xs">
-            <SelectValue placeholder="Team" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Teams</SelectItem>
-            <SelectItem value="none">No Team</SelectItem>
-            {teams.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        {/* App Status */}
-        <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/50 border-border/30 text-xs">
-            <SelectValue placeholder="App Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="in_app">In-App</SelectItem>
-            <SelectItem value="not_in_app">Not In-App</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {hasActiveFilters && (
           <Button
             size="sm"
-            variant="ghost"
-            className="h-8 px-2 text-xs text-muted-foreground gap-1"
-            onClick={() => { setStatusFilter('active'); setProgressFilter('all'); setTeamFilter('all'); setManagerFilter('all'); setAppFilter('all'); }}
+            variant="outline"
+            className="h-8 text-xs gap-1.5"
+            onClick={() => setImportOpen(true)}
           >
-            <X className="w-3 h-3" /> Clear
+            <Upload className="w-3.5 h-3.5" />
+            Mass Import
           </Button>
-        )}
+        </div>
       </div>
 
-      {/* ── Compact Summary Row ── */}
-      <div className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground px-1">
-        <span>Active In-App: <strong className="text-blue-400">{summaryStats.activeInApp}</strong></span>
-        <span className="text-border">|</span>
-        <span>Onboarded Not In-App: <strong className="text-orange-400">{summaryStats.onboardedNotInApp}</strong></span>
-        <span className="text-border">|</span>
-        <span>Summer Ready Not In-App: <strong className="text-green-400">{summaryStats.summerReadyNotInApp}</strong></span>
-        <span className="text-border">|</span>
-        <span>NLC: <strong className="text-red-400">{summaryStats.nlc}</strong></span>
-        <span className="text-border">|</span>
-        <span>Total: <strong className="text-foreground">{summaryStats.total}</strong></span>
+      <div className="rounded-xl border border-border/30 bg-card/40 p-2.5 backdrop-blur-sm">
+        <div className="overflow-x-auto">
+          <div className="flex min-w-[1260px] items-center gap-2">
+            <div className="relative w-[280px] shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search name, phone, recruiter, team..."
+                className="pl-9 h-9 bg-background/60"
+              />
+            </div>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-9 w-[150px] bg-background/60">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="nlc">NLC</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={progressFilter} onValueChange={setProgressFilter}>
+              <SelectTrigger className="h-9 w-[170px] bg-background/60">
+                <SelectValue placeholder="Progress" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Progress</SelectItem>
+                {PIPELINE_STATUSES.map((s) => (
+                  <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={recruiterFilter} onValueChange={setRecruiterFilter}>
+              <SelectTrigger className="h-9 w-[190px] bg-background/60">
+                <SelectValue placeholder="Recruiter" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Recruiters</SelectItem>
+                <SelectItem value="none">No Recruiter</SelectItem>
+                {recruiterNames.map((name) => (
+                  <SelectItem key={name} value={name}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={teamFilter} onValueChange={setTeamFilter}>
+              <SelectTrigger className="h-9 w-[150px] bg-background/60">
+                <SelectValue placeholder="Team" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Teams</SelectItem>
+                <SelectItem value="none">No Team</SelectItem>
+                {teams.map((team) => (
+                  <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
+              <SelectTrigger className="h-9 w-[170px] bg-background/60">
+                <SelectValue placeholder="App Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All App Statuses</SelectItem>
+                <SelectItem value="in_app">In-App</SelectItem>
+                <SelectItem value="not_in_app">Not In-App</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+              <SelectTrigger className="h-9 w-[170px] bg-background/60">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="team">Team</SelectItem>
+                <SelectItem value="progress">Progress</SelectItem>
+                <SelectItem value="recent">Recently Updated</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 px-3 text-xs"
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter('all');
+                  setProgressFilter('all');
+                  setRecruiterFilter('all');
+                  setTeamFilter('all');
+                  setAppFilter('all');
+                  setSortBy('progress');
+                }}
+              >
+                Reset
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ── Results count ── */}
-      <p className="text-[10px] text-muted-foreground px-1">{filtered.length} of {users.length} shown</p>
-
-      {/* ── Table ── */}
       <TableErrorBoundary onRetry={onRefresh}>
-        <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[650px]">
+        <div className="rounded-xl border border-border/30 bg-card/30 overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[860px]">
             <thead>
-              <tr className="border-b border-border/20 bg-card/30">
-                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
-                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
-                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Progress</th>
-                <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
-                <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-20">App</th>
+              <tr className="border-b border-border/20 bg-background/40">
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Team</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Progress</th>
+                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
+                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-28">App</th>
                 {isAdmin && (
-                  <th className="text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-32">Actions</th>
+                  <th className="text-right px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-48">Actions</th>
                 )}
               </tr>
             </thead>
             <tbody>
-              {filtered.map(u => {
-                if (!u || !u.user_id) return null;
-                const isNLC = u.status === 'nlc';
-                const isInApp = u.approved === true;
+              {filtered.map((u) => {
+                if (!u?.user_id) return null;
+
+                const isNlc = u.status === 'nlc';
+
                 return (
                   <tr
                     key={u.user_id}
                     className={cn(
-                      'border-b border-border/10 hover:bg-card/40 transition-colors cursor-pointer',
-                      isNLC && 'opacity-40',
+                      'border-b border-border/10 hover:bg-background/30 transition-colors cursor-pointer',
+                      isNlc && 'opacity-65'
                     )}
-                    onClick={() => { setDetailUser(u); setEditingPipeline(u.onboarding_status || 'pending'); }}
+                    onClick={() => {
+                      setDetailUser(u);
+                      setEditingPipeline(u.onboarding_status || 'pending');
+                    }}
                   >
-                    {/* Name */}
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name || 'Unknown'} size="sm" />
-                        <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name || 'Unknown'}</p>
+                        <p className={cn('text-xs font-medium truncate', isNlc ? 'text-destructive' : 'text-foreground')}>
+                          {displayName(u.full_name || 'Unknown')}
+                        </p>
                       </div>
                     </td>
-                    {/* Team */}
-                    <td className="px-3 py-2 text-xs text-muted-foreground truncate hidden sm:table-cell">
+
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground truncate">
                       {getTeamName(u.team_id)}
                     </td>
-                    {/* Progress */}
-                    <td className="px-3 py-2">
+
+                    <td className="px-3 py-2.5">
                       <PipelineBadge status={u.onboarding_status || 'pending'} />
                     </td>
-                    {/* Status dot */}
-                    <td className="px-2 py-2 text-center">
+
+                    <td className="px-2 py-2.5 text-center">
                       <StatusDot status={u.status} />
                     </td>
-                    {/* App Status */}
-                    <td className="px-2 py-2 text-center">
+
+                    <td className="px-2 py-2.5 text-center">
                       <AppStatusBadge approved={u.approved} />
                     </td>
-                    {/* Actions */}
+
                     {isAdmin && (
-                      <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-0.5">
-                          <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => onEditUser(u)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => onResetPassword(u.email, u.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => onToggleStatus(u.user_id, u.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
-                            {isNLC ? '✓' : '✗'}
-                          </button>
-                          {u.role !== 'admin' && u.role !== 'owner' && (
-                            <button onClick={() => onPromoteDemote(u.user_id, u.role)} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
-                          )}
-                          {u.role === 'admin' && u.email !== superAdminEmail && (
-                            <button onClick={() => onPromoteDemote(u.user_id, u.role)} className="p-1 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
-                          )}
-                          {u.email !== superAdminEmail && isSuperAdmin && (
-                            <button onClick={() => onDeleteUser(u)} className="p-1 rounded text-destructive/60 hover:text-destructive hover:bg-destructive/5" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                          )}
+                      <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => {
+                              setDetailUser(u);
+                              setEditingPipeline(u.onboarding_status || 'pending');
+                            }}
+                          >
+                            View
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => onEditUser(u)}
+                          >
+                            Edit
+                          </Button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1">
+                                More
+                                <MoreHorizontal className="w-3.5 h-3.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem
+                                onSelect={() => {
+                                  startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email });
+                                  navigate('/app');
+                                }}
+                              >
+                                <Eye className="w-3.5 h-3.5 mr-2" />
+                                View as Rep
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem onSelect={() => onResetPassword(u.email, u.full_name)}>
+                                Reset Password
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem onSelect={() => onToggleStatus(u.user_id, u.status)}>
+                                {u.status === 'nlc' ? 'Set Active' : 'Set NLC'}
+                              </DropdownMenuItem>
+
+                              {u.role !== 'admin' && u.role !== 'owner' && (
+                                <DropdownMenuItem onSelect={() => onPromoteDemote(u.user_id, u.role)}>
+                                  Promote / Demote
+                                </DropdownMenuItem>
+                              )}
+
+                              {u.role === 'admin' && u.email !== superAdminEmail && (
+                                <DropdownMenuItem onSelect={() => onPromoteDemote(u.user_id, u.role)}>
+                                  Promote / Demote
+                                </DropdownMenuItem>
+                              )}
+
+                              {u.email !== superAdminEmail && isSuperAdmin && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem className="text-destructive" onSelect={() => onDeleteUser(u)}>
+                                    Delete User
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </td>
                     )}
                   </tr>
                 );
               })}
+
               {filtered.length === 0 && (
-                <tr><td colSpan={isAdmin ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
+                <tr>
+                  <td colSpan={isAdmin ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground text-sm">
+                    No people match your current filters.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </TableErrorBoundary>
 
-      {/* ── Mass Import Dialog ── */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-card border-border">
           <DialogHeader>
@@ -503,17 +697,37 @@ export default function AdminUsersTab({
               <Upload className="w-4 h-4 text-primary" /> Mass Import
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Import and sync reps in bulk, including pipeline and NLC status updates.
+              Import and sync reps in bulk, including progress and NLC updates.
             </DialogDescription>
           </DialogHeader>
+
           <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
             <LazyMassImport
-              profiles={users.map(u => ({ user_id: u.user_id, full_name: u.full_name, email: u.email, phone: u.phone, region: u.region, organization: u.organization, office_name: u.office_name, direct_manager: u.direct_manager, experience: u.experience, team_id: u.team_id, onboarding_status: u.onboarding_status, status: u.status, recruiter: u.recruiter }))}
+              profiles={users.map((u) => ({
+                user_id: u.user_id,
+                full_name: u.full_name,
+                email: u.email,
+                phone: u.phone,
+                region: u.region,
+                organization: u.organization,
+                office_name: u.office_name,
+                direct_manager: u.direct_manager,
+                experience: u.experience,
+                team_id: u.team_id,
+                onboarding_status: u.onboarding_status,
+                status: u.status,
+                recruiter: u.recruiter,
+              }))}
               managers={managers}
               teams={teams}
               onRefresh={() => {
                 onRefresh();
                 setStatusFilter('all');
+                setProgressFilter('all');
+                setRecruiterFilter('all');
+                setTeamFilter('all');
+                setAppFilter('all');
+                setSortBy('progress');
                 setImportOpen(false);
               }}
             />
@@ -521,29 +735,28 @@ export default function AdminUsersTab({
         </DialogContent>
       </Dialog>
 
-      {/* ── Detail / Quick-Edit Modal ── */}
       <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
         <DialogContent className="max-w-md bg-card border-border">
           <DialogDescription className="sr-only">
-            View and edit person details including pipeline stage, team, and manager.
+            View and edit person details including progress stage, team, and recruiter.
           </DialogDescription>
+
           {detailUser && (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
                   <UserAvatar avatarUrl={detailUser.avatar_url} fullName={detailUser.full_name} size="lg" />
                   <div>
-                    <span className="block text-foreground">{detailUser.full_name}</span>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <span className="block text-foreground">{displayName(detailUser.full_name)}</span>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
                       <RoleBadge role={detailUser.role || 'rookie'} />
-                      <span className="text-xs text-muted-foreground">•</span>
                       <span className="text-xs text-muted-foreground">{getTeamName(detailUser.team_id)}</span>
-                      <span className="text-xs text-muted-foreground">•</span>
                       <AppStatusBadge approved={detailUser.approved} />
                     </div>
                   </div>
                 </DialogTitle>
               </DialogHeader>
+
               <div className="space-y-3 py-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-2.5 bg-muted/30 rounded-lg">
@@ -557,13 +770,13 @@ export default function AdminUsersTab({
                 </div>
 
                 <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pipeline Status</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progress</p>
                   <Select value={editingPipeline} onValueChange={setEditingPipeline}>
-                    <SelectTrigger className="h-8 bg-card/50 border-border/30 text-xs">
+                    <SelectTrigger className="h-8 bg-background/70 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {PIPELINE_STATUSES.map(s => (
+                      {PIPELINE_STATUSES.map((s) => (
                         <SelectItem key={s.key} value={s.key} className="text-xs">{s.label}</SelectItem>
                       ))}
                     </SelectContent>
@@ -571,24 +784,27 @@ export default function AdminUsersTab({
                   {editingPipeline !== (detailUser.onboarding_status || 'pending') && (
                     <Button
                       size="sm"
-                      className="w-full gap-1.5 bg-primary text-primary-foreground text-xs"
+                      className="w-full gap-1.5"
                       onClick={() => handleUpdatePipeline(detailUser.user_id, editingPipeline)}
                     >
-                      <UserCheck className="w-3.5 h-3.5" /> Update Pipeline
+                      <UserCheck className="w-3.5 h-3.5" />
+                      Update Progress
                     </Button>
                   )}
                 </div>
 
                 <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Direct Manager</p>
-                  <p className="text-sm text-foreground">{detailUser.direct_manager || '—'}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Recruiter / Manager</p>
+                  <p className="text-sm text-foreground">{detailUser.direct_manager || detailUser.recruiter || '—'}</p>
                   <Select onValueChange={(v) => handleUpdateManager(detailUser.user_id, v)}>
-                    <SelectTrigger className="h-8 bg-card/50 border-border/30 text-xs">
-                      <SelectValue placeholder="Change manager..." />
+                    <SelectTrigger className="h-8 bg-background/70 text-xs">
+                      <SelectValue placeholder="Change recruiter..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">None</SelectItem>
-                      {managers.map(m => <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>)}
+                      {managers.map((m) => (
+                        <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -597,12 +813,14 @@ export default function AdminUsersTab({
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Team</p>
                   <p className="text-sm text-foreground">{getTeamName(detailUser.team_id)}</p>
                   <Select onValueChange={(v) => handleUpdateTeam(detailUser.user_id, v)}>
-                    <SelectTrigger className="h-8 bg-card/50 border-border/30 text-xs">
+                    <SelectTrigger className="h-8 bg-background/70 text-xs">
                       <SelectValue placeholder="Change team..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">No Team</SelectItem>
-                      {teams.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>)}
+                      {teams.map((t) => (
+                        <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -610,11 +828,11 @@ export default function AdminUsersTab({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-2.5 bg-muted/30 rounded-lg flex items-center justify-between">
                     <span className="text-xs text-foreground">Active</span>
-                    <span className={cn('w-2.5 h-2.5 rounded-full', detailUser.status === 'active' ? 'bg-green-400' : 'bg-muted-foreground/30')} />
+                    <span className={cn('w-2.5 h-2.5 rounded-full', detailUser.status === 'active' ? 'bg-emerald-400' : 'bg-muted-foreground/30')} />
                   </div>
                   <div className="p-2.5 bg-muted/30 rounded-lg flex items-center justify-between">
                     <span className="text-xs text-foreground">NLC</span>
-                    <span className={cn('w-2.5 h-2.5 rounded-full', detailUser.status === 'nlc' ? 'bg-red-400' : 'bg-muted-foreground/30')} />
+                    <span className={cn('w-2.5 h-2.5 rounded-full', detailUser.status === 'nlc' ? 'bg-destructive' : 'bg-muted-foreground/30')} />
                   </div>
                 </div>
               </div>
