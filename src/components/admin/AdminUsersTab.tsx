@@ -376,15 +376,15 @@ export default function AdminUsersTab({
 
       {/* ── Table ── */}
       <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
-        <table className="w-full table-fixed text-sm">
+        <table className="w-full text-sm min-w-[600px]">
           <thead>
             <tr className="border-b border-border/20 bg-card/30">
-              <th className="w-[180px] text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
-              <th className="w-[90px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
-              <th className="w-[95px] text-left px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
-              <th className="w-[50px] text-center px-1 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Status</th>
+              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
+              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
+              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
+              <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
               {isAdmin && (
-                <th className="w-[90px] text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Actions</th>
+                <th className="text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-32">Actions</th>
               )}
             </tr>
           </thead>
@@ -403,8 +403,8 @@ export default function AdminUsersTab({
                   onClick={() => { setDetailUser(u); setEditingPipeline(u.onboarding_status || 'pending'); }}
                 >
                   {/* Avatar + Name */}
-                  <td className="px-3 py-1.5">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name} size="sm" />
                       <div className="min-w-0">
                         <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name}</p>
@@ -415,22 +415,22 @@ export default function AdminUsersTab({
                     </div>
                   </td>
                   {/* Team */}
-                  <td className="px-2 py-1.5 text-xs text-muted-foreground truncate hidden sm:table-cell">
+                  <td className="px-3 py-2 text-xs text-muted-foreground truncate hidden sm:table-cell">
                     {getTeamName(u.team_id)}
                   </td>
                   {/* Pipeline */}
-                  <td className="px-2 py-1.5">
+                  <td className="px-3 py-2">
                     <PipelineBadge status={u.onboarding_status || 'pending'} />
                   </td>
                   {/* Status dot */}
-                  <td className="px-1 py-1.5 text-center">
+                  <td className="px-2 py-2 text-center">
                     <StatusDot status={u.status} />
                   </td>
                   {/* Actions */}
                   {isAdmin && (
                     <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-0.5">
-                        <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app/rookie'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
                         <button onClick={() => onEditUser(u)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
                         <button onClick={() => onResetPassword(u.email, u.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
                         <button onClick={() => onToggleStatus(u.user_id, u.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
