@@ -201,7 +201,7 @@ Deno.serve(async (req) => {
             const existingUser = existingUsers?.users?.find(eu => eu.email === u.email);
             if (existingUser) {
               const updates: Record<string, unknown> = {};
-              if (u.rep_status) updates.status = u.rep_status;
+              if (normalizedRepStatus) updates.status = normalizedRepStatus;
               if (u.onboarding_status) updates.onboarding_status = u.onboarding_status;
               if (u.phone) updates.phone = u.phone;
               if (u.region) updates.region = u.region;
@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
         }
 
         if (authUser?.user) {
-          const importedStatus = u.rep_status === "nlc" ? "nlc" : "active";
+          const importedStatus = normalizedRepStatus === "nlc" ? "nlc" : "active";
           const profileUpdates: Record<string, unknown> = is_import
             ? { approved: false, status: importedStatus }
             : { approved: true, status: importedStatus };
