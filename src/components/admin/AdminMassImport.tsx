@@ -108,14 +108,23 @@ function isJunkValue(val: string): boolean {
   return false;
 }
 
+function detectPipelineStatus(raw: string): string | null {
+  const value = raw.toLowerCase().replace(/[_\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!value) return null;
+  if (/\bsummer\s*ready\b/.test(value)) return 'summer_ready';
+  if (/\bonboard(ed|ing)?\b/.test(value)) return 'onboarded';
+  if (/\binfo\s*added\b/.test(value)) return 'info_added';
+  if (/\bcontract\s*signed\b/.test(value)) return 'contract_signed';
+  if (/\bprospect\s*added\b/.test(value) || /\bpending\b/.test(value) || /\bprospect\b/.test(value)) return 'pending';
+  return null;
+}
+
 function isPipelineStatus(val: string): boolean {
-  const key = val.toLowerCase().replace(/[_\-]/g, ' ').trim();
-  return key in PIPELINE_MAP || PIPELINE_MAP[key.replace(/\s+/g, '')] !== undefined;
+  return detectPipelineStatus(val) !== null;
 }
 
 function normalizePipeline(raw: string): string {
-  const key = raw.toLowerCase().replace(/[_\-]/g, ' ').trim();
-  return PIPELINE_MAP[key] || PIPELINE_MAP[key.replace(/\s+/g, '')] || 'pending';
+  return detectPipelineStatus(raw) || 'pending';
 }
 
 function strongestPipeline(a: string, b: string): string {
