@@ -398,88 +398,91 @@ export default function AdminUsersTab({
       </div>
 
       {/* ── Table ── */}
-      <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
-        <table className="w-full text-sm min-w-[600px]">
-          <thead>
-            <tr className="border-b border-border/20 bg-card/30">
-              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
-              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
-              <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
-              <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
-              {isAdmin && (
-                <th className="text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-32">Actions</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(u => {
-              const isNLC = u.status === 'nlc';
-              const isInApp = u.approved === true;
-              return (
-                <tr
-                  key={u.user_id}
-                  className={cn(
-                    'border-b border-border/10 hover:bg-card/40 transition-colors cursor-pointer',
-                    isNLC && 'opacity-40',
-                    !isInApp && !isNLC && 'opacity-70'
-                  )}
-                  onClick={() => { setDetailUser(u); setEditingPipeline(u.onboarding_status || 'pending'); }}
-                >
-                  {/* Avatar + Name */}
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name} size="sm" />
-                      <div className="min-w-0">
-                        <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name}</p>
-                        {!isInApp && (
-                          <span className="text-[9px] text-amber-400/70">Not In-App</span>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  {/* Team */}
-                  <td className="px-3 py-2 text-xs text-muted-foreground truncate hidden sm:table-cell">
-                    {getTeamName(u.team_id)}
-                  </td>
-                  {/* Pipeline */}
-                  <td className="px-3 py-2">
-                    <PipelineBadge status={u.onboarding_status || 'pending'} />
-                  </td>
-                  {/* Status dot */}
-                  <td className="px-2 py-2 text-center">
-                    <StatusDot status={u.status} />
-                  </td>
-                  {/* Actions */}
-                  {isAdmin && (
-                    <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-0.5">
-                        <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => onEditUser(u)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => onResetPassword(u.email, u.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => onToggleStatus(u.user_id, u.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
-                          {isNLC ? '✓' : '✗'}
-                        </button>
-                        {u.role !== 'admin' && u.role !== 'owner' && (
-                          <button onClick={() => onPromoteDemote(u.user_id, u.role)} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
-                        )}
-                        {u.role === 'admin' && u.email !== superAdminEmail && (
-                          <button onClick={() => onPromoteDemote(u.user_id, u.role)} className="p-1 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
-                        )}
-                        {u.email !== superAdminEmail && isSuperAdmin && (
-                          <button onClick={() => onDeleteUser(u)} className="p-1 rounded text-destructive/60 hover:text-destructive hover:bg-destructive/5" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                        )}
+      <TableErrorBoundary onRetry={onRefresh}>
+        <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
+            <thead>
+              <tr className="border-b border-border/20 bg-card/30">
+                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
+                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider hidden sm:table-cell">Team</th>
+                <th className="text-left px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Pipeline</th>
+                <th className="text-center px-2 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
+                {isAdmin && (
+                  <th className="text-right px-3 py-2 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-32">Actions</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(u => {
+                if (!u || !u.user_id) return null;
+                const isNLC = u.status === 'nlc';
+                const isInApp = u.approved === true;
+                return (
+                  <tr
+                    key={u.user_id}
+                    className={cn(
+                      'border-b border-border/10 hover:bg-card/40 transition-colors cursor-pointer',
+                      isNLC && 'opacity-40',
+                      !isInApp && !isNLC && 'opacity-70'
+                    )}
+                    onClick={() => { setDetailUser(u); setEditingPipeline(u.onboarding_status || 'pending'); }}
+                  >
+                    {/* Avatar + Name */}
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name || 'Unknown'} size="sm" />
+                        <div className="min-w-0">
+                          <p className={cn("text-xs font-medium truncate", isNLC ? "text-red-400" : "text-foreground")}>{u.full_name || 'Unknown'}</p>
+                          {!isInApp && (
+                            <span className="text-[9px] text-amber-400/70">Not In-App</span>
+                          )}
+                        </div>
                       </div>
                     </td>
-                  )}
-                </tr>
-              );
-            })}
-            {filtered.length === 0 && (
-              <tr><td colSpan={isAdmin ? 5 : 4} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                    {/* Team */}
+                    <td className="px-3 py-2 text-xs text-muted-foreground truncate hidden sm:table-cell">
+                      {getTeamName(u.team_id)}
+                    </td>
+                    {/* Pipeline */}
+                    <td className="px-3 py-2">
+                      <PipelineBadge status={u.onboarding_status || 'pending'} />
+                    </td>
+                    {/* Status dot */}
+                    <td className="px-2 py-2 text-center">
+                      <StatusDot status={u.status} />
+                    </td>
+                    {/* Actions */}
+                    {isAdmin && (
+                      <td className="px-3 py-1.5 text-right" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-0.5">
+                          <button onClick={() => { startImpersonating({ user_id: u.user_id, full_name: u.full_name, email: u.email }); navigate('/app'); }} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="View as Rep"><Eye className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => onEditUser(u)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => onResetPassword(u.email, u.full_name)} className="p-1 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Password"><RotateCcw className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => onToggleStatus(u.user_id, u.status)} className={`p-1 rounded text-[10px] font-medium ${isNLC ? 'text-green-400 hover:bg-green-400/10' : 'text-red-400 hover:bg-red-400/10'}`} title={isNLC ? 'Activate' : 'Deactivate'}>
+                            {isNLC ? '✓' : '✗'}
+                          </button>
+                          {u.role !== 'admin' && u.role !== 'owner' && (
+                            <button onClick={() => onPromoteDemote(u.user_id, u.role)} className="p-1 rounded text-primary/60 hover:text-primary hover:bg-primary/5" title="Promote"><ChevronUp className="w-3.5 h-3.5" /></button>
+                          )}
+                          {u.role === 'admin' && u.email !== superAdminEmail && (
+                            <button onClick={() => onPromoteDemote(u.user_id, u.role)} className="p-1 rounded text-orange-400/60 hover:text-orange-400 hover:bg-orange-400/5" title="Demote"><ChevronDown className="w-3.5 h-3.5" /></button>
+                          )}
+                          {u.email !== superAdminEmail && isSuperAdmin && (
+                            <button onClick={() => onDeleteUser(u)} className="p-1 rounded text-destructive/60 hover:text-destructive hover:bg-destructive/5" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+              {filtered.length === 0 && (
+                <tr><td colSpan={isAdmin ? 5 : 4} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </TableErrorBoundary>
       <p className="text-[10px] text-muted-foreground text-right">{filtered.length} of {users.length} users shown</p>
 
       {/* ── Mass Import Dialog ── */}
