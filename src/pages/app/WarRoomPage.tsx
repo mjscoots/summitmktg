@@ -407,6 +407,7 @@ function DownlineTab({ managerName }: { managerName: string }) {
   const [sortKey, setSortKey] = useState<'name' | 'training' | 'checklist' | 'activity'>('training');
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
