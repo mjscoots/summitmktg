@@ -36,6 +36,7 @@ export function MessageContextMenu({
 }: MessageContextMenuProps) {
   const { user } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
+  const reactingRef = useRef(false);
   const [showFullEmoji, setShowFullEmoji] = useState(false);
 
   useEffect(() => {
@@ -53,21 +54,29 @@ export function MessageContextMenu({
 
   if (!position) return null;
 
+
   const handleReact = async (emoji: string) => {
-    if (!user) return;
-    const { data: existing } = await supabase
-      .from('chat_reactions')
-      .select('id')
-      .eq('message_id', messageId)
-      .eq('user_id', user.id)
-      .eq('emoji', emoji)
-      .maybeSingle();
-    if (existing) {
-      await supabase.from('chat_reactions').delete().eq('id', existing.id);
-    } else {
-      await supabase.from('chat_reactions').insert({ message_id: messageId, user_id: user.id, emoji });
-    }
+    if (!user || reactingRef.current) return;
+    reactingRef.current = true;
     onClose();
+    try {
+      const { data: existing } = await supabase
+        .from('chat_reactions')
+        .select('id')
+        .eq('message_id', messageId)
+        .eq('user_id', user.id)
+        .eq('emoji', emoji)
+        .maybeSingle();
+      if (existing) {
+        await supabase.from('chat_reactions').delete().eq('id', existing.id);
+      } else {
+        await supabase.from('chat_reactions').insert({ message_id: messageId, user_id: user.id, emoji });
+      }
+    } catch {
+      // silent
+    } finally {
+      reactingRef.current = false;
+    }
   };
 
   const handleCopy = () => {

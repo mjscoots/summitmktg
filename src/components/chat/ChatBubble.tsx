@@ -80,6 +80,7 @@ export function ChatBubble({
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [hovered, setHovered] = useState(false);
+  const [showFireAnim, setShowFireAnim] = useState(false);
   const lastTapRef = useRef<number>(0);
 
   useEffect(() => {
@@ -116,11 +117,17 @@ export function ChatBubble({
     }
   };
 
+  const handleDoubleTap = (msgId: string) => {
+    setShowFireAnim(true);
+    setTimeout(() => setShowFireAnim(false), 800);
+    onDoubleTap(msgId);
+  };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       e.preventDefault();
-      onDoubleTap(message.id);
+      handleDoubleTap(message.id);
       lastTapRef.current = 0;
     } else {
       lastTapRef.current = now;
@@ -208,7 +215,7 @@ export function ChatBubble({
         "group"
       )}
       onContextMenu={handleContextMenu}
-      onDoubleClick={() => onDoubleTap(message.id)}
+      onDoubleClick={() => handleDoubleTap(message.id)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchCancel}
@@ -290,6 +297,13 @@ export function ChatBubble({
             {renderContent()}
           </div>
 
+          {/* Double-tap fire animation */}
+          {showFireAnim && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <span className="text-4xl animate-ping" style={{ animationDuration: '0.6s', animationIterationCount: 1 }}>🔥</span>
+            </div>
+          )}
+
           {/* Hover actions - desktop only */}
           {hovered && !isEditing && (
             <div className={cn(
@@ -297,7 +311,7 @@ export function ChatBubble({
               isOwn ? "left-0 -translate-x-full pr-1" : "right-0 translate-x-full pl-1"
             )}>
               <button
-                onClick={() => onDoubleTap(message.id)}
+                onClick={() => handleDoubleTap(message.id)}
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
               >
                 <SmilePlus className="w-3 h-3" />

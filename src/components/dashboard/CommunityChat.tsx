@@ -234,13 +234,21 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     toast.success(msg.is_pinned ? 'Unpinned' : 'Pinned');
   };
 
+  const doubleTapGuard = useRef(false);
   const handleDoubleTapReact = async (msgId: string) => {
-    if (!user) return;
-    const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
-    if (existing) {
-      await supabase.from('chat_reactions').delete().eq('id', existing.id);
-    } else {
-      await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
+    if (!user || doubleTapGuard.current) return;
+    doubleTapGuard.current = true;
+    try {
+      const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
+      if (existing) {
+        await supabase.from('chat_reactions').delete().eq('id', existing.id);
+      } else {
+        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
+      }
+    } catch {
+      // silent
+    } finally {
+      doubleTapGuard.current = false;
     }
   };
 
