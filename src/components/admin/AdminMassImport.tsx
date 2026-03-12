@@ -303,6 +303,17 @@ function parseBlocks(
       line = line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').trim();
       if (!line) continue;
 
+      // Handle single-line rows like "John Smith N-NLCs"
+      if (!full_name) {
+        const inlineNameStatus = extractInlineNameAndRepStatus(line);
+        if (inlineNameStatus) {
+          full_name = inlineNameStatus.name;
+          rep_status = inlineNameStatus.repStatus;
+          repStatusProvided = true;
+          continue;
+        }
+      }
+
       const pipelineMatch = isPipelineStatus(line) ? normalizePipeline(line) : null;
       if (pipelineMatch) {
         pipeline_status = pipelineMatch;
@@ -311,7 +322,7 @@ function parseBlocks(
       }
 
       const repStatusMatch = normalizeRepStatus(line);
-      if (repStatusMatch) {
+      if (repStatusMatch && (!isLikelyName(line) || !!full_name)) {
         rep_status = repStatusMatch;
         repStatusProvided = true;
         continue;
