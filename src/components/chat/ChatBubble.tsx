@@ -297,6 +297,13 @@ export function ChatBubble({
             {renderContent()}
           </div>
 
+          {/* Double-tap fire animation */}
+          {showFireAnim && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <span className="text-4xl animate-ping" style={{ animationDuration: '0.6s', animationIterationCount: 1 }}>🔥</span>
+            </div>
+          )}
+
           {/* Hover actions - desktop only */}
           {hovered && !isEditing && (
             <div className={cn(
