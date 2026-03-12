@@ -357,14 +357,8 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-             {/* Notepad */}
-             <Route path="/app/notepad" element={
-               <ProtectedRoute>
-                 <BootcampGate>
-                   <NotepadPage />
-                 </BootcampGate>
-               </ProtectedRoute>
-             } />
+             {/* Notepad - redirect to Resources */}
+             <Route path="/app/notepad" element={<Navigate to="/app/links" replace />} />
 
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />
