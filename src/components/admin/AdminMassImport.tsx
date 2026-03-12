@@ -848,6 +848,36 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                   </div>
                 </div>
               )}
+
+              {/* NLC Validation */}
+              {results.validation && (
+                <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg">
+                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1.5">
+                    NLC Sync Validation
+                  </p>
+                  <div className="flex gap-4 text-xs">
+                    <span className="text-muted-foreground">
+                      NLC rows parsed: <span className="text-foreground font-semibold">{results.validation.imported.nlc || 0}</span>
+                    </span>
+                    <span className="text-muted-foreground">
+                      NLC rows applied: <span className="text-foreground font-semibold">{results.validation.canonical.nlc || 0}</span>
+                    </span>
+                    {(results.validation.imported.nlc || 0) !== (results.validation.canonical.nlc || 0) && (
+                      <span className="text-red-400 font-semibold">⚠ Mismatch</span>
+                    )}
+                    {(results.validation.imported.nlc || 0) === (results.validation.canonical.nlc || 0) && (results.validation.imported.nlc || 0) > 0 && (
+                      <span className="text-green-400 font-semibold">✓ Synced</span>
+                    )}
+                  </div>
+                  {results.validation.mismatches.length > 0 && (
+                    <div className="mt-2 space-y-0.5">
+                      {results.validation.mismatches.map((m, i) => (
+                        <p key={i} className="text-[10px] text-amber-400">{m}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
