@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload } from 'lucide-react';
+import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, StickyNote, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -16,6 +16,8 @@ import { SortableLinkCard } from '@/components/links/SortableLinkCard';
 import { cn } from '@/lib/utils';
 import RookieCalculator from '@/components/RookieCalculator';
 import VetCalculator from '@/components/VetCalculator';
+
+const NotepadPage = lazy(() => import('./NotepadPage'));
 
 interface ManagedLink {
   id: string;
@@ -36,7 +38,23 @@ interface PhoneEntry {
   display_order: number;
 }
 
-type PageTab = 'links' | 'phone-numbers' | 'calculators';
+type PageTab = 'links' | 'phone-numbers' | 'calculators' | 'notepad' | 'pay-scales';
+
+/** Normalize a US phone number to (XXX) XXX-XXXX format */
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  // Strip leading 1 for US numbers
+  const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  if (d.length === 10) {
+    return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+  }
+  return raw; // Return as-is if not a standard 10-digit
+}
+
+/** Check if raw phone input has at least 7 digits (lenient) */
+function isValidPhone(raw: string): boolean {
+  return raw.replace(/\D/g, '').length >= 7;
+}
 
 export default function LinksPage() {
   const { role } = useAuth();
@@ -169,17 +187,19 @@ export default function LinksPage() {
 
   const handleSavePhone = async () => {
     if (!phoneName.trim() || !phoneNumber.trim()) { toast.error('Name and number are required'); return; }
+    if (!isValidPhone(phoneNumber)) { toast.error('Please enter a valid phone number'); return; }
+    const normalized = normalizePhone(phoneNumber);
     if (editingPhone) {
       const { error } = await supabase
         .from('phone_numbers')
-        .update({ name: phoneName, phone: phoneNumber, label: phoneLabel })
+        .update({ name: phoneName, phone: normalized, label: phoneLabel })
         .eq('id', editingPhone.id);
       if (error) { toast.error('Failed to update'); return; }
       toast.success('Phone updated');
     } else {
       const { error } = await supabase
         .from('phone_numbers')
-        .insert({ name: phoneName, phone: phoneNumber, label: phoneLabel, display_order: phones.length });
+        .insert({ name: phoneName, phone: normalized, label: phoneLabel, display_order: phones.length });
       if (error) { toast.error('Failed to add'); return; }
       toast.success('Phone added');
     }
@@ -204,13 +224,12 @@ export default function LinksPage() {
       const entries: { name: string; phone: string; label: string; display_order: number }[] = [];
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        // Support: "Name, Number" or "Name\tNumber" or "Name\tNumber\tLabel"
         const parts = line.includes('\t') ? line.split('\t') : line.split(',');
         const name = parts[0]?.trim();
-        const phone = parts[1]?.trim();
+        const rawPhone = parts[1]?.trim();
         const label = parts[2]?.trim() || 'General';
-        if (name && phone && phone.replace(/\D/g, '').length >= 7) {
-          entries.push({ name, phone, label, display_order: phones.length + i });
+        if (name && rawPhone && isValidPhone(rawPhone)) {
+          entries.push({ name, phone: normalizePhone(rawPhone), label, display_order: phones.length + i });
         }
       }
       if (entries.length === 0) { toast.error('No valid entries found. Use format: Name, Number'); return; }
@@ -243,7 +262,9 @@ export default function LinksPage() {
   const TABS: { id: PageTab; label: string; icon: typeof Link2 }[] = [
     { id: 'links', label: 'Links', icon: Link2 },
     { id: 'phone-numbers', label: 'Phone Numbers', icon: Phone },
+    { id: 'notepad', label: 'Notepad', icon: StickyNote },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
+    { id: 'pay-scales', label: 'Pay Scales', icon: DollarSign },
   ];
 
   return (
@@ -252,9 +273,9 @@ export default function LinksPage() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-xl font-bold text-foreground">Resources</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Links, phone numbers & tools</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Links, tools & references</p>
           </div>
-          {isAdmin && (
+          {isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers') && (
             <div className="flex gap-2">
               {/* Mass Upload */}
               <Dialog open={showMassUpload} onOpenChange={setShowMassUpload}>
@@ -293,7 +314,7 @@ export default function LinksPage() {
                     </p>
                     <Textarea
                       placeholder={massUploadType === 'phones'
-                        ? "John Smith, 555-123-4567\nJane Doe, 555-987-6543, Manager"
+                        ? "John Smith, 555-123-4567\nJane Doe, 801-555-1234, Manager"
                         : "Google Drive, https://drive.google.com\nSlack, https://slack.com, Team Chat"}
                       value={massUploadText}
                       onChange={e => setMassUploadText(e.target.value)}
@@ -374,7 +395,10 @@ export default function LinksPage() {
                     </DialogHeader>
                     <div className="space-y-3 pt-2">
                       <Input placeholder="Name" value={phoneName} onChange={e => setPhoneName(e.target.value)} />
-                      <Input placeholder="Phone number" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+                      <div>
+                        <Input placeholder="Phone number (e.g. 801-555-1234)" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+                        <p className="text-[10px] text-muted-foreground mt-1">Accepts: 8015551234, (801) 555-1234, 801-555-1234, +1 801 555 1234</p>
+                      </div>
                       <Input placeholder="Label (e.g. Manager, Office)" value={phoneLabel} onChange={e => setPhoneLabel(e.target.value)} />
                       <Button onClick={handleSavePhone} className="w-full">{editingPhone ? 'Update' : 'Add Phone'}</Button>
                     </div>
@@ -386,7 +410,7 @@ export default function LinksPage() {
         </div>
 
         {/* Tab toggle */}
-        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30 w-fit">
+        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30 overflow-x-auto">
           <div className="flex">
             {TABS.map((tab) => {
               const Icon = tab.icon;
@@ -395,7 +419,7 @@ export default function LinksPage() {
                   key={tab.id}
                   onClick={() => { setActiveTab(tab.id); setIsReordering(false); }}
                   className={cn(
-                    "flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200",
+                    "flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap",
                     activeTab === tab.id
                       ? "bg-card text-foreground shadow-md border border-border/50"
                       : "text-muted-foreground hover:text-foreground"
@@ -509,27 +533,46 @@ export default function LinksPage() {
           </>
         )}
 
+        {/* Notepad Tab */}
+        {activeTab === 'notepad' && (
+          <Suspense fallback={<div className="animate-pulse text-muted-foreground text-center py-12">Loading notepad...</div>}>
+            <NotepadEmbedded />
+          </Suspense>
+        )}
+
         {/* Calculators Tab */}
         {activeTab === 'calculators' && (
           <div>
-            <div className="p-1 bg-muted/30 rounded-lg mb-4 w-fit border border-border/20">
-              <div className="flex">
+            {/* Rookie / Veteran Toggle */}
+            <div className="flex justify-center mb-6">
+              <div className="relative flex w-full max-w-xs h-12 rounded-xl overflow-hidden border-2 border-border/50 bg-muted/30">
                 <button
                   onClick={() => setCalcTab('rookie')}
                   className={cn(
-                    "px-4 py-1.5 text-xs font-bold rounded-md transition-all",
-                    calcTab === 'rookie' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    "flex-1 flex items-center justify-center text-sm font-bold uppercase tracking-wide transition-all duration-300 relative z-10",
+                    calcTab === 'rookie'
+                      ? "text-white"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
+                  {calcTab === 'rookie' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 -z-10" />
+                  )}
                   Rookie
                 </button>
+                <div className="w-px bg-border/50" />
                 <button
                   onClick={() => setCalcTab('veteran')}
                   className={cn(
-                    "px-4 py-1.5 text-xs font-bold rounded-md transition-all",
-                    calcTab === 'veteran' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    "flex-1 flex items-center justify-center text-sm font-bold uppercase tracking-wide transition-all duration-300 relative z-10",
+                    calcTab === 'veteran'
+                      ? "text-white"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
+                  {calcTab === 'veteran' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 -z-10" />
+                  )}
                   Veteran
                 </button>
               </div>
@@ -537,7 +580,66 @@ export default function LinksPage() {
             {calcTab === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
           </div>
         )}
+
+        {/* Pay Scales Tab */}
+        {activeTab === 'pay-scales' && (
+          <div className="text-center py-16">
+            <DollarSign className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-lg font-semibold text-foreground mb-1">Pay Scales</p>
+            <p className="text-sm text-muted-foreground">Coming soon — pay scale information will be added here.</p>
+          </div>
+        )}
       </div>
     </AppLayout>
+  );
+}
+
+/** Embedded notepad — renders the notepad content without AppLayout wrapper */
+function NotepadEmbedded() {
+  // We lazy-load the full NotepadPage but render its content inline
+  // For now, redirect approach — use the same notepad logic inline
+  const { user } = useAuth();
+  const [allNotes, setAllNotes] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetch = async () => {
+      const { data } = await supabase
+        .from('video_notes')
+        .select('id, notes, updated_at, video_id, training_videos (id, title, category)')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+      setAllNotes(data || []);
+      setIsLoading(false);
+    };
+    fetch();
+  }, [user]);
+
+  if (isLoading) return <div className="animate-pulse text-muted-foreground text-center py-12">Loading notes...</div>;
+
+  if (allNotes.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <StickyNote className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+        <p className="text-lg font-semibold text-foreground mb-1">No notes yet</p>
+        <p className="text-sm text-muted-foreground">Start taking notes while watching training videos!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">{allNotes.length} notes from training videos</p>
+      {allNotes.map((note: any) => (
+        <div key={note.id} className="p-4 bg-card border border-border/50 rounded-lg">
+          <p className="text-sm font-medium text-foreground">{note.training_videos?.title || 'Untitled'}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{note.training_videos?.category}</p>
+          <pre className="whitespace-pre-wrap font-sans text-sm text-foreground/80 mt-2 max-h-32 overflow-y-auto">
+            {note.notes || 'No content'}
+          </pre>
+        </div>
+      ))}
+    </div>
   );
 }

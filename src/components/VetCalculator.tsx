@@ -142,10 +142,10 @@ interface VetCalculatorProps {
   onValuesChange?: (values: VetCalculatorValues) => void;
 }
 
-// Constants
-const ATTRITION_RATE = 0.20;
-const DEFAULT_AVG_ROOKIE_PRA = 175000;
-const DEFAULT_AVG_VET_PRA = 275000;
+// Constants — more conservative projections
+const ATTRITION_RATE = 0.25; // Was 20%, now 25% for more realistic estimates
+const DEFAULT_AVG_ROOKIE_PRA = 150000; // Was 175k, more conservative
+const DEFAULT_AVG_VET_PRA = 250000; // Was 275k, more conservative
 const DEFAULT_INCENTIVES_RATE = 0.05;
 
 const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
@@ -154,9 +154,9 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
   
   // Team Inputs
   const [numDirectRookiesStr, setNumDirectRookiesStr] = useState("");
-  const [avgRookiePraStr, setAvgRookiePraStr] = useState("175,000");
+  const [avgRookiePraStr, setAvgRookiePraStr] = useState("150,000");
   const [numDirectVetsStr, setNumDirectVetsStr] = useState("");
-  const [avgVetPraStr, setAvgVetPraStr] = useState("275,000");
+  const [avgVetPraStr, setAvgVetPraStr] = useState("250,000");
   const [numDirectManagersStr, setNumDirectManagersStr] = useState("");
   const [avgManagerTeamRevenueStr, setAvgManagerTeamRevenueStr] = useState("");
 
@@ -319,7 +319,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               <DollarSign className="w-4 h-4 text-primary/70" />
               <h4 className="text-sm font-medium text-foreground/80">Average Rookie PRA Amount</h4>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">Summit rookie average is $175,000.</p>
+            <p className="text-xs text-muted-foreground mb-2">Conservative rookie average is $150,000.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <input
@@ -356,7 +356,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               <DollarSign className="w-4 h-4 text-primary/70" />
               <h4 className="text-sm font-medium text-foreground/80">Average Vet PRA Amount</h4>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">Summit vet average is $275,000.</p>
+            <p className="text-xs text-muted-foreground mb-2">Conservative vet average is $250,000.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <input
@@ -520,7 +520,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
         {/* Disclaimer Note */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          Marketing deal is based on team active revenue (after 20% attrition). Personal earnings are calculated separately.
+          Marketing deal is based on team active revenue (after 25% attrition). Personal earnings are calculated separately.
         </p>
       </div>
 

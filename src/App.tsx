@@ -273,14 +273,8 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
-               {/* Calculators */}
-               <Route path="/app/calculators" element={
-                 <ProtectedRoute>
-                   <BootcampGate>
-                     <CalculatorsPage />
-                   </BootcampGate>
-                 </ProtectedRoute>
-               } />
+               {/* Calculators - redirect to Resources */}
+               <Route path="/app/calculators" element={<Navigate to="/app/links" replace />} />
 
                {/* Calendar */}
                <Route path="/app/calendar" element={
@@ -363,14 +357,8 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-             {/* Notepad */}
-             <Route path="/app/notepad" element={
-               <ProtectedRoute>
-                 <BootcampGate>
-                   <NotepadPage />
-                 </BootcampGate>
-               </ProtectedRoute>
-             } />
+             {/* Notepad - redirect to Resources */}
+             <Route path="/app/notepad" element={<Navigate to="/app/links" replace />} />
 
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />

@@ -41,12 +41,15 @@ export function useAdminCounts() {
       const pendingPitches = pitchesRes.count || 0;
       const newFeedback = feedbackRes.count || 0;
 
+      // Only count items that are truly actionable
+      const total = pendingApprovals + pendingApplications + pendingPitches + newFeedback;
+
       setCounts({
         pendingApprovals,
         pendingApplications,
         pendingPitches,
         newFeedback,
-        total: pendingApprovals + pendingApplications + pendingPitches + newFeedback,
+        total,
       });
     };
 
