@@ -156,7 +156,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
   const [numDirectRookiesStr, setNumDirectRookiesStr] = useState("");
   const [avgRookiePraStr, setAvgRookiePraStr] = useState("150,000");
   const [numDirectVetsStr, setNumDirectVetsStr] = useState("");
-  const [avgVetPraStr, setAvgVetPraStr] = useState("275,000");
+  const [avgVetPraStr, setAvgVetPraStr] = useState("250,000");
   const [numDirectManagersStr, setNumDirectManagersStr] = useState("");
   const [avgManagerTeamRevenueStr, setAvgManagerTeamRevenueStr] = useState("");
 
