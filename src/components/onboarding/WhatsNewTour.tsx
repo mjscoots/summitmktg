@@ -26,28 +26,33 @@ interface Release {
 
 const RELEASES: Release[] = [
   {
-    version: '2026-03-10',
-    headline: "Here's what's new 🚀",
+    version: '2026-03-12',
+    headline: "Fresh Updates Just Dropped 🚀",
     steps: [
       {
-        emoji: '📋',
-        title: 'Smarter To-Do List',
-        description: 'Your tasks now auto-sort by priority (Urgent → Low). Click any task to edit it and set an optional due date — tasks with dates automatically appear on your calendar.',
-      },
-      {
-        emoji: '🔥',
-        title: 'Double-Tap to React',
-        description: 'Double-tap any chat message on mobile (or double-click on desktop) to drop a 🔥 reaction instantly. Show love faster.',
-      },
-      {
         emoji: '💬',
-        title: 'Daily Motivational Chips',
-        description: 'The quick-reply chips in Community Chat now rotate daily with fresh motivational phrases. Every day feels different.',
+        title: 'Premium Chat Redesign',
+        description: 'Community Chat has been completely rebuilt — iMessage-style bubbles, double-tap reactions, a new attachment drawer (photos, GIFs, stickers), and a sleek cosmic background.',
       },
       {
-        emoji: '🛠️',
-        title: 'Revamped Tools Section',
-        description: 'The Tools dropdown in your sidebar is now bolder and easier to find with a wrench icon and highlighted styling.',
+        emoji: '🎬',
+        title: 'Videos Page Overhaul',
+        description: 'Videos are now organized into 4 clear categories: PATPs, Core Training, Objections & Closing, and Bonus. Less overwhelm, easier to find what you need.',
+      },
+      {
+        emoji: '📅',
+        title: 'Calendar Time Zone Fix',
+        description: 'All calendar events now automatically display in your local time zone. No more guessing what "PT" means — you\'ll see times in your own zone.',
+      },
+      {
+        emoji: '🏆',
+        title: 'Training Celebrations',
+        description: 'When you hit 100% training completion, the whole team gets notified in chat. Your hard work gets recognized automatically.',
+      },
+      {
+        emoji: '🔧',
+        title: 'Cleaner Admin Tools',
+        description: 'The People page has been restructured with cleaner filters, better layout, and faster account management. Managers: check the Downline tab for a new "Copy Inactive" button.',
       },
     ],
   },
