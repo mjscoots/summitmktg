@@ -428,6 +428,11 @@ export default function AdminUsersTab({
     sortBy !== 'progress';
 
   const handleUpdatePipeline = async (userId: string, newStatus: string) => {
+    // Optimistic: close modal + toast immediately
+    setDetailUser(prev => prev ? { ...prev, onboarding_status: newStatus } : null);
+    toast({ title: 'Progress Updated' });
+    setIsEditingDetail(false);
+
     const { error } = await supabase
       .from('profiles')
       .update({ onboarding_status: newStatus } as never)
@@ -435,17 +440,20 @@ export default function AdminUsersTab({
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      onRefresh();
       return;
     }
 
-    toast({ title: 'Progress Updated' });
-    setDetailUser(null);
-    setIsEditingDetail(false);
+    // Lightweight background sync (no loading spinner)
     onRefresh();
   };
 
   const handleUpdateManager = async (userId: string, managerName: string) => {
     const normalized = managerName === '__none__' ? null : (managerName || null);
+
+    setDetailUser(prev => prev ? { ...prev, direct_manager: normalized, recruiter: normalized } : null);
+    toast({ title: 'Recruiter / Manager Updated' });
+    setIsEditingDetail(false);
 
     const { error } = await supabase
       .from('profiles')
@@ -454,29 +462,31 @@ export default function AdminUsersTab({
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      onRefresh();
       return;
     }
 
-    toast({ title: 'Recruiter / Manager Updated' });
-    setDetailUser(null);
-    setIsEditingDetail(false);
     onRefresh();
   };
 
   const handleUpdateTeam = async (userId: string, teamId: string) => {
+    const resolvedTeamId = teamId === '__none__' ? null : (teamId || null);
+
+    setDetailUser(prev => prev ? { ...prev, team_id: resolvedTeamId } : null);
+    toast({ title: 'Team Updated' });
+    setIsEditingDetail(false);
+
     const { error } = await supabase
       .from('profiles')
-      .update({ team_id: teamId === '__none__' ? null : (teamId || null) } as never)
+      .update({ team_id: resolvedTeamId } as never)
       .eq('user_id', userId);
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      onRefresh();
       return;
     }
 
-    toast({ title: 'Team Updated' });
-    setDetailUser(null);
-    setIsEditingDetail(false);
     onRefresh();
   };
 
