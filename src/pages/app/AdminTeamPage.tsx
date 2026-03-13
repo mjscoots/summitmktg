@@ -299,7 +299,7 @@ export default function AdminTeamPage() {
         </div>
 
         <Tabs defaultValue="users" className="w-full" onValueChange={(tab) => {
-          const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications'> = { approvals: 'pendingApprovals', apps: 'pendingApplications' };
+          const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications' | 'pendingPitches' | 'newFeedback'> = { approvals: 'pendingApprovals', apps: 'pendingApplications', pitches: 'pendingPitches', feedback: 'newFeedback' };
           if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
         }}>
           <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 mb-4">
