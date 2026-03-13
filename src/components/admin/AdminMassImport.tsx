@@ -37,20 +37,58 @@ interface ParsedUser {
   flagged?: string;
 }
 
+interface ReviewQueueItem {
+  full_name: string;
+  email?: string;
+  phone?: string;
+  proposed_pipeline_status?: string;
+  proposed_rep_status?: 'active' | 'nlc';
+  reason: string;
+}
+
+interface BulkImportBatchResponse {
+  success?: string[];
+  updated?: string[];
+  no_changes?: string[];
+  failed?: { email: string; error: string }[];
+  flagged?: ReviewQueueItem[];
+  invalid?: { full_name?: string; email?: string; reason: string }[];
+  outcome_counts?: {
+    created: number;
+    updated: number;
+    no_change: number;
+    review: number;
+    invalid: number;
+  };
+  status_sync?: {
+    summer_ready_imported: number;
+    summer_ready_applied: number;
+    nlc_imported: number;
+    nlc_applied: number;
+  };
+  canonical_gap_warnings?: string[];
+}
+
 interface ImportResults {
   created: number;
   updated: number;
-  merged: number;
-  skipped: number;
+  noChange: number;
+  review: number;
+  invalid: number;
   details: {
     newUsers: string[];
     updatedUsers: string[];
-    skippedRows: { value: string; reason: string }[];
+    noChangeUsers: string[];
+    reviewRows: ReviewQueueItem[];
+    invalidRows: { value: string; reason: string }[];
+    failedRows: { value: string; reason: string }[];
   };
   validation?: {
-    imported: Record<string, number>;
-    canonical: Record<string, number>;
-    mismatches: string[];
+    summerReadyImported: number;
+    summerReadyApplied: number;
+    nlcImported: number;
+    nlcApplied: number;
+    warnings: string[];
   };
 }
 
