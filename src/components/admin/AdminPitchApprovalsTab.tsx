@@ -97,8 +97,8 @@ export default function AdminPitchApprovalsTab() {
         <PitchReviewModal
           request={reviewingRequest}
           open={!!reviewingRequest}
-          onOpenChange={(open) => !open && setReviewingRequest(null)}
-          onReviewed={() => {
+          onClose={() => setReviewingRequest(null)}
+          onAction={() => {
             setReviewingRequest(null);
             refresh();
           }}
