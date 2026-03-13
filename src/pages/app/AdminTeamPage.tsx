@@ -300,7 +300,12 @@ export default function AdminTeamPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="w-full" onValueChange={(tab) => {
+        <Tabs defaultValue={
+          // Auto-navigate to first tab with notifications
+          adminCounts.pendingApprovals > 0 ? 'approvals' :
+          adminCounts.pendingPitches > 0 ? 'pitches' :
+          adminCounts.newFeedback > 0 ? 'feedback' : 'users'
+        } className="w-full" onValueChange={(tab) => {
           const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications' | 'pendingPitches' | 'newFeedback'> = { approvals: 'pendingApprovals', apps: 'pendingApplications', pitches: 'pendingPitches', feedback: 'newFeedback' };
           if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
         }}>
