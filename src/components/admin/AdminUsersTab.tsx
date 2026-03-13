@@ -1,6 +1,6 @@
 import { useState, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronDown as ChevronDownIcon } from 'lucide-react';
+import { ChevronDown as ChevronDownIcon, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import {
   Monitor,
   MonitorOff,
   MoreHorizontal,
+  Pencil,
 } from 'lucide-react';
 import {
   Select,
@@ -39,6 +40,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { useRookieView } from '@/contexts/RookieViewContext';
 import { useNavigate } from 'react-router-dom';
@@ -260,6 +266,13 @@ function SummaryBar({ users }: { users: UserRow[] }) {
 type AppFilter = 'all' | 'in_app' | 'not_in_app';
 type SortOption = 'name' | 'team' | 'progress' | 'recent';
 
+const SORT_OPTIONS = [
+  { key: 'progress' as SortOption, label: 'Progress' },
+  { key: 'name' as SortOption, label: 'Name' },
+  { key: 'team' as SortOption, label: 'Team' },
+  { key: 'recent' as SortOption, label: 'Recently Updated' },
+];
+
 export default function AdminUsersTab({
   users,
   managers,
@@ -279,14 +292,16 @@ export default function AdminUsersTab({
 
   const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('active');
   const [progressFilter, setProgressFilter] = useState<string>('all');
   const [recruiterFilter, setRecruiterFilter] = useState<string>('all');
   const [teamFilter, setTeamFilter] = useState<string>('all');
-  const [appFilter, setAppFilter] = useState<AppFilter>('all');
+  const [appFilter, setAppFilter] = useState<AppFilter>('in_app');
   const [sortBy, setSortBy] = useState<SortOption>('progress');
+  const [sortAsc, setSortAsc] = useState(true);
   const [detailUser, setDetailUser] = useState<UserRow | null>(null);
   const [editingPipeline, setEditingPipeline] = useState('');
+  const [isEditingDetail, setIsEditingDetail] = useState(false);
 
   const getTeamName = (teamId: string | null | undefined) => {
     if (!teamId) return '—';
@@ -361,30 +376,33 @@ export default function AdminUsersTab({
       return true;
     });
 
+    const direction = sortAsc ? 1 : -1;
+
     return [...list].sort((a, b) => {
       if (sortBy === 'name') {
-        return a.full_name.localeCompare(b.full_name);
+        return direction * a.full_name.localeCompare(b.full_name);
       }
 
       if (sortBy === 'team') {
         const byTeam = getTeamName(a.team_id).localeCompare(getTeamName(b.team_id));
-        if (byTeam !== 0) return byTeam;
+        if (byTeam !== 0) return direction * byTeam;
         return a.full_name.localeCompare(b.full_name);
       }
 
       if (sortBy === 'recent') {
         const aTs = new Date(a.updated_at || a.created_at || 0).getTime();
         const bTs = new Date(b.updated_at || b.created_at || 0).getTime();
-        if (aTs !== bTs) return bTs - aTs;
+        if (aTs !== bTs) return direction * (bTs - aTs);
       }
 
+      // progress sort
       const aPriority = getOperationalPriority(a);
       const bPriority = getOperationalPriority(b);
-      if (aPriority !== bPriority) return aPriority - bPriority;
+      if (aPriority !== bPriority) return direction * (aPriority - bPriority);
 
       const aRank = PIPELINE_RANK[a.onboarding_status || 'pending'] || 0;
       const bRank = PIPELINE_RANK[b.onboarding_status || 'pending'] || 0;
-      if (aRank !== bRank) return bRank - aRank;
+      if (aRank !== bRank) return direction * (bRank - aRank);
 
       return a.full_name.localeCompare(b.full_name);
     });
@@ -396,16 +414,17 @@ export default function AdminUsersTab({
     teamFilter,
     appFilter,
     sortBy,
+    sortAsc,
     search,
   ]);
 
   const hasActiveFilters =
     !!search.trim() ||
-    statusFilter !== 'all' ||
+    statusFilter !== 'active' ||
     progressFilter !== 'all' ||
     recruiterFilter !== 'all' ||
     teamFilter !== 'all' ||
-    appFilter !== 'all' ||
+    appFilter !== 'in_app' ||
     sortBy !== 'progress';
 
   const handleUpdatePipeline = async (userId: string, newStatus: string) => {
@@ -421,6 +440,7 @@ export default function AdminUsersTab({
 
     toast({ title: 'Progress Updated' });
     setDetailUser(null);
+    setIsEditingDetail(false);
     onRefresh();
   };
 
@@ -439,6 +459,7 @@ export default function AdminUsersTab({
 
     toast({ title: 'Recruiter / Manager Updated' });
     setDetailUser(null);
+    setIsEditingDetail(false);
     onRefresh();
   };
 
@@ -455,7 +476,17 @@ export default function AdminUsersTab({
 
     toast({ title: 'Team Updated' });
     setDetailUser(null);
+    setIsEditingDetail(false);
     onRefresh();
+  };
+
+  const handleSortToggle = (option: SortOption) => {
+    if (sortBy === option) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortBy(option);
+      setSortAsc(true);
+    }
   };
 
   return (
@@ -474,125 +505,140 @@ export default function AdminUsersTab({
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border/30 bg-card/40 p-2.5 backdrop-blur-sm">
-        <div className="overflow-x-auto">
-          <div className="flex min-w-[1260px] items-center gap-2">
-            <div className="relative w-[280px] shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search name, phone, recruiter, team..."
-                className="pl-9 h-9 bg-background/60"
-              />
-            </div>
+      {/* Search bar — own row */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search name, phone, recruiter, team..."
+          className="pl-9 h-9 bg-card/40 border-border/30"
+        />
+      </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-9 w-[150px] bg-background/60">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="nlc">NLC</SelectItem>
-              </SelectContent>
-            </Select>
+      {/* Filter bar — all on one row, no horizontal scroll */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
+          <SelectTrigger className="h-8 w-[130px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="App Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All App</SelectItem>
+            <SelectItem value="in_app">In-App</SelectItem>
+            <SelectItem value="not_in_app">Not In-App</SelectItem>
+          </SelectContent>
+        </Select>
 
-            <Select value={progressFilter} onValueChange={setProgressFilter}>
-              <SelectTrigger className="h-9 w-[170px] bg-background/60">
-                <SelectValue placeholder="Progress" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Progress</SelectItem>
-                {PIPELINE_STATUSES.map((s) => (
-                  <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="h-8 w-[120px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="nlc">NLC</SelectItem>
+          </SelectContent>
+        </Select>
 
-            <Select value={recruiterFilter} onValueChange={setRecruiterFilter}>
-              <SelectTrigger className="h-9 w-[190px] bg-background/60">
-                <SelectValue placeholder="Recruiter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Recruiters</SelectItem>
-                <SelectItem value="none">No Recruiter</SelectItem>
-                {recruiterNames.map((name) => (
-                  <SelectItem key={name} value={name}>{name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <Select value={progressFilter} onValueChange={setProgressFilter}>
+          <SelectTrigger className="h-8 w-[140px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Progress" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Progress</SelectItem>
+            {PIPELINE_STATUSES.map((s) => (
+              <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <Select value={teamFilter} onValueChange={setTeamFilter}>
-              <SelectTrigger className="h-9 w-[150px] bg-background/60">
-                <SelectValue placeholder="Team" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Teams</SelectItem>
-                <SelectItem value="none">No Team</SelectItem>
-                {teams.map((team) => (
-                  <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <Select value={recruiterFilter} onValueChange={setRecruiterFilter}>
+          <SelectTrigger className="h-8 w-[140px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Recruiter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Recruiters</SelectItem>
+            <SelectItem value="none">No Recruiter</SelectItem>
+            {recruiterNames.map((name) => (
+              <SelectItem key={name} value={name}>{name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
-              <SelectTrigger className="h-9 w-[170px] bg-background/60">
-                <SelectValue placeholder="App Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All App Statuses</SelectItem>
-                <SelectItem value="in_app">In-App</SelectItem>
-                <SelectItem value="not_in_app">Not In-App</SelectItem>
-              </SelectContent>
-            </Select>
+        <Select value={teamFilter} onValueChange={setTeamFilter}>
+          <SelectTrigger className="h-8 w-[130px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Team" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Teams</SelectItem>
+            <SelectItem value="none">No Team</SelectItem>
+            {teams.map((team) => (
+              <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-              <SelectTrigger className="h-9 w-[170px] bg-background/60">
-                <SelectValue placeholder="Sort" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">Name</SelectItem>
-                <SelectItem value="team">Team</SelectItem>
-                <SelectItem value="progress">Progress</SelectItem>
-                <SelectItem value="recent">Recently Updated</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-9 px-3 text-xs"
-                onClick={() => {
-                  setSearch('');
-                  setStatusFilter('all');
-                  setProgressFilter('all');
-                  setRecruiterFilter('all');
-                  setTeamFilter('all');
-                  setAppFilter('all');
-                  setSortBy('progress');
-                }}
+        {/* Sort toggle */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1 text-xs bg-card/40 border-border/30">
+              <ArrowUpDown className="w-3 h-3" />
+              Sort
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-44 p-1">
+            {SORT_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => handleSortToggle(opt.key)}
+                className={cn(
+                  'w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-md hover:bg-muted transition-colors',
+                  sortBy === opt.key && 'bg-muted text-foreground font-medium'
+                )}
               >
-                Reset
-              </Button>
-            )}
-          </div>
-        </div>
+                {opt.label}
+                {sortBy === opt.key && (
+                  sortAsc ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                )}
+              </button>
+            ))}
+          </PopoverContent>
+        </Popover>
+
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-3 text-xs"
+            onClick={() => {
+              setSearch('');
+              setStatusFilter('active');
+              setProgressFilter('all');
+              setRecruiterFilter('all');
+              setTeamFilter('all');
+              setAppFilter('in_app');
+              setSortBy('progress');
+              setSortAsc(true);
+            }}
+          >
+            Reset
+          </Button>
+        )}
       </div>
 
       <TableErrorBoundary onRetry={onRefresh}>
-        <div className="rounded-xl border border-border/30 bg-card/30 overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[860px]">
+        <div className="rounded-xl border border-border/30 bg-card/30 overflow-hidden">
+          <table className="w-full text-sm table-fixed">
             <thead>
               <tr className="border-b border-border/20 bg-background/40">
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Name</th>
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Team</th>
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Progress</th>
-                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-16">Status</th>
-                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-28">App</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[22%]">Name</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[18%]">Manager</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[14%]">Team</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[14%]">Progress</th>
+                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[8%]">Status</th>
+                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[12%]">App</th>
                 {isAdmin && (
-                  <th className="text-right px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-48">Actions</th>
+                  <th className="text-right px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[12%]">Actions</th>
                 )}
               </tr>
             </thead>
@@ -601,6 +647,7 @@ export default function AdminUsersTab({
                 if (!u?.user_id) return null;
 
                 const isNlc = u.status === 'nlc';
+                const managerName = (u.direct_manager || u.recruiter || '').trim();
 
                 return (
                   <tr
@@ -612,6 +659,7 @@ export default function AdminUsersTab({
                     onClick={() => {
                       setDetailUser(u);
                       setEditingPipeline(u.onboarding_status || 'pending');
+                      setIsEditingDetail(false);
                     }}
                   >
                     <td className="px-3 py-2.5">
@@ -621,6 +669,10 @@ export default function AdminUsersTab({
                           {displayName(u.full_name || 'Unknown')}
                         </p>
                       </div>
+                    </td>
+
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground truncate">
+                      {managerName || <span className="text-amber-400/70 text-[10px]">No Manager</span>}
                     </td>
 
                     <td className="px-3 py-2.5 text-xs text-muted-foreground truncate">
@@ -649,24 +701,16 @@ export default function AdminUsersTab({
                             onClick={() => {
                               setDetailUser(u);
                               setEditingPipeline(u.onboarding_status || 'pending');
+                              setIsEditingDetail(false);
                             }}
                           >
+                            <Eye className="w-3.5 h-3.5 mr-1" />
                             View
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 text-xs"
-                            onClick={() => onEditUser(u)}
-                          >
-                            Edit
                           </Button>
 
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1">
-                                More
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
                                 <MoreHorizontal className="w-3.5 h-3.5" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -720,7 +764,7 @@ export default function AdminUsersTab({
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={isAdmin ? 6 : 5} className="px-4 py-12 text-center text-muted-foreground text-sm">
+                  <td colSpan={isAdmin ? 7 : 6} className="px-4 py-12 text-center text-muted-foreground text-sm">
                     No people match your current filters.
                   </td>
                 </tr>
@@ -762,11 +806,11 @@ export default function AdminUsersTab({
               teams={teams}
               onRefresh={() => {
                 onRefresh();
-                setStatusFilter('all');
+                setStatusFilter('active');
                 setProgressFilter('all');
                 setRecruiterFilter('all');
                 setTeamFilter('all');
-                setAppFilter('all');
+                setAppFilter('in_app');
                 setSortBy('progress');
                 setImportOpen(false);
               }}
@@ -775,7 +819,8 @@ export default function AdminUsersTab({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
+      {/* Detail / View + Edit dialog */}
+      <Dialog open={!!detailUser} onOpenChange={() => { setDetailUser(null); setIsEditingDetail(false); }}>
         <DialogContent className="max-w-md bg-card border-border">
           <DialogDescription className="sr-only">
             View and edit person details including progress stage, team, and recruiter.
@@ -809,72 +854,115 @@ export default function AdminUsersTab({
                   </div>
                 </div>
 
-                <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progress</p>
-                  <Select value={editingPipeline} onValueChange={setEditingPipeline}>
-                    <SelectTrigger className="h-8 bg-background/70 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PIPELINE_STATUSES.map((s) => (
-                        <SelectItem key={s.key} value={s.key} className="text-xs">{s.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {editingPipeline !== (detailUser.onboarding_status || 'pending') && (
-                    <Button
-                      size="sm"
-                      className="w-full gap-1.5"
-                      onClick={() => handleUpdatePipeline(detailUser.user_id, editingPipeline)}
-                    >
-                      <UserCheck className="w-3.5 h-3.5" />
-                      Update Progress
-                    </Button>
-                  )}
-                </div>
-
-                <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Recruiter / Manager</p>
-                  <p className="text-sm text-foreground">{detailUser.direct_manager || detailUser.recruiter || '—'}</p>
-                  <Select onValueChange={(v) => handleUpdateManager(detailUser.user_id, v)}>
-                    <SelectTrigger className="h-8 bg-background/70 text-xs">
-                      <SelectValue placeholder="Change recruiter..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">None</SelectItem>
-                      {managers.map((m) => (
-                        <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Team</p>
-                  <p className="text-sm text-foreground">{getTeamName(detailUser.team_id)}</p>
-                  <Select onValueChange={(v) => handleUpdateTeam(detailUser.user_id, v)}>
-                    <SelectTrigger className="h-8 bg-background/70 text-xs">
-                      <SelectValue placeholder="Change team..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">No Team</SelectItem>
-                      {teams.map((t) => (
-                        <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="p-2.5 bg-muted/30 rounded-lg">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Manager</p>
+                  <p className="text-xs text-foreground">{detailUser.direct_manager || detailUser.recruiter || '—'}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2.5 bg-muted/30 rounded-lg flex items-center justify-between">
-                    <span className="text-xs text-foreground">Active</span>
-                    <span className={cn('w-2.5 h-2.5 rounded-full', detailUser.status === 'active' ? 'bg-emerald-400' : 'bg-muted-foreground/30')} />
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progress</p>
+                    <PipelineBadge status={detailUser.onboarding_status || 'pending'} />
                   </div>
                   <div className="p-2.5 bg-muted/30 rounded-lg flex items-center justify-between">
-                    <span className="text-xs text-foreground">NLC</span>
-                    <span className={cn('w-2.5 h-2.5 rounded-full', detailUser.status === 'nlc' ? 'bg-destructive' : 'bg-muted-foreground/30')} />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Status</p>
+                      <p className="text-xs text-foreground mt-0.5">{detailUser.status === 'nlc' ? 'NLC' : 'Active'}</p>
+                    </div>
+                    <StatusDot status={detailUser.status} />
                   </div>
                 </div>
+
+                {/* Edit mode */}
+                {isEditingDetail && isAdmin && (
+                  <div className="space-y-3 pt-2 border-t border-border/20">
+                    <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Change Progress</p>
+                      <Select value={editingPipeline} onValueChange={setEditingPipeline}>
+                        <SelectTrigger className="h-8 bg-background/70 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PIPELINE_STATUSES.map((s) => (
+                            <SelectItem key={s.key} value={s.key} className="text-xs">{s.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {editingPipeline !== (detailUser.onboarding_status || 'pending') && (
+                        <Button
+                          size="sm"
+                          className="w-full gap-1.5"
+                          onClick={() => handleUpdatePipeline(detailUser.user_id, editingPipeline)}
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          Update Progress
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Change Manager</p>
+                      <Select onValueChange={(v) => handleUpdateManager(detailUser.user_id, v)}>
+                        <SelectTrigger className="h-8 bg-background/70 text-xs">
+                          <SelectValue placeholder="Select manager..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">None</SelectItem>
+                          {managers.map((m) => (
+                            <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Change Team</p>
+                      <Select onValueChange={(v) => handleUpdateTeam(detailUser.user_id, v)}>
+                        <SelectTrigger className="h-8 bg-background/70 text-xs">
+                          <SelectValue placeholder="Select team..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">No Team</SelectItem>
+                          {teams.map((t) => (
+                            <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => onToggleStatus(detailUser.user_id, detailUser.status)}
+                      >
+                        {detailUser.status === 'nlc' ? 'Set Active' : 'Set NLC'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => onEditUser(detailUser)}
+                      >
+                        Full Edit
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Edit button at bottom */}
+                {!isEditingDetail && isAdmin && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-1.5 text-xs mt-2"
+                    onClick={() => setIsEditingDetail(true)}
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Edit
+                  </Button>
+                )}
               </div>
             </>
           )}
