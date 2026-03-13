@@ -414,37 +414,7 @@ export default function AdminUsersTab({
     <div className="space-y-3">
       {/* Section header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Users className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-bold text-foreground">People</h2>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{users.length}</span>
-          <span className="w-px h-4 bg-border" />
-          {(() => {
-            const inApp = users.filter(u => u.approved === true).length;
-            const notInApp = users.filter(u => u.approved !== true).length;
-            const active = users.filter(u => u.status === 'active').length;
-            const nlc = users.filter(u => u.status === 'nlc').length;
-            const pending = users.filter(u => (u.onboarding_status || 'pending') === 'pending').length;
-            const contractSigned = users.filter(u => u.onboarding_status === 'contract_signed').length;
-            const infoAdded = users.filter(u => u.onboarding_status === 'info_added').length;
-            const onboarded = users.filter(u => u.onboarding_status === 'onboarded').length;
-            const summerReady = users.filter(u => u.onboarding_status === 'summer_ready').length;
-            return (
-              <>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">In-App {inApp}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">Not In-App {notInApp}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400">Active {active}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">NLC {nlc}</span>
-                <span className="w-px h-4 bg-border" />
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">Prospect {pending}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400">Signed {contractSigned}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400">Info Added {infoAdded}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400">Onboarded {onboarded}</span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Summer Ready {summerReady}</span>
-              </>
-            );
-          })()}
-        </div>
+        <SummaryBar users={users} />
         <Button
           size="sm"
           variant="outline"
