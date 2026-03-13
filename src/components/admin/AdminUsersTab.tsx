@@ -397,7 +397,7 @@ export default function AdminUsersTab({
   const handleUpdateTeam = async (userId: string, teamId: string) => {
     const { error } = await supabase
       .from('profiles')
-      .update({ team_id: teamId || null } as never)
+      .update({ team_id: teamId === '__none__' ? null : (teamId || null) } as never)
       .eq('user_id', userId);
 
     if (error) {
