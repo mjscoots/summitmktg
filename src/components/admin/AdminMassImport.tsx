@@ -790,22 +790,26 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       {results && (
         <div className="p-5 bg-card border border-border/40 rounded-xl space-y-4">
           <h3 className="text-base font-bold text-foreground">Import Complete</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
-              <p className="text-2xl font-black text-green-400">{results.created}</p>
-              <p className="text-[10px] text-green-400/70 uppercase tracking-wider">New</p>
-            </div>
-            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-center">
-              <p className="text-2xl font-black text-blue-400">{results.updated}</p>
-              <p className="text-[10px] text-blue-400/70 uppercase tracking-wider">Updated</p>
-            </div>
-            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-center">
-              <p className="text-2xl font-black text-amber-400">{results.merged}</p>
-              <p className="text-[10px] text-amber-400/70 uppercase tracking-wider">Merged</p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.created}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Created</p>
             </div>
             <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
-              <p className="text-2xl font-black text-muted-foreground">{results.skipped}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Skipped</p>
+              <p className="text-2xl font-black text-foreground">{results.updated}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Updated</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.noChange}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">No Change</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.review}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Review</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.invalid}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Invalid</p>
             </div>
           </div>
 
@@ -820,36 +824,51 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           {showDetails && (
             <div className="space-y-3">
               {results.details.newUsers.length > 0 && (
-                <div className="p-3 bg-green-500/5 border border-green-500/10 rounded-lg">
-                  <p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1.5">
-                    <CheckCircle className="w-3 h-3 inline mr-1" />{results.details.newUsers.length} New
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
+                    <CheckCircle className="w-3 h-3 inline mr-1" />{results.details.newUsers.length} Created
                   </p>
-                  <div className="flex flex-wrap gap-1">
-                    {results.details.newUsers.map((n, i) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 bg-green-500/10 rounded text-green-400">{n}</span>
-                    ))}
-                  </div>
                 </div>
               )}
+
               {results.details.updatedUsers.length > 0 && (
-                <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg">
-                  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1.5">
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
                     <RefreshCw className="w-3 h-3 inline mr-1" />{results.details.updatedUsers.length} Updated
                   </p>
-                  <div className="flex flex-wrap gap-1">
-                    {results.details.updatedUsers.map((n, i) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 bg-blue-500/10 rounded text-blue-400">{n}</span>
+                </div>
+              )}
+
+              {results.details.noChangeUsers.length > 0 && (
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
+                    {results.details.noChangeUsers.length} No Change
+                  </p>
+                </div>
+              )}
+
+              {results.details.reviewRows.length > 0 && (
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
+                    {results.details.reviewRows.length} Review Queue
+                  </p>
+                  <div className="space-y-0.5 max-h-40 overflow-y-auto">
+                    {results.details.reviewRows.map((s, i) => (
+                      <p key={i} className="text-[10px] text-muted-foreground">
+                        <span className="text-foreground/60">{s.full_name}</span> — {s.reason}
+                      </p>
                     ))}
                   </div>
                 </div>
               )}
-              {results.details.skippedRows.length > 0 && (
+
+              {(results.details.invalidRows.length > 0 || results.details.failedRows.length > 0) && (
                 <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                    <XCircle className="w-3 h-3 inline mr-1" />{results.details.skippedRows.length} Skipped
+                    <XCircle className="w-3 h-3 inline mr-1" />{results.details.invalidRows.length + results.details.failedRows.length} Invalid / Failed
                   </p>
                   <div className="space-y-0.5 max-h-40 overflow-y-auto">
-                    {results.details.skippedRows.map((s, i) => (
+                    {[...results.details.invalidRows, ...results.details.failedRows].map((s, i) => (
                       <p key={i} className="text-[10px] text-muted-foreground">
                         <span className="text-foreground/60">{s.value}</span> — {s.reason}
                       </p>
@@ -858,30 +877,15 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                 </div>
               )}
 
-              {/* NLC Validation */}
               {results.validation && (
-                <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg">
-                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1.5">
-                    NLC Sync Validation
-                  </p>
-                  <div className="flex gap-4 text-xs">
-                    <span className="text-muted-foreground">
-                      NLC rows parsed: <span className="text-foreground font-semibold">{results.validation.imported.nlc || 0}</span>
-                    </span>
-                    <span className="text-muted-foreground">
-                      NLC rows applied: <span className="text-foreground font-semibold">{results.validation.canonical.nlc || 0}</span>
-                    </span>
-                    {(results.validation.imported.nlc || 0) !== (results.validation.canonical.nlc || 0) && (
-                      <span className="text-red-400 font-semibold">⚠ Mismatch</span>
-                    )}
-                    {(results.validation.imported.nlc || 0) === (results.validation.canonical.nlc || 0) && (results.validation.imported.nlc || 0) > 0 && (
-                      <span className="text-green-400 font-semibold">✓ Synced</span>
-                    )}
-                  </div>
-                  {results.validation.mismatches.length > 0 && (
-                    <div className="mt-2 space-y-0.5">
-                      {results.validation.mismatches.map((m, i) => (
-                        <p key={i} className="text-[10px] text-amber-400">{m}</p>
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg space-y-1">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider">Status Sync Validation</p>
+                  <p className="text-xs text-muted-foreground">Summer Ready rows imported: <span className="text-foreground font-semibold">{results.validation.summerReadyImported}</span> · Summer Ready rows applied: <span className="text-foreground font-semibold">{results.validation.summerReadyApplied}</span></p>
+                  <p className="text-xs text-muted-foreground">NLC rows imported: <span className="text-foreground font-semibold">{results.validation.nlcImported}</span> · NLC rows applied: <span className="text-foreground font-semibold">{results.validation.nlcApplied}</span></p>
+                  {results.validation.warnings.length > 0 && (
+                    <div className="space-y-0.5">
+                      {results.validation.warnings.map((warning, i) => (
+                        <p key={i} className="text-[10px] text-muted-foreground">{warning}</p>
                       ))}
                     </div>
                   )}
