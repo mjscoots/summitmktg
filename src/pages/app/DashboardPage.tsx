@@ -15,6 +15,7 @@ import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
+import { EarningsWidget } from '@/components/dashboard/EarningsWidget';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gift, Zap, TrendingUp } from 'lucide-react';
