@@ -235,14 +235,14 @@ Deno.serve(async (req) => {
               // Fetch current profile for pipeline comparison
               const { data: currentProfile } = await supabaseAdmin
                 .from("profiles")
-                .select("onboarding_status, status")
+                .select("onboarding_status, status, approved")
                 .eq("user_id", existingUser.id)
                 .maybeSingle();
 
               const updates: Record<string, unknown> = {};
 
-              // Rep status: always authoritative
-              if (normalizedRepStatus) updates.status = normalizedRepStatus;
+              // Rep status: apply ONLY for non-approved users (protect active app users)
+              if (normalizedRepStatus && !currentProfile?.approved) updates.status = normalizedRepStatus;
 
               // Pipeline: only advance
               if (normalizedPipeline) {
