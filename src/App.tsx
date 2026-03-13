@@ -59,6 +59,7 @@ const NotepadPage = lazy(() => import("./pages/app/NotepadPage"));
 const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
 const OperationsPage = lazy(() => import("./pages/app/OperationsPage"));
 const ManagePage = lazy(() => import("./pages/app/ManagePage"));
+const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
 
 function LazyFallback() {
   return (
