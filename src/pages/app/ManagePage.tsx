@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Swords, FileText, Video, Info } from 'lucide-react';
+import { Swords, FileText, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const GRID_PATTERN =
@@ -42,9 +42,9 @@ export default function ManagePage() {
           </div>
         </div>
 
-        {/* All cards on one page */}
+        {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* Overview */}
+          {/* My Team */}
           <button
             onClick={() => navigate('/app/war-room')}
             className={cn(
@@ -60,16 +60,8 @@ export default function ManagePage() {
                 <Swords className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Overview</h2>
-                <p className="text-xs text-muted-foreground">Team metrics & performance stats</p>
+                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">My Team</h2>
               </div>
-            </div>
-            {/* Onboarding hint */}
-            <div className="mt-3 flex items-start gap-2 p-2.5 rounded-lg bg-orange-500/5 border border-orange-500/10">
-              <Info className="w-3.5 h-3.5 text-orange-400 mt-0.5 flex-shrink-0" />
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                Your command center — see real-time team momentum, daily check-ins, and leaderboard snapshots all in one view.
-              </p>
             </div>
           </button>
 
@@ -90,23 +82,16 @@ export default function ManagePage() {
               </div>
               <div className="flex-1">
                 <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Forms</h2>
-                <p className="text-xs text-muted-foreground">Interview forms & weekly check-ins</p>
               </div>
-            </div>
-            <div className="mt-3 flex items-start gap-2 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10">
-              <Info className="w-3.5 h-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                Submit interview evaluations and review past responses across your team.
-              </p>
             </div>
           </button>
         </div>
 
-        {/* Pitch Approvals — compact */}
+        {/* Pitch Approvals — featured module */}
         <button
           onClick={() => navigate('/app/pitch-approvals')}
           className={cn(
-            'group relative w-full p-5 rounded-xl text-left overflow-hidden cursor-pointer',
+            'group relative w-full p-5 rounded-xl text-center overflow-hidden cursor-pointer',
             'border border-purple-500/30',
             'transition-all duration-300',
             'hover:border-purple-500/60',
@@ -116,14 +101,11 @@ export default function ManagePage() {
             background: 'linear-gradient(135deg, hsl(270 60% 15% / 0.6), hsl(270 50% 20% / 0.3), hsl(270 60% 15% / 0.6))',
           }}
         >
-          <div className="relative z-10 flex items-center gap-3">
+          <div className="relative z-10 flex items-center justify-center gap-3">
             <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/30 group-hover:bg-purple-500/30 transition-colors">
               <Video className="w-6 h-6 text-purple-400" />
             </div>
-            <div>
-              <h2 className="text-base font-bold text-foreground">Pitch Approvals & Rep Videos</h2>
-              <p className="text-xs text-muted-foreground">Review pitch submissions and rep video recordings</p>
-            </div>
+            <h2 className="text-base font-bold text-foreground">Pitch Approvals & Rep Videos</h2>
           </div>
         </button>
       </div>

@@ -72,7 +72,7 @@ export default function AdminTeamPage() {
 
   // Edit user state
   const [editUser, setEditUser] = useState<UserRow | null>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '', bootcamp_exempt: false });
+  const [editForm, setEditForm] = useState({ full_name: '', email: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '', bootcamp_exempt: false, onboarding_status: '', region: '', office_name: '' });
   const [editLoading, setEditLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
   const [passwordResetTarget, setPasswordResetTarget] = useState<{ email: string; full_name: string } | null>(null);
@@ -200,7 +200,7 @@ export default function AdminTeamPage() {
 
   const openEditModal = (user: UserRow) => {
     setEditUser(user);
-    setEditForm({ full_name: user.full_name, phone: user.phone || '', direct_manager: user.direct_manager || '', role: user.role || 'rookie', status: user.status || 'active', team_id: user.team_id || '', experience: user.experience || 'rookie', bootcamp_exempt: false });
+    setEditForm({ full_name: user.full_name, email: user.email, phone: user.phone || '', direct_manager: user.direct_manager || '', role: user.role || 'rookie', status: user.status || 'active', team_id: user.team_id || '', experience: user.experience || 'rookie', bootcamp_exempt: false, onboarding_status: user.onboarding_status || 'pending', region: user.region || '', office_name: user.office_name || '' });
   };
 
   const handleSaveEdit = async () => {
@@ -208,9 +208,11 @@ export default function AdminTeamPage() {
     setEditLoading(true);
     const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin' || editForm.role === 'owner';
     const { error } = await supabase.from('profiles').update({
-      full_name: editForm.full_name, phone: editForm.phone || null, direct_manager: editForm.direct_manager || null,
+      full_name: editForm.full_name, email: editForm.email, phone: editForm.phone || null, direct_manager: editForm.direct_manager || null,
       status: editForm.status as any, team_id: editForm.team_id || null,
       experience: (isManagerRole ? 'veteran' : editForm.experience) as any || 'rookie',
+      onboarding_status: editForm.onboarding_status || 'pending',
+      region: editForm.region || null, office_name: editForm.office_name || null,
     }).eq('user_id', editUser.user_id);
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); setEditLoading(false); return; }
     if (editForm.role !== editUser.role) {
@@ -298,7 +300,12 @@ export default function AdminTeamPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="w-full" onValueChange={(tab) => {
+        <Tabs defaultValue={
+          // Auto-navigate to first tab with notifications
+          adminCounts.pendingApprovals > 0 ? 'approvals' :
+          adminCounts.pendingPitches > 0 ? 'pitches' :
+          adminCounts.newFeedback > 0 ? 'feedback' : 'users'
+        } className="w-full" onValueChange={(tab) => {
           const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications' | 'pendingPitches' | 'newFeedback'> = { approvals: 'pendingApprovals', apps: 'pendingApplications', pitches: 'pendingPitches', feedback: 'newFeedback' };
           if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
         }}>
@@ -543,8 +550,9 @@ export default function AdminTeamPage() {
         <Dialog open={!!editUser} onOpenChange={(open) => !open && setEditUser(null)}>
           <DialogContent className="bg-card border-border">
             <DialogHeader><DialogTitle>Edit Profile — {editUser?.full_name}</DialogTitle></DialogHeader>
-            <div className="space-y-4 mt-2">
+            <div className="space-y-3 mt-2 max-h-[70vh] overflow-y-auto pr-1">
               <div><label className="block text-sm font-medium text-foreground mb-1">Full Name</label><Input value={editForm.full_name} onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium text-foreground mb-1">Email</label><Input value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))} /></div>
               <div><label className="block text-sm font-medium text-foreground mb-1">Phone</label><Input value={editForm.phone} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} /></div>
               <div><label className="block text-sm font-medium text-foreground mb-1">Team</label>
                 <select className="input-field w-full" value={editForm.team_id} onChange={e => setEditForm(f => ({ ...f, team_id: e.target.value }))}><option value="">None</option>{teamsSimple.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
@@ -558,6 +566,18 @@ export default function AdminTeamPage() {
               )}
               <div><label className="block text-sm font-medium text-foreground mb-1">Status</label>
                 <select className="input-field w-full" value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}><option value="active">Active</option><option value="nlc">Disabled (NLC)</option></select></div>
+              <div><label className="block text-sm font-medium text-foreground mb-1">Progress Status</label>
+                <select className="input-field w-full" value={editForm.onboarding_status} onChange={e => setEditForm(f => ({ ...f, onboarding_status: e.target.value }))}>
+                  <option value="pending">Prospect Added</option>
+                  <option value="contract_signed">Contract Signed</option>
+                  <option value="info_added">Info Added</option>
+                  <option value="onboarded">Onboarded</option>
+                  <option value="summer_ready">Summer Ready</option>
+                </select></div>
+              <div><label className="block text-sm font-medium text-foreground mb-1">Region</label>
+                <Input value={editForm.region} onChange={e => setEditForm(f => ({ ...f, region: e.target.value }))} placeholder="e.g. Phoenix, Boston" /></div>
+              <div><label className="block text-sm font-medium text-foreground mb-1">Office</label>
+                <Input value={editForm.office_name} onChange={e => setEditForm(f => ({ ...f, office_name: e.target.value }))} placeholder="Office name" /></div>
               <div className="flex justify-end gap-2 pt-2">
                 <Button variant="outline" onClick={() => setEditUser(null)}>Cancel</Button>
                 <Button onClick={handleSaveEdit} disabled={editLoading}>{editLoading ? 'Saving...' : 'Save Changes'}</Button>
