@@ -461,6 +461,20 @@ export default function AdminTeamPage() {
             <AdminApplicationsTab />
           </TabsContent>
 
+          {/* ========== PITCHES TAB ========== */}
+          <TabsContent value="pitches">
+            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyPitchApprovals />
+            </Suspense>
+          </TabsContent>
+
+          {/* ========== FEEDBACK TAB ========== */}
+          <TabsContent value="feedback">
+            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyFeedback />
+            </Suspense>
+          </TabsContent>
+
           {/* ========== SYSTEM TAB ========== */}
           {isSuperAdmin && (
             <TabsContent value="system">
