@@ -200,7 +200,7 @@ export default function AdminTeamPage() {
 
   const openEditModal = (user: UserRow) => {
     setEditUser(user);
-    setEditForm({ full_name: user.full_name, phone: user.phone || '', direct_manager: user.direct_manager || '', role: user.role || 'rookie', status: user.status || 'active', team_id: user.team_id || '', experience: user.experience || 'rookie', bootcamp_exempt: false });
+    setEditForm({ full_name: user.full_name, email: user.email, phone: user.phone || '', direct_manager: user.direct_manager || '', role: user.role || 'rookie', status: user.status || 'active', team_id: user.team_id || '', experience: user.experience || 'rookie', bootcamp_exempt: false, onboarding_status: user.onboarding_status || 'pending', region: user.region || '', office_name: user.office_name || '' });
   };
 
   const handleSaveEdit = async () => {
