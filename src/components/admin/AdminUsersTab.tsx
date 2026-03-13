@@ -377,7 +377,7 @@ export default function AdminUsersTab({
   };
 
   const handleUpdateManager = async (userId: string, managerName: string) => {
-    const normalized = managerName || null;
+    const normalized = managerName === '__none__' ? null : (managerName || null);
 
     const { error } = await supabase
       .from('profiles')
