@@ -14,6 +14,7 @@ import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthro
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { usePitchApprovals } from '@/hooks/usePitchApprovals';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
 import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import type { UserRow } from '@/components/admin/AdminUsersTab';
