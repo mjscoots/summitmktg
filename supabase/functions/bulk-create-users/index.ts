@@ -491,7 +491,12 @@ function buildUpdatesFromImport(
   if (row.region && !cleanText(currentProfile?.region ?? undefined)) updates.region = row.region;
   if (row.office_name && !cleanText(currentProfile?.office_name ?? undefined)) updates.office_name = row.office_name;
   if (row.experience && !cleanText(currentProfile?.experience ?? undefined)) updates.experience = row.experience;
-  if (row.direct_manager && !cleanText(currentProfile?.direct_manager ?? undefined)) updates.direct_manager = row.direct_manager;
+  if (row.direct_manager) {
+    const currentManager = cleanText(currentProfile?.direct_manager ?? undefined);
+    if (!currentManager || currentManager !== row.direct_manager) {
+      updates.direct_manager = row.direct_manager;
+    }
+  }
   if (row.organization && !cleanText(currentProfile?.organization ?? undefined)) updates.organization = row.organization;
 
   return updates;
