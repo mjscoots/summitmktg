@@ -377,7 +377,7 @@ export default function AdminUsersTab({
   };
 
   const handleUpdateManager = async (userId: string, managerName: string) => {
-    const normalized = managerName || null;
+    const normalized = managerName === '__none__' ? null : (managerName || null);
 
     const { error } = await supabase
       .from('profiles')
@@ -397,7 +397,7 @@ export default function AdminUsersTab({
   const handleUpdateTeam = async (userId: string, teamId: string) => {
     const { error } = await supabase
       .from('profiles')
-      .update({ team_id: teamId || null } as never)
+      .update({ team_id: teamId === '__none__' ? null : (teamId || null) } as never)
       .eq('user_id', userId);
 
     if (error) {
@@ -823,7 +823,7 @@ export default function AdminUsersTab({
                       <SelectValue placeholder="Change recruiter..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {managers.map((m) => (
                         <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>
                       ))}
@@ -839,7 +839,7 @@ export default function AdminUsersTab({
                       <SelectValue placeholder="Change team..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Team</SelectItem>
+                      <SelectItem value="__none__">No Team</SelectItem>
                       {teams.map((t) => (
                         <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>
                       ))}
