@@ -72,7 +72,7 @@ export default function AdminTeamPage() {
 
   // Edit user state
   const [editUser, setEditUser] = useState<UserRow | null>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '', bootcamp_exempt: false });
+  const [editForm, setEditForm] = useState({ full_name: '', email: '', phone: '', direct_manager: '', role: '', status: '', team_id: '', experience: '', bootcamp_exempt: false, onboarding_status: '', region: '', office_name: '' });
   const [editLoading, setEditLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
   const [passwordResetTarget, setPasswordResetTarget] = useState<{ email: string; full_name: string } | null>(null);
