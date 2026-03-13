@@ -490,6 +490,28 @@ export default function AdminTeamPage() {
               </div>
             </TabsContent>
           )}
+
+          {/* ========== SYNC TAB ========== */}
+          <TabsContent value="sync">
+            {loading ? <TableSkeleton columns={4} rows={5} /> : (
+              <HierarchySyncTab
+                profiles={allUsers.map(u => ({
+                  user_id: u.user_id,
+                  full_name: u.full_name,
+                  email: u.email,
+                  direct_manager: u.direct_manager,
+                  status: u.status,
+                  team_id: u.team_id,
+                  avatar_url: u.avatar_url,
+                  onboarding_status: u.onboarding_status,
+                  recruiter: u.recruiter,
+                }))}
+                managers={managers}
+                teams={teamsSimple}
+                onRefresh={fetchData}
+              />
+            )}
+          </TabsContent>
         </Tabs>
 
         {/* Modals */}
