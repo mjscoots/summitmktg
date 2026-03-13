@@ -37,20 +37,58 @@ interface ParsedUser {
   flagged?: string;
 }
 
+interface ReviewQueueItem {
+  full_name: string;
+  email?: string;
+  phone?: string;
+  proposed_pipeline_status?: string;
+  proposed_rep_status?: 'active' | 'nlc';
+  reason: string;
+}
+
+interface BulkImportBatchResponse {
+  success?: string[];
+  updated?: string[];
+  no_changes?: string[];
+  failed?: { email: string; error: string }[];
+  flagged?: ReviewQueueItem[];
+  invalid?: { full_name?: string; email?: string; reason: string }[];
+  outcome_counts?: {
+    created: number;
+    updated: number;
+    no_change: number;
+    review: number;
+    invalid: number;
+  };
+  status_sync?: {
+    summer_ready_imported: number;
+    summer_ready_applied: number;
+    nlc_imported: number;
+    nlc_applied: number;
+  };
+  canonical_gap_warnings?: string[];
+}
+
 interface ImportResults {
   created: number;
   updated: number;
-  merged: number;
-  skipped: number;
+  noChange: number;
+  review: number;
+  invalid: number;
   details: {
     newUsers: string[];
     updatedUsers: string[];
-    skippedRows: { value: string; reason: string }[];
+    noChangeUsers: string[];
+    reviewRows: ReviewQueueItem[];
+    invalidRows: { value: string; reason: string }[];
+    failedRows: { value: string; reason: string }[];
   };
   validation?: {
-    imported: Record<string, number>;
-    canonical: Record<string, number>;
-    mismatches: string[];
+    summerReadyImported: number;
+    summerReadyApplied: number;
+    nlcImported: number;
+    nlcApplied: number;
+    warnings: string[];
   };
 }
 
@@ -577,7 +615,6 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
     setResults(null);
 
     try {
-      // Step 1: Parse
       const { parsed, skipped } = parseBlocks(rawText, profiles, managers);
 
       if (parsed.length === 0) {
@@ -586,176 +623,148 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         return;
       }
 
-      const newUsers = parsed.filter(u => !u.alreadyExists);
-      const existingUsers = parsed.filter(u => u.alreadyExists);
-
-      const importedDistribution = Object.fromEntries(
-        IMPORT_DISTRIBUTION_KEYS.map((k) => [k, 0])
-      ) as Record<(typeof IMPORT_DISTRIBUTION_KEYS)[number], number>;
-
-      for (const row of parsed) {
-        if (row.pipelineProvided) {
-          const key = row.pipeline_status as keyof typeof importedDistribution;
-          if (key in importedDistribution) importedDistribution[key]++;
-        }
-        if (row.repStatusProvided) {
-          importedDistribution[row.rep_status]++;
-        }
-      }
-
-      // Step 2: Match
       setLoadingStep(1);
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 250));
+
+      const allRows = parsed.map(u => ({
+        full_name: u.full_name,
+        email: u.email,
+        phone: u.phone,
+        role: 'rookie' as const,
+        direct_manager: u.recruiter_or_manager || defaultManager,
+        team_name: defaultTeam,
+        onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
+        rep_status: u.repStatusProvided ? u.rep_status : undefined,
+        region: u.region,
+        office_name: u.office_name,
+        experience: u.experience,
+        organization: '',
+      }));
 
       const createdNames: string[] = [];
       const updatedNames: string[] = [];
-      const mergedCount = existingUsers.filter(u => u.updateFields.length > 0).length;
-      const failedRows: { value: string; reason: string }[] = [...skipped];
+      const noChangeNames: string[] = [];
+      const reviewRows: ReviewQueueItem[] = [];
+      const invalidRows: { value: string; reason: string }[] = skipped.map((s) => ({ value: s.value, reason: s.reason }));
+      const failedRows: { value: string; reason: string }[] = [];
 
-      // Step 3: Create new users in batches via edge function
+      const outcomeCounts = {
+        created: 0,
+        updated: 0,
+        no_change: 0,
+        review: 0,
+        invalid: skipped.length,
+      };
+
+      const statusSyncTotals = {
+        summer_ready_imported: 0,
+        summer_ready_applied: 0,
+        nlc_imported: 0,
+        nlc_applied: 0,
+      };
+
+      const allWarnings: string[] = [];
+
+      const emailToName = new Map(
+        parsed
+          .filter(u => u.email)
+          .map((u) => [u.email.toLowerCase(), u.full_name])
+      );
+
+      const BATCH_SIZE = 50;
       setLoadingStep(2);
-      if (newUsers.length > 0) {
-        const usersToCreate = newUsers.map(u => ({
-          full_name: u.full_name,
-          email: u.email,
-          phone: u.phone,
-          role: 'rookie' as const,
-          direct_manager: u.recruiter_or_manager || defaultManager,
-          team_name: defaultTeam,
-          onboarding_status: u.pipeline_status,
-          rep_status: u.rep_status,
-          region: u.region,
-          office_name: u.office_name,
-          experience: u.experience,
-        }));
 
-        const BATCH_SIZE = 50;
-        for (let i = 0; i < usersToCreate.length; i += BATCH_SIZE) {
-          const batch = usersToCreate.slice(i, i + BATCH_SIZE);
-          try {
-            const { data, error } = await supabase.functions.invoke('bulk-create-users', {
-              body: { users: batch, is_import: true },
-            });
+      for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
+        const batch = allRows.slice(i, i + BATCH_SIZE);
 
-            if (error) {
-              console.error('Batch create error:', error);
-              failedRows.push({ value: `Batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: error.message || 'Batch failed' });
-              continue;
-            }
-            if (data?.success) createdNames.push(...data.success.map((e: string) => newUsers.find(u => u.email === e)?.full_name || e));
-            if (data?.updated) updatedNames.push(...data.updated);
-            if (data?.failed) {
-              for (const f of data.failed) {
-                failedRows.push({ value: f.email, reason: f.error });
-              }
-            }
-          } catch (batchErr: any) {
-            console.error('Batch invoke error:', batchErr);
-            failedRows.push({ value: `Batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: batchErr.message || 'Unknown batch error' });
+        try {
+          const { data, error } = await supabase.functions.invoke('bulk-create-users', {
+            body: { users: batch, is_import: true },
+          });
+
+          if (error) {
+            failedRows.push({ value: `Batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: error.message || 'Batch failed' });
+            outcomeCounts.invalid += batch.length;
+            continue;
           }
+
+          const payload = (data || {}) as BulkImportBatchResponse;
+
+          const createdEmails = payload.success || [];
+          const batchCreatedNames = createdEmails.map((email) => emailToName.get((email || '').toLowerCase()) || email);
+          createdNames.push(...batchCreatedNames);
+
+          const batchUpdated = payload.updated || [];
+          updatedNames.push(...batchUpdated);
+
+          const batchNoChange = payload.no_changes || [];
+          noChangeNames.push(...batchNoChange);
+
+          const batchReview = payload.flagged || [];
+          reviewRows.push(...batchReview);
+
+          const batchInvalid = payload.invalid || [];
+          invalidRows.push(...batchInvalid.map((r) => ({ value: r.full_name || r.email || 'Unknown', reason: r.reason })));
+
+          const batchFailed = payload.failed || [];
+          failedRows.push(...batchFailed.map((f) => ({ value: f.email, reason: f.error })));
+
+          if (payload.outcome_counts) {
+            outcomeCounts.created += payload.outcome_counts.created;
+            outcomeCounts.updated += payload.outcome_counts.updated;
+            outcomeCounts.no_change += payload.outcome_counts.no_change;
+            outcomeCounts.review += payload.outcome_counts.review;
+            outcomeCounts.invalid += payload.outcome_counts.invalid;
+          } else {
+            outcomeCounts.created += batchCreatedNames.length;
+            outcomeCounts.updated += batchUpdated.length;
+            outcomeCounts.no_change += batchNoChange.length;
+            outcomeCounts.review += batchReview.length;
+            outcomeCounts.invalid += batchInvalid.length + batchFailed.length;
+          }
+
+          if (payload.status_sync) {
+            statusSyncTotals.summer_ready_imported += payload.status_sync.summer_ready_imported;
+            statusSyncTotals.summer_ready_applied += payload.status_sync.summer_ready_applied;
+            statusSyncTotals.nlc_imported += payload.status_sync.nlc_imported;
+            statusSyncTotals.nlc_applied += payload.status_sync.nlc_applied;
+          }
+
+          if (payload.canonical_gap_warnings?.length) {
+            allWarnings.push(...payload.canonical_gap_warnings);
+          }
+
+          setLoadingStep(3);
+        } catch (batchErr: any) {
+          failedRows.push({ value: `Batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: batchErr.message || 'Unknown batch error' });
+          outcomeCounts.invalid += batch.length;
         }
       }
 
-      // Step 4: Update existing users via edge function (uses service role, bypasses RLS)
-      setLoadingStep(3);
-      const usersToUpdate = existingUsers.filter(u => u.matchedUserId && u.updateFields.length > 0);
-      if (usersToUpdate.length > 0) {
-        const updatePayload = usersToUpdate.map(u => ({
-          full_name: u.full_name,
-          email: u.email,
-          matched_user_id: u.matchedUserId,
-          update_only: true,
-          onboarding_status: u.updateFields.includes('pipeline') ? u.pipeline_status : undefined,
-          rep_status: u.updateFields.includes('rep_status') ? u.rep_status : undefined,
-          phone: u.updateFields.includes('phone') ? u.phone : undefined,
-          region: u.updateFields.includes('region') ? u.region : undefined,
-          office_name: u.updateFields.includes('office_name') ? u.office_name : undefined,
-          experience: u.updateFields.includes('experience') ? u.experience : undefined,
-          direct_manager: u.updateFields.includes('manager') ? u.recruiter_or_manager : undefined,
-        }));
-
-        const BATCH_SIZE = 50;
-        for (let i = 0; i < updatePayload.length; i += BATCH_SIZE) {
-          const batch = updatePayload.slice(i, i + BATCH_SIZE);
-          try {
-            const { data, error } = await supabase.functions.invoke('bulk-create-users', {
-              body: { users: batch, is_import: true },
-            });
-
-            if (error) {
-              console.error('Batch update error:', error);
-              failedRows.push({ value: `Update batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: error.message || 'Update batch failed' });
-              continue;
-            }
-            if (data?.updated) updatedNames.push(...data.updated);
-            if (data?.failed) {
-              for (const f of data.failed) {
-                failedRows.push({ value: f.email, reason: f.error });
-              }
-            }
-          } catch (batchErr: any) {
-            console.error('Update batch invoke error:', batchErr);
-            failedRows.push({ value: `Update batch ${Math.floor(i / BATCH_SIZE) + 1}`, reason: batchErr.message || 'Unknown error' });
-          }
-        }
-      }
-
-      // Step 5: Finalize + validation
       setLoadingStep(4);
       await new Promise(r => setTimeout(r, 200));
 
-      let validation: ImportResults['validation'];
-      try {
-        const canonicalDistribution = Object.fromEntries(
-          IMPORT_DISTRIBUTION_KEYS.map((k) => [k, 0])
-        ) as Record<(typeof IMPORT_DISTRIBUTION_KEYS)[number], number>;
-
-        const parsedByEmail = new Map(parsed.map((u) => [u.email.toLowerCase(), u]));
-        const importEmails = [...parsedByEmail.keys()];
-
-        if (importEmails.length > 0) {
-          const { data: canonicalRows } = await supabase
-            .from('profiles')
-            .select('email, onboarding_status, status')
-            .in('email', importEmails);
-
-          for (const row of canonicalRows || []) {
-            const source = parsedByEmail.get((row.email || '').toLowerCase());
-            if (!source) continue;
-            if (source.pipelineProvided) {
-              const key = (row.onboarding_status || 'pending') as keyof typeof canonicalDistribution;
-              if (key in canonicalDistribution) canonicalDistribution[key]++;
-            }
-            if (source.repStatusProvided) {
-              canonicalDistribution[row.status === 'nlc' ? 'nlc' : 'active']++;
-            }
-          }
-
-          const mismatches = IMPORT_DISTRIBUTION_KEYS
-            .filter((key) => importedDistribution[key] !== canonicalDistribution[key])
-            .map((key) => `${key}: imported ${importedDistribution[key]}, canonical ${canonicalDistribution[key]}`);
-
-          validation = {
-            imported: importedDistribution,
-            canonical: canonicalDistribution,
-            mismatches,
-          };
-        }
-      } catch {
-        validation = undefined;
-      }
-
       setResults({
-        created: createdNames.length,
-        updated: updatedNames.length,
-        merged: mergedCount,
-        skipped: failedRows.length,
+        created: outcomeCounts.created,
+        updated: outcomeCounts.updated,
+        noChange: outcomeCounts.no_change,
+        review: outcomeCounts.review,
+        invalid: outcomeCounts.invalid,
         details: {
           newUsers: createdNames,
           updatedUsers: updatedNames,
-          skippedRows: failedRows,
+          noChangeUsers: noChangeNames,
+          reviewRows,
+          invalidRows,
+          failedRows,
         },
-        validation,
+        validation: {
+          summerReadyImported: statusSyncTotals.summer_ready_imported,
+          summerReadyApplied: statusSyncTotals.summer_ready_applied,
+          nlcImported: statusSyncTotals.nlc_imported,
+          nlcApplied: statusSyncTotals.nlc_applied,
+          warnings: [...new Set(allWarnings)],
+        },
       });
 
       setRawText('');
@@ -763,7 +772,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
 
       toast({
         title: 'Import Complete',
-        description: `${createdNames.length} created, ${updatedNames.length} updated, ${mergedCount} merged, ${failedRows.length} skipped`,
+        description: `${outcomeCounts.created} created, ${outcomeCounts.updated} updated, ${outcomeCounts.no_change} no-change, ${outcomeCounts.review} review, ${outcomeCounts.invalid} invalid`,
       });
     } catch (err: any) {
       console.error('Import failed:', err);
@@ -781,22 +790,26 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       {results && (
         <div className="p-5 bg-card border border-border/40 rounded-xl space-y-4">
           <h3 className="text-base font-bold text-foreground">Import Complete</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
-              <p className="text-2xl font-black text-green-400">{results.created}</p>
-              <p className="text-[10px] text-green-400/70 uppercase tracking-wider">New</p>
-            </div>
-            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-center">
-              <p className="text-2xl font-black text-blue-400">{results.updated}</p>
-              <p className="text-[10px] text-blue-400/70 uppercase tracking-wider">Updated</p>
-            </div>
-            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-center">
-              <p className="text-2xl font-black text-amber-400">{results.merged}</p>
-              <p className="text-[10px] text-amber-400/70 uppercase tracking-wider">Merged</p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.created}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Created</p>
             </div>
             <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
-              <p className="text-2xl font-black text-muted-foreground">{results.skipped}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Skipped</p>
+              <p className="text-2xl font-black text-foreground">{results.updated}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Updated</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.noChange}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">No Change</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.review}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Review</p>
+            </div>
+            <div className="p-3 bg-muted/30 border border-border/30 rounded-lg text-center">
+              <p className="text-2xl font-black text-foreground">{results.invalid}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Invalid</p>
             </div>
           </div>
 
@@ -811,36 +824,51 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           {showDetails && (
             <div className="space-y-3">
               {results.details.newUsers.length > 0 && (
-                <div className="p-3 bg-green-500/5 border border-green-500/10 rounded-lg">
-                  <p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1.5">
-                    <CheckCircle className="w-3 h-3 inline mr-1" />{results.details.newUsers.length} New
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
+                    <CheckCircle className="w-3 h-3 inline mr-1" />{results.details.newUsers.length} Created
                   </p>
-                  <div className="flex flex-wrap gap-1">
-                    {results.details.newUsers.map((n, i) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 bg-green-500/10 rounded text-green-400">{n}</span>
-                    ))}
-                  </div>
                 </div>
               )}
+
               {results.details.updatedUsers.length > 0 && (
-                <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg">
-                  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1.5">
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
                     <RefreshCw className="w-3 h-3 inline mr-1" />{results.details.updatedUsers.length} Updated
                   </p>
-                  <div className="flex flex-wrap gap-1">
-                    {results.details.updatedUsers.map((n, i) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 bg-blue-500/10 rounded text-blue-400">{n}</span>
+                </div>
+              )}
+
+              {results.details.noChangeUsers.length > 0 && (
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
+                    {results.details.noChangeUsers.length} No Change
+                  </p>
+                </div>
+              )}
+
+              {results.details.reviewRows.length > 0 && (
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider mb-1.5">
+                    {results.details.reviewRows.length} Review Queue
+                  </p>
+                  <div className="space-y-0.5 max-h-40 overflow-y-auto">
+                    {results.details.reviewRows.map((s, i) => (
+                      <p key={i} className="text-[10px] text-muted-foreground">
+                        <span className="text-foreground/60">{s.full_name}</span> — {s.reason}
+                      </p>
                     ))}
                   </div>
                 </div>
               )}
-              {results.details.skippedRows.length > 0 && (
+
+              {(results.details.invalidRows.length > 0 || results.details.failedRows.length > 0) && (
                 <div className="p-3 bg-muted/20 border border-border/20 rounded-lg">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                    <XCircle className="w-3 h-3 inline mr-1" />{results.details.skippedRows.length} Skipped
+                    <XCircle className="w-3 h-3 inline mr-1" />{results.details.invalidRows.length + results.details.failedRows.length} Invalid / Failed
                   </p>
                   <div className="space-y-0.5 max-h-40 overflow-y-auto">
-                    {results.details.skippedRows.map((s, i) => (
+                    {[...results.details.invalidRows, ...results.details.failedRows].map((s, i) => (
                       <p key={i} className="text-[10px] text-muted-foreground">
                         <span className="text-foreground/60">{s.value}</span> — {s.reason}
                       </p>
@@ -849,30 +877,15 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                 </div>
               )}
 
-              {/* NLC Validation */}
               {results.validation && (
-                <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg">
-                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1.5">
-                    NLC Sync Validation
-                  </p>
-                  <div className="flex gap-4 text-xs">
-                    <span className="text-muted-foreground">
-                      NLC rows parsed: <span className="text-foreground font-semibold">{results.validation.imported.nlc || 0}</span>
-                    </span>
-                    <span className="text-muted-foreground">
-                      NLC rows applied: <span className="text-foreground font-semibold">{results.validation.canonical.nlc || 0}</span>
-                    </span>
-                    {(results.validation.imported.nlc || 0) !== (results.validation.canonical.nlc || 0) && (
-                      <span className="text-red-400 font-semibold">⚠ Mismatch</span>
-                    )}
-                    {(results.validation.imported.nlc || 0) === (results.validation.canonical.nlc || 0) && (results.validation.imported.nlc || 0) > 0 && (
-                      <span className="text-green-400 font-semibold">✓ Synced</span>
-                    )}
-                  </div>
-                  {results.validation.mismatches.length > 0 && (
-                    <div className="mt-2 space-y-0.5">
-                      {results.validation.mismatches.map((m, i) => (
-                        <p key={i} className="text-[10px] text-amber-400">{m}</p>
+                <div className="p-3 bg-muted/20 border border-border/20 rounded-lg space-y-1">
+                  <p className="text-[10px] font-bold text-foreground uppercase tracking-wider">Status Sync Validation</p>
+                  <p className="text-xs text-muted-foreground">Summer Ready rows imported: <span className="text-foreground font-semibold">{results.validation.summerReadyImported}</span> · Summer Ready rows applied: <span className="text-foreground font-semibold">{results.validation.summerReadyApplied}</span></p>
+                  <p className="text-xs text-muted-foreground">NLC rows imported: <span className="text-foreground font-semibold">{results.validation.nlcImported}</span> · NLC rows applied: <span className="text-foreground font-semibold">{results.validation.nlcApplied}</span></p>
+                  {results.validation.warnings.length > 0 && (
+                    <div className="space-y-0.5">
+                      {results.validation.warnings.map((warning, i) => (
+                        <p key={i} className="text-[10px] text-muted-foreground">{warning}</p>
                       ))}
                     </div>
                   )}
