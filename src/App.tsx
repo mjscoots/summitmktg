@@ -349,6 +349,15 @@ function LazyFallback() {
               {/* Redirect old analytics route */}
               <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
 
+              {/* Estimate My Earnings */}
+              <Route path="/app/estimate-earnings" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <EstimateEarningsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
               {/* War Room */}
               <Route path="/app/war-room" element={
                 <ProtectedRoute>
