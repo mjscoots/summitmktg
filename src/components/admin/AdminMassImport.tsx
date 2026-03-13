@@ -130,7 +130,7 @@ const IMPORT_DISTRIBUTION_KEYS = [
 
 // Values that should NEVER become user records
 const JUNK_VALUES = new Set([
-  'the academy', 'undecided', 'decided', 'active', 'inactive', 'nlc',
+  'the academy', 'freedom', 'undecided', 'decided', 'active', 'inactive', 'nlc',
   'rookie', 'veteran', 'prospect added', 'contract signed',
   'info added', 'onboarded', 'summer ready', 'name', 'contact',
   'region', 'recruiter', 'office name', 'experience', 'status',
