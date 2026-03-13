@@ -823,7 +823,7 @@ export default function AdminUsersTab({
                       <SelectValue placeholder="Change recruiter..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {managers.map((m) => (
                         <SelectItem key={m.user_id} value={m.full_name} className="text-xs">{m.full_name}</SelectItem>
                       ))}
