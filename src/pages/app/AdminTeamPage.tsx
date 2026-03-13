@@ -208,9 +208,11 @@ export default function AdminTeamPage() {
     setEditLoading(true);
     const isManagerRole = editForm.role === 'manager' || editForm.role === 'admin' || editForm.role === 'owner';
     const { error } = await supabase.from('profiles').update({
-      full_name: editForm.full_name, phone: editForm.phone || null, direct_manager: editForm.direct_manager || null,
+      full_name: editForm.full_name, email: editForm.email, phone: editForm.phone || null, direct_manager: editForm.direct_manager || null,
       status: editForm.status as any, team_id: editForm.team_id || null,
       experience: (isManagerRole ? 'veteran' : editForm.experience) as any || 'rookie',
+      onboarding_status: editForm.onboarding_status || 'pending',
+      region: editForm.region || null, office_name: editForm.office_name || null,
     }).eq('user_id', editUser.user_id);
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); setEditLoading(false); return; }
     if (editForm.role !== editUser.role) {
