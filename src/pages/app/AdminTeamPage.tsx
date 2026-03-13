@@ -318,6 +318,9 @@ export default function AdminTeamPage() {
               {isSuperAdmin && (
                 <TabsTrigger value="system" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">System</TabsTrigger>
               )}
+              <TabsTrigger value="sync" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+                Sync
+              </TabsTrigger>
             </TabsList>
           </div>
 
