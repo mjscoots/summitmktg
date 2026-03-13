@@ -11,6 +11,7 @@ import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
+import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
