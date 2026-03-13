@@ -376,6 +376,7 @@ function parseBlocks(
         const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
         if (parts.length >= 2) {
           let handled = 0;
+          const leftoverParts: string[] = [];
           for (const part of parts) {
             const partPipeline = isPipelineStatus(part) ? normalizePipeline(part) : null;
             if (partPipeline) {
@@ -402,10 +403,22 @@ function parseBlocks(
             if (isJunkValue(part)) {
               if (part.toLowerCase() === 'undecided') office_name = 'Undecided';
               if (part.toLowerCase() === 'decided') office_name = 'Decided';
+              if (part.toLowerCase() === 'freedom') office_name = 'Freedom';
               handled++;
+              continue;
             }
+
+            // Capture region values like Boston, Phoenix, Providence
+            leftoverParts.push(part);
           }
-          if (handled >= 2) continue;
+          // If we handled at least 2 known parts, treat leftovers as region/office
+          if (handled >= 2) {
+            for (const leftover of leftoverParts) {
+              if (!region && !isLikelyName(leftover)) { region = leftover; }
+              else if (!office_name) { office_name = leftover; }
+            }
+            continue;
+          }
         }
       }
 
