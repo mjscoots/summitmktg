@@ -365,6 +365,9 @@ export default function DashboardPage() {
         {/* Continue Learning */}
         {pointsData && <ContinueLearning data={pointsData} isComplete={trainingComplete} />}
 
+        {/* Earnings Widget */}
+        <EarningsWidget />
+
         {/* Onboarding Quest (Rookie only) */}
         {!isManager && <OnboardingQuest />}
       </div>
