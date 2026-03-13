@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/select';
 
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
-const LazyPitchApprovals = lazy(() => import('@/pages/app/PitchApprovalsPage').then(m => ({ default: m.default })));
+const LazyPitchApprovals = lazy(() => import('@/components/admin/AdminPitchApprovalsTab'));
 
 interface TeamRow {
   id: string;
