@@ -214,12 +214,13 @@ function diceCoefficient(a: string, b: string): number {
 function buildSyntheticEmail(row: NormalizedImportRow): string {
   if (row.email) return row.email;
   const baseName = row.first_last_normalized || row.full_name_normalized || "imported user";
-  const slug = baseName.replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "").replace(/\.+/g, ".").replace(/^\.|\.$/g, "");
-  const fingerprintSource = `${row.full_name_normalized}|${row.phone_digits ?? ""}`;
-  const fingerprint = crypto.subtle
-    ? ""
-    : "";
+  const slug = baseName
+    .replace(/\s+/g, ".")
+    .replace(/[^a-z0-9.]/g, "")
+    .replace(/\.+/g, ".")
+    .replace(/^\.|\.$/g, "");
 
+  const fingerprintSource = `${row.full_name_normalized}|${row.phone_digits ?? ""}`;
   const fallbackHash = Array.from(fingerprintSource).reduce((acc, ch) => {
     return (acc * 31 + ch.charCodeAt(0)) % 1000000;
   }, 7);
