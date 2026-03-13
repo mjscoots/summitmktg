@@ -11,6 +11,7 @@ import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
+import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
@@ -317,6 +318,9 @@ export default function AdminTeamPage() {
               {isSuperAdmin && (
                 <TabsTrigger value="system" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">System</TabsTrigger>
               )}
+              <TabsTrigger value="sync" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+                Sync
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -486,6 +490,28 @@ export default function AdminTeamPage() {
               </div>
             </TabsContent>
           )}
+
+          {/* ========== SYNC TAB ========== */}
+          <TabsContent value="sync">
+            {loading ? <TableSkeleton columns={4} rows={5} /> : (
+              <HierarchySyncTab
+                profiles={allUsers.map(u => ({
+                  user_id: u.user_id,
+                  full_name: u.full_name,
+                  email: u.email,
+                  direct_manager: u.direct_manager,
+                  status: u.status,
+                  team_id: u.team_id,
+                  avatar_url: u.avatar_url,
+                  onboarding_status: u.onboarding_status,
+                  recruiter: u.recruiter,
+                }))}
+                managers={managers}
+                teams={teamsSimple}
+                onRefresh={fetchData}
+              />
+            )}
+          </TabsContent>
         </Tabs>
 
         {/* Modals */}
