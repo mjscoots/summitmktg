@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
           // Fetch current profile to compare pipeline
           const { data: currentProfile } = await supabaseAdmin
             .from("profiles")
-            .select("onboarding_status, status")
+            .select("onboarding_status, status, approved")
             .eq("user_id", u.matched_user_id)
             .maybeSingle();
 
@@ -168,8 +168,8 @@ Deno.serve(async (req) => {
             }
           }
 
-          // Rep status: ALWAYS apply — NLC is authoritative from import
-          if (normalizedRepStatus) {
+          // Rep status: apply ONLY for non-approved users (protect active app users)
+          if (normalizedRepStatus && !currentProfile?.approved) {
             updates.status = normalizedRepStatus;
           }
 
