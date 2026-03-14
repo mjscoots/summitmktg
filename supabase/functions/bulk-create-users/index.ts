@@ -853,9 +853,17 @@ Deno.serve(async (req) => {
                 });
 
               if (insertProfileErr) {
-                response.failed.push({ email: row.email ?? row.full_name, error: insertProfileErr.message });
-                response.outcome_counts.invalid += 1;
-                continue;
+                // If the insert failed because the handle_new_user trigger already created
+                // the profile, DON'T treat it as fatal — fall through to the update step
+                // so that manager, pipeline, and other import fields still get applied.
+                const errMsg = (insertProfileErr.message ?? "").toLowerCase();
+                const isDuplicate = errMsg.includes("duplicate") || errMsg.includes("unique") || errMsg.includes("already exists") || errMsg.includes("violates unique constraint") || errMsg.includes("23505");
+                if (!isDuplicate) {
+                  response.failed.push({ email: row.email ?? row.full_name, error: insertProfileErr.message });
+                  response.outcome_counts.invalid += 1;
+                  continue;
+                }
+                // Duplicate = trigger already created profile, proceed to update
               }
             }
 
