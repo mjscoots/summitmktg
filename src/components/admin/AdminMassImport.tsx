@@ -411,11 +411,19 @@ function parseBlocks(
             // Capture region values like Boston, Phoenix, Providence
             leftoverParts.push(part);
           }
-          // If we handled at least 2 known parts, treat leftovers as region/office
+          // If we handled at least 2 known parts, treat leftovers as region/office/manager
           if (handled >= 2) {
             for (const leftover of leftoverParts) {
-              if (!region && !isLikelyName(leftover)) { region = leftover; }
-              else if (!office_name) { office_name = leftover; }
+              // If the leftover looks like a person name, it's likely a manager
+              if (isLikelyName(leftover) && !recruiter_or_manager) {
+                // Check if it matches a known manager
+                const mgrMatch = managerList.find(m => matchNames(m.full_name, leftover) > 0.7);
+                recruiter_or_manager = mgrMatch ? mgrMatch.full_name : leftover;
+              } else if (!region && !isLikelyName(leftover)) {
+                region = leftover;
+              } else if (!office_name) {
+                office_name = leftover;
+              }
             }
             continue;
           }
