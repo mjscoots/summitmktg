@@ -529,18 +529,8 @@ function parseBlocks(
       continue;
     }
 
-    // *** CRITICAL: If this name is a known manager being imported as a "row",
-    // treat it as a manager reference and skip creating a new rep record ***
-    const nameNorm = normalizeForMatch(full_name);
-    if (managerNamesNorm.has(nameNorm)) {
-      // Check if this person already exists in profiles — only skip if they already have an account
-      const existingManager = existingProfiles.find(p => normalizeForMatch(p.full_name) === nameNorm);
-      if (existingManager) {
-        // Manager already exists, skip creating duplicate
-        skipped.push({ value: full_name, reason: 'Already exists as a manager — skipped' });
-        continue;
-      }
-    }
+    // Manager-role people are NO LONGER skipped — they get sent to the edge function
+    // so their onboarding_status, manager, and other fields can be updated.
 
     // Generate email if not found
     if (!email) {
