@@ -543,21 +543,23 @@ function parseBlocks(
     for (const p of existingProfiles) {
       const normalizedExisting = normalizeForMatch(p.full_name);
       const normalizedMatch = normalizedImport === normalizedExisting;
+      // Also match against nickname if present
+      const nicknameMatch = p.nickname ? normalizeForMatch(p.nickname) === normalizedImport || matchNames(p.nickname, full_name) > 0.8 : false;
       const emailMatch = email && p.email && p.email.toLowerCase() === email.toLowerCase();
       const phoneDigits = phone.replace(/\D/g, '');
       const profilePhoneDigits = (p.phone || '').replace(/\D/g, '');
       const phoneMatch = phoneDigits.length >= 7 && profilePhoneDigits.length >= 7 && phoneDigits === profilePhoneDigits;
       const nameScore = matchNames(p.full_name, full_name);
 
-      if (emailMatch || phoneMatch || nameScore > 0.8 || normalizedMatch) {
+      if (emailMatch || phoneMatch || nameScore > 0.8 || normalizedMatch || nicknameMatch) {
         alreadyExists = true;
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
-        const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : `fuzzy(${nameScore.toFixed(2)})`;
+        const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : nicknameMatch ? `nickname(${p.nickname})` : `fuzzy(${nameScore.toFixed(2)})`;
         console.log(`[IMPORT MATCH] "${full_name}" → "${p.full_name}" via ${matchReason} | userId=${p.user_id}`);
 
-        // ALWAYS send pipeline if provided — let edge function decide strongest
+        // ALWAYS send pipeline if provided — import is authoritative
         if (pipelineProvided) updateFields.push('pipeline');
         // ALWAYS send rep_status if provided — NLC must always sync
         if (repStatusProvided) updateFields.push('rep_status');
