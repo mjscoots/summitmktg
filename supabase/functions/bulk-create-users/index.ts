@@ -52,6 +52,7 @@ interface ProfileRecord {
   full_name: string;
   email: string | null;
   phone: string | null;
+  nickname: string | null;
   onboarding_status: string | null;
   status: string | null;
   approved: boolean | null;
