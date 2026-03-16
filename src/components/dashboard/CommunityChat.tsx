@@ -239,11 +239,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     if (!user || doubleTapGuard.current) return;
     doubleTapGuard.current = true;
     try {
-      const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '🔥').maybeSingle();
+      const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '⛰️').maybeSingle();
       if (existing) {
         await supabase.from('chat_reactions').delete().eq('id', existing.id);
       } else {
-        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '🔥' });
+        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '⛰️' });
       }
     } catch {
       // silent
