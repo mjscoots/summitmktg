@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format, parse } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -12,8 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2, CalendarPlus, Clock, Type, Tag, Repeat, MapPinned, FileText, UserPlus } from 'lucide-react';
+import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2, CalendarPlus, CalendarIcon, Clock, Type, Tag, Repeat, MapPinned, FileText, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RecurrenceSelector, DEFAULT_RECURRENCE, type RecurrenceSettings } from './RecurrenceSelector';
 import { UserAvatar } from '@/components/shared/UserAvatar';
