@@ -603,6 +603,14 @@ function parseBlocks(
   // Deduplicate within this import batch
   const parsed = deduplicateParsed(rawParsed);
 
+  console.group(`[IMPORT PARSE SUMMARY] ${parsed.length} parsed, ${skipped.length} skipped`);
+  console.log('Skipped:', skipped);
+  const matched = parsed.filter(p => p.alreadyExists);
+  const newPeople = parsed.filter(p => !p.alreadyExists);
+  console.log(`Matched existing: ${matched.length}`, matched.map(p => `${p.full_name} → ${p.matchedName} [pipeline=${p.pipeline_status}, rep_status=${p.rep_status}, manager=${p.recruiter_or_manager}]`));
+  console.log(`New people: ${newPeople.length}`, newPeople.map(p => `${p.full_name} [pipeline=${p.pipeline_status}, rep_status=${p.rep_status}, manager=${p.recruiter_or_manager}]`));
+  console.groupEnd();
+
   return { parsed, skipped };
 }
 
