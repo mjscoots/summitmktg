@@ -342,6 +342,7 @@ interface ProfileIndexes {
   byPhone: Map<string, ProfileRecord[]>;
   byFullName: Map<string, ProfileRecord[]>;
   byFirstLast: Map<string, ProfileRecord[]>;
+  byNickname: Map<string, ProfileRecord[]>;
 }
 
 function createEmptyIndexes(): ProfileIndexes {
