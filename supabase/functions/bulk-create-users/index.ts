@@ -322,7 +322,7 @@ async function fetchAllProfiles(supabaseAdmin: ReturnType<typeof createClient>):
   while (true) {
     const { data, error } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, full_name, email, phone, onboarding_status, status, approved, region, office_name, experience, direct_manager, organization")
+      .select("user_id, full_name, email, phone, nickname, onboarding_status, status, approved, region, office_name, experience, direct_manager, organization")
       .range(offset, offset + pageSize - 1);
 
     if (error) throw error;
