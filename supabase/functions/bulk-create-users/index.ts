@@ -389,6 +389,10 @@ function removeProfileFromIndexes(indexes: ProfileIndexes, profile: ProfileRecor
   remove(indexes.byPhone, normalizePhoneDigits(profile.phone));
   remove(indexes.byFullName, normalizeNameForMatch(profile.full_name));
   remove(indexes.byFirstLast, normalizeFirstLast(profile.full_name));
+  if (profile.nickname) {
+    remove(indexes.byNickname, normalizeNameForMatch(profile.nickname));
+    remove(indexes.byNickname, normalizeFirstLast(profile.nickname));
+  }
   indexes.byUserId.delete(profile.user_id);
 }
 
