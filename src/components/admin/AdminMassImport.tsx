@@ -559,6 +559,9 @@ function parseBlocks(
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
+        const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : `fuzzy(${nameScore.toFixed(2)})`;
+        console.log(`[IMPORT MATCH] "${full_name}" → "${p.full_name}" via ${matchReason} | userId=${p.user_id}`);
+
         // ALWAYS send pipeline if provided — let edge function decide strongest
         if (pipelineProvided) updateFields.push('pipeline');
         // ALWAYS send rep_status if provided — NLC must always sync
@@ -569,6 +572,7 @@ function parseBlocks(
         if (office_name && !p.office_name) updateFields.push('office_name');
         if (experience && !p.experience) updateFields.push('experience');
         if (recruiter_or_manager && !p.direct_manager) updateFields.push('manager');
+        console.log(`[IMPORT MATCH] "${full_name}" updateFields=[${updateFields.join(', ')}] pipeline=${pipeline_status} rep_status=${rep_status} manager=${recruiter_or_manager}`);
         break;
       }
     }
