@@ -185,10 +185,9 @@ function isLikelyPersonName(raw: string | undefined | null): boolean {
   return parts.every((p) => /^[a-z0-9]+$/.test(p));
 }
 
-function strongestPipeline(a: string | undefined | null, b: string | undefined | null): string {
-  const current = a ?? "pending";
-  const incoming = b ?? current;
-  return (PIPELINE_RANK[incoming] ?? 0) > (PIPELINE_RANK[current] ?? 0) ? incoming : current;
+/** Always use the incoming (latest) pipeline value — the import is authoritative */
+function strongestPipeline(_existing: string | undefined | null, incoming: string | undefined | null): string {
+  return incoming ?? _existing ?? "pending";
 }
 
 function toBigrams(value: string): Set<string> {
