@@ -647,13 +647,17 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       await new Promise(r => setTimeout(r, 250));
 
       const allRows = parsed.map(u => {
+        // Use the matched profile's actual role instead of hardcoding 'rookie'
+        const matchedProfile = u.alreadyExists && u.matchedUserId
+          ? profiles.find(p => p.user_id === u.matchedUserId)
+          : null;
+        const resolvedRole = matchedProfile?.role || 'rookie';
+
         const row = {
           full_name: u.full_name,
           email: u.email,
           phone: u.phone,
-          role: (u.alreadyExists && u.matchedUserId
-            ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
-            : 'rookie') as any,
+          role: resolvedRole as any,
           direct_manager: u.recruiter_or_manager || defaultManager,
           team_name: defaultTeam,
           onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
