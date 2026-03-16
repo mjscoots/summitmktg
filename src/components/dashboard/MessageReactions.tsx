@@ -6,15 +6,15 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const SUMMIT_REACTIONS = [
+  { emoji: '⛰️', label: 'Summit' },
   { emoji: '🔥', label: 'Close' },
   { emoji: '💰', label: 'Big Money' },
   { emoji: '🧠', label: 'Smart' },
-  { emoji: '⚔️', label: 'Warrior' },
   { emoji: '🚀', label: 'Momentum' },
 ];
 
 const ALL_EMOJIS: { label: string; emojis: string[] }[] = [
-  { label: 'Summit', emojis: ['🔥', '💰', '🧠', '⚔️', '🚀', '💪', '👑', '🏆'] },
+  { label: 'Summit', emojis: ['⛰️', '🔥', '💰', '🧠', '⚔️', '🚀', '💪', '👑', '🏆'] },
   { label: 'Popular', emojis: ['👍', '😂', '❤️', '👏', '💯', '🎉', '👀', '✅', '🙌'] },
   { label: 'Gestures', emojis: ['👍', '👎', '👊', '✊', '🤞', '🫶', '💪', '🙏', '👋', '🤙', '✌️'] },
   { label: 'Objects', emojis: ['⭐', '💎', '🏆', '🎯', '📈', '💰', '🛡️', '⚡', '🚀', '💡', '🔔'] },
