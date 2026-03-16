@@ -452,7 +452,12 @@ function matchCanonicalProfile(
   let secondScore = 0;
 
   for (const profile of allProfiles) {
-    const score = diceCoefficient(row.full_name_normalized, normalizeNameForMatch(profile.full_name));
+    // Check against both full_name and nickname
+    const nameScore = diceCoefficient(row.full_name_normalized, normalizeNameForMatch(profile.full_name));
+    const nicknameScore = profile.nickname
+      ? diceCoefficient(row.full_name_normalized, normalizeNameForMatch(profile.nickname))
+      : 0;
+    const score = Math.max(nameScore, nicknameScore);
     if (score > bestScore) {
       secondScore = bestScore;
       bestScore = score;
