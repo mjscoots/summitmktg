@@ -352,6 +352,7 @@ function createEmptyIndexes(): ProfileIndexes {
     byPhone: new Map(),
     byFullName: new Map(),
     byFirstLast: new Map(),
+    byNickname: new Map(),
   };
 }
 
