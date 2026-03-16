@@ -811,6 +811,8 @@ export default function AdminUsersTab({
                 onboarding_status: u.onboarding_status,
                 status: u.status,
                 recruiter: u.recruiter,
+                nickname: (u as any).nickname ?? null,
+                role: u.role ?? null,
               }))}
               managers={managers}
               teams={teams}

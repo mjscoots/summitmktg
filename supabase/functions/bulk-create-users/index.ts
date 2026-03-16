@@ -52,6 +52,7 @@ interface ProfileRecord {
   full_name: string;
   email: string | null;
   phone: string | null;
+  nickname: string | null;
   onboarding_status: string | null;
   status: string | null;
   approved: boolean | null;
@@ -184,10 +185,9 @@ function isLikelyPersonName(raw: string | undefined | null): boolean {
   return parts.every((p) => /^[a-z0-9]+$/.test(p));
 }
 
-function strongestPipeline(a: string | undefined | null, b: string | undefined | null): string {
-  const current = a ?? "pending";
-  const incoming = b ?? current;
-  return (PIPELINE_RANK[incoming] ?? 0) > (PIPELINE_RANK[current] ?? 0) ? incoming : current;
+/** Always use the incoming (latest) pipeline value — the import is authoritative */
+function strongestPipeline(_existing: string | undefined | null, incoming: string | undefined | null): string {
+  return incoming ?? _existing ?? "pending";
 }
 
 function toBigrams(value: string): Set<string> {
@@ -322,7 +322,7 @@ async function fetchAllProfiles(supabaseAdmin: ReturnType<typeof createClient>):
   while (true) {
     const { data, error } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, full_name, email, phone, onboarding_status, status, approved, region, office_name, experience, direct_manager, organization")
+      .select("user_id, full_name, email, phone, nickname, onboarding_status, status, approved, region, office_name, experience, direct_manager, organization")
       .range(offset, offset + pageSize - 1);
 
     if (error) throw error;
@@ -342,6 +342,7 @@ interface ProfileIndexes {
   byPhone: Map<string, ProfileRecord[]>;
   byFullName: Map<string, ProfileRecord[]>;
   byFirstLast: Map<string, ProfileRecord[]>;
+  byNickname: Map<string, ProfileRecord[]>;
 }
 
 function createEmptyIndexes(): ProfileIndexes {
@@ -351,6 +352,7 @@ function createEmptyIndexes(): ProfileIndexes {
     byPhone: new Map(),
     byFullName: new Map(),
     byFirstLast: new Map(),
+    byNickname: new Map(),
   };
 }
 
@@ -367,6 +369,10 @@ function addProfileToIndexes(indexes: ProfileIndexes, profile: ProfileRecord) {
   pushToIndex(indexes.byPhone, normalizePhoneDigits(profile.phone), profile);
   pushToIndex(indexes.byFullName, normalizeNameForMatch(profile.full_name), profile);
   pushToIndex(indexes.byFirstLast, normalizeFirstLast(profile.full_name), profile);
+  if (profile.nickname) {
+    pushToIndex(indexes.byNickname, normalizeNameForMatch(profile.nickname), profile);
+    pushToIndex(indexes.byNickname, normalizeFirstLast(profile.nickname), profile);
+  }
 }
 
 function removeProfileFromIndexes(indexes: ProfileIndexes, profile: ProfileRecord) {
@@ -383,6 +389,10 @@ function removeProfileFromIndexes(indexes: ProfileIndexes, profile: ProfileRecor
   remove(indexes.byPhone, normalizePhoneDigits(profile.phone));
   remove(indexes.byFullName, normalizeNameForMatch(profile.full_name));
   remove(indexes.byFirstLast, normalizeFirstLast(profile.full_name));
+  if (profile.nickname) {
+    remove(indexes.byNickname, normalizeNameForMatch(profile.nickname));
+    remove(indexes.byNickname, normalizeFirstLast(profile.nickname));
+  }
   indexes.byUserId.delete(profile.user_id);
 }
 
@@ -431,12 +441,23 @@ function matchCanonicalProfile(
     return { type: "review", reason: "Ambiguous first+last match" };
   }
 
+  // Check nickname index
+  const nicknameMatch = pickUniqueCandidate(indexes.byNickname.get(row.full_name_normalized));
+  if (nicknameMatch) return { type: "matched", profile: nicknameMatch, reason: "nickname_match" };
+  const nicknameFirstLast = pickUniqueCandidate(indexes.byNickname.get(row.first_last_normalized));
+  if (nicknameFirstLast) return { type: "matched", profile: nicknameFirstLast, reason: "nickname_first_last" };
+
   let best: ProfileRecord | null = null;
   let bestScore = 0;
   let secondScore = 0;
 
   for (const profile of allProfiles) {
-    const score = diceCoefficient(row.full_name_normalized, normalizeNameForMatch(profile.full_name));
+    // Check against both full_name and nickname
+    const nameScore = diceCoefficient(row.full_name_normalized, normalizeNameForMatch(profile.full_name));
+    const nicknameScore = profile.nickname
+      ? diceCoefficient(row.full_name_normalized, normalizeNameForMatch(profile.nickname))
+      : 0;
+    const score = Math.max(nameScore, nicknameScore);
     if (score > bestScore) {
       secondScore = bestScore;
       bestScore = score;

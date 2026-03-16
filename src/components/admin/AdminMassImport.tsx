@@ -11,7 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 
 interface MassImportProps {
-  profiles: { user_id: string; full_name: string; email: string; phone?: string | null; region?: string | null; organization?: string | null; office_name?: string | null; direct_manager?: string | null; experience?: string | null; team_id?: string | null; onboarding_status?: string | null; status?: string | null; recruiter?: string | null }[];
+  profiles: { user_id: string; full_name: string; email: string; phone?: string | null; region?: string | null; organization?: string | null; office_name?: string | null; direct_manager?: string | null; experience?: string | null; team_id?: string | null; onboarding_status?: string | null; status?: string | null; recruiter?: string | null; nickname?: string | null; role?: string | null }[];
   managers: { user_id: string; full_name: string }[];
   teams: { id: string; name: string }[];
   onRefresh: () => void;
@@ -165,8 +165,9 @@ function normalizePipeline(raw: string): string {
   return detectPipelineStatus(raw) || 'pending';
 }
 
-function strongestPipeline(a: string, b: string): string {
-  return (PIPELINE_RANK[b] ?? 0) > (PIPELINE_RANK[a] ?? 0) ? b : a;
+/** Always use the incoming (latest) pipeline value — the import is authoritative */
+function strongestPipeline(_existing: string, incoming: string): string {
+  return incoming;
 }
 
 function normalizeRepStatus(raw: string): 'active' | 'nlc' | null {
@@ -237,16 +238,7 @@ function normalizeForMatch(name: string): string {
   return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
-/** Check if a name is a known manager name — these should NOT become new reps */
-function isKnownManagerName(name: string, managerList: { full_name: string }[], existingProfiles: MassImportProps['profiles']): boolean {
-  const norm = normalizeForMatch(name);
-  // Check against manager list
-  for (const m of managerList) {
-    if (normalizeForMatch(m.full_name) === norm) return true;
-    if (matchNames(m.full_name, name) > 0.85) return true;
-  }
-  return false;
-}
+/** Removed: manager-role people are no longer skipped during import */
 
 /** Deduplicate parsed results — merge entries that point to the same person */
 function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
@@ -551,21 +543,23 @@ function parseBlocks(
     for (const p of existingProfiles) {
       const normalizedExisting = normalizeForMatch(p.full_name);
       const normalizedMatch = normalizedImport === normalizedExisting;
+      // Also match against nickname if present
+      const nicknameMatch = p.nickname ? normalizeForMatch(p.nickname) === normalizedImport || matchNames(p.nickname, full_name) > 0.8 : false;
       const emailMatch = email && p.email && p.email.toLowerCase() === email.toLowerCase();
       const phoneDigits = phone.replace(/\D/g, '');
       const profilePhoneDigits = (p.phone || '').replace(/\D/g, '');
       const phoneMatch = phoneDigits.length >= 7 && profilePhoneDigits.length >= 7 && phoneDigits === profilePhoneDigits;
       const nameScore = matchNames(p.full_name, full_name);
 
-      if (emailMatch || phoneMatch || nameScore > 0.8 || normalizedMatch) {
+      if (emailMatch || phoneMatch || nameScore > 0.8 || normalizedMatch || nicknameMatch) {
         alreadyExists = true;
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
-        const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : `fuzzy(${nameScore.toFixed(2)})`;
+        const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : nicknameMatch ? `nickname(${p.nickname})` : `fuzzy(${nameScore.toFixed(2)})`;
         console.log(`[IMPORT MATCH] "${full_name}" → "${p.full_name}" via ${matchReason} | userId=${p.user_id}`);
 
-        // ALWAYS send pipeline if provided — let edge function decide strongest
+        // ALWAYS send pipeline if provided — import is authoritative
         if (pipelineProvided) updateFields.push('pipeline');
         // ALWAYS send rep_status if provided — NLC must always sync
         if (repStatusProvided) updateFields.push('rep_status');
@@ -653,13 +647,17 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       await new Promise(r => setTimeout(r, 250));
 
       const allRows = parsed.map(u => {
+        // Use the matched profile's actual role instead of hardcoding 'rookie'
+        const matchedProfile = u.alreadyExists && u.matchedUserId
+          ? profiles.find(p => p.user_id === u.matchedUserId)
+          : null;
+        const resolvedRole = matchedProfile?.role || 'rookie';
+
         const row = {
           full_name: u.full_name,
           email: u.email,
           phone: u.phone,
-          role: (u.alreadyExists && u.matchedUserId
-            ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
-            : 'rookie') as any,
+          role: resolvedRole as any,
           direct_manager: u.recruiter_or_manager || defaultManager,
           team_name: defaultTeam,
           onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
