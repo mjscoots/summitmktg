@@ -652,22 +652,26 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       setLoadingStep(1);
       await new Promise(r => setTimeout(r, 250));
 
-      const allRows = parsed.map(u => ({
-        full_name: u.full_name,
-        email: u.email,
-        phone: u.phone,
-        role: (u.alreadyExists && u.matchedUserId
-          ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
-          : 'rookie') as any,
-        direct_manager: u.recruiter_or_manager || defaultManager,
-        team_name: defaultTeam,
-        onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
-        rep_status: u.repStatusProvided ? u.rep_status : undefined,
-        region: u.region,
-        office_name: u.office_name,
-        experience: u.experience,
-        organization: '',
-      }));
+      const allRows = parsed.map(u => {
+        const row = {
+          full_name: u.full_name,
+          email: u.email,
+          phone: u.phone,
+          role: (u.alreadyExists && u.matchedUserId
+            ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
+            : 'rookie') as any,
+          direct_manager: u.recruiter_or_manager || defaultManager,
+          team_name: defaultTeam,
+          onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
+          rep_status: u.repStatusProvided ? u.rep_status : undefined,
+          region: u.region,
+          office_name: u.office_name,
+          experience: u.experience,
+          organization: '',
+        };
+        console.log(`[IMPORT ROW→API] ${row.full_name} | role=${row.role} | onboarding=${row.onboarding_status} | rep_status=${row.rep_status} | manager=${row.direct_manager}`);
+        return row;
+      });
 
       const createdNames: string[] = [];
       const updatedNames: string[] = [];
