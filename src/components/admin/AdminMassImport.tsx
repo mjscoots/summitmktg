@@ -165,8 +165,9 @@ function normalizePipeline(raw: string): string {
   return detectPipelineStatus(raw) || 'pending';
 }
 
-function strongestPipeline(a: string, b: string): string {
-  return (PIPELINE_RANK[b] ?? 0) > (PIPELINE_RANK[a] ?? 0) ? b : a;
+/** Always use the incoming (latest) pipeline value — the import is authoritative */
+function strongestPipeline(_existing: string, incoming: string): string {
+  return incoming;
 }
 
 function normalizeRepStatus(raw: string): 'active' | 'nlc' | null {
