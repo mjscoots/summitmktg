@@ -238,16 +238,7 @@ function normalizeForMatch(name: string): string {
   return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
-/** Check if a name is a known manager name — these should NOT become new reps */
-function isKnownManagerName(name: string, managerList: { full_name: string }[], existingProfiles: MassImportProps['profiles']): boolean {
-  const norm = normalizeForMatch(name);
-  // Check against manager list
-  for (const m of managerList) {
-    if (normalizeForMatch(m.full_name) === norm) return true;
-    if (matchNames(m.full_name, name) > 0.85) return true;
-  }
-  return false;
-}
+/** Removed: manager-role people are no longer skipped during import */
 
 /** Deduplicate parsed results — merge entries that point to the same person */
 function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
