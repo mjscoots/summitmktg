@@ -441,6 +441,12 @@ function matchCanonicalProfile(
     return { type: "review", reason: "Ambiguous first+last match" };
   }
 
+  // Check nickname index
+  const nicknameMatch = pickUniqueCandidate(indexes.byNickname.get(row.full_name_normalized));
+  if (nicknameMatch) return { type: "matched", profile: nicknameMatch, reason: "nickname_match" };
+  const nicknameFirstLast = pickUniqueCandidate(indexes.byNickname.get(row.first_last_normalized));
+  if (nicknameFirstLast) return { type: "matched", profile: nicknameFirstLast, reason: "nickname_first_last" };
+
   let best: ProfileRecord | null = null;
   let bestScore = 0;
   let secondScore = 0;
