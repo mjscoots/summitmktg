@@ -525,7 +525,10 @@ function parseBlocks(
 
     // Validate: must have a real name
     if (!full_name || isJunkValue(full_name)) {
-      if (full_name) skipped.push({ value: full_name, reason: 'Not a valid person name' });
+      if (full_name) {
+        console.log(`[IMPORT SKIP] "${full_name}" — not a valid person name`);
+        skipped.push({ value: full_name, reason: 'Not a valid person name' });
+      }
       continue;
     }
 
@@ -559,6 +562,9 @@ function parseBlocks(
         matchedUserId = p.user_id;
         matchedName = p.full_name;
 
+        const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : `fuzzy(${nameScore.toFixed(2)})`;
+        console.log(`[IMPORT MATCH] "${full_name}" → "${p.full_name}" via ${matchReason} | userId=${p.user_id}`);
+
         // ALWAYS send pipeline if provided — let edge function decide strongest
         if (pipelineProvided) updateFields.push('pipeline');
         // ALWAYS send rep_status if provided — NLC must always sync
@@ -569,6 +575,7 @@ function parseBlocks(
         if (office_name && !p.office_name) updateFields.push('office_name');
         if (experience && !p.experience) updateFields.push('experience');
         if (recruiter_or_manager && !p.direct_manager) updateFields.push('manager');
+        console.log(`[IMPORT MATCH] "${full_name}" updateFields=[${updateFields.join(', ')}] pipeline=${pipeline_status} rep_status=${rep_status} manager=${recruiter_or_manager}`);
         break;
       }
     }
@@ -595,6 +602,14 @@ function parseBlocks(
 
   // Deduplicate within this import batch
   const parsed = deduplicateParsed(rawParsed);
+
+  console.group(`[IMPORT PARSE SUMMARY] ${parsed.length} parsed, ${skipped.length} skipped`);
+  console.log('Skipped:', skipped);
+  const matched = parsed.filter(p => p.alreadyExists);
+  const newPeople = parsed.filter(p => !p.alreadyExists);
+  console.log(`Matched existing: ${matched.length}`, matched.map(p => `${p.full_name} → ${p.matchedName} [pipeline=${p.pipeline_status}, rep_status=${p.rep_status}, manager=${p.recruiter_or_manager}]`));
+  console.log(`New people: ${newPeople.length}`, newPeople.map(p => `${p.full_name} [pipeline=${p.pipeline_status}, rep_status=${p.rep_status}, manager=${p.recruiter_or_manager}]`));
+  console.groupEnd();
 
   return { parsed, skipped };
 }
@@ -637,22 +652,26 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
       setLoadingStep(1);
       await new Promise(r => setTimeout(r, 250));
 
-      const allRows = parsed.map(u => ({
-        full_name: u.full_name,
-        email: u.email,
-        phone: u.phone,
-        role: (u.alreadyExists && u.matchedUserId
-          ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
-          : 'rookie') as any,
-        direct_manager: u.recruiter_or_manager || defaultManager,
-        team_name: defaultTeam,
-        onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
-        rep_status: u.repStatusProvided ? u.rep_status : undefined,
-        region: u.region,
-        office_name: u.office_name,
-        experience: u.experience,
-        organization: '',
-      }));
+      const allRows = parsed.map(u => {
+        const row = {
+          full_name: u.full_name,
+          email: u.email,
+          phone: u.phone,
+          role: (u.alreadyExists && u.matchedUserId
+            ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
+            : 'rookie') as any,
+          direct_manager: u.recruiter_or_manager || defaultManager,
+          team_name: defaultTeam,
+          onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
+          rep_status: u.repStatusProvided ? u.rep_status : undefined,
+          region: u.region,
+          office_name: u.office_name,
+          experience: u.experience,
+          organization: '',
+        };
+        console.log(`[IMPORT ROW→API] ${row.full_name} | role=${row.role} | onboarding=${row.onboarding_status} | rep_status=${row.rep_status} | manager=${row.direct_manager}`);
+        return row;
+      });
 
       const createdNames: string[] = [];
       const updatedNames: string[] = [];
@@ -702,6 +721,17 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
           }
 
           const payload = (data || {}) as BulkImportBatchResponse;
+
+          console.group(`[IMPORT BATCH ${Math.floor(i / BATCH_SIZE) + 1} RESULTS]`);
+          console.log('Created:', payload.success);
+          console.log('Updated:', payload.updated);
+          console.log('No changes:', payload.no_changes);
+          console.log('Review:', payload.flagged);
+          console.log('Invalid:', payload.invalid);
+          console.log('Failed:', payload.failed);
+          console.log('Status sync:', payload.status_sync);
+          console.log('Warnings:', payload.canonical_gap_warnings);
+          console.groupEnd();
 
           const createdEmails = payload.success || [];
           const batchCreatedNames = createdEmails.map((email) => emailToName.get((email || '').toLowerCase()) || email);
