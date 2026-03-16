@@ -641,7 +641,9 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         full_name: u.full_name,
         email: u.email,
         phone: u.phone,
-        role: 'rookie' as const,
+        role: (u.alreadyExists && u.matchedUserId
+          ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
+          : 'rookie') as any,
         direct_manager: u.recruiter_or_manager || defaultManager,
         team_name: defaultTeam,
         onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,

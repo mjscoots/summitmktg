@@ -463,11 +463,11 @@ function buildUpdatesFromImport(
 ): Record<string, unknown> {
   const updates: Record<string, unknown> = {};
 
+  // ALWAYS OVERWRITE: if import provides a pipeline status, use it directly
   if (row.pipelineProvided && row.onboarding_status) {
     const currentPipeline = currentProfile?.onboarding_status ?? "pending";
-    const strongest = strongestPipeline(currentPipeline, row.onboarding_status);
-    if (strongest !== currentPipeline) {
-      updates.onboarding_status = strongest;
+    if (row.onboarding_status !== currentPipeline) {
+      updates.onboarding_status = row.onboarding_status;
     }
   }
 
