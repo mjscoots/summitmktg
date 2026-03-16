@@ -525,7 +525,10 @@ function parseBlocks(
 
     // Validate: must have a real name
     if (!full_name || isJunkValue(full_name)) {
-      if (full_name) skipped.push({ value: full_name, reason: 'Not a valid person name' });
+      if (full_name) {
+        console.log(`[IMPORT SKIP] "${full_name}" — not a valid person name`);
+        skipped.push({ value: full_name, reason: 'Not a valid person name' });
+      }
       continue;
     }
 
