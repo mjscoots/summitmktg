@@ -369,6 +369,10 @@ function addProfileToIndexes(indexes: ProfileIndexes, profile: ProfileRecord) {
   pushToIndex(indexes.byPhone, normalizePhoneDigits(profile.phone), profile);
   pushToIndex(indexes.byFullName, normalizeNameForMatch(profile.full_name), profile);
   pushToIndex(indexes.byFirstLast, normalizeFirstLast(profile.full_name), profile);
+  if (profile.nickname) {
+    pushToIndex(indexes.byNickname, normalizeNameForMatch(profile.nickname), profile);
+    pushToIndex(indexes.byNickname, normalizeFirstLast(profile.nickname), profile);
+  }
 }
 
 function removeProfileFromIndexes(indexes: ProfileIndexes, profile: ProfileRecord) {
