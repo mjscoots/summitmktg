@@ -263,7 +263,7 @@ function mergeRows(base: NormalizedImportRow, incoming: NormalizedImportRow): No
 
   if (incoming.pipelineProvided) {
     merged.pipelineProvided = true;
-    merged.onboarding_status = strongestPipeline(merged.onboarding_status, incoming.onboarding_status);
+    merged.onboarding_status = incoming.onboarding_status;
   }
 
   if (incoming.repStatusProvided) {
@@ -463,11 +463,11 @@ function buildUpdatesFromImport(
 ): Record<string, unknown> {
   const updates: Record<string, unknown> = {};
 
+  // ALWAYS OVERWRITE: if import provides a pipeline status, use it directly
   if (row.pipelineProvided && row.onboarding_status) {
     const currentPipeline = currentProfile?.onboarding_status ?? "pending";
-    const strongest = strongestPipeline(currentPipeline, row.onboarding_status);
-    if (strongest !== currentPipeline) {
-      updates.onboarding_status = strongest;
+    if (row.onboarding_status !== currentPipeline) {
+      updates.onboarding_status = row.onboarding_status;
     }
   }
 
@@ -886,7 +886,7 @@ Deno.serve(async (req) => {
               approved: is_import ? false : true,
               status: row.repStatusProvided && row.rep_status ? row.rep_status : (profileBase.status ?? "active"),
               onboarding_status: row.pipelineProvided && row.onboarding_status
-                ? strongestPipeline(profileBase.onboarding_status, row.onboarding_status)
+                ? row.onboarding_status
                 : (profileBase.onboarding_status ?? "pending"),
             };
 

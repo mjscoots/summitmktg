@@ -529,18 +529,8 @@ function parseBlocks(
       continue;
     }
 
-    // *** CRITICAL: If this name is a known manager being imported as a "row",
-    // treat it as a manager reference and skip creating a new rep record ***
-    const nameNorm = normalizeForMatch(full_name);
-    if (managerNamesNorm.has(nameNorm)) {
-      // Check if this person already exists in profiles — only skip if they already have an account
-      const existingManager = existingProfiles.find(p => normalizeForMatch(p.full_name) === nameNorm);
-      if (existingManager) {
-        // Manager already exists, skip creating duplicate
-        skipped.push({ value: full_name, reason: 'Already exists as a manager — skipped' });
-        continue;
-      }
-    }
+    // Manager-role people are NO LONGER skipped — they get sent to the edge function
+    // so their onboarding_status, manager, and other fields can be updated.
 
     // Generate email if not found
     if (!email) {
@@ -651,7 +641,9 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         full_name: u.full_name,
         email: u.email,
         phone: u.phone,
-        role: 'rookie' as const,
+        role: (u.alreadyExists && u.matchedUserId
+          ? (profiles.find(p => p.user_id === u.matchedUserId) as any)?.role ?? 'rookie'
+          : 'rookie') as any,
         direct_manager: u.recruiter_or_manager || defaultManager,
         team_name: defaultTeam,
         onboarding_status: u.pipelineProvided ? u.pipeline_status : undefined,
