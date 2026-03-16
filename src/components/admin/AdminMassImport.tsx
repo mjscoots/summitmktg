@@ -722,6 +722,17 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
 
           const payload = (data || {}) as BulkImportBatchResponse;
 
+          console.group(`[IMPORT BATCH ${Math.floor(i / BATCH_SIZE) + 1} RESULTS]`);
+          console.log('Created:', payload.success);
+          console.log('Updated:', payload.updated);
+          console.log('No changes:', payload.no_changes);
+          console.log('Review:', payload.flagged);
+          console.log('Invalid:', payload.invalid);
+          console.log('Failed:', payload.failed);
+          console.log('Status sync:', payload.status_sync);
+          console.log('Warnings:', payload.canonical_gap_warnings);
+          console.groupEnd();
+
           const createdEmails = payload.success || [];
           const batchCreatedNames = createdEmails.map((email) => emailToName.get((email || '').toLowerCase()) || email);
           createdNames.push(...batchCreatedNames);
