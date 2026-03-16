@@ -263,7 +263,7 @@ function mergeRows(base: NormalizedImportRow, incoming: NormalizedImportRow): No
 
   if (incoming.pipelineProvided) {
     merged.pipelineProvided = true;
-    merged.onboarding_status = strongestPipeline(merged.onboarding_status, incoming.onboarding_status);
+    merged.onboarding_status = incoming.onboarding_status;
   }
 
   if (incoming.repStatusProvided) {
