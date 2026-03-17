@@ -205,6 +205,9 @@ export default function RecruitPipelinePage() {
   const [calendlyUrl, setCalendlyUrl] = useState('');
   const [editingCalendly, setEditingCalendly] = useState(false);
   const [calendlyDraft, setCalendlyDraft] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importing, setImporting] = useState(false);
 
   // Fetch calendly link from profile
   useEffect(() => {
