@@ -521,10 +521,13 @@ function TodoRow({
       className={cn(
         "relative flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all group cursor-pointer overflow-hidden",
         justCompleted && "!bg-emerald-500/10 scale-[0.98] duration-200",
-        !justCompleted && "duration-200",
+        isEntering && "animate-fade-in",
+        isExiting && "opacity-0 -translate-x-4 scale-95 duration-250",
+        !justCompleted && !isEntering && !isExiting && "duration-200",
         todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/30",
         priorityBg
       )}
+      style={isEntering ? {} : { animationDelay: `${index * 20}ms` }}
       onClick={onEdit}
     >
       {justCompleted && (
