@@ -360,6 +360,7 @@ export default function AdminTeamPage() {
                 Sync {adminCounts.syncIssues > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.syncIssues}</span>}
               </TabsTrigger>
             </TabsList>
+            </div>
           </div>
 
           {/* ========== USERS TAB ========== */}
