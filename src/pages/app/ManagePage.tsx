@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Swords, FileText, Video, Table2 } from 'lucide-react';
+import { Swords, FileText, Video, Table2, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const GRID_PATTERN =
