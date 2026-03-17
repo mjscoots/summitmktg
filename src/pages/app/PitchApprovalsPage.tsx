@@ -259,6 +259,8 @@ export default function PitchApprovalsPage() {
           onClose={() => setReviewingRequest(null)}
           onAction={refresh}
         />
+        </>
+        )}
       </main>
     </AppLayout>
   );
