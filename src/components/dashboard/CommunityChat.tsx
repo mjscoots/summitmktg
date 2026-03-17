@@ -139,6 +139,57 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     fetchMessages();
   }, []);
 
+  // Batch-fetch all reactions once messages are loaded, single realtime channel
+  const messagesRef = useRef<ChatMessage[]>([]);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const msgIds = messages.map(m => m.id);
+    const fetchAllReactions = async () => {
+      const { data } = await supabase
+        .from('chat_reactions')
+        .select('message_id, emoji, user_id')
+        .in('message_id', msgIds);
+      if (!data) return;
+      const map: Record<string, Record<string, string[]>> = {};
+      data.forEach(r => {
+        if (!map[r.message_id]) map[r.message_id] = {};
+        if (!map[r.message_id][r.emoji]) map[r.message_id][r.emoji] = [];
+        map[r.message_id][r.emoji].push(r.user_id);
+      });
+      setReactionsMap(map);
+    };
+    fetchAllReactions();
+  }, [messages.length]); // re-fetch when message count changes
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('all-chat-reactions')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
+        const row = payload.new as any;
+        const old = payload.old as any;
+        if (payload.eventType === 'INSERT' && row) {
+          setReactionsMap(prev => {
+            const msgReactions = { ...(prev[row.message_id] || {}) };
+            msgReactions[row.emoji] = [...(msgReactions[row.emoji] || []), row.user_id];
+            return { ...prev, [row.message_id]: msgReactions };
+          });
+        } else if (payload.eventType === 'DELETE' && old) {
+          setReactionsMap(prev => {
+            const msgReactions = { ...(prev[old.message_id] || {}) };
+            if (msgReactions[old.emoji]) {
+              msgReactions[old.emoji] = msgReactions[old.emoji].filter((u: string) => u !== old.user_id);
+              if (msgReactions[old.emoji].length === 0) delete msgReactions[old.emoji];
+            }
+            return { ...prev, [old.message_id]: msgReactions };
+          });
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   // Realtime
   useEffect(() => {
     const channel = supabase
