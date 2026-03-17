@@ -63,19 +63,19 @@ export default function PitchApprovalsPage() {
         {/* Back Button */}
         <PageBackButton to="/app" label="Dashboard" />
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-primary/10">
               <Mic className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Pitch Approvals</h1>
-              <p className="text-sm text-muted-foreground">Review recorded pitches from your reps</p>
+              <h1 className="text-2xl font-bold text-foreground">Rep Videos</h1>
+              <p className="text-sm text-muted-foreground">Pitch approvals & checklist videos</p>
             </div>
           </div>
 
-          {/* Team Filter */}
-          {teams.length > 1 && (
+          {/* Team Filter - only show on pitches tab */}
+          {activeTab === 'pitches' && teams.length > 1 && (
             <Select value={teamFilter} onValueChange={setTeamFilter}>
               <SelectTrigger className="w-[180px] bg-card">
                 <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
@@ -98,6 +98,44 @@ export default function PitchApprovalsPage() {
             </Select>
           )}
         </div>
+
+        {/* Tab Toggle */}
+        <div className="flex gap-1 mb-6">
+          <button
+            onClick={() => setActiveTab('pitches')}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 text-sm font-bold rounded-lg transition-all",
+              activeTab === 'pitches'
+                ? "bg-primary/10 text-primary border border-primary/20"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Mic className="w-4 h-4" />
+            Pitch Approvals
+            {pending.length > 0 && (
+              <span className="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">{pending.length}</span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('checklist')}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 text-sm font-bold rounded-lg transition-all",
+              activeTab === 'checklist'
+                ? "bg-primary/10 text-primary border border-primary/20"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Video className="w-4 h-4" />
+            Checklist Videos
+          </button>
+        </div>
+
+        {activeTab === 'checklist' ? (
+          <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+            <AdminSubmittedVideosTab />
+          </Suspense>
+        ) : (
+        <>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
