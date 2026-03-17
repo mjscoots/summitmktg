@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Trash2, Users, Loader2, Search, X, ArrowUpDown, ChevronDown, StickyNote, Calendar, Link2, ExternalLink, Check, Pencil } from 'lucide-react';
+import { Plus, Trash2, Users, Loader2, Search, X, ArrowUpDown, ChevronDown, StickyNote, Calendar, Link2, ExternalLink, Check, Pencil, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -205,6 +205,9 @@ export default function RecruitPipelinePage() {
   const [calendlyUrl, setCalendlyUrl] = useState('');
   const [editingCalendly, setEditingCalendly] = useState(false);
   const [calendlyDraft, setCalendlyDraft] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importing, setImporting] = useState(false);
 
   // Fetch calendly link from profile
   useEffect(() => {
@@ -268,6 +271,73 @@ export default function RecruitPipelinePage() {
   const toggleSort = (field: SortField) => {
     if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSortField(field); setSortDir('asc'); }
+  };
+
+  const handleMassImport = async () => {
+    if (!user || !importText.trim()) return;
+    setImporting(true);
+
+    const lines = importText.trim().split('\n').filter(l => l.trim());
+    const rows: { owner_id: string; recruit_name: string; phone: string; email: string; source: string; stage: string; position: string; interview_2_status: string; interview_3_status: string; onboarding_status: string }[] = [];
+
+    for (const line of lines) {
+      // Support tab, comma, or pipe delimited
+      const parts = line.includes('\t') ? line.split('\t') : line.includes('|') ? line.split('|') : line.split(',');
+      const cleaned = parts.map(p => p.trim());
+      const name = cleaned[0] || '';
+      if (!name) continue;
+
+      // Detect phone and email from remaining fields
+      let phone = '';
+      let email = '';
+      let source = '';
+
+      for (let i = 1; i < cleaned.length; i++) {
+        const val = cleaned[i];
+        if (!val) continue;
+        if (val.includes('@') && !email) {
+          email = val;
+        } else if (/[\d\-().+\s]{7,}/.test(val) && !phone) {
+          // Normalize phone
+          const digits = val.replace(/\D/g, '');
+          if (digits.length >= 7) {
+            phone = digits.length === 10 ? `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}` : val;
+          }
+        } else if (!source) {
+          source = val;
+        }
+      }
+
+      rows.push({
+        owner_id: user.id,
+        recruit_name: name,
+        phone,
+        email,
+        source,
+        stage: 'new_lead',
+        position: '',
+        interview_2_status: '',
+        interview_3_status: '',
+        onboarding_status: '',
+      });
+    }
+
+    if (rows.length === 0) {
+      toast.error('No valid rows found');
+      setImporting(false);
+      return;
+    }
+
+    const { data, error } = await (supabase as any).from('recruit_pipeline').insert(rows).select();
+    if (error) {
+      toast.error('Import failed: ' + error.message);
+    } else {
+      setRecruits(prev => [...(data as Recruit[]), ...prev]);
+      toast.success(`Imported ${(data as any[]).length} recruits`);
+      setImportOpen(false);
+      setImportText('');
+    }
+    setImporting(false);
   };
 
   const filtered = useMemo(() => {
@@ -374,9 +444,14 @@ export default function RecruitPipelinePage() {
                 </div>
               </div>
             </div>
-            <Button size="sm" onClick={addRecruit} className="gap-1.5 shrink-0">
-              <Plus className="w-4 h-4" /> Add Row
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button size="sm" variant="outline" onClick={() => setImportOpen(true)} className="gap-1.5">
+                <Upload className="w-4 h-4" /> Import
+              </Button>
+              <Button size="sm" onClick={addRecruit} className="gap-1.5">
+                <Plus className="w-4 h-4" /> Add Row
+              </Button>
+            </div>
           </div>
 
           {/* Row 2: Search */}
@@ -529,6 +604,55 @@ export default function RecruitPipelinePage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Mass Import Dialog ─── */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-4 h-4 text-primary" />
+              Mass Import Recruits
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium text-foreground">Paste your data below — one recruit per line.</p>
+              <p>Supports <strong>tab</strong>, <strong>comma</strong>, or <strong>pipe (|)</strong> separated values.</p>
+              <p>Format: <code className="bg-muted/50 px-1.5 py-0.5 rounded text-[10px]">Name, Phone, Email, Source</code></p>
+              <p className="text-muted-foreground/60">Phone and email are auto-detected from any column position.</p>
+            </div>
+            <Textarea
+              value={importText}
+              onChange={e => setImportText(e.target.value)}
+              placeholder={`John Smith\t(555) 123-4567\tjohn@email.com\nJane Doe, 555-987-6543, jane@email.com, Referral\nBob Wilson | 5551234567 | bob@email.com`}
+              rows={10}
+              className="text-xs font-mono"
+            />
+            {importText.trim() && (
+              <div className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {importText.trim().split('\n').filter(l => l.trim()).length}
+                </span>{' '}
+                rows detected
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setImportOpen(false); setImportText(''); }}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleMassImport}
+                disabled={importing || !importText.trim()}
+                className="gap-1.5"
+              >
+                {importing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                Import {importText.trim() ? `(${importText.trim().split('\n').filter(l => l.trim()).length})` : ''}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </AppLayout>
