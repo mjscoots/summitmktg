@@ -13,7 +13,7 @@ interface QuickAction {
 const MANAGER_ACTIONS: QuickAction[] = [
   { icon: <Swords className="w-4 h-4" />, label: 'My Team', path: '/app/war-room', color: 'orange' },
   { icon: <FileText className="w-4 h-4" />, label: 'Forms', path: '/app/forms', color: 'blue' },
-  { icon: <Users className="w-4 h-4" />, label: 'Recruiting', path: '/app/recruiting', color: 'cyan' },
+  { icon: <Users className="w-4 h-4" />, label: 'Funnel Tracker', path: '/app/recruiting', color: 'cyan' },
   { icon: <BookOpen className="w-4 h-4" />, label: 'Resources', path: '/app/links', color: 'amber' },
   { icon: <Video className="w-4 h-4" />, label: 'Pitch Approvals', path: '/app/pitch-approvals', color: 'purple' },
 ];
