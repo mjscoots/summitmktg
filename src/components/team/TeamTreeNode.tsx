@@ -82,8 +82,7 @@ export function TeamTreeNode({
 
       <div 
         className={cn(
-          "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
-          hasChildren && "cursor-pointer hover:bg-muted/30",
+          "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors cursor-pointer hover:bg-muted/30",
           isRoot && "bg-primary/10 border border-primary/20",
           isNLC && "opacity-50"
         )}
@@ -91,7 +90,10 @@ export function TeamTreeNode({
       >
         {/* Expand/collapse icon */}
         {hasChildren ? (
-          <button className="p-0.5 rounded hover:bg-muted/50">
+          <button
+            className="p-0.5 rounded hover:bg-muted/50"
+            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+          >
             {expanded ? (
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (
