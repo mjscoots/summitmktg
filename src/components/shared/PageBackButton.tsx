@@ -14,10 +14,13 @@ export function PageBackButton({ label = 'Back', to, className }: PageBackButton
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (to) {
+    // Always go back in browser history for natural navigation
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else if (to) {
       navigate(to);
     } else {
-      navigate(-1);
+      navigate('/app');
     }
   };
 
