@@ -77,36 +77,14 @@ export function ChatBubble({
   onEditChange,
   onEditSave,
   onEditCancel,
+  reactions: reactionsProp = [],
 }: ChatBubbleProps) {
   const { user } = useAuth();
-  const [reactions, setReactions] = useState<Reaction[]>([]);
+  const reactions = reactionsProp;
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
   const lastTapRef = useRef<number>(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const fetchReactions = async () => {
-      const { data } = await supabase
-        .from('chat_reactions')
-        .select('emoji, user_id')
-        .eq('message_id', message.id);
-      if (!data) return;
-      const grouped: Record<string, string[]> = {};
-      data.forEach(r => {
-        if (!grouped[r.emoji]) grouped[r.emoji] = [];
-        grouped[r.emoji].push(r.user_id);
-      });
-      setReactions(Object.entries(grouped).map(([emoji, users]) => ({ emoji, users, count: users.length })));
-    };
-    fetchReactions();
-
-    const channel = supabase
-      .channel(`reactions-${message.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions', filter: `message_id=eq.${message.id}` }, fetchReactions)
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [message.id]);
 
   const toggleReaction = async (emoji: string) => {
     if (!user) return;
