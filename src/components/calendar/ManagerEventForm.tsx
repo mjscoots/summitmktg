@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format, parse } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -12,8 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2, CalendarPlus, Clock, Type, Tag, Repeat, MapPinned, FileText, UserPlus } from 'lucide-react';
+import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2, CalendarPlus, CalendarIcon, Clock, Type, Tag, Repeat, MapPinned, FileText, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RecurrenceSelector, DEFAULT_RECURRENCE, type RecurrenceSettings } from './RecurrenceSelector';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -57,6 +60,44 @@ const EVENT_TYPES = [
 
 type AssignmentMode = 'entire_team' | 'managers_only' | 'rookies_only' | 'specific';
 type LocationMode = 'virtual' | 'in_person';
+
+// Date picker field component
+function DatePickerField({ value, onChange, placeholder, required }: { value: string; onChange: (val: string) => void; placeholder?: string; required?: boolean }) {
+  const selectedDate = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(
+            "w-full justify-start text-left font-normal h-10 bg-background/50 border-border/40 hover:bg-background/70",
+            !value && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground/60" />
+          {value ? format(parse(value, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy') : <span>{placeholder || 'Pick a date'}</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start" side="bottom" sideOffset={4}>
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={(date) => {
+            if (date) {
+              onChange(format(date, 'yyyy-MM-dd'));
+            }
+            setOpen(false);
+          }}
+          initialFocus
+          className={cn("p-3 pointer-events-auto")}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 // Step indicator component
 function StepSection({ icon: Icon, title, children, className }: { icon: React.ComponentType<{ className?: string }>; title: string; children: React.ReactNode; className?: string }) {
@@ -376,17 +417,17 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Start *</Label>
-                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
+                  <DatePickerField value={startDate} onChange={setStartDate} placeholder="Start date" required />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">End</Label>
-                  <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-background/50 border-border/40" />
+                  <DatePickerField value={endDate} onChange={setEndDate} placeholder="End date" />
                 </div>
               </div>
             ) : (
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">Date *</Label>
-                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
+                <DatePickerField value={startDate} onChange={setStartDate} placeholder="Select date" required />
               </div>
             )}
 
