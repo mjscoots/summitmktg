@@ -340,7 +340,7 @@ export function ChatBubble({
                 {reactions.slice(0, 4).map(r => (
                   <button
                     key={r.emoji}
-                    onClick={() => toggleReaction(r.emoji)}
+                    onClick={() => onToggleReaction(message.id, r.emoji)}
                     className={cn(
                       "text-xs hover:scale-110 transition-transform",
                       r.users.includes(user?.id || '') && "drop-shadow-[0_0_3px_hsl(var(--primary)/0.5)]"
