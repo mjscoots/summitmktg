@@ -56,6 +56,7 @@ interface ChatBubbleProps {
   onEditChange: (text: string) => void;
   onEditSave: () => void;
   onEditCancel: () => void;
+  reactions?: Reaction[];
 }
 
 export function ChatBubble({
