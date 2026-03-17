@@ -319,7 +319,7 @@ export default function AdminTeamPage() {
                 Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
               </TabsTrigger>
               <TabsTrigger value="apps" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
-                Apps {adminCounts.pendingApplications > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingApplications}</span>}
+                Apps
               </TabsTrigger>
               <TabsTrigger value="pitches" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
                 Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
