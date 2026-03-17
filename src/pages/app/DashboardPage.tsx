@@ -194,7 +194,8 @@ export default function DashboardPage() {
           /* ── HERO CARD ── */
           <div className="glass-card rounded-2xl p-5 mb-5 relative overflow-hidden">
             {/* Gradient glow behind hero */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full opacity-30 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
+            <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
+            <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full opacity-10 blur-2xl pointer-events-none" style={{ background: 'hsl(263 84% 58%)' }} />
             
             <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight mb-1 relative z-10">
               Welcome back, <span className="gradient-text">{firstName}</span>
@@ -205,14 +206,18 @@ export default function DashboardPage() {
 
             {/* Hero stats row */}
             {pointsData && (
-              <div className="grid grid-cols-4 gap-2 relative z-10">
+              <div className="grid grid-cols-4 gap-2.5 relative z-10">
                 {[
-                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-amber-400' },
-                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary' },
-                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400' },
-                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-orange-400' },
-                ].map(({ icon: Icon, value, label, color }) => (
-                  <div key={label} className="rounded-xl bg-muted/15 border border-border/30 p-2.5 text-center group hover:border-primary/20 transition-all duration-200">
+                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-amber-400', glow: 'hsl(43 96% 56% / 0.15)' },
+                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.15)' },
+                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400', glow: 'hsl(43 96% 56% / 0.12)' },
+                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-orange-400', glow: 'hsl(25 95% 53% / 0.12)' },
+                ].map(({ icon: Icon, value, label, color, glow }) => (
+                  <div
+                    key={label}
+                    className="rounded-xl p-2.5 text-center group hover:-translate-y-0.5 transition-all duration-250 border border-border/20"
+                    style={{ background: `linear-gradient(180deg, hsl(230 20% 10%), hsl(230 20% 7%))`, boxShadow: `0 0 20px -8px ${glow}` }}
+                  >
                     <Icon className={cn("w-3.5 h-3.5 mx-auto mb-1", color)} />
                     <p className="text-lg font-bold text-foreground tabular-nums leading-tight animate-count-up">{value}</p>
                     <p className="text-[7px] text-muted-foreground uppercase font-semibold tracking-wider mt-0.5">{label}</p>

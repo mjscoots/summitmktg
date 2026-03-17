@@ -1,10 +1,11 @@
-import { Clock, Mic } from 'lucide-react';
+import { Clock, Mic, Flame, Trophy, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useMyPoints } from '@/hooks/useMyPoints';
 
 interface PendingPitch {
   id: string;
@@ -16,10 +17,12 @@ interface PendingPitch {
 }
 
 export function CommandCenterHeader() {
-  const { profile, role } = useAuth();
+  const { profile, role, user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPitches, setPendingPitches] = useState<PendingPitch[]>([]);
+  const { data: pointsData } = useMyPoints();
+  const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const isOwner = role === 'owner';
@@ -27,6 +30,20 @@ export function CommandCenterHeader() {
   useEffect(() => {
     if (profile?.full_name) setIsLoading(false);
   }, [profile?.full_name]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchRank = async () => {
+      try {
+        const { data } = await (supabase.rpc as any)('get_current_leaderboard');
+        if (data) {
+          const myEntry = data.find((e: any) => e.user_id === user.id);
+          if (myEntry) setLeaderboardRank(Number(myEntry.rank));
+        }
+      } catch {}
+    };
+    fetchRank();
+  }, [user]);
 
   useEffect(() => {
     const fetchPitches = async () => {
@@ -65,18 +82,49 @@ export function CommandCenterHeader() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  const hoursToday = pointsData ? pointsData.timeTodayMinutes / 60 : 0;
+  const dailyPts = pointsData
+    ? pointsData.capsToday.hours.earned + pointsData.capsToday.chat.earned + pointsData.capsToday.lesson.earned + pointsData.capsToday.video.earned + pointsData.capsToday.manual.earned
+    : 0;
+
   return (
     <div className="mb-5">
-      {/* Glass hero */}
+      {/* Glass hero — control panel */}
       <div className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden">
-        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-25 blur-3xl pointer-events-none" style={{ background: isOwner ? 'var(--gradient-gold)' : 'var(--gradient-primary)' }} />
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: isOwner ? 'var(--gradient-gold)' : 'var(--gradient-primary)' }} />
+        <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full opacity-10 blur-2xl pointer-events-none" style={{ background: 'hsl(263 84% 58%)' }} />
         
-        <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight relative z-10">
-          Welcome back, <span className={isOwner ? "gradient-text-gold" : "gradient-text"}>{firstName}</span>
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5 relative z-10">
-          {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
-        </p>
+        <div className="flex items-start justify-between relative z-10">
+          <div>
+            <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight">
+              Welcome back, <span className={isOwner ? "gradient-text-gold" : "gradient-text"}>{firstName}</span>
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
+            </p>
+          </div>
+        </div>
+
+        {/* Manager stat blocks */}
+        {pointsData && (
+          <div className="grid grid-cols-3 gap-2.5 mt-4 relative z-10">
+            {[
+              { icon: Flame, value: `${dailyPts}`, label: 'PTS TODAY', color: 'text-amber-400', glow: 'hsl(43 96% 56% / 0.12)' },
+              { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.12)' },
+              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400', glow: 'hsl(43 96% 56% / 0.1)' },
+            ].map(({ icon: Icon, value, label, color, glow }) => (
+              <div
+                key={label}
+                className="rounded-xl p-2.5 text-center hover:-translate-y-0.5 transition-all duration-250 border border-border/20"
+                style={{ background: 'linear-gradient(180deg, hsl(230 20% 10%), hsl(230 20% 7%))', boxShadow: `0 0 16px -6px ${glow}` }}
+              >
+                <Icon className={cn("w-3.5 h-3.5 mx-auto mb-1", color)} />
+                <p className="text-lg font-bold text-foreground tabular-nums leading-tight animate-count-up">{value}</p>
+                <p className="text-[7px] text-muted-foreground uppercase font-semibold tracking-wider mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Pending Pitch Approvals */}
@@ -104,7 +152,7 @@ export function CommandCenterHeader() {
                 <button
                   key={pitch.id}
                   onClick={() => navigate('/app/pitch-approvals')}
-                  className="w-full flex items-center justify-between text-xs py-2 px-2.5 rounded-lg hover:bg-muted/20 transition-colors"
+                  className="w-full flex items-center justify-between text-xs py-2 px-2.5 rounded-lg hover:bg-muted/20 transition-all duration-250 hover:-translate-y-px"
                 >
                   <span className="text-foreground/80 flex items-center gap-2">
                     <Mic className="w-3 h-3 text-muted-foreground/50" />
