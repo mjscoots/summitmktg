@@ -151,7 +151,7 @@ export function DashboardFunnelTracker() {
           <p className="text-[11px]">{search ? 'No matches' : 'No recruits yet'}</p>
         </div>
       ) : (
-        <div className="overflow-hidden">
+        <div className="overflow-x-auto -mx-4 px-4">
           <table className="w-full min-w-[500px] text-[11px]">
             <thead>
               <tr className="border-b border-border/40">

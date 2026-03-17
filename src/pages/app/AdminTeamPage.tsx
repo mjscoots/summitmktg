@@ -395,7 +395,7 @@ export default function AdminTeamPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input value={teamSearch} onChange={e => setTeamSearch(e.target.value)} placeholder="Search teams..." className="pl-9 bg-card/50 border-border/30" />
             </div>
-            <div className="border border-border/30 rounded-lg overflow-hidden">
+            <div className="border border-border/30 rounded-lg overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/20 bg-card/30">
@@ -448,7 +448,7 @@ export default function AdminTeamPage() {
                 <p className="font-medium">No pending approvals</p>
               </div>
             ) : (
-              <div className="border border-border/30 rounded-lg overflow-hidden">
+              <div className="border border-border/30 rounded-lg overflow-x-auto">
                 <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="border-b border-border/20 bg-card/30">
