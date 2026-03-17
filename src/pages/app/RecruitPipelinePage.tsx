@@ -311,10 +311,11 @@ export default function RecruitPipelinePage() {
     );
   }
 
-  const SortHeader = ({ field, label, className: cls }: { field: SortField; label: string; className?: string }) => (
+  const SortHeader = ({ field, label, className: cls, style }: { field: SortField; label: string; className?: string; style?: React.CSSProperties }) => (
     <th
       className={cn("px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap", cls)}
       onClick={() => toggleSort(field)}
+      style={style}
     >
       <span className="inline-flex items-center gap-1">
         {label}
