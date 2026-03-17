@@ -451,6 +451,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onEditChange={setEditText}
                 onEditSave={() => handleEdit(msg.id)}
                 onEditCancel={() => { setEditingId(null); setEditText(''); }}
+                reactions={getReactionsForMessage(msg.id)}
               />
             </div>
           );
