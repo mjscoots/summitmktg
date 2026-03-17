@@ -22,7 +22,7 @@ import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gif
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ListTodo, CalendarIcon } from 'lucide-react';
+import { ListTodo, GitBranch } from 'lucide-react';
 
 function DashboardSkeleton() {
   return (
