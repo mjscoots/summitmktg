@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
-import { Swords, FileText, Video, Table2 } from 'lucide-react';
+import { Swords, FileText, Video, Table2, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const GRID_PATTERN =
@@ -103,6 +103,27 @@ export default function ManagePage() {
               </div>
               <div className="flex-1">
                 <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Spreadsheets</h2>
+              </div>
+            </div>
+          </button>
+
+          {/* Resources */}
+          <button
+            onClick={() => navigate('/app/links')}
+            className={cn(
+              'group relative w-full p-5 bg-card rounded-xl text-left overflow-hidden',
+              'border border-border/50 cursor-pointer',
+              'transition-all duration-300 hover:scale-[1.01]',
+              'hover:border-amber-500/40',
+              'hover:shadow-[0_0_30px_-10px_rgba(245,158,11,0.4)]'
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/15 group-hover:bg-amber-500/25 text-amber-400 transition-colors">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Resources</h2>
               </div>
             </div>
           </button>

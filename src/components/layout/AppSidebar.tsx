@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Sun, Moon, Settings2, Calendar, BookOpen } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Sun, Moon, Settings2, Calendar } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -187,25 +187,6 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {/* Resources — always visible */}
-              <SidebarMenuItem>
-                <button
-                  onClick={() => { navigate('/app/links'); if (isMobile) setOpenMobile(false); }}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-200 relative group",
-                    isActive('/app/links')
-                      ? "text-primary"
-                      : "text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent",
-                    collapsed && "justify-center px-2"
-                  )}
-                >
-                  {isActive('/app/links') && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'var(--gradient-primary)' }} />
-                  )}
-                  <BookOpen className={cn("w-4 h-4 flex-shrink-0", isActive('/app/links') ? "text-primary" : "text-muted-foreground/50")} strokeWidth={1.75} />
-                  {!collapsed && <span className="text-[12px] font-medium">Resources</span>}
-                </button>
-              </SidebarMenuItem>
 
               {/* Admin — admin/owner only */}
               {isAdmin && (
