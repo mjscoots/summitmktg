@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { CornerDownRight, SmilePlus, Reply } from 'lucide-react';
