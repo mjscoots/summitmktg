@@ -86,30 +86,9 @@ export default function ManagePage() {
             </div>
           </button>
 
-          {/* Spreadsheets */}
+          {/* Recruiting Board */}
           <button
-            onClick={() => navigate('/app/spreadsheets')}
-            className={cn(
-              'group relative w-full p-5 bg-card rounded-xl text-left overflow-hidden',
-              'border border-border/50 cursor-pointer',
-              'transition-all duration-300 hover:scale-[1.01]',
-              'hover:border-emerald-500/40',
-              'hover:shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)]'
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/15 group-hover:bg-emerald-500/25 text-emerald-400 transition-colors">
-                <Table2 className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Spreadsheets</h2>
-              </div>
-            </div>
-          </button>
-
-          {/* Recruit Pipeline */}
-          <button
-            onClick={() => navigate('/app/recruit-pipeline')}
+            onClick={() => navigate('/app/recruiting')}
             className={cn(
               'group relative w-full p-5 bg-card rounded-xl text-left overflow-hidden',
               'border border-border/50 cursor-pointer',
@@ -123,7 +102,7 @@ export default function ManagePage() {
                 <Users className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Recruit Pipeline</h2>
+                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Recruiting Board</h2>
               </div>
             </div>
           </button>
