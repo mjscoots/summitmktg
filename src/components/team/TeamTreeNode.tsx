@@ -61,10 +61,8 @@ export function TeamTreeNode({
   });
 
   const handleRowClick = (e: React.MouseEvent) => {
-    // If clicking on expand/collapse area, toggle expansion
-    if (hasChildren) {
-      setExpanded(!expanded);
-    }
+    // Row click opens profile, NOT expand/collapse
+    onMemberClick?.(member);
   };
 
   const handleNameClick = (e: React.MouseEvent) => {
