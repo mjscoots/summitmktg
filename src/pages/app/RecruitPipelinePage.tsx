@@ -444,9 +444,14 @@ export default function RecruitPipelinePage() {
                 </div>
               </div>
             </div>
-            <Button size="sm" onClick={addRecruit} className="gap-1.5 shrink-0">
-              <Plus className="w-4 h-4" /> Add Row
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button size="sm" variant="outline" onClick={() => setImportOpen(true)} className="gap-1.5">
+                <Upload className="w-4 h-4" /> Import
+              </Button>
+              <Button size="sm" onClick={addRecruit} className="gap-1.5">
+                <Plus className="w-4 h-4" /> Add Row
+              </Button>
+            </div>
           </div>
 
           {/* Row 2: Search */}
