@@ -312,7 +312,7 @@ export default function RecruitPipelinePage() {
           <div className="flex items-center gap-3">
             <Users className="w-5 h-5 text-primary" />
             <div>
-              <h1 className="text-xl font-bold text-foreground">Recruiting Board</h1>
+              <h1 className="text-xl font-bold text-foreground">Funnel Tracker</h1>
               <p className="text-xs text-muted-foreground">{recruits.length} total recruits</p>
             </div>
           </div>
