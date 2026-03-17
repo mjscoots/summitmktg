@@ -356,11 +356,14 @@ export function TodoList() {
         <p className="text-xs text-muted-foreground text-center py-3">No tasks yet</p>
       ) : (
         <div className="space-y-0.5">
-          {activeTodos.map(todo => (
+          {activeTodos.map((todo, i) => (
             <TodoRow
               key={todo.id}
               todo={todo}
               justCompleted={justCompleted.has(todo.id)}
+              isEntering={entering.has(todo.id)}
+              isExiting={exiting.has(todo.id)}
+              index={i}
               onToggle={() => toggleComplete(todo)}
               onDelete={() => deleteTodo(todo.id)}
               onEdit={() => openEditModal(todo)}
