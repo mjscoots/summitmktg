@@ -291,12 +291,32 @@ export function ChatBubble({
               "absolute top-0 hidden lg:flex items-center gap-0.5 -translate-y-1/2",
               isOwn ? "left-0 -translate-x-full pr-1" : "right-0 translate-x-full pl-1"
             )}>
-              <button
-                onClick={() => handleDoubleTap(message.id)}
-                className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
-              >
-                <SmilePlus className="w-3 h-3" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowQuickPicker(p => !p)}
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
+                >
+                  <SmilePlus className="w-3 h-3" />
+                </button>
+                {showQuickPicker && (
+                  <div className={cn(
+                    "absolute bottom-full mb-1 z-50 bg-card border border-border/50 rounded-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150",
+                    isOwn ? "right-0" : "left-0"
+                  )}>
+                    <div className="flex items-center gap-0.5 p-1">
+                      {QUICK_EMOJIS.map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => { onToggleReaction(message.id, emoji); setShowQuickPicker(false); }}
+                          className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted text-sm transition-all hover:scale-125 active:scale-90"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               {onReply && (
                 <button
                   onClick={() => onReply(message.id)}
