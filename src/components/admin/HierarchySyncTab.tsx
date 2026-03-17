@@ -291,7 +291,9 @@ export default function HierarchySyncTab({
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'Manager Assigned', description: `Team auto-resolved.` });
+      // Sync the downline edge so the manager sees this rep
+      await syncDownlineEdge(userId, managerName);
+      toast({ title: 'Manager Assigned', description: `Team auto-resolved & downline synced.` });
     }
 
     setSaving((prev) => {
