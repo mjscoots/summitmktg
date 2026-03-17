@@ -280,7 +280,7 @@ export default function AdminTeamPage() {
           <div className="relative z-10">
             <PageBackButton to="/app" label="Dashboard" />
 
-            <div className="flex items-start justify-between gap-4 mt-2">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mt-2">
               <div>
                 <div className="flex items-center gap-2.5">
                   <Shield className="w-6 h-6 text-primary" />
@@ -289,7 +289,7 @@ export default function AdminTeamPage() {
                 <p className="text-sm text-white/50 mt-1">People management, teams & system controls</p>
               </div>
               {isAdmin && (
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2">
                   <Button size="sm" onClick={() => setDemoOpen(true)} className="gap-1.5 bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/[0.12] hover:text-white font-semibold text-xs h-9 rounded-xl backdrop-blur-sm">
                     <Play className="w-3.5 h-3.5" /> DEMO
                   </Button>
@@ -332,7 +332,8 @@ export default function AdminTeamPage() {
           adminCounts.pendingPitches > 0 ? 'pitches' :
           adminCounts.newFeedback > 0 ? 'feedback' : 'users'
         } className="w-full">
-          <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 mb-4">
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 mb-4">
+            <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
               <TabsTrigger value="users" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
                 Users <span className="ml-1 text-[9px] opacity-70">{allUsers.length}</span>
@@ -359,6 +360,7 @@ export default function AdminTeamPage() {
                 Sync {adminCounts.syncIssues > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.syncIssues}</span>}
               </TabsTrigger>
             </TabsList>
+            </div>
           </div>
 
           {/* ========== USERS TAB ========== */}
