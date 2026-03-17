@@ -54,7 +54,7 @@ export default function AdminTeamPage() {
   const navigate = useNavigate();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
-  useEffect(() => { adminCounts.markViewed('pendingApprovals'); }, []);
+  // Counts are always live — no "viewed" zeroing
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isSuperAdmin = isOwner || profile?.email === SUPER_ADMIN_EMAIL;
