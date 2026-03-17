@@ -353,10 +353,10 @@ html, body {
     width: 3px;
     border-radius: 9999px;
   }
-  .mission-bar-urgent::before { background: hsl(0 72% 51%); box-shadow: 0 0 8px hsl(0 72% 51% / 0.4); }
-  .mission-bar-high::before { background: hsl(25 95% 53%); box-shadow: 0 0 6px hsl(25 95% 53% / 0.3); }
-  .mission-bar-medium::before { background: hsl(217 91% 60%); }
-  .mission-bar-low::before { background: hsl(220 10% 30%); }
+  .mission-bar-urgent::before { background: hsl(270 80% 60%); box-shadow: 0 0 8px hsl(270 80% 60% / 0.5); }
+  .mission-bar-high::before { background: hsl(270 70% 55%); box-shadow: 0 0 6px hsl(270 70% 55% / 0.35); }
+  .mission-bar-medium::before { background: hsl(270 60% 50% / 0.7); }
+  .mission-bar-low::before { background: hsl(270 40% 45% / 0.4); }
 }
 
 @layer components {
