@@ -1615,10 +1615,14 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          interview_2_status: string | null
+          interview_3_status: string | null
           next_follow_up: string | null
           notes: string | null
+          onboarding_status: string | null
           owner_id: string
           phone: string | null
+          position: string | null
           recruit_name: string
           source: string | null
           stage: string
@@ -1628,10 +1632,14 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          interview_2_status?: string | null
+          interview_3_status?: string | null
           next_follow_up?: string | null
           notes?: string | null
+          onboarding_status?: string | null
           owner_id: string
           phone?: string | null
+          position?: string | null
           recruit_name: string
           source?: string | null
           stage?: string
@@ -1641,10 +1649,14 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          interview_2_status?: string | null
+          interview_3_status?: string | null
           next_follow_up?: string | null
           notes?: string | null
+          onboarding_status?: string | null
           owner_id?: string
           phone?: string | null
+          position?: string | null
           recruit_name?: string
           source?: string | null
           stage?: string

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, FileText, Table2, Users, BookOpen, Video } from 'lucide-react';
+import { Swords, FileText, Users, BookOpen, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -13,8 +13,7 @@ interface QuickAction {
 const MANAGER_ACTIONS: QuickAction[] = [
   { icon: <Swords className="w-4 h-4" />, label: 'My Team', path: '/app/war-room', color: 'orange' },
   { icon: <FileText className="w-4 h-4" />, label: 'Forms', path: '/app/forms', color: 'blue' },
-  { icon: <Table2 className="w-4 h-4" />, label: 'Spreadsheets', path: '/app/spreadsheets', color: 'emerald' },
-  { icon: <Users className="w-4 h-4" />, label: 'Pipeline', path: '/app/recruit-pipeline', color: 'cyan' },
+  { icon: <Users className="w-4 h-4" />, label: 'Recruiting', path: '/app/recruiting', color: 'cyan' },
   { icon: <BookOpen className="w-4 h-4" />, label: 'Resources', path: '/app/links', color: 'amber' },
   { icon: <Video className="w-4 h-4" />, label: 'Pitch Approvals', path: '/app/pitch-approvals', color: 'purple' },
 ];

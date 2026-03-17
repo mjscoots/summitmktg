@@ -59,7 +59,6 @@ const NotepadPage = lazy(() => import("./pages/app/NotepadPage"));
 const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
 const OperationsPage = lazy(() => import("./pages/app/OperationsPage"));
 const ManagePage = lazy(() => import("./pages/app/ManagePage"));
-const SpreadsheetsPage = lazy(() => import("./pages/app/SpreadsheetsPage"));
 const RecruitPipelinePage = lazy(() => import("./pages/app/RecruitPipelinePage"));
 const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
 
@@ -348,14 +347,9 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
-              <Route path="/app/spreadsheets" element={
-                <ProtectedRoute>
-                  <BootcampGate>
-                    <SpreadsheetsPage />
-                  </BootcampGate>
-                </ProtectedRoute>
-              } />
-              <Route path="/app/recruit-pipeline" element={
+              <Route path="/app/spreadsheets" element={<Navigate to="/app/recruiting" replace />} />
+              <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruiting" replace />} />
+              <Route path="/app/recruiting" element={
                 <ProtectedRoute>
                   <BootcampGate>
                     <RecruitPipelinePage />

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, Table2, BookOpen, Video, GitBranch } from 'lucide-react';
+import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
@@ -307,8 +307,7 @@ export default function AdminTeamPage() {
           {[
             { label: 'My Team', path: '/app/war-room', icon: Swords, color: 'text-orange-400 bg-orange-500/15 hover:bg-orange-500/25' },
             { label: 'Forms', path: '/app/forms', icon: FileText, color: 'text-blue-400 bg-blue-500/15 hover:bg-blue-500/25' },
-            { label: 'Spreadsheets', path: '/app/spreadsheets', icon: Table2, color: 'text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25' },
-            { label: 'Pipeline', path: '/app/recruit-pipeline', icon: GitBranch, color: 'text-cyan-400 bg-cyan-500/15 hover:bg-cyan-500/25' },
+            { label: 'Recruiting', path: '/app/recruiting', icon: GitBranch, color: 'text-cyan-400 bg-cyan-500/15 hover:bg-cyan-500/25' },
             { label: 'Resources', path: '/app/links', icon: BookOpen, color: 'text-amber-400 bg-amber-500/15 hover:bg-amber-500/25' },
             { label: 'Pitch Approvals', path: '/app/pitch-approvals', icon: Video, color: 'text-purple-400 bg-purple-500/15 hover:bg-purple-500/25' },
           ].map(item => (
