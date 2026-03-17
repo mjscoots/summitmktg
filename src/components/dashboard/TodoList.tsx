@@ -276,11 +276,11 @@ export function TodoList() {
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border p-4 mb-4">
+    <div className="glass-card rounded-xl p-4 mb-4">
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <ListTodo className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-bold text-foreground">To-Do</h2>
+          <h2 className="text-sm font-bold text-foreground">Mission Board</h2>
           {activeTotal > 0 && (
             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
               {activeTotal}
