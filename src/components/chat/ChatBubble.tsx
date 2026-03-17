@@ -49,6 +49,7 @@ interface ChatBubbleProps {
   onProfileClick: (userId: string) => void;
   onContextMenu: (e: React.MouseEvent | React.TouchEvent, msgId: string) => void;
   onDoubleTap: (msgId: string) => void;
+  onToggleReaction: (msgId: string, emoji: string) => void;
   onReply?: (msgId: string) => void;
   isEditing: boolean;
   editText: string;
