@@ -407,10 +407,10 @@ export default function RecruitPipelinePage() {
               <table className="w-full" style={{ minWidth: '1050px' }}>
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
-                    <SortHeader field="recruit_name" label="Applicant" className="sticky left-0 bg-muted/30 z-10" />
+                    <SortHeader field="recruit_name" label="Applicant" className="sticky left-0 bg-muted/30 z-10" style={{ minWidth: '180px' }} />
                     <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Phone #</th>
-                    <SortHeader field="stage" label="Status" className="" />
-                    <SortHeader field="position" label="Position" className="" />
+                    <SortHeader field="stage" label="Status" style={{ minWidth: '140px' }} />
+                    <SortHeader field="position" label="Position" style={{ minWidth: '140px' }} />
                     <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Interview 2</th>
                     <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Interview 3</th>
                     <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '150px' }}>Onboarding</th>
