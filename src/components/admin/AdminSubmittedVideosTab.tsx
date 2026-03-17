@@ -16,6 +16,8 @@ interface VideoEntry {
   submitted_at: string;
 }
 
+const CHECKLIST_VIDEOS = ['Sunblock Video', 'Motivation Video', 'Final Commitment'] as const;
+
 interface PersonVideos {
   user_id: string;
   full_name: string;
