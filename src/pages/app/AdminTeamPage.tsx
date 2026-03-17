@@ -303,7 +303,7 @@ export default function AdminTeamPage() {
         </div>
 
         {/* Quick Nav — Manager Section */}
-        <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex flex-wrap gap-2 mb-5">
           {[
             { label: 'My Team', path: '/app/war-room', icon: Swords, color: 'text-orange-400 bg-orange-500/15 hover:bg-orange-500/25' },
             { label: 'Forms', path: '/app/forms', icon: FileText, color: 'text-blue-400 bg-blue-500/15 hover:bg-blue-500/25' },
