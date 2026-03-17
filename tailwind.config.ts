@@ -69,6 +69,9 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      transitionDuration: {
+        '250': '250ms',
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
