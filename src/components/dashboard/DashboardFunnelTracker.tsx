@@ -92,9 +92,13 @@ export function DashboardFunnelTracker() {
   useEffect(() => { fetchRecruits(); }, [fetchRecruits]);
 
   const updateField = async (id: string, field: string, value: string) => {
-    const { error } = await (supabase as any).from('recruit_pipeline').update({ [field]: value }).eq('id', id);
-    if (error) { toast.error('Save failed'); return; }
+    // Optimistic update first
     setRecruits(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+    const { error } = await (supabase as any).from('recruit_pipeline').update({ [field]: value }).eq('id', id);
+    if (error) {
+      toast.error('Save failed');
+      fetchRecruits(); // revert on error
+    }
   };
 
   const addRecruit = async () => {
