@@ -295,19 +295,50 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const doubleTapGuard = useRef(false);
   const handleDoubleTapReact = async (msgId: string) => {
-    if (!user || doubleTapGuard.current) return;
-    doubleTapGuard.current = true;
-    try {
-      const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '⛰️').maybeSingle();
-      if (existing) {
-        await supabase.from('chat_reactions').delete().eq('id', existing.id);
+    handleToggleReaction(msgId, '⛰️');
+  };
+
+  const toggleGuard = useRef(false);
+  const handleToggleReaction = async (msgId: string, emoji: string) => {
+    if (!user || toggleGuard.current) return;
+    toggleGuard.current = true;
+
+    const msgReactions = reactionsMap[msgId] || {};
+    const hasReacted = (msgReactions[emoji] || []).includes(user.id);
+
+    // Optimistic update
+    setReactionsMap(prev => {
+      const current = { ...(prev[msgId] || {}) };
+      if (hasReacted) {
+        current[emoji] = (current[emoji] || []).filter(u => u !== user.id);
+        if (current[emoji].length === 0) delete current[emoji];
       } else {
-        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '⛰️' });
+        current[emoji] = [...(current[emoji] || []), user.id];
+      }
+      return { ...prev, [msgId]: current };
+    });
+
+    try {
+      if (hasReacted) {
+        const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', emoji).maybeSingle();
+        if (existing) await supabase.from('chat_reactions').delete().eq('id', existing.id);
+      } else {
+        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji });
       }
     } catch {
-      // silent
+      // Rollback on error
+      setReactionsMap(prev => {
+        const current = { ...(prev[msgId] || {}) };
+        if (hasReacted) {
+          current[emoji] = [...(current[emoji] || []), user.id];
+        } else {
+          current[emoji] = (current[emoji] || []).filter(u => u !== user.id);
+          if (current[emoji].length === 0) delete current[emoji];
+        }
+        return { ...prev, [msgId]: current };
+      });
     } finally {
-      doubleTapGuard.current = false;
+      toggleGuard.current = false;
     }
   };
 
