@@ -83,7 +83,7 @@ export default function SpreadsheetsPage() {
   };
 
   const deleteSheet = async (id: string) => {
-    await supabase.from('manager_spreadsheets').update({ is_active: false } as any).eq('id', id);
+    await (supabase as any).from('manager_spreadsheets').update({ is_active: false }).eq('id', id);
     toast.success('Spreadsheet removed');
     if (activeSheet === id) setActiveSheet(null);
     fetchSheets();

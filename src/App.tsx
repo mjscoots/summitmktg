@@ -347,6 +347,13 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+              <Route path="/app/spreadsheets" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <SpreadsheetsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
               {/* Redirect old analytics route */}
               <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
 
