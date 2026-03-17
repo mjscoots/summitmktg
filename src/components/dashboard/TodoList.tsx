@@ -97,17 +97,36 @@ export function TodoList() {
     return () => { supabase.removeChannel(channel); };
   }, [user, fetchTodos]);
 
+  const [entering, setEntering] = useState<Set<string>>(new Set());
+  const [exiting, setExiting] = useState<Set<string>>(new Set());
+
   const addTodo = async () => {
     if (!newTitle.trim() || !user) return;
     const maxOrder = todos.reduce((m, t) => Math.max(m, t.display_order), 0);
-    await supabase.from('todo_items').insert({
-      user_id: user.id,
+    const tempId = crypto.randomUUID();
+    const optimistic: TodoItem = {
+      id: tempId,
       title: newTitle.trim(),
       priority: newPriority,
+      is_completed: false,
+      completed_at: null,
+      assigned_by: null,
+      assigned_by_name: null,
       display_order: maxOrder + 1,
-    } as any);
+      created_at: new Date().toISOString(),
+      due_date: null,
+    };
+    setTodos(prev => [...prev, optimistic]);
+    setEntering(prev => new Set(prev).add(tempId));
+    setTimeout(() => setEntering(prev => { const n = new Set(prev); n.delete(tempId); return n; }), 400);
     setNewTitle('');
     setNewPriority('medium');
+    await supabase.from('todo_items').insert({
+      user_id: user.id,
+      title: optimistic.title,
+      priority: optimistic.priority,
+      display_order: optimistic.display_order,
+    } as any);
     fetchTodos();
   };
 
@@ -135,13 +154,17 @@ export function TodoList() {
   };
 
   const deleteTodo = async (id: string) => {
-    await supabase.from('todo_items').delete().eq('id', id);
-    fetchTodos();
+    setExiting(prev => new Set(prev).add(id));
+    setTimeout(async () => {
+      setTodos(prev => prev.filter(t => t.id !== id));
+      setExiting(prev => { const n = new Set(prev); n.delete(id); return n; });
+      await supabase.from('todo_items').delete().eq('id', id);
+    }, 250);
   };
 
   const updatePriority = async (id: string, priority: Priority) => {
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, priority } : t));
     await supabase.from('todo_items').update({ priority } as any).eq('id', id);
-    fetchTodos();
   };
 
   const openEditModal = (todo: TodoItem) => {
@@ -333,11 +356,14 @@ export function TodoList() {
         <p className="text-xs text-muted-foreground text-center py-3">No tasks yet</p>
       ) : (
         <div className="space-y-0.5">
-          {activeTodos.map(todo => (
+          {activeTodos.map((todo, i) => (
             <TodoRow
               key={todo.id}
               todo={todo}
               justCompleted={justCompleted.has(todo.id)}
+              isEntering={entering.has(todo.id)}
+              isExiting={exiting.has(todo.id)}
+              index={i}
               onToggle={() => toggleComplete(todo)}
               onDelete={() => deleteTodo(todo.id)}
               onEdit={() => openEditModal(todo)}
@@ -355,11 +381,14 @@ export function TodoList() {
             Done ({completedTodos.length})
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-1.5 space-y-0.5">
-            {completedTodos.map(todo => (
+            {completedTodos.map((todo, i) => (
               <TodoRow
                 key={todo.id}
                 todo={todo}
                 justCompleted={false}
+                isEntering={false}
+                isExiting={exiting.has(todo.id)}
+                index={i}
                 onToggle={() => toggleComplete(todo)}
                 onDelete={() => deleteTodo(todo.id)}
                 onEdit={() => openEditModal(todo)}
@@ -466,10 +495,13 @@ export function TodoList() {
 }
 
 function TodoRow({
-  todo, justCompleted, onToggle, onDelete, onEdit, onPriorityChange,
+  todo, justCompleted, isEntering, isExiting, index, onToggle, onDelete, onEdit, onPriorityChange,
 }: {
   todo: TodoItem;
   justCompleted: boolean;
+  isEntering: boolean;
+  isExiting: boolean;
+  index: number;
   onToggle: () => void;
   onDelete: () => void;
   onEdit: () => void;
@@ -489,10 +521,13 @@ function TodoRow({
       className={cn(
         "relative flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all group cursor-pointer overflow-hidden",
         justCompleted && "!bg-emerald-500/10 scale-[0.98] duration-200",
-        !justCompleted && "duration-200",
+        isEntering && "animate-fade-in",
+        isExiting && "opacity-0 -translate-x-4 scale-95 duration-250",
+        !justCompleted && !isEntering && !isExiting && "duration-200",
         todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/30",
         priorityBg
       )}
+      style={isEntering ? {} : { animationDelay: `${index * 20}ms` }}
       onClick={onEdit}
     >
       {justCompleted && (
