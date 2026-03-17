@@ -273,6 +273,73 @@ export default function RecruitPipelinePage() {
     else { setSortField(field); setSortDir('asc'); }
   };
 
+  const handleMassImport = async () => {
+    if (!user || !importText.trim()) return;
+    setImporting(true);
+
+    const lines = importText.trim().split('\n').filter(l => l.trim());
+    const rows: { owner_id: string; recruit_name: string; phone: string; email: string; source: string; stage: string; position: string; interview_2_status: string; interview_3_status: string; onboarding_status: string }[] = [];
+
+    for (const line of lines) {
+      // Support tab, comma, or pipe delimited
+      const parts = line.includes('\t') ? line.split('\t') : line.includes('|') ? line.split('|') : line.split(',');
+      const cleaned = parts.map(p => p.trim());
+      const name = cleaned[0] || '';
+      if (!name) continue;
+
+      // Detect phone and email from remaining fields
+      let phone = '';
+      let email = '';
+      let source = '';
+
+      for (let i = 1; i < cleaned.length; i++) {
+        const val = cleaned[i];
+        if (!val) continue;
+        if (val.includes('@') && !email) {
+          email = val;
+        } else if (/[\d\-().+\s]{7,}/.test(val) && !phone) {
+          // Normalize phone
+          const digits = val.replace(/\D/g, '');
+          if (digits.length >= 7) {
+            phone = digits.length === 10 ? `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}` : val;
+          }
+        } else if (!source) {
+          source = val;
+        }
+      }
+
+      rows.push({
+        owner_id: user.id,
+        recruit_name: name,
+        phone,
+        email,
+        source,
+        stage: 'new_lead',
+        position: '',
+        interview_2_status: '',
+        interview_3_status: '',
+        onboarding_status: '',
+      });
+    }
+
+    if (rows.length === 0) {
+      toast.error('No valid rows found');
+      setImporting(false);
+      return;
+    }
+
+    const { data, error } = await (supabase as any).from('recruit_pipeline').insert(rows).select();
+    if (error) {
+      toast.error('Import failed: ' + error.message);
+    } else {
+      setRecruits(prev => [...(data as Recruit[]), ...prev]);
+      toast.success(`Imported ${(data as any[]).length} recruits`);
+      setImportOpen(false);
+      setImportText('');
+    }
+    setImporting(false);
+  };
+
   const filtered = useMemo(() => {
     let list = [...recruits];
     if (search) {
