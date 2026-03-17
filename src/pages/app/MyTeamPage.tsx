@@ -592,7 +592,7 @@ export default function MyTeamPage() {
                 <div className="animate-pulse text-muted-foreground">Loading members...</div>
               </div>
             ) : (
-              <div className="border border-border/50 rounded-xl overflow-hidden overflow-x-auto">
+              <div className="border border-border/50 rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/30 bg-muted/20">

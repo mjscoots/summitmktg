@@ -303,7 +303,7 @@ export default function AdminTeamPage() {
         </div>
 
         {/* Quick Nav — Manager Section */}
-        <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex flex-wrap gap-2 mb-5">
           {[
             { label: 'My Team', path: '/app/war-room', icon: Swords, color: 'text-orange-400 bg-orange-500/15 hover:bg-orange-500/25' },
             { label: 'Forms', path: '/app/forms', icon: FileText, color: 'text-blue-400 bg-blue-500/15 hover:bg-blue-500/25' },
@@ -332,7 +332,7 @@ export default function AdminTeamPage() {
           adminCounts.pendingPitches > 0 ? 'pitches' :
           adminCounts.newFeedback > 0 ? 'feedback' : 'users'
         } className="w-full">
-          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 mb-4">
+          <div className="flex flex-wrap gap-1 mb-4">
             <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
               <TabsTrigger value="users" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
@@ -448,7 +448,7 @@ export default function AdminTeamPage() {
                 <p className="font-medium">No pending approvals</p>
               </div>
             ) : (
-              <div className="border border-border/30 rounded-lg overflow-hidden overflow-x-auto">
+              <div className="border border-border/30 rounded-lg overflow-hidden">
                 <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="border-b border-border/20 bg-card/30">

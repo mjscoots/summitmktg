@@ -446,7 +446,7 @@ export default function LinksPage() {
         </div>
 
         {/* Tab toggle */}
-        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30 overflow-x-auto">
+        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30">
           <div className="flex">
             {TABS.map((tab) => {
               const Icon = tab.icon;

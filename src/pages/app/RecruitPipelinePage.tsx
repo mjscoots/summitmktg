@@ -344,7 +344,7 @@ export default function RecruitPipelinePage() {
           </div>
         ) : (
           <div className="border border-border/60 rounded-xl overflow-hidden bg-card/40 backdrop-blur-sm">
-            <div className="overflow-x-auto">
+            <div className="overflow-hidden">
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">

@@ -135,7 +135,7 @@ export default function SpreadsheetsPage() {
         ) : (
           <>
             {/* Tab bar */}
-            <div className="flex gap-1 mb-4 overflow-x-auto scrollbar-hide border-b border-border/50 pb-2">
+            <div className="flex flex-wrap gap-1 mb-4 border-b border-border/50 pb-2">
               {sheets.map(sheet => (
                 <button
                   key={sheet.id}

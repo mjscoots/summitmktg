@@ -144,7 +144,7 @@ export default function ManagerTrainingVideosPage() {
           onNavigateToVideo={(id) => navigate(`/app/training/videos/${id}`)}
         />
 
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none items-center">
+        <div className="flex flex-wrap gap-2 pb-3 mb-6 items-center">
           {MANAGER_CATEGORIES.map(cat => {
             const count = cat === 'All Videos' ? videos.length : videos.filter(v => v.category === cat).length;
             if (cat !== 'All Videos' && count === 0) return null;
