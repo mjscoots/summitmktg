@@ -495,10 +495,13 @@ export function TodoList() {
 }
 
 function TodoRow({
-  todo, justCompleted, onToggle, onDelete, onEdit, onPriorityChange,
+  todo, justCompleted, isEntering, isExiting, index, onToggle, onDelete, onEdit, onPriorityChange,
 }: {
   todo: TodoItem;
   justCompleted: boolean;
+  isEntering: boolean;
+  isExiting: boolean;
+  index: number;
   onToggle: () => void;
   onDelete: () => void;
   onEdit: () => void;
