@@ -303,12 +303,10 @@ export default function AdminTeamPage() {
         <Tabs defaultValue={
           // Auto-navigate to first tab with notifications
           adminCounts.pendingApprovals > 0 ? 'approvals' :
+          adminCounts.syncIssues > 0 ? 'sync' :
           adminCounts.pendingPitches > 0 ? 'pitches' :
           adminCounts.newFeedback > 0 ? 'feedback' : 'users'
-        } className="w-full" onValueChange={(tab) => {
-          const tabToKey: Record<string, 'pendingApprovals' | 'pendingApplications' | 'pendingPitches' | 'newFeedback'> = { approvals: 'pendingApprovals', apps: 'pendingApplications', pitches: 'pendingPitches', feedback: 'newFeedback' };
-          if (tabToKey[tab]) adminCounts.markViewed(tabToKey[tab]);
-        }}>
+        } className="w-full">
           <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 mb-4">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
               <TabsTrigger value="users" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
