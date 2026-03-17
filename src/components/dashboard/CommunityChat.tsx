@@ -482,6 +482,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onProfileClick={handleProfileClick}
                 onContextMenu={handleContextMenu}
                 onDoubleTap={handleDoubleTapReact}
+                onToggleReaction={handleToggleReaction}
                 onReply={handleReplyFromHover}
                 isEditing={editingId === msg.id}
                 editText={editText}
