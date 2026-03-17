@@ -169,13 +169,19 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
         const row = payload.new as any;
         const old = payload.old as any;
+        // Skip own user's reactions — already handled optimistically
+        const currentUserId = user?.id;
         if (payload.eventType === 'INSERT' && row) {
+          if (row.user_id === currentUserId) return;
           setReactionsMap(prev => {
             const msgReactions = { ...(prev[row.message_id] || {}) };
-            msgReactions[row.emoji] = [...(msgReactions[row.emoji] || []), row.user_id];
+            const existing = msgReactions[row.emoji] || [];
+            if (existing.includes(row.user_id)) return prev; // dedupe
+            msgReactions[row.emoji] = [...existing, row.user_id];
             return { ...prev, [row.message_id]: msgReactions };
           });
         } else if (payload.eventType === 'DELETE' && old) {
+          if (old.user_id === currentUserId) return;
           setReactionsMap(prev => {
             const msgReactions = { ...(prev[old.message_id] || {}) };
             if (msgReactions[old.emoji]) {
@@ -188,7 +194,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [user?.id]);
 
   // Realtime
   useEffect(() => {
