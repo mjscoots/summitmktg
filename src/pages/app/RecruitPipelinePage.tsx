@@ -202,6 +202,27 @@ export default function RecruitPipelinePage() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [detailRecruit, setDetailRecruit] = useState<Recruit | null>(null);
   const [notesDraft, setNotesDraft] = useState('');
+  const [calendlyUrl, setCalendlyUrl] = useState('');
+  const [editingCalendly, setEditingCalendly] = useState(false);
+  const [calendlyDraft, setCalendlyDraft] = useState('');
+
+  // Fetch calendly link from profile
+  useEffect(() => {
+    if (!user) return;
+    (supabase as any).from('profiles').select('calendly_url').eq('user_id', user.id).single()
+      .then(({ data }: any) => {
+        if (data?.calendly_url) setCalendlyUrl(data.calendly_url);
+      });
+  }, [user]);
+
+  const saveCalendly = async () => {
+    const url = calendlyDraft.trim();
+    const { error } = await (supabase as any).from('profiles').update({ calendly_url: url || null }).eq('user_id', user?.id);
+    if (error) { toast.error('Failed to save'); return; }
+    setCalendlyUrl(url);
+    setEditingCalendly(false);
+    toast.success(url ? 'Calendly link saved' : 'Calendly link removed');
+  };
 
   const fetchRecruits = useCallback(async () => {
     if (!user) return;
