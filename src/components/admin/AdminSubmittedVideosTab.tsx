@@ -16,6 +16,8 @@ interface VideoEntry {
   submitted_at: string;
 }
 
+const CHECKLIST_VIDEOS = ['Sunblock Video', 'Motivation Video', 'Final Commitment'] as const;
+
 interface PersonVideos {
   user_id: string;
   full_name: string;
@@ -190,19 +192,38 @@ export default function AdminSubmittedVideosTab() {
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Rep</th>
+                    <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Checklist</th>
                     <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Videos</th>
                   </tr>
                 </thead>
                 <tbody>
                   {grouped[teamName].map(person => {
                     const displayVideos = typeFilter !== 'all' ? person.videos.filter(v => v.type === typeFilter) : person.videos;
+                    const submittedLabels = new Set(person.videos.filter(v => v.type === 'bootcamp').map(v => v.label));
                     return (
                       <tr key={person.user_id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                         <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap align-top">
                           {person.full_name}
                           <div className="text-[10px] text-muted-foreground">{displayVideos.length} video{displayVideos.length !== 1 ? 's' : ''}</div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 align-top">
+                          <div className="flex flex-col gap-1">
+                            {CHECKLIST_VIDEOS.map(label => {
+                              const done = submittedLabels.has(label);
+                              return (
+                                <div key={label} className="flex items-center gap-1.5 text-[11px]">
+                                  {done ? (
+                                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                  ) : (
+                                    <div className="w-3.5 h-3.5 rounded-full border border-muted-foreground/30 shrink-0" />
+                                  )}
+                                  <span className={done ? 'text-foreground' : 'text-muted-foreground/50'}>{label}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top">
                           <div className="flex flex-wrap gap-1.5">
                             {displayVideos.map((video, i) => (
                               <Button
