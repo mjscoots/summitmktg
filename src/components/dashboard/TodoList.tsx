@@ -97,17 +97,36 @@ export function TodoList() {
     return () => { supabase.removeChannel(channel); };
   }, [user, fetchTodos]);
 
+  const [entering, setEntering] = useState<Set<string>>(new Set());
+  const [exiting, setExiting] = useState<Set<string>>(new Set());
+
   const addTodo = async () => {
     if (!newTitle.trim() || !user) return;
     const maxOrder = todos.reduce((m, t) => Math.max(m, t.display_order), 0);
-    await supabase.from('todo_items').insert({
-      user_id: user.id,
+    const tempId = crypto.randomUUID();
+    const optimistic: TodoItem = {
+      id: tempId,
       title: newTitle.trim(),
       priority: newPriority,
+      is_completed: false,
+      completed_at: null,
+      assigned_by: null,
+      assigned_by_name: null,
       display_order: maxOrder + 1,
-    } as any);
+      created_at: new Date().toISOString(),
+      due_date: null,
+    };
+    setTodos(prev => [...prev, optimistic]);
+    setEntering(prev => new Set(prev).add(tempId));
+    setTimeout(() => setEntering(prev => { const n = new Set(prev); n.delete(tempId); return n; }), 400);
     setNewTitle('');
     setNewPriority('medium');
+    await supabase.from('todo_items').insert({
+      user_id: user.id,
+      title: optimistic.title,
+      priority: optimistic.priority,
+      display_order: optimistic.display_order,
+    } as any);
     fetchTodos();
   };
 
