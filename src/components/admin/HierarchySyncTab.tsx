@@ -204,6 +204,37 @@ export default function HierarchySyncTab({
     };
   }, [profiles, managers, teams]);
 
+  // Helper: find manager user_id from name
+  const findManagerUserId = (managerName: string): string | null => {
+    const normTarget = normalizeName(getCanonicalName(managerName));
+    const match = profiles.find(
+      (p) => normalizeName(getCanonicalName(p.full_name)) === normTarget
+    );
+    return match?.user_id || null;
+  };
+
+  // Helper: upsert downline edge (child → parent)
+  const syncDownlineEdge = async (childUserId: string, managerName: string) => {
+    const managerUserId = findManagerUserId(managerName);
+    if (!managerUserId) return;
+
+    // Remove any existing 'manages' edges for this child
+    await supabase
+      .from('downline_edges')
+      .delete()
+      .eq('child_user_id', childUserId)
+      .eq('edge_type', 'manages');
+
+    // Insert the new edge
+    await supabase
+      .from('downline_edges')
+      .insert({
+        parent_user_id: managerUserId,
+        child_user_id: childUserId,
+        edge_type: 'manages',
+      });
+  };
+
   const handleAutoSync = async () => {
     setBulkSyncing(true);
     let updated = 0;
@@ -225,8 +256,13 @@ export default function HierarchySyncTab({
           .update(updates as never)
           .eq('user_id', item.profile.user_id);
 
-        if (error) errors++;
-        else updated++;
+        if (error) {
+          errors++;
+        } else {
+          // Sync the downline edge so the manager sees this rep
+          await syncDownlineEdge(item.profile.user_id, item.resolvedManager);
+          updated++;
+        }
       }
     }
 
@@ -255,7 +291,9 @@ export default function HierarchySyncTab({
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'Manager Assigned', description: `Team auto-resolved.` });
+      // Sync the downline edge so the manager sees this rep
+      await syncDownlineEdge(userId, managerName);
+      toast({ title: 'Manager Assigned', description: `Team auto-resolved & downline synced.` });
     }
 
     setSaving((prev) => {
