@@ -194,7 +194,8 @@ export default function DashboardPage() {
           /* ── HERO CARD ── */
           <div className="glass-card rounded-2xl p-5 mb-5 relative overflow-hidden">
             {/* Gradient glow behind hero */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full opacity-30 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
+            <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
+            <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full opacity-10 blur-2xl pointer-events-none" style={{ background: 'hsl(263 84% 58%)' }} />
             
             <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight mb-1 relative z-10">
               Welcome back, <span className="gradient-text">{firstName}</span>
@@ -205,14 +206,18 @@ export default function DashboardPage() {
 
             {/* Hero stats row */}
             {pointsData && (
-              <div className="grid grid-cols-4 gap-2 relative z-10">
+              <div className="grid grid-cols-4 gap-2.5 relative z-10">
                 {[
-                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-amber-400' },
-                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary' },
-                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400' },
-                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-orange-400' },
-                ].map(({ icon: Icon, value, label, color }) => (
-                  <div key={label} className="rounded-xl bg-muted/15 border border-border/30 p-2.5 text-center group hover:border-primary/20 transition-all duration-200">
+                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-amber-400', glow: 'hsl(43 96% 56% / 0.15)' },
+                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.15)' },
+                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400', glow: 'hsl(43 96% 56% / 0.12)' },
+                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-orange-400', glow: 'hsl(25 95% 53% / 0.12)' },
+                ].map(({ icon: Icon, value, label, color, glow }) => (
+                  <div
+                    key={label}
+                    className="rounded-xl p-2.5 text-center group hover:-translate-y-0.5 transition-all duration-250 border border-border/20"
+                    style={{ background: `linear-gradient(180deg, hsl(230 20% 10%), hsl(230 20% 7%))`, boxShadow: `0 0 20px -8px ${glow}` }}
+                  >
                     <Icon className={cn("w-3.5 h-3.5 mx-auto mb-1", color)} />
                     <p className="text-lg font-bold text-foreground tabular-nums leading-tight animate-count-up">{value}</p>
                     <p className="text-[7px] text-muted-foreground uppercase font-semibold tracking-wider mt-0.5">{label}</p>
@@ -226,26 +231,47 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <QuickActions />
 
+        {/* ── TODAY'S FOCUS ── */}
+        <div className="glass-card rounded-xl p-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Target className="w-4 h-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Today's Focus</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {[
+              { text: 'Complete daily training goal', icon: BookOpen, color: 'text-blue-400' },
+              { text: 'Hit activity targets', icon: TrendingUp, color: 'text-emerald-400' },
+              { text: `Send ${Math.max(5 - chatMsgCount, 0)} more chat messages`, icon: MessageSquare, color: 'text-rose-400' },
+              { text: leaderboardRank && leaderboardRank > 3 ? 'Push for top 3 rank' : 'Maintain your rank', icon: Trophy, color: 'text-yellow-400' },
+            ].map(({ text, icon: Icon, color }) => (
+              <div key={text} className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/10 border border-border/20">
+                <Icon className={cn("w-3.5 h-3.5 flex-shrink-0", color)} />
+                <span className="text-xs text-foreground/80 font-medium">{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Mission Board Toggle: To-Do / Calendar */}
         <div className="flex gap-1 mb-2">
           <button
             onClick={() => setDashboardView('todo')}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
               dashboardView === 'todo'
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary/10 text-primary border border-primary/20"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
             <ListTodo className="w-3.5 h-3.5" />
-            To-Do
+            Missions
           </button>
           <button
             onClick={() => setDashboardView('calendar')}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
               dashboardView === 'calendar'
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary/10 text-primary border border-primary/20"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >

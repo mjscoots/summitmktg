@@ -87,39 +87,51 @@ export function AppSidebar() {
         if (isMobile) setOpenMobile(false);
       }}
       className={cn(
-        "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 relative group",
+        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-250 relative group",
         active
           ? "text-primary"
           : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent",
         collapsed && "justify-center px-2"
       )}
     >
+      {/* Active indicator — thicker with glow */}
       {active && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full" style={{ background: 'var(--gradient-primary)' }} />
+        <div
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
+          style={{
+            background: 'var(--gradient-primary)',
+            boxShadow: '0 0 12px 1px hsl(217 91% 60% / 0.4)',
+          }}
+        />
       )}
       {active && (
         <div className="absolute inset-0 rounded-lg bg-primary/8 pointer-events-none" />
       )}
       <item.icon
         className={cn(
-          "w-[18px] h-[18px] flex-shrink-0 transition-all duration-200 relative z-10",
-          active ? "text-primary drop-shadow-[0_0_6px_hsl(217_91%_60%/0.4)]" : item.iconColor || "",
+          "w-[18px] h-[18px] flex-shrink-0 transition-all duration-250 relative z-10",
+          active
+            ? "text-primary drop-shadow-[0_0_8px_hsl(217_91%_60%/0.5)]"
+            : item.iconColor || "",
           !active && "group-hover:drop-shadow-[0_0_4px_hsl(217_91%_60%/0.2)]"
         )}
         strokeWidth={1.75}
       />
       {!collapsed && (
-        <span className={cn("text-[13px] font-medium relative z-10", active && "font-semibold")}>
+        <span className={cn(
+          "text-[13px] font-medium relative z-10 transition-all duration-250",
+          active && "font-semibold text-primary"
+        )}>
           {item.label}
         </span>
       )}
       {badge > 0 && (
         collapsed ? (
-          <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none z-20">
+          <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none z-20 shadow-[0_0_8px_hsl(0_72%_51%/0.4)]">
             {badge > 99 ? '99+' : badge}
           </span>
         ) : (
-          <span className="ml-auto flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1 relative z-10">
+          <span className="ml-auto flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none min-w-[18px] h-[18px] px-1 relative z-10 shadow-[0_0_8px_hsl(0_72%_51%/0.3)]">
             {badge > 99 ? '99+' : badge}
           </span>
         )
@@ -131,17 +143,22 @@ export function AppSidebar() {
     <Sidebar
       data-tour="sidebar"
       className={cn(
-        'border-r border-sidebar-border bg-sidebar-background transition-all duration-200',
+        'border-r border-sidebar-border bg-sidebar-background transition-all duration-300',
         collapsed ? 'w-[52px]' : 'w-44'
       )}
       collapsible="icon"
     >
       <SidebarHeader className="px-3 pt-4 pb-4">
         <button 
-          className="flex items-center gap-2.5 cursor-pointer rounded-lg px-1 py-1 transition-all duration-200 hover:bg-muted/30 active:scale-95"
+          className="flex items-center gap-2.5 cursor-pointer rounded-lg px-1 py-1 transition-all duration-250 hover:bg-muted/30 active:scale-95"
           onClick={() => navigate('/app')}
         >
-          <Mountain className={cn("text-primary flex-shrink-0 transition-colors drop-shadow-[0_0_8px_hsl(217_91%_60%/0.3)]", collapsed ? "w-5 h-5" : "w-5 h-5")} />
+          <Mountain className={cn(
+            "text-primary flex-shrink-0 transition-all duration-300",
+            collapsed ? "w-5 h-5" : "w-5 h-5"
+          )}
+          style={{ filter: 'drop-shadow(0 0 10px hsl(217 91% 60% / 0.4))' }}
+          />
           {!collapsed && (
             <span className="text-sm font-black tracking-tight uppercase gradient-text">
               Summit
@@ -151,10 +168,10 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-1 flex flex-col flex-1">
-        {/* Main nav: Home, Chat, Training, Calendar, Leaderboard */}
+        {/* Main nav */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="space-y-0.5">
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
@@ -169,7 +186,7 @@ export function AppSidebar() {
           <SidebarGroup className="mt-3">
             <Separator className="mb-2 bg-sidebar-border/30" />
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
+              <SidebarMenu className="space-y-0.5">
                 {manageNavItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
@@ -183,24 +200,22 @@ export function AppSidebar() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Bottom section: Resources + Admin */}
+        {/* Bottom section: Admin */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-
-              {/* Admin — admin/owner only */}
               {isAdmin && (
                 <SidebarMenuItem>
                   <button
                     onClick={() => { navigate('/admin/team'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-200 relative group",
+                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
                       isActive('/admin/team') ? "text-purple-400 font-bold" : "text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent",
                       collapsed && "justify-center px-2"
                     )}
                   >
                     {isActive('/admin/team') && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-purple-400" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-purple-400" style={{ boxShadow: '0 0 8px hsl(270 70% 60% / 0.4)' }} />
                     )}
                     <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin/team') ? "text-purple-400 drop-shadow-[0_0_6px_hsl(270_70%_60%/0.4)]" : "text-purple-400/40")} strokeWidth={2} />
                     {!collapsed && <span className="text-[12px] font-medium">Admin</span>}
@@ -220,30 +235,46 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer */}
+      {/* Footer — Profile with glow ring */}
       <SidebarFooter className="p-2 border-t border-sidebar-border/50">
         <div
           data-tour="profile"
           onClick={() => { navigate('/app/profile'); if (isMobile) setOpenMobile(false); }}
           className={cn(
-            "flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-all duration-200",
-            "hover:bg-sidebar-accent",
+            "flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-all duration-250",
+            "hover:bg-sidebar-accent group",
             collapsed ? "justify-center" : ""
           )}
         >
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="Avatar" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-1 ring-border/30" />
+            <img
+              src={profile.avatar_url}
+              alt="Avatar"
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300"
+              style={{ boxShadow: '0 0 12px -4px hsl(217 91% 60% / 0.2)' }}
+            />
           ) : (
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--gradient-primary)', opacity: 0.8 }}>
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300"
+              style={{
+                background: 'var(--gradient-primary)',
+                boxShadow: '0 0 12px -4px hsl(217 91% 60% / 0.3)',
+              }}
+            >
               <User className="w-3.5 h-3.5 text-white" strokeWidth={1.75} />
             </div>
           )}
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-sidebar-foreground truncate">
+              <p className="text-xs font-semibold text-sidebar-foreground truncate leading-tight">
                 {profile?.full_name?.split(' ')[0] || 'User'}
               </p>
-              <p className={cn("text-[9px] uppercase tracking-widest font-bold", isOwner ? "gradient-text-gold" : "text-primary/70")}>{roleLabel}</p>
+              <p className={cn(
+                "text-[9px] uppercase tracking-widest font-bold leading-tight mt-0.5",
+                isOwner ? "gradient-text-gold" : "text-primary/70"
+              )}>
+                {roleLabel}
+              </p>
             </div>
           )}
         </div>
@@ -251,7 +282,7 @@ export function AppSidebar() {
         <button
           onClick={toggleThemeMode}
           className={cn(
-            "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-200",
+            "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-250",
             "text-muted-foreground/60 hover:text-foreground hover:bg-muted/20",
             collapsed ? "justify-center" : ""
           )}
@@ -264,7 +295,7 @@ export function AppSidebar() {
         <button
           onClick={handleSignOut}
           className={cn(
-            "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-200",
+            "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-250",
             "text-muted-foreground/60 hover:text-foreground hover:bg-muted/20",
             collapsed ? "justify-center" : ""
           )}

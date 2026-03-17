@@ -276,11 +276,11 @@ export function TodoList() {
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border p-4 mb-4">
+    <div className="glass-card rounded-xl p-4 mb-4">
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <ListTodo className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-bold text-foreground">To-Do</h2>
+          <h2 className="text-sm font-bold text-foreground">Mission Board</h2>
           {activeTotal > 0 && (
             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
               {activeTotal}
@@ -519,13 +519,16 @@ function TodoRow({
     return (
     <div
       className={cn(
-        "relative flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all group cursor-pointer overflow-hidden",
+        "relative flex items-center gap-2 pl-4 pr-2 py-2 rounded-lg transition-all group cursor-pointer overflow-hidden",
+        "mission-priority-bar",
+        !todo.is_completed && `mission-bar-${todo.priority}`,
         justCompleted && "!bg-emerald-500/10 scale-[0.98] duration-200",
         isEntering && "animate-fade-in",
         isExiting && "opacity-0 -translate-x-4 scale-95 duration-250",
-        !justCompleted && !isEntering && !isExiting && "duration-200",
-        todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/30",
-        priorityBg
+        !justCompleted && !isEntering && !isExiting && "duration-250",
+        todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/20 hover:-translate-y-px",
+        !todo.is_completed && todo.priority === 'urgent' && "bg-red-500/6",
+        !todo.is_completed && todo.priority === 'high' && "bg-orange-500/4",
       )}
       style={isEntering ? {} : { animationDelay: `${index * 20}ms` }}
       onClick={onEdit}
