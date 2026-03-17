@@ -169,13 +169,19 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
         const row = payload.new as any;
         const old = payload.old as any;
+        // Skip own user's reactions — already handled optimistically
+        const currentUserId = user?.id;
         if (payload.eventType === 'INSERT' && row) {
+          if (row.user_id === currentUserId) return;
           setReactionsMap(prev => {
             const msgReactions = { ...(prev[row.message_id] || {}) };
-            msgReactions[row.emoji] = [...(msgReactions[row.emoji] || []), row.user_id];
+            const existing = msgReactions[row.emoji] || [];
+            if (existing.includes(row.user_id)) return prev; // dedupe
+            msgReactions[row.emoji] = [...existing, row.user_id];
             return { ...prev, [row.message_id]: msgReactions };
           });
         } else if (payload.eventType === 'DELETE' && old) {
+          if (old.user_id === currentUserId) return;
           setReactionsMap(prev => {
             const msgReactions = { ...(prev[old.message_id] || {}) };
             if (msgReactions[old.emoji]) {
@@ -188,7 +194,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [user?.id]);
 
   // Realtime
   useEffect(() => {
@@ -295,19 +301,50 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const doubleTapGuard = useRef(false);
   const handleDoubleTapReact = async (msgId: string) => {
-    if (!user || doubleTapGuard.current) return;
-    doubleTapGuard.current = true;
-    try {
-      const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', '⛰️').maybeSingle();
-      if (existing) {
-        await supabase.from('chat_reactions').delete().eq('id', existing.id);
+    handleToggleReaction(msgId, '⛰️');
+  };
+
+  const toggleGuard = useRef(false);
+  const handleToggleReaction = async (msgId: string, emoji: string) => {
+    if (!user || toggleGuard.current) return;
+    toggleGuard.current = true;
+
+    const msgReactions = reactionsMap[msgId] || {};
+    const hasReacted = (msgReactions[emoji] || []).includes(user.id);
+
+    // Optimistic update
+    setReactionsMap(prev => {
+      const current = { ...(prev[msgId] || {}) };
+      if (hasReacted) {
+        current[emoji] = (current[emoji] || []).filter(u => u !== user.id);
+        if (current[emoji].length === 0) delete current[emoji];
       } else {
-        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji: '⛰️' });
+        current[emoji] = [...(current[emoji] || []), user.id];
+      }
+      return { ...prev, [msgId]: current };
+    });
+
+    try {
+      if (hasReacted) {
+        const { data: existing } = await supabase.from('chat_reactions').select('id').eq('message_id', msgId).eq('user_id', user.id).eq('emoji', emoji).maybeSingle();
+        if (existing) await supabase.from('chat_reactions').delete().eq('id', existing.id);
+      } else {
+        await supabase.from('chat_reactions').insert({ message_id: msgId, user_id: user.id, emoji });
       }
     } catch {
-      // silent
+      // Rollback on error
+      setReactionsMap(prev => {
+        const current = { ...(prev[msgId] || {}) };
+        if (hasReacted) {
+          current[emoji] = [...(current[emoji] || []), user.id];
+        } else {
+          current[emoji] = (current[emoji] || []).filter(u => u !== user.id);
+          if (current[emoji].length === 0) delete current[emoji];
+        }
+        return { ...prev, [msgId]: current };
+      });
     } finally {
-      doubleTapGuard.current = false;
+      toggleGuard.current = false;
     }
   };
 
@@ -451,6 +488,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
                 onProfileClick={handleProfileClick}
                 onContextMenu={handleContextMenu}
                 onDoubleTap={handleDoubleTapReact}
+                onToggleReaction={handleToggleReaction}
                 onReply={handleReplyFromHover}
                 isEditing={editingId === msg.id}
                 editText={editText}

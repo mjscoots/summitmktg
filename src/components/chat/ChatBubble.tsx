@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { CornerDownRight, SmilePlus, Reply } from 'lucide-react';
@@ -50,6 +49,7 @@ interface ChatBubbleProps {
   onProfileClick: (userId: string) => void;
   onContextMenu: (e: React.MouseEvent | React.TouchEvent, msgId: string) => void;
   onDoubleTap: (msgId: string) => void;
+  onToggleReaction: (msgId: string, emoji: string) => void;
   onReply?: (msgId: string) => void;
   isEditing: boolean;
   editText: string;
@@ -71,6 +71,7 @@ export function ChatBubble({
   onProfileClick,
   onContextMenu,
   onDoubleTap,
+  onToggleReaction,
   onReply,
   isEditing,
   editText,
@@ -83,23 +84,11 @@ export function ChatBubble({
   const reactions = reactionsProp;
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
+  const [showQuickPicker, setShowQuickPicker] = useState(false);
   const lastTapRef = useRef<number>(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const toggleReaction = async (emoji: string) => {
-    if (!user) return;
-    const existing = reactions.find(r => r.emoji === emoji);
-    const hasReacted = existing?.users.includes(user.id);
-    try {
-      if (hasReacted) {
-        await supabase.from('chat_reactions').delete().eq('message_id', message.id).eq('user_id', user.id).eq('emoji', emoji);
-      } else {
-        await supabase.from('chat_reactions').insert({ message_id: message.id, user_id: user.id, emoji });
-      }
-    } catch (err) {
-      console.error('Reaction toggle error:', err);
-    }
-  };
+  const QUICK_EMOJIS = ['⛰️', '🔥', '💰', '🧠', '🚀'];
 
   const handleDoubleTap = (msgId: string) => {
     setShowFireAnim(true);
@@ -302,12 +291,32 @@ export function ChatBubble({
               "absolute top-0 hidden lg:flex items-center gap-0.5 -translate-y-1/2",
               isOwn ? "left-0 -translate-x-full pr-1" : "right-0 translate-x-full pl-1"
             )}>
-              <button
-                onClick={() => handleDoubleTap(message.id)}
-                className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
-              >
-                <SmilePlus className="w-3 h-3" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowQuickPicker(p => !p)}
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-card/90 border border-border/20 text-muted-foreground/40 hover:text-foreground hover:bg-card transition-all shadow-sm"
+                >
+                  <SmilePlus className="w-3 h-3" />
+                </button>
+                {showQuickPicker && (
+                  <div className={cn(
+                    "absolute bottom-full mb-1 z-50 bg-card border border-border/50 rounded-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150",
+                    isOwn ? "right-0" : "left-0"
+                  )}>
+                    <div className="flex items-center gap-0.5 p-1">
+                      {QUICK_EMOJIS.map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => { onToggleReaction(message.id, emoji); setShowQuickPicker(false); }}
+                          className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted text-sm transition-all hover:scale-125 active:scale-90"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               {onReply && (
                 <button
                   onClick={() => onReply(message.id)}
@@ -331,7 +340,7 @@ export function ChatBubble({
                 {reactions.slice(0, 4).map(r => (
                   <button
                     key={r.emoji}
-                    onClick={() => toggleReaction(r.emoji)}
+                    onClick={() => onToggleReaction(message.id, r.emoji)}
                     className={cn(
                       "text-xs hover:scale-110 transition-transform",
                       r.users.includes(user?.id || '') && "drop-shadow-[0_0_3px_hsl(var(--primary)/0.5)]"
