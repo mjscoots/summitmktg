@@ -527,8 +527,10 @@ function TodoRow({
         isExiting && "opacity-0 -translate-x-4 scale-95 duration-250",
         !justCompleted && !isEntering && !isExiting && "duration-250",
         todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/20 hover:-translate-y-px",
-        !todo.is_completed && todo.priority === 'urgent' && "bg-red-500/6",
-        !todo.is_completed && todo.priority === 'high' && "bg-orange-500/4",
+        !todo.is_completed && todo.priority === 'urgent' && "bg-purple-500/20 border border-purple-400/30",
+        !todo.is_completed && todo.priority === 'high' && "bg-purple-500/12 border border-purple-500/20",
+        !todo.is_completed && todo.priority === 'medium' && "bg-purple-500/6 border border-purple-500/10",
+        !todo.is_completed && todo.priority === 'low' && "bg-purple-500/[0.02]",
       )}
       style={isEntering ? {} : { animationDelay: `${index * 20}ms` }}
       onClick={onEdit}
