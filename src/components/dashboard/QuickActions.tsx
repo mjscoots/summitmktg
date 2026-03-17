@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, FileText, Table2, Users, BookOpen, Video } from 'lucide-react';
+import { Swords, FileText, Users, BookOpen, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
