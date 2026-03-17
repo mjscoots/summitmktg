@@ -228,8 +228,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Quick Actions */}
-        <QuickActions />
 
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
