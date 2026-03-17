@@ -112,7 +112,7 @@ export function TodoList() {
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState<Priority>('medium');
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
-  const [sortMode, setSortMode] = useState<SortMode>('manual');
+  const [sortMode, setSortMode] = useState<SortMode>('priority_desc');
   const [showUpload, setShowUpload] = useState(false);
   const [uploadText, setUploadText] = useState('');
   const [parsing, setParsing] = useState(false);
