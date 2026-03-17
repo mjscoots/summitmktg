@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const [showPointSystem, setShowPointSystem] = useState(false);
   const [trainingComplete, setTrainingComplete] = useState(false);
   const [challengeData, setChallengeData] = useState<any>(null);
-  const [dashboardView, setDashboardView] = useState<'todo' | 'calendar'>('todo');
+  const [dashboardView, setDashboardView] = useState<'todo' | 'funnel'>('todo');
   const [chatMsgCount, setChatMsgCount] = useState(0);
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
