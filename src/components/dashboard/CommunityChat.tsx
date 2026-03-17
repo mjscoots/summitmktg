@@ -244,6 +244,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
   };
 
+  const getReactionsForMessage = useCallback((msgId: string) => {
+    const msgReactions = reactionsMap[msgId];
+    if (!msgReactions) return [];
+    return Object.entries(msgReactions).map(([emoji, users]) => ({ emoji, users, count: users.length }));
+  }, [reactionsMap]);
+
   const handleSend = async () => {
     if (!input.trim() || isSending || !user) return;
     const content = input.trim();
