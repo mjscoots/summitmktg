@@ -417,17 +417,17 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Start *</Label>
-                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
+                  <DatePickerField value={startDate} onChange={setStartDate} placeholder="Start date" required />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">End</Label>
-                  <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-background/50 border-border/40" />
+                  <DatePickerField value={endDate} onChange={setEndDate} placeholder="End date" />
                 </div>
               </div>
             ) : (
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">Date *</Label>
-                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="bg-background/50 border-border/40" />
+                <DatePickerField value={startDate} onChange={setStartDate} placeholder="Select date" required />
               </div>
             )}
 
