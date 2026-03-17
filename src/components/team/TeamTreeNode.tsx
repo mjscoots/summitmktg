@@ -128,8 +128,7 @@ export function TeamTreeNode({
         {/* Name and info - CLICKABLE */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleNameClick}
+            <span
               className={cn(
                 "font-medium truncate hover:underline cursor-pointer text-left",
                 isNLC 
@@ -138,7 +137,7 @@ export function TeamTreeNode({
               )}
             >
               {getDisplayName(member.full_name)}
-            </button>
+            </span>
             {member.dataIssue && (
               <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" />
             )}
