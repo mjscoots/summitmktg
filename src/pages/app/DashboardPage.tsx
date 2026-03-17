@@ -252,34 +252,36 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Mission Board Toggle: To-Do / Calendar */}
-        <div className="flex gap-1 mb-2">
-          <button
-            onClick={() => setDashboardView('todo')}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
-              dashboardView === 'todo'
-                ? "bg-primary/10 text-primary border border-primary/20"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <ListTodo className="w-3.5 h-3.5" />
-            Missions
-          </button>
-          <button
-            onClick={() => setDashboardView('calendar')}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
-              dashboardView === 'calendar'
-                ? "bg-primary/10 text-primary border border-primary/20"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <CalendarIcon className="w-3.5 h-3.5" />
-            Calendar
-          </button>
-        </div>
-        {dashboardView === 'todo' ? <TodoList /> : <DashboardCalendar />}
+        {/* Mission Board Toggle: To-Do / Funnel Tracker */}
+        {isManager && (
+          <div className="flex gap-1 mb-2">
+            <button
+              onClick={() => setDashboardView('todo')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
+                dashboardView === 'todo'
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <ListTodo className="w-3.5 h-3.5" />
+              Missions
+            </button>
+            <button
+              onClick={() => setDashboardView('funnel')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
+                dashboardView === 'funnel'
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <GitBranch className="w-3.5 h-3.5" />
+              Funnel Tracker
+            </button>
+          </div>
+        )}
+        {dashboardView === 'todo' || !isManager ? <TodoList /> : <DashboardFunnelTracker />}
 
         {/* See My Points — glass card */}
         <button
