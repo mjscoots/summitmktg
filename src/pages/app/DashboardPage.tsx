@@ -231,26 +231,6 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <QuickActions />
 
-        {/* ── TODAY'S FOCUS ── */}
-        <div className="glass-card rounded-xl p-4 mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="w-4 h-4 text-primary" />
-            <h2 className="text-sm font-bold text-foreground">Today's Focus</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {[
-              { text: 'Complete daily training goal', icon: BookOpen, color: 'text-blue-400' },
-              { text: 'Hit activity targets', icon: TrendingUp, color: 'text-emerald-400' },
-              { text: `Send ${Math.max(5 - chatMsgCount, 0)} more chat messages`, icon: MessageSquare, color: 'text-rose-400' },
-              { text: leaderboardRank && leaderboardRank > 3 ? 'Push for top 3 rank' : 'Maintain your rank', icon: Trophy, color: 'text-yellow-400' },
-            ].map(({ text, icon: Icon, color }) => (
-              <div key={text} className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/10 border border-border/20">
-                <Icon className={cn("w-3.5 h-3.5 flex-shrink-0", color)} />
-                <span className="text-xs text-foreground/80 font-medium">{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
         {isManager && (
