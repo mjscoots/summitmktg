@@ -606,6 +606,55 @@ export default function RecruitPipelinePage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* ─── Mass Import Dialog ─── */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-4 h-4 text-primary" />
+              Mass Import Recruits
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium text-foreground">Paste your data below — one recruit per line.</p>
+              <p>Supports <strong>tab</strong>, <strong>comma</strong>, or <strong>pipe (|)</strong> separated values.</p>
+              <p>Format: <code className="bg-muted/50 px-1.5 py-0.5 rounded text-[10px]">Name, Phone, Email, Source</code></p>
+              <p className="text-muted-foreground/60">Phone and email are auto-detected from any column position.</p>
+            </div>
+            <Textarea
+              value={importText}
+              onChange={e => setImportText(e.target.value)}
+              placeholder={`John Smith\t(555) 123-4567\tjohn@email.com\nJane Doe, 555-987-6543, jane@email.com, Referral\nBob Wilson | 5551234567 | bob@email.com`}
+              rows={10}
+              className="text-xs font-mono"
+            />
+            {importText.trim() && (
+              <div className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {importText.trim().split('\n').filter(l => l.trim()).length}
+                </span>{' '}
+                rows detected
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setImportOpen(false); setImportText(''); }}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleMassImport}
+                disabled={importing || !importText.trim()}
+                className="gap-1.5"
+              >
+                {importing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                Import {importText.trim() ? `(${importText.trim().split('\n').filter(l => l.trim()).length})` : ''}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
