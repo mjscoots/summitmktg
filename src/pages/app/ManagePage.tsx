@@ -102,7 +102,7 @@ export default function ManagePage() {
                 <Users className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Recruiting Board</h2>
+                <h2 className="text-base font-bold text-foreground group-hover:text-foreground transition-colors">Funnel Tracker</h2>
               </div>
             </div>
           </button>
