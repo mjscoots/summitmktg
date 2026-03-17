@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { useManagerPitchApprovals, PitchApprovalWithDetails } from '@/hooks/usePitchApprovals';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { Mic, Clock, CheckCircle2, XCircle, Loader2, AlertTriangle, Filter } from 'lucide-react';
+import { Mic, Clock, CheckCircle2, XCircle, Loader2, AlertTriangle, Filter, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
+const AdminSubmittedVideosTab = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 
 export default function PitchApprovalsPage() {
   const { requests, isLoading, refresh } = useManagerPitchApprovals();
