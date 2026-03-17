@@ -60,6 +60,7 @@ const CalculatorsPage = lazy(() => import("./pages/app/CalculatorsPage"));
 const OperationsPage = lazy(() => import("./pages/app/OperationsPage"));
 const ManagePage = lazy(() => import("./pages/app/ManagePage"));
 const SpreadsheetsPage = lazy(() => import("./pages/app/SpreadsheetsPage"));
+const RecruitPipelinePage = lazy(() => import("./pages/app/RecruitPipelinePage"));
 const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
 
 function LazyFallback() {
