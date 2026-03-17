@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Sun, Moon, Settings2, Calendar, BookOpen } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Sun, Moon, Settings2, Calendar } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
