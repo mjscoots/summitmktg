@@ -229,6 +229,8 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Announcement Box */}
+        <AnnouncementBox />
 
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
