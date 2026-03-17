@@ -45,12 +45,12 @@ export default function SpreadsheetsPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchSheets = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('manager_spreadsheets')
       .select('*')
       .eq('is_active', true)
       .order('display_order');
-    const entries = (data as any[]) || [];
+    const entries = (data as SpreadsheetEntry[]) || [];
     setSheets(entries);
     if (entries.length > 0 && !activeSheet) {
       setActiveSheet(entries[0].id);
