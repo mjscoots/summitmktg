@@ -280,7 +280,7 @@ export default function AdminTeamPage() {
           <div className="relative z-10">
             <PageBackButton to="/app" label="Dashboard" />
 
-            <div className="flex items-start justify-between gap-4 mt-2">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mt-2">
               <div>
                 <div className="flex items-center gap-2.5">
                   <Shield className="w-6 h-6 text-primary" />
@@ -289,7 +289,7 @@ export default function AdminTeamPage() {
                 <p className="text-sm text-white/50 mt-1">People management, teams & system controls</p>
               </div>
               {isAdmin && (
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2">
                   <Button size="sm" onClick={() => setDemoOpen(true)} className="gap-1.5 bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/[0.12] hover:text-white font-semibold text-xs h-9 rounded-xl backdrop-blur-sm">
                     <Play className="w-3.5 h-3.5" /> DEMO
                   </Button>
