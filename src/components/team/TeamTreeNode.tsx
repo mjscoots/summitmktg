@@ -65,11 +65,6 @@ export function TeamTreeNode({
     onMemberClick?.(member);
   };
 
-  const handleNameClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onMemberClick?.(member);
-  };
-
   return (
     <div className={cn("relative", depth > 0 && "ml-6")}>
       {/* Connector line */}
