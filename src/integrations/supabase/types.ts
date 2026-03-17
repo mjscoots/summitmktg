@@ -1610,6 +1610,48 @@ export type Database = {
         }
         Relationships: []
       }
+      recruit_pipeline: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          next_follow_up: string | null
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          recruit_name: string
+          source: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          next_follow_up?: string | null
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          recruit_name: string
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          next_follow_up?: string | null
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          recruit_name?: string
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rep_signups: {
         Row: {
           created_at: string
