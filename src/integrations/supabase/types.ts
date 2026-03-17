@@ -1196,6 +1196,36 @@ export type Database = {
         }
         Relationships: []
       }
+      manager_spreadsheets: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          embed_url: string
+          id: string
+          is_active: boolean
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          embed_url: string
+          id?: string
+          is_active?: boolean
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          embed_url?: string
+          id?: string
+          is_active?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
       manual_chapter_progress: {
         Row: {
           chapter_id: string
