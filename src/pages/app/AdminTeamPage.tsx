@@ -332,7 +332,7 @@ export default function AdminTeamPage() {
           adminCounts.pendingPitches > 0 ? 'pitches' :
           adminCounts.newFeedback > 0 ? 'feedback' : 'users'
         } className="w-full">
-          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 mb-4">
+          <div className="flex flex-wrap gap-1 mb-4">
             <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
               <TabsTrigger value="users" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">

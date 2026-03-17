@@ -309,7 +309,7 @@ export function TodoList() {
 
       {/* ── Filters + Sort ── */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex gap-1 flex-1 overflow-x-auto scrollbar-hide">
+        <div className="flex flex-wrap gap-1 flex-1">
           {FILTER_TABS.map(tab => {
             const count = tab.key === 'all' ? activeTotal : (priorityCounts[tab.key] || 0);
             const isActive = filterTab === tab.key;
