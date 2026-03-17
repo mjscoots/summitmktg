@@ -448,7 +448,7 @@ export default function AdminTeamPage() {
                 <p className="font-medium">No pending approvals</p>
               </div>
             ) : (
-              <div className="border border-border/30 rounded-lg overflow-hidden">
+              <div className="border border-border/30 rounded-lg overflow-x-auto">
                 <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="border-b border-border/20 bg-card/30">
