@@ -523,3 +523,16 @@ button, a, [role="button"] {
 .inline-flex[class*="bg-primary"]:hover {
   box-shadow: 0 0 20px -6px hsl(217 91% 60% / 0.35);
 }
+
+/* ━━━ MISSION BOARD — Premium container ━━━ */
+.mission-board-container {
+  background: linear-gradient(180deg, hsl(230 22% 9%), hsl(230 20% 6%));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(0 0% 100% / 0.06);
+  box-shadow:
+    0 12px 40px -12px hsl(0 0% 0% / 0.6),
+    0 0 0 1px hsl(0 0% 100% / 0.02),
+    inset 0 1px 0 hsl(0 0% 100% / 0.04),
+    inset 0 0 40px -20px hsl(217 91% 60% / 0.04);
+}

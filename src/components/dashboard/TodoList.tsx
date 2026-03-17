@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { format, differenceInDays, startOfDay } from 'date-fns';
+import { format, startOfDay, differenceInDays } from 'date-fns';
 import {
   ListTodo, Plus, Upload, Trash2, User, ChevronDown,
-  AlertTriangle, ArrowUp, Minus, ArrowDown, Loader2, Sparkles, CalendarIcon, Pencil
+  AlertTriangle, ArrowUp, Minus, ArrowDown, Loader2, Sparkles,
+  CalendarIcon, Pencil, ArrowUpDown, GripVertical, Check,
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -26,9 +27,13 @@ import { Calendar } from '@/components/ui/calendar';
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low';
 type FilterTab = 'all' | 'urgent' | 'high' | 'medium' | 'low';
+type SortMode = 'manual' | 'priority_desc' | 'priority_asc' | 'newest' | 'oldest' | 'alpha_az' | 'alpha_za' | 'completed_last';
 
 interface TodoItem {
   id: string;
@@ -43,11 +48,13 @@ interface TodoItem {
   due_date: string | null;
 }
 
-const PRIORITY_CONFIG: Record<Priority, { icon: typeof AlertTriangle; label: string; color: string }> = {
-  urgent: { icon: AlertTriangle, label: 'Urgent', color: 'text-red-500' },
-  high: { icon: ArrowUp, label: 'High', color: 'text-orange-500' },
-  medium: { icon: Minus, label: 'Medium', color: 'text-yellow-500' },
-  low: { icon: ArrowDown, label: 'Low', color: 'text-green-500' },
+const PRIORITY_RANK: Record<Priority, number> = { urgent: 4, high: 3, medium: 2, low: 1 };
+
+const PRIORITY_CONFIG: Record<Priority, { icon: typeof AlertTriangle; label: string; dot: string; border: string; bg: string }> = {
+  urgent: { icon: AlertTriangle, label: 'Urgent', dot: 'bg-red-500', border: 'border-l-red-500/60', bg: 'bg-red-500/8' },
+  high:   { icon: ArrowUp,       label: 'High',   dot: 'bg-orange-500', border: 'border-l-orange-400/50', bg: 'bg-orange-500/6' },
+  medium: { icon: Minus,         label: 'Medium', dot: 'bg-yellow-500', border: 'border-l-yellow-500/40', bg: 'bg-yellow-500/4' },
+  low:    { icon: ArrowDown,     label: 'Low',    dot: 'bg-emerald-500', border: 'border-l-emerald-500/30', bg: '' },
 };
 
 const PRIORITY_ORDER: Priority[] = ['urgent', 'high', 'medium', 'low'];
@@ -60,6 +67,44 @@ const FILTER_TABS: { key: FilterTab; label: string }[] = [
   { key: 'low', label: 'Low' },
 ];
 
+const SORT_OPTIONS: { key: SortMode; label: string }[] = [
+  { key: 'manual', label: 'Manual Order' },
+  { key: 'priority_desc', label: 'Priority: High → Low' },
+  { key: 'priority_asc', label: 'Priority: Low → High' },
+  { key: 'newest', label: 'Newest First' },
+  { key: 'oldest', label: 'Oldest First' },
+  { key: 'alpha_az', label: 'A → Z' },
+  { key: 'alpha_za', label: 'Z → A' },
+  { key: 'completed_last', label: 'Completed Last' },
+];
+
+function applySortMode(tasks: TodoItem[], mode: SortMode): TodoItem[] {
+  const arr = [...tasks];
+  switch (mode) {
+    case 'manual':
+      return arr.sort((a, b) => a.display_order - b.display_order);
+    case 'priority_desc':
+      return arr.sort((a, b) => PRIORITY_RANK[b.priority] - PRIORITY_RANK[a.priority] || a.display_order - b.display_order);
+    case 'priority_asc':
+      return arr.sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] || a.display_order - b.display_order);
+    case 'newest':
+      return arr.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    case 'oldest':
+      return arr.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    case 'alpha_az':
+      return arr.sort((a, b) => a.title.localeCompare(b.title));
+    case 'alpha_za':
+      return arr.sort((a, b) => b.title.localeCompare(a.title));
+    case 'completed_last':
+      return arr.sort((a, b) => {
+        if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
+        return a.display_order - b.display_order;
+      });
+    default:
+      return arr;
+  }
+}
+
 export function TodoList() {
   const { user } = useAuth();
   const [todos, setTodos] = useState<TodoItem[]>([]);
@@ -67,6 +112,7 @@ export function TodoList() {
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState<Priority>('medium');
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
+  const [sortMode, setSortMode] = useState<SortMode>('manual');
   const [showUpload, setShowUpload] = useState(false);
   const [uploadText, setUploadText] = useState('');
   const [parsing, setParsing] = useState(false);
@@ -74,6 +120,9 @@ export function TodoList() {
   const [editTitle, setEditTitle] = useState('');
   const [editPriority, setEditPriority] = useState<Priority>('medium');
   const [editDueDate, setEditDueDate] = useState<Date | undefined>(undefined);
+  const [entering, setEntering] = useState<Set<string>>(new Set());
+  const [exiting, setExiting] = useState<Set<string>>(new Set());
+  const [justCompleted, setJustCompleted] = useState<Set<string>>(new Set());
 
   const fetchTodos = useCallback(async () => {
     if (!user) return;
@@ -97,24 +146,35 @@ export function TodoList() {
     return () => { supabase.removeChannel(channel); };
   }, [user, fetchTodos]);
 
-  const [entering, setEntering] = useState<Set<string>>(new Set());
-  const [exiting, setExiting] = useState<Set<string>>(new Set());
+  // Derived display data
+  const displayedTasks = useMemo(() => {
+    // Step 1: filter
+    const filtered = filterTab === 'all' ? [...todos] : todos.filter(t => t.priority === filterTab);
+    // Step 2: sort
+    const sorted = applySortMode(filtered, sortMode);
+    return sorted;
+  }, [todos, filterTab, sortMode]);
+
+  const activeTodos = useMemo(() => displayedTasks.filter(t => !t.is_completed), [displayedTasks]);
+  const completedTodos = useMemo(() => displayedTasks.filter(t => t.is_completed), [displayedTasks]);
+
+  const priorityCounts = useMemo(() => {
+    return todos.reduce((acc, t) => {
+      if (!t.is_completed) acc[t.priority] = (acc[t.priority] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [todos]);
+  const activeTotal = useMemo(() => todos.filter(t => !t.is_completed).length, [todos]);
 
   const addTodo = async () => {
     if (!newTitle.trim() || !user) return;
     const maxOrder = todos.reduce((m, t) => Math.max(m, t.display_order), 0);
     const tempId = crypto.randomUUID();
     const optimistic: TodoItem = {
-      id: tempId,
-      title: newTitle.trim(),
-      priority: newPriority,
-      is_completed: false,
-      completed_at: null,
-      assigned_by: null,
-      assigned_by_name: null,
-      display_order: maxOrder + 1,
-      created_at: new Date().toISOString(),
-      due_date: null,
+      id: tempId, title: newTitle.trim(), priority: newPriority,
+      is_completed: false, completed_at: null, assigned_by: null,
+      assigned_by_name: null, display_order: maxOrder + 1,
+      created_at: new Date().toISOString(), due_date: null,
     };
     setTodos(prev => [...prev, optimistic]);
     setEntering(prev => new Set(prev).add(tempId));
@@ -122,34 +182,23 @@ export function TodoList() {
     setNewTitle('');
     setNewPriority('medium');
     await supabase.from('todo_items').insert({
-      user_id: user.id,
-      title: optimistic.title,
-      priority: optimistic.priority,
-      display_order: optimistic.display_order,
+      user_id: user.id, title: optimistic.title,
+      priority: optimistic.priority, display_order: optimistic.display_order,
     } as any);
     fetchTodos();
   };
 
-  const [justCompleted, setJustCompleted] = useState<Set<string>>(new Set());
-
   const toggleComplete = async (todo: TodoItem) => {
     const nowCompleting = !todo.is_completed;
     setTodos(prev => prev.map(t =>
-      t.id === todo.id
-        ? { ...t, is_completed: nowCompleting, completed_at: nowCompleting ? new Date().toISOString() : null }
-        : t
+      t.id === todo.id ? { ...t, is_completed: nowCompleting, completed_at: nowCompleting ? new Date().toISOString() : null } : t
     ));
     if (nowCompleting) {
       setJustCompleted(prev => new Set(prev).add(todo.id));
-      setTimeout(() => setJustCompleted(prev => {
-        const next = new Set(prev);
-        next.delete(todo.id);
-        return next;
-      }), 1200);
+      setTimeout(() => setJustCompleted(prev => { const next = new Set(prev); next.delete(todo.id); return next; }), 1200);
     }
     await supabase.from('todo_items').update({
-      is_completed: nowCompleting,
-      completed_at: nowCompleting ? new Date().toISOString() : null,
+      is_completed: nowCompleting, completed_at: nowCompleting ? new Date().toISOString() : null,
     } as any).eq('id', todo.id);
   };
 
@@ -177,8 +226,7 @@ export function TodoList() {
   const saveEdit = async () => {
     if (!editTodo || !editTitle.trim()) return;
     await supabase.from('todo_items').update({
-      title: editTitle.trim(),
-      priority: editPriority,
+      title: editTitle.trim(), priority: editPriority,
       due_date: editDueDate ? format(editDueDate, 'yyyy-MM-dd') : null,
     } as any).eq('id', editTodo.id);
     setEditTodo(null);
@@ -190,22 +238,12 @@ export function TodoList() {
     if (!uploadText.trim() || !user) return;
     setParsing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('parse-tasks', {
-        body: { text: uploadText },
-      });
+      const { data, error } = await supabase.functions.invoke('parse-tasks', { body: { text: uploadText } });
       if (error) throw error;
       const tasks: { title: string; priority: Priority }[] = data?.tasks || [];
-      if (tasks.length === 0) {
-        toast.error('No tasks could be parsed from the text.');
-        return;
-      }
+      if (tasks.length === 0) { toast.error('No tasks could be parsed.'); return; }
       const maxOrder = todos.reduce((m, t) => Math.max(m, t.display_order), 0);
-      const inserts = tasks.map((t, i) => ({
-        user_id: user.id,
-        title: t.title,
-        priority: t.priority,
-        display_order: maxOrder + i + 1,
-      }));
+      const inserts = tasks.map((t, i) => ({ user_id: user.id, title: t.title, priority: t.priority, display_order: maxOrder + i + 1 }));
       await supabase.from('todo_items').insert(inserts as any);
       toast.success(`${tasks.length} tasks added!`);
       setUploadText('');
@@ -218,118 +256,117 @@ export function TodoList() {
     }
   };
 
-  const getEffectivePriority = (todo: TodoItem): number => {
-    const basePriority = PRIORITY_ORDER.indexOf(todo.priority);
-    if (!todo.due_date || todo.is_completed) return basePriority;
-    const today = startOfDay(new Date());
-    const due = startOfDay(new Date(todo.due_date + 'T00:00:00'));
-    const daysLeft = differenceInDays(due, today);
-    if (daysLeft < 0) return 0;
-    if (daysLeft === 0) return 0;
-    if (daysLeft <= 1) return Math.min(basePriority, 0);
-    if (daysLeft <= 3) return Math.min(basePriority, 1);
-    if (daysLeft <= 7) return Math.min(basePriority, 2);
-    return basePriority;
-  };
-
-  const sortedTodos = [...todos].sort((a, b) => {
-    if (a.is_completed !== b.is_completed) return a.is_completed ? 1 : -1;
-    const aPri = getEffectivePriority(a);
-    const bPri = getEffectivePriority(b);
-    if (aPri !== bPri) return aPri - bPri;
-    if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
-    if (a.due_date) return -1;
-    if (b.due_date) return 1;
-    return PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority);
-  });
-
-  const filteredTodos = filterTab === 'all'
-    ? sortedTodos
-    : sortedTodos.filter(t => t.priority === filterTab);
-
-  const activeTodos = filteredTodos.filter(t => !t.is_completed);
-  const completedTodos = filteredTodos.filter(t => t.is_completed);
-
-  const priorityCounts = todos.reduce((acc, t) => {
-    if (!t.is_completed) acc[t.priority] = (acc[t.priority] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  const activeTotal = todos.filter(t => !t.is_completed).length;
+  const currentSortLabel = SORT_OPTIONS.find(s => s.key === sortMode)?.label || 'Sort';
 
   if (loading) {
     return (
-      <div className="bg-card rounded-xl border border-border p-4 mb-4 space-y-2.5">
-        <div className="flex items-center gap-2 mb-1">
-          <Skeleton className="h-4 w-4 rounded" />
-          <Skeleton className="h-4 w-20" />
+      <div className="mission-board-container rounded-2xl p-5 mb-5 space-y-3">
+        <div className="flex items-center gap-3 mb-2">
+          <Skeleton className="h-5 w-5 rounded" />
+          <Skeleton className="h-5 w-28" />
         </div>
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 py-1">
+          <div key={i} className="flex items-center gap-3 py-2.5">
             <Skeleton className="h-4 w-4 rounded" />
-            <Skeleton className="h-3.5 w-3 rounded" />
-            <Skeleton className="h-4 flex-1 max-w-[200px]" />
+            <Skeleton className="h-4 flex-1 max-w-[240px]" />
           </div>
         ))}
-        <Skeleton className="h-8 w-full rounded-lg" />
+        <Skeleton className="h-10 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="glass-card rounded-xl p-4 mb-4">
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-2">
-          <ListTodo className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-bold text-foreground">Mission Board</h2>
-          {activeTotal > 0 && (
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-              {activeTotal}
-            </span>
-          )}
+    <div className="mission-board-container rounded-2xl p-5 mb-5">
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <ListTodo className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-foreground tracking-tight">Mission Board</h2>
+                {activeTotal > 0 && (
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
+                    {activeTotal}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Track priorities and move fast</p>
+            </div>
+          </div>
         </div>
         <button
           onClick={() => setShowUpload(true)}
-          className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all border border-transparent hover:border-primary/15"
         >
           <Sparkles className="w-3 h-3" />
-          <span className="hidden sm:inline">Upload</span>
+          <span className="hidden sm:inline">AI Upload</span>
         </button>
       </div>
 
-      {/* Filter tabs — compact */}
-      <div className="flex gap-1 mb-2.5 overflow-x-auto scrollbar-hide">
-        {FILTER_TABS.map(tab => {
-          const count = tab.key === 'all' ? activeTotal : (priorityCounts[tab.key] || 0);
-          const isActive = filterTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setFilterTab(tab.key)}
-              className={cn(
-                "text-[10px] font-medium px-2 py-1 rounded-md whitespace-nowrap transition-all",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {tab.label}
-              {count > 0 && <span className="ml-0.5 opacity-60">{count}</span>}
+      {/* ── Filters + Sort ── */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex gap-1 flex-1 overflow-x-auto scrollbar-hide">
+          {FILTER_TABS.map(tab => {
+            const count = tab.key === 'all' ? activeTotal : (priorityCounts[tab.key] || 0);
+            const isActive = filterTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setFilterTab(tab.key)}
+                className={cn(
+                  "text-[11px] font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition-all duration-200",
+                  isActive
+                    ? "bg-primary/15 text-primary border border-primary/25 shadow-[0_0_8px_-2px_hsl(var(--primary)/0.3)]"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border border-transparent"
+                )}
+              >
+                {tab.label}
+                {count > 0 && (
+                  <span className={cn("ml-1.5 text-[10px] font-semibold", isActive ? "text-primary/70" : "opacity-50")}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all border border-border/50 whitespace-nowrap">
+              <ArrowUpDown className="w-3 h-3" />
+              <span className="hidden sm:inline">{currentSortLabel}</span>
             </button>
-          );
-        })}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {SORT_OPTIONS.map(opt => (
+              <DropdownMenuItem
+                key={opt.key}
+                onClick={() => setSortMode(opt.key)}
+                className={cn("text-xs", sortMode === opt.key && "text-primary font-semibold")}
+              >
+                {sortMode === opt.key && <Check className="w-3 h-3 mr-1.5" />}
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* Add task */}
-      <div className="flex gap-1.5 mb-3">
+      {/* ── Task Input Bar ── */}
+      <div className="flex gap-2 mb-5 p-1 rounded-xl bg-muted/20 border border-border/40">
         <Input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addTodo()}
-          placeholder="Add a task..."
-          className="h-8 text-sm flex-1 border-border/50"
+          placeholder="Add a new task..."
+          className="h-10 text-sm flex-1 bg-transparent border-0 shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 placeholder:text-muted-foreground/50"
         />
         <Select value={newPriority} onValueChange={(v) => setNewPriority(v as Priority)}>
-          <SelectTrigger className="w-20 h-8 text-xs border-border/50">
+          <SelectTrigger className="w-24 h-10 text-xs border-0 bg-muted/30 rounded-lg shadow-none">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -337,8 +374,8 @@ export function TodoList() {
               const cfg = PRIORITY_CONFIG[p];
               return (
                 <SelectItem key={p} value={p}>
-                  <span className={cn("flex items-center gap-1", cfg.color)}>
-                    <cfg.icon className="w-3 h-3" />
+                  <span className="flex items-center gap-1.5">
+                    <span className={cn("w-2 h-2 rounded-full", cfg.dot)} />
                     {cfg.label}
                   </span>
                 </SelectItem>
@@ -346,18 +383,24 @@ export function TodoList() {
             })}
           </SelectContent>
         </Select>
-        <Button size="sm" onClick={addTodo} disabled={!newTitle.trim()} className="h-8 px-2">
+        <Button onClick={addTodo} disabled={!newTitle.trim()} size="sm" className="h-10 w-10 rounded-lg p-0 shrink-0">
           <Plus className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Active todos */}
+      {/* ── Active Tasks ── */}
       {activeTodos.length === 0 && completedTodos.length === 0 ? (
-        <p className="text-xs text-muted-foreground text-center py-3">No tasks yet</p>
+        <div className="text-center py-8">
+          <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
+            <ListTodo className="w-5 h-5 text-muted-foreground/50" />
+          </div>
+          <p className="text-sm text-muted-foreground">No tasks yet</p>
+          <p className="text-[11px] text-muted-foreground/50 mt-0.5">Add your first task above</p>
+        </div>
       ) : (
-        <div className="space-y-0.5">
+        <div className="space-y-1.5">
           {activeTodos.map((todo, i) => (
-            <TodoRow
+            <MissionTaskCard
               key={todo.id}
               todo={todo}
               justCompleted={justCompleted.has(todo.id)}
@@ -373,16 +416,17 @@ export function TodoList() {
         </div>
       )}
 
-      {/* Completed section */}
+      {/* ── Completed Section ── */}
       {completedTodos.length > 0 && (
-        <Collapsible defaultOpen={false} className="mt-2">
-          <CollapsibleTrigger className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors w-full group">
-            <ChevronDown className="w-3 h-3 transition-transform group-data-[state=open]:rotate-180" />
-            Done ({completedTodos.length})
+        <Collapsible defaultOpen={false} className="mt-4">
+          <CollapsibleTrigger className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-full group py-2 border-t border-border/30 pt-3">
+            <ChevronDown className="w-3.5 h-3.5 transition-transform group-data-[state=open]:rotate-180" />
+            <span>Completed</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground/70">{completedTodos.length}</span>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-1.5 space-y-0.5">
+          <CollapsibleContent className="mt-2 space-y-1">
             {completedTodos.map((todo, i) => (
-              <TodoRow
+              <MissionTaskCard
                 key={todo.id}
                 todo={todo}
                 justCompleted={false}
@@ -399,7 +443,7 @@ export function TodoList() {
         </Collapsible>
       )}
 
-      {/* Edit Task Dialog */}
+      {/* ── Edit Dialog ── */}
       <Dialog open={!!editTodo} onOpenChange={(open) => !open && setEditTodo(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -410,11 +454,11 @@ export function TodoList() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Title</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Title</label>
               <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Priority</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Priority</label>
               <Select value={editPriority} onValueChange={(v) => setEditPriority(v as Priority)}>
                 <SelectTrigger className="h-9 text-sm">
                   <SelectValue />
@@ -424,8 +468,8 @@ export function TodoList() {
                     const cfg = PRIORITY_CONFIG[p];
                     return (
                       <SelectItem key={p} value={p}>
-                        <span className={cn("flex items-center gap-1.5", cfg.color)}>
-                          <cfg.icon className="w-3.5 h-3.5" />
+                        <span className="flex items-center gap-1.5">
+                          <span className={cn("w-2 h-2 rounded-full", cfg.dot)} />
                           {cfg.label}
                         </span>
                       </SelectItem>
@@ -435,13 +479,10 @@ export function TodoList() {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Due Date</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Due Date</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn("w-full justify-start text-left font-normal h-9", !editDueDate && "text-muted-foreground")}
-                  >
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-9", !editDueDate && "text-muted-foreground")}>
                     <CalendarIcon className="w-4 h-4 mr-2" />
                     {editDueDate ? format(editDueDate, 'PPP') : 'No due date'}
                   </Button>
@@ -464,7 +505,7 @@ export function TodoList() {
         </DialogContent>
       </Dialog>
 
-      {/* Upload Tasks Dialog */}
+      {/* ── Upload Dialog ── */}
       <Dialog open={showUpload} onOpenChange={setShowUpload}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -494,7 +535,8 @@ export function TodoList() {
   );
 }
 
-function TodoRow({
+/* ── Task Card Component ── */
+function MissionTaskCard({
   todo, justCompleted, isEntering, isExiting, index, onToggle, onDelete, onEdit, onPriorityChange,
 }: {
   todo: TodoItem;
@@ -510,82 +552,66 @@ function TodoRow({
   const cfg = PRIORITY_CONFIG[todo.priority];
   const PriorityIcon = cfg.icon;
   const isOverdue = todo.due_date && !todo.is_completed && new Date(todo.due_date + 'T23:59:59') < new Date();
-    const priorityBg = !todo.is_completed && !justCompleted
-      ? todo.priority === 'urgent' ? 'bg-red-500/12 border border-red-500/20'
-      : todo.priority === 'high' ? 'bg-orange-500/8 border border-orange-500/15'
-      : ''
-      : '';
 
-    return (
+  return (
     <div
       className={cn(
-        "relative flex items-center gap-2 pl-4 pr-2 py-2 rounded-lg transition-all group cursor-pointer overflow-hidden",
-        "mission-priority-bar",
-        !todo.is_completed && `mission-bar-${todo.priority}`,
-        justCompleted && "!bg-emerald-500/10 scale-[0.98] duration-200",
+        "group relative flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 cursor-pointer border-l-[3px]",
+        // Animations
         isEntering && "animate-fade-in",
         isExiting && "opacity-0 -translate-x-4 scale-95 duration-250",
-        !justCompleted && !isEntering && !isExiting && "duration-250",
-        todo.is_completed && !justCompleted ? "opacity-40" : "hover:bg-muted/20 hover:-translate-y-px",
-        !todo.is_completed && todo.priority === 'urgent' && "bg-purple-500/20 border border-purple-400/30",
-        !todo.is_completed && todo.priority === 'high' && "bg-purple-500/12 border border-purple-500/20",
-        !todo.is_completed && todo.priority === 'medium' && "bg-purple-500/6 border border-purple-500/10",
-        !todo.is_completed && todo.priority === 'low' && "bg-purple-500/[0.02]",
+        justCompleted && "!border-l-emerald-500 !bg-emerald-500/10 scale-[0.98]",
+        // Completed state
+        todo.is_completed && !justCompleted
+          ? "opacity-40 border-l-border/30 bg-transparent hover:opacity-60"
+          : !justCompleted && cn(
+              "hover:bg-muted/25 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_-4px_hsl(0_0%_0%/0.4)]",
+              cfg.border,
+              cfg.bg,
+            ),
       )}
       style={isEntering ? {} : { animationDelay: `${index * 20}ms` }}
       onClick={onEdit}
     >
+      {/* Completion sweep effect */}
       {justCompleted && (
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/15 via-emerald-400/5 to-transparent animate-[sweep_0.6s_ease-out_forwards] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/15 via-emerald-400/5 to-transparent rounded-xl animate-[sweep_0.6s_ease-out_forwards] pointer-events-none" />
       )}
+
+      {/* Drag handle */}
+      <GripVertical className="w-3.5 h-3.5 text-muted-foreground/20 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 -ml-1" />
+
+      {/* Checkbox */}
       <div onClick={(e) => e.stopPropagation()}>
         <Checkbox
           checked={todo.is_completed}
           onCheckedChange={onToggle}
           className={cn(
-            "flex-shrink-0 transition-all duration-300",
+            "shrink-0 transition-all duration-300 w-[18px] h-[18px]",
             justCompleted && "scale-110 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
           )}
         />
       </div>
-      <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
-        <Select value={todo.priority} onValueChange={(v) => onPriorityChange(v as Priority)}>
-          <SelectTrigger className="h-5 w-5 p-0 border-0 bg-transparent shadow-none focus:ring-0 [&>svg]:hidden justify-center">
-            <PriorityIcon className={cn("w-3 h-3", cfg.color)} />
-          </SelectTrigger>
-          <SelectContent align="start" className="min-w-[120px]">
-            {PRIORITY_ORDER.map(p => {
-              const c = PRIORITY_CONFIG[p];
-              return (
-                <SelectItem key={p} value={p}>
-                  <span className={cn("flex items-center gap-1.5", c.color)}>
-                    <c.icon className="w-3 h-3" />
-                    {c.label}
-                  </span>
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-      </div>
+
+      {/* Content */}
       <div className="flex-1 min-w-0">
         <p className={cn(
-          "text-sm leading-tight transition-all duration-300",
+          "text-sm leading-snug transition-all duration-300",
           justCompleted && "text-emerald-400 line-through",
-          todo.is_completed && !justCompleted && "line-through text-muted-foreground"
+          todo.is_completed && !justCompleted && "line-through text-muted-foreground",
         )}>
           {todo.title}
         </p>
         {(todo.assigned_by_name || todo.due_date) && (
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-2.5 mt-1">
             {todo.assigned_by_name && (
-              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
                 <User className="w-2.5 h-2.5" />
                 {todo.assigned_by_name}
               </span>
             )}
             {todo.due_date && (
-              <span className={cn("flex items-center gap-0.5 text-[10px]", isOverdue ? "text-red-500" : "text-muted-foreground")}>
+              <span className={cn("flex items-center gap-1 text-[10px]", isOverdue ? "text-red-400" : "text-muted-foreground/70")}>
                 <CalendarIcon className="w-2.5 h-2.5" />
                 {format(new Date(todo.due_date + 'T00:00:00'), 'MMM d')}
               </span>
@@ -593,9 +619,36 @@ function TodoRow({
           </div>
         )}
       </div>
+
+      {/* Priority badge */}
+      {!todo.is_completed && (
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+          <Select value={todo.priority} onValueChange={(v) => onPriorityChange(v as Priority)}>
+            <SelectTrigger className="h-6 px-2 gap-1 border-0 bg-muted/30 rounded-md shadow-none focus:ring-0 [&>svg:last-child]:hidden text-[10px] font-medium">
+              <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", cfg.dot)} />
+              <span className="text-muted-foreground">{cfg.label}</span>
+            </SelectTrigger>
+            <SelectContent align="end" className="min-w-[120px]">
+              {PRIORITY_ORDER.map(p => {
+                const c = PRIORITY_CONFIG[p];
+                return (
+                  <SelectItem key={p} value={p}>
+                    <span className="flex items-center gap-1.5">
+                      <span className={cn("w-2 h-2 rounded-full", c.dot)} />
+                      {c.label}
+                    </span>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Delete */}
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all flex-shrink-0"
+        className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-destructive transition-all shrink-0 p-1 rounded-md hover:bg-destructive/10"
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
