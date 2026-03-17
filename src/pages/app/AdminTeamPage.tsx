@@ -109,9 +109,10 @@ export default function AdminTeamPage() {
       };
     });
 
-    // Pending = signed up via website but not yet approved (no onboarding_status from import)
-    const pending = users.filter(r => r.status === 'pending' && !r.approved && !r.onboarding_status);
-    const allOthers = users.filter(r => !(r.status === 'pending' && !r.approved && !r.onboarding_status));
+    // Pending = signed up via website but not yet approved (not imported with a pipeline status)
+    const isRealSignup = (r: UserRow) => !r.onboarding_status || r.onboarding_status === 'pending';
+    const pending = users.filter(r => r.status === 'pending' && !r.approved && isRealSignup(r));
+    const allOthers = users.filter(r => !(r.status === 'pending' && !r.approved && isRealSignup(r)));
     setPendingUsers(pending);
     setAllUsers(allOthers);
 

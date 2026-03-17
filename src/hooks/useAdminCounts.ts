@@ -50,10 +50,10 @@ export function useAdminCounts() {
       if (!mountedRef.current) return;
 
       // === PENDING APPROVALS ===
-      // Same filter as AdminTeamPage: status=pending, approved=false, no onboarding_status (real signups, not imports)
+      // Same filter as AdminTeamPage: status=pending, approved=false, real signups (no import pipeline status)
       const profiles = profilesRes.data || [];
       const pendingApprovals = profiles.filter(
-        (p: any) => p.status === 'pending' && !p.approved && !p.onboarding_status
+        (p: any) => p.status === 'pending' && !p.approved && (!p.onboarding_status || p.onboarding_status === 'pending')
       ).length;
 
       // === PENDING PITCHES ===
