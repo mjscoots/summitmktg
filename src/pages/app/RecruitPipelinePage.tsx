@@ -311,10 +311,11 @@ export default function RecruitPipelinePage() {
     );
   }
 
-  const SortHeader = ({ field, label, className: cls }: { field: SortField; label: string; className?: string }) => (
+  const SortHeader = ({ field, label, className: cls, style }: { field: SortField; label: string; className?: string; style?: React.CSSProperties }) => (
     <th
       className={cn("px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap", cls)}
       onClick={() => toggleSort(field)}
+      style={style}
     >
       <span className="inline-flex items-center gap-1">
         {label}
@@ -325,100 +326,95 @@ export default function RecruitPipelinePage() {
 
   return (
     <AppLayout>
-      <div className="max-w-[1400px] mx-auto px-4 py-6">
+      <div className="w-full px-3 sm:px-4 lg:px-6 py-4 lg:py-6 max-w-full">
         <PageBackButton to="/app" label="Dashboard" />
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Users className="w-5 h-5 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Funnel Tracker</h1>
-              <p className="text-xs text-muted-foreground">{recruits.length} total recruits</p>
-            </div>
-          </div>
-          <Button size="sm" onClick={addRecruit} className="gap-1.5">
-            <Plus className="w-4 h-4" /> Add Row
-          </Button>
-        </div>
-
-        {/* Calendly Quick Link */}
-        <div className="mb-4 flex items-center gap-2">
-          {editingCalendly ? (
-            <div className="flex items-center gap-2 flex-1 max-w-md">
-              <div className="relative flex-1">
-                <Link2 className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                <Input
-                  value={calendlyDraft}
-                  onChange={e => setCalendlyDraft(e.target.value)}
-                  placeholder="https://calendly.com/your-link"
-                  className="pl-8 h-8 text-xs bg-card/60"
-                  onKeyDown={e => { if (e.key === 'Enter') saveCalendly(); if (e.key === 'Escape') setEditingCalendly(false); }}
-                  autoFocus
-                />
+        {/* ─── Header ─── */}
+        <div className="flex flex-col gap-3 mb-4">
+          {/* Row 1: Title + Actions */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="shrink-0 w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Users className="w-4.5 h-4.5 text-primary" />
               </div>
-              <button onClick={saveCalendly} className="p-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
-                <Check className="w-3.5 h-3.5" />
-              </button>
-              <button onClick={() => setEditingCalendly(false)} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-colors">
-                <X className="w-3.5 h-3.5" />
-              </button>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg lg:text-xl font-bold text-foreground truncate">Funnel Tracker</h1>
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20 shrink-0">
+                    {recruits.length}
+                  </span>
+                </div>
+                {/* Calendly inline */}
+                <div className="flex items-center gap-2 mt-0.5">
+                  {editingCalendly ? (
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        value={calendlyDraft}
+                        onChange={e => setCalendlyDraft(e.target.value)}
+                        placeholder="https://calendly.com/..."
+                        className="h-6 text-[11px] w-48 bg-card/60 px-2"
+                        onKeyDown={e => { if (e.key === 'Enter') saveCalendly(); if (e.key === 'Escape') setEditingCalendly(false); }}
+                        autoFocus
+                      />
+                      <button onClick={saveCalendly} className="p-0.5 text-primary hover:text-primary/80"><Check className="w-3 h-3" /></button>
+                      <button onClick={() => setEditingCalendly(false)} className="p-0.5 text-muted-foreground hover:text-foreground"><X className="w-3 h-3" /></button>
+                    </div>
+                  ) : calendlyUrl ? (
+                    <div className="flex items-center gap-1.5">
+                      <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:text-primary/80 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> Calendly <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                      <button onClick={() => { setCalendlyDraft(calendlyUrl); setEditingCalendly(true); }} className="text-muted-foreground/40 hover:text-muted-foreground"><Pencil className="w-2.5 h-2.5" /></button>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setCalendlyDraft(''); setEditingCalendly(true); }} className="text-[11px] text-muted-foreground/60 hover:text-muted-foreground flex items-center gap-1">
+                      <Calendar className="w-3 h-3" /> Add Calendly
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
-          ) : calendlyUrl ? (
-            <div className="flex items-center gap-2">
-              <Calendar className="w-3.5 h-3.5 text-primary" />
-              <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
-                My Calendly <ExternalLink className="w-3 h-3" />
-              </a>
-              <button onClick={() => { setCalendlyDraft(calendlyUrl); setEditingCalendly(true); }} className="p-1 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors">
-                <Pencil className="w-3 h-3" />
+            <Button size="sm" onClick={addRecruit} className="gap-1.5 shrink-0">
+              <Plus className="w-4 h-4" /> Add Row
+            </Button>
+          </div>
+
+          {/* Row 2: Search */}
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search name, phone, email..."
+              className="pl-9 bg-card/60 h-9 text-xs w-full"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <X className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
               </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => { setCalendlyDraft(''); setEditingCalendly(true); }}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              Add Calendly link
-            </button>
-          )}
+            )}
+          </div>
         </div>
 
-        <div className="relative mb-4 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search name, phone, email..."
-            className="pl-9 bg-card/60 h-9 text-xs"
-          />
-          {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-            </button>
-          )}
-        </div>
-
-        {/* Table */}
+        {/* ─── Table ─── */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="border border-border/60 rounded-xl overflow-hidden bg-card/40 backdrop-blur-sm">
+          <div className="border border-border/60 rounded-xl bg-card/40 backdrop-blur-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px]">
+              <table className="w-full" style={{ minWidth: '1050px' }}>
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
-                    <SortHeader field="recruit_name" label="Applicant" className="sticky left-0 bg-muted/30 z-10 min-w-[160px]" />
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap min-w-[120px]">Phone #</th>
-                    <SortHeader field="stage" label="Status" className="min-w-[130px]" />
-                    <SortHeader field="position" label="Position" className="min-w-[120px]" />
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap min-w-[110px]">Interview 2</th>
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap min-w-[110px]">Interview 3</th>
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap min-w-[130px]">Onboarding</th>
-                    <th className="px-3 py-2.5 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[60px]" />
+                    <SortHeader field="recruit_name" label="Applicant" className="sticky left-0 bg-muted/30 z-10" style={{ minWidth: '180px' }} />
+                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Phone #</th>
+                    <SortHeader field="stage" label="Status" style={{ minWidth: '140px' }} />
+                    <SortHeader field="position" label="Position" style={{ minWidth: '140px' }} />
+                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Interview 2</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Interview 3</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '150px' }}>Onboarding</th>
+                    <th className="px-3 py-2.5 w-[50px]" />
                   </tr>
                 </thead>
                 <tbody>
@@ -438,78 +434,34 @@ export default function RecruitPipelinePage() {
                           idx % 2 === 1 && "bg-muted/10"
                         )}
                       >
-                        {/* Applicant - sticky */}
-                        <td className="px-3 py-2 sticky left-0 bg-inherit z-10">
+                        <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
                           <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => openDetail(r)}
-                              className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              title="View details"
-                            >
+                            <button onClick={() => openDetail(r)} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" title="View details">
                               <StickyNote className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
                             </button>
-                            <EditableCell
-                              value={r.recruit_name}
-                              onChange={v => updateField(r.id, 'recruit_name', v)}
-                              placeholder="Name..."
-                              className="font-medium"
-                            />
+                            <EditableCell value={r.recruit_name} onChange={v => updateField(r.id, 'recruit_name', v)} placeholder="Name..." className="font-medium" />
                           </div>
                         </td>
-                        {/* Phone */}
-                        <td className="px-3 py-2">
-                          <EditableCell
-                            value={r.phone || ''}
-                            onChange={v => updateField(r.id, 'phone', v)}
-                            placeholder="Phone..."
-                          />
+                        <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                          <EditableCell value={r.phone || ''} onChange={v => updateField(r.id, 'phone', v)} placeholder="Phone..." />
                         </td>
-                        {/* Status */}
-                        <td className="px-3 py-2">
-                          <CellDropdown
-                            value={r.stage}
-                            options={STATUS_OPTIONS}
-                            onChange={v => updateField(r.id, 'stage', v)}
-                          />
+                        <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
+                          <CellDropdown value={r.stage} options={STATUS_OPTIONS} onChange={v => updateField(r.id, 'stage', v)} />
                         </td>
-                        {/* Position */}
-                        <td className="px-3 py-2">
-                          <CellDropdown
-                            value={r.position || ''}
-                            options={POSITION_OPTIONS}
-                            onChange={v => updateField(r.id, 'position', v)}
-                          />
+                        <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
+                          <CellDropdown value={r.position || ''} options={POSITION_OPTIONS} onChange={v => updateField(r.id, 'position', v)} />
                         </td>
-                        {/* Interview 2 */}
-                        <td className="px-3 py-2">
-                          <CellDropdown
-                            value={r.interview_2_status || ''}
-                            options={INTERVIEW_OPTIONS}
-                            onChange={v => updateField(r.id, 'interview_2_status', v)}
-                          />
+                        <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                          <CellDropdown value={r.interview_2_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_2_status', v)} />
                         </td>
-                        {/* Interview 3 */}
-                        <td className="px-3 py-2">
-                          <CellDropdown
-                            value={r.interview_3_status || ''}
-                            options={INTERVIEW_OPTIONS}
-                            onChange={v => updateField(r.id, 'interview_3_status', v)}
-                          />
+                        <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                          <CellDropdown value={r.interview_3_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_3_status', v)} />
                         </td>
-                        {/* Onboarding */}
-                        <td className="px-3 py-2">
-                          <CellDropdown
-                            value={r.onboarding_status || ''}
-                            options={ONBOARDING_OPTIONS}
-                            onChange={v => updateField(r.id, 'onboarding_status', v)}
-                          />
+                        <td className="px-3 py-2.5" style={{ minWidth: '150px' }}>
+                          <CellDropdown value={r.onboarding_status || ''} options={ONBOARDING_OPTIONS} onChange={v => updateField(r.id, 'onboarding_status', v)} />
                         </td>
-                        {/* Actions */}
-                        <td className="px-3 py-2 text-right">
-                          <button
-                            onClick={() => deleteRecruit(r.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all"
-                          >
+                        <td className="px-3 py-2.5 text-right">
+                          <button onClick={() => deleteRecruit(r.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
