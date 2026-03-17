@@ -1487,6 +1487,7 @@ export type Database = {
         Row: {
           approved: boolean | null
           avatar_url: string | null
+          calendly_url: string | null
           created_at: string | null
           cumulative_points: number | null
           direct_manager: string | null
@@ -1522,6 +1523,7 @@ export type Database = {
         Insert: {
           approved?: boolean | null
           avatar_url?: string | null
+          calendly_url?: string | null
           created_at?: string | null
           cumulative_points?: number | null
           direct_manager?: string | null
@@ -1557,6 +1559,7 @@ export type Database = {
         Update: {
           approved?: boolean | null
           avatar_url?: string | null
+          calendly_url?: string | null
           created_at?: string | null
           cumulative_points?: number | null
           direct_manager?: string | null
