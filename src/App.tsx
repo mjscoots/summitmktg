@@ -348,14 +348,9 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
-              <Route path="/app/spreadsheets" element={
-                <ProtectedRoute>
-                  <BootcampGate>
-                    <SpreadsheetsPage />
-                  </BootcampGate>
-                </ProtectedRoute>
-              } />
-              <Route path="/app/recruit-pipeline" element={
+              <Route path="/app/spreadsheets" element={<Navigate to="/app/recruiting" replace />} />
+              <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruiting" replace />} />
+              <Route path="/app/recruiting" element={
                 <ProtectedRoute>
                   <BootcampGate>
                     <RecruitPipelinePage />
