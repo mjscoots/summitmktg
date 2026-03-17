@@ -381,11 +381,14 @@ export function TodoList() {
             Done ({completedTodos.length})
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-1.5 space-y-0.5">
-            {completedTodos.map(todo => (
+            {completedTodos.map((todo, i) => (
               <TodoRow
                 key={todo.id}
                 todo={todo}
                 justCompleted={false}
+                isEntering={false}
+                isExiting={exiting.has(todo.id)}
+                index={i}
                 onToggle={() => toggleComplete(todo)}
                 onDelete={() => deleteTodo(todo.id)}
                 onEdit={() => openEditModal(todo)}
