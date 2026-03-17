@@ -65,6 +65,66 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_posts: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_target: string | null
+          expires_at: string | null
+          id: string
+          is_auto_generated: boolean
+          is_important: boolean
+          is_pinned: boolean
+          published_at: string | null
+          source_id: string | null
+          source_type: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          expires_at?: string | null
+          id?: string
+          is_auto_generated?: boolean
+          is_important?: boolean
+          is_pinned?: boolean
+          published_at?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          expires_at?: string | null
+          id?: string
+          is_auto_generated?: boolean
+          is_important?: boolean
+          is_pinned?: boolean
+          published_at?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           author_id: string | null
