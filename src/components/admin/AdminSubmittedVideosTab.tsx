@@ -39,14 +39,23 @@ export default function AdminSubmittedVideosTab() {
 
   const fetchVideos = async () => {
     setLoading(true);
-    const [profilesRes, bootcampRes, pitchRes, teamsRes] = await Promise.all([
+    const [profilesRes, rolesRes, bootcampRes, pitchRes, teamsRes] = await Promise.all([
       supabase.from('profiles').select('user_id, full_name, team_id'),
+      supabase.from('user_roles').select('user_id, role'),
       supabase.from('bootcamp_progress').select('user_id, sunblock_video_url, motivation_video_url, final_commitment_video_url, phase_2_video_url, phase_3_video_url, created_at'),
       supabase.from('pitch_approval_requests').select('id, user_id, video_url, status, submitted_at, lesson_id'),
       supabase.from('teams').select('id, name'),
     ]);
 
-    const profileMap = new Map((profilesRes.data || []).map(p => [p.user_id, p]));
+    // Build set of non-rookie user IDs to exclude
+    const nonRookieIds = new Set<string>();
+    for (const r of (rolesRes.data || [])) {
+      if (r.role === 'manager' || r.role === 'admin' || r.role === 'owner') {
+        nonRookieIds.add(r.user_id);
+      }
+    }
+
+    const profileMap = new Map((profilesRes.data || []).filter(p => !nonRookieIds.has(p.user_id)).map(p => [p.user_id, p]));
     const teamMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
 
     const personMap = new Map<string, PersonVideos>();
