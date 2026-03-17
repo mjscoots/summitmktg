@@ -77,6 +77,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
   const [contextMenu, setContextMenu] = useState<{ position: { x: number; y: number }; msgId: string } | null>(null);
+  // Centralized reactions state: { messageId -> { emoji -> user_id[] } }
+  const [reactionsMap, setReactionsMap] = useState<Record<string, Record<string, string[]>>>({});
 
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
