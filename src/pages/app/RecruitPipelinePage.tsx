@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Trash2, Users, Loader2, Search, X, ArrowUpDown, ChevronDown, StickyNote, Calendar, Link2, ExternalLink, Check, Pencil } from 'lucide-react';
+import { Plus, Trash2, Users, Loader2, Search, X, ArrowUpDown, ChevronDown, StickyNote, Calendar, Link2, ExternalLink, Check, Pencil, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
