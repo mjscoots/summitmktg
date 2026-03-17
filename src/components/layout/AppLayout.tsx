@@ -28,11 +28,11 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
       <SidebarProvider defaultOpen={true}>
         <ImpersonationBanner />
-        <div className={cn("min-h-screen flex w-full bg-background", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
+        <div className={cn("min-h-screen flex w-full bg-background summit-atmosphere", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0">
             {/* Desktop top bar with status + notifications */}
-            <header className="hidden lg:flex sticky top-0 z-40 h-12 items-center justify-between px-4 border-b border-border/30 bg-background/80 backdrop-blur-sm">
+            <header className="hidden lg:flex sticky top-0 z-40 h-12 items-center justify-between px-4 border-b border-border/30 bg-background/80 backdrop-blur-md">
               <div /> {/* Spacer */}
               <div className="flex items-center gap-3">
                 <StatusBar />
@@ -41,7 +41,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             </header>
 
             {/* Mobile header */}
-            <header className="lg:hidden sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-2 py-2">
+            <header className="lg:hidden sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 px-2 py-2">
               <div className="flex items-center justify-between gap-1">
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <SidebarTrigger className="w-8 h-8 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary border border-primary/20 rounded-lg shadow-sm" />

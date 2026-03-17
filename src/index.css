@@ -72,6 +72,7 @@ html, body {
     /* Gradient tokens */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(263 84% 58%));
     --gradient-gold: linear-gradient(135deg, hsl(43 96% 56%), hsl(24 94% 53%));
+    --gradient-surface: linear-gradient(180deg, hsl(230 20% 9%), hsl(230 20% 7%));
 
     /* Sidebar — Deeper than body */
     --sidebar-background: 228 30% 2.5%;
@@ -165,15 +166,16 @@ html, body {
     font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   }
 
-  /* Glass card utility */
+  /* ━━━ GLASS CARD — Premium depth ━━━ */
   .glass-card {
-    background: hsl(var(--glass-bg));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--gradient-surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid hsl(var(--glass-border));
     box-shadow:
-      0 8px 32px -8px hsl(0 0% 0% / 0.4),
-      inset 0 1px 0 hsl(0 0% 100% / 0.03);
+      0 8px 32px -8px hsl(0 0% 0% / 0.5),
+      0 0 0 1px hsl(0 0% 100% / 0.02),
+      inset 0 1px 0 hsl(0 0% 100% / 0.04);
   }
 
   .glass-card-hover {
@@ -181,12 +183,12 @@ html, body {
   }
 
   .glass-card-hover:hover {
-    border-color: hsl(217 91% 60% / 0.2);
+    border-color: hsl(217 91% 60% / 0.25);
     box-shadow:
-      0 12px 40px -8px hsl(0 0% 0% / 0.5),
-      0 0 20px -4px hsl(var(--glass-glow)),
-      inset 0 1px 0 hsl(0 0% 100% / 0.05);
-    transform: translateY(-1px);
+      0 16px 48px -8px hsl(0 0% 0% / 0.6),
+      0 0 24px -4px hsl(var(--glass-glow)),
+      inset 0 1px 0 hsl(0 0% 100% / 0.06);
+    transform: translateY(-2px);
   }
 
   /* Premium gradient text */
@@ -204,15 +206,17 @@ html, body {
     background-clip: text;
   }
 
-  /* Card hover effect - Premium lift + glow */
+  /* ━━━ CARD HOVER — Premium lift + glow ━━━ */
   .card-hover {
-    @apply transition-all duration-200;
+    @apply transition-all duration-250;
   }
   
   .card-hover:hover {
     @apply -translate-y-0.5;
     border-color: hsl(217 91% 60% / 0.3);
-    box-shadow: 0 8px 30px -12px hsl(217 91% 60% / 0.2);
+    box-shadow:
+      0 8px 30px -12px hsl(217 91% 60% / 0.25),
+      0 0 0 1px hsl(217 91% 60% / 0.08);
   }
 
   /* Training tile glow effects */
@@ -238,7 +242,7 @@ html, body {
     box-shadow: 0 0 25px -8px hsl(217 91% 60% / 0.25);
   }
 
-  /* Ambient background glow */
+  /* ━━━ AMBIENT ATMOSPHERE — Subtle cosmic glow ━━━ */
   .ambient-glow {
     position: relative;
   }
@@ -252,17 +256,30 @@ html, body {
     height: 140%;
     background:
       radial-gradient(ellipse at 20% 50%, hsl(217 91% 60% / 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, hsl(263 84% 58% / 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, hsl(263 84% 58% / 0.035) 0%, transparent 50%),
       radial-gradient(ellipse at 50% 80%, hsl(217 91% 60% / 0.02) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
-    animation: ambient-shift 20s ease-in-out infinite;
+    animation: ambient-shift 25s ease-in-out infinite;
   }
 
   @keyframes ambient-shift {
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(2%, -1%) scale(1.02); }
     66% { transform: translate(-1%, 2%) scale(0.98); }
+  }
+
+  /* ━━━ SUMMIT ATMOSPHERE — Noise texture overlay ━━━ */
+  .summit-atmosphere::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
   }
 
   /* Bot message glow effect */
@@ -322,28 +339,52 @@ html, body {
   .animate-count-up {
     animation: count-up 0.4s ease-out;
   }
+
+  /* ━━━ MISSION PRIORITY BAR ━━━ */
+  .mission-priority-bar {
+    position: relative;
+  }
+  .mission-priority-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 9999px;
+  }
+  .mission-bar-urgent::before { background: hsl(0 72% 51%); box-shadow: 0 0 8px hsl(0 72% 51% / 0.4); }
+  .mission-bar-high::before { background: hsl(25 95% 53%); box-shadow: 0 0 6px hsl(25 95% 53% / 0.3); }
+  .mission-bar-medium::before { background: hsl(217 91% 60%); }
+  .mission-bar-low::before { background: hsl(220 10% 30%); }
 }
 
 @layer components {
-  /* Elevated card — Glass */
+  /* ━━━ ELEVATED CARD — Glass ━━━ */
   .card-elevated {
     @apply rounded-xl glass-card;
   }
 
-  /* Primary button — Blue with glow */
+  /* ━━━ PRIMARY BUTTON — Blue with glow ━━━ */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm text-primary-foreground transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm text-primary-foreground transition-all duration-250;
     background: var(--gradient-primary);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 0 24px -5px hsl(217 91% 60% / 0.4);
+    box-shadow: 0 0 28px -5px hsl(217 91% 60% / 0.45);
     transform: translateY(-1px);
+    filter: brightness(1.1);
   }
 
-  /* Secondary button — Dark with blue border */
+  .btn-primary:active {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
+
+  /* ━━━ SECONDARY BUTTON — Dark with blue border ━━━ */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-medium text-sm bg-secondary text-foreground transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-medium text-sm bg-secondary text-foreground transition-all duration-250;
     border: 1px solid hsl(217 91% 60% / 0.25);
   }
 
@@ -351,17 +392,18 @@ html, body {
     border-color: hsl(217 91% 60% / 0.5);
     background: hsl(217 91% 60% / 0.08);
     transform: translateY(-1px);
+    box-shadow: 0 0 16px -6px hsl(217 91% 60% / 0.3);
   }
 
   /* Input field */
   .input-field {
-    @apply w-full rounded-lg bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-200;
+    @apply w-full rounded-lg bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-250;
     border: 1px solid hsl(var(--glass-border));
   }
 
   .input-field:focus {
     border-color: hsl(217 91% 60% / 0.4);
-    box-shadow: 0 0 0 2px hsl(217 91% 60% / 0.15);
+    box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.1), 0 0 12px -4px hsl(217 91% 60% / 0.2);
   }
 
   /* Progress */
@@ -388,26 +430,28 @@ html, body {
     @apply bg-success/15 text-success;
   }
 
-  /* Module card */
+  /* ━━━ MODULE CARD — Premium progression feel ━━━ */
   .module-card {
-    @apply card-elevated p-5 transition-all duration-200 cursor-pointer;
+    @apply card-elevated p-5 transition-all duration-250 cursor-pointer;
   }
 
   .module-card:hover {
     border-color: hsl(217 91% 60% / 0.3);
-    box-shadow: 0 8px 30px -12px hsl(217 91% 60% / 0.2);
+    box-shadow:
+      0 12px 36px -12px hsl(217 91% 60% / 0.25),
+      0 0 0 1px hsl(217 91% 60% / 0.08);
     transform: translateY(-2px);
   }
 
   /* Pill tabs */
   .tab-pill {
-    @apply px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200;
+    @apply px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-250;
   }
 
   .tab-pill-active {
     @apply text-primary-foreground;
     background: var(--gradient-primary);
-    box-shadow: 0 0 15px -5px hsl(217 91% 60% / 0.4);
+    box-shadow: 0 0 20px -5px hsl(217 91% 60% / 0.45);
   }
 
   .tab-pill-inactive {
@@ -417,6 +461,7 @@ html, body {
 
   .tab-pill-inactive:hover {
     border-color: hsl(217 91% 60% / 0.2);
+    box-shadow: 0 0 12px -6px hsl(217 91% 60% / 0.15);
   }
 }
 
@@ -463,4 +508,18 @@ html, body {
     0% { transform: translateX(-100%); opacity: 1; }
     100% { transform: translateX(100%); opacity: 0; }
   }
+}
+
+/* ━━━ GLOBAL INTERACTIVE UPGRADES ━━━ */
+
+/* All buttons get smooth transitions */
+button, a, [role="button"] {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity, filter;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shadcn button upgrades */
+.inline-flex[class*="bg-primary"]:hover {
+  box-shadow: 0 0 20px -6px hsl(217 91% 60% / 0.35);
 }
