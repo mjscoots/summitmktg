@@ -20,6 +20,7 @@ import type { UserRow } from '@/components/admin/AdminUsersTab';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { useRookieView } from '@/contexts/RookieViewContext';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
