@@ -342,7 +342,49 @@ export default function RecruitPipelinePage() {
           </Button>
         </div>
 
-        {/* Search */}
+        {/* Calendly Quick Link */}
+        <div className="mb-4 flex items-center gap-2">
+          {editingCalendly ? (
+            <div className="flex items-center gap-2 flex-1 max-w-md">
+              <div className="relative flex-1">
+                <Link2 className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input
+                  value={calendlyDraft}
+                  onChange={e => setCalendlyDraft(e.target.value)}
+                  placeholder="https://calendly.com/your-link"
+                  className="pl-8 h-8 text-xs bg-card/60"
+                  onKeyDown={e => { if (e.key === 'Enter') saveCalendly(); if (e.key === 'Escape') setEditingCalendly(false); }}
+                  autoFocus
+                />
+              </div>
+              <button onClick={saveCalendly} className="p-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                <Check className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => setEditingCalendly(false)} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : calendlyUrl ? (
+            <div className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-primary" />
+              <a href={calendlyUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+                My Calendly <ExternalLink className="w-3 h-3" />
+              </a>
+              <button onClick={() => { setCalendlyDraft(calendlyUrl); setEditingCalendly(true); }} className="p-1 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+                <Pencil className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setCalendlyDraft(''); setEditingCalendly(true); }}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              Add Calendly link
+            </button>
+          )}
+        </div>
+
         <div className="relative mb-4 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
