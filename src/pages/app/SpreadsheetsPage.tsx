@@ -64,12 +64,12 @@ export default function SpreadsheetsPage() {
     if (!newTitle.trim() || !newUrl.trim()) return;
     setSaving(true);
     const maxOrder = sheets.reduce((m, s) => Math.max(m, s.display_order), 0);
-    const { error } = await supabase.from('manager_spreadsheets').insert({
+    const { error } = await (supabase as any).from('manager_spreadsheets').insert({
       title: newTitle.trim(),
       embed_url: extractEmbedUrl(newUrl.trim()),
       display_order: maxOrder + 1,
       is_active: true,
-    } as any);
+    });
     if (error) {
       toast.error('Failed to add spreadsheet');
     } else {
