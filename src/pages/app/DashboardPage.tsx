@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
 import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
