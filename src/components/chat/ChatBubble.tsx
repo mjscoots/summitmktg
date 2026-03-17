@@ -71,6 +71,7 @@ export function ChatBubble({
   onProfileClick,
   onContextMenu,
   onDoubleTap,
+  onToggleReaction,
   onReply,
   isEditing,
   editText,
@@ -83,23 +84,11 @@ export function ChatBubble({
   const reactions = reactionsProp;
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
+  const [showQuickPicker, setShowQuickPicker] = useState(false);
   const lastTapRef = useRef<number>(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const toggleReaction = async (emoji: string) => {
-    if (!user) return;
-    const existing = reactions.find(r => r.emoji === emoji);
-    const hasReacted = existing?.users.includes(user.id);
-    try {
-      if (hasReacted) {
-        await supabase.from('chat_reactions').delete().eq('message_id', message.id).eq('user_id', user.id).eq('emoji', emoji);
-      } else {
-        await supabase.from('chat_reactions').insert({ message_id: message.id, user_id: user.id, emoji });
-      }
-    } catch (err) {
-      console.error('Reaction toggle error:', err);
-    }
-  };
+  const QUICK_EMOJIS = ['⛰️', '🔥', '💰', '🧠', '🚀'];
 
   const handleDoubleTap = (msgId: string) => {
     setShowFireAnim(true);
