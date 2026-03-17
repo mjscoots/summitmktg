@@ -154,13 +154,17 @@ export function TodoList() {
   };
 
   const deleteTodo = async (id: string) => {
-    await supabase.from('todo_items').delete().eq('id', id);
-    fetchTodos();
+    setExiting(prev => new Set(prev).add(id));
+    setTimeout(async () => {
+      setTodos(prev => prev.filter(t => t.id !== id));
+      setExiting(prev => { const n = new Set(prev); n.delete(id); return n; });
+      await supabase.from('todo_items').delete().eq('id', id);
+    }, 250);
   };
 
   const updatePriority = async (id: string, priority: Priority) => {
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, priority } : t));
     await supabase.from('todo_items').update({ priority } as any).eq('id', id);
-    fetchTodos();
   };
 
   const openEditModal = (todo: TodoItem) => {
