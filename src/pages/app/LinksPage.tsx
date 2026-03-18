@@ -38,7 +38,15 @@ interface PhoneEntry {
   display_order: number;
 }
 
-type PageTab = 'links' | 'phone-numbers' | 'calculators' | 'notepad' | 'pay-scales';
+interface EmailEntry {
+  id: string;
+  name: string;
+  email: string;
+  label: string;
+  display_order: number;
+}
+
+type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay-scales';
 
 /** Normalize a US phone number to (XXX) XXX-XXXX format */
 function normalizePhone(raw: string): string {
