@@ -650,11 +650,68 @@ export default function LinksPage() {
           </>
         )}
 
-        {/* Notepad Tab */}
-        {activeTab === 'notepad' && (
-          <Suspense fallback={<div className="animate-pulse text-muted-foreground text-center py-12">Loading notepad...</div>}>
-            <NotepadEmbedded />
-          </Suspense>
+        {/* Emails Tab */}
+        {activeTab === 'emails' && (
+          <>
+            {emailsLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-lg bg-muted/20 animate-pulse" />)}
+              </div>
+            ) : emails.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Mail className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No emails added yet</p>
+                {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Email" to get started</p>}
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {emails.map(em => (
+                  <div key={em.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-card border border-border/50 group hover:border-primary/20 transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{em.name}</p>
+                        <div className="flex items-center gap-2">
+                          <a href={`mailto:${em.email}`} className="text-xs text-primary hover:underline">{em.email}</a>
+                          {em.label !== 'General' && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{em.label}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          onClick={() => {
+                            setEditingEmail(em);
+                            setEmailName(em.name);
+                            setEmailAddress(em.email);
+                            setEmailLabel(em.label);
+                            setShowAddEmail(true);
+                          }}
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7 text-destructive"
+                          onClick={() => handleDeleteEmail(em.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {/* Calculators Tab */}
