@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,8 +14,8 @@ import { getTeamColor } from '@/lib/teamColors';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Input } from '@/components/ui/input';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import type { TeamMember } from '@/lib/hierarchyUtils';
+import { PillarTreeView } from '@/components/team/PillarTreeView';
+import type { TeamMember, Pillar } from '@/lib/hierarchyUtils';
 import { getDisplayName, getEffectiveManager, PILLAR_OWNERS, assignPillarsToRoster, buildTree as buildHierarchyTree, isManager as checkIsManager, findPersonByName, normalizeName } from '@/lib/hierarchyUtils';
 
 type WarRoomTab = 'downline' | 'teams' | 'pulse' | 'activity';
