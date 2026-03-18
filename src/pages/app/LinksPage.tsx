@@ -147,7 +147,17 @@ export default function LinksPage() {
     setPhonesLoading(false);
   };
 
-  useEffect(() => { fetchLinks(); fetchPhones(); }, []);
+  const fetchEmails = async () => {
+    const { data } = await (supabase as any)
+      .from('managed_emails')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+    setEmails((data as EmailEntry[]) || []);
+    setEmailsLoading(false);
+  };
+
+  useEffect(() => { fetchLinks(); fetchPhones(); fetchEmails(); }, []);
 
   const filteredLinks = links;
 
