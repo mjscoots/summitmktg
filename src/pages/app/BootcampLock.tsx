@@ -104,13 +104,13 @@ export default function BootcampLock() {
   // Figure out where to go
   const handleStart = () => {
     if (!momentumDone) {
-      navigate('/bootcamp/momentum');
+      navigate('/summer-checklist/momentum');
     } else if (!progress?.phase_1_complete) {
-      navigate('/bootcamp/phase-1');
+      navigate('/summer-checklist/phase-1');
     } else if (!progress?.phase_2_complete) {
-      navigate('/bootcamp/phase-2');
+      navigate('/summer-checklist/phase-2');
     } else if (!progress?.phase_3_complete) {
-      navigate('/bootcamp/phase-3');
+      navigate('/summer-checklist/phase-3');
     }
   };
 

@@ -12,10 +12,10 @@ interface BootcampGateProps {
 /**
  * Wraps protected app routes to enforce:
  * 1. Rejected users get signed out immediately
- * 2. Bootcamp completion for rookies
- * 3. Admin approval AFTER bootcamp completion
+ * 2. Summer Checklist completion for rookies
+ * 3. Admin approval AFTER checklist completion
  * 4. Profile completion for all users
- * Managers/admins bypass bootcamp and approval automatically.
+ * Managers/admins bypass checklist and approval automatically.
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading, isBypassed } = useBootcamp();
@@ -32,8 +32,8 @@ export function BootcampGate({ children }: BootcampGateProps) {
     }
   }, [isLoading, profile?.status, signOut, navigate]);
 
-  // Don't gate bootcamp routes themselves
-  if (location.pathname.startsWith('/bootcamp')) {
+  // Don't gate Summer Checklist routes themselves
+  if (location.pathname.startsWith('/bootcamp') || location.pathname.startsWith('/summer-checklist')) {
     return <>{children}</>;
   }
 
@@ -45,12 +45,12 @@ export function BootcampGate({ children }: BootcampGateProps) {
     );
   }
 
-  // Step 1: Must complete bootcamp first
+  // Step 1: Must complete checklist first
   if (isLocked) {
-    return <Navigate to="/bootcamp-lock" replace />;
+    return <Navigate to="/summer-checklist" replace />;
   }
 
-  // Step 2: After bootcamp, require admin approval (managers/admins bypass)
+  // Step 2: After checklist, require admin approval (managers/admins bypass)
   if (!isBypassed && profile && profile.approved === false) {
     return <Navigate to="/pending-approval" replace />;
   }

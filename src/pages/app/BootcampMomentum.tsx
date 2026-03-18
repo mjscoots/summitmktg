@@ -90,26 +90,39 @@ function getUserId(): string {
 function getStoredStep(): number {
   try {
     const uid = getUserId();
-    return parseInt(localStorage.getItem(`bootcamp_momentum_step_${uid}`) || '1', 10);
-  } catch { return 1; }
+    const stored =
+      localStorage.getItem(`summer_checklist_momentum_step_${uid}`) ??
+      localStorage.getItem(`bootcamp_momentum_step_${uid}`) ??
+      '1';
+    return parseInt(stored, 10);
+  } catch {
+    return 1;
+  }
 }
 
 function setStoredStep(step: number) {
   const uid = getUserId();
-  localStorage.setItem(`bootcamp_momentum_step_${uid}`, String(step));
+  localStorage.setItem(`summer_checklist_momentum_step_${uid}`, String(step));
 }
 
 export function markMomentumComplete() {
   const uid = getUserId();
-  localStorage.setItem(`bootcamp_momentum_complete_${uid}`, 'true');
-  // Clean up old global key
+  localStorage.setItem(`summer_checklist_momentum_complete_${uid}`, 'true');
+
+  // Clean up old keys
+  localStorage.removeItem(`bootcamp_momentum_complete_${uid}`);
+  localStorage.removeItem(`bootcamp_momentum_step_${uid}`);
   localStorage.removeItem('bootcamp_momentum_complete');
   localStorage.removeItem('bootcamp_momentum_step');
 }
 
 export function isMomentumComplete(): boolean {
   const uid = getUserId();
-  return localStorage.getItem(`bootcamp_momentum_complete_${uid}`) === 'true';
+  return (
+    localStorage.getItem(`summer_checklist_momentum_complete_${uid}`) === 'true' ||
+    localStorage.getItem(`bootcamp_momentum_complete_${uid}`) === 'true' ||
+    localStorage.getItem('bootcamp_momentum_complete') === 'true'
+  );
 }
 
 export default function BootcampMomentum() {
@@ -121,7 +134,7 @@ export default function BootcampMomentum() {
 
   useEffect(() => {
     if (!isLoading && isMomentumComplete()) {
-      navigate('/bootcamp/phase-1', { replace: true });
+      navigate('/summer-checklist/phase-1', { replace: true });
     }
   }, [isLoading, navigate]);
 
@@ -137,7 +150,7 @@ export default function BootcampMomentum() {
     setStoredStep(currentStep + 1);
     if (currentStep >= 7) {
       markMomentumComplete();
-      navigate('/bootcamp/phase-1', { replace: true });
+      navigate('/summer-checklist/phase-1', { replace: true });
     } else {
       setCurrentStep(currentStep + 1);
     }

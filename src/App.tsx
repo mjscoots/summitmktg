@@ -121,32 +121,39 @@ function LazyFallback() {
               {/* Redirect any signup attempts to login */}
               <Route path="/signup" element={<Navigate to="/login" replace />} />
 
-              {/* ========== BOOTCAMP ROUTES ========== */}
-              <Route path="/bootcamp-lock" element={
+              {/* ========== SUMMER CHECKLIST ROUTES ========== */}
+              <Route path="/summer-checklist" element={
                 <ProtectedRoute>
                   <BootcampLock />
                 </ProtectedRoute>
               } />
-              <Route path="/bootcamp/momentum" element={
+              <Route path="/summer-checklist/momentum" element={
                 <ProtectedRoute>
                   <BootcampMomentum />
                 </ProtectedRoute>
               } />
-              <Route path="/bootcamp/phase-1" element={
+              <Route path="/summer-checklist/phase-1" element={
                 <ProtectedRoute>
                   <BootcampPhase1 />
                 </ProtectedRoute>
               } />
-              <Route path="/bootcamp/phase-2" element={
+              <Route path="/summer-checklist/phase-2" element={
                 <ProtectedRoute>
                   <BootcampPhase2 />
                 </ProtectedRoute>
               } />
-              <Route path="/bootcamp/phase-3" element={
+              <Route path="/summer-checklist/phase-3" element={
                 <ProtectedRoute>
                   <BootcampPhase3 />
                 </ProtectedRoute>
               } />
+
+              {/* Legacy bootcamp URLs */}
+              <Route path="/bootcamp-lock" element={<Navigate to="/summer-checklist" replace />} />
+              <Route path="/bootcamp/momentum" element={<Navigate to="/summer-checklist/momentum" replace />} />
+              <Route path="/bootcamp/phase-1" element={<Navigate to="/summer-checklist/phase-1" replace />} />
+              <Route path="/bootcamp/phase-2" element={<Navigate to="/summer-checklist/phase-2" replace />} />
+              <Route path="/bootcamp/phase-3" element={<Navigate to="/summer-checklist/phase-3" replace />} />
 
               {/* ========== APP - PROTECTED ROUTES ========== */}
 

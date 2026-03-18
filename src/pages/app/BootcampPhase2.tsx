@@ -25,10 +25,10 @@ export default function BootcampPhase2() {
 
   useEffect(() => {
     if (!isLoading && !progress?.phase_1_complete) {
-      navigate('/bootcamp/phase-1', { replace: true });
+      navigate('/summer-checklist/phase-1', { replace: true });
     }
     if (!isLoading && progress?.phase_2_complete) {
-      navigate('/bootcamp/phase-3', { replace: true });
+      navigate('/summer-checklist/phase-3', { replace: true });
     }
   }, [isLoading, progress, navigate]);
 
@@ -37,7 +37,7 @@ export default function BootcampPhase2() {
     setSubmitting(true);
     const success = await updatePhase(2, { motivation_video_url: path });
     if (success) {
-      navigate('/bootcamp/phase-3', { replace: true });
+      navigate('/summer-checklist/phase-3', { replace: true });
     }
     setSubmitting(false);
   };
@@ -54,7 +54,7 @@ export default function BootcampPhase2() {
     <div className="min-h-screen bg-black px-4 py-12">
       <div className="w-full max-w-lg mx-auto">
         <Breadcrumbs items={[
-          { label: 'Summer Checklist', to: '/bootcamp/momentum' },
+          { label: 'Summer Checklist', to: '/summer-checklist/momentum' },
           { label: 'Phase 2' },
         ]} />
         <PhaseIndicator current={9} progress={progress} />
