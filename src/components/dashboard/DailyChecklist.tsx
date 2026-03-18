@@ -81,7 +81,7 @@ export function DailyChecklist() {
             text: 'Complete Summer Checklist',
             subtext: 'One-time unlock requirement',
             completed: false,
-            link: '/bootcamp-lock',
+            link: '/summer-checklist',
             icon: <ClipboardCheck className="w-3.5 h-3.5" />,
           });
         }

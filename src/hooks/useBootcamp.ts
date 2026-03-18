@@ -39,6 +39,7 @@ export function useBootcamp() {
   const [globalRequired, setGlobalRequired] = useState(true);
   const [skipAllowed, setSkipAllowed] = useState(false);
   const [skipped, setSkipped] = useState(false);
+  const [hasLoadError, setHasLoadError] = useState(false);
   const [deadlineInfo, setDeadlineInfo] = useState<BootcampDeadlineInfo>({
     deadlineHours: 0.5,
     accountCreatedAt: null,
@@ -50,73 +51,92 @@ export function useBootcamp() {
   const isBypassed = role === 'manager' || role === 'admin' || role === 'owner';
 
   const fetchProgress = useCallback(async () => {
-    if (!user || isBypassed) {
+    if (!user) {
+      setProgress(null);
+      setHasLoadError(false);
       setIsLoading(false);
       return;
     }
 
-    // Fetch global setting, deadline setting, user profile created_at, and progress in parallel
-    const [settingsRes, deadlineRes, skipRes, profileRes, progressRes] = await Promise.all([
-      supabase.from('app_settings').select('value').eq('key', 'bootcamp_required').maybeSingle(),
-      supabase.from('app_settings').select('value').eq('key', 'bootcamp_deadline_hours').maybeSingle(),
-      supabase.from('app_settings').select('value').eq('key', 'bootcamp_skip_allowed').maybeSingle(),
-      supabase.from('profiles').select('created_at').eq('user_id', user.id).maybeSingle(),
-      supabase.from('bootcamp_progress').select('*').eq('user_id', user.id).maybeSingle(),
-    ]);
-
-    // Parse global setting
-    if (settingsRes.data) {
-      setGlobalRequired(settingsRes.data.value === 'true');
-    } else {
-      setGlobalRequired(true);
-    }
-
-    // Parse skip allowed setting
-    setSkipAllowed(skipRes.data?.value === 'true');
-
-    // Parse deadline setting
-    const deadlineHours = deadlineRes.data ? parseFloat(deadlineRes.data.value || '0.5') : 0.5;
-    const accountCreatedAt = profileRes.data?.created_at || null;
-    let deadlineAt: Date | null = null;
-    let hoursRemaining: number | null = null;
-    let isOverdue = false;
-
-    if (accountCreatedAt) {
-      deadlineAt = new Date(new Date(accountCreatedAt).getTime() + deadlineHours * 60 * 60 * 1000);
-      const now = new Date();
-      const msRemaining = deadlineAt.getTime() - now.getTime();
-      hoursRemaining = Math.max(0, msRemaining / (1000 * 60 * 60));
-      isOverdue = msRemaining <= 0;
-    }
-
-    setDeadlineInfo({ deadlineHours, accountCreatedAt, deadlineAt, hoursRemaining, isOverdue });
-
-    const data = progressRes.data;
-    const error = progressRes.error;
-
-    if (error) {
-      console.error('Error fetching bootcamp progress:', error);
+    if (isBypassed) {
+      setHasLoadError(false);
       setIsLoading(false);
       return;
     }
 
-    if (!data) {
-      const { data: newData, error: insertError } = await supabase
-        .from('bootcamp_progress')
-        .insert({ user_id: user.id })
-        .select()
-        .single();
+    try {
+      // Fetch global setting, deadline setting, user profile created_at, and progress in parallel
+      const [settingsRes, deadlineRes, skipRes, profileRes, progressRes] = await Promise.all([
+        supabase.from('app_settings').select('value').eq('key', 'bootcamp_required').maybeSingle(),
+        supabase.from('app_settings').select('value').eq('key', 'bootcamp_deadline_hours').maybeSingle(),
+        supabase.from('app_settings').select('value').eq('key', 'bootcamp_skip_allowed').maybeSingle(),
+        supabase.from('profiles').select('created_at').eq('user_id', user.id).maybeSingle(),
+        supabase.from('bootcamp_progress').select('*').eq('user_id', user.id).maybeSingle(),
+      ]);
 
-      if (insertError) {
-        console.error('Error creating bootcamp progress:', insertError);
+      // Parse global setting
+      if (settingsRes.data) {
+        setGlobalRequired(settingsRes.data.value === 'true');
       } else {
-        setProgress(newData as unknown as BootcampProgress);
+        setGlobalRequired(true);
       }
-    } else {
-      setProgress(data as unknown as BootcampProgress);
-    }
 
-    setIsLoading(false);
+      // Parse skip allowed setting
+      setSkipAllowed(skipRes.data?.value === 'true');
+
+      // Parse deadline setting
+      const deadlineHours = deadlineRes.data ? parseFloat(deadlineRes.data.value || '0.5') : 0.5;
+      const accountCreatedAt = profileRes.data?.created_at || null;
+      let deadlineAt: Date | null = null;
+      let hoursRemaining: number | null = null;
+      let isOverdue = false;
+
+      if (accountCreatedAt) {
+        deadlineAt = new Date(new Date(accountCreatedAt).getTime() + deadlineHours * 60 * 60 * 1000);
+        const now = new Date();
+        const msRemaining = deadlineAt.getTime() - now.getTime();
+        hoursRemaining = Math.max(0, msRemaining / (1000 * 60 * 60));
+        isOverdue = msRemaining <= 0;
+      }
+
+      setDeadlineInfo({ deadlineHours, accountCreatedAt, deadlineAt, hoursRemaining, isOverdue });
+
+      const data = progressRes.data;
+      const error = progressRes.error;
+
+      if (error) {
+        console.error('Error fetching bootcamp progress:', error);
+        setHasLoadError(true);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!data) {
+        const { data: newData, error: insertError } = await supabase
+          .from('bootcamp_progress')
+          .insert({ user_id: user.id })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating bootcamp progress:', insertError);
+          setHasLoadError(true);
+          setIsLoading(false);
+          return;
+        }
+
+        setProgress(newData as unknown as BootcampProgress);
+      } else {
+        setProgress(data as unknown as BootcampProgress);
+      }
+
+      setHasLoadError(false);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching bootcamp data:', error);
+      setHasLoadError(true);
+      setIsLoading(false);
+    }
   }, [user, isBypassed]);
 
   useEffect(() => {
@@ -169,7 +189,7 @@ export function useBootcamp() {
   };
 
   const isExempt = progress?.bootcamp_exempt === true;
-  const isLocked = !isBypassed && globalRequired && !isExempt && !skipped && !isLoading && (!progress || !progress.bootcamp_completed);
+  const isLocked = !!user && !isBypassed && !hasLoadError && globalRequired && !isExempt && !skipped && !isLoading && (!progress || !progress.bootcamp_completed);
 
   const currentPhase = !progress
     ? 0

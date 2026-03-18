@@ -25,10 +25,10 @@ export default function BootcampPhase1() {
 
   useEffect(() => {
     if (!isLoading && !isMomentumComplete()) {
-      navigate('/bootcamp/momentum', { replace: true });
+      navigate('/summer-checklist/momentum', { replace: true });
     }
     if (!isLoading && progress?.phase_1_complete) {
-      navigate('/bootcamp/phase-2', { replace: true });
+      navigate('/summer-checklist/phase-2', { replace: true });
     }
   }, [isLoading, progress, navigate]);
 
@@ -37,7 +37,7 @@ export default function BootcampPhase1() {
     setSubmitting(true);
     const success = await updatePhase(1, { sunblock_video_url: path });
     if (success) {
-      navigate('/bootcamp/phase-2', { replace: true });
+      navigate('/summer-checklist/phase-2', { replace: true });
     }
     setSubmitting(false);
   };
@@ -54,7 +54,7 @@ export default function BootcampPhase1() {
     <div className="min-h-screen bg-black px-4 py-12">
       <div className="w-full max-w-lg mx-auto">
         <Breadcrumbs items={[
-          { label: 'Summer Checklist', to: '/bootcamp/momentum' },
+          { label: 'Summer Checklist', to: '/summer-checklist/momentum' },
           { label: 'Phase 1' },
         ]} />
         <PhaseIndicator current={8} progress={progress} />

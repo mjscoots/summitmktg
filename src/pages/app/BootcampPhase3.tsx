@@ -63,7 +63,7 @@ export default function BootcampPhase3() {
 
   useEffect(() => {
     if (!isLoading && !progress?.phase_2_complete) {
-      navigate('/bootcamp/phase-2', { replace: true });
+      navigate('/summer-checklist/phase-2', { replace: true });
     }
     if (!isLoading && progress?.phase_3_complete) {
       navigate('/app', { replace: true });
@@ -169,7 +169,7 @@ export default function BootcampPhase3() {
     <div className="min-h-screen bg-black px-4 py-12">
       <div className="w-full max-w-2xl mx-auto">
         <Breadcrumbs items={[
-          { label: 'Summer Checklist', to: '/bootcamp/momentum' },
+          { label: 'Summer Checklist', to: '/summer-checklist/momentum' },
           { label: 'Phase 3' },
         ]} />
         <PhaseIndicator current={10} progress={progress} />
