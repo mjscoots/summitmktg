@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import RookieCalculator from '@/components/RookieCalculator';
 import VetCalculator from '@/components/VetCalculator';
 
-const NotepadPage = lazy(() => import('./NotepadPage'));
+
 
 interface ManagedLink {
   id: string;
