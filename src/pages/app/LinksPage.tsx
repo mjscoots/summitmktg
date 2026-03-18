@@ -48,19 +48,32 @@ interface EmailEntry {
 
 type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay-scales';
 
-/** Normalize a US phone number to (XXX) XXX-XXXX format */
+/** Normalize a phone number for display */
 function normalizePhone(raw: string): string {
-  const digits = raw.replace(/\D/g, '');
+  const trimmed = raw.trim();
+  // International number: keep as-is but clean up spaces
+  if (trimmed.startsWith('+') && !trimmed.startsWith('+1')) {
+    return trimmed.replace(/\s+/g, ' ');
+  }
+  // US number: format as (XXX) XXX-XXXX
+  const digits = trimmed.replace(/\D/g, '');
   const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
   if (d.length === 10) {
     return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
   }
-  return raw;
+  return trimmed;
 }
 
-/** Check if raw phone input has at least 10 digits (US) */
+/** Check if phone input is valid (US 10-digit or international with +) */
 function isValidPhone(raw: string): boolean {
-  const digits = raw.replace(/\D/g, '');
+  const trimmed = raw.trim();
+  // International: must start with + and have at least 7 digits
+  if (trimmed.startsWith('+')) {
+    const digits = trimmed.replace(/\D/g, '');
+    return digits.length >= 7 && digits.length <= 15;
+  }
+  // US: must have exactly 10 digits
+  const digits = trimmed.replace(/\D/g, '');
   const d = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
   return d.length === 10;
 }
