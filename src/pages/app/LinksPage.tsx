@@ -108,6 +108,15 @@ export default function LinksPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneLabel, setPhoneLabel] = useState('General');
 
+  // Email state
+  const [emails, setEmails] = useState<EmailEntry[]>([]);
+  const [emailsLoading, setEmailsLoading] = useState(true);
+  const [showAddEmail, setShowAddEmail] = useState(false);
+  const [editingEmail, setEditingEmail] = useState<EmailEntry | null>(null);
+  const [emailName, setEmailName] = useState('');
+  const [emailAddress, setEmailAddress] = useState('');
+  const [emailLabel, setEmailLabel] = useState('General');
+
   // Mass upload state
   const [showMassUpload, setShowMassUpload] = useState(false);
   const [massUploadText, setMassUploadText] = useState('');
