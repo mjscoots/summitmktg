@@ -502,6 +502,26 @@ export default function LinksPage() {
                   </DialogContent>
                 </Dialog>
               )}
+              {activeTab === 'emails' && (
+                <Dialog open={showAddEmail} onOpenChange={(o) => { setShowAddEmail(o); if (!o) resetEmailForm(); }}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-1.5 text-xs">
+                      <Plus className="w-3.5 h-3.5" /> Add Email
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>{editingEmail ? 'Edit Email' : 'Add Email'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 pt-2">
+                      <Input placeholder="Name" value={emailName} onChange={e => setEmailName(e.target.value)} />
+                      <Input placeholder="email@example.com" type="email" value={emailAddress} onChange={e => setEmailAddress(e.target.value)} />
+                      <Input placeholder="Label (e.g. HR, Office, Support)" value={emailLabel} onChange={e => setEmailLabel(e.target.value)} />
+                      <Button onClick={handleSaveEmail} className="w-full">{editingEmail ? 'Update' : 'Add Email'}</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           )}
         </div>
