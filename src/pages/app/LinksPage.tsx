@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, StickyNote, DollarSign } from 'lucide-react';
+import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, Mail, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
