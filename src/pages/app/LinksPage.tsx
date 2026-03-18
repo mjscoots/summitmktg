@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, StickyNote, DollarSign } from 'lucide-react';
+import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, Mail, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import RookieCalculator from '@/components/RookieCalculator';
 import VetCalculator from '@/components/VetCalculator';
 
-const NotepadPage = lazy(() => import('./NotepadPage'));
+
 
 interface ManagedLink {
   id: string;
@@ -38,7 +38,15 @@ interface PhoneEntry {
   display_order: number;
 }
 
-type PageTab = 'links' | 'phone-numbers' | 'calculators' | 'notepad' | 'pay-scales';
+interface EmailEntry {
+  id: string;
+  name: string;
+  email: string;
+  label: string;
+  display_order: number;
+}
+
+type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay-scales';
 
 /** Normalize a US phone number to (XXX) XXX-XXXX format */
 function normalizePhone(raw: string): string {
@@ -100,6 +108,15 @@ export default function LinksPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneLabel, setPhoneLabel] = useState('General');
 
+  // Email state
+  const [emails, setEmails] = useState<EmailEntry[]>([]);
+  const [emailsLoading, setEmailsLoading] = useState(true);
+  const [showAddEmail, setShowAddEmail] = useState(false);
+  const [editingEmail, setEditingEmail] = useState<EmailEntry | null>(null);
+  const [emailName, setEmailName] = useState('');
+  const [emailAddress, setEmailAddress] = useState('');
+  const [emailLabel, setEmailLabel] = useState('General');
+
   // Mass upload state
   const [showMassUpload, setShowMassUpload] = useState(false);
   const [massUploadText, setMassUploadText] = useState('');
@@ -130,7 +147,17 @@ export default function LinksPage() {
     setPhonesLoading(false);
   };
 
-  useEffect(() => { fetchLinks(); fetchPhones(); }, []);
+  const fetchEmails = async () => {
+    const { data } = await (supabase as any)
+      .from('managed_emails')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+    setEmails((data as EmailEntry[]) || []);
+    setEmailsLoading(false);
+  };
+
+  useEffect(() => { fetchLinks(); fetchPhones(); fetchEmails(); }, []);
 
   const filteredLinks = links;
 
@@ -295,10 +322,44 @@ export default function LinksPage() {
     setShowMassUpload(false);
   };
 
+  // ── Email CRUD ──
+  const resetEmailForm = () => {
+    setEmailName(''); setEmailAddress(''); setEmailLabel('General'); setEditingEmail(null);
+  };
+
+  const handleSaveEmail = async () => {
+    if (!emailName.trim() || !emailAddress.trim()) { toast.error('Name and email are required'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress.trim())) { toast.error('Please enter a valid email address'); return; }
+    if (editingEmail) {
+      const { error } = await (supabase as any)
+        .from('managed_emails')
+        .update({ name: emailName.trim(), email: emailAddress.trim(), label: emailLabel })
+        .eq('id', editingEmail.id);
+      if (error) { toast.error('Failed to update'); return; }
+      toast.success('Email updated');
+    } else {
+      const { error } = await (supabase as any)
+        .from('managed_emails')
+        .insert({ name: emailName.trim(), email: emailAddress.trim(), label: emailLabel, display_order: emails.length });
+      if (error) { toast.error('Failed to add'); return; }
+      toast.success('Email added');
+    }
+    resetEmailForm();
+    setShowAddEmail(false);
+    fetchEmails();
+  };
+
+  const handleDeleteEmail = async (id: string) => {
+    const { error } = await (supabase as any).from('managed_emails').update({ is_active: false }).eq('id', id);
+    if (error) { toast.error('Failed to delete'); return; }
+    toast.success('Email removed');
+    fetchEmails();
+  };
+
   const TABS: { id: PageTab; label: string; icon: typeof Link2 }[] = [
     { id: 'links', label: 'Links', icon: Link2 },
     { id: 'phone-numbers', label: 'Phone Numbers', icon: Phone },
-    { id: 'notepad', label: 'Notepad', icon: StickyNote },
+    { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
     { id: 'pay-scales', label: 'Pay Scales', icon: DollarSign },
   ];
@@ -311,7 +372,7 @@ export default function LinksPage() {
             <h1 className="text-xl font-bold text-foreground">Resources</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Links, tools & references</p>
           </div>
-          {isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers') && (
+          {isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers' || activeTab === 'emails') && (
             <div className="flex gap-2">
               {/* Mass Upload */}
               <Dialog open={showMassUpload} onOpenChange={setShowMassUpload}>
@@ -437,6 +498,26 @@ export default function LinksPage() {
                       </div>
                       <Input placeholder="Label (e.g. Manager, Office)" value={phoneLabel} onChange={e => setPhoneLabel(e.target.value)} />
                       <Button onClick={handleSavePhone} className="w-full">{editingPhone ? 'Update' : 'Add Phone'}</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+              {activeTab === 'emails' && (
+                <Dialog open={showAddEmail} onOpenChange={(o) => { setShowAddEmail(o); if (!o) resetEmailForm(); }}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-1.5 text-xs">
+                      <Plus className="w-3.5 h-3.5" /> Add Email
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>{editingEmail ? 'Edit Email' : 'Add Email'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 pt-2">
+                      <Input placeholder="Name" value={emailName} onChange={e => setEmailName(e.target.value)} />
+                      <Input placeholder="email@example.com" type="email" value={emailAddress} onChange={e => setEmailAddress(e.target.value)} />
+                      <Input placeholder="Label (e.g. HR, Office, Support)" value={emailLabel} onChange={e => setEmailLabel(e.target.value)} />
+                      <Button onClick={handleSaveEmail} className="w-full">{editingEmail ? 'Update' : 'Add Email'}</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -569,11 +650,68 @@ export default function LinksPage() {
           </>
         )}
 
-        {/* Notepad Tab */}
-        {activeTab === 'notepad' && (
-          <Suspense fallback={<div className="animate-pulse text-muted-foreground text-center py-12">Loading notepad...</div>}>
-            <NotepadEmbedded />
-          </Suspense>
+        {/* Emails Tab */}
+        {activeTab === 'emails' && (
+          <>
+            {emailsLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-lg bg-muted/20 animate-pulse" />)}
+              </div>
+            ) : emails.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Mail className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No emails added yet</p>
+                {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Email" to get started</p>}
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {emails.map(em => (
+                  <div key={em.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-card border border-border/50 group hover:border-primary/20 transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{em.name}</p>
+                        <div className="flex items-center gap-2">
+                          <a href={`mailto:${em.email}`} className="text-xs text-primary hover:underline">{em.email}</a>
+                          {em.label !== 'General' && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{em.label}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          onClick={() => {
+                            setEditingEmail(em);
+                            setEmailName(em.name);
+                            setEmailAddress(em.email);
+                            setEmailLabel(em.label);
+                            setShowAddEmail(true);
+                          }}
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7 text-destructive"
+                          onClick={() => handleDeleteEmail(em.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {/* Calculators Tab */}
@@ -630,52 +768,3 @@ export default function LinksPage() {
   );
 }
 
-/** Embedded notepad — renders the notepad content without AppLayout wrapper */
-function NotepadEmbedded() {
-  // We lazy-load the full NotepadPage but render its content inline
-  // For now, redirect approach — use the same notepad logic inline
-  const { user } = useAuth();
-  const [allNotes, setAllNotes] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) return;
-    const fetch = async () => {
-      const { data } = await supabase
-        .from('video_notes')
-        .select('id, notes, updated_at, video_id, training_videos (id, title, category)')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
-      setAllNotes(data || []);
-      setIsLoading(false);
-    };
-    fetch();
-  }, [user]);
-
-  if (isLoading) return <div className="animate-pulse text-muted-foreground text-center py-12">Loading notes...</div>;
-
-  if (allNotes.length === 0) {
-    return (
-      <div className="text-center py-16">
-        <StickyNote className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-        <p className="text-lg font-semibold text-foreground mb-1">No notes yet</p>
-        <p className="text-sm text-muted-foreground">Start taking notes while watching training videos!</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">{allNotes.length} notes from training videos</p>
-      {allNotes.map((note: any) => (
-        <div key={note.id} className="p-4 bg-card border border-border/50 rounded-lg">
-          <p className="text-sm font-medium text-foreground">{note.training_videos?.title || 'Untitled'}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{note.training_videos?.category}</p>
-          <pre className="whitespace-pre-wrap font-sans text-sm text-foreground/80 mt-2 max-h-32 overflow-y-auto">
-            {note.notes || 'No content'}
-          </pre>
-        </div>
-      ))}
-    </div>
-  );
-}
