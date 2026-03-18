@@ -322,10 +322,44 @@ export default function LinksPage() {
     setShowMassUpload(false);
   };
 
+  // ── Email CRUD ──
+  const resetEmailForm = () => {
+    setEmailName(''); setEmailAddress(''); setEmailLabel('General'); setEditingEmail(null);
+  };
+
+  const handleSaveEmail = async () => {
+    if (!emailName.trim() || !emailAddress.trim()) { toast.error('Name and email are required'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress.trim())) { toast.error('Please enter a valid email address'); return; }
+    if (editingEmail) {
+      const { error } = await (supabase as any)
+        .from('managed_emails')
+        .update({ name: emailName.trim(), email: emailAddress.trim(), label: emailLabel })
+        .eq('id', editingEmail.id);
+      if (error) { toast.error('Failed to update'); return; }
+      toast.success('Email updated');
+    } else {
+      const { error } = await (supabase as any)
+        .from('managed_emails')
+        .insert({ name: emailName.trim(), email: emailAddress.trim(), label: emailLabel, display_order: emails.length });
+      if (error) { toast.error('Failed to add'); return; }
+      toast.success('Email added');
+    }
+    resetEmailForm();
+    setShowAddEmail(false);
+    fetchEmails();
+  };
+
+  const handleDeleteEmail = async (id: string) => {
+    const { error } = await (supabase as any).from('managed_emails').update({ is_active: false }).eq('id', id);
+    if (error) { toast.error('Failed to delete'); return; }
+    toast.success('Email removed');
+    fetchEmails();
+  };
+
   const TABS: { id: PageTab; label: string; icon: typeof Link2 }[] = [
     { id: 'links', label: 'Links', icon: Link2 },
     { id: 'phone-numbers', label: 'Phone Numbers', icon: Phone },
-    { id: 'notepad', label: 'Notepad', icon: StickyNote },
+    { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
     { id: 'pay-scales', label: 'Pay Scales', icon: DollarSign },
   ];
