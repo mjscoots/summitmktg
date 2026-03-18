@@ -372,7 +372,7 @@ export default function LinksPage() {
             <h1 className="text-xl font-bold text-foreground">Resources</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Links, tools & references</p>
           </div>
-          {isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers') && (
+          {isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers' || activeTab === 'emails') && (
             <div className="flex gap-2">
               {/* Mass Upload */}
               <Dialog open={showMassUpload} onOpenChange={setShowMassUpload}>
