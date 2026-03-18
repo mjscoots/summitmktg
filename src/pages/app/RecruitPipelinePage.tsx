@@ -232,6 +232,7 @@ export default function RecruitPipelinePage() {
     const { data, error } = await (supabase as any)
       .from('recruit_pipeline')
       .select('*')
+      .eq('owner_id', user.id)
       .order('updated_at', { ascending: false });
     if (!error && data) setRecruits(data as Recruit[]);
     setLoading(false);

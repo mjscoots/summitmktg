@@ -84,7 +84,7 @@ export function DashboardFunnelTracker() {
 
   const fetchRecruits = useCallback(async () => {
     if (!user) return;
-    const { data } = await (supabase as any).from('recruit_pipeline').select('id, recruit_name, phone, stage, position, updated_at').order('updated_at', { ascending: false }).limit(50);
+    const { data } = await (supabase as any).from('recruit_pipeline').select('id, recruit_name, phone, stage, position, updated_at').eq('owner_id', user.id).order('updated_at', { ascending: false }).limit(50);
     if (data) setRecruits(data as Recruit[]);
     setLoading(false);
   }, [user]);
