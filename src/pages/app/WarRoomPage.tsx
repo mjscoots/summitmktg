@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,8 +14,8 @@ import { getTeamColor } from '@/lib/teamColors';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Input } from '@/components/ui/input';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import type { TeamMember } from '@/lib/hierarchyUtils';
+import { PillarTreeView } from '@/components/team/PillarTreeView';
+import type { TeamMember, Pillar } from '@/lib/hierarchyUtils';
 import { getDisplayName, getEffectiveManager, PILLAR_OWNERS, assignPillarsToRoster, buildTree as buildHierarchyTree, isManager as checkIsManager, findPersonByName, normalizeName } from '@/lib/hierarchyUtils';
 
 type WarRoomTab = 'downline' | 'teams' | 'pulse' | 'activity';
@@ -127,26 +127,21 @@ export default function WarRoomPage() {
   );
 }
 
-/* ── Teams Tab (Full Org Tree) ── */
+/* ── Teams Tab (Pillar Card Grid + Drill-down) ── */
 function TeamsTab({ managerName }: { managerName: string }) {
   const { profile, role } = useAuth();
   const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
-  const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null }[]>([]);
+  const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null; logo_url?: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   const [managerRoles, setManagerRoles] = useState<Set<string>>(new Set());
-  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
-
-  const memberUserIds = useMemo(() => allMembers.map(m => m.user_id), [allMembers]);
-  const { getProgress } = useTrainingProgress(memberUserIds);
+  const [profilesRaw, setProfilesRaw] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const [profilesRes, teamsRes, rolesRes] = await Promise.all([
         supabase.from('profiles').select('*').order('full_name'),
-        supabase.from('teams').select('id, name, slug, leader_id').order('name'),
+        supabase.from('teams').select('*').order('name'),
         supabase.from('user_roles').select('user_id, role'),
       ]);
 
@@ -154,6 +149,7 @@ function TeamsTab({ managerName }: { managerName: string }) {
       const teams = teamsRes.data || [];
       const roles = rolesRes.data || [];
 
+      setProfilesRaw(profiles);
       const managerIds = new Set(roles.filter(r => r.role === 'manager' || r.role === 'admin').map(r => r.user_id));
       setManagerRoles(managerIds);
 
@@ -176,166 +172,119 @@ function TeamsTab({ managerName }: { managerName: string }) {
 
       setAllMembers(members);
       setPillars(teams);
-
-      // Fetch daily time
-      try {
-        const pstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-        const day = pstNow.getDay();
-        const diffToMon = day === 0 ? -6 : 1 - day;
-        const monday = new Date(pstNow);
-        monday.setDate(pstNow.getDate() + diffToMon);
-        monday.setHours(0, 0, 0, 0);
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-        const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        const { data: dailyData } = await supabase.from('daily_training_time').select('user_id, date, total_minutes').gte('date', fmt(monday)).lte('date', fmt(sunday)) as any;
-        if (dailyData) {
-          const byUser = new Map<string, any[]>();
-          (dailyData as any[]).forEach((r: any) => { if (!byUser.has(r.user_id)) byUser.set(r.user_id, []); byUser.get(r.user_id)!.push(r); });
-          const map = new Map<string, { days: { minutes: number }[]; totalMinutes: number }>();
-          byUser.forEach((userRows, userId) => {
-            const days: { minutes: number }[] = [];
-            let total = 0;
-            for (let i = 0; i < 7; i++) {
-              const d = new Date(monday);
-              d.setDate(monday.getDate() + i);
-              const dateStr = fmt(d);
-              const match = userRows.find((r: any) => r.date === dateStr);
-              const mins = match?.total_minutes ?? 0;
-              days.push({ minutes: mins });
-              total += mins;
-            }
-            map.set(userId, { days, totalMinutes: total });
-          });
-          setDailyTimeMap(map);
-        }
-      } catch {}
-
       setLoading(false);
     };
     fetchData();
   }, []);
 
   const visibleMembers = useMemo(() => allMembers.filter(m => m.status !== 'nlc'), [allMembers]);
+
   const { enrichedRoster } = useMemo(() => {
     if (visibleMembers.length === 0 || pillars.length === 0) return { enrichedRoster: [] };
     return assignPillarsToRoster(visibleMembers, pillars);
   }, [visibleMembers, pillars]);
 
-  const toggleNode = (id: string) => {
-    setExpandedNodes(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
-  };
-  const expandAll = () => setExpandedNodes(new Set(allMembers.map(m => m.id)));
-  const collapseAll = () => setExpandedNodes(new Set());
+  // Build pillar data with counts and ranking
+  const teamsWithRanking = useMemo(() => {
+    const teamCounts = new Map<string, { managers: number; rookies: number }>();
+    pillars.forEach(p => teamCounts.set(p.id, { managers: 0, rookies: 0 }));
 
-  const renderTreeNode = (node: TeamMember, roster: TeamMember[], depth: number = 0) => {
-    const children = roster.filter(m => m.direct_manager && normalizeName(m.direct_manager) === normalizeName(node.full_name));
-    const hasChildren = children.length > 0;
-    const isVeteran = node.role === 'manager' || node.role === 'admin' || node.experience === 'veteran';
-    const isExpanded = searchQuery.length > 0 || expandedNodes.has(node.id);
+    profilesRaw.forEach(p => {
+      if (p.status === 'nlc' || !p.team_id) return;
+      const counts = teamCounts.get(p.team_id);
+      if (!counts) return;
+      if (managerRoles.has(p.user_id)) counts.managers++;
+      else counts.rookies++;
+    });
 
-    if (searchQuery && !node.full_name.toLowerCase().includes(searchQuery.toLowerCase()) && !children.some(c => c.full_name.toLowerCase().includes(searchQuery.toLowerCase()))) {
-      return null;
-    }
+    const teams = pillars.map(p => {
+      const counts = teamCounts.get(p.id) || { managers: 0, rookies: 0 };
+      const totalMembers = counts.managers + counts.rookies;
+      const points = (counts.managers * 2) + counts.rookies;
+      return { id: p.id, name: p.name, slug: p.slug, logo_url: (p as any).logo_url, totalMembers, managerCount: counts.managers, rookieCount: counts.rookies, points, rank: 0 };
+    });
 
-    return (
-      <div key={node.id} className="select-none">
-        <div
-          className={cn("flex items-center gap-2 py-2 px-3 rounded-lg transition-colors group hover:bg-muted/50", depth === 0 && "bg-muted/30")}
-          style={{ marginLeft: `${depth * 24}px` }}
-        >
-          <div className="w-5 h-5 flex items-center justify-center cursor-pointer" onClick={() => hasChildren && toggleNode(node.id)}>
-            {hasChildren ? (isExpanded ? <ChevronDownIcon className="w-4 h-4 text-muted-foreground" /> : <ChevronRightIcon className="w-4 h-4 text-muted-foreground" />) : <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />}
-          </div>
-          <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-green-500")} />
-          <button onClick={() => setSelectedMember(node)} className={cn("font-medium text-sm hover:underline text-left", isVeteran ? "text-primary" : "text-green-400")}>
-            {getDisplayName(node.full_name)}
-          </button>
-          <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide", isVeteran ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400")}>
-            {isVeteran ? 'Manager' : 'Rookie'}
-          </span>
-          {(() => {
-            const weekData = dailyTimeMap.get(node.user_id);
-            const defaultDays = Array(7).fill({ minutes: 0 });
-            return <MiniWeekChart days={weekData?.days ?? defaultDays} totalMinutes={weekData?.totalMinutes ?? 0} className="ml-1" />;
-          })()}
-          <div className="flex-1" />
-          {hasChildren && <span className="text-xs text-muted-foreground mr-2">{children.length} {children.length === 1 ? 'report' : 'reports'}</span>}
-        </div>
-        {isExpanded && hasChildren && (
-          <div className="border-l border-border/30 ml-5">
-            {children.map(child => renderTreeNode(child, roster, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
+    teams.sort((a, b) => b.points - a.points);
+    teams.forEach((t, i) => { t.rank = i + 1; });
+    return teams;
+  }, [pillars, profilesRaw, managerRoles]);
+
+  // Build pillar data for tree view
+  const pillarData: Pillar[] = useMemo(() => {
+    return pillars.map(p => {
+      const ownerName = PILLAR_OWNERS[p.slug];
+      const owner = findPersonByName(enrichedRoster, ownerName);
+      const members = enrichedRoster.filter(m => m.pillar === p.slug);
+      const managerCount = members.filter(m => checkIsManager(enrichedRoster, m.full_name) || m.role === 'manager').length;
+      return { id: p.id, name: p.name, slug: p.slug, leader_id: p.leader_id, owner, members, totalCount: members.length, rookieCount: members.length - managerCount, managerCount };
+    });
+  }, [pillars, enrichedRoster]);
+
+  const selectedPillarData = useMemo(() => {
+    if (!selectedPillar) return null;
+    return pillarData.find(p => p.slug === selectedPillar) || null;
+  }, [selectedPillar, pillarData]);
+
+  const selectedTree = useMemo(() => {
+    if (!selectedPillarData) return null;
+    const ownerName = PILLAR_OWNERS[selectedPillarData.slug];
+    return buildHierarchyTree(enrichedRoster, ownerName);
+  }, [selectedPillarData, enrichedRoster]);
 
   if (loading) return <SummitLoader label="Loading team structure..." />;
 
-  // Count members per team
-  const teamCounts = new Map<string, number>();
-  pillars.forEach(p => teamCounts.set(p.id, 0));
-  allMembers.filter(m => m.status !== 'nlc').forEach(m => { if (m.team_id) teamCounts.set(m.team_id, (teamCounts.get(m.team_id) || 0) + 1); });
-
-  return (
-    <>
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search team members..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
-        </div>
-        <div className="flex gap-2">
-          <button onClick={expandAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">Expand All</button>
-          <button onClick={collapseAll} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors">Collapse All</button>
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div className="flex items-center gap-6 mb-4 text-sm">
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-primary" /><span className="text-muted-foreground">Manager / Veteran</span></div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500" /><span className="text-muted-foreground">Rookie</span></div>
-      </div>
-
-      {/* Pillar Trees */}
-      <div className="space-y-4">
-        {pillars.map(pillar => {
-          const ownerName = PILLAR_OWNERS[pillar.slug];
-          const owner = enrichedRoster.find(m => normalizeName(m.full_name) === normalizeName(ownerName));
-          const tree = owner ? buildHierarchyTree(enrichedRoster, ownerName) : null;
-          const count = teamCounts.get(pillar.id) || 0;
-
-          return (
-            <div key={pillar.id} className="bg-card rounded-xl border border-border/50 p-5">
-              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border/30">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">{pillar.name}</h3>
-                  {ownerName && <p className="text-xs text-muted-foreground">Led by {getDisplayName(ownerName)}</p>}
-                </div>
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">{count} members</span>
-              </div>
-              {tree ? (
-                <div className="space-y-1">{renderTreeNode(tree, enrichedRoster)}</div>
-              ) : (
-                <p className="text-sm text-muted-foreground py-4 text-center">{searchQuery ? 'No members match your search' : 'Leader not found'}</p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <MemberProfileModal
-        member={selectedMember}
-        open={!!selectedMember}
-        onClose={() => setSelectedMember(null)}
-        roster={allMembers}
-        pillars={pillars}
+  // Drill-down view
+  if (selectedPillar && selectedPillarData) {
+    return (
+      <PillarTreeView
+        pillar={selectedPillarData}
+        tree={selectedTree}
+        roster={enrichedRoster.filter(m => m.pillar === selectedPillar)}
+        onBack={() => setSelectedPillar(null)}
+        logoUrl={pillars.find(p => p.slug === selectedPillar)?.logo_url}
       />
-    </>
+    );
+  }
+
+  // Pillar card grid
+  return (
+    <div className="space-y-4">
+      {teamsWithRanking.map((team) => {
+        const tc = getTeamColor(team.name);
+        return (
+          <button
+            key={team.id}
+            onClick={() => setSelectedPillar(team.slug)}
+            className="w-full flex items-center gap-4 px-4 py-4 bg-card rounded-xl border border-border/50 hover:border-primary/40 transition-all text-left group"
+          >
+            {/* Logo */}
+            {team.logo_url ? (
+              <div className="w-12 h-12 rounded-xl border border-border/30 overflow-hidden bg-muted/30 flex-shrink-0">
+                <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", tc.bgTint)}>
+                <span className={cn("text-lg font-bold", tc.text)}>{team.name.slice(0, 2).toUpperCase()}</span>
+              </div>
+            )}
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-foreground text-base">{team.name}</span>
+                <span className="text-xs text-muted-foreground">{team.totalMembers} members</span>
+              </div>
+              <div className="flex gap-3 mt-1 text-xs">
+                <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">{team.managerCount} managers</span>
+                <span className="px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-medium">{team.rookieCount} rookies</span>
+              </div>
+            </div>
+
+            <ChevronRightIcon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
