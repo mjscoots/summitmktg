@@ -20,7 +20,7 @@ interface Profile {
   team_id: string | null;
   pillar_slug: string | null;
   direct_manager: string | null;
-  
+
   approved: boolean | null;
   referred_by: string | null;
   onboarding_status: string | null;
@@ -49,14 +49,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const isLoadingRef = useRef(true);
   const hasActiveSessionRef = useRef(false);
+  const roleCacheRef = useRef<Map<string, UserRole>>(new Map());
 
   const ROLE_PRIORITY: UserRole[] = ['rookie', 'manager', 'admin', 'owner'];
+  const ROLE_STORAGE_PREFIX = 'auth-role-cache:';
 
   useEffect(() => {
     isLoadingRef.current = isLoading;
   }, [isLoading]);
 
+  const normalizeRole = (value: unknown): UserRole | null => {
+    if (value === 'rookie' || value === 'manager' || value === 'admin' || value === 'owner') {
+      return value;
+    }
+    return null;
+  };
+
+  const getStoredRole = (userId: string): UserRole | null => {
+    try {
+      const raw = sessionStorage.getItem(`${ROLE_STORAGE_PREFIX}${userId}`);
+      return normalizeRole(raw);
+    } catch {
+      return null;
+    }
+  };
+
+  const setStoredRole = (userId: string, nextRole: UserRole) => {
+    try {
+      sessionStorage.setItem(`${ROLE_STORAGE_PREFIX}${userId}`, nextRole);
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const getCachedRole = (userId: string): UserRole | null => {
+    return roleCacheRef.current.get(userId) ?? getStoredRole(userId);
+  };
+
+  const setCachedRole = (userId: string, nextRole: UserRole) => {
+    roleCacheRef.current.set(userId, nextRole);
+    setStoredRole(userId, nextRole);
+  };
+
+  const seedRoleFromMetadata = (sessionUser: User | null) => {
+    if (!sessionUser) return;
+    const metadataRole = normalizeRole(sessionUser.user_metadata?.selected_role);
+    if (metadataRole) {
+      setCachedRole(sessionUser.id, metadataRole);
+    }
+  };
+
   const fetchUserRole = async (userId: string): Promise<UserRole> => {
+    const cachedRole = getCachedRole(userId);
+
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -65,16 +110,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error('Error fetching role:', error);
+        return cachedRole ?? 'rookie';
+      }
+
+      const roles = (data ?? [])
+        .map((r) => normalizeRole(r.role))
+        .filter((r): r is UserRole => r !== null);
+
+      if (!roles.length) {
+        setCachedRole(userId, 'rookie');
         return 'rookie';
       }
 
-      const roles = (data ?? []).map((r) => r.role as UserRole);
-      if (!roles.length) return 'rookie';
-
-      return roles.sort((a, b) => ROLE_PRIORITY.indexOf(b) - ROLE_PRIORITY.indexOf(a))[0] ?? 'rookie';
+      const resolvedRole = roles.sort((a, b) => ROLE_PRIORITY.indexOf(b) - ROLE_PRIORITY.indexOf(a))[0] ?? 'rookie';
+      setCachedRole(userId, resolvedRole);
+      return resolvedRole;
     } catch (err) {
       console.error('Error in fetchUserRole:', err);
-      return 'rookie';
+      return cachedRole ?? 'rookie';
     }
   };
 
@@ -100,8 +153,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (user) {
-      const newProfile = await fetchProfile(user.id);
-      const newRole = await fetchUserRole(user.id);
+      const [newProfile, newRole] = await Promise.all([
+        fetchProfile(user.id),
+        fetchUserRole(user.id),
+      ]);
       setProfile(newProfile);
       setRole(newRole);
     }
@@ -159,6 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hasActiveSessionRef.current = !!session;
 
         if (session?.user) {
+          seedRoleFromMetadata(session.user);
           // Skip if getSession already handled the initial load
           if (event === 'INITIAL_SESSION' && initialLoadDone) return;
           // Defer to avoid Supabase internal deadlock
@@ -180,6 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasActiveSessionRef.current = !!session;
 
       if (session?.user) {
+        seedRoleFromMetadata(session.user);
         loadUserData(session.user.id);
       } else {
         setIsLoading(false);
@@ -228,12 +285,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    const currentUserId = user?.id;
     await supabase.auth.signOut();
     hasActiveSessionRef.current = false;
     setUser(null);
     setSession(null);
     setProfile(null);
     setRole('rookie');
+    if (currentUserId) {
+      roleCacheRef.current.delete(currentUserId);
+      try {
+        sessionStorage.removeItem(`${ROLE_STORAGE_PREFIX}${currentUserId}`);
+      } catch {
+        // ignore storage errors
+      }
+    }
   };
 
   const value = {
