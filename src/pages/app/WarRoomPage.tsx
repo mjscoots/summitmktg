@@ -117,10 +117,10 @@ export default function WarRoomPage() {
             </div>
           </div>
 
-          {activeTab === 'downline' && <DownlineTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'downline' && <DownlineTab managerName={profile?.full_name || ''} userId={user?.id || ''} />}
           {activeTab === 'teams' && <TeamsTab managerName={profile?.full_name || ''} />}
-          {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} />}
-          {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} userId={user?.id || ''} />}
+          {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} userId={user?.id || ''} />}
         </div>
       </div>
     </AppLayout>
