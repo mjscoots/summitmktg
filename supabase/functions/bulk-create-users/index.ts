@@ -862,7 +862,7 @@ Deno.serve(async (req) => {
                   user_id: userId,
                   full_name: row.full_name,
                   email: emailForCreate,
-                  approved: is_import ? false : true,
+                  approved: is_import ? null : true,
                   status: row.repStatusProvided && row.rep_status ? row.rep_status : "active",
                   onboarding_status: row.onboarding_status ?? "pending",
                   phone: row.phone,
