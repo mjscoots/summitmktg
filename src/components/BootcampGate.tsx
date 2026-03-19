@@ -19,7 +19,7 @@ interface BootcampGateProps {
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading, isBypassed } = useBootcamp();
-  const { profile, signOut, isLoading: authLoading } = useAuth();
+  const { profile, signOut, isLoading: authLoading, role } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -50,8 +50,8 @@ export function BootcampGate({ children }: BootcampGateProps) {
     return <Navigate to="/summer-checklist" replace />;
   }
 
-  // Step 2: After checklist, require admin approval (managers/admins bypass)
-  if (!isBypassed && profile && profile.approved === false) {
+  // Step 2: After checklist, require admin approval (only for rookies)
+  if (role === 'rookie' && !isBypassed && profile && profile.approved === false) {
     return <Navigate to="/pending-approval" replace />;
   }
 

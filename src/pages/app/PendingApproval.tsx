@@ -7,17 +7,18 @@ import { toast } from "sonner";
 
 const PendingApproval = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, profile, signOut, isLoading } = useAuth();
+  const { isAuthenticated, profile, signOut, isLoading, role } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate("/login", { replace: true });
     }
-    if (!isLoading && profile?.approved) {
+    // Non-rookies should never be stuck on this page
+    if (!isLoading && (role !== 'rookie' || profile?.approved)) {
       navigate("/app", { replace: true });
     }
-  }, [isLoading, isAuthenticated, profile, navigate]);
+  }, [isLoading, isAuthenticated, profile, role, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
