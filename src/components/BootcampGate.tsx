@@ -19,7 +19,7 @@ interface BootcampGateProps {
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading, isBypassed } = useBootcamp();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isLoading: authLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
