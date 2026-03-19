@@ -527,10 +527,9 @@ function parseBlocks(
     // Manager-role people are NO LONGER skipped — they get sent to the edge function
     // so their onboarding_status, manager, and other fields can be updated.
 
-    // Generate email if not found
+    // Keep email empty when missing; backend will handle internal placeholder identity safely.
     if (!email) {
-      const parts = full_name.toLowerCase().split(/\s+/);
-      email = parts.length >= 2 ? `${parts[0]}.${parts[parts.length - 1]}@summitmktg.com` : `${parts[0]}@summitmktg.com`;
+      email = '';
     }
 
     // Match against existing profiles

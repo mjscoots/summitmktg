@@ -904,7 +904,7 @@ Deno.serve(async (req) => {
             };
 
             const createUpdates: Record<string, unknown> = {
-              approved: is_import ? false : true,
+              approved: is_import ? null : true,
               status: row.repStatusProvided && row.rep_status ? row.rep_status : (profileBase.status ?? "active"),
               onboarding_status: row.pipelineProvided && row.onboarding_status
                 ? row.onboarding_status

@@ -110,9 +110,9 @@ export default function AdminTeamPage() {
       };
     });
 
-    // Pending = any user not yet approved, regardless of status or onboarding_status
-    const pending = users.filter(r => !r.approved);
-    const allOthers = users.filter(r => r.approved);
+    // Pending = only users who have explicitly entered approval flow (approved === false)
+    const pending = users.filter(r => r.approved === false);
+    const allOthers = users.filter(r => r.approved !== false);
     setPendingUsers(pending);
     setAllUsers(allOthers);
 
