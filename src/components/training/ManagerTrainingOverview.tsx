@@ -61,19 +61,27 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
             .filter(p => !managerIds.has(p.user_id))
             .map(p => ({ user_id: p.user_id, full_name: p.full_name }));
         } else {
-          // Downline-based (original behavior)
-          const { data: myProfile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('user_id', user.id)
-            .maybeSingle();
+          // Downline-based: try edge-based first, fall back to text-based
+          let downline: any[] = [];
+          const { data: edgeData, error: edgeErr } = await supabase
+            .rpc('get_downline_from_edges', { _manager_user_id: user.id });
+          if (!edgeErr && edgeData && edgeData.length > 0) {
+            downline = edgeData;
+          } else {
+            const { data: myProfile } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('user_id', user.id)
+              .maybeSingle();
 
-          if (!myProfile) { setIsLoading(false); return; }
+            if (!myProfile) { setIsLoading(false); return; }
 
-          const { data: downline } = await supabase
-            .rpc('get_user_downline', { _manager_name: myProfile.full_name });
+            const { data: textData } = await supabase
+              .rpc('get_user_downline', { _manager_name: myProfile.full_name });
+            downline = textData || [];
+          }
 
-          if (!downline || downline.length === 0) { setIsLoading(false); return; }
+          if (downline.length === 0) { setIsLoading(false); return; }
 
           rookieReps = downline
             .filter(d => d.role === 'rookie')
