@@ -323,9 +323,15 @@ export default function CalendarPage() {
         const userIds = assignees?.map(a => a.user_id) || [];
         if (userIds.length > 0 || eventToDelete.is_team_wide) {
           let notifyIds = userIds;
-          if (eventToDelete.is_team_wide && profile.full_name) {
-            const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: profile.full_name });
-            notifyIds = downline?.map((d: { user_id: string }) => d.user_id) || [];
+          if (eventToDelete.is_team_wide && profile.full_name && user) {
+            // Try edge-based downline first, fall back to text-based
+            const { data: edgeData, error: edgeErr } = await supabase.rpc('get_downline_from_edges', { _manager_user_id: user.id });
+            if (!edgeErr && edgeData && edgeData.length > 0) {
+              notifyIds = edgeData.map((d: any) => d.user_id);
+            } else {
+              const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: profile.full_name });
+              notifyIds = downline?.map((d: { user_id: string }) => d.user_id) || [];
+            }
           }
           if (notifyIds.length > 0) {
             await supabase.functions.invoke('send-calendar-notification', {

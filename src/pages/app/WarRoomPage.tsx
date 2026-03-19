@@ -60,7 +60,7 @@ function getDaysInactive(lastActiveAt: string | null): number {
 
 export default function WarRoomPage() {
   const navigate = useNavigate();
-  const { profile, role } = useAuth();
+  const { user, profile, role } = useAuth();
   const firstName = profile?.full_name?.split(' ')[0] || 'Manager';
   const [activeTab, setActiveTab] = useState<WarRoomTab>('downline');
 
@@ -117,10 +117,10 @@ export default function WarRoomPage() {
             </div>
           </div>
 
-          {activeTab === 'downline' && <DownlineTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'downline' && <DownlineTab managerName={profile?.full_name || ''} userId={user?.id || ''} />}
           {activeTab === 'teams' && <TeamsTab managerName={profile?.full_name || ''} />}
-          {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} />}
-          {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} />}
+          {activeTab === 'pulse' && <PulseTab managerName={profile?.full_name || ''} userId={user?.id || ''} />}
+          {activeTab === 'activity' && <ActivityTab managerName={profile?.full_name || ''} userId={user?.id || ''} />}
         </div>
       </div>
     </AppLayout>
@@ -288,14 +288,22 @@ function TeamsTab({ managerName }: { managerName: string }) {
   );
 }
 
-function PulseTab({ managerName }: { managerName: string }) {
+function PulseTab({ managerName, userId }: { managerName: string; userId: string }) {
   const [stats, setStats] = useState({ trainingPct: 0, checklistPct: 0, oneOnOnePct: 0, totalReps: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
-      if (!managerName) return;
-      const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+      if (!managerName || !userId) return;
+      // Try edge-based downline first, fall back to text-based
+      let downline: any[] | null = null;
+      const { data: edgeData, error: edgeErr } = await supabase.rpc('get_downline_from_edges', { _manager_user_id: userId });
+      if (!edgeErr && edgeData && edgeData.length > 0) {
+        downline = edgeData;
+      } else {
+        const { data: textData } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+        downline = textData;
+      }
       const reps = (downline || []).filter((m: any) => m.role !== 'manager' && m.role !== 'admin');
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
@@ -350,7 +358,7 @@ function PulseTab({ managerName }: { managerName: string }) {
 }
 
 /* ── Downline Tab (formerly Team) ── */
-function DownlineTab({ managerName }: { managerName: string }) {
+function DownlineTab({ managerName, userId }: { managerName: string; userId: string }) {
   const [members, setMembers] = useState<TeamMemberRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<'name' | 'training' | 'checklist' | 'activity'>('training');
@@ -360,8 +368,16 @@ function DownlineTab({ managerName }: { managerName: string }) {
 
   useEffect(() => {
     const fetch = async () => {
-      if (!managerName) return;
-      const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+      if (!managerName || !userId) return;
+      // Try edge-based downline first, fall back to text-based
+      let downline: any[] | null = null;
+      const { data: edgeData, error: edgeErr } = await supabase.rpc('get_downline_from_edges', { _manager_user_id: userId });
+      if (!edgeErr && edgeData && edgeData.length > 0) {
+        downline = edgeData;
+      } else {
+        const { data: textData } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+        downline = textData;
+      }
       const reps = (downline || []).filter((m: any) => m.role !== 'manager' && m.role !== 'admin');
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
@@ -554,7 +570,7 @@ function DownlineTab({ managerName }: { managerName: string }) {
 }
 
 /* ── Activity Tab ── */
-function ActivityTab({ managerName }: { managerName: string }) {
+function ActivityTab({ managerName, userId }: { managerName: string; userId: string }) {
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [requiredMinutes, setRequiredMinutes] = useState(120);
@@ -565,8 +581,16 @@ function ActivityTab({ managerName }: { managerName: string }) {
 
   useEffect(() => {
     const fetch = async () => {
-      if (!managerName) return;
-      const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+      if (!managerName || !userId) return;
+      // Try edge-based downline first, fall back to text-based
+      let downline: any[] | null = null;
+      const { data: edgeData, error: edgeErr } = await supabase.rpc('get_downline_from_edges', { _manager_user_id: userId });
+      if (!edgeErr && edgeData && edgeData.length > 0) {
+        downline = edgeData;
+      } else {
+        const { data: textData } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+        downline = textData;
+      }
       const reps = (downline || []).filter((m: any) => m.role !== 'manager' && m.role !== 'admin');
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }

@@ -76,13 +76,19 @@ export default function EstimateEarningsPage() {
   useEffect(() => {
     if (!user?.id || !isManager) { setLoading(false); return; }
     const fetch = async () => {
-      const { data: myProfile } = await supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle();
-      if (!myProfile) { setLoading(false); return; }
-
-      const { data: dl } = await supabase.rpc('get_user_downline', { _manager_name: myProfile.full_name });
-      if (dl) {
+      // Try edge-based downline first, fall back to text-based
+      let dl: any[] = [];
+      const { data: edgeData, error: edgeErr } = await supabase.rpc('get_downline_from_edges', { _manager_user_id: user.id });
+      if (!edgeErr && edgeData && edgeData.length > 0) {
+        dl = edgeData;
+      } else {
+        const { data: myProfile } = await supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle();
+        if (!myProfile) { setLoading(false); return; }
+        const { data: textData } = await supabase.rpc('get_user_downline', { _manager_name: myProfile.full_name });
+        dl = textData || [];
+      }
+      if (dl.length > 0) {
         const rookies = dl.filter((d: any) => d.role === 'rookie');
-        const vets = rookies.filter((_: any, i: number) => i % 3 === 0); // heuristic - check experience
         setDownline({
           rookieCount: rookies.length,
           vetCount: 0,

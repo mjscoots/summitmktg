@@ -63,12 +63,19 @@ export function BootcampStragglers() {
       // For non-admins: use direct_manager name matching via downline RPC
       let allowedUserIds: Set<string> | null = null; // null = see all (admin)
       
-      if (!isAdmin && profile?.full_name) {
-        // Get manager's full downline using RPC
-        const { data: downline } = await supabase
-          .rpc('get_user_downline', { _manager_name: profile.full_name });
-        
-        allowedUserIds = new Set((downline || []).map((d: any) => d.user_id));
+      if (!isAdmin && profile?.full_name && user) {
+        // Try edge-based downline first, fall back to text-based
+        let downlineList: any[] = [];
+        const { data: edgeData, error: edgeErr } = await supabase
+          .rpc('get_downline_from_edges', { _manager_user_id: user.id });
+        if (!edgeErr && edgeData && edgeData.length > 0) {
+          downlineList = edgeData;
+        } else {
+          const { data: textData } = await supabase
+            .rpc('get_user_downline', { _manager_name: profile.full_name });
+          downlineList = textData || [];
+        }
+        allowedUserIds = new Set(downlineList.map((d: any) => d.user_id));
       }
 
       const result: Straggler[] = [];
