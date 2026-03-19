@@ -33,7 +33,7 @@ export interface BootcampDeadlineInfo {
 }
 
 export function useBootcamp() {
-  const { user, role } = useAuth();
+  const { user, role, isLoading: authLoading } = useAuth();
   const [progress, setProgress] = useState<BootcampProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [globalRequired, setGlobalRequired] = useState(true);
@@ -51,6 +51,13 @@ export function useBootcamp() {
   const isBypassed = role === 'manager' || role === 'admin' || role === 'owner';
 
   const fetchProgress = useCallback(async () => {
+    // CRITICAL: Don't make any decisions until auth has fully loaded the role.
+    // Without this, managers/admins start with role='rookie', isBypassed=false,
+    // and get incorrectly redirected to the Summer Checklist.
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       setProgress(null);
       setHasLoadError(false);
