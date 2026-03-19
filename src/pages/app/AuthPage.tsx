@@ -55,6 +55,7 @@ const AuthPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return; // Prevent double-click rapid-fire logins
     setError("");
     setIsLoading(true);
     
@@ -67,7 +68,8 @@ const AuthPage = () => {
       return;
     }
 
-    setIsLoading(false);
+    // Don't reset isLoading here — let the auth redirect effect handle navigation.
+    // This prevents the user from clicking "Sign In" again while the session initializes.
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
