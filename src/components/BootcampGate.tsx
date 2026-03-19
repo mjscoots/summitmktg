@@ -19,7 +19,7 @@ interface BootcampGateProps {
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading, isBypassed } = useBootcamp();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isLoading: authLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ export function BootcampGate({ children }: BootcampGateProps) {
     return <>{children}</>;
   }
 
-  if (isLoading || profile?.status === 'rejected') {
+  if (isLoading || authLoading || profile?.status === 'rejected') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
