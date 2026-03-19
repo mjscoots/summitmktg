@@ -110,10 +110,9 @@ export default function AdminTeamPage() {
       };
     });
 
-    // Pending = signed up via website but not yet approved (not imported with a pipeline status)
-    const isRealSignup = (r: UserRow) => !r.onboarding_status || r.onboarding_status === 'pending';
-    const pending = users.filter(r => r.status === 'pending' && !r.approved && isRealSignup(r));
-    const allOthers = users.filter(r => !(r.status === 'pending' && !r.approved && isRealSignup(r)));
+    // Pending = any user not yet approved, regardless of status or onboarding_status
+    const pending = users.filter(r => !r.approved);
+    const allOthers = users.filter(r => r.approved);
     setPendingUsers(pending);
     setAllUsers(allOthers);
 
