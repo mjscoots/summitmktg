@@ -1,9 +1,10 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { useAuth } from '@/hooks/useAuth';
 import { ProfileCompletionGate } from '@/components/ProfileCompletionGate';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BootcampGateProps {
   children: ReactNode;
@@ -19,9 +20,11 @@ interface BootcampGateProps {
  */
 export function BootcampGate({ children }: BootcampGateProps) {
   const { isLocked, isLoading, isBypassed } = useBootcamp();
-  const { profile, signOut, isLoading: authLoading, role } = useAuth();
+  const { profile, signOut, isLoading: authLoading, role, refreshProfile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isMarkingApprovalRequired, setIsMarkingApprovalRequired] = useState(false);
+  const approvalInitAttemptedRef = useRef(false);
 
   // Step 0: If user was rejected, sign them out and redirect to homepage
   useEffect(() => {
@@ -32,12 +35,48 @@ export function BootcampGate({ children }: BootcampGateProps) {
     }
   }, [isLoading, profile?.status, signOut, navigate]);
 
+  // Imported placeholder reps use approved = null until they actually log in.
+  // On first rookie session, switch to approved = false so normal approval flow applies.
+  useEffect(() => {
+    if (isLoading || authLoading || !profile || role !== 'rookie' || profile.approved !== null || approvalInitAttemptedRef.current) {
+      return;
+    }
+
+    approvalInitAttemptedRef.current = true;
+    let cancelled = false;
+
+    const markApprovalRequired = async () => {
+      setIsMarkingApprovalRequired(true);
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ approved: false })
+        .eq('user_id', profile.user_id);
+
+      if (error) {
+        console.error('Failed to initialize approval state for rookie:', error);
+      } else {
+        await refreshProfile();
+      }
+
+      if (!cancelled) {
+        setIsMarkingApprovalRequired(false);
+      }
+    };
+
+    markApprovalRequired();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoading, authLoading, profile, role, refreshProfile]);
+
   // Don't gate Summer Checklist routes themselves
   if (location.pathname.startsWith('/bootcamp') || location.pathname.startsWith('/summer-checklist')) {
     return <>{children}</>;
   }
 
-  if (isLoading || authLoading || profile?.status === 'rejected') {
+  if (isLoading || authLoading || isMarkingApprovalRequired || profile?.status === 'rejected') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
