@@ -110,9 +110,9 @@ export default function AdminTeamPage() {
       };
     });
 
-    // Pending = only users who have explicitly entered approval flow (approved === false)
-    const pending = users.filter(r => r.approved === false);
-    const allOthers = users.filter(r => r.approved !== false);
+    // Pending = only users who have explicitly entered approval flow (approved === false) AND not already rejected
+    const pending = users.filter(r => r.approved === false && r.status !== 'rejected');
+    const allOthers = users.filter(r => r.approved !== false || r.status === 'rejected');
     setPendingUsers(pending);
     setAllUsers(allOthers);
 
