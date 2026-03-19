@@ -74,6 +74,7 @@ const AuthPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return; // Prevent double-click
     setError("");
 
     if (!signupFirstName.trim() || !signupLastName.trim() || !signupEmail.trim() || !signupPassword.trim()) {

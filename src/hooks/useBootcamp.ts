@@ -144,7 +144,7 @@ export function useBootcamp() {
       setHasLoadError(true);
       setIsLoading(false);
     }
-  }, [user, isBypassed]);
+  }, [user, isBypassed, authLoading]);
 
   useEffect(() => {
     fetchProgress();
