@@ -637,18 +637,18 @@ export default function AdminUsersTab({
       </div>
 
       <TableErrorBoundary onRetry={onRefresh}>
-        <div className="rounded-xl border border-border/30 bg-card/30 overflow-hidden">
-          <table className="w-full text-sm table-fixed">
+        <div className="rounded-xl border border-border/30 bg-card/30 overflow-x-auto">
+          <table className="w-full text-sm" style={{ minWidth: '700px' }}>
             <thead>
               <tr className="border-b border-border/20 bg-background/40">
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[22%]">Name</th>
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[18%]">Manager</th>
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[14%]">Team</th>
-                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[14%]">Progress</th>
-                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[8%]">Status</th>
-                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[12%]">App</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '22%' }}>Name</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '18%' }}>Manager</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '14%' }}>Team</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '14%' }}>Progress</th>
+                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '7%' }}>Status</th>
+                <th className="text-center px-2 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '10%' }}>App</th>
                 {isAdmin && (
-                  <th className="text-right px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider w-[12%]">Actions</th>
+                  <th className="text-right px-3 py-2.5 font-semibold text-muted-foreground text-[10px] uppercase tracking-wider" style={{ width: '15%' }}>Actions</th>
                 )}
               </tr>
             </thead>
