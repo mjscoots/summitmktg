@@ -271,7 +271,7 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
       }));
 
       const { data, error } = await supabase.functions.invoke('bulk-create-users', {
-        body: { users: usersToCreate },
+        body: { users: usersToCreate, is_import: true },
       });
 
       if (error) throw error;
