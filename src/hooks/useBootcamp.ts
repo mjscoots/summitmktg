@@ -48,12 +48,11 @@ export function useBootcamp() {
     isOverdue: false,
   });
 
-  const isBypassed = role === 'manager' || role === 'admin' || role === 'owner';
+  const [roleConfirmedBypass, setRoleConfirmedBypass] = useState(false);
+  const isBypassed = role === 'manager' || role === 'admin' || role === 'owner' || roleConfirmedBypass;
 
   const fetchProgress = useCallback(async () => {
     // CRITICAL: Don't make any decisions until auth has fully loaded the role.
-    // Without this, managers/admins start with role='rookie', isBypassed=false,
-    // and get incorrectly redirected to the Summer Checklist.
     if (authLoading) {
       return;
     }
@@ -61,8 +60,29 @@ export function useBootcamp() {
     if (!user) {
       setProgress(null);
       setHasLoadError(false);
+      setRoleConfirmedBypass(false);
       setIsLoading(false);
       return;
+    }
+
+    // Double-check user_roles table directly to catch cases where useAuth
+    // still reports 'rookie' (e.g. first signup, race condition, cache miss)
+    if (!isBypassed) {
+      try {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        const bypassRoles = ['manager', 'admin', 'owner'];
+        if (roles?.some(r => bypassRoles.includes(r.role))) {
+          setRoleConfirmedBypass(true);
+          setHasLoadError(false);
+          setIsLoading(false);
+          return;
+        }
+      } catch {
+        // non-critical, continue with normal flow
+      }
     }
 
     if (isBypassed) {
