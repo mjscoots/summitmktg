@@ -60,7 +60,7 @@ function getDaysInactive(lastActiveAt: string | null): number {
 
 export default function WarRoomPage() {
   const navigate = useNavigate();
-  const { profile, role } = useAuth();
+  const { user, profile, role } = useAuth();
   const firstName = profile?.full_name?.split(' ')[0] || 'Manager';
   const [activeTab, setActiveTab] = useState<WarRoomTab>('downline');
 
