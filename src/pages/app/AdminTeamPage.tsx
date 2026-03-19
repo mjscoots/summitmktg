@@ -110,9 +110,9 @@ export default function AdminTeamPage() {
       };
     });
 
-    // Pending = only users who have explicitly entered approval flow (approved === false)
-    const pending = users.filter(r => r.approved === false);
-    const allOthers = users.filter(r => r.approved !== false);
+    // Pending = only users who have explicitly entered approval flow (approved === false) AND not already rejected
+    const pending = users.filter(r => r.approved === false && r.status !== 'rejected');
+    const allOthers = users.filter(r => r.approved !== false || r.status === 'rejected');
     setPendingUsers(pending);
     setAllUsers(allOthers);
 
@@ -155,10 +155,20 @@ export default function AdminTeamPage() {
 
   const handleReject = async (userId: string) => {
     const user = pendingUsers.find(u => u.user_id === userId);
-    if (user) setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
+    // Optimistically remove from pending AND move to allUsers so it can't reappear
+    if (user) {
+      setPendingUsers(prev => prev.filter(u => u.user_id !== userId));
+      setAllUsers(prev => [{ ...user, approved: null, status: 'rejected' }, ...prev]);
+    }
     toast({ title: 'User Rejected' });
-    try { await supabase.functions.invoke('admin-approve-user', { body: { action: 'reject', user_id: userId } }); fetchData(); } catch (err: any) {
-      if (user) setPendingUsers(prev => [user, ...prev]);
+    try {
+      await supabase.functions.invoke('admin-approve-user', { body: { action: 'reject', user_id: userId } });
+      fetchData();
+    } catch (err: any) {
+      if (user) {
+        setPendingUsers(prev => [user, ...prev]);
+        setAllUsers(prev => prev.filter(u => u.user_id !== userId));
+      }
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };

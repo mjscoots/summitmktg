@@ -137,9 +137,10 @@ Deno.serve(async (req) => {
       });
 
     } else if (action === "reject") {
+      // Set approved to null so user drops out of the pending list (approved === false)
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
-        .update({ approved: false, status: "rejected" })
+        .update({ approved: null, status: "rejected" })
         .eq("user_id", user_id);
       if (profileError) throw new Error(profileError.message);
 
