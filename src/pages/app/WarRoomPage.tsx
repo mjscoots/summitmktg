@@ -288,14 +288,22 @@ function TeamsTab({ managerName }: { managerName: string }) {
   );
 }
 
-function PulseTab({ managerName }: { managerName: string }) {
+function PulseTab({ managerName, userId }: { managerName: string; userId: string }) {
   const [stats, setStats] = useState({ trainingPct: 0, checklistPct: 0, oneOnOnePct: 0, totalReps: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
-      if (!managerName) return;
-      const { data: downline } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+      if (!managerName || !userId) return;
+      // Try edge-based downline first, fall back to text-based
+      let downline: any[] | null = null;
+      const { data: edgeData, error: edgeErr } = await supabase.rpc('get_downline_from_edges', { _manager_user_id: userId });
+      if (!edgeErr && edgeData && edgeData.length > 0) {
+        downline = edgeData;
+      } else {
+        const { data: textData } = await supabase.rpc('get_user_downline', { _manager_name: managerName });
+        downline = textData;
+      }
       const reps = (downline || []).filter((m: any) => m.role !== 'manager' && m.role !== 'admin');
       const repIds = reps.map((r: any) => r.user_id);
       if (repIds.length === 0) { setLoading(false); return; }
