@@ -895,7 +895,7 @@ Deno.serve(async (req) => {
               phone: row.phone ?? null,
               onboarding_status: "pending",
               status: "active",
-              approved: is_import ? false : true,
+              approved: is_import ? null : true,
               region: null,
               office_name: null,
               experience: null,
