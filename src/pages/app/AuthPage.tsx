@@ -9,7 +9,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const declinedReason = searchParams.get("reason") === "declined";
-  const { signIn, signUp, isAuthenticated, profile } = useAuth();
+  const { signIn, signUp, isAuthenticated } = useAuth();
   
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   
@@ -19,6 +19,7 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [awaitingAuthRedirect, setAwaitingAuthRedirect] = useState(false);
 
   // Sign Up state
   const [signupFirstName, setSignupFirstName] = useState("");
@@ -32,14 +33,27 @@ const AuthPage = () => {
   // Dropdown data
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
 
-  // Redirect if already authenticated
+  // Redirect as soon as auth session is present (profile can hydrate afterward)
   useEffect(() => {
-    if (isAuthenticated && profile) {
-      // Always redirect to /app — BootcampGate handles routing
-      // (bootcamp lock vs pending approval vs full access)
+    if (isAuthenticated) {
+      setAwaitingAuthRedirect(false);
+      setIsLoading(false);
       navigate("/app", { replace: true });
     }
-  }, [isAuthenticated, profile, navigate]);
+  }, [isAuthenticated, navigate]);
+
+  // Safety net: never leave the button stuck on "Signing in"
+  useEffect(() => {
+    if (!awaitingAuthRedirect || isAuthenticated) return;
+
+    const timeout = window.setTimeout(() => {
+      setAwaitingAuthRedirect(false);
+      setIsLoading(false);
+      toast.error("Login timed out", { description: "Please try again." });
+    }, 8000);
+
+    return () => window.clearTimeout(timeout);
+  }, [awaitingAuthRedirect, isAuthenticated]);
 
   // Fetch teams for dropdown
   useEffect(() => {
@@ -56,6 +70,7 @@ const AuthPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return; // Prevent double-click rapid-fire logins
+    setAwaitingAuthRedirect(false);
     setError("");
     setIsLoading(true);
     
@@ -68,8 +83,7 @@ const AuthPage = () => {
       return;
     }
 
-    // Don't reset isLoading here — let the auth redirect effect handle navigation.
-    // This prevents the user from clicking "Sign In" again while the session initializes.
+    setAwaitingAuthRedirect(true);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
