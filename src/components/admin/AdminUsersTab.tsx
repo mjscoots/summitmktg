@@ -564,7 +564,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={recruiterFilter} onValueChange={setRecruiterFilter}>
-          <SelectTrigger className="h-8 w-[140px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[120px] sm:w-[140px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Recruiter" />
           </SelectTrigger>
           <SelectContent>
