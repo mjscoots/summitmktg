@@ -181,16 +181,23 @@ function parseInput(
       if (bestMatch) direct_manager = bestMatch.full_name;
     }
 
-    // Check if already exists
+    // Check if already exists + detect potential duplicates (nickname collisions)
     let alreadyExists = false;
     let matchedName: string | undefined;
+    let duplicateWarning: string | undefined;
+    const allMatches: string[] = [];
     for (const p of existingProfiles) {
       const score = matchNames(p.full_name, full_name);
       if (score > 0.7) {
-        alreadyExists = true;
-        matchedName = p.full_name;
-        break;
+        allMatches.push(p.full_name);
+        if (!alreadyExists) {
+          alreadyExists = true;
+          matchedName = p.full_name;
+        }
       }
+    }
+    if (allMatches.length > 1) {
+      duplicateWarning = `Matches ${allMatches.length} profiles: ${allMatches.join(', ')}`;
     }
 
     // Generate email if not provided
