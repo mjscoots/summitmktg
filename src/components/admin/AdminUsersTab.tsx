@@ -530,7 +530,7 @@ export default function AdminUsersTab({
       {/* Filter bar — all on one row, no horizontal scroll */}
       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="App Status" />
           </SelectTrigger>
           <SelectContent>
