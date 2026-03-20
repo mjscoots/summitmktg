@@ -541,7 +541,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-8 w-[120px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[100px] sm:w-[120px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
