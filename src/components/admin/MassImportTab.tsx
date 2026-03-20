@@ -33,6 +33,7 @@ interface ParsedUser {
   onboarding_status: string;
   alreadyExists: boolean;
   matchedName?: string;
+  duplicateWarning?: string; // Set when name matches multiple existing profiles (nickname collision)
 }
 
 /* ── Status normalization ── */
