@@ -535,6 +535,13 @@ export default function AdminTeamPage() {
             </TabsContent>
           )}
 
+          {/* ========== AUDIT TAB ========== */}
+          <TabsContent value="audit">
+            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyAuditPanel />
+            </Suspense>
+          </TabsContent>
+
           {/* ========== SYNC TAB ========== */}
           <TabsContent value="sync">
             {loading ? <TableSkeleton columns={4} rows={5} /> : (
