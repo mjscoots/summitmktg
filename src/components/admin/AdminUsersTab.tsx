@@ -577,7 +577,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={teamFilter} onValueChange={setTeamFilter}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Team" />
           </SelectTrigger>
           <SelectContent>
