@@ -502,16 +502,17 @@ export default function AdminUsersTab({
   return (
     <div className="space-y-3">
       {/* Section header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <SummaryBar users={users} />
         <Button
           size="sm"
           variant="outline"
-          className="h-8 text-xs gap-1.5 rounded-xl"
+          className="h-8 text-xs gap-1.5 rounded-xl flex-shrink-0"
           onClick={() => setImportOpen(true)}
         >
           <Upload className="w-3.5 h-3.5" />
-          Mass Import
+          <span className="hidden sm:inline">Mass Import</span>
+          <span className="sm:hidden">Import</span>
         </Button>
       </div>
 
