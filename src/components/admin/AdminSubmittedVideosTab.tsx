@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Play, Video, Loader2, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { format } from 'date-fns';
 
 interface VideoEntry {
   label: string;
@@ -40,14 +39,14 @@ export default function AdminSubmittedVideosTab() {
   const fetchVideos = async () => {
     setLoading(true);
     const [profilesRes, rolesRes, bootcampRes, pitchRes, teamsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, team_id'),
+      supabase.from('profiles').select('user_id, full_name, team_id, status'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('bootcamp_progress').select('user_id, sunblock_video_url, motivation_video_url, final_commitment_video_url, phase_2_video_url, phase_3_video_url, created_at'),
       supabase.from('pitch_approval_requests').select('id, user_id, video_url, status, submitted_at, lesson_id'),
       supabase.from('teams').select('id, name'),
     ]);
 
-    // Build set of non-rookie user IDs to exclude
+    // Build set of non-rookie user IDs to exclude (managers, admins, owners)
     const nonRookieIds = new Set<string>();
     for (const r of (rolesRes.data || [])) {
       if (r.role === 'manager' || r.role === 'admin' || r.role === 'owner') {
@@ -55,7 +54,12 @@ export default function AdminSubmittedVideosTab() {
       }
     }
 
-    const profileMap = new Map((profilesRes.data || []).filter(p => !nonRookieIds.has(p.user_id)).map(p => [p.user_id, p]));
+    // Filter out managers AND NLC users
+    const profileMap = new Map(
+      (profilesRes.data || [])
+        .filter(p => !nonRookieIds.has(p.user_id) && p.status !== 'nlc')
+        .map(p => [p.user_id, p])
+    );
     const teamMap = new Map((teamsRes.data || []).map(t => [t.id, t.name]));
 
     const personMap = new Map<string, PersonVideos>();
@@ -96,7 +100,12 @@ export default function AdminSubmittedVideosTab() {
       person.videos.push({ label: 'Pitch Recording', video_url: pitch.video_url, type: 'pitch', status: pitch.status, submitted_at: pitch.submitted_at || '' });
     }
 
-    setPeople(Array.from(personMap.values()).sort((a, b) => a.full_name.localeCompare(b.full_name)));
+    // Only keep people who have at least one submitted video
+    const peopleWithVideos = Array.from(personMap.values())
+      .filter(p => p.videos.length > 0)
+      .sort((a, b) => a.full_name.localeCompare(b.full_name));
+
+    setPeople(peopleWithVideos);
     setLoading(false);
   };
 
@@ -154,7 +163,7 @@ export default function AdminSubmittedVideosTab() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">All submitted bootcamp and pitch videos, organized by team and person.</p>
+      <p className="text-sm text-muted-foreground">Completed checklist and pitch videos only. Managers and NLC users are excluded.</p>
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
@@ -201,7 +210,7 @@ export default function AdminSubmittedVideosTab() {
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Rep</th>
-                    <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Checklist</th>
+                    <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Completed</th>
                     <th className="text-left px-4 py-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Videos</th>
                   </tr>
                 </thead>
@@ -219,14 +228,11 @@ export default function AdminSubmittedVideosTab() {
                           <div className="flex flex-col gap-1">
                             {CHECKLIST_VIDEOS.map(label => {
                               const done = submittedLabels.has(label);
+                              if (!done) return null; // Only show completed items
                               return (
                                 <div key={label} className="flex items-center gap-1.5 text-[11px]">
-                                  {done ? (
-                                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                  ) : (
-                                    <div className="w-3.5 h-3.5 rounded-full border border-muted-foreground/30 shrink-0" />
-                                  )}
-                                  <span className={done ? 'text-foreground' : 'text-muted-foreground/50'}>{label}</span>
+                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                  <span className="text-foreground">{label}</span>
                                 </div>
                               );
                             })}

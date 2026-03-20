@@ -33,6 +33,7 @@ interface ParsedUser {
   onboarding_status: string;
   alreadyExists: boolean;
   matchedName?: string;
+  duplicateWarning?: string; // Set when name matches multiple existing profiles (nickname collision)
 }
 
 /* ── Status normalization ── */
@@ -180,16 +181,23 @@ function parseInput(
       if (bestMatch) direct_manager = bestMatch.full_name;
     }
 
-    // Check if already exists
+    // Check if already exists + detect potential duplicates (nickname collisions)
     let alreadyExists = false;
     let matchedName: string | undefined;
+    let duplicateWarning: string | undefined;
+    const allMatches: string[] = [];
     for (const p of existingProfiles) {
       const score = matchNames(p.full_name, full_name);
       if (score > 0.7) {
-        alreadyExists = true;
-        matchedName = p.full_name;
-        break;
+        allMatches.push(p.full_name);
+        if (!alreadyExists) {
+          alreadyExists = true;
+          matchedName = p.full_name;
+        }
       }
+    }
+    if (allMatches.length > 1) {
+      duplicateWarning = `Matches ${allMatches.length} profiles: ${allMatches.join(', ')}`;
     }
 
     // Generate email if not provided
@@ -213,6 +221,7 @@ function parseInput(
       onboarding_status,
       alreadyExists,
       matchedName,
+      duplicateWarning,
     });
   }
 
@@ -364,8 +373,9 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
           </div>
           <div className="flex flex-wrap gap-1.5">
             {existingUsers.map(u => (
-              <span key={u.id} className="text-[10px] px-2 py-0.5 bg-warning/10 rounded text-warning">
+              <span key={u.id} className={`text-[10px] px-2 py-0.5 rounded ${u.duplicateWarning ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'}`}>
                 {u.full_name} → {u.matchedName}
+                {u.duplicateWarning && <span className="ml-1 font-bold">⚠ DUPE</span>}
               </span>
             ))}
           </div>
