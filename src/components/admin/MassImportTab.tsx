@@ -221,6 +221,7 @@ function parseInput(
       onboarding_status,
       alreadyExists,
       matchedName,
+      duplicateWarning,
     });
   }
 
