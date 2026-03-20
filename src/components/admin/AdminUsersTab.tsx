@@ -552,7 +552,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={progressFilter} onValueChange={setProgressFilter}>
-          <SelectTrigger className="h-8 w-[140px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[120px] sm:w-[140px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Progress" />
           </SelectTrigger>
           <SelectContent>
