@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
+const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
@@ -319,31 +320,34 @@ export default function AdminTeamPage() {
           adminCounts.pendingPitches > 0 ? 'pitches' :
           adminCounts.newFeedback > 0 ? 'feedback' : 'users'
         } className="w-full">
-          <div className="flex flex-wrap gap-1 mb-4">
-            <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30">
+          <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
+            <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 min-w-max">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
-              <TabsTrigger value="users" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="users" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Users <span className="ml-1 text-[9px] opacity-70">{allUsers.length}</span>
               </TabsTrigger>
-              <TabsTrigger value="teams" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="teams" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Teams <span className="ml-1 text-[9px] opacity-70">{teams.length}</span>
               </TabsTrigger>
-              <TabsTrigger value="approvals" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="approvals" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="apps" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="apps" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Apps
               </TabsTrigger>
-              <TabsTrigger value="pitches" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="pitches" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
               </TabsTrigger>
-              <TabsTrigger value="feedback" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="feedback" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Feedback {adminCounts.newFeedback > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.newFeedback}</span>}
               </TabsTrigger>
+              <TabsTrigger value="audit" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                Audit
+              </TabsTrigger>
               {isSuperAdmin && (
-                <TabsTrigger value="system" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">System</TabsTrigger>
+                <TabsTrigger value="system" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">System</TabsTrigger>
               )}
-              <TabsTrigger value="sync" className="text-xs px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all">
+              <TabsTrigger value="sync" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Sync {adminCounts.syncIssues > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.syncIssues}</span>}
               </TabsTrigger>
             </TabsList>
@@ -530,6 +534,13 @@ export default function AdminTeamPage() {
               </div>
             </TabsContent>
           )}
+
+          {/* ========== AUDIT TAB ========== */}
+          <TabsContent value="audit">
+            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+              <LazyAuditPanel />
+            </Suspense>
+          </TabsContent>
 
           {/* ========== SYNC TAB ========== */}
           <TabsContent value="sync">

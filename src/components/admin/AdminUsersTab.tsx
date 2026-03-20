@@ -502,16 +502,17 @@ export default function AdminUsersTab({
   return (
     <div className="space-y-3">
       {/* Section header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <SummaryBar users={users} />
         <Button
           size="sm"
           variant="outline"
-          className="h-8 text-xs gap-1.5 rounded-xl"
+          className="h-8 text-xs gap-1.5 rounded-xl flex-shrink-0"
           onClick={() => setImportOpen(true)}
         >
           <Upload className="w-3.5 h-3.5" />
-          Mass Import
+          <span className="hidden sm:inline">Mass Import</span>
+          <span className="sm:hidden">Import</span>
         </Button>
       </div>
 
@@ -527,9 +528,9 @@ export default function AdminUsersTab({
       </div>
 
       {/* Filter bar — all on one row, no horizontal scroll */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="App Status" />
           </SelectTrigger>
           <SelectContent>
@@ -540,7 +541,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-8 w-[120px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[100px] sm:w-[120px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -551,7 +552,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={progressFilter} onValueChange={setProgressFilter}>
-          <SelectTrigger className="h-8 w-[140px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[120px] sm:w-[140px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Progress" />
           </SelectTrigger>
           <SelectContent>
@@ -563,7 +564,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={recruiterFilter} onValueChange={setRecruiterFilter}>
-          <SelectTrigger className="h-8 w-[140px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[120px] sm:w-[140px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Recruiter" />
           </SelectTrigger>
           <SelectContent>
@@ -576,7 +577,7 @@ export default function AdminUsersTab({
         </Select>
 
         <Select value={teamFilter} onValueChange={setTeamFilter}>
-          <SelectTrigger className="h-8 w-[130px] bg-card/40 border-border/30 text-xs">
+          <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
             <SelectValue placeholder="Team" />
           </SelectTrigger>
           <SelectContent>
