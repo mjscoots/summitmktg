@@ -373,10 +373,7 @@ export default function MassImportTab({ profiles, managers, teams, onRefresh }: 
           </div>
           <div className="flex flex-wrap gap-1.5">
             {existingUsers.map(u => (
-              <span key={u.id} className={cn(
-                "text-[10px] px-2 py-0.5 rounded",
-                u.duplicateWarning ? "bg-destructive/10 text-destructive" : "bg-warning/10 text-warning"
-              )}>
+              <span key={u.id} className={`text-[10px] px-2 py-0.5 rounded ${u.duplicateWarning ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'}`}>
                 {u.full_name} → {u.matchedName}
                 {u.duplicateWarning && <span className="ml-1 font-bold">⚠ DUPE</span>}
               </span>
