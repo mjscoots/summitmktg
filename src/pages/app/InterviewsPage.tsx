@@ -43,7 +43,7 @@ export default function InterviewsPage() {
   }
 
   // Redirect non-managers
-  if (role !== 'manager' && role !== 'admin') {
+  if (!isManagerOrAbove(role)) {
     navigate('/app', { replace: true });
     return null;
   }
