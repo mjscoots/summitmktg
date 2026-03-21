@@ -40,8 +40,8 @@ export function useTeamData(): TeamData {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const isAdmin = role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
+  const isAdmin = isAdminOrAbove(role);
   const teamId = profile?.team_id || null;
 
   useEffect(() => {

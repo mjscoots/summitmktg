@@ -11,6 +11,7 @@ import { ImpersonationBanner } from './ImpersonationBanner';
 import { Mountain } from 'lucide-react';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
+import { isManagerOrAbove } from '@/lib/roles';
 
 
 interface AppLayoutProps {
@@ -21,7 +22,7 @@ interface AppLayoutProps {
 export function AppLayout({ children, fullHeight }: AppLayoutProps) {
   const navigate = useNavigate();
   const { role } = useAuth();
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
   useSmartNotifications();
 
   return (

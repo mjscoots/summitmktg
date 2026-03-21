@@ -41,8 +41,8 @@ export function AnnouncementsFeed() {
   const [isAllTeams, setIsAllTeams] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const isAdmin = role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
+  const isAdmin = isAdminOrAbove(role);
 
   // Fetch teams for targeting
   useEffect(() => {
