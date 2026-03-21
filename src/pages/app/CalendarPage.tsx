@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove, isAdminOrAbove } from '@/lib/roles';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { 
   Calendar as CalendarIcon, Plus, Check, X, 
@@ -126,8 +127,8 @@ export default function CalendarPage() {
   const [viewMode, setViewMode] = useState<CalendarViewMode>('grid');
   const [rsvpSubView, setRsvpSubView] = useState<RSVPSubView>('cards');
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const isAdmin = role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
+  const isAdmin = isAdminOrAbove(role);
   const currentWeekStart = useMemo(() => startOfWeek(new Date()).toISOString(), []);
 
   useEffect(() => {
