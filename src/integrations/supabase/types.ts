@@ -2877,6 +2877,7 @@ export type Database = {
       }
     }
     Functions: {
+      auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
         Args: { _content: string; _message_id?: string; _user_id: string }
         Returns: number
@@ -2974,6 +2975,7 @@ export type Database = {
         }[]
       }
       get_daily_challenge: { Args: { _user_id: string }; Returns: Json }
+      get_data_integrity_report: { Args: never; Returns: Json }
       get_downline_from_edges: {
         Args: { _manager_user_id: string }
         Returns: {
