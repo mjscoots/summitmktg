@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 
@@ -23,7 +24,7 @@ export default function TrainingPage() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [managerManualComplete, setManagerManualComplete] = useState(false);
   
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
 
   useEffect(() => {
     const checkProgress = async () => {

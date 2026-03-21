@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import { Users, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
   const [isLoading, setIsLoading] = useState(true);
   const [sortMode, setSortMode] = useState<SortMode>('highest');
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
 
   useEffect(() => {
     const fetchRepProgress = async () => {

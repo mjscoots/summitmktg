@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove, isAdminOrAbove } from '@/lib/roles';
 import { AlertTriangle, Copy, Check, Send, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -25,8 +26,8 @@ export function BootcampStragglers() {
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const isAdmin = role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
+  const isAdmin = isAdminOrAbove(role);
 
   useEffect(() => {
     if (!isManager || !user?.id) return;

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { useTeamData } from '@/hooks/useTeamData';
 import { Users, TrendingDown, TrendingUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -10,7 +11,7 @@ export function TeamSnapshot() {
   const { role } = useAuth();
   const { teamName, topPerformers, needsAttention, completionRate, isLoading, error } = useTeamData();
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
 
   // For rookies, show personal stats instead
   if (!isManager) {

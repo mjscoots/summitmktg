@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { Calendar, Clock } from 'lucide-react';
 
 interface ScheduleItem {
@@ -20,7 +21,7 @@ export function WeeklySchedule() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Map app role to database role
-  const dbRole = role === 'manager' || role === 'admin' || role === 'owner' ? 'manager' : 'rookie';
+  const dbRole = isManagerOrAbove(role) ? 'manager' : 'rookie';
 
   useEffect(() => {
     const fetchSchedule = async () => {

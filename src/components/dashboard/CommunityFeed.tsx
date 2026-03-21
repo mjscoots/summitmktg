@@ -1,6 +1,7 @@
  import { useState, useEffect } from 'react';
  import { supabase } from '@/integrations/supabase/client';
  import { useAuth } from '@/hooks/useAuth';
+ import { isManagerOrAbove } from '@/lib/roles';
  import { Bell, Pin, Plus, Send, MessageSquare, MoreVertical, Pencil, Trash2 } from 'lucide-react';
  import { formatDistanceToNow } from 'date-fns';
  import { Button } from '@/components/ui/button';
@@ -54,7 +55,7 @@ export function CommunityFeed({ canPost = false, isAdmin = false }: CommunityFee
   const [audienceType, setAudienceType] = useState<'everyone' | 'managers_only' | 'teams'>('everyone');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
  
    useEffect(() => {
      const fetchTeams = async () => {
