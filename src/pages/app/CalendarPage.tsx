@@ -127,6 +127,7 @@ export default function CalendarPage() {
   const [viewMode, setViewMode] = useState<CalendarViewMode>('month');
   const [selectedWeekStart, setSelectedWeekStart] = useState(startOfWeek(new Date()));
   const [selectedDay, setSelectedDay] = useState(new Date());
+  const [rsvpSubView, setRsvpSubView] = useState<RSVPSubView>('cards');
 
   const isManager = isManagerOrAbove(role);
   const isAdmin = isAdminOrAbove(role);
