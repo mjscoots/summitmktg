@@ -694,12 +694,18 @@ export default function CalendarPage() {
 
               {/* View toggle */}
               <div className="ml-auto flex items-center bg-card/60 rounded-xl p-1 border border-border/30">
-                <button onClick={() => setViewMode('grid')}
-                  className={cn("p-1.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                  title="Calendar view"><LayoutGrid className="w-4 h-4" /></button>
-                <button onClick={() => setViewMode('list')}
-                  className={cn("p-1.5 rounded-lg transition-all", viewMode === 'list' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                  title="List view"><List className="w-4 h-4" /></button>
+                <button onClick={() => setViewMode('month')}
+                  className={cn("p-1.5 rounded-lg transition-all text-xs font-semibold px-2.5", viewMode === 'month' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  title="Month view">Month</button>
+                <button onClick={() => setViewMode('week')}
+                  className={cn("p-1.5 rounded-lg transition-all text-xs font-semibold px-2.5", viewMode === 'week' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  title="Week view">Week</button>
+                <button onClick={() => setViewMode('day')}
+                  className={cn("p-1.5 rounded-lg transition-all text-xs font-semibold px-2.5", viewMode === 'day' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  title="Day view">Day</button>
+                <button onClick={() => setViewMode('agenda')}
+                  className={cn("p-1.5 rounded-lg transition-all", viewMode === 'agenda' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                  title="Agenda view"><List className="w-4 h-4" /></button>
               </div>
             </div>
 
