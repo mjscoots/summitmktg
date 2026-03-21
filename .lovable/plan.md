@@ -1,116 +1,63 @@
 
 
-## Recommendations: Full Codebase Cleanup
+## Fix: Fake Approvals, All-Time Leaderboard, Calendar Polish
 
-After auditing the project, here are the key issues and a phased plan to clean everything up.
+### ISSUE 1 — Fake/Test Users in Approvals Queue
 
----
+**Root cause**: Security scans created auth accounts via the signup flow. The `handle_new_user` trigger automatically sets `approved: false` for each, putting them in the pending approvals queue. All 32 records share identical patterns: name "New User", emails ending in `@example.invalid`, null phones.
 
-### Current Problems Identified
+**Fix (3 parts)**:
 
-1. **Massive single-file components** — `WarRoomPage.tsx` is 750 lines with 4 inline tab components. `hierarchyUtils.ts` is 887 lines with hundreds of hard-coded name aliases. `DashboardPage.tsx` is 400 lines. These are hard to maintain and prone to bugs.
+1. **Database migration**: Auto-reject all existing fake records by setting `approved = NULL, status = 'rejected'` for profiles matching test patterns:
+   - `full_name = 'New User'`
+   - email containing `example.invalid`, `poc-`, `test-`, `inject`, `xss`, `sqli`, `rce`, `bypass`
+   - null phone with `@example.invalid` domain
 
-2. **Duplicated downline-fetch logic** — The same edge-first-then-text-fallback pattern is copy-pasted in 6+ places (WarRoom tabs, BootcampStragglers, ManagerTrainingOverview, CalendarPage, EstimateEarningsPage). One bug fix requires touching all of them.
+2. **Frontend filter** in `AdminTeamPage.tsx`: Add a client-side filter so even if new test records appear before the next cleanup, they're excluded from the live approvals tab. Detection rules:
+   - Name is generic ("New User", "Test User")
+   - Email domain is `example.invalid` or contains test/security keywords
+   - Phone is null AND email contains suspicious patterns
 
-3. **Hard-coded name aliases in code** — `hierarchyUtils.ts` has 200+ hard-coded name mappings. These should live in the database, not in source code. Every new hire or name change requires a code deploy.
+3. **Admin counts** in `useAdminCounts.ts`: Apply the same filter so the badge count excludes fake entries.
 
-4. **Inconsistent role checks** — `role === 'manager' || role === 'admin' || role === 'owner'` is repeated everywhere instead of using a single helper like `isManagerOrAbove(role)`.
+### ISSUE 2 — All-Time Leaderboard Empty State
 
-5. **No centralized error handling for data fetches** — Components silently swallow errors or just `console.error`. Users see blank screens with no feedback.
+**Root cause**: The DB function returns `bigint` columns, but the frontend code at line 211-217 of `TrainingLeaderboard.tsx` shows "No activity yet this period" for ALL modes when `entries.length === 0`. The actual RPC works (verified: Hewitt has 10445 pts). The problem is likely a **race condition or type casting issue** — the `(supabase as any)` cast works, but the empty state text is misleading.
 
-6. **Unused pages and dead routes** — `NotepadPage`, `SpreadsheetsPage`, `OperationsPage`, `AnalyticsPage` are all redirects now but the page files still exist. `AppRedirect.tsx` and `RookieDashboardPage.tsx` appear unused.
+**Fix**:
+- Change empty state text to differentiate: for `overall` mode show "Loading all-time data..." or "No all-time activity recorded" vs the generic "No activity yet this period"  
+- Add `console.warn` when all-time mode returns empty data so we can catch it in logs
+- Ensure the `totalPoints` mapping handles BigInt → Number correctly (JS `Number()` cast on bigint values)
 
-7. **Mobile responsiveness gaps** — Tables in WarRoom, Admin, and Downline views use fixed `grid-cols-4` without responsive breakpoints. Buttons overlap on small screens.
+### ISSUE 3 — Calendar Redesign (Closer to Google Calendar)
 
-8. **No loading/error boundaries per section** — If one dashboard widget fails, the whole page can break or show a spinner forever.
+**Current state**: Already has Month/Week/Day/Agenda views with filters. But needs significant polish.
 
----
+**Changes to `CalendarPage.tsx`**:
 
-### Phase 1: Extract & Consolidate (Biggest Impact)
+1. **Top toolbar**: Move view mode toggles and filter pills into a unified toolbar bar (like Google Calendar's top bar: `< Today >  Month  Week  Day  Agenda`)
+2. **"Today" button**: Add a quick-jump "Today" button between nav arrows
+3. **Month view cells**: Increase min-height, show more events per cell (5 instead of 3), better event chip styling with rounded pill look
+4. **Week view**: Add current-time red line indicator, better column borders, tighter hour labels
+5. **Day view**: Add current-time indicator, better event card rendering with duration-based height
+6. **Mini calendar sidebar**: Add a small month calendar in the side panel for quick date navigation (on wider screens only)
+7. **Better empty states**: Show subtle "No events" instead of blank cells
+8. **Event chips**: More Google Calendar-like pill shape with colored left border and subtle background
+9. **Mobile**: Stack filters into collapsible drawer, maintain touch-friendly spacing
 
-**A. Create a shared `useDownline` hook**
-Extract the duplicated edge-first/text-fallback downline fetching into one hook:
-- `src/hooks/useDownline.ts`
-- Accepts `userId` and `managerName`
-- Returns `{ downline, isLoading, error }`
-- Replace all 6+ copy-pasted instances
+### Files Modified
 
-**B. Break up `WarRoomPage.tsx`**
-Extract each tab into its own file:
-- `src/components/warroom/DownlineTab.tsx`
-- `src/components/warroom/TeamsTab.tsx`
-- `src/components/warroom/PulseTab.tsx`
-- `src/components/warroom/ActivityTab.tsx`
-- Keep `WarRoomPage.tsx` as a thin shell (~50 lines)
+| File | Changes |
+|------|---------|
+| New migration SQL | Auto-reject 32 fake test profiles |
+| `src/pages/app/AdminTeamPage.tsx` | Add `isFakeTestRecord()` filter to exclude test entries from pending approvals |
+| `src/hooks/useAdminCounts.ts` | Apply same fake-record filter to badge count |
+| `src/components/leaderboard/TrainingLeaderboard.tsx` | Fix empty state text for all-time; add debug logging; ensure BigInt handling |
+| `src/pages/app/CalendarPage.tsx` | Full redesign: toolbar, today button, time indicators, better grid, mini calendar |
 
-**C. Create role helper utilities**
-Add to `src/lib/roles.ts`:
-```text
-isManagerOrAbove(role) → boolean
-isAdminOrAbove(role) → boolean
-isOwner(role) → boolean
-```
-Replace all inline `role === 'manager' || role === 'admin' || role === 'owner'` checks across the codebase (~30 occurrences).
-
----
-
-### Phase 2: Move Hard-Coded Data to Database
-
-**A. Create `name_aliases` table**
-Move the 200+ entries from `hierarchyUtils.ts` `NAME_ALIASES` into a database table:
-- `normalized_name text PRIMARY KEY`
-- `canonical_name text NOT NULL`
-- Create an RPC to look up aliases
-
-**B. Create `pillar_owners` mapping in the `teams` table**
-The `PILLAR_OWNERS` constant should just reference `teams.leader_id`, which already exists. Remove the hard-coded mapping and use the DB field.
-
-**C. Remove `HARD_CODED_ADMINS`**
-These should be managed via `user_roles` table entries, not code arrays. Add proper admin roles in the database for these users and remove the 15-line hard-coded list.
-
----
-
-### Phase 3: Delete Dead Code
-
-Remove unused files:
-- `src/pages/app/NotepadPage.tsx` (redirects to /app/links)
-- `src/pages/app/SpreadsheetsPage.tsx` (redirects to /app/recruiting)
-- `src/pages/app/OperationsPage.tsx` (redirects to /app/calendar)
-- `src/pages/app/AnalyticsPage.tsx` (redirects to /app/manage)
-- `src/pages/app/AppRedirect.tsx` (unused)
-- `src/pages/app/RookieDashboardPage.tsx` (unused — dashboard is unified)
-- `src/pages/app/ManagerDashboardPage.tsx` (unused — dashboard is unified)
-
----
-
-### Phase 4: Mobile Responsiveness Pass
-
-- Convert all `grid-cols-4` table layouts in WarRoom/Admin to card stacks on mobile (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`)
-- Add `overflow-x-auto` to all admin data tables
-- Ensure sticky headers don't overlap content on small viewports
-- Test all views at 375px width
-
----
-
-### Phase 5: Error Resilience
-
-- Add per-section error boundaries around dashboard widgets so one failing widget doesn't blank the whole page
-- Add retry buttons on data fetch failures instead of silent console.error
-- Add toast notifications for network failures users should know about
-
----
-
-### Recommended Execution Order
-
-| Step | Effort | Impact |
-|------|--------|--------|
-| 1A. `useDownline` hook | Medium | Eliminates 6x duplication, prevents drift bugs |
-| 1B. Break up WarRoomPage | Medium | Makes tabs independently maintainable |
-| 1C. Role helpers | Small | Cleaner code, fewer typo-bugs |
-| 2A-C. DB-ify hard-coded data | Large | Eliminates deploy-on-name-change problem |
-| 3. Delete dead files | Small | Reduces confusion and bundle size |
-| 4. Mobile pass | Medium | Fixes reported overlapping buttons |
-| 5. Error resilience | Medium | Prevents blank screens |
-
-I'd recommend tackling these in 2-3 batches. Want me to start with Phase 1 (the consolidation work), or would you prefer a different priority?
+### Execution Order
+1. Database migration to auto-reject fake records (immediate fix)
+2. Frontend approvals filter (prevents recurrence)  
+3. Leaderboard empty state fix
+4. Calendar redesign
 
