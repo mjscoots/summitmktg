@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import {
   AlertTriangle, CheckCircle, Loader2, Users, Shield,
   GitBranch, RefreshCw, Monitor, MonitorOff, UserX, Link2, Merge,
+  Database, Activity, Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { matchNames } from '@/lib/externalRoster';
@@ -40,7 +41,7 @@ interface DuplicatePair {
   a: AuditProfile;
   b: AuditProfile;
   score: number;
-  canAutoMerge: boolean; // true if one is a placeholder (never logged in)
+  canAutoMerge: boolean;
 }
 
 interface TeamInfo {
@@ -62,6 +63,7 @@ export default function AdminAuditPanel() {
   const [syncing, setSyncing] = useState(false);
   const [fixingInApp, setFixingInApp] = useState(false);
   const [merging, setMerging] = useState<string | null>(null);
+  const [lastSyncResult, setLastSyncResult] = useState<{ edges_synced: number; teams_fixed: number } | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -79,6 +81,45 @@ export default function AdminAuditPanel() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const edgeChildSet = useMemo(() => new Set(edges.map(e => e.child_user_id)), [edges]);
+  const edgeParentSet = useMemo(() => new Set(edges.map(e => e.parent_user_id)), [edges]);
+
+  // Build a name→profile lookup using fuzzy matching
+  const profileNameMap = useMemo(() => {
+    const map = new Map<string, AuditProfile>();
+    for (const p of profiles) {
+      map.set(p.full_name.toLowerCase().trim(), p);
+      // Also index by first+last
+      const parts = p.full_name.toLowerCase().trim().split(/\s+/);
+      if (parts.length >= 2) {
+        map.set(`${parts[0]} ${parts[parts.length - 1]}`, p);
+      }
+    }
+    return map;
+  }, [profiles]);
+
+  // Find manager profile for a direct_manager text using fuzzy matching
+  const findManagerProfile = useCallback((managerText: string): AuditProfile | null => {
+    const norm = managerText.toLowerCase().trim();
+    // Exact match
+    const exact = profileNameMap.get(norm);
+    if (exact) return exact;
+    // First+last match
+    const parts = norm.split(/\s+/);
+    if (parts.length >= 2) {
+      const firstLast = `${parts[0]} ${parts[parts.length - 1]}`;
+      const fl = profileNameMap.get(firstLast);
+      if (fl) return fl;
+    }
+    // Canonical name match
+    const canonical = getCanonicalName(managerText);
+    const cn = profileNameMap.get(canonical.toLowerCase().trim());
+    if (cn) return cn;
+    // Fuzzy matchNames
+    for (const p of profiles) {
+      if (matchNames(p.full_name, managerText) >= 0.85) return p;
+    }
+    return null;
+  }, [profileNameMap, profiles]);
 
   const stats: AuditStats = useMemo(() => {
     const active = profiles.filter(p => p.status !== 'nlc');
@@ -99,28 +140,20 @@ export default function AdminAuditPanel() {
         const key = [a.user_id, b.user_id].sort().join('|');
         if (checked.has(key)) continue;
         checked.add(key);
-
         const score = matchNames(a.full_name, b.full_name);
         if (score >= 0.85) {
-          const aIsPlaceholder = isPlaceholder(a);
-          const bIsPlaceholder = isPlaceholder(b);
           duplicatePairs.push({
             a, b, score,
-            canAutoMerge: aIsPlaceholder || bIsPlaceholder,
+            canAutoMerge: isPlaceholder(a) || isPlaceholder(b),
           });
         }
       }
     }
 
-    // Orphaned: have manager text but manager not found
-    const profileNames = new Set(profiles.map(p => normalizeName(getCanonicalName(p.full_name))));
+    // Orphaned: have manager text but manager not found even with fuzzy matching
     const orphaned = active.filter(p => {
       if (!p.direct_manager || isTopAdmin(p.full_name)) return false;
-      const effective = getEffectiveManager(p.direct_manager);
-      if (!effective) return false;
-      const isPillarOwner = Object.values(PILLAR_OWNERS).some(o => namesMatch(effective, o));
-      if (isPillarOwner || isTopAdmin(effective)) return false;
-      return !profileNames.has(normalizeName(getCanonicalName(effective)));
+      return !findManagerProfile(p.direct_manager);
     });
 
     return {
@@ -134,7 +167,7 @@ export default function AdminAuditPanel() {
       orphaned: orphaned.length,
       duplicatePairs,
     };
-  }, [profiles, edgeChildSet]);
+  }, [profiles, edgeChildSet, findManagerProfile]);
 
   // Pillar stats
   const pillarStats = useMemo(() => {
@@ -156,45 +189,39 @@ export default function AdminAuditPanel() {
     }).sort((a, b) => b.total - a.total);
   }, [profiles, teams, edgeChildSet]);
 
-  // Auto-sync edges
+  // Server-side auto-sync using the new DB function
   const handleAutoSync = async () => {
     setSyncing(true);
-    let synced = 0;
-    let errors = 0;
-
-    const activeWithManagerNoEdge = profiles.filter(p =>
-      p.status !== 'nlc' &&
-      p.direct_manager &&
-      !edgeChildSet.has(p.user_id) &&
-      !isTopAdmin(p.full_name)
-    );
-
-    for (const p of activeWithManagerNoEdge) {
-      const effective = getEffectiveManager(p.direct_manager!);
-      if (!effective) continue;
-
-      const manager = profiles.find(m =>
-        normalizeName(getCanonicalName(m.full_name)) === normalizeName(getCanonicalName(effective))
-      );
-      if (!manager) continue;
-
-      await supabase.from('downline_edges').delete()
-        .eq('child_user_id', p.user_id).eq('edge_type', 'manages');
-
-      const { error } = await supabase.from('downline_edges').insert({
-        parent_user_id: manager.user_id,
-        child_user_id: p.user_id,
-        edge_type: 'manages',
+    try {
+      const { data, error } = await supabase.rpc('auto_sync_all_edges');
+      if (error) throw error;
+      const result = data as { edges_synced: number; teams_fixed: number; errors: number };
+      setLastSyncResult({ edges_synced: result.edges_synced, teams_fixed: result.teams_fixed });
+      toast({
+        title: 'Auto-Sync Complete',
+        description: `${result.edges_synced} edges synced, ${result.teams_fixed} teams fixed`,
       });
-
-      if (error) errors++;
-      else synced++;
+    } catch (err: any) {
+      // Fallback to client-side sync
+      let synced = 0;
+      let errors = 0;
+      const activeWithManagerNoEdge = profiles.filter(p =>
+        p.status !== 'nlc' && p.direct_manager && !edgeChildSet.has(p.user_id) && !isTopAdmin(p.full_name)
+      );
+      for (const p of activeWithManagerNoEdge) {
+        const manager = findManagerProfile(p.direct_manager!);
+        if (!manager) continue;
+        await supabase.from('downline_edges').delete().eq('child_user_id', p.user_id).eq('edge_type', 'manages');
+        const { error } = await supabase.from('downline_edges').insert({
+          parent_user_id: manager.user_id, child_user_id: p.user_id, edge_type: 'manages',
+        });
+        if (error) errors++; else synced++;
+      }
+      toast({
+        title: 'Auto-Sync Complete (client-side)',
+        description: `${synced} edges created, ${errors} errors`,
+      });
     }
-
-    toast({
-      title: 'Auto-Sync Complete',
-      description: `${synced} edges created, ${errors} errors, ${activeWithManagerNoEdge.length - synced - errors} unresolvable`,
-    });
     setSyncing(false);
     fetchData();
   };
@@ -202,10 +229,7 @@ export default function AdminAuditPanel() {
   // Fix false in-app flags
   const handleFixInApp = async () => {
     setFixingInApp(true);
-    const falseInApp = profiles.filter(p =>
-      p.approved === true && isPlaceholder(p)
-    );
-
+    const falseInApp = profiles.filter(p => p.approved === true && isPlaceholder(p));
     let fixed = 0;
     for (const p of falseInApp) {
       const { error } = await supabase.from('profiles')
@@ -213,12 +237,36 @@ export default function AdminAuditPanel() {
         .eq('user_id', p.user_id);
       if (!error) fixed++;
     }
-
-    toast({
-      title: 'In-App Status Fixed',
-      description: `${fixed} false in-app flags corrected`,
-    });
+    toast({ title: 'In-App Status Fixed', description: `${fixed} false in-app flags corrected` });
     setFixingInApp(false);
+    fetchData();
+  };
+
+  // Auto-fix team assignment from manager's team
+  const handleFixTeams = async () => {
+    setSyncing(true);
+    let fixed = 0;
+    const noTeamProfiles = profiles.filter(p => !p.team_id && p.status !== 'nlc');
+    for (const p of noTeamProfiles) {
+      // Find manager via edge or text
+      const edge = edges.find(e => e.child_user_id === p.user_id);
+      let managerTeamId: string | null = null;
+      if (edge) {
+        const manager = profiles.find(m => m.user_id === edge.parent_user_id);
+        managerTeamId = manager?.team_id || null;
+      } else if (p.direct_manager) {
+        const manager = findManagerProfile(p.direct_manager);
+        managerTeamId = manager?.team_id || null;
+      }
+      if (managerTeamId) {
+        const { error } = await supabase.from('profiles')
+          .update({ team_id: managerTeamId } as never)
+          .eq('user_id', p.user_id);
+        if (!error) fixed++;
+      }
+    }
+    toast({ title: 'Teams Fixed', description: `${fixed} users assigned to their manager's team` });
+    setSyncing(false);
     fetchData();
   };
 
@@ -226,60 +274,31 @@ export default function AdminAuditPanel() {
   const handleMerge = async (pair: DuplicatePair) => {
     const aIsPlaceholder = isPlaceholder(pair.a);
     const bIsPlaceholder = isPlaceholder(pair.b);
-
-    // Keep the one with real activity; if both placeholders, keep the one with more data
     const primary = aIsPlaceholder && !bIsPlaceholder ? pair.b : pair.a;
     const secondary = primary.user_id === pair.a.user_id ? pair.b : pair.a;
-
     setMerging(secondary.user_id);
-
     try {
-      // Transfer child edges: make secondary's children point to primary
-      await supabase.from('downline_edges')
-        .update({ parent_user_id: primary.user_id } as never)
-        .eq('parent_user_id', secondary.user_id);
-
-      // Transfer edges where secondary is child — only if primary doesn't already have one
+      await supabase.from('downline_edges').update({ parent_user_id: primary.user_id } as never).eq('parent_user_id', secondary.user_id);
       const existingChildEdge = edges.find(e => e.child_user_id === primary.user_id);
       if (!existingChildEdge) {
         const secondaryEdge = edges.find(e => e.child_user_id === secondary.user_id);
         if (secondaryEdge) {
-          await supabase.from('downline_edges').insert({
-            parent_user_id: secondaryEdge.parent_user_id,
-            child_user_id: primary.user_id,
-            edge_type: 'manages',
-          });
+          await supabase.from('downline_edges').insert({ parent_user_id: secondaryEdge.parent_user_id, child_user_id: primary.user_id, edge_type: 'manages' });
         }
       }
-
-      // Delete secondary's edges
-      await supabase.from('downline_edges').delete()
-        .eq('child_user_id', secondary.user_id);
-
-      // Transfer bootcamp progress if primary doesn't have it
-      const { data: primaryBc } = await supabase.from('bootcamp_progress')
-        .select('id').eq('user_id', primary.user_id).maybeSingle();
+      await supabase.from('downline_edges').delete().eq('child_user_id', secondary.user_id);
+      const { data: primaryBc } = await supabase.from('bootcamp_progress').select('id').eq('user_id', primary.user_id).maybeSingle();
       if (!primaryBc) {
-        await supabase.from('bootcamp_progress')
-          .update({ user_id: primary.user_id } as never)
-          .eq('user_id', secondary.user_id);
+        await supabase.from('bootcamp_progress').update({ user_id: primary.user_id } as never).eq('user_id', secondary.user_id);
       } else {
-        await supabase.from('bootcamp_progress').delete()
-          .eq('user_id', secondary.user_id);
+        await supabase.from('bootcamp_progress').delete().eq('user_id', secondary.user_id);
       }
-
-      // Delete secondary's roles and profile
       await supabase.from('user_roles').delete().eq('user_id', secondary.user_id);
       await supabase.from('profiles').delete().eq('user_id', secondary.user_id);
-
-      toast({
-        title: 'Profiles Merged',
-        description: `"${secondary.full_name}" merged into "${primary.full_name}"`,
-      });
+      toast({ title: 'Profiles Merged', description: `"${secondary.full_name}" merged into "${primary.full_name}"` });
     } catch {
       toast({ title: 'Merge failed', variant: 'destructive' });
     }
-
     setMerging(null);
     fetchData();
   };
@@ -292,8 +311,43 @@ export default function AdminAuditPanel() {
     );
   }
 
+  const healthScore = Math.max(0, 100 - (stats.falseInApp * 2) - (stats.noManager) - (stats.noTeam) - (stats.orphaned * 3) - (stats.duplicatePairs.length * 5));
+
   return (
     <div className="space-y-6">
+      {/* Health Score */}
+      <div className={cn(
+        "rounded-xl border p-4 flex items-center gap-4",
+        healthScore >= 80 ? "bg-emerald-500/5 border-emerald-500/30" :
+        healthScore >= 50 ? "bg-amber-500/5 border-amber-500/30" :
+        "bg-destructive/5 border-destructive/30"
+      )}>
+        <div className={cn(
+          "w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-black",
+          healthScore >= 80 ? "bg-emerald-500/15 text-emerald-400" :
+          healthScore >= 50 ? "bg-amber-500/15 text-amber-400" :
+          "bg-destructive/15 text-destructive"
+        )}>
+          {healthScore}
+        </div>
+        <div>
+          <h3 className="font-bold text-foreground">Data Health Score</h3>
+          <p className="text-xs text-muted-foreground">
+            {healthScore >= 80 ? "Looking good — minor issues to address" :
+             healthScore >= 50 ? "Several issues need attention" :
+             "Critical issues detected — run repairs"}
+          </p>
+        </div>
+      </div>
+
+      {/* Last Sync Result */}
+      {lastSyncResult && (
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-xs text-primary">
+          <Zap className="w-3.5 h-3.5 inline mr-1" />
+          Last sync: {lastSyncResult.edges_synced} edges synced, {lastSyncResult.teams_fixed} teams fixed
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <StatCard label="Total Users" value={stats.totalUsers} icon={Users} />
@@ -306,7 +360,7 @@ export default function AdminAuditPanel() {
         <StatCard label="Orphaned Manager Ref" value={stats.orphaned} icon={AlertTriangle} color={stats.orphaned > 0 ? 'red' : 'green'} />
       </div>
 
-      {/* Duplicate Pairs (nickname-aware) */}
+      {/* Duplicate Pairs */}
       {stats.duplicatePairs.length > 0 && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 space-y-3">
           <div className="flex items-center gap-2">
@@ -327,18 +381,10 @@ export default function AdminAuditPanel() {
                   {pair.b.status === 'nlc' && <span className="ml-1 text-red-400">(NLC)</span>}
                 </div>
                 {pair.canAutoMerge ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-6 text-[10px] gap-1"
+                  <Button size="sm" variant="outline" className="h-6 text-[10px] gap-1"
                     disabled={merging === pair.a.user_id || merging === pair.b.user_id}
-                    onClick={() => handleMerge(pair)}
-                  >
-                    {merging === pair.a.user_id || merging === pair.b.user_id ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Merge className="w-3 h-3" />
-                    )}
+                    onClick={() => handleMerge(pair)}>
+                    {merging === pair.a.user_id || merging === pair.b.user_id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Merge className="w-3 h-3" />}
                     Merge
                   </Button>
                 ) : (
@@ -352,21 +398,15 @@ export default function AdminAuditPanel() {
 
       {/* One-Click Actions */}
       <div className="flex flex-wrap gap-3">
-        <Button
-          onClick={handleAutoSync}
-          disabled={syncing || stats.noEdge === 0}
-          className="gap-2"
-          variant="outline"
-        >
+        <Button onClick={handleAutoSync} disabled={syncing} className="gap-2" variant="outline">
           {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitBranch className="w-4 h-4" />}
-          Auto-Sync Edges ({stats.noEdge})
+          Auto-Sync Edges & Teams
         </Button>
-        <Button
-          onClick={handleFixInApp}
-          disabled={fixingInApp || stats.falseInApp === 0}
-          className="gap-2"
-          variant="outline"
-        >
+        <Button onClick={handleFixTeams} disabled={syncing || stats.noTeam === 0} className="gap-2" variant="outline">
+          {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+          Fix Missing Teams ({stats.noTeam})
+        </Button>
+        <Button onClick={handleFixInApp} disabled={fixingInApp || stats.falseInApp === 0} className="gap-2" variant="outline">
           {fixingInApp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
           Fix False In-App ({stats.falseInApp})
         </Button>
@@ -409,38 +449,71 @@ export default function AdminAuditPanel() {
       {stats.noTeam > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-2">Users Without Team ({stats.noTeam})</h3>
-          <div className="bg-card/30 rounded-lg border border-border/30 overflow-hidden">
+          <div className="bg-card/30 rounded-lg border border-border/30 overflow-x-auto">
             <div className="max-h-64 overflow-y-auto">
-              <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-card">
+              <table className="w-full text-xs min-w-[500px]">
+                <thead className="sticky top-0 bg-card z-10">
                   <tr className="border-b border-border/20">
                     <th className="text-left px-3 py-2 font-medium text-muted-foreground">Name</th>
                     <th className="text-left px-3 py-2 font-medium text-muted-foreground">Email</th>
                     <th className="text-left px-3 py-2 font-medium text-muted-foreground">Manager</th>
-                    <th className="text-left px-3 py-2 font-medium text-muted-foreground">Status</th>
+                    <th className="text-left px-3 py-2 font-medium text-muted-foreground">Suggested Team</th>
                   </tr>
                 </thead>
                 <tbody>
                   {profiles
                     .filter(p => !p.team_id && p.status !== 'nlc' && !isTopAdmin(p.full_name))
                     .sort((a, b) => a.full_name.localeCompare(b.full_name))
-                    .map(p => (
-                      <tr key={p.user_id} className="border-b border-border/10">
-                        <td className="px-3 py-1.5 text-foreground">{p.full_name}</td>
-                        <td className="px-3 py-1.5 text-muted-foreground truncate max-w-[200px]">{p.email}</td>
-                        <td className="px-3 py-1.5 text-muted-foreground">{p.direct_manager || '—'}</td>
-                        <td className="px-3 py-1.5">
-                          <span className={cn(
-                            'inline-block px-1.5 py-0.5 rounded text-[10px] font-medium',
-                            p.approved === true ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-                          )}>
-                            {p.approved === true ? 'In-App' : 'Not In-App'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    .map(p => {
+                      // Try to find suggested team from manager
+                      let suggestedTeam = '—';
+                      if (p.direct_manager) {
+                        const manager = findManagerProfile(p.direct_manager);
+                        if (manager?.team_id) {
+                          const team = teams.find(t => t.id === manager.team_id);
+                          suggestedTeam = team?.name || '—';
+                        }
+                      }
+                      return (
+                        <tr key={p.user_id} className="border-b border-border/10">
+                          <td className="px-3 py-1.5 text-foreground">{p.full_name}</td>
+                          <td className="px-3 py-1.5 text-muted-foreground truncate max-w-[200px]">{p.email}</td>
+                          <td className="px-3 py-1.5 text-muted-foreground">{p.direct_manager || '—'}</td>
+                          <td className="px-3 py-1.5">
+                            {suggestedTeam !== '—' ? (
+                              <span className="text-primary font-medium">{suggestedTeam}</span>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Orphaned Manager References */}
+      {stats.orphaned > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Orphaned Manager References ({stats.orphaned})</h3>
+          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground mb-2">These users reference a manager that doesn't exist in the system:</p>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {profiles
+                .filter(p => p.status !== 'nlc' && p.direct_manager && !isTopAdmin(p.full_name) && !findManagerProfile(p.direct_manager))
+                .slice(0, 30)
+                .map(p => (
+                  <div key={p.user_id} className="flex items-center gap-2 text-xs">
+                    <span className="text-foreground font-medium">{p.full_name}</span>
+                    <span className="text-muted-foreground">→</span>
+                    <span className="text-destructive font-medium">"{p.direct_manager}"</span>
+                    <span className="text-muted-foreground">(not found)</span>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
