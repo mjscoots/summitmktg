@@ -232,8 +232,8 @@ function SummaryBar({ users }: { users: UserRow[] }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Users className="w-4 h-4 text-primary" />
-      <h2 className="text-sm font-bold text-foreground">People</h2>
-      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{users.length}</span>
+      <h2 className="text-sm font-bold text-foreground">In-App Users</h2>
+      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{inApp}</span>
       <span className="w-px h-4 bg-border" />
       <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">In-App {inApp}</span>
       <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">Not In-App {notInApp}</span>
