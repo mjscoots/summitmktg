@@ -1,6 +1,7 @@
  import { useState, useEffect } from 'react';
  import { supabase } from '@/integrations/supabase/client';
  import { useAuth } from '@/hooks/useAuth';
+ import { isManagerOrAbove } from '@/lib/roles';
  import { Bell, Pin, Plus, Send, MessageSquare, MoreVertical, Pencil, Trash2 } from 'lucide-react';
  import { formatDistanceToNow } from 'date-fns';
  import { Button } from '@/components/ui/button';

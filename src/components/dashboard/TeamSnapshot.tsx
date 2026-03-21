@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { useTeamData } from '@/hooks/useTeamData';
 import { Users, TrendingDown, TrendingUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';

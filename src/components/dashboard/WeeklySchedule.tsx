@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { Calendar, Clock } from 'lucide-react';
 
 interface ScheduleItem {
