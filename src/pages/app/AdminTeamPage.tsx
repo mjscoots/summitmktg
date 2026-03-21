@@ -103,7 +103,7 @@ export default function AdminTeamPage() {
 
     const users: UserRow[] = (profilesRes.data || []).map(p => {
       const userRole = roleMap.get(p.user_id) || 'rookie';
-      const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin' || userRole === 'owner' || userRole === 'spectator';
+      const isManagerOrAdmin = ['manager', 'admin', 'owner', 'spectator'].includes(userRole);
       return {
         ...p,
         bootcamp_completed: isManagerOrAdmin ? true : (bootcampMap.get(p.user_id) ?? true),
@@ -117,7 +117,7 @@ export default function AdminTeamPage() {
     setPendingUsers(pending);
     setAllUsers(allOthers);
 
-    const managerIds = new Set((roleRes.data || []).filter(r => r.role === 'manager' || r.role === 'admin' || r.role === 'owner').map(r => r.user_id));
+    const managerIds = new Set((roleRes.data || []).filter(r => ['manager', 'admin', 'owner'].includes(r.role)).map(r => r.user_id));
     const mgrs = (profilesRes.data || []).filter(p => managerIds.has(p.user_id)).map(p => ({ user_id: p.user_id, full_name: p.full_name }));
     setManagers(mgrs);
 
