@@ -23,7 +23,7 @@ export function PulseTab({ managerName, userId }: { managerName: string; userId:
 
   useEffect(() => {
     if (downlineLoading) return;
-    const reps = downline.filter(m => m.role !== 'manager' && m.role !== 'admin');
+    const reps = downline.filter(m => m.role !== 'manager' && m.role !== 'admin' && m.status !== 'nlc');
     const repIds = reps.map(r => r.user_id);
     if (repIds.length === 0) { setLoading(false); return; }
 

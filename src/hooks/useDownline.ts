@@ -46,8 +46,12 @@ export function useDownline(userId: string | undefined, managerName: string | un
           { _manager_user_id: userId }
         );
 
+        // Filter out NLC and Prospect Added — they don't exist in operational views
+        const filterActive = (members: DownlineMember[]) =>
+          members.filter(m => m.status !== 'nlc' && m.status !== 'prospect_added');
+
         if (!edgeErr && edgeData && edgeData.length > 0) {
-          if (!cancelled) setDownline(edgeData as DownlineMember[]);
+          if (!cancelled) setDownline(filterActive(edgeData as DownlineMember[]));
         } else {
           // Fall back to text-based
           const { data: textData, error: textErr } = await supabase.rpc(
@@ -56,7 +60,7 @@ export function useDownline(userId: string | undefined, managerName: string | un
           );
 
           if (textErr) throw textErr;
-          if (!cancelled) setDownline((textData || []) as DownlineMember[]);
+          if (!cancelled) setDownline(filterActive((textData || []) as DownlineMember[]));
         }
       } catch (err: any) {
         console.error('useDownline error:', err);

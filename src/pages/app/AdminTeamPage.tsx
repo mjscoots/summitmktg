@@ -334,7 +334,7 @@ export default function AdminTeamPage() {
             <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 min-w-max">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
               <TabsTrigger value="users" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Users <span className="ml-1 text-[9px] opacity-70">{allUsers.length}</span>
+                Users <span className="ml-1 text-[9px] opacity-70">{allUsers.filter(u => u.approved === true).length}</span>
               </TabsTrigger>
               <TabsTrigger value="teams" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Teams <span className="ml-1 text-[9px] opacity-70">{teams.length}</span>

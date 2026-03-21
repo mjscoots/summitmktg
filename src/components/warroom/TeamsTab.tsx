@@ -43,7 +43,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
     fetchData();
   }, []);
 
-  const visibleMembers = useMemo(() => allMembers.filter(m => m.status !== 'nlc'), [allMembers]);
+  const visibleMembers = useMemo(() => allMembers.filter(m => m.status !== 'nlc' && (m as any).onboarding_status !== 'pending'), [allMembers]);
   const { enrichedRoster } = useMemo(() => {
     if (visibleMembers.length === 0 || pillars.length === 0) return { enrichedRoster: [] };
     return assignPillarsToRoster(visibleMembers, pillars);

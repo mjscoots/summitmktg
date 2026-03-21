@@ -36,9 +36,9 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
 
   useEffect(() => {
     if (downlineLoading) return;
-    const reps = downline.filter(m => m.role !== 'manager' && m.role !== 'admin');
+    const reps = downline.filter(m => m.role !== 'manager' && m.role !== 'admin' && m.status !== 'nlc');
     const repIds = reps.map(r => r.user_id);
-    if (repIds.length === 0) { setLoading(false); return; }
+    if (repIds.length === 0) { setMembers([]); setLoading(false); return; }
 
     const fetchData = async () => {
       const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, last_active_at, team_id, pillar_slug').in('user_id', repIds);
