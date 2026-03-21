@@ -653,63 +653,94 @@ export default function CalendarPage() {
         {/* ═══ CALENDAR VIEW ═══ */}
         {activeTab === 'calendar' && (
           <div>
-            {/* Filter pills row */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              {(['all', 'mandatory', 'optional'] as EventCategory[]).map(cat => {
-                const c = CATEGORY_COLORS[cat];
-                return (
-                  <button key={cat} onClick={() => { setActiveFilter(cat); if (cat === 'all') setLocationFilter('all'); }}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200",
-                      activeFilter === cat
-                        ? cn(c.bg, c.text, "ring-1", c.border, "shadow-sm")
-                        : "bg-card/60 text-muted-foreground hover:text-foreground border border-border/30 hover:border-border/60"
-                    )}>
-                    {cat !== 'all' && <span className={cn("w-2 h-2 rounded-full", c.dot)} />}
-                    {c.label}
+            {/* ═══ GOOGLE CALENDAR-STYLE TOOLBAR ═══ */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              {/* Left: Nav + Today + Title */}
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => {
+                  const today = new Date();
+                  setCurrentMonth(today);
+                  setSelectedWeekStart(startOfWeek(today));
+                  setSelectedDay(today);
+                  setSelectedDate(today);
+                }} className="text-xs font-semibold h-8 px-3 rounded-lg">
+                  Today
+                </Button>
+                <div className="flex items-center gap-0.5">
+                  <button onClick={() => {
+                    if (viewMode === 'month') setCurrentMonth(subMonths(currentMonth, 1));
+                    else if (viewMode === 'week') setSelectedWeekStart(addDays(selectedWeekStart, -7));
+                    else if (viewMode === 'day') setSelectedDay(addDays(selectedDay, -1));
+                  }} className="p-1.5 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all">
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
-                );
-              })}
+                  <button onClick={() => {
+                    if (viewMode === 'month') setCurrentMonth(addMonths(currentMonth, 1));
+                    else if (viewMode === 'week') setSelectedWeekStart(addDays(selectedWeekStart, 7));
+                    else if (viewMode === 'day') setSelectedDay(addDays(selectedDay, 1));
+                  }} className="p-1.5 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <h2 className="text-lg font-black text-foreground tracking-tight">
+                  {viewMode === 'month' && format(currentMonth, 'MMMM yyyy')}
+                  {viewMode === 'week' && `${format(selectedWeekStart, 'MMM d')} – ${format(addDays(selectedWeekStart, 6), 'MMM d, yyyy')}`}
+                  {viewMode === 'day' && format(selectedDay, 'EEEE, MMMM d, yyyy')}
+                  {viewMode === 'agenda' && 'Upcoming'}
+                </h2>
+              </div>
 
-              <span className="w-px h-5 bg-border/40 mx-0.5" />
+              {/* Right: View mode toggles + filters */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Filters */}
+                <div className="flex items-center gap-1 mr-1">
+                  {(['all', 'mandatory', 'optional'] as EventCategory[]).map(cat => {
+                    const c = CATEGORY_COLORS[cat];
+                    return (
+                      <button key={cat} onClick={() => { setActiveFilter(cat); if (cat === 'all') setLocationFilter('all'); }}
+                        className={cn(
+                          "flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md transition-all uppercase tracking-wider",
+                          activeFilter === cat ? `${c.bg} ${c.text} ring-1 ${c.border}` : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30"
+                        )}>
+                        {cat !== 'all' && <span className={cn("w-1.5 h-1.5 rounded-full", c.dot)} />}
+                        {c.label}
+                      </button>
+                    );
+                  })}
+                  {activeFilter !== 'all' && (
+                    <>
+                      <span className="w-px h-4 bg-border/30 mx-1" />
+                      {(['all', 'in-person', 'remote'] as LocationFilter[]).map(loc => (
+                        <button key={loc} onClick={() => setLocationFilter(loc)}
+                          className={cn(
+                            "flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md transition-all",
+                            locationFilter === loc ? "bg-muted text-foreground" : "text-muted-foreground/50 hover:text-muted-foreground"
+                          )}>
+                          {loc === 'remote' && <Video className="w-3 h-3" />}
+                          {loc === 'in-person' && <Building2 className="w-3 h-3" />}
+                          {loc === 'all' ? 'All' : loc === 'remote' ? 'Remote' : 'In Person'}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
 
-              <button onClick={() => setLocationFilter(locationFilter === 'in-person' ? 'all' : 'in-person')}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all duration-200",
-                  locationFilter === 'in-person'
-                    ? "bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/30 shadow-sm"
-                    : "bg-card/60 text-muted-foreground hover:text-orange-400 border border-border/30 hover:border-orange-500/30"
-                )}>
-                <Building2 className="w-3 h-3" />In Person
-              </button>
-              <button onClick={() => setLocationFilter(locationFilter === 'remote' ? 'all' : 'remote')}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all duration-200",
-                  locationFilter === 'remote'
-                    ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/30 shadow-sm"
-                    : "bg-card/60 text-muted-foreground hover:text-purple-400 border border-border/30 hover:border-purple-500/30"
-                )}>
-                <Video className="w-3 h-3" />Remote
-              </button>
-
-              {/* View toggle */}
-              <div className="ml-auto flex items-center bg-card/60 rounded-xl p-1 border border-border/30">
-                <button onClick={() => setViewMode('month')}
-                  className={cn("p-1.5 rounded-lg transition-all text-xs font-semibold px-2.5", viewMode === 'month' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                  title="Month view">Month</button>
-                <button onClick={() => setViewMode('week')}
-                  className={cn("p-1.5 rounded-lg transition-all text-xs font-semibold px-2.5", viewMode === 'week' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                  title="Week view">Week</button>
-                <button onClick={() => setViewMode('day')}
-                  className={cn("p-1.5 rounded-lg transition-all text-xs font-semibold px-2.5", viewMode === 'day' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                  title="Day view">Day</button>
-                <button onClick={() => setViewMode('agenda')}
-                  className={cn("p-1.5 rounded-lg transition-all", viewMode === 'agenda' ? "bg-primary/15 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
-                  title="Agenda view"><List className="w-4 h-4" /></button>
+                {/* View mode toggle */}
+                <div className="flex items-center rounded-lg border border-border/40 bg-card/60 p-0.5">
+                  {(['month', 'week', 'day', 'agenda'] as CalendarViewMode[]).map(vm => (
+                    <button key={vm} onClick={() => setViewMode(vm)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-md text-xs font-semibold transition-all capitalize",
+                        viewMode === vm ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}>
+                      {vm === 'agenda' ? <List className="w-3.5 h-3.5" /> : vm}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* ── LIST VIEW ── */}
+            {/* ── AGENDA VIEW ── */}
             {viewMode === 'agenda' && (
               <div className="bg-card rounded-xl border border-border/40 overflow-hidden">
                 {listViewByDay.length === 0 ? (
@@ -758,80 +789,82 @@ export default function CalendarPage() {
             {/* ── WEEK VIEW ── */}
             {viewMode === 'week' && (() => {
               const weekDays = eachDayOfInterval({ start: selectedWeekStart, end: addDays(selectedWeekStart, 6) });
-              const HOURS = Array.from({ length: 16 }, (_, i) => i + 6); // 6am-9pm
+              const HOURS = Array.from({ length: 16 }, (_, i) => i + 6);
+              const now = new Date();
+              const currentHour = now.getHours();
+              const currentMinute = now.getMinutes();
+              const isCurrentWeek = weekDays.some(d => isToday(d));
+
               return (
-                <div>
-                  <div className="flex items-center justify-center gap-6 mb-4">
-                    <button onClick={() => setSelectedWeekStart(addDays(selectedWeekStart, -7))}
-                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <h2 className="text-lg font-black text-foreground tracking-tight min-w-[220px] text-center">
-                      {format(selectedWeekStart, 'MMM d')} – {format(addDays(selectedWeekStart, 6), 'MMM d, yyyy')}
-                    </h2>
-                    <button onClick={() => setSelectedWeekStart(addDays(selectedWeekStart, 7))}
-                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
+                <div className="bg-card rounded-xl border border-border/40 overflow-hidden">
+                  {/* Day headers */}
+                  <div className="grid grid-cols-[56px_repeat(7,1fr)] border-b border-border/30 sticky top-0 z-10 bg-card">
+                    <div className="p-2 border-r border-border/20" />
+                    {weekDays.map(day => (
+                      <div key={day.toISOString()} className={cn(
+                        "py-2 px-1 text-center border-l border-border/20",
+                        isToday(day) && "bg-primary/[0.06]"
+                      )}>
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase">{format(day, 'EEE')}</div>
+                        <div className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center mx-auto text-sm font-bold mt-0.5",
+                          isToday(day) ? "bg-primary text-primary-foreground" : "text-foreground"
+                        )}>{format(day, 'd')}</div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="bg-card rounded-xl border border-border/40 overflow-hidden">
-                    {/* Day headers */}
-                    <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border/30">
-                      <div className="p-2" />
-                      {weekDays.map(day => (
-                        <div key={day.toISOString()} className={cn(
-                          "p-2 text-center border-l border-border/20",
-                          isToday(day) && "bg-primary/[0.06]"
-                        )}>
-                          <div className="text-[10px] font-semibold text-muted-foreground uppercase">{format(day, 'EEE')}</div>
-                          <div className={cn(
-                            "text-lg font-bold mt-0.5",
-                            isToday(day) ? "text-primary" : "text-foreground"
-                          )}>{format(day, 'd')}</div>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Time grid */}
-                    <div className="max-h-[500px] overflow-y-auto">
-                      {HOURS.map(hour => (
-                        <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] min-h-[48px] border-b border-border/10">
-                          <div className="px-2 py-1 text-[10px] text-muted-foreground/60 font-medium text-right pr-3">
-                            {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                  {/* Time grid */}
+                  <div className="max-h-[560px] overflow-y-auto relative">
+                    {/* Current time red line */}
+                    {isCurrentWeek && currentHour >= 6 && currentHour <= 21 && (() => {
+                      const topPx = (currentHour - 6) * 48 + (currentMinute / 60) * 48;
+                      const todayIndex = weekDays.findIndex(d => isToday(d));
+                      if (todayIndex === -1) return null;
+                      return (
+                        <div className="absolute z-20 pointer-events-none" style={{ top: `${topPx}px`, left: `calc(56px + ${todayIndex} * ((100% - 56px) / 7))`, width: `calc((100% - 56px) / 7)` }}>
+                          <div className="relative">
+                            <div className="absolute -left-1.5 -top-1.5 w-3 h-3 rounded-full bg-red-500" />
+                            <div className="h-[2px] bg-red-500 w-full" />
                           </div>
-                          {weekDays.map(day => {
-                            const dayKey = format(day, 'yyyy-MM-dd');
-                            const dayEvts = (eventsByDay[dayKey] || []).filter(e => {
-                              const h = new Date(e.event_date).getHours();
-                              return h === hour;
-                            });
-                            return (
-                              <div key={day.toISOString()} className={cn(
-                                "border-l border-border/10 px-0.5 py-0.5",
-                                isToday(day) && "bg-primary/[0.02]"
-                              )}
-                              onClick={() => { if (isManager) { setPrefillDate(dayKey); setIsFormOpen(true); } }}
-                              >
-                                {dayEvts.map(event => {
-                                  const cat = getEventCategory(event.event_type);
-                                  const borderColor = cat === 'mandatory' ? 'border-l-red-500' : 'border-l-yellow-500';
-                                  return (
-                                    <button key={event.id} onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
-                                      className={cn(
-                                        "w-full text-left text-[10px] leading-snug font-medium px-1.5 py-1 rounded-md mb-0.5",
-                                        "bg-primary/10 hover:bg-primary/20 text-foreground/90 border-l-2 transition-all",
-                                        borderColor
-                                      )}>
-                                      <span className="truncate block">{event.title}</span>
-                                      <span className="text-[9px] text-muted-foreground">{formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })}
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })()}
+                    {HOURS.map(hour => (
+                      <div key={hour} className="grid grid-cols-[56px_repeat(7,1fr)] min-h-[48px] border-b border-border/10">
+                        <div className="px-1 py-1 text-[10px] text-muted-foreground/50 font-medium text-right pr-2 border-r border-border/20">
+                          {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                        </div>
+                        {weekDays.map(day => {
+                          const dayKey = format(day, 'yyyy-MM-dd');
+                          const dayEvts = (eventsByDay[dayKey] || []).filter(e => new Date(e.event_date).getHours() === hour);
+                          return (
+                            <div key={day.toISOString()} className={cn(
+                              "border-l border-border/10 px-0.5 py-0.5 transition-colors hover:bg-muted/20",
+                              isToday(day) && "bg-primary/[0.02]"
+                            )}
+                            onClick={() => { if (isManager) { setPrefillDate(dayKey); setIsFormOpen(true); } }}
+                            >
+                              {dayEvts.map(event => {
+                                const cat = getEventCategory(event.event_type);
+                                const borderColor = cat === 'mandatory' ? 'border-l-red-500' : 'border-l-yellow-500';
+                                const bgColor = cat === 'mandatory' ? 'bg-red-500/10 hover:bg-red-500/20' : 'bg-primary/10 hover:bg-primary/20';
+                                return (
+                                  <button key={event.id} onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
+                                    className={cn(
+                                      "w-full text-left text-[10px] leading-snug font-medium px-1.5 py-1 rounded-md mb-0.5",
+                                      bgColor, "text-foreground/90 border-l-2 transition-all",
+                                      borderColor
+                                    )}>
+                                    <span className="truncate block">{event.title}</span>
+                                    <span className="text-[9px] text-muted-foreground">{formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
@@ -841,42 +874,46 @@ export default function CalendarPage() {
             {viewMode === 'day' && (() => {
               const dayKey = format(selectedDay, 'yyyy-MM-dd');
               const dayEvts = eventsByDay[dayKey] || [];
-              const HOURS = Array.from({ length: 18 }, (_, i) => i + 5); // 5am-10pm
+              const HOURS = Array.from({ length: 18 }, (_, i) => i + 5);
+              const now = new Date();
+              const currentHour = now.getHours();
+              const currentMinute = now.getMinutes();
+              const isDayToday = isToday(selectedDay);
+
               return (
-                <div>
-                  <div className="flex items-center justify-center gap-6 mb-4">
-                    <button onClick={() => setSelectedDay(addDays(selectedDay, -1))}
-                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <h2 className="text-lg font-black text-foreground tracking-tight min-w-[200px] text-center">
-                      {format(selectedDay, 'EEEE, MMMM d, yyyy')}
-                    </h2>
-                    <button onClick={() => setSelectedDay(addDays(selectedDay, 1))}
-                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="bg-card rounded-xl border border-border/40 overflow-hidden max-h-[600px] overflow-y-auto">
-                    {HOURS.map(hour => {
-                      const hourEvts = dayEvts.filter(e => new Date(e.event_date).getHours() === hour);
-                      return (
-                        <div key={hour} className={cn(
-                          "flex border-b border-border/10 min-h-[52px]",
-                          isToday(selectedDay) && hour === new Date().getHours() && "bg-primary/[0.04]"
-                        )}>
-                          <div className="w-16 shrink-0 px-2 py-2 text-[11px] text-muted-foreground/60 font-medium text-right pr-3 border-r border-border/20">
-                            {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
-                          </div>
-                          <div className="flex-1 px-2 py-1 space-y-1"
-                            onClick={() => { if (isManager) { setPrefillDate(dayKey); setIsFormOpen(true); } }}
-                          >
-                            {hourEvts.map(event => renderEventCard(event, true))}
-                          </div>
+                <div className="bg-card rounded-xl border border-border/40 overflow-hidden max-h-[600px] overflow-y-auto relative">
+                  {/* Current time red line */}
+                  {isDayToday && currentHour >= 5 && currentHour <= 22 && (
+                    <div className="absolute z-20 pointer-events-none w-full" style={{ top: `${(currentHour - 5) * 52 + (currentMinute / 60) * 52}px` }}>
+                      <div className="flex items-center">
+                        <div className="w-16 flex justify-end pr-1">
+                          <span className="text-[9px] font-bold text-red-500 bg-card px-1 rounded">{format(now, 'h:mm')}</span>
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div className="flex-1 relative">
+                          <div className="absolute -left-1.5 -top-1.5 w-3 h-3 rounded-full bg-red-500" />
+                          <div className="h-[2px] bg-red-500 w-full" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {HOURS.map(hour => {
+                    const hourEvts = dayEvts.filter(e => new Date(e.event_date).getHours() === hour);
+                    return (
+                      <div key={hour} className={cn(
+                        "flex border-b border-border/10 min-h-[52px]",
+                        isDayToday && hour === currentHour && "bg-primary/[0.04]"
+                      )}>
+                        <div className="w-16 shrink-0 px-2 py-2 text-[11px] text-muted-foreground/50 font-medium text-right pr-3 border-r border-border/20">
+                          {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                        </div>
+                        <div className="flex-1 px-2 py-1 space-y-1 transition-colors hover:bg-muted/10"
+                          onClick={() => { if (isManager) { setPrefillDate(dayKey); setIsFormOpen(true); } }}
+                        >
+                          {hourEvts.map(event => renderEventCard(event, true))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })()}
@@ -884,31 +921,16 @@ export default function CalendarPage() {
             {/* ── MONTH VIEW ── */}
             {viewMode === 'month' && (
               <div>
-                {/* Month Navigation */}
-                <div className="flex items-center justify-center gap-6 mb-4">
-                  <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                    className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all duration-200 border border-border/30 hover:border-primary/30 hover:shadow-sm">
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <h2 className="text-xl font-black text-foreground tracking-tight min-w-[180px] text-center">
-                    {format(currentMonth, 'MMMM yyyy')}
-                  </h2>
-                  <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                    className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all duration-200 border border-border/30 hover:border-primary/30 hover:shadow-sm">
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-
                 {/* Day headers */}
                 <div className="grid grid-cols-7 mb-1">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                    <div key={d} className="text-center text-[11px] font-bold text-muted-foreground/70 py-2 uppercase tracking-widest">{d}</div>
+                    <div key={d} className="text-center text-[10px] font-bold text-muted-foreground/60 py-1.5 uppercase tracking-widest">{d}</div>
                   ))}
                 </div>
 
                 {/* Grid */}
                 <TooltipProvider delayDuration={300}>
-                  <div className="grid grid-cols-7 gap-1">
+                  <div className="grid grid-cols-7 gap-px bg-border/20 rounded-xl overflow-hidden border border-border/30">
                     {calendarDays.map(day => {
                       const key = format(day, 'yyyy-MM-dd');
                       const dayEvents = eventsByDay[key] || [];
@@ -922,19 +944,18 @@ export default function CalendarPage() {
                           onClick={() => handleDayClick(day)}
                           onDoubleClick={() => handleDayDoubleClick(day)}
                           className={cn(
-                            "min-h-[110px] p-1.5 rounded-xl cursor-pointer transition-all duration-200 group relative border",
-                            !inMonth && "opacity-30",
-                            inMonth && "hover:bg-card/80 hover:shadow-md hover:shadow-primary/[0.03] hover:border-border/60",
-                            isSelected && "bg-primary/[0.06] border-primary/30 shadow-md shadow-primary/5",
-                            today && !isSelected && "bg-primary/[0.04] border-primary/20 shadow-[0_0_20px_hsl(217,80%,50%,0.06)]",
-                            !today && !isSelected && "border-border/20 bg-card/30"
+                            "min-h-[100px] sm:min-h-[115px] p-1 sm:p-1.5 cursor-pointer transition-all duration-150 group relative bg-card",
+                            !inMonth && "bg-muted/20 opacity-40",
+                            inMonth && "hover:bg-muted/30",
+                            isSelected && "bg-primary/[0.06] ring-1 ring-inset ring-primary/30",
+                            today && !isSelected && "bg-primary/[0.03]"
                           )}
                         >
                           <div className="flex items-center justify-between px-0.5 mb-1">
                             <span className={cn(
-                              "text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full transition-colors",
+                              "text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full",
                               today && "bg-primary text-primary-foreground font-black shadow-sm shadow-primary/30",
-                              !today && inMonth && "text-foreground/80",
+                              !today && inMonth && "text-foreground/70",
                               !inMonth && "text-muted-foreground/30"
                             )}>
                               {format(day, 'd')}
@@ -949,12 +970,11 @@ export default function CalendarPage() {
                             )}
                           </div>
 
-                          <div className="space-y-0.5">
-                            {dayEvents.slice(0, 3).map(event => {
+                          <div className="space-y-px">
+                            {dayEvents.slice(0, 4).map(event => {
                               const cat = getEventCategory(event.event_type);
-                              const remote = isRemoteLocation(event.location);
                               const borderColor = cat === 'mandatory' ? 'border-l-red-500' : 'border-l-yellow-500';
-                              const displayTitle = truncateTitle(event.title);
+                              const bgColor = cat === 'mandatory' ? 'bg-red-500/10 hover:bg-red-500/20' : 'bg-muted/40 hover:bg-muted/60';
 
                               return (
                                 <Tooltip key={event.id}>
@@ -962,23 +982,12 @@ export default function CalendarPage() {
                                     <button
                                       onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
                                       className={cn(
-                                        "w-full text-left text-[10px] leading-snug font-medium px-1.5 py-1 rounded-md transition-all duration-200",
-                                        "bg-muted/40 hover:bg-muted/70 hover:shadow-sm hover:-translate-y-px",
-                                        "text-foreground/90 border-l-2",
+                                        "w-full text-left text-[10px] leading-tight font-medium px-1.5 py-0.5 rounded transition-all",
+                                        bgColor, "text-foreground/80 border-l-2",
                                         borderColor
                                       )}
                                     >
-                                      <span className="flex items-center gap-1">
-                                        <span className="truncate flex-1 min-w-0">{displayTitle}</span>
-                                        {remote !== null && (
-                                          <span className={cn("w-1.5 h-3.5 rounded-sm flex-shrink-0", remote ? "bg-purple-500/70" : "bg-orange-500/70")} />
-                                        )}
-                                      </span>
-                                      {hasTime(event.event_date) && (
-                                        <span className="text-[9px] text-muted-foreground/70 block">
-                                          {formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}
-                                        </span>
-                                      )}
+                                      <span className="truncate block">{truncateTitle(event.title)}</span>
                                     </button>
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="max-w-[200px]">
@@ -988,12 +997,12 @@ export default function CalendarPage() {
                                 </Tooltip>
                               );
                             })}
-                            {dayEvents.length > 3 && (
+                            {dayEvents.length > 4 && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedDate(day); }}
                                 className="text-[10px] text-primary font-bold px-1.5 hover:underline"
                               >
-                                +{dayEvents.length - 3} more
+                                +{dayEvents.length - 4} more
                               </button>
                             )}
                           </div>

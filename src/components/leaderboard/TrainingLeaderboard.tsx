@@ -96,13 +96,16 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
             setIsLoading(false);
             return;
           }
+          if ((!data || data.length === 0) && !isRefresh) {
+            console.warn('[Leaderboard] All-time RPC returned empty data — possible BigInt/type issue or no activity recorded');
+          }
 
           leaderboard = (data || []).map((row: any) => ({
             user_id: row.user_id,
             full_name: row.full_name,
             nickname: row.nickname || null,
             avatar_url: row.avatar_url,
-            totalPoints: row.total_points || 0,
+            totalPoints: Number(row.total_points) || 0,
             lessonsCompleted: Number(row.lessons_completed) || 0,
             totalLessons: 1,
             streakDays: row.current_streak || 0,
@@ -212,7 +215,9 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     return (
       <div className="p-8 text-center">
         <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-        <p className="text-muted-foreground text-sm">No activity yet this period</p>
+        <p className="text-muted-foreground text-sm">
+          {mode === 'overall' ? 'No all-time activity recorded yet' : 'No activity yet this week'}
+        </p>
       </div>
     );
   }
