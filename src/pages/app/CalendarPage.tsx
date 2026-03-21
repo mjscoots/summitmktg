@@ -755,7 +755,133 @@ export default function CalendarPage() {
               </div>
             )}
 
-            {/* ── GRID VIEW ── */}
+            {/* ── WEEK VIEW ── */}
+            {viewMode === 'week' && (() => {
+              const weekDays = eachDayOfInterval({ start: selectedWeekStart, end: addDays(selectedWeekStart, 6) });
+              const HOURS = Array.from({ length: 16 }, (_, i) => i + 6); // 6am-9pm
+              return (
+                <div>
+                  <div className="flex items-center justify-center gap-6 mb-4">
+                    <button onClick={() => setSelectedWeekStart(addDays(selectedWeekStart, -7))}
+                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <h2 className="text-lg font-black text-foreground tracking-tight min-w-[220px] text-center">
+                      {format(selectedWeekStart, 'MMM d')} – {format(addDays(selectedWeekStart, 6), 'MMM d, yyyy')}
+                    </h2>
+                    <button onClick={() => setSelectedWeekStart(addDays(selectedWeekStart, 7))}
+                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="bg-card rounded-xl border border-border/40 overflow-hidden">
+                    {/* Day headers */}
+                    <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border/30">
+                      <div className="p-2" />
+                      {weekDays.map(day => (
+                        <div key={day.toISOString()} className={cn(
+                          "p-2 text-center border-l border-border/20",
+                          isToday(day) && "bg-primary/[0.06]"
+                        )}>
+                          <div className="text-[10px] font-semibold text-muted-foreground uppercase">{format(day, 'EEE')}</div>
+                          <div className={cn(
+                            "text-lg font-bold mt-0.5",
+                            isToday(day) ? "text-primary" : "text-foreground"
+                          )}>{format(day, 'd')}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Time grid */}
+                    <div className="max-h-[500px] overflow-y-auto">
+                      {HOURS.map(hour => (
+                        <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] min-h-[48px] border-b border-border/10">
+                          <div className="px-2 py-1 text-[10px] text-muted-foreground/60 font-medium text-right pr-3">
+                            {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                          </div>
+                          {weekDays.map(day => {
+                            const dayKey = format(day, 'yyyy-MM-dd');
+                            const dayEvts = (eventsByDay[dayKey] || []).filter(e => {
+                              const h = new Date(e.event_date).getHours();
+                              return h === hour;
+                            });
+                            return (
+                              <div key={day.toISOString()} className={cn(
+                                "border-l border-border/10 px-0.5 py-0.5",
+                                isToday(day) && "bg-primary/[0.02]"
+                              )}
+                              onClick={() => { if (isManager) { setPrefillDate(dayKey); setIsFormOpen(true); } }}
+                              >
+                                {dayEvts.map(event => {
+                                  const cat = getEventCategory(event.event_type);
+                                  const borderColor = cat === 'mandatory' ? 'border-l-red-500' : 'border-l-yellow-500';
+                                  return (
+                                    <button key={event.id} onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
+                                      className={cn(
+                                        "w-full text-left text-[10px] leading-snug font-medium px-1.5 py-1 rounded-md mb-0.5",
+                                        "bg-primary/10 hover:bg-primary/20 text-foreground/90 border-l-2 transition-all",
+                                        borderColor
+                                      )}>
+                                      <span className="truncate block">{event.title}</span>
+                                      <span className="text-[9px] text-muted-foreground">{formatInTimezone(new Date(event.event_date), timezone, 'h:mm a')}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ── DAY VIEW ── */}
+            {viewMode === 'day' && (() => {
+              const dayKey = format(selectedDay, 'yyyy-MM-dd');
+              const dayEvts = eventsByDay[dayKey] || [];
+              const HOURS = Array.from({ length: 18 }, (_, i) => i + 5); // 5am-10pm
+              return (
+                <div>
+                  <div className="flex items-center justify-center gap-6 mb-4">
+                    <button onClick={() => setSelectedDay(addDays(selectedDay, -1))}
+                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <h2 className="text-lg font-black text-foreground tracking-tight min-w-[200px] text-center">
+                      {format(selectedDay, 'EEEE, MMMM d, yyyy')}
+                    </h2>
+                    <button onClick={() => setSelectedDay(addDays(selectedDay, 1))}
+                      className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-all border border-border/30">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="bg-card rounded-xl border border-border/40 overflow-hidden max-h-[600px] overflow-y-auto">
+                    {HOURS.map(hour => {
+                      const hourEvts = dayEvts.filter(e => new Date(e.event_date).getHours() === hour);
+                      return (
+                        <div key={hour} className={cn(
+                          "flex border-b border-border/10 min-h-[52px]",
+                          isToday(selectedDay) && hour === new Date().getHours() && "bg-primary/[0.04]"
+                        )}>
+                          <div className="w-16 shrink-0 px-2 py-2 text-[11px] text-muted-foreground/60 font-medium text-right pr-3 border-r border-border/20">
+                            {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                          </div>
+                          <div className="flex-1 px-2 py-1 space-y-1"
+                            onClick={() => { if (isManager) { setPrefillDate(dayKey); setIsFormOpen(true); } }}
+                          >
+                            {hourEvts.map(event => renderEventCard(event, true))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ── MONTH VIEW ── */}
             {viewMode === 'month' && (
               <div>
                 {/* Month Navigation */}
