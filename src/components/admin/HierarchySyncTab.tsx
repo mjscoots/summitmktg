@@ -111,7 +111,26 @@ export default function HierarchySyncTab({
     const unresolved: UnresolvedPerson[] = [];
     let alreadyCorrect = 0;
 
+    // Helper to detect fake/test records
+    const isFakeOrIrrelevant = (p: Profile) => {
+      const name = (p.full_name || '').toLowerCase().trim();
+      const email = (p.email || '').toLowerCase();
+      // Fake/test accounts
+      if (name === 'new user' || name === 'test user' || name === 'test' || name === 'admin' || name.length <= 2) return true;
+      if (email.includes('example.invalid') || email.includes('poc-') || email.includes('inject') || email.includes('xss') || email.includes('sqli') || email.includes('pentest') || email.includes('bypass') || email.includes('rce')) return true;
+      // Rejected / NLC
+      if (p.status === 'rejected' || p.status === 'nlc') return true;
+      // Prospect added — these "don't exist"
+      if (p.onboarding_status === 'prospect_added') return true;
+      return false;
+    };
+
     for (const p of profiles) {
+      // Skip fake, rejected, NLC, prospect_added
+      if (isFakeOrIrrelevant(p)) {
+        alreadyCorrect++;
+        continue;
+      }
       // Skip root admin
       if (isTopAdmin(p.full_name)) {
         alreadyCorrect++;
