@@ -62,7 +62,7 @@ interface AttendanceRecord {
 type EventCategory = 'all' | 'mandatory' | 'optional';
 type LocationFilter = 'all' | 'in-person' | 'remote';
 type CalendarTab = 'calendar' | 'attendance';
-type CalendarViewMode = 'grid' | 'list';
+type CalendarViewMode = 'month' | 'week' | 'day' | 'agenda';
 type RSVPSubView = 'cards' | 'responses';
 
 // ─── Constants ───
@@ -124,8 +124,9 @@ export default function CalendarPage() {
   const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
   const [activeTab, setActiveTab] = useState<CalendarTab>('calendar');
   const [attendanceCardIndex, setAttendanceCardIndex] = useState(0);
-  const [viewMode, setViewMode] = useState<CalendarViewMode>('grid');
-  const [rsvpSubView, setRsvpSubView] = useState<RSVPSubView>('cards');
+  const [viewMode, setViewMode] = useState<CalendarViewMode>('month');
+  const [selectedWeekStart, setSelectedWeekStart] = useState(startOfWeek(new Date()));
+  const [selectedDay, setSelectedDay] = useState(new Date());
 
   const isManager = isManagerOrAbove(role);
   const isAdmin = isAdminOrAbove(role);
