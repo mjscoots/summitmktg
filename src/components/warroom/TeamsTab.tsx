@@ -35,6 +35,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
         id: p.id, user_id: p.user_id, full_name: p.full_name, email: p.email, phone: p.phone, status: p.status, experience: p.experience,
         direct_manager: getEffectiveManager(p.direct_manager), role: managerIds.has(p.user_id) ? 'manager' : 'rookie', isNLC: p.status === 'nlc',
         last_active_at: p.last_active_at, is_active_now: p.is_active_now, avatar_url: p.avatar_url, team_id: p.team_id,
+        onboarding_status: p.onboarding_status,
       }));
       setAllMembers(members);
       setPillars(teams);
