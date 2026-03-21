@@ -710,7 +710,7 @@ export default function CalendarPage() {
             </div>
 
             {/* ── LIST VIEW ── */}
-            {viewMode === 'list' && (
+            {viewMode === 'agenda' && (
               <div className="bg-card rounded-xl border border-border/40 overflow-hidden">
                 {listViewByDay.length === 0 ? (
                   <div className="py-12 text-center text-sm text-muted-foreground">No upcoming events</div>
@@ -756,7 +756,7 @@ export default function CalendarPage() {
             )}
 
             {/* ── GRID VIEW ── */}
-            {viewMode === 'grid' && (
+            {viewMode === 'month' && (
               <div>
                 {/* Month Navigation */}
                 <div className="flex items-center justify-center gap-6 mb-4">
