@@ -137,7 +137,7 @@ export function StreakLeaderboard() {
             return (
               <button
                 key={entry.user_id}
-                onClick={() => navigate('/app/team')}
+                onClick={() => navigate(`/app/profile/${entry.user_id}`)}
                 className={cn(
                   "flex flex-col items-center p-3 rounded-xl border transition-all hover:scale-[1.02]",
                   bgClass,
@@ -173,7 +173,7 @@ export function StreakLeaderboard() {
             return (
               <button
                 key={entry.user_id}
-                onClick={() => navigate('/app/team')}
+                onClick={() => navigate(`/app/profile/${entry.user_id}`)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/50 text-left",
                   isCurrentUser && "bg-primary/5"
