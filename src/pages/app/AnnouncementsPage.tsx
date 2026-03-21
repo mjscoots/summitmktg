@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { isManagerOrAbove } from '@/lib/roles';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Bell, Pin, Clock } from 'lucide-react';
@@ -23,7 +24,7 @@ export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
