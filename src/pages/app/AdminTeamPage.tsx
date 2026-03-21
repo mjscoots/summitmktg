@@ -122,8 +122,10 @@ export default function AdminTeamPage() {
       if (!u.phone && emailLC.includes('@example')) return true;
       return false;
     };
-    const pending = users.filter(r => r.approved === false && r.status !== 'rejected' && !isFakeTestRecord(r));
-    const allOthers = users.filter(r => r.approved !== false || r.status === 'rejected');
+    // Filter out fake/test records from ALL views, not just pending
+    const realUsers = users.filter(u => !isFakeTestRecord(u));
+    const pending = realUsers.filter(r => r.approved === false && r.status !== 'rejected');
+    const allOthers = realUsers.filter(r => r.approved !== false || r.status === 'rejected');
     setPendingUsers(pending);
     setAllUsers(allOthers);
 
