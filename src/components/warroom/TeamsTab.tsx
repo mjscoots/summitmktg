@@ -54,7 +54,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
     const teamCounts = new Map<string, { managers: number; rookies: number }>();
     pillars.forEach(p => teamCounts.set(p.id, { managers: 0, rookies: 0 }));
     profilesRaw.forEach(p => {
-      if (p.status === 'nlc' || !p.team_id) return;
+      if (p.status === 'nlc' || !p.team_id || (p.onboarding_status || 'pending') === 'pending') return;
       const counts = teamCounts.get(p.team_id);
       if (!counts) return;
       if (managerRoles.has(p.user_id)) counts.managers++; else counts.rookies++;
