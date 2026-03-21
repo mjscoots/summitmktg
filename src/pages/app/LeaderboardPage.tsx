@@ -7,6 +7,7 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
+import { isManagerOrAbove } from '@/lib/roles';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak';
 
@@ -18,7 +19,7 @@ export default function LeaderboardPage() {
   const { role } = useAuth();
   const [showPointSystem, setShowPointSystem] = useState(false);
 
-  const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  const isManager = isManagerOrAbove(role);
 
   const TAB_META: Record<LeaderboardTab, { subtitle: string; icon: React.ReactNode }> = {
     weekly: {

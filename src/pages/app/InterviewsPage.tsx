@@ -6,6 +6,7 @@ import { Pencil, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { isManagerOrAbove } from '@/lib/roles';
 
 const interviewCards = [
   {
