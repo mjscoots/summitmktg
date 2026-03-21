@@ -50,10 +50,17 @@ export function useAdminCounts() {
       if (!mountedRef.current) return;
 
       // === PENDING APPROVALS ===
-      // Same filter as AdminTeamPage: explicit approval-required users only
+      // Same filter as AdminTeamPage: explicit approval-required users only, excluding fake/test
       const profiles = profilesRes.data || [];
+      const isFake = (p: any) => {
+        const n = (p.full_name || '').toLowerCase().trim();
+        const e = (p.email || '').toLowerCase();
+        if (['new user', 'test user', 'test', 'admin'].includes(n)) return true;
+        if (e.includes('example.invalid') || e.includes('poc-') || e.includes('inject') || e.includes('xss') || e.includes('sqli') || e.includes('rce') || e.includes('bypass')) return true;
+        return false;
+      };
       const pendingApprovals = profiles.filter(
-        (p: any) => p.approved === false
+        (p: any) => p.approved === false && p.status !== 'rejected' && !isFake(p)
       ).length;
 
       // === PENDING PITCHES ===

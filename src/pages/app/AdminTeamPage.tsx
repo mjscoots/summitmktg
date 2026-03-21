@@ -112,7 +112,17 @@ export default function AdminTeamPage() {
     });
 
     // Pending = only users who have explicitly entered approval flow (approved === false) AND not already rejected
-    const pending = users.filter(r => r.approved === false && r.status !== 'rejected');
+    // Also filter out fake/test records from security scans
+    const isFakeTestRecord = (u: UserRow) => {
+      const genericNames = ['new user', 'test user', 'test', 'admin'];
+      const nameLC = (u.full_name || '').toLowerCase().trim();
+      const emailLC = (u.email || '').toLowerCase();
+      if (genericNames.includes(nameLC)) return true;
+      if (emailLC.includes('example.invalid') || emailLC.includes('poc-') || emailLC.includes('inject') || emailLC.includes('xss') || emailLC.includes('sqli') || emailLC.includes('rce') || emailLC.includes('bypass')) return true;
+      if (!u.phone && emailLC.includes('@example')) return true;
+      return false;
+    };
+    const pending = users.filter(r => r.approved === false && r.status !== 'rejected' && !isFakeTestRecord(r));
     const allOthers = users.filter(r => r.approved !== false || r.status === 'rejected');
     setPendingUsers(pending);
     setAllUsers(allOthers);
