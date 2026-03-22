@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Trophy, Medal, Award, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { useNavigate } from 'react-router-dom';
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { TeamMember } from '@/lib/hierarchyUtils';
 
 interface StreakEntry {
   user_id: string;
@@ -22,9 +23,9 @@ function streakDisplayName(entry: StreakEntry) {
 
 export function StreakLeaderboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [entries, setEntries] = useState<StreakEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -137,7 +138,7 @@ export function StreakLeaderboard() {
             return (
               <button
                 key={entry.user_id}
-                onClick={() => navigate(`/app/profile/${entry.user_id}`)}
+                onClick={() => setSelectedMember({ id: entry.user_id, user_id: entry.user_id, full_name: entry.full_name, email: '', phone: null, status: 'active', experience: null, direct_manager: null, avatar_url: entry.avatar_url } as TeamMember)}
                 className={cn(
                   "flex flex-col items-center p-3 rounded-xl border transition-all hover:scale-[1.02]",
                   bgClass,
@@ -173,7 +174,7 @@ export function StreakLeaderboard() {
             return (
               <button
                 key={entry.user_id}
-                onClick={() => navigate(`/app/profile/${entry.user_id}`)}
+                onClick={() => setSelectedMember({ id: entry.user_id, user_id: entry.user_id, full_name: entry.full_name, email: '', phone: null, status: 'active', experience: null, direct_manager: null, avatar_url: entry.avatar_url } as TeamMember)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/50 text-left",
                   isCurrentUser && "bg-primary/5"
@@ -205,6 +206,12 @@ export function StreakLeaderboard() {
           })}
         </div>
       )}
+      <MemberProfileModal
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        roster={[]}
+      />
     </div>
   );
 }
