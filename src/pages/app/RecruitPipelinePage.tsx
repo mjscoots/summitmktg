@@ -191,6 +191,35 @@ function EditableCell({
   );
 }
 
+const EMPTY_ROW_COUNT = 50;
+
+/* ─── Empty Spreadsheet Row ─── */
+function EmptyRow({ idx, onActivate }: { idx: number; onActivate: () => Promise<void> }) {
+  const [activating, setActivating] = useState(false);
+
+  const handleClick = async () => {
+    if (activating) return;
+    setActivating(true);
+    await onActivate();
+    setActivating(false);
+  };
+
+  return (
+    <tr className={cn("border-b border-border/20 hover:bg-accent/10 transition-colors cursor-pointer", idx % 2 === 1 && "bg-muted/5")} onClick={handleClick}>
+      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
+        <span className="text-xs text-muted-foreground/30 italic">{activating ? 'Creating...' : 'Click to add...'}</span>
+      </td>
+      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '150px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" />
+    </tr>
+  );
+}
+
 /* ─── Main Component ─── */
 export default function RecruitPipelinePage() {
   const { user, role } = useAuth();
@@ -495,55 +524,58 @@ export default function RecruitPipelinePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.length === 0 ? (
+                  {filtered.map((r, idx) => (
+                    <tr
+                      key={r.id}
+                      className={cn(
+                        "border-b border-border/30 hover:bg-accent/20 transition-colors group",
+                        idx % 2 === 1 && "bg-muted/10"
+                      )}
+                    >
+                      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => openDetail(r)} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" title="View details">
+                            <StickyNote className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
+                          </button>
+                          <EditableCell value={r.recruit_name} onChange={v => updateField(r.id, 'recruit_name', v)} placeholder="Name..." className="font-medium" />
+                        </div>
+                      </td>
+                      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                        <EditableCell value={r.phone || ''} onChange={v => updateField(r.id, 'phone', v)} placeholder="Phone..." />
+                      </td>
+                      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
+                        <CellDropdown value={r.stage} options={STATUS_OPTIONS} onChange={v => updateField(r.id, 'stage', v)} />
+                      </td>
+                      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
+                        <CellDropdown value={r.position || ''} options={POSITION_OPTIONS} onChange={v => updateField(r.id, 'position', v)} />
+                      </td>
+                      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                        <CellDropdown value={r.interview_2_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_2_status', v)} />
+                      </td>
+                      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                        <CellDropdown value={r.interview_3_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_3_status', v)} />
+                      </td>
+                      <td className="px-3 py-2.5" style={{ minWidth: '150px' }}>
+                        <CellDropdown value={r.onboarding_status || ''} options={ONBOARDING_OPTIONS} onChange={v => updateField(r.id, 'onboarding_status', v)} />
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <button onClick={() => deleteRecruit(r.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {/* Empty spreadsheet rows */}
+                  {!search && Array.from({ length: EMPTY_ROW_COUNT }).map((_, idx) => (
+                    <EmptyRow key={`empty-${idx}`} idx={filtered.length + idx} onActivate={addRecruit} />
+                  ))}
+                  {filtered.length === 0 && search && (
                     <tr>
                       <td colSpan={8} className="text-center py-16 text-muted-foreground">
                         <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                        <p className="text-xs">{search ? 'No matches found' : 'No recruits yet. Click "Add Row" to start.'}</p>
+                        <p className="text-xs">No matches found</p>
                       </td>
                     </tr>
-                  ) : (
-                    filtered.map((r, idx) => (
-                      <tr
-                        key={r.id}
-                        className={cn(
-                          "border-b border-border/30 hover:bg-accent/20 transition-colors group",
-                          idx % 2 === 1 && "bg-muted/10"
-                        )}
-                      >
-                        <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
-                          <div className="flex items-center gap-1.5">
-                            <button onClick={() => openDetail(r)} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" title="View details">
-                              <StickyNote className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
-                            </button>
-                            <EditableCell value={r.recruit_name} onChange={v => updateField(r.id, 'recruit_name', v)} placeholder="Name..." className="font-medium" />
-                          </div>
-                        </td>
-                        <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
-                          <EditableCell value={r.phone || ''} onChange={v => updateField(r.id, 'phone', v)} placeholder="Phone..." />
-                        </td>
-                        <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
-                          <CellDropdown value={r.stage} options={STATUS_OPTIONS} onChange={v => updateField(r.id, 'stage', v)} />
-                        </td>
-                        <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
-                          <CellDropdown value={r.position || ''} options={POSITION_OPTIONS} onChange={v => updateField(r.id, 'position', v)} />
-                        </td>
-                        <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
-                          <CellDropdown value={r.interview_2_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_2_status', v)} />
-                        </td>
-                        <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
-                          <CellDropdown value={r.interview_3_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_3_status', v)} />
-                        </td>
-                        <td className="px-3 py-2.5" style={{ minWidth: '150px' }}>
-                          <CellDropdown value={r.onboarding_status || ''} options={ONBOARDING_OPTIONS} onChange={v => updateField(r.id, 'onboarding_status', v)} />
-                        </td>
-                        <td className="px-3 py-2.5 text-right">
-                          <button onClick={() => deleteRecruit(r.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
                   )}
                 </tbody>
               </table>
