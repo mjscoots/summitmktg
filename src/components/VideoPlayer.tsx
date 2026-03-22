@@ -201,6 +201,8 @@ export function VideoPlayer({ src, title, onEnded, onProgress, onTimeUpdate, sta
         vimeoTitle={title}
         vimeoClassName={className}
         vimeoOnEnded={onEnded}
+        vimeoStartAt={startAt}
+        vimeoOnProgress={onTimeUpdate}
       />
     );
   }
