@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Trophy, Medal, Award, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { useNavigate } from 'react-router-dom';
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { TeamMember } from '@/lib/hierarchyUtils';
 
 interface StreakEntry {
   user_id: string;
