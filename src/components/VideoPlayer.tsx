@@ -231,12 +231,17 @@ export function VideoPlayer({ src, title, onEnded, onProgress, onTimeUpdate, sta
       const currentProgress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
       setProgress(currentProgress);
       onProgress?.(currentProgress);
+      onTimeUpdate?.(videoRef.current.currentTime, videoRef.current.duration);
     }
   };
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
+      // Resume from saved position for HTML5 videos
+      if (startAt && startAt > 5) {
+        videoRef.current.currentTime = startAt;
+      }
     }
   };
 
