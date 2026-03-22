@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 const IMAGE_PREFIX = 'img:';
 const FILE_PREFIX = 'file:';
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 100 * 1024 * 1024; // 100MB
 
 export function isImageMessage(content: string) {
   return content.startsWith(IMAGE_PREFIX);
@@ -43,7 +43,7 @@ function formatFileSize(bytes: number) {
 
 export async function uploadChatFile(file: File, userId: string, onSend: (content: string) => Promise<void>) {
   if (file.size > MAX_SIZE) {
-    toast.error('File too large (max 10MB)');
+    toast.error('File too large (max 100MB)');
     return;
   }
 
@@ -99,7 +99,7 @@ export function ChatImageUpload({ onSend }: ChatImageUploadProps) {
         ref={fileRef}
         type="file"
         className="hidden"
-        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
+        accept="*/*"
         onChange={handleFileChange}
       />
       <button

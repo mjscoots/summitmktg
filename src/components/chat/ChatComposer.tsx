@@ -171,7 +171,7 @@ export function ChatComposer({
         ref={fileRef}
         type="file"
         className="hidden"
-        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
+        accept="*/*"
         onChange={handleFileUpload}
       />
 
