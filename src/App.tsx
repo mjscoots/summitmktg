@@ -382,6 +382,15 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Rep Logistics */}
+              <Route path="/app/logistics" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <RepLogisticsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
              {/* Notepad - redirect to Resources */}
              <Route path="/app/notepad" element={<Navigate to="/app/links" replace />} />
 
