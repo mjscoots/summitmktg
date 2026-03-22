@@ -49,18 +49,57 @@ export default function VideoPlayerPage() {
   const [isWatched, setIsWatched] = useState(false);
   const [isMarking, setIsMarking] = useState(false);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
+  const [savedPosition, setSavedPosition] = useState(0);
   const silentCompletedRef = useRef(false);
+  const lastSavedPositionRef = useRef(0);
+  const saveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingPositionRef = useRef({ time: 0, duration: 0 });
+
+  // Save position to DB (debounced — called every 10 seconds)
+  const savePositionToDb = useCallback(async () => {
+    if (!user || !videoId) return;
+    const { time, duration } = pendingPositionRef.current;
+    if (time < 5 || Math.abs(time - lastSavedPositionRef.current) < 5) return;
+    lastSavedPositionRef.current = time;
+    try {
+      await supabase
+        .from('video_progress')
+        .upsert({
+          user_id: user.id,
+          video_id: videoId,
+          last_position: time,
+          duration: duration,
+          watched_at: new Date().toISOString(),
+        }, { onConflict: 'user_id,video_id' });
+    } catch {}
+  }, [user, videoId]);
+
+  // Set up periodic save
+  useEffect(() => {
+    saveTimerRef.current = setInterval(savePositionToDb, 10000);
+    return () => {
+      if (saveTimerRef.current) clearInterval(saveTimerRef.current);
+      // Save on unmount
+      savePositionToDb();
+    };
+  }, [savePositionToDb]);
+
+  // Track time updates from VideoPlayer
+  const handleTimeUpdate = useCallback((currentTime: number, duration: number) => {
+    pendingPositionRef.current = { time: currentTime, duration };
+  }, []);
 
   useEffect(() => {
     if (!videoId || !user) return;
     silentCompletedRef.current = false;
+    lastSavedPositionRef.current = 0;
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const [videoRes, allRes, progressRes, watchedRes] = await Promise.all([
           supabase.from('training_videos').select('*').eq('id', videoId).maybeSingle(),
           supabase.from('training_videos').select('*').eq('is_active', true).order('display_order'),
-          supabase.from('video_progress').select('watched').eq('user_id', user.id).eq('video_id', videoId).maybeSingle(),
+          supabase.from('video_progress').select('watched, last_position').eq('user_id', user.id).eq('video_id', videoId).maybeSingle(),
           supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
         ]);
 
@@ -70,6 +109,10 @@ export default function VideoPlayerPage() {
         setIsWatched(alreadyWatched);
         if (alreadyWatched) silentCompletedRef.current = true;
         setWatchedIds(new Set((watchedRes.data || []).map(p => p.video_id)));
+        
+        // Restore saved position
+        const pos = (progressRes.data as any)?.last_position || 0;
+        setSavedPosition(pos);
       } catch (err) {
         console.error('Error fetching video:', err);
       } finally {
@@ -216,6 +259,8 @@ export default function VideoPlayerPage() {
                 src={video.video_url || ''}
                 title={video.title}
                 onEnded={handleVideoEnded}
+                onTimeUpdate={handleTimeUpdate}
+                startAt={savedPosition}
               />
             </div>
 

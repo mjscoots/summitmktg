@@ -11,6 +11,7 @@ import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader'
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { ContinueLearning } from '@/components/dashboard/ContinueLearning';
+import { ContinueWatchingCard } from '@/components/dashboard/ContinueWatchingCard';
 import { TodoList } from '@/components/dashboard/TodoList';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
@@ -231,6 +232,9 @@ export default function DashboardPage() {
 
         {/* Announcement Box */}
         <AnnouncementBox />
+
+        {/* Continue Watching */}
+        <ContinueWatchingCard />
 
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
