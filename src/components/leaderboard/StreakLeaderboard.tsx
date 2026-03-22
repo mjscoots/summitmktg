@@ -23,9 +23,9 @@ function streakDisplayName(entry: StreakEntry) {
 
 export function StreakLeaderboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [entries, setEntries] = useState<StreakEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
