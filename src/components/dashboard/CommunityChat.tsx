@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Upload } from 'lucide-react';
+import { uploadChatFile } from '@/components/dashboard/ChatImageUpload';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
@@ -79,6 +80,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [contextMenu, setContextMenu] = useState<{ position: { x: number; y: number }; msgId: string } | null>(null);
   // Centralized reactions state: { messageId -> { emoji -> user_id[] } }
   const [reactionsMap, setReactionsMap] = useState<Record<string, Record<string, string[]>>>({});
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -408,7 +411,33 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
 
   return (
-    <div className="h-full min-h-0 flex flex-col overflow-hidden relative" style={{ height: '100%', maxHeight: '100%' }}>
+    <div
+      className="h-full min-h-0 flex flex-col overflow-hidden relative"
+      style={{ height: '100%', maxHeight: '100%' }}
+      onDragEnter={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounter.current++; setIsDragging(true); }}
+      onDragOver={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); }}
+      onDragLeave={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounter.current--; if (dragCounter.current === 0) setIsDragging(false); }}
+      onDrop={async (e: DragEvent) => {
+        e.preventDefault(); e.stopPropagation(); dragCounter.current = 0; setIsDragging(false);
+        const files = Array.from(e.dataTransfer.files);
+        if (!files.length || !user) return;
+        for (const file of files) {
+          try {
+            await uploadChatFile(file, user.id, handleSendFile);
+            toast.success(`Uploaded ${file.name}`);
+          } catch { toast.error(`Failed to upload ${file.name}`); }
+        }
+      }}
+    >
+      {/* Drag overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 z-50 bg-primary/10 backdrop-blur-sm border-2 border-dashed border-primary/40 rounded-xl flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 text-primary">
+            <Upload className="w-10 h-10" />
+            <p className="text-sm font-semibold">Drop files to share</p>
+          </div>
+        </div>
+      )}
       {/* Cosmic background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-background" />
