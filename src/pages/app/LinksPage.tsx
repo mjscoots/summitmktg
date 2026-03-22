@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -380,6 +381,7 @@ export default function LinksPage() {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
+        <PageBackButton to="/app/manage" label="Manage" />
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-xl font-bold text-foreground">Resources</h1>
