@@ -233,6 +233,9 @@ export default function DashboardPage() {
         {/* Announcement Box */}
         <AnnouncementBox />
 
+        {/* Continue Watching */}
+        <ContinueWatchingCard />
+
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
         {isManager && (
