@@ -50,9 +50,14 @@ export async function uploadChatFile(file: File, userId: string, onSend: (conten
   const ext = file.name.split('.').pop() || 'png';
   const path = `${userId}/${Date.now()}.${ext}`;
 
+  // Read the file into an ArrayBuffer first to ensure drag-and-drop files
+  // are fully read before uploading (prevents 0-byte uploads)
+  const arrayBuffer = await file.arrayBuffer();
+  const blob = new Blob([arrayBuffer], { type: file.type || 'application/octet-stream' });
+
   const { error: uploadError } = await supabase.storage
     .from('chat-uploads')
-    .upload(path, file);
+    .upload(path, blob, { contentType: file.type || 'application/octet-stream' });
 
   if (uploadError) throw uploadError;
 
