@@ -12,19 +12,24 @@ function getVimeoId(url: string): string | null {
 }
 
 // --- VimeoEmbed defined OUTSIDE VideoPlayer to prevent unmount/remount ---
-function VimeoEmbed({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded }: {
+function VimeoEmbed({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded, vimeoStartAt, vimeoOnProgress }: {
   vimeoSrc: string; vimeoTitle?: string; vimeoClassName?: string;
-  vimeoOnEnded?: () => void;
+  vimeoOnEnded?: () => void; vimeoStartAt?: number;
+  vimeoOnProgress?: (currentTime: number, duration: number) => void;
 }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const hasTriggeredComplete = useRef(false);
   const onEndedRef = useRef(vimeoOnEnded);
+  const onProgressRef = useRef(vimeoOnProgress);
+  const hasSetStartTime = useRef(false);
   const vimeoId = getVimeoId(vimeoSrc);
 
   onEndedRef.current = vimeoOnEnded;
+  onProgressRef.current = vimeoOnProgress;
 
   useEffect(() => {
     hasTriggeredComplete.current = false;
+    hasSetStartTime.current = false;
   }, [vimeoSrc]);
 
   useEffect(() => {
@@ -39,11 +44,25 @@ function VimeoEmbed({ vimeoSrc, vimeoTitle, vimeoClassName, vimeoOnEnded }: {
       }
     });
 
+    // Save position every 5 seconds
+    player.on('timeupdate', (data: { seconds: number; duration: number }) => {
+      onProgressRef.current?.(data.seconds, data.duration);
+    });
+
+    // Resume from saved position
+    if (vimeoStartAt && vimeoStartAt > 5 && !hasSetStartTime.current) {
+      hasSetStartTime.current = true;
+      player.ready().then(() => {
+        player.setCurrentTime(vimeoStartAt).catch(() => {});
+      });
+    }
+
     return () => {
       player.off('ended');
+      player.off('timeupdate');
       player.destroy();
     };
-  }, [vimeoSrc]);
+  }, [vimeoSrc, vimeoStartAt]);
 
   return (
     <div className={cn("aspect-video w-full rounded-xl overflow-hidden bg-black", vimeoClassName)}>
@@ -65,6 +84,8 @@ interface VideoPlayerProps {
   title?: string;
   onEnded?: () => void;
   onProgress?: (percent: number) => void;
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
+  startAt?: number;
   className?: string;
 }
 
