@@ -89,7 +89,7 @@ interface VideoPlayerProps {
   className?: string;
 }
 
-export function VideoPlayer({ src, title, onEnded, onProgress, className }: VideoPlayerProps) {
+export function VideoPlayer({ src, title, onEnded, onProgress, onTimeUpdate, startAt, className }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentTimeRef = useRef(0);
   const wasPlayingRef = useRef(false);
