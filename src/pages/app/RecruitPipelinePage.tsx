@@ -79,7 +79,7 @@ interface Recruit {
   updated_at: string;
 }
 
-type SortField = 'recruit_name' | 'stage' | 'position' | 'created_at' | 'updated_at';
+type SortField = 'recruit_name' | 'stage' | 'created_at' | 'updated_at';
 type SortDir = 'asc' | 'desc';
 
 /* ─── Inline Dropdown ─── */
@@ -119,7 +119,7 @@ function CellDropdown({
         <ChevronDown className="w-3 h-3 opacity-50" />
       </button>
       {open && (
-        <div className="absolute z-50 top-full left-0 mt-1 bg-popover border border-border rounded-lg shadow-xl py-1 min-w-[140px] max-h-[240px] overflow-y-auto animate-fade-in">
+        <div className="absolute z-50 top-full left-0 mt-1 bg-popover border border-border rounded-lg shadow-xl py-1 min-w-[160px] animate-fade-in">
           {options.map(opt => (
             <button
               key={opt.value}
@@ -206,15 +206,11 @@ function EmptyRow({ idx, onActivate }: { idx: number; onActivate: () => Promise<
 
   return (
     <tr className={cn("border-b border-border/20 hover:bg-accent/10 transition-colors cursor-pointer", idx % 2 === 1 && "bg-muted/5")} onClick={handleClick}>
-      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
+      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '200px' }}>
         <span className="text-xs text-muted-foreground/30 italic">{activating ? 'Creating...' : 'Click to add...'}</span>
       </td>
-      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
-      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
-      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
-      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
-      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
-      <td className="px-3 py-2.5" style={{ minWidth: '150px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '160px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '160px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
       <td className="px-3 py-2.5" />
     </tr>
   );
@@ -510,16 +506,12 @@ export default function RecruitPipelinePage() {
         ) : (
           <div className="border border-border/60 rounded-xl bg-card/40 backdrop-blur-sm">
             <div className="overflow-x-auto">
-              <table className="w-full" style={{ minWidth: '1050px' }}>
+              <table className="w-full">
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
-                    <SortHeader field="recruit_name" label="Applicant" className="sticky left-0 bg-muted/30 z-10" style={{ minWidth: '180px' }} />
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Phone #</th>
-                    <SortHeader field="stage" label="Status" style={{ minWidth: '140px' }} />
-                    <SortHeader field="position" label="Position" style={{ minWidth: '140px' }} />
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Interview 2</th>
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '130px' }}>Interview 3</th>
-                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '150px' }}>Onboarding</th>
+                    <SortHeader field="recruit_name" label="Applicant" className="sticky left-0 bg-muted/30 z-10" style={{ minWidth: '200px' }} />
+                    <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap" style={{ minWidth: '160px' }}>Phone #</th>
+                    <SortHeader field="stage" label="Status" style={{ minWidth: '160px' }} />
                     <th className="px-3 py-2.5 w-[50px]" />
                   </tr>
                 </thead>
@@ -532,7 +524,7 @@ export default function RecruitPipelinePage() {
                         idx % 2 === 1 && "bg-muted/10"
                       )}
                     >
-                      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
+                      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '200px' }}>
                         <div className="flex items-center gap-1.5">
                           <button onClick={() => openDetail(r)} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" title="View details">
                             <StickyNote className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
@@ -540,23 +532,11 @@ export default function RecruitPipelinePage() {
                           <EditableCell value={r.recruit_name} onChange={v => updateField(r.id, 'recruit_name', v)} placeholder="Name..." className="font-medium" />
                         </div>
                       </td>
-                      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
+                      <td className="px-3 py-2.5" style={{ minWidth: '160px' }}>
                         <EditableCell value={r.phone || ''} onChange={v => updateField(r.id, 'phone', v)} placeholder="Phone..." />
                       </td>
-                      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
+                      <td className="px-3 py-2.5" style={{ minWidth: '160px' }}>
                         <CellDropdown value={r.stage} options={STATUS_OPTIONS} onChange={v => updateField(r.id, 'stage', v)} />
-                      </td>
-                      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}>
-                        <CellDropdown value={r.position || ''} options={POSITION_OPTIONS} onChange={v => updateField(r.id, 'position', v)} />
-                      </td>
-                      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
-                        <CellDropdown value={r.interview_2_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_2_status', v)} />
-                      </td>
-                      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}>
-                        <CellDropdown value={r.interview_3_status || ''} options={INTERVIEW_OPTIONS} onChange={v => updateField(r.id, 'interview_3_status', v)} />
-                      </td>
-                      <td className="px-3 py-2.5" style={{ minWidth: '150px' }}>
-                        <CellDropdown value={r.onboarding_status || ''} options={ONBOARDING_OPTIONS} onChange={v => updateField(r.id, 'onboarding_status', v)} />
                       </td>
                       <td className="px-3 py-2.5 text-right">
                         <button onClick={() => deleteRecruit(r.id)} className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all">
@@ -571,7 +551,7 @@ export default function RecruitPipelinePage() {
                   ))}
                   {filtered.length === 0 && search && (
                     <tr>
-                      <td colSpan={8} className="text-center py-16 text-muted-foreground">
+                      <td colSpan={4} className="text-center py-16 text-muted-foreground">
                         <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
                         <p className="text-xs">No matches found</p>
                       </td>
