@@ -191,7 +191,34 @@ function EditableCell({
   );
 }
 
-const EMPTY_ROW_COUNT = 50; // Show this many blank rows below actual data
+const EMPTY_ROW_COUNT = 50;
+
+/* ─── Empty Spreadsheet Row ─── */
+function EmptyRow({ idx, onActivate }: { idx: number; onActivate: () => Promise<void> }) {
+  const [activating, setActivating] = useState(false);
+
+  const handleClick = async () => {
+    if (activating) return;
+    setActivating(true);
+    await onActivate();
+    setActivating(false);
+  };
+
+  return (
+    <tr className={cn("border-b border-border/20 hover:bg-accent/10 transition-colors cursor-pointer", idx % 2 === 1 && "bg-muted/5")} onClick={handleClick}>
+      <td className="px-3 py-2.5 sticky left-0 bg-inherit z-10" style={{ minWidth: '180px' }}>
+        <span className="text-xs text-muted-foreground/30 italic">{activating ? 'Creating...' : 'Click to add...'}</span>
+      </td>
+      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '140px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '130px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" style={{ minWidth: '150px' }}><span className="text-xs text-muted-foreground/20">—</span></td>
+      <td className="px-3 py-2.5" />
+    </tr>
+  );
+}
 
 /* ─── Main Component ─── */
 export default function RecruitPipelinePage() {
