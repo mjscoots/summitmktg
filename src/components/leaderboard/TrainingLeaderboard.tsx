@@ -6,12 +6,8 @@ import { NextRankPush } from '@/components/leaderboard/NextRankPush';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Progress } from '@/components/ui/progress';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { TeamMember } from '@/lib/hierarchyUtils';
 
 const POINTS = {
   HOUR_LOGGED: 120,
