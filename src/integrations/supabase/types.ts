@@ -1763,6 +1763,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rep_logistics: {
+        Row: {
+          arrival_date: string | null
+          car_status: string
+          created_at: string
+          id: string
+          notes: string | null
+          travel_status: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          arrival_date?: string | null
+          car_status?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          travel_status?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          arrival_date?: string | null
+          car_status?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          travel_status?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       rep_signups: {
         Row: {
           created_at: string
@@ -2648,7 +2684,9 @@ export type Database = {
       video_progress: {
         Row: {
           created_at: string | null
+          duration: number | null
           id: string
+          last_position: number | null
           user_id: string
           video_id: string
           watched: boolean | null
@@ -2656,7 +2694,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          duration?: number | null
           id?: string
+          last_position?: number | null
           user_id: string
           video_id: string
           watched?: boolean | null
@@ -2664,7 +2704,9 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          duration?: number | null
           id?: string
+          last_position?: number | null
           user_id?: string
           video_id?: string
           watched?: boolean | null
