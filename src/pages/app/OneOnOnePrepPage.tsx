@@ -363,9 +363,16 @@ export default function OneOnOnePrepPage() {
           <button onClick={handleBack} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to roster
           </button>
-          <span className="text-xs text-muted-foreground">
-            {completedRepIds.size} of {orderedReps.length} completed
-          </span>
+          <div className="flex items-center gap-3">
+            {meetingTime && (
+              <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
+                🕐 {meetingTime}
+              </span>
+            )}
+            <span className="text-xs text-muted-foreground">
+              {completedRepIds.size} of {orderedReps.length} completed
+            </span>
+          </div>
         </div>
 
         {/* Duplicate warning */}
