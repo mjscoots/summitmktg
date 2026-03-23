@@ -46,9 +46,9 @@ export function useDownline(userId: string | undefined, managerName: string | un
           { _manager_user_id: userId }
         );
 
-        // Filter out NLC and Prospect Added — they don't exist in operational views
+        // Filter out NLC — the RPC now handles approved filtering server-side
         const filterActive = (members: DownlineMember[]) =>
-          members.filter(m => m.status !== 'nlc' && m.status !== 'prospect_added');
+          members.filter(m => m.status !== 'nlc');
 
         if (!edgeErr && edgeData && edgeData.length > 0) {
           if (!cancelled) setDownline(filterActive(edgeData as DownlineMember[]));
