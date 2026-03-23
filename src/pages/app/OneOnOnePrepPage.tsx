@@ -70,6 +70,8 @@ export default function OneOnOnePrepPage() {
   const [mgrFormData, setMgrFormData] = useState<ManagerPrepFormData>(initialManagerPrepFormData);
   const [submitting, setSubmitting] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'data' | 'form'>('data');
+  const [scheduleDialogRep, setScheduleDialogRep] = useState<PrepRep | null>(null);
+  const [meetingTime, setMeetingTime] = useState<string>('');
 
   // Use orderedReps for ALL navigation, but skip completed reps
   const incompleteReps = orderedReps.filter(r => !completedRepIds.has(r.user_id));
