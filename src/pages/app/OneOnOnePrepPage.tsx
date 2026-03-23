@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRepOrder } from '@/hooks/useRepOrder';
-import { useRepOrder } from '@/hooks/useRepOrder';
 
 export interface PrepFormData {
   week_description: string;
