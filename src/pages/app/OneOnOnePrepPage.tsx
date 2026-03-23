@@ -335,9 +335,21 @@ export default function OneOnOnePrepPage() {
           <RepSelectionList
             orderedReps={orderedReps}
             completedRepIds={completedRepIds}
-            onSelect={handleSelectRep}
+            onSelect={handleRepClick}
             onReorder={reorder}
             onReset={handleResetOrder}
+            loading={loading || loadingCompleted}
+            totalReps={orderedReps.length}
+            completedCount={completedRepIds.size}
+          />
+          {scheduleDialogRep && (
+            <ScheduleTimeDialog
+              open={!!scheduleDialogRep}
+              onOpenChange={(open) => { if (!open) setScheduleDialogRep(null); }}
+              rep={scheduleDialogRep}
+              onConfirm={handleScheduleConfirm}
+            />
+          )}
             loading={loading || loadingCompleted}
             totalReps={orderedReps.length}
             completedCount={completedRepIds.size}
