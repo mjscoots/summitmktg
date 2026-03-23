@@ -87,7 +87,7 @@ export function AppSidebar() {
         if (isMobile) setOpenMobile(false);
       }}
       className={cn(
-        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-250 relative group",
+        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 relative group",
         active
           ? "text-primary"
           : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent",
