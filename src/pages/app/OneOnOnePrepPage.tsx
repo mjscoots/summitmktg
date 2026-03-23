@@ -11,11 +11,13 @@ import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList'
 import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
+import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useRepOrder } from '@/hooks/useRepOrder';
 import { useRepOrder } from '@/hooks/useRepOrder';
 
 export interface PrepFormData {
