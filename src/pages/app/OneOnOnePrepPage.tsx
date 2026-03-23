@@ -350,10 +350,6 @@ export default function OneOnOnePrepPage() {
               onConfirm={handleScheduleConfirm}
             />
           )}
-            loading={loading || loadingCompleted}
-            totalReps={orderedReps.length}
-            completedCount={completedRepIds.size}
-          />
         </div>
       </AppLayout>
     );
