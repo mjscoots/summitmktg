@@ -44,7 +44,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
     fetchData();
   }, []);
 
-  const visibleMembers = useMemo(() => allMembers.filter(m => m.status !== 'nlc' && (m as any).onboarding_status !== 'pending'), [allMembers]);
+  const visibleMembers = useMemo(() => allMembers.filter(m => m.status !== 'nlc' && (m as any).approved === true), [allMembers]);
   const { enrichedRoster } = useMemo(() => {
     if (visibleMembers.length === 0 || pillars.length === 0) return { enrichedRoster: [] };
     return assignPillarsToRoster(visibleMembers, pillars);
@@ -54,7 +54,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
     const teamCounts = new Map<string, { managers: number; rookies: number }>();
     pillars.forEach(p => teamCounts.set(p.id, { managers: 0, rookies: 0 }));
     profilesRaw.forEach(p => {
-      if (p.status === 'nlc' || !p.team_id || (p.onboarding_status || 'pending') === 'pending') return;
+      if (p.status === 'nlc' || !p.team_id || p.approved !== true) return;
       const counts = teamCounts.get(p.team_id);
       if (!counts) return;
       if (managerRoles.has(p.user_id)) counts.managers++; else counts.rookies++;

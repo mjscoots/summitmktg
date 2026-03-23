@@ -125,7 +125,7 @@ export function MembersModal({ open, onClose }: MembersModalProps) {
 
   // Separate active and NLC members for display
   const { activeMembers, nlcMembers } = useMemo(() => {
-    const active = enrichedRoster.filter(m => m.status !== 'nlc' && !m.isNLC);
+    const active = enrichedRoster.filter(m => m.status !== 'nlc' && !m.isNLC && (m as any).approved === true);
     const nlc = enrichedRoster.filter(m => m.status === 'nlc' || m.isNLC);
     return { activeMembers: active, nlcMembers: nlc };
   }, [enrichedRoster]);

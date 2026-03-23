@@ -43,6 +43,7 @@ export default function MembersPage() {
           .from('profiles')
           .select('*')
           .neq('status', 'nlc')
+          .eq('approved', true)
           .order('full_name');
 
         const { data: teamsData } = await supabase
@@ -156,10 +157,10 @@ export default function MembersPage() {
             <div className="p-2 rounded-lg bg-primary/15">
               <Users className="w-5 h-5 text-primary" />
             </div>
-            Members Directory
+            In-App Users
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Browse all organization members ({enrichedRoster.length} total)
+            Browse all in-app users ({enrichedRoster.length} total)
           </p>
         </div>
 
