@@ -137,10 +137,30 @@ export default function OneOnOnePrepPage() {
     else setFormData(initialFormData);
   }, [selectedRepId, mode]);
 
+  const handleRepClick = (userId: string) => {
+    const rep = orderedReps.find(r => r.user_id === userId);
+    if (rep) {
+      setScheduleDialogRep(rep);
+    }
+  };
+
+  const handleScheduleConfirm = (time: string, repeats: boolean, recurringTime?: string) => {
+    if (!scheduleDialogRep) return;
+    setMeetingTime(time);
+    setSelectedRepId(scheduleDialogRep.user_id);
+    setMobilePanel('data');
+    const params = new URLSearchParams(searchParams);
+    params.set('rep', scheduleDialogRep.user_id);
+    setSearchParams(params, { replace: true });
+    setScheduleDialogRep(null);
+    if (repeats && recurringTime) {
+      toast.success(`Recurring 1:1 set for ${recurringTime} every Monday`);
+    }
+  };
+
   const handleSelectRep = (userId: string) => {
     setSelectedRepId(userId);
     setMobilePanel('data');
-    // Persist in URL
     const params = new URLSearchParams(searchParams);
     params.set('rep', userId);
     setSearchParams(params, { replace: true });
