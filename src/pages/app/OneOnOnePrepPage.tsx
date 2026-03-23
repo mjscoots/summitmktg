@@ -11,6 +11,7 @@ import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList'
 import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
+import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,8 @@ export default function OneOnOnePrepPage() {
   const [mgrFormData, setMgrFormData] = useState<ManagerPrepFormData>(initialManagerPrepFormData);
   const [submitting, setSubmitting] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'data' | 'form'>('data');
+  const [scheduleDialogRep, setScheduleDialogRep] = useState<PrepRep | null>(null);
+  const [meetingTime, setMeetingTime] = useState<string>('');
 
   // Use orderedReps for ALL navigation, but skip completed reps
   const incompleteReps = orderedReps.filter(r => !completedRepIds.has(r.user_id));
@@ -134,10 +137,30 @@ export default function OneOnOnePrepPage() {
     else setFormData(initialFormData);
   }, [selectedRepId, mode]);
 
+  const handleRepClick = (userId: string) => {
+    const rep = orderedReps.find(r => r.user_id === userId);
+    if (rep) {
+      setScheduleDialogRep(rep);
+    }
+  };
+
+  const handleScheduleConfirm = (time: string, repeats: boolean, recurringTime?: string) => {
+    if (!scheduleDialogRep) return;
+    setMeetingTime(time);
+    setSelectedRepId(scheduleDialogRep.user_id);
+    setMobilePanel('data');
+    const params = new URLSearchParams(searchParams);
+    params.set('rep', scheduleDialogRep.user_id);
+    setSearchParams(params, { replace: true });
+    setScheduleDialogRep(null);
+    if (repeats && recurringTime) {
+      toast.success(`Recurring 1:1 set for ${recurringTime} every Monday`);
+    }
+  };
+
   const handleSelectRep = (userId: string) => {
     setSelectedRepId(userId);
     setMobilePanel('data');
-    // Persist in URL
     const params = new URLSearchParams(searchParams);
     params.set('rep', userId);
     setSearchParams(params, { replace: true });
@@ -312,13 +335,21 @@ export default function OneOnOnePrepPage() {
           <RepSelectionList
             orderedReps={orderedReps}
             completedRepIds={completedRepIds}
-            onSelect={handleSelectRep}
+            onSelect={handleRepClick}
             onReorder={reorder}
             onReset={handleResetOrder}
             loading={loading || loadingCompleted}
             totalReps={orderedReps.length}
             completedCount={completedRepIds.size}
           />
+          {scheduleDialogRep && (
+            <ScheduleTimeDialog
+              open={!!scheduleDialogRep}
+              onOpenChange={(open) => { if (!open) setScheduleDialogRep(null); }}
+              rep={scheduleDialogRep}
+              onConfirm={handleScheduleConfirm}
+            />
+          )}
         </div>
       </AppLayout>
     );
@@ -332,9 +363,16 @@ export default function OneOnOnePrepPage() {
           <button onClick={handleBack} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to roster
           </button>
-          <span className="text-xs text-muted-foreground">
-            {completedRepIds.size} of {orderedReps.length} completed
-          </span>
+          <div className="flex items-center gap-3">
+            {meetingTime && (
+              <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
+                🕐 {meetingTime}
+              </span>
+            )}
+            <span className="text-xs text-muted-foreground">
+              {completedRepIds.size} of {orderedReps.length} completed
+            </span>
+          </div>
         </div>
 
         {/* Duplicate warning */}
