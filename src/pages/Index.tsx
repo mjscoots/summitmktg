@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
+
+const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthCalculator"));
 
 const Index = () => {
   const navigate = useNavigate();
