@@ -7,8 +7,14 @@ import { getTeamColor } from '@/lib/teamColors';
 import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 import { useDownline } from '@/hooks/useDownline';
 import { cn } from '@/lib/utils';
-import { ArrowUp, ArrowDown, AlertTriangle, Copy, Check } from 'lucide-react';
-import type { TeamMember } from '@/lib/hierarchyUtils';
+import { ArrowUp, ArrowDown, AlertTriangle, Copy, Check, UserX } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { getDisplayName, type TeamMember } from '@/lib/hierarchyUtils';
 
 interface TeamMemberRow {
   user_id: string;
@@ -33,6 +39,8 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [copied, setCopied] = useState(false);
+  const [nlcConfirm, setNlcConfirm] = useState<{ open: boolean; member: TeamMemberRow | null }>({ open: false, member: null });
+  const [isMarkingNlc, setIsMarkingNlc] = useState(false);
 
   useEffect(() => {
     if (downlineLoading) return;
