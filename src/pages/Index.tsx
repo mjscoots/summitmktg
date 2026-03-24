@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
+
+const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthCalculator"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -178,6 +180,14 @@ const Index = () => {
 
         </div>
       </div>
+
+      {/* Downline Growth Calculator */}
+      <Suspense fallback={<div className="py-16 text-center text-muted-foreground text-sm">Loading calculator...</div>}>
+        <DownlineGrowthCalculator />
+      </Suspense>
+
+      {/* Divider */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/30 py-6">
