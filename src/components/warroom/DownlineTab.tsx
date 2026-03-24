@@ -7,8 +7,14 @@ import { getTeamColor } from '@/lib/teamColors';
 import { getReachableRookieTrainingItems, getCompletedTrainingCounts } from '@/lib/trainingProgressCalc';
 import { useDownline } from '@/hooks/useDownline';
 import { cn } from '@/lib/utils';
-import { ArrowUp, ArrowDown, AlertTriangle, Copy, Check } from 'lucide-react';
-import type { TeamMember } from '@/lib/hierarchyUtils';
+import { ArrowUp, ArrowDown, AlertTriangle, Copy, Check, UserX } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { getDisplayName, type TeamMember } from '@/lib/hierarchyUtils';
 
 interface TeamMemberRow {
   user_id: string;
@@ -33,6 +39,8 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [copied, setCopied] = useState(false);
+  const [nlcConfirm, setNlcConfirm] = useState<{ open: boolean; member: TeamMemberRow | null }>({ open: false, member: null });
+  const [isMarkingNlc, setIsMarkingNlc] = useState(false);
 
   useEffect(() => {
     if (downlineLoading) return;
@@ -124,6 +132,26 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleMarkNlc = async () => {
+    if (!nlcConfirm.member) return;
+    setIsMarkingNlc(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'nlc', updated_at: new Date().toISOString() })
+        .eq('user_id', nlcConfirm.member.user_id);
+      if (error) throw error;
+      toast.success(`${getDisplayName(nlcConfirm.member.full_name)} marked as NLC`);
+      setMembers(prev => prev.filter(m => m.user_id !== nlcConfirm.member!.user_id));
+    } catch (err) {
+      console.error('NLC error:', err);
+      toast.error('Failed to update status');
+    } finally {
+      setIsMarkingNlc(false);
+      setNlcConfirm({ open: false, member: null });
+    }
+  };
+
   return (
     <>
       {inactiveRookies.length > 0 && (
@@ -135,13 +163,14 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
         </div>
       )}
       <div className="bg-card rounded-xl border border-border/50 overflow-x-auto">
-        <div className="grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/30 bg-muted/30 min-w-[500px]">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 px-4 py-2.5 border-b border-border/30 bg-muted/30 min-w-[560px]">
           {headers.map(h => (
             <button key={h.key} onClick={() => handleSort(h.key)} className={cn("text-[10px] font-bold uppercase tracking-wider text-left transition-colors flex items-center gap-1", sortKey === h.key ? "text-primary" : "text-muted-foreground hover:text-foreground")}>
               {h.label}
               {sortKey === h.key && (sortAsc ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />)}
             </button>
           ))}
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-right">Action</span>
         </div>
         {sorted.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">No reps found</p>
@@ -150,26 +179,59 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
           const isInactive3Plus = daysInactive >= 3;
           const teamColor = getTeamColor(m.teamName);
           return (
-            <div key={m.user_id} className={cn("grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-border/10 hover:bg-muted/20 transition-colors items-center min-w-[500px]", isInactive3Plus && "bg-destructive/5 border-l-2 border-l-destructive/40")}>
-              <button onClick={() => setSelectedMember(toTeamMember(m))} className={cn("text-sm font-bold hover:underline truncate text-left", teamColor.text)}>{m.full_name}</button>
-              <div className="flex items-center gap-2">
+            <div key={m.user_id} className={cn("grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 px-4 py-2.5 border-b border-border/10 hover:bg-muted/20 transition-colors items-center min-w-[560px]", isInactive3Plus && "bg-destructive/5 border-l-2 border-l-destructive/40")}>
+              <button onClick={() => setSelectedMember(toTeamMember(m))} className={cn("text-sm font-bold hover:underline truncate text-left", teamColor.text)}>{getDisplayName(m.full_name)}</button>
+              <div className="flex items-center gap-2 min-w-[100px]">
                 <Progress value={m.trainingPct} className="h-1.5 flex-1 bg-muted max-w-[80px]" />
-                <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-yellow-400" : "text-destructive")}>{m.trainingPct}%</span>
+                <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-warning" : "text-destructive")}>{m.trainingPct}%</span>
               </div>
-              <span className={cn("text-xs font-semibold", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
-              <span className={cn("text-[11px]", isInactive3Plus ? "text-destructive font-semibold" : "text-muted-foreground")}>
+              <span className={cn("text-xs font-semibold min-w-[70px]", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
+              <span className={cn("text-[11px] min-w-[80px]", isInactive3Plus ? "text-destructive font-semibold" : "text-muted-foreground")}>
                 {m.last_active_at ? (() => {
                   if (daysInactive === 0) return 'Today';
                   if (daysInactive === 1) return 'Yesterday';
-                  return `${daysInactive} days ago`;
+                  return `${daysInactive}d ago`;
                 })() : 'Never'}
                 {isInactive3Plus && <AlertTriangle className="w-3 h-3 inline ml-1 text-destructive" />}
               </span>
+              <button
+                onClick={(e) => { e.stopPropagation(); setNlcConfirm({ open: true, member: m }); }}
+                className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                title="Mark as No Longer Coming"
+              >
+                <UserX className="w-3 h-3" />
+                NLC
+              </button>
             </div>
           );
         })}
       </div>
       <MemberProfileModal member={selectedMember} open={!!selectedMember} onClose={() => setSelectedMember(null)} roster={[]} />
+
+      {/* NLC Confirmation Dialog */}
+      <AlertDialog open={nlcConfirm.open} onOpenChange={(open) => !open && setNlcConfirm({ open: false, member: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <UserX className="w-5 h-5 text-destructive" />
+              Mark as No Longer Coming?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{nlcConfirm.member ? getDisplayName(nlcConfirm.member.full_name) : ''}</strong> will be removed from all team stats, leaderboards, and operational views. They'll only appear in the Admin Center.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isMarkingNlc}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleMarkNlc}
+              disabled={isMarkingNlc}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isMarkingNlc ? 'Updating...' : 'Confirm NLC'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
