@@ -181,6 +181,14 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Downline Growth Calculator */}
+      <Suspense fallback={<div className="py-16 text-center text-muted-foreground text-sm">Loading calculator...</div>}>
+        <DownlineGrowthCalculator />
+      </Suspense>
+
+      {/* Divider */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/30 py-6">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
