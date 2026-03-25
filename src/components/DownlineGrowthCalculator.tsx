@@ -455,6 +455,11 @@ export default function DownlineGrowthCalculator() {
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // --- Personal Revenue ---
+  const [sellingThisSummer, setSellingThisSummer] = useState(false);
+  const [personalRevStr, setPersonalRevStr] = useState('');
+  const [personalPrevSummerStr, setPersonalPrevSummerStr] = useState('');
+
   // --- Direct Rookies ---
   const [drCount, setDrCount] = useState('');
   const [drMethod, setDrMethod] = useState<'total' | 'perRep'>('perRep');
