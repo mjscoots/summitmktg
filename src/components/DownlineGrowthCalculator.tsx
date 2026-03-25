@@ -691,7 +691,7 @@ export default function DownlineGrowthCalculator() {
       )}
 
       {/* ====== PERSONAL REVENUE ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-amber-500/40">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-amber-400" />
