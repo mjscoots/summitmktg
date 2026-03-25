@@ -150,6 +150,12 @@ const RevenueMethodToggle = ({ method, onChange }: { method: 'total' | 'perRep';
 
 // ===================== TYPES =====================
 
+interface PersonalData {
+  selling: boolean;
+  grossRevenue: number;
+  previousSummerRevenue: number;
+}
+
 interface Assumptions {
   rookieAttrition: number;
   vetAttrition: number;
@@ -256,24 +262,39 @@ function calcTeam(t: TeamData, topDeal: number) {
   };
 }
 
+function calcPersonal(p: PersonalData, a: Assumptions) {
+  if (!p.selling || p.grossRevenue === 0) return { activeRevenue: 0, commission: 0, earnings: 0, usedPrevSummer: false };
+  const activeRevenue = p.grossRevenue * (1 - a.cancellationReduction / 100);
+  const currentRate = getVetRate(activeRevenue);
+  const prevRate = p.previousSummerRevenue > 0 ? getVetRate(p.previousSummerRevenue) : 0;
+  const usedPrevSummer = prevRate > currentRate;
+  const commission = Math.max(currentRate, prevRate);
+  const earnings = activeRevenue * commission;
+  return { activeRevenue, commission, earnings, usedPrevSummer };
+}
+
 function calcAll(
+  personal: PersonalData,
   directRookies: DirectRookiesData,
   directVets: DirectVetsData,
   teams: TeamData[],
   assumptions: Assumptions,
 ) {
+  // Personal
+  const personalResult = calcPersonal(personal, assumptions);
+
   // Step 1: compute total system active revenue for top-level marketing deal
   const rookieServiced = directRookies.revenueMethod === 'total' ? directRookies.totalServicedRevenue : directRookies.count * directRookies.avgServicedRevenue;
   const rookieActive = rookieServiced * (1 - assumptions.cancellationReduction / 100) * (1 - assumptions.rookieAttrition / 100);
   const vetActive = (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue : directVets.count * directVets.avgActiveRevenue) * (1 - assumptions.vetAttrition / 100);
 
   let teamActiveTotal = 0;
-  const teamResults = teams.map(t => {
-    const r = calcTeam(t, 0); // temp call to get active rev
+  teams.forEach(t => {
+    const r = calcTeam(t, 0);
     teamActiveTotal += r.teamActiveRevenue;
-    return r;
   });
 
+  // Total system active = all downline active (personal is NOT included in marketing deal calc — marketing deal is based on system/team revenue)
   const totalSystemActive = rookieActive + vetActive + teamActiveTotal;
   const topDeal = getMktgRate(totalSystemActive);
 
@@ -284,17 +305,18 @@ function calcAll(
   const totalTeamEarnings = finalTeamResults.reduce((s, r) => s + r.earnings, 0);
 
   const totalServiced = rookieServiced + (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue : directVets.count * directVets.avgActiveRevenue) + teamActiveTotal;
-  const totalEarnings = drResult.earnings + dvResult.earnings + totalTeamEarnings;
+  const totalDownlineEarnings = drResult.earnings + dvResult.earnings + totalTeamEarnings;
+  const totalEarnings = personalResult.earnings + totalDownlineEarnings;
 
-  // Weighted spread
-  const weightedSpread = totalSystemActive > 0 ? totalEarnings / totalSystemActive : 0;
+  // Weighted spread (downline only)
+  const weightedSpread = totalSystemActive > 0 ? totalDownlineEarnings / totalSystemActive : 0;
 
   // Active headcount
   const totalHeadcount = drResult.adjustedCount + dvResult.adjustedCount + finalTeamResults.reduce((s, r) => s + r.adjustedHeadcount, 0);
 
   return {
-    topDeal, totalSystemActive, totalServiced, totalEarnings, weightedSpread, totalHeadcount,
-    drResult, dvResult, teamResults: finalTeamResults,
+    topDeal, totalSystemActive, totalServiced, totalEarnings, totalDownlineEarnings, weightedSpread, totalHeadcount,
+    personalResult, drResult, dvResult, teamResults: finalTeamResults,
     rookieActive, vetActive, teamActiveTotal,
   };
 }
@@ -305,6 +327,7 @@ interface Insight { text: string; type: 'opportunity' | 'warning' | 'tip'; value
 
 function generateInsights(
   result: ReturnType<typeof calcAll>,
+  personal: PersonalData,
   directRookies: DirectRookiesData,
   directVets: DirectVetsData,
   teams: TeamData[],
@@ -337,7 +360,7 @@ function generateInsights(
   // Attrition impact
   if (directRookies.count > 0) {
     const noAttritionAssumptions = { ...assumptions, rookieAttrition: 0 };
-    const noAttrResult = calcAll(directRookies, directVets, teams, noAttritionAssumptions);
+    const noAttrResult = calcAll(personal, directRookies, directVets, teams, noAttritionAssumptions);
     const attritionCost = noAttrResult.totalEarnings - totalEarnings;
     if (attritionCost > 1000) {
       insights.push({ text: `Rookie attrition is costing you ${fmt(attritionCost)} in projected earnings.`, type: 'warning', value: attritionCost });
@@ -347,7 +370,7 @@ function generateInsights(
   // Cancellation impact
   if (result.totalServiced > 0) {
     const noCancelAssumptions = { ...assumptions, cancellationReduction: 0 };
-    const noCancelResult = calcAll(directRookies, directVets, teams, noCancelAssumptions);
+    const noCancelResult = calcAll(personal, directRookies, directVets, teams, noCancelAssumptions);
     const cancelCost = noCancelResult.totalEarnings - totalEarnings;
     if (cancelCost > 1000) {
       insights.push({ text: `Cancellations are reducing your earnings by ${fmt(cancelCost)}.`, type: 'warning', value: cancelCost });
@@ -374,8 +397,8 @@ function generateInsights(
     const perVetAvg = directVets.count > 0 ? (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue / directVets.count : directVets.avgActiveRevenue) : 250000;
     const add2Vets = { ...directVets, count: directVets.count + 2, totalActiveRevenue: directVets.totalActiveRevenue + 2 * perVetAvg };
     const add4Rookies = { ...directRookies, count: directRookies.count + 4, totalServicedRevenue: directRookies.totalServicedRevenue + 4 * 100000 };
-    const v2Result = calcAll(directRookies, add2Vets as any, teams, assumptions);
-    const r4Result = calcAll(add4Rookies as any, directVets, teams, assumptions);
+    const v2Result = calcAll(personal, directRookies, add2Vets as any, teams, assumptions);
+    const r4Result = calcAll(personal, add4Rookies as any, directVets, teams, assumptions);
     const v2Delta = v2Result.totalEarnings - totalEarnings;
     const r4Delta = r4Result.totalEarnings - totalEarnings;
     if (v2Delta > r4Delta && v2Delta > 1000) {
@@ -388,17 +411,18 @@ function generateInsights(
 
 function calcLeftOnTable(
   result: ReturnType<typeof calcAll>,
+  personal: PersonalData,
   directRookies: DirectRookiesData,
   directVets: DirectVetsData,
   teams: TeamData[],
   assumptions: Assumptions,
 ): { total: number; attrition: number; cancellation: number; weakTeams: number } {
   // Attrition cost
-  const noAttr = calcAll(directRookies, directVets, teams, { ...assumptions, rookieAttrition: 0, vetAttrition: 0 });
+  const noAttr = calcAll(personal, directRookies, directVets, teams, { ...assumptions, rookieAttrition: 0, vetAttrition: 0 });
   const attrition = noAttr.totalEarnings - result.totalEarnings;
 
   // Cancellation cost
-  const noCancel = calcAll(directRookies, directVets, teams, { ...assumptions, cancellationReduction: 0 });
+  const noCancel = calcAll(personal, directRookies, directVets, teams, { ...assumptions, cancellationReduction: 0 });
   const cancellation = noCancel.totalEarnings - result.totalEarnings;
 
   // Weak teams cost (normalize to best)
@@ -412,7 +436,7 @@ function calcLeftOnTable(
       }
       return t;
     });
-    const normalizedResult = calcAll(directRookies, directVets, normalizedTeams, assumptions);
+    const normalizedResult = calcAll(personal, directRookies, directVets, normalizedTeams, assumptions);
     weakTeams = Math.max(0, normalizedResult.totalEarnings - result.totalEarnings);
   }
 
@@ -430,6 +454,11 @@ export default function DownlineGrowthCalculator() {
     incentiveFee: 2, housingCost: 3,
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // --- Personal Revenue ---
+  const [sellingThisSummer, setSellingThisSummer] = useState(false);
+  const [personalRevStr, setPersonalRevStr] = useState('');
+  const [personalPrevSummerStr, setPersonalPrevSummerStr] = useState('');
 
   // --- Direct Rookies ---
   const [drCount, setDrCount] = useState('');
@@ -482,9 +511,15 @@ export default function DownlineGrowthCalculator() {
     cancellation: parseFloat(t.cancelStr) || assumptions.cancellationReduction,
   })), [teams, assumptions]);
 
-  const result = useMemo(() => calcAll(directRookies, directVets, teamData, assumptions), [directRookies, directVets, teamData, assumptions]);
-  const insights = useMemo(() => generateInsights(result, directRookies, directVets, teamData, assumptions), [result, directRookies, directVets, teamData, assumptions]);
-  const leftOnTable = useMemo(() => calcLeftOnTable(result, directRookies, directVets, teamData, assumptions), [result, directRookies, directVets, teamData, assumptions]);
+  const personal: PersonalData = useMemo(() => ({
+    selling: sellingThisSummer,
+    grossRevenue: parseNum(personalRevStr),
+    previousSummerRevenue: parseNum(personalPrevSummerStr),
+  }), [sellingThisSummer, personalRevStr, personalPrevSummerStr]);
+
+  const result = useMemo(() => calcAll(personal, directRookies, directVets, teamData, assumptions), [personal, directRookies, directVets, teamData, assumptions]);
+  const insights = useMemo(() => generateInsights(result, personal, directRookies, directVets, teamData, assumptions), [result, personal, directRookies, directVets, teamData, assumptions]);
+  const leftOnTable = useMemo(() => calcLeftOnTable(result, personal, directRookies, directVets, teamData, assumptions), [result, personal, directRookies, directVets, teamData, assumptions]);
 
   const addTeam = () => {
     teamCounter++;
@@ -500,7 +535,7 @@ export default function DownlineGrowthCalculator() {
   const removeTeam = (id: string) => setTeams(p => p.filter(t => t.id !== id));
   const updateTeam = (id: string, field: string, value: any) => setTeams(p => p.map(t => t.id === id ? { ...t, [field]: value } : t));
 
-  const hasData = directRookies.count > 0 || directVets.count > 0 || teamData.some(t => t.totalActiveRevenue > 0 || t.numRookies > 0 || t.numVets > 0);
+  const hasData = personal.selling || directRookies.count > 0 || directVets.count > 0 || teamData.some(t => t.totalActiveRevenue > 0 || t.numRookies > 0 || t.numVets > 0);
 
   // Find strongest / weakest team
   const teamResultsSorted = [...result.teamResults].map((r, i) => ({ ...r, team: teamData[i] })).filter(r => r.earnings > 0);
@@ -558,8 +593,9 @@ export default function DownlineGrowthCalculator() {
           </div>
 
           {/* Segments row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className={cn("grid gap-2", result.personalResult.earnings > 0 ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4")}>
             {[
+              ...(result.personalResult.earnings > 0 ? [{ label: 'Personal', value: fmt(result.personalResult.earnings), color: 'text-amber-400' }] : []),
               { label: 'From Rookies', value: fmt(result.drResult.earnings), color: 'text-blue-400' },
               { label: 'From Vets', value: fmt(result.dvResult.earnings), color: 'text-green-400' },
               { label: 'From Teams', value: fmt(result.teamResults.reduce((s, r) => s + r.earnings, 0)), color: 'text-purple-400' },
@@ -583,6 +619,49 @@ export default function DownlineGrowthCalculator() {
           )}
         </div>
       )}
+
+      {/* ====== PERSONAL REVENUE ====== */}
+      <div className="glass-card rounded-2xl p-4 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-amber-400" />
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Revenue</h3>
+            <InfoTip text="Your own personal production this summer. Commission based on your active revenue (vet scale). Previous summer can lock in a higher bracket." />
+          </div>
+          <button
+            onClick={() => setSellingThisSummer(!sellingThisSummer)}
+            className={cn(
+              "relative w-12 h-6 rounded-full transition-all duration-300 shrink-0",
+              sellingThisSummer ? "bg-green-500/80" : "bg-muted/40 border border-border/40"
+            )}
+            aria-label="Toggle selling this summer"
+          >
+            <div className={cn(
+              "absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all duration-300",
+              sellingThisSummer ? "left-[26px] bg-white" : "left-0.5 bg-muted-foreground/60"
+            )} />
+          </button>
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-2">Are you selling this summer?</p>
+
+        {sellingThisSummer && (
+          <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
+            <CurrencyInput value={personalRevStr} onChange={setPersonalRevStr} label="Your Gross Revenue Goal" icon={DollarSign} placeholder="e.g. 300,000" hint="Total serviced revenue you plan to write" />
+            <CurrencyInput value={personalPrevSummerStr} onChange={setPersonalPrevSummerStr} label="Previous Summer Revenue" icon={Shield} placeholder="Optional" hint="If higher, locks in the higher vet commission bracket" />
+
+            {personal.grossRevenue > 0 && (
+              <div className="p-2.5 rounded-lg bg-muted/10 border border-border/20 space-y-1 text-[10px] font-mono">
+                <div className="flex justify-between"><span className="text-muted-foreground">Active Revenue</span><span>{fmt(result.personalResult.activeRevenue)}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Commission {result.personalResult.usedPrevSummer ? '(prev summer bracket)' : ''}</span>
+                  <span>{pct(result.personalResult.commission)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-amber-400 border-t border-border/20 pt-1"><span>Personal Earnings</span><span>{fmt(result.personalResult.earnings)}</span></div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ====== 2. DIRECT REPS ====== */}
       <div className="grid md:grid-cols-2 gap-3 mb-4">
