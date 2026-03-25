@@ -385,12 +385,19 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
                 {/* === BODY REGION (flex-grow, contains title + description) === */}
                 <div className="flex-1 min-h-0">
-                  <h3 className={cn(
-                    "font-bold text-base text-foreground mb-2 transition-colors duration-300",
-                    !isComingSoon && (isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400")
-                  )}>
-                    {displayTitle}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className={cn(
+                      "font-bold text-base text-foreground transition-colors duration-300",
+                      !isComingSoon && (isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400")
+                    )}>
+                      {displayTitle}
+                    </h3>
+                    {course.slug === 'summer-sales-manual' && manualReadCount > 0 && (
+                      <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 font-bold text-[10px] px-1.5 py-0">
+                        {manualReadCount}x
+                      </Badge>
+                    )}
+                  </div>
                   
                   {course.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
