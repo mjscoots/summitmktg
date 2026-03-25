@@ -925,7 +925,7 @@ export default function DownlineGrowthCalculator() {
                       <span className="text-purple-400 font-bold">{fmt(tr.earnings)}</span>
                     </div>
                   )}
-                  <button onClick={e => { e.stopPropagation(); removeTeam(t.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={e => { e.stopPropagation(); removeTeam(t.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
 
                 {t.expanded && (
