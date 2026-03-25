@@ -122,7 +122,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
               </div>
               <div className="flex gap-3 mt-1 text-xs">
                 <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">{team.managerCount} managers</span>
-                <span className="px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-medium">{team.rookieCount} rookies</span>
+                <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">{team.rookieCount} rookies</span>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />

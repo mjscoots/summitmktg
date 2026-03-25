@@ -29,13 +29,13 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
   const manualRemaining = data.capsToday.manual.max - data.capsToday.manual.earned;
 
   if (lessonRemaining > 0) {
-    actions.push({ icon: <BookOpen className="w-4 h-4" />, label: 'Resume Lesson', points: `+${Math.min(60, lessonRemaining)}`, route: '/app/training', priority: hoursRemaining > 0 ? 1 : 2, iconColor: 'text-green-400' });
+    actions.push({ icon: <BookOpen className="w-4 h-4" />, label: 'Resume Lesson', points: `+${Math.min(60, lessonRemaining)}`, route: '/app/training', priority: hoursRemaining > 0 ? 1 : 2, iconColor: 'text-primary' });
   }
   if (lessonRemaining >= 20) {
-    actions.push({ icon: <Brain className="w-4 h-4" />, label: 'Take Quiz', points: '+75', route: '/app/training', priority: 3, iconColor: 'text-purple-400' });
+    actions.push({ icon: <Brain className="w-4 h-4" />, label: 'Take Quiz', points: '+75', route: '/app/training', priority: 3, iconColor: 'text-primary' });
   }
   if (manualRemaining > 0) {
-    actions.push({ icon: <FileText className="w-4 h-4" />, label: 'Sales Manual', points: `+${Math.min(50, manualRemaining)}`, route: '/app/training', priority: 4, iconColor: 'text-amber-400' });
+    actions.push({ icon: <FileText className="w-4 h-4" />, label: 'Sales Manual', points: `+${Math.min(50, manualRemaining)}`, route: '/app/training', priority: 4, iconColor: 'text-primary' });
   }
   if (videoRemaining > 0) {
     actions.push({ icon: <Play className="w-4 h-4" />, label: 'Watch Video', points: `+${Math.min(40, videoRemaining)}`, route: '/app/training/videos', priority: 5, iconColor: 'text-blue-400' });
@@ -47,7 +47,7 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
   return (
     <div className="bg-card rounded-xl border border-border p-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
-        <BookOpen className="w-4 h-4 text-green-400" />
+        <BookOpen className="w-4 h-4 text-primary" />
         <h2 className="text-sm font-bold text-foreground">Continue Learning</h2>
       </div>
 

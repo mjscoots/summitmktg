@@ -54,7 +54,7 @@ export function ContinueCard({
             "text-xs font-bold px-2.5 py-1 rounded uppercase tracking-wider",
             isManager 
               ? "bg-blue-500/15 text-blue-400" 
-              : "bg-green-500/15 text-green-400"
+              : "bg-primary/15 text-primary"
           )}>
             Continue Where You Left Off
           </span>
@@ -78,7 +78,7 @@ export function ContinueCard({
               "font-bold gap-2",
               isManager 
                 ? "bg-blue-500 hover:bg-blue-600" 
-                : "bg-green-500 hover:bg-green-600"
+                : "bg-primary hover:bg-primary"
             )}
           >
             Continue
@@ -92,14 +92,14 @@ export function ContinueCard({
             <span className="text-muted-foreground">Course Progress</span>
             <span className={cn(
               "font-bold",
-              isManager ? "text-blue-400" : "text-green-400"
+              isManager ? "text-blue-400" : "text-primary"
             )}>{progress}%</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div 
               className={cn(
                 "h-full rounded-full transition-all duration-500",
-                isManager ? "bg-blue-500" : "bg-green-500"
+                isManager ? "bg-blue-500" : "bg-primary"
               )}
               style={{ width: `${progress}%` }}
             />

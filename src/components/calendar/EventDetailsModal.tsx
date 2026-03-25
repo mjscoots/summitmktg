@@ -141,10 +141,10 @@ export function EventDetailsModal({
 
   const getCategoryBadge = () => {
     const styles: Record<string, { label: string; class: string }> = {
-      mandatory: { label: 'MANDATORY', class: 'bg-red-500/15 text-red-400 ring-1 ring-red-500/20' },
+      mandatory: { label: 'MANDATORY', class: 'bg-red-500/15 text-primary ring-1 ring-red-500/20' },
       training: { label: 'TRAINING', class: 'bg-blue-500/15 text-blue-400' },
-      revenue: { label: 'REVENUE / 1-ON-1', class: 'bg-purple-500/15 text-purple-400' },
-      optional: { label: 'OPTIONAL', class: 'bg-yellow-500/15 text-yellow-400' },
+      revenue: { label: 'REVENUE / 1-ON-1', class: 'bg-purple-500/15 text-primary' },
+      optional: { label: 'OPTIONAL', class: 'bg-primary/15 text-primary' },
     };
     const s = styles[category] || styles.optional;
     return (
@@ -254,9 +254,9 @@ export function EventDetailsModal({
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { icon: Trophy, label: 'Leaderboard Eligibility', color: 'text-yellow-400' },
-                  { icon: Star, label: 'Bonus Eligibility', color: 'text-purple-400' },
-                  { icon: Shield, label: 'Top 5 Room Selection', color: 'text-emerald-400' },
+                  { icon: Trophy, label: 'Leaderboard Eligibility', color: 'text-primary' },
+                  { icon: Star, label: 'Bonus Eligibility', color: 'text-primary' },
+                  { icon: Shield, label: 'Top 5 Room Selection', color: 'text-primary' },
                   { icon: TrendingUp, label: 'Execution Score', color: 'text-primary' },
                 ].map(item => (
                   <div key={item.label} className="flex items-center gap-2 text-xs">
@@ -342,7 +342,7 @@ export function EventDetailsModal({
           {canEdit && onDelete && (
             <Button variant="outline" size="sm"
               onClick={() => { onClose(); onDelete(event.id); }}
-              className="gap-1.5 text-red-400 hover:text-red-400 hover:bg-red-500/10">
+              className="gap-1.5 text-primary hover:text-primary hover:bg-red-500/10">
               <Trash2 className="w-4 h-4" /> Delete
             </Button>
           )}

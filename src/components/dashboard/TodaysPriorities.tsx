@@ -164,7 +164,7 @@ export function TodaysPriorities() {
                   member.trainingProgress < 30 
                     ? "bg-destructive/10 text-destructive" 
                     : member.trainingProgress < 60 
-                      ? "bg-amber-500/10 text-amber-600"
+                      ? "bg-primary/10 text-amber-600"
                       : "bg-success/10 text-success"
                 )}>
                   {member.trainingProgress}%
@@ -186,7 +186,7 @@ export function TodaysPriorities() {
              {needsCheckIn.map(member => (
                <div 
                  key={member.id}
-                 className="flex items-center gap-2 p-1.5 rounded-lg bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 transition-colors cursor-pointer group"
+                 className="flex items-center gap-2 p-1.5 rounded-lg bg-primary/5 border border-amber-500/20 hover:bg-primary/10 transition-colors cursor-pointer group"
                  onClick={() => setSelectedMember(convertToTeamMember(member))}
                >
                  <UserAvatar 

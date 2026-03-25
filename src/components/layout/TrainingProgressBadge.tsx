@@ -49,7 +49,7 @@ export function TrainingProgressBadge({ variant = 'compact' }: TrainingProgressB
                 <span className="text-muted-foreground ml-1.5">Training</span>
               </div>
               {progress.isComplete && (
-                <CheckCircle className="w-4 h-4 text-green-500 ml-1" />
+                <CheckCircle className="w-4 h-4 text-primary ml-1" />
               )}
             </div>
           </TooltipTrigger>
@@ -76,7 +76,7 @@ export function TrainingProgressBadge({ variant = 'compact' }: TrainingProgressB
             <TrendingUp className={cn("w-3.5 h-3.5", progressColor)} />
             <span className={progressColor}>{progress.overall}%</span>
             {progress.isComplete && (
-              <CheckCircle className="w-3 h-3 text-green-500" />
+              <CheckCircle className="w-3 h-3 text-primary" />
             )}
           </div>
         </TooltipTrigger>
@@ -108,12 +108,12 @@ function ProgressTooltipContent({ progress }: { progress: { overall: number; cou
         {progress.courses.map(course => (
           <div key={course.courseId} className="flex items-center gap-2 text-sm">
             {course.percentage === 100 ? (
-              <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+              <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />
             ) : (
               <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
             )}
             <span className={cn(
-              course.percentage === 100 ? "text-green-500" : "text-muted-foreground"
+              course.percentage === 100 ? "text-primary" : "text-muted-foreground"
             )}>
               {course.courseTitle}: {course.percentage}% ({course.completedLessons}/{course.totalLessons})
             </span>

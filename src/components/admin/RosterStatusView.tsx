@@ -32,10 +32,10 @@ const STATUS_TABS = [
 type StatusTab = typeof STATUS_TABS[number]['key'];
 
 const STATUS_COLORS: Record<string, { badge: string }> = {
-  summer_ready: { badge: 'bg-green-500/15 text-green-400 border-green-500/30' },
+  summer_ready: { badge: 'bg-primary/15 text-primary border-green-500/30' },
   onboarded: { badge: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  contract_signed: { badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
-  info_added: { badge: 'bg-orange-500/15 text-orange-400 border-orange-500/30' },
+  contract_signed: { badge: 'bg-primary/15 text-primary border-amber-500/30' },
+  info_added: { badge: 'bg-primary/15 text-primary border-orange-500/30' },
   pending: { badge: 'bg-muted/30 text-muted-foreground border-muted' },
 };
 
@@ -60,10 +60,10 @@ function RoleBadge({ role }: { role: string }) {
   return (
     <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wide ${
       role === 'admin' || role === 'owner'
-        ? 'bg-purple-500/20 text-purple-400'
+        ? 'bg-purple-500/20 text-primary'
         : isManager
         ? 'bg-primary/20 text-primary'
-        : 'bg-green-500/20 text-green-400'
+        : 'bg-primary/20 text-primary'
     }`}>
       {role === 'owner' ? 'Owner' : role === 'admin' ? 'Admin' : isManager ? 'Manager' : 'Rookie'}
     </span>

@@ -23,13 +23,13 @@ interface UserAvatarProps {
  function getColorFromName(name: string): string {
    const colors = [
      'bg-red-500',
-     'bg-orange-500',
-     'bg-amber-500',
-     'bg-yellow-500',
+     'bg-primary',
+     'bg-primary',
+     'bg-primary',
      'bg-lime-500',
-     'bg-green-500',
-     'bg-emerald-500',
-     'bg-teal-500',
+     'bg-primary',
+     'bg-primary',
+     'bg-primary',
      'bg-cyan-500',
      'bg-sky-500',
      'bg-blue-500',
@@ -116,7 +116,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
     <span className={cn(
       'absolute bottom-0 right-0 rounded-full border-background',
       dotSizeClasses[size],
-      isTyping ? 'bg-orange-400 animate-pulse' : isOnline ? 'bg-green-500' : 'bg-muted-foreground/40'
+      isTyping ? 'bg-primary animate-pulse' : isOnline ? 'bg-primary' : 'bg-muted-foreground/40'
     )} />
   ) : null;
 

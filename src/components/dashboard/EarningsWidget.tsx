@@ -74,9 +74,9 @@ export function EarningsWidget() {
 
         <div className="grid grid-cols-3 gap-3 mb-4">
           {([
-            { label: 'Low', value: scenarios.low, color: 'text-amber-400' },
+            { label: 'Low', value: scenarios.low, color: 'text-primary' },
             { label: 'Moderate', value: scenarios.moderate, color: 'text-primary' },
-            { label: 'High', value: scenarios.high, color: 'text-emerald-400' },
+            { label: 'High', value: scenarios.high, color: 'text-primary' },
           ]).map(s => (
             <div key={s.label} className="text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{s.label}</p>

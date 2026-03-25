@@ -268,7 +268,7 @@ export function AICoachChat() {
         className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 ${
           isManager 
             ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30' 
-            : 'bg-green-600 hover:bg-green-500 shadow-green-500/30'
+            : 'bg-primary hover:bg-primary shadow-green-500/30'
         } ${hasNewChat ? 'ring-4 ring-primary/60 animate-bounce' : ''}`}
         aria-label="Open Chat"
       >
@@ -295,7 +295,7 @@ export function AICoachChat() {
       }`}>
         {/* Header */}
         <div className={`p-3 flex items-center justify-between ${
-          isManager ? 'bg-blue-600' : 'bg-green-600'
+          isManager ? 'bg-blue-600' : 'bg-primary'
         }`}>
           <div className="flex items-center gap-2">
             {/* Tab switcher */}
@@ -350,7 +350,7 @@ export function AICoachChat() {
                 <>
                   {messages.length === 0 && (
                     <div className="text-center py-6">
-                      <Bot className={`w-10 h-10 mx-auto mb-2 ${isManager ? 'text-blue-500' : 'text-green-500'}`} />
+                      <Bot className={`w-10 h-10 mx-auto mb-2 ${isManager ? 'text-blue-500' : 'text-primary'}`} />
                       <p className="text-foreground font-semibold text-sm mb-1">Hey {firstName}!</p>
                       <p className="text-muted-foreground text-xs">
                         {isManager 
@@ -363,9 +363,9 @@ export function AICoachChat() {
                   {messages.map((msg, i) => (
                     <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                       <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${
-                        msg.role === 'user' ? 'bg-muted' : isManager ? 'bg-blue-500/20' : 'bg-green-500/20'
+                        msg.role === 'user' ? 'bg-muted' : isManager ? 'bg-blue-500/20' : 'bg-primary/20'
                       }`}>
-                        {msg.role === 'user' ? <User className="w-3.5 h-3.5 text-muted-foreground" /> : <Bot className={`w-3.5 h-3.5 ${isManager ? 'text-blue-400' : 'text-green-400'}`} />}
+                        {msg.role === 'user' ? <User className="w-3.5 h-3.5 text-muted-foreground" /> : <Bot className={`w-3.5 h-3.5 ${isManager ? 'text-blue-400' : 'text-primary'}`} />}
                       </div>
                       <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                         msg.role === 'user' ? 'bg-muted text-foreground' : 'bg-card border border-border text-foreground'
@@ -376,8 +376,8 @@ export function AICoachChat() {
                   ))}
                   {isLoading && messages[messages.length - 1]?.content === '' && (
                     <div className="flex gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isManager ? 'bg-blue-500/20' : 'bg-green-500/20'}`}>
-                        <Loader2 className={`w-3.5 h-3.5 animate-spin ${isManager ? 'text-blue-400' : 'text-green-400'}`} />
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isManager ? 'bg-blue-500/20' : 'bg-primary/20'}`}>
+                        <Loader2 className={`w-3.5 h-3.5 animate-spin ${isManager ? 'text-blue-400' : 'text-primary'}`} />
                       </div>
                     </div>
                   )}
@@ -435,7 +435,7 @@ export function AICoachChat() {
                   onClick={handleSend}
                   disabled={!input.trim() || isLoading || isSendingChat}
                   size="sm"
-                  className={isManager ? 'bg-blue-600 hover:bg-blue-500' : 'bg-green-600 hover:bg-green-500'}
+                  className={isManager ? 'bg-blue-600 hover:bg-blue-500' : 'bg-primary hover:bg-primary'}
                 >
                   {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>

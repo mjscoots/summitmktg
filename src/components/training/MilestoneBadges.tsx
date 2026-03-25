@@ -35,8 +35,8 @@ const BADGES: Badge[] = [
     label: 'Gold',
     threshold: 75,
     icon: <Star className="w-5 h-5" />,
-    colorClass: 'text-yellow-400',
-    glowClass: 'bg-yellow-400/20 border-yellow-400/40',
+    colorClass: 'text-primary',
+    glowClass: 'bg-primary/20 border-yellow-400/40',
   },
   {
     type: 'summit',

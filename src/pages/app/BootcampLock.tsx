@@ -35,7 +35,7 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
 
   if (timeLeft.isOverdue) {
     return (
-      <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
+      <div className="flex items-center gap-2 text-primary bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
         <AlertTriangle className="w-5 h-5 shrink-0" />
         <span className="text-sm font-semibold">Deadline passed — complete your Summer Checklist now!</span>
       </div>
@@ -51,7 +51,7 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
         <span className="text-xs text-white/50 uppercase tracking-wide font-semibold">Time Remaining</span>
       </div>
       <div className="flex items-center justify-center gap-1 font-mono text-2xl font-bold text-white tracking-wider">
-        <span className={timeLeft.hours < 1 && timeLeft.minutes < 10 ? 'text-red-400' : timeLeft.hours < 1 && timeLeft.minutes < 20 ? 'text-yellow-400' : 'text-white'}>
+        <span className={timeLeft.hours < 1 && timeLeft.minutes < 10 ? 'text-primary' : timeLeft.hours < 1 && timeLeft.minutes < 20 ? 'text-primary' : 'text-white'}>
           {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
         </span>
       </div>
@@ -160,7 +160,7 @@ export default function BootcampLock() {
           </h1>
 
           <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 mb-4">
-            <p className="text-red-400 text-sm font-semibold">
+            <p className="text-primary text-sm font-semibold">
               🔒 You must complete the Summer Checklist before you can access the app.
             </p>
           </div>
@@ -210,7 +210,7 @@ export default function BootcampLock() {
                   )}
                 >
                   {done ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                   ) : (
                     <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold shrink-0">
                       {step.num}
@@ -241,7 +241,7 @@ export default function BootcampLock() {
                   )}
                 >
                   {done ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                   ) : (
                     <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold shrink-0">
                       {step.num}

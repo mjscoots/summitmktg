@@ -48,7 +48,7 @@ export function LessonDebugPanel({
     <div className="fixed bottom-20 right-4 z-50 max-w-xs">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-2 py-1 text-xs font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-t"
+        className="flex items-center gap-1 px-2 py-1 text-xs font-mono bg-primary/20 text-primary border border-amber-500/30 rounded-t"
       >
         <Bug className="w-3 h-3" />
         Debug
@@ -113,9 +113,9 @@ function Row({
     <div className="flex justify-between gap-2">
       <span className="text-muted-foreground">{label}:</span>
       <span className={cn(
-        status === 'success' && 'text-green-400',
-        status === 'error' && 'text-red-400',
-        status === 'warning' && 'text-amber-400',
+        status === 'success' && 'text-primary',
+        status === 'error' && 'text-primary',
+        status === 'warning' && 'text-primary',
         !status && 'text-foreground'
       )}>
         {value}

@@ -129,7 +129,7 @@ export function ChatBubble({
   };
 
   const getRoleColor = (r?: string) => {
-    if (r === 'owner') return 'text-amber-400';
+    if (r === 'owner') return 'text-primary';
     if (r === 'admin') return 'text-slate-300';
     if (r === 'manager') return 'text-blue-400';
     return 'text-foreground/60';

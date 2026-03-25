@@ -42,13 +42,13 @@ export function MicroCheckpoint({
       <div className={cn(
         "p-6 rounded-xl border-2 transition-all duration-500",
         isRookieCourse 
-          ? "border-green-500/50 bg-green-500/10"
+          ? "border-green-500/50 bg-primary/10"
           : "border-blue-500/50 bg-blue-500/10"
       )}>
         <div className="flex items-center justify-center gap-3">
           <CheckCircle2 className={cn(
             "w-6 h-6 animate-scale-in",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )} />
           <span className="font-semibold text-foreground">Got it!</span>
         </div>
@@ -60,17 +60,17 @@ export function MicroCheckpoint({
     <div className={cn(
       "p-6 rounded-xl border-2 transition-all duration-300",
       isRookieCourse 
-        ? "border-green-500/30 bg-green-500/5"
+        ? "border-green-500/30 bg-primary/5"
         : "border-blue-500/30 bg-blue-500/5"
     )}>
       <div className="flex items-start gap-3 mb-4">
         <div className={cn(
           "p-2 rounded-lg",
-          isRookieCourse ? "bg-green-500/20" : "bg-blue-500/20"
+          isRookieCourse ? "bg-primary/20" : "bg-blue-500/20"
         )}>
           <Lightbulb className={cn(
             "w-5 h-5",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )} />
         </div>
         <div>
@@ -91,7 +91,7 @@ export function MicroCheckpoint({
                 "w-full p-3 rounded-lg border text-left transition-all duration-200",
                 selectedOption === option
                   ? isRookieCourse
-                    ? "border-green-500 bg-green-500/20 text-foreground"
+                    ? "border-green-500 bg-primary/20 text-foreground"
                     : "border-blue-500 bg-blue-500/20 text-foreground"
                   : "border-border bg-muted/30 text-muted-foreground hover:text-foreground hover:border-muted-foreground/50"
               )}
@@ -108,7 +108,7 @@ export function MicroCheckpoint({
         className={cn(
           "w-full font-semibold transition-all duration-300",
           isRookieCourse
-            ? "bg-green-500 hover:bg-green-600 text-white"
+            ? "bg-primary hover:bg-primary text-white"
             : "bg-blue-500 hover:bg-blue-600 text-white"
         )}
       >

@@ -18,7 +18,7 @@ export function PillarCard({ pillar, onClick }: PillarCardProps) {
           <h3 className="font-semibold text-foreground text-lg">{pillar.name}</h3>
           {pillar.owner && (
             <div className="flex items-center gap-1.5 mt-1">
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
+              <Crown className="w-3.5 h-3.5 text-primary" />
               <span className="text-sm text-primary font-medium">
                 {pillar.owner.full_name}
               </span>

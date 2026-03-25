@@ -140,11 +140,11 @@ export default function PitchApprovalsPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-amber-500">{pending.length}</p>
+            <p className="text-2xl font-bold text-primary">{pending.length}</p>
             <p className="text-xs text-muted-foreground">Pending</p>
           </div>
           <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-green-500">{approved.length}</p>
+            <p className="text-2xl font-bold text-primary">{approved.length}</p>
             <p className="text-xs text-muted-foreground">Approved</p>
           </div>
           <div className="bg-card rounded-lg border border-border p-3 text-center">
@@ -160,7 +160,7 @@ export default function PitchApprovalsPage() {
           </h2>
           {pending.length === 0 ? (
             <div className="bg-card rounded-lg border border-border p-6 text-center text-muted-foreground">
-              <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500/50" />
+              <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-primary/50" />
               <p className="text-sm">No pending approvals — you're caught up! 🎉</p>
             </div>
           ) : (
@@ -193,7 +193,7 @@ export default function PitchApprovalsPage() {
                           {formatDistanceToNow(new Date(req.submitted_at), { addSuffix: true })}
                         </span>
                         {isOverdue && (
-                          <span className="text-[10px] text-amber-500 font-medium flex items-center gap-0.5">
+                          <span className="text-[10px] text-primary font-medium flex items-center gap-0.5">
                             <AlertTriangle className="w-2.5 h-2.5" /> Needs attention
                           </span>
                         )}
@@ -230,7 +230,7 @@ export default function PitchApprovalsPage() {
                     className="bg-card rounded-lg border border-border p-3 flex items-center gap-3 opacity-70"
                     style={{ borderLeftWidth: 3, borderLeftColor: `hsl(${tc.hsl})` }}
                   >
-                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
                     <UserAvatar avatarUrl={req.user_avatar} fullName={req.user_name || ''} size="xs" teamName={req.team_name} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">

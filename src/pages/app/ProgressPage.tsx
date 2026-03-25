@@ -18,7 +18,7 @@ export default function ProgressPage() {
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <GraduationCap className={cn(
               "w-6 h-6",
-              isManager ? "text-blue-400" : "text-green-400"
+              isManager ? "text-blue-400" : "text-primary"
             )} />
             My Progress
           </h1>

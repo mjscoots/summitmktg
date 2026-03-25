@@ -57,7 +57,7 @@ export default function ManagePage() {
             )}
           >
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-orange-500/15 group-hover:bg-orange-500/25 text-orange-400 transition-colors">
+              <div className="p-2.5 rounded-xl bg-primary/15 group-hover:bg-primary/25 text-primary transition-colors">
                 <Swords className="w-6 h-6" />
               </div>
               <div className="flex-1">
@@ -120,7 +120,7 @@ export default function ManagePage() {
             )}
           >
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/15 group-hover:bg-amber-500/25 text-amber-400 transition-colors">
+              <div className="p-2.5 rounded-xl bg-primary/15 group-hover:bg-primary/25 text-primary transition-colors">
                 <BookOpen className="w-6 h-6" />
               </div>
               <div className="flex-1">
@@ -146,7 +146,7 @@ export default function ManagePage() {
         >
           <div className="relative z-10 flex items-center justify-center gap-3">
             <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/30 group-hover:bg-purple-500/30 transition-colors">
-              <Video className="w-6 h-6 text-purple-400" />
+              <Video className="w-6 h-6 text-primary" />
             </div>
             <h2 className="text-base font-bold text-foreground">Pitch Approvals & Rep Videos</h2>
           </div>

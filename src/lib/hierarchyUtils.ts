@@ -757,8 +757,8 @@ export function getStatusInfo(status: string | null): { label: string; className
   const statusMap: Record<string, { label: string; className: string }> = {
     active: { label: 'Active', className: 'bg-success/15 text-success' },
     onboarded: { label: 'Onboarded', className: 'bg-primary/15 text-primary' },
-    contract_signed: { label: 'Contract Signed', className: 'bg-amber-500/15 text-amber-400' },
-    info_added: { label: 'Info Added', className: 'bg-amber-500/15 text-amber-400' },
+    contract_signed: { label: 'Contract Signed', className: 'bg-primary/15 text-primary' },
+    info_added: { label: 'Info Added', className: 'bg-primary/15 text-primary' },
     nlc: { label: 'NLC', className: 'bg-muted text-muted-foreground opacity-60' },
   };
   return statusMap[status || ''] || { label: 'Pending', className: 'bg-muted text-muted-foreground' };

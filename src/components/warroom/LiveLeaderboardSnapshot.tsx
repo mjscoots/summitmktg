@@ -46,7 +46,7 @@ export function LiveLeaderboardSnapshot() {
     <div className="bg-[hsl(220,14%,6%)] border border-border/30 rounded-xl p-3">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-          <Trophy className="w-3 h-3 text-yellow-500" />
+          <Trophy className="w-3 h-3 text-primary" />
           Leaderboard
         </h3>
         <button
@@ -64,16 +64,16 @@ export function LiveLeaderboardSnapshot() {
             <div
               key={i}
               className={`flex items-center justify-between py-1.5 px-2 rounded-md transition-colors ${
-                i === 0 ? 'bg-yellow-500/5' : 'hover:bg-muted/30'
+                i === 0 ? 'bg-primary/5' : 'hover:bg-muted/30'
               }`}
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm w-5 text-center">{medals[i] || `${i + 1}.`}</span>
-                <span className={`text-xs font-medium ${i === 0 ? 'text-yellow-400' : 'text-foreground/80'}`}>
+                <span className={`text-xs font-medium ${i === 0 ? 'text-primary' : 'text-foreground/80'}`}>
                   {leader.name}
                 </span>
               </div>
-              <span className={`text-xs font-bold tabular-nums ${i === 0 ? 'text-yellow-400' : 'text-muted-foreground'}`}>
+              <span className={`text-xs font-bold tabular-nums ${i === 0 ? 'text-primary' : 'text-muted-foreground'}`}>
                 {leader.points}
               </span>
             </div>

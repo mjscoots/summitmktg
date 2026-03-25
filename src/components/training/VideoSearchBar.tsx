@@ -172,7 +172,7 @@ export function VideoSearchBar({
               {sug.type === 'video' ? (
                 <Play className="w-4 h-4 text-primary shrink-0" />
               ) : (
-                <Folder className="w-4 h-4 text-amber-500 shrink-0" />
+                <Folder className="w-4 h-4 text-primary shrink-0" />
               )}
               <span className="truncate text-foreground">
                 {highlightMatch(sug.label, debouncedQuery.trim())}

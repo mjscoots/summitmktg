@@ -52,7 +52,7 @@ function XPBadge({ points, delay = 0 }: { points: number; delay?: number }) {
   if (!show) return null;
 
   return (
-    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-bold animate-scale-in">
+    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-green-500/30 text-sm font-bold animate-scale-in">
       <Zap className="w-4 h-4" />
       +{displayPts} XP
     </div>
@@ -73,17 +73,17 @@ export function QuizResultsDisplay({
 }: QuizResultsDisplayProps) {
   if (passed) {
     return (
-      <div className="p-6 rounded-lg text-center bg-green-500/10 border border-green-500/20">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center animate-scale-in">
-          <Trophy className="w-8 h-8 text-green-400" />
+      <div className="p-6 rounded-lg text-center bg-primary/10 border border-green-500/20">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center animate-scale-in">
+          <Trophy className="w-8 h-8 text-primary" />
         </div>
         
-        <h3 className="text-xl font-bold text-green-400 mb-2">
+        <h3 className="text-xl font-bold text-primary mb-2">
           Perfect Score
         </h3>
         
         <p className="text-lg text-foreground mb-3">
-          You scored <span className="font-bold text-green-400">100%</span> ({correct}/{total} correct)
+          You scored <span className="font-bold text-primary">100%</span> ({correct}/{total} correct)
         </p>
 
         {/* XP reward with delayed entrance */}
@@ -95,7 +95,7 @@ export function QuizResultsDisplay({
         <div className="bg-card/50 rounded-lg p-4 mb-6 text-left max-h-60 overflow-y-auto">
           {results.map((result, index) => (
             <div key={result.question_id} className="flex items-start gap-2 py-2 border-b border-border/30 last:border-0">
-              <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-foreground font-medium">Question {index + 1}: Correct</p>
               </div>
@@ -112,7 +112,7 @@ export function QuizResultsDisplay({
           className={cn(
             "font-semibold h-11 px-6 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg",
             isRookieCourse 
-              ? "bg-green-500 hover:bg-green-600" 
+              ? "bg-primary hover:bg-primary" 
               : "bg-blue-500 hover:bg-blue-600"
           )}
         >
@@ -125,20 +125,20 @@ export function QuizResultsDisplay({
 
   // Failed quiz - show detailed feedback
   return (
-    <div className="p-6 rounded-lg bg-amber-500/10 border border-amber-500/20">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
-        <AlertTriangle className="w-8 h-8 text-amber-400" />
+    <div className="p-6 rounded-lg bg-primary/10 border border-amber-500/20">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+        <AlertTriangle className="w-8 h-8 text-primary" />
       </div>
       
-      <h3 className="text-xl font-bold text-amber-400 mb-2 text-center">
+      <h3 className="text-xl font-bold text-primary mb-2 text-center">
         Not Quite There Yet
       </h3>
       
       <p className="text-lg text-foreground mb-2 text-center">
-        You scored <span className="font-bold text-amber-400">{score}%</span> ({correct}/{total} correct)
+        You scored <span className="font-bold text-primary">{score}%</span> ({correct}/{total} correct)
       </p>
       
-      <p className="text-sm text-amber-400 mb-4 text-center font-medium">
+      <p className="text-sm text-primary mb-4 text-center font-medium">
         You must score 100% to proceed
       </p>
       
@@ -154,7 +154,7 @@ export function QuizResultsDisplay({
           >
             <div className="flex items-start gap-2">
               {result.is_correct ? (
-                <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
               ) : (
                 <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
               )}
@@ -173,7 +173,7 @@ export function QuizResultsDisplay({
                       <span className="text-muted-foreground">{result.user_answer || '(no answer)'}</span>
                     </p>
                     <p className="text-xs">
-                      <span className="text-green-400 font-medium">Correct answer:</span>{' '}
+                      <span className="text-primary font-medium">Correct answer:</span>{' '}
                       <span className="text-foreground">{result.correct_answer}</span>
                     </p>
                     {result.explanation && (
@@ -203,7 +203,7 @@ export function QuizResultsDisplay({
           className={cn(
             "font-semibold gap-2",
             isRookieCourse 
-              ? "bg-green-500 hover:bg-green-600" 
+              ? "bg-primary hover:bg-primary" 
               : "bg-blue-500 hover:bg-blue-600"
           )}
         >

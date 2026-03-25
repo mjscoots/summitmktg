@@ -114,11 +114,11 @@ export function TeamTreeNode({
           <div className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
             isRoot 
-              ? "bg-amber-500/20" 
+              ? "bg-primary/20" 
               : tc.bgTint
           )}>
             {isRoot ? (
-              <Crown className="w-4 h-4 text-amber-400" />
+              <Crown className="w-4 h-4 text-primary" />
             ) : (
               <User className={cn("w-4 h-4", tc.text)} />
             )}

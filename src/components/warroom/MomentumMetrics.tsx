@@ -41,7 +41,7 @@ export function MomentumMetrics() {
 
   const items = [
     { icon: Users, label: 'Active Now', value: `${metrics.activeReps}/${metrics.totalReps}`, color: 'text-primary' },
-    { icon: Target, label: 'Active %', value: `${metrics.weeklyTargetPct}%`, color: 'text-orange-400' },
+    { icon: Target, label: 'Active %', value: `${metrics.weeklyTargetPct}%`, color: 'text-primary' },
   ];
 
   return (

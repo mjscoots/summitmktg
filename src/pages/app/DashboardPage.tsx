@@ -186,7 +186,7 @@ export default function DashboardPage() {
   const challengeTotal = challengeData?.objectives?.length || 3;
 
   const OBJECTIVE_ICONS: Record<string, typeof Clock> = { training: Clock, chat: MessageSquare, lessons: BookOpen };
-  const OBJECTIVE_COLORS: Record<string, string> = { training: 'text-primary', chat: 'text-blue-400', lessons: 'text-green-400' };
+  const OBJECTIVE_COLORS: Record<string, string> = { training: 'text-primary', chat: 'text-blue-400', lessons: 'text-primary' };
 
   return (
     <AppLayout>
@@ -213,10 +213,10 @@ export default function DashboardPage() {
             {pointsData && (
               <div className="grid grid-cols-4 gap-2.5 relative z-10">
                 {[
-                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-amber-400', glow: 'hsl(43 96% 56% / 0.15)' },
+                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-primary', glow: 'hsl(43 96% 56% / 0.15)' },
                   { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.15)' },
-                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-yellow-400', glow: 'hsl(43 96% 56% / 0.12)' },
-                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-orange-400', glow: 'hsl(25 95% 53% / 0.12)' },
+                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary', glow: 'hsl(43 96% 56% / 0.12)' },
+                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-primary', glow: 'hsl(25 95% 53% / 0.12)' },
                 ].map(({ icon: Icon, value, label, color, glow }) => (
                   <div
                     key={label}
@@ -294,8 +294,8 @@ export default function DashboardPage() {
               <span className={cn("ml-auto text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider",
                 hoursToday < 1 ? "bg-muted/40 text-muted-foreground" :
                 hoursToday < 2 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
-                hoursToday < 4 ? "bg-orange-500/10 text-orange-400 border border-orange-500/20" :
-                "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                hoursToday < 4 ? "bg-primary/10 text-primary border border-orange-500/20" :
+                "bg-primary/10 text-primary border border-yellow-500/20"
               )}>
                 {momentumLevel}
               </span>

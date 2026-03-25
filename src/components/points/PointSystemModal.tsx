@@ -23,7 +23,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: Zap, color: 'text-yellow-500', title: 'Weekly Bonuses',
+    icon: Zap, color: 'text-primary', title: 'Weekly Bonuses',
     subtitle: 'Up to +2,000',
     items: [
       { label: '15 hrs (900 min)', pts: '+2,000' },
@@ -32,7 +32,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: Flame, color: 'text-green-500', title: 'Streak Milestones',
+    icon: Flame, color: 'text-primary', title: 'Streak Milestones',
     subtitle: 'Up to +2,000',
     items: [
       { label: '30-day milestone', pts: '+2,000' },
@@ -52,7 +52,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: MessageSquare, color: 'text-emerald-500', title: 'Chat',
+    icon: MessageSquare, color: 'text-primary', title: 'Chat',
     subtitle: '400/day cap',
     items: [
       { label: 'Per message (≥10 chars)', pts: '+15' },
@@ -60,7 +60,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: BookOpen, color: 'text-green-500', title: 'Lessons',
+    icon: BookOpen, color: 'text-primary', title: 'Lessons',
     subtitle: '300/day cap',
     items: [
       { label: 'First 3 / day', pts: '+60 ea' },
@@ -99,7 +99,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: CalendarCheck, color: 'text-teal-500', title: 'Attendance',
+    icon: CalendarCheck, color: 'text-primary', title: 'Attendance',
     items: [
       { label: 'RSVP "Yes"', pts: '+pts' },
       { label: 'RSVP "No"', pts: '−pts' },
@@ -113,7 +113,7 @@ export function PointSystemModal({ open, onOpenChange }: PointSystemModalProps) 
       <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+            <Trophy className="w-5 h-5 text-primary" />
             Points Guide
           </DialogTitle>
         </DialogHeader>
@@ -141,7 +141,7 @@ export function PointSystemModal({ open, onOpenChange }: PointSystemModalProps) 
                     {item.pts && (
                       <span className={cn(
                         "text-[11px] font-bold tabular-nums shrink-0",
-                        item.pts.startsWith('−') ? "text-red-400" : "text-foreground"
+                        item.pts.startsWith('−') ? "text-primary" : "text-foreground"
                       )}>{item.pts}</span>
                     )}
                   </div>

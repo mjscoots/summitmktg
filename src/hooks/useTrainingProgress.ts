@@ -52,14 +52,14 @@ export function useTrainingProgress(userIds: string[]) {
   const getProgressColor = (percentage: number): string => {
     if (percentage === 100) return 'text-success';
     if (percentage >= 67) return 'text-primary';
-    if (percentage >= 34) return 'text-yellow-500';
+    if (percentage >= 34) return 'text-primary';
     return 'text-destructive';
   };
 
   const getProgressBgColor = (percentage: number): string => {
     if (percentage === 100) return 'bg-success/15';
     if (percentage >= 67) return 'bg-primary/15';
-    if (percentage >= 34) return 'bg-yellow-500/15';
+    if (percentage >= 34) return 'bg-primary/15';
     return 'bg-destructive/15';
   };
 

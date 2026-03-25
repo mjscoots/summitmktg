@@ -212,9 +212,9 @@ export function TeamNotificationBanners({ teamId, teamName, roster = [] }: TeamN
         {teamWideNotifications.map((notification) => (
           <div
             key={notification.id}
-            className="relative flex items-center gap-3 px-5 py-3 bg-green-500/10 border-l-4 border-green-500 rounded-r-lg"
+            className="relative flex items-center gap-3 px-5 py-3 bg-primary/10 border-l-4 border-green-500 rounded-r-lg"
           >
-            <HandMetal className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <HandMetal className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-sm text-foreground flex-1">
               👋 Everybody welcome{' '}
               <button
@@ -228,10 +228,10 @@ export function TeamNotificationBanners({ teamId, teamName, roster = [] }: TeamN
             </p>
             <button
               onClick={() => handleDismiss(notification.id)}
-              className="p-1 rounded hover:bg-green-500/20 transition-colors"
+              className="p-1 rounded hover:bg-primary/20 transition-colors"
               aria-label="Dismiss notification"
             >
-              <X className="w-4 h-4 text-green-500" />
+              <X className="w-4 h-4 text-primary" />
             </button>
           </div>
         ))}

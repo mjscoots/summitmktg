@@ -24,10 +24,10 @@ import {
 const STATUS_ORDER = ['summer_ready', 'onboarded', 'contract_signed', 'info_added', 'pending'] as const;
 
 const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  summer_ready: { label: 'Summer Ready', color: 'text-green-400', bg: 'bg-green-500/15 border-green-500/30' },
+  summer_ready: { label: 'Summer Ready', color: 'text-primary', bg: 'bg-primary/15 border-green-500/30' },
   onboarded: { label: 'Onboarded', color: 'text-blue-400', bg: 'bg-blue-500/15 border-blue-500/30' },
-  contract_signed: { label: 'Contract Signed', color: 'text-amber-400', bg: 'bg-amber-500/15 border-amber-500/30' },
-  info_added: { label: 'Info Added', color: 'text-orange-400', bg: 'bg-orange-500/15 border-orange-500/30' },
+  contract_signed: { label: 'Contract Signed', color: 'text-primary', bg: 'bg-primary/15 border-amber-500/30' },
+  info_added: { label: 'Info Added', color: 'text-primary', bg: 'bg-primary/15 border-orange-500/30' },
   pending: { label: 'Pending', color: 'text-muted-foreground', bg: 'bg-muted/30 border-muted' },
 };
 
@@ -99,7 +99,7 @@ function ProfileCard({ result, onClick }: { result: MatchResult; onClick: () => 
             size="md"
           />
           {notSummerReady && (
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center">
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center">
               <MinusCircle className="w-2.5 h-2.5 text-black" />
             </div>
           )}
@@ -109,17 +109,17 @@ function ProfileCard({ result, onClick }: { result: MatchResult; onClick: () => 
             {result.externalName}
           </p>
           {matched ? (
-            <p className="text-[10px] text-green-400/80 truncate">
+            <p className="text-[10px] text-primary/80 truncate">
               Matched → {matched.full_name} ({Math.round(result.matchScore * 100)}%)
             </p>
           ) : (
-            <p className="text-[10px] text-red-400/80">Not in app</p>
+            <p className="text-[10px] text-primary/80">Not in app</p>
           )}
         </div>
         <div className="flex flex-col items-end gap-1">
           <OnboardingStatusBadge status={dbStatus} />
-          {isSynced && statusSynced && <CheckCircle className="w-3 h-3 text-green-400/60" />}
-          {matched && !result.managerInSystem && <AlertTriangle className="w-3 h-3 text-amber-400/60" />}
+          {isSynced && statusSynced && <CheckCircle className="w-3 h-3 text-primary/60" />}
+          {matched && !result.managerInSystem && <AlertTriangle className="w-3 h-3 text-primary/60" />}
         </div>
       </div>
     </button>
@@ -166,7 +166,7 @@ function ProfileDetailModal({
             <div className="flex-1 min-w-0">
               <span className="block text-foreground">{detail.externalName}</span>
               <span className="text-xs text-muted-foreground">
-                Match: <span className="text-green-400">{detail.full_name}</span>
+                Match: <span className="text-primary">{detail.full_name}</span>
                 <span className="text-white/30 ml-1">({Math.round(detail.matchScore * 100)}%)</span>
               </span>
             </div>
@@ -204,7 +204,7 @@ function ProfileDetailModal({
                     </Button>
                   </>
                 )}
-                {statusSynced && <CheckCircle className="w-3 h-3 text-green-400 ml-auto" />}
+                {statusSynced && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
               </div>
             </div>
           </div>
@@ -222,16 +222,16 @@ function ProfileDetailModal({
           <div className="p-3 bg-muted/30 rounded-lg space-y-2">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Current Manager in App</p>
             {isSynced ? (
-              <div className="flex items-center gap-2 text-green-400">
+              <div className="flex items-center gap-2 text-primary">
                 <CheckCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">{detail.direct_manager}</span>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px]">Synced</Badge>
+                <Badge className="bg-primary/20 text-primary border-green-500/30 text-[10px]">Synced</Badge>
               </div>
             ) : needsSync ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white/50">{detail.direct_manager || '—'}</span>
-                  <span className="text-[10px] text-amber-400">→ {detail.managerInSystem}</span>
+                  <span className="text-[10px] text-primary">→ {detail.managerInSystem}</span>
                 </div>
                 <Button
                   size="sm"
@@ -252,7 +252,7 @@ function ProfileDetailModal({
               </div>
             ) : managerMissing ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs">
+                <div className="flex items-center gap-1.5 text-primary text-xs">
                   <AlertTriangle className="w-3 h-3" />
                   Manager "{detail.externalManager}" not found in app
                 </div>
@@ -431,10 +431,10 @@ export default function RosterSyncTab({ profiles, managers, onRefresh }: RosterS
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
           { value: EXTERNAL_ROSTER.length, label: 'External Roster', color: 'text-foreground' },
-          { value: matchedReps.length, label: 'Matched', color: 'text-green-400' },
-          { value: missingReps.length, label: 'Not In App', color: 'text-red-400' },
-          { value: needsManagerAssignment.length, label: 'Needs Manager', color: 'text-amber-400' },
-          { value: notSummerReady.length, label: 'Not Summer Ready', color: 'text-orange-400' },
+          { value: matchedReps.length, label: 'Matched', color: 'text-primary' },
+          { value: missingReps.length, label: 'Not In App', color: 'text-primary' },
+          { value: needsManagerAssignment.length, label: 'Needs Manager', color: 'text-primary' },
+          { value: notSummerReady.length, label: 'Not Summer Ready', color: 'text-primary' },
         ].map((stat, i) => (
           <div key={i} className="bg-white/[0.03] border border-white/10 rounded-lg p-3 text-center">
             <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>

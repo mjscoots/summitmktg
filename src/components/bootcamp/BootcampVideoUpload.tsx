@@ -197,9 +197,9 @@ export function BootcampVideoUpload({ userId, storagePath, onUploadComplete, dis
 
       {/* Success */}
       {status === 'success' && (
-        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <p className="text-sm text-emerald-300 font-medium">Upload complete!</p>
+        <div className="flex items-center gap-3 bg-primary/10 border border-emerald-500/20 rounded-lg px-4 py-3">
+          <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+          <p className="text-sm text-primary/80 font-medium">Upload complete!</p>
         </div>
       )}
 
@@ -207,7 +207,7 @@ export function BootcampVideoUpload({ userId, storagePath, onUploadComplete, dis
       {status === 'error' && (
         <div className="space-y-3">
           <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
-            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-primary shrink-0" />
             <div className="flex-1">
               <p className="text-sm text-red-300 font-medium">Upload failed</p>
               <p className="text-xs text-red-300/60">{errorMsg}</p>

@@ -23,16 +23,16 @@ interface LogisticsEntry {
 
 const CAR_STATUSES = [
   { value: 'unknown', label: 'Unknown', icon: HelpCircle, color: 'text-muted-foreground' },
-  { value: 'has_car', label: 'Has Car', icon: Car, color: 'text-green-400' },
-  { value: 'needs_car', label: 'Needs Car', icon: AlertCircle, color: 'text-red-400' },
-  { value: 'shared_ride', label: 'Shared Ride', icon: Truck, color: 'text-yellow-400' },
+  { value: 'has_car', label: 'Has Car', icon: Car, color: 'text-primary' },
+  { value: 'needs_car', label: 'Needs Car', icon: AlertCircle, color: 'text-primary' },
+  { value: 'shared_ride', label: 'Shared Ride', icon: Truck, color: 'text-primary' },
 ];
 
 const TRAVEL_STATUSES = [
   { value: 'unknown', label: 'Unknown', icon: HelpCircle, color: 'text-muted-foreground' },
-  { value: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'text-green-400' },
+  { value: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'text-primary' },
   { value: 'booked', label: 'Booked', icon: Plane, color: 'text-blue-400' },
-  { value: 'pending', label: 'Pending', icon: AlertCircle, color: 'text-yellow-400' },
+  { value: 'pending', label: 'Pending', icon: AlertCircle, color: 'text-primary' },
   { value: 'not_needed', label: 'Local / N/A', icon: CheckCircle, color: 'text-muted-foreground' },
 ];
 
@@ -139,11 +139,11 @@ export default function RepLogisticsPage() {
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Total Reps</p>
           </div>
           <div className="bg-card rounded-xl border border-green-500/20 p-4 text-center">
-            <p className="text-2xl font-bold text-green-400">{readyCount}</p>
+            <p className="text-2xl font-bold text-primary">{readyCount}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Ready</p>
           </div>
           <div className="bg-card rounded-xl border border-red-500/20 p-4 text-center">
-            <p className="text-2xl font-bold text-red-400">{needsAttention}</p>
+            <p className="text-2xl font-bold text-primary">{needsAttention}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Needs Help</p>
           </div>
         </div>

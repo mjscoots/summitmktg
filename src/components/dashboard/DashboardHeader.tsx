@@ -11,8 +11,8 @@ export function DashboardHeader() {
 
   const isManager = isManagerOrAbove(role);
   const roleLabel = role === 'owner' ? 'OWNER' : isManager ? 'MANAGER' : 'ROOKIE';
-  const roleColor = role === 'owner' ? 'text-yellow-400' : isManager ? 'text-blue-400' : 'text-green-400';
-  const roleBgColor = isManager ? 'bg-blue-500/10' : 'bg-green-500/10';
+  const roleColor = role === 'owner' ? 'text-primary' : isManager ? 'text-blue-400' : 'text-primary';
+  const roleBgColor = isManager ? 'bg-blue-500/10' : 'bg-primary/10';
 
   const handleSignOut = async () => {
     await signOut();

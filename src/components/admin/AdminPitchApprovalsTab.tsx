@@ -84,7 +84,7 @@ export default function AdminPitchApprovalsTab() {
                       {formatDistanceToNow(new Date(req.submitted_at || req.created_at), { addSuffix: true })}
                     </span>
                   )}
-                  {req.status === 'approved' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                  {req.status === 'approved' && <CheckCircle2 className="w-4 h-4 text-primary" />}
                   {req.status === 'rejected' && <XCircle className="w-4 h-4 text-destructive" />}
                 </div>
               </div>

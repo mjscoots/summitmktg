@@ -250,9 +250,9 @@ export default function BootcampMomentum() {
                             "w-9 h-9 rounded-lg text-sm font-bold transition-all",
                             selected
                               ? val >= 8
-                                ? "bg-green-500 text-black scale-110 shadow-lg shadow-green-500/30"
+                                ? "bg-primary text-black scale-110 shadow-lg shadow-green-500/30"
                                 : val >= 5
-                                  ? "bg-yellow-500 text-black scale-110"
+                                  ? "bg-primary text-black scale-110"
                                   : "bg-red-500 text-white scale-110"
                               : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70"
                           )}

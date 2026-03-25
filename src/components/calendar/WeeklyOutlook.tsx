@@ -49,14 +49,14 @@
    const getEventScope = (event: CalendarEvent) => {
      // Summit-wide events (no specific team or marked as team-wide with no team_id)
      if (!event.team_id && event.is_team_wide) {
-       return { label: 'Summit-Wide', color: 'bg-red-500', textColor: 'text-red-400', icon: Globe };
+       return { label: 'Summit-Wide', color: 'bg-red-500', textColor: 'text-primary', icon: Globe };
      }
      // Team events
      if (event.is_team_wide && event.team_id) {
        return { label: 'Team', color: 'bg-blue-500', textColor: 'text-blue-400', icon: Users };
      }
      // Personal events (assigned specifically to user)
-     return { label: 'Personal', color: 'bg-green-500', textColor: 'text-green-400', icon: User };
+     return { label: 'Personal', color: 'bg-primary', textColor: 'text-primary', icon: User };
    };
  
    return (
@@ -70,7 +70,7 @@
          {/* Legend */}
          <div className="px-4 py-2 border-b border-border bg-muted/30 flex items-center gap-4 text-xs">
            <div className="flex items-center gap-1.5">
-             <div className="w-2 h-2 rounded-full bg-green-500" />
+             <div className="w-2 h-2 rounded-full bg-primary" />
              <span className="text-muted-foreground">Personal</span>
            </div>
            <div className="flex items-center gap-1.5">

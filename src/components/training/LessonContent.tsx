@@ -65,13 +65,13 @@ export function LessonContent({ content, isRookieCourse = true }: LessonContentP
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
       .replace(/\*([^*]+)\*/g, '<em class="italic">$1</em>')
       .replace(/_([^_]+)_/g, '<em class="italic">$1</em>')
-      .replace(/^>\s*(.+)$/gm, `<blockquote class="border-l-3 ${isRookieCourse ? 'border-green-500/50' : 'border-blue-500/50'} pl-4 my-3 py-2 ${isRookieCourse ? 'bg-green-500/5' : 'bg-blue-500/5'} rounded-r-lg text-foreground text-base font-medium leading-relaxed">$1</blockquote>`)
+      .replace(/^>\s*(.+)$/gm, `<blockquote class="border-l-3 ${isRookieCourse ? 'border-green-500/50' : 'border-blue-500/50'} pl-4 my-3 py-2 ${isRookieCourse ? 'bg-primary/5' : 'bg-blue-500/5'} rounded-r-lg text-foreground text-base font-medium leading-relaxed">$1</blockquote>`)
       .replace(/^---$/gm, '<hr class="border-border/40 my-6">')
       .replace(/^\*\*\*$/gm, '<hr class="border-border/40 my-6">')
-      .replace(/^[-•]\s+(.+)$/gm, `<li class="flex items-start gap-2 mb-1.5 text-sm leading-relaxed"><span class="${isRookieCourse ? 'text-green-400' : 'text-blue-400'} mt-0.5 text-xs">●</span><span class="text-foreground/90">$1</span></li>`)
-      .replace(/^(\d+)\.\s+(.+)$/gm, `<li class="flex items-start gap-2 mb-1.5 text-sm leading-relaxed"><span class="${isRookieCourse ? 'text-green-400' : 'text-blue-400'} font-medium min-w-[18px] text-xs">$1.</span><span class="text-foreground/90">$2</span></li>`)
+      .replace(/^[-•]\s+(.+)$/gm, `<li class="flex items-start gap-2 mb-1.5 text-sm leading-relaxed"><span class="${isRookieCourse ? 'text-primary' : 'text-blue-400'} mt-0.5 text-xs">●</span><span class="text-foreground/90">$1</span></li>`)
+      .replace(/^(\d+)\.\s+(.+)$/gm, `<li class="flex items-start gap-2 mb-1.5 text-sm leading-relaxed"><span class="${isRookieCourse ? 'text-primary' : 'text-blue-400'} font-medium min-w-[18px] text-xs">$1.</span><span class="text-foreground/90">$2</span></li>`)
       .replace(/(<li class="flex.*?<\/li>\n?)+/g, '<ul class="my-3 space-y-0">$&</ul>')
-      .replace(/`([^`]+)`/g, `<code class="px-1 py-0.5 rounded text-xs font-mono ${isRookieCourse ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}">$1</code>`)
+      .replace(/`([^`]+)`/g, `<code class="px-1 py-0.5 rounded text-xs font-mono ${isRookieCourse ? 'bg-primary/10 text-primary' : 'bg-blue-500/10 text-blue-400'}">$1</code>`)
       .replace(/^#+ /gm, '')
       .replace(/\n\n+/g, '</p><p class="mb-3 text-sm text-foreground/90 leading-relaxed">')
       .replace(/\n/g, '<br/>');
@@ -113,7 +113,7 @@ export function LessonContent({ content, isRookieCourse = true }: LessonContentP
           "[&_li]:mb-1 [&_li]:leading-relaxed",
           "[&_blockquote]:border-l-3 [&_blockquote]:pl-4 [&_blockquote]:my-3 [&_blockquote]:py-2 [&_blockquote]:text-foreground [&_blockquote]:text-base [&_blockquote]:font-medium [&_blockquote]:leading-relaxed [&_blockquote]:rounded-r-lg",
           isRookieCourse
-            ? "[&_blockquote]:border-green-500/50 [&_blockquote]:bg-green-500/5"
+            ? "[&_blockquote]:border-green-500/50 [&_blockquote]:bg-primary/5"
             : "[&_blockquote]:border-blue-500/50 [&_blockquote]:bg-blue-500/5",
           isRookieCourse 
             ? "[&_blockquote]:border-green-500/40" 

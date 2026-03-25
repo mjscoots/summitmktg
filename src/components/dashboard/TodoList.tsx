@@ -52,9 +52,9 @@ const PRIORITY_RANK: Record<Priority, number> = { urgent: 4, high: 3, medium: 2,
 
 const PRIORITY_CONFIG: Record<Priority, { icon: typeof AlertTriangle; label: string; dot: string; border: string; bg: string }> = {
   urgent: { icon: AlertTriangle, label: 'Urgent', dot: 'bg-red-500', border: 'border-l-red-500/60', bg: 'bg-red-500/8' },
-  high:   { icon: ArrowUp,       label: 'High',   dot: 'bg-orange-500', border: 'border-l-orange-400/50', bg: 'bg-orange-500/6' },
-  medium: { icon: Minus,         label: 'Medium', dot: 'bg-yellow-500', border: 'border-l-yellow-500/40', bg: 'bg-yellow-500/4' },
-  low:    { icon: ArrowDown,     label: 'Low',    dot: 'bg-emerald-500', border: 'border-l-emerald-500/30', bg: '' },
+  high:   { icon: ArrowUp,       label: 'High',   dot: 'bg-primary', border: 'border-l-orange-400/50', bg: 'bg-primary/6' },
+  medium: { icon: Minus,         label: 'Medium', dot: 'bg-primary', border: 'border-l-yellow-500/40', bg: 'bg-primary/4' },
+  low:    { icon: ArrowDown,     label: 'Low',    dot: 'bg-primary', border: 'border-l-emerald-500/30', bg: '' },
 };
 
 const PRIORITY_ORDER: Priority[] = ['urgent', 'high', 'medium', 'low'];
@@ -560,7 +560,7 @@ function MissionTaskCard({
         // Animations
         isEntering && "animate-fade-in",
         isExiting && "opacity-0 -translate-x-4 scale-95 duration-250",
-        justCompleted && "!border-l-emerald-500 !bg-emerald-500/10 scale-[0.98]",
+        justCompleted && "!border-l-emerald-500 !bg-primary/10 scale-[0.98]",
         // Completed state
         todo.is_completed && !justCompleted
           ? "opacity-40 border-l-border/30 bg-transparent hover:opacity-60"
@@ -588,7 +588,7 @@ function MissionTaskCard({
           onCheckedChange={onToggle}
           className={cn(
             "shrink-0 transition-all duration-300 w-[18px] h-[18px]",
-            justCompleted && "scale-110 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+            justCompleted && "scale-110 data-[state=checked]:bg-primary data-[state=checked]:border-emerald-500"
           )}
         />
       </div>
@@ -597,7 +597,7 @@ function MissionTaskCard({
       <div className="flex-1 min-w-0">
         <p className={cn(
           "text-sm leading-snug transition-all duration-300",
-          justCompleted && "text-emerald-400 line-through",
+          justCompleted && "text-primary line-through",
           todo.is_completed && !justCompleted && "line-through text-muted-foreground",
         )}>
           {todo.title}
@@ -611,7 +611,7 @@ function MissionTaskCard({
               </span>
             )}
             {todo.due_date && (
-              <span className={cn("flex items-center gap-1 text-[10px]", isOverdue ? "text-red-400" : "text-muted-foreground/70")}>
+              <span className={cn("flex items-center gap-1 text-[10px]", isOverdue ? "text-primary" : "text-muted-foreground/70")}>
                 <CalendarIcon className="w-2.5 h-2.5" />
                 {format(new Date(todo.due_date + 'T00:00:00'), 'MMM d')}
               </span>

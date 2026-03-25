@@ -15,7 +15,7 @@ const DEMO_SCREENS = [
         <Lock className="w-10 h-10 text-white/60 mx-auto" />
         <h2 className="text-xl font-black text-white tracking-tight">SUMMER CHECKLIST REQUIRED</h2>
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
-          <p className="text-red-400 text-sm font-semibold">🔒 You must complete the Summer Checklist before you can access the app.</p>
+          <p className="text-primary text-sm font-semibold">🔒 You must complete the Summer Checklist before you can access the app.</p>
         </div>
         <p className="text-blue-400 text-sm font-black bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2.5 inline-block">
           ⚡ Most reps finish in under 15 minutes
@@ -108,8 +108,8 @@ const DEMO_SCREENS = [
         </div>
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-              <Video className="w-5 h-5 text-green-400" />
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <Video className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-black text-white">SUNBLOCK</h2>
@@ -180,8 +180,8 @@ const DEMO_SCREENS = [
         </div>
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-yellow-400" />
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-black text-white">FINAL COMMITMENT</h2>

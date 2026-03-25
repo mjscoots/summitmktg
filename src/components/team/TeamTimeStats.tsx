@@ -125,7 +125,7 @@
                    {index < 3 && (
                      <span className={cn(
                        "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold",
-                       index === 0 ? "bg-amber-500 text-white" :
+                       index === 0 ? "bg-primary text-white" :
                        index === 1 ? "bg-gray-400 text-white" :
                        "bg-amber-700 text-white"
                      )}>

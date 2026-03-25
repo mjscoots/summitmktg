@@ -7,10 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Sun } from 'lucide-react';
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  summer_ready: { label: 'Summer Ready', color: 'text-green-400' },
+  summer_ready: { label: 'Summer Ready', color: 'text-primary' },
   onboarded: { label: 'Onboarded', color: 'text-blue-400' },
-  contract_signed: { label: 'Contract Signed', color: 'text-amber-400' },
-  info_added: { label: 'Info Added', color: 'text-orange-400' },
+  contract_signed: { label: 'Contract Signed', color: 'text-primary' },
+  info_added: { label: 'Info Added', color: 'text-primary' },
   pending: { label: 'Pending', color: 'text-muted-foreground' },
 };
 
@@ -88,9 +88,9 @@ export function NotSummerReadyPanel() {
   return (
     <div className="bg-card rounded-xl border border-border p-5">
       <div className="flex items-center gap-2 mb-4">
-        <AlertTriangle className="w-5 h-5 text-amber-400" />
+        <AlertTriangle className="w-5 h-5 text-primary" />
         <h2 className="font-semibold text-foreground">Not Summer Ready</h2>
-        <Badge variant="outline" className="text-[10px] text-amber-400 border-amber-500/30 ml-auto">
+        <Badge variant="outline" className="text-[10px] text-primary border-amber-500/30 ml-auto">
           {reps.length} reps
         </Badge>
       </div>

@@ -91,7 +91,7 @@ export function MomentumStrip() {
         {/* Left - Daily Production */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <Flame className="w-4 h-4 text-orange-500" />
+            <Flame className="w-4 h-4 text-primary" />
             <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Production</span>
           </div>
           <div className="flex items-center gap-2 min-w-0">
@@ -106,9 +106,9 @@ export function MomentumStrip() {
 
         {/* Center - Top Producer */}
         <div className="flex items-center gap-2 text-center hidden md:flex">
-          <Trophy className="w-4 h-4 text-yellow-500" />
+          <Trophy className="w-4 h-4 text-primary" />
           <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Top Today:</span>
-          <span className="text-sm font-bold text-yellow-400">{data.topProducer}</span>
+          <span className="text-sm font-bold text-primary">{data.topProducer}</span>
           {data.topProducerDeals > 0 && (
             <span className="text-xs text-muted-foreground">– {data.topProducerDeals} deals</span>
           )}

@@ -90,7 +90,7 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes,
 
         {/* Bonus badge — top left */}
         {isBonus && (
-          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-yellow-500/90 text-white rounded text-[9px] font-bold">
+          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-primary/90 text-white rounded text-[9px] font-bold">
             BONUS
           </div>
         )}
@@ -104,7 +104,7 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes,
           </h3>
           <div className="flex items-center gap-0.5 flex-shrink-0 mt-0.5">
             {hasNotes && <FileText className="w-3 h-3 text-primary/60" />}
-            {isBookmarked && <Bookmark className="w-3 h-3 text-yellow-500" fill="currentColor" />}
+            {isBookmarked && <Bookmark className="w-3 h-3 text-primary" fill="currentColor" />}
           </div>
         </div>
         <div className="flex items-center gap-1.5 mt-auto pt-1.5">

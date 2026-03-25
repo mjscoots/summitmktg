@@ -343,7 +343,7 @@ export default function AssignmentsTab({ managers, teams, onRefresh }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Onboarding</span>
-                  <span className={selectedUser.onboarding_status === 'complete' ? 'text-primary' : 'text-yellow-400'}>{selectedUser.onboarding_status || 'pending'}</span>
+                  <span className={selectedUser.onboarding_status === 'complete' ? 'text-primary' : 'text-primary'}>{selectedUser.onboarding_status || 'pending'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Summer Checklist</span>

@@ -30,7 +30,7 @@ const OBJECTIVE_ICONS: Record<string, typeof Clock> = {
 const OBJECTIVE_COLORS: Record<string, string> = {
   training: 'text-primary',
   chat: 'text-blue-400',
-  lessons: 'text-green-400',
+  lessons: 'text-primary',
 };
 
 export function DailyChallenge() {

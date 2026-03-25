@@ -26,7 +26,7 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
     (data.capsToday.manual.max - data.capsToday.manual.earned);
 
   const momentumLevel = hoursToday < 1 ? 'Cold' : hoursToday < 2 ? 'Warming Up' : hoursToday < 4 ? 'Locked In' : 'Elite';
-  const momentumColor = hoursToday < 1 ? 'text-muted-foreground' : hoursToday < 2 ? 'text-blue-400' : hoursToday < 4 ? 'text-orange-400' : 'text-yellow-400';
+  const momentumColor = hoursToday < 1 ? 'text-muted-foreground' : hoursToday < 2 ? 'text-blue-400' : hoursToday < 4 ? 'text-primary' : 'text-primary';
 
   return (
     <div className="bg-card rounded-xl border border-border p-4 mb-4">
@@ -36,8 +36,8 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
         <span className={cn("ml-auto text-xs font-bold px-2 py-0.5 rounded-full", 
           hoursToday < 1 ? "bg-muted text-muted-foreground" :
           hoursToday < 2 ? "bg-blue-500/15 text-blue-400" :
-          hoursToday < 4 ? "bg-orange-500/15 text-orange-400" :
-          "bg-yellow-500/15 text-yellow-400"
+          hoursToday < 4 ? "bg-primary/15 text-primary" :
+          "bg-primary/15 text-primary"
         )}>
           {momentumLevel}
         </span>
@@ -58,7 +58,7 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
 
         <div className="bg-muted/30 rounded-lg p-3">
           <div className="flex items-center gap-1.5 mb-1">
-            <Trophy className="w-3.5 h-3.5 text-yellow-400" />
+            <Trophy className="w-3.5 h-3.5 text-primary" />
             <span className="text-[10px] text-muted-foreground uppercase font-medium">Daily Points</span>
           </div>
           <div className="flex items-baseline gap-1">
@@ -81,8 +81,8 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
         <div className="bg-muted/30 rounded-lg p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <Flame className={cn("w-3.5 h-3.5", 
-              data.currentStreak >= 14 ? "text-green-400" :
-              data.currentStreak >= 7 ? "text-green-500" :
+              data.currentStreak >= 14 ? "text-primary" :
+              data.currentStreak >= 7 ? "text-primary" :
               data.currentStreak >= 3 ? "text-blue-400" :
               "text-muted-foreground"
             )} />
@@ -90,8 +90,8 @@ export function TodaysProgress({ data }: TodaysProgressProps) {
           </div>
           <div className="flex items-baseline gap-1">
             <span className={cn("text-xl font-black tabular-nums",
-              data.currentStreak >= 14 ? "text-green-400" :
-              data.currentStreak >= 7 ? "text-green-500" :
+              data.currentStreak >= 14 ? "text-primary" :
+              data.currentStreak >= 7 ? "text-primary" :
               data.currentStreak >= 3 ? "text-blue-400" :
               "text-foreground"
             )}>{data.currentStreak}</span>

@@ -16,7 +16,7 @@ export function TrainingProgressBadge({
   const getColor = () => {
     if (percentage === 100) return { text: 'text-success', bg: 'bg-success', bgLight: 'bg-success/15' };
     if (percentage >= 67) return { text: 'text-primary', bg: 'bg-primary', bgLight: 'bg-primary/15' };
-    if (percentage >= 34) return { text: 'text-yellow-500', bg: 'bg-yellow-500', bgLight: 'bg-yellow-500/15' };
+    if (percentage >= 34) return { text: 'text-primary', bg: 'bg-primary', bgLight: 'bg-primary/15' };
     return { text: 'text-destructive', bg: 'bg-destructive', bgLight: 'bg-destructive/15' };
   };
 

@@ -216,7 +216,7 @@ export default function AdminApplicationsTab() {
                     className="p-1.5 rounded-md hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
                     title="Copy info (marks as reviewed)"
                   >
-                    {copiedId === app.id ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    {copiedId === app.id ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                   </button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
