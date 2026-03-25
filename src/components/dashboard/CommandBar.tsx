@@ -14,22 +14,22 @@ export function CommandBar() {
 
   return (
     <div className="flex flex-wrap items-center gap-3 mb-8">
-      {/* Primary: Resume Training - Outline style */}
+      {/* Primary: Resume Training */}
       <Button
         onClick={() => navigate('/app/training')}
-        variant="outline"
-        className="font-bold gap-2 border-primary text-white hover:bg-primary hover:text-primary-foreground transition-all"
+        className="font-bold gap-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+        style={{ boxShadow: '0 0 16px hsl(216 89% 53% / 0.3)' }}
       >
         <Play className="w-4 h-4" />
         Resume Training
       </Button>
 
-      {/* Manager: Sign a Rep - Outline style */}
+      {/* Manager: Sign a Rep */}
       {isManager && (
         <Button
           variant="outline"
           onClick={() => navigate('/app/interviews')}
-          className="font-semibold gap-2 border-primary text-white hover:bg-primary hover:text-primary-foreground transition-all"
+          className="font-semibold gap-2 border-border text-foreground hover:bg-secondary hover:border-primary/40 transition-all"
         >
           <UserPlus className="w-4 h-4" />
           Sign a Rep
@@ -43,11 +43,11 @@ export function CommandBar() {
           "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200",
           streakData.currentStreak > 0
             ? "bg-primary/10 border-primary/40"
-            : "bg-secondary border-border/50"
+            : "bg-secondary border-border"
         )}>
           <Flame className={cn(
             "w-5 h-5",
-            streakData.currentStreak > 0 ? "text-orange-400" : "text-muted-foreground"
+            streakData.currentStreak > 0 ? "text-primary" : "text-muted-foreground"
           )} />
           <div className="text-sm">
             <span className={cn(
@@ -62,7 +62,7 @@ export function CommandBar() {
           </div>
         </div>
 
-        {/* Personal Training Progress - Replaces "Signed This Week" */}
+        {/* Personal Training Progress */}
         <TrainingProgressBadge variant="full" />
       </div>
     </div>
