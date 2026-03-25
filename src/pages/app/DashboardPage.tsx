@@ -23,6 +23,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gift, Zap, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { lazy, Suspense } from 'react';
+
+const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthCalculator"));
 import { toast } from 'sonner';
 import { ListTodo, GitBranch } from 'lucide-react';
 
@@ -383,6 +386,13 @@ export default function DashboardPage() {
 
         {/* Onboarding Quest (Rookie only) */}
         {!isManager && <OnboardingQuest />}
+
+        {/* Downline Growth Calculator */}
+        {isManager && (
+          <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading calculator...</div>}>
+            <DownlineGrowthCalculator />
+          </Suspense>
+        )}
       </div>
 
       <GuidedTour />
