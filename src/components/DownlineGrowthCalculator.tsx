@@ -574,27 +574,47 @@ export default function DownlineGrowthCalculator() {
 
   const hasData = personal.selling || rookieRows.length > 0 || vetRows.length > 0 || teamRows.length > 0;
 
-  // Add/remove helpers
-  const addRookie = () => setRookieRowStates(p => [...p, {
-    id: nextId(), label: '', headcountStr: '1', avgServicedStr: '150,000',
-    attritionStr: '', cancellationStr: '', expanded: true,
-  }]);
+  // Ref for scrolling to newly added items
+  const rookieSectionRef = useRef<HTMLDivElement>(null);
+  const vetSectionRef = useRef<HTMLDivElement>(null);
+  const teamSectionRef = useRef<HTMLDivElement>(null);
+
+  // Add/remove helpers — scroll into view after adding
+  const addRookie = () => {
+    setRookieRowStates(p => [...p, {
+      id: nextId(), label: '', headcountStr: '1', avgServicedStr: '150,000',
+      attritionStr: '', cancellationStr: '', expanded: true,
+    }]);
+    requestAnimationFrame(() => {
+      rookieSectionRef.current?.querySelector('[data-last-row]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
   const removeRookie = (id: string) => setRookieRowStates(p => p.filter(r => r.id !== id));
   const updateRookie = (id: string, field: string, value: any) => setRookieRowStates(p => p.map(r => r.id === id ? { ...r, [field]: value } : r));
 
-  const addVet = () => setVetRowStates(p => [...p, {
-    id: nextId(), label: '', headcountStr: '1', avgActiveStr: '250,000',
-    prevSummerStr: '', attritionStr: '', expanded: true,
-  }]);
+  const addVet = () => {
+    setVetRowStates(p => [...p, {
+      id: nextId(), label: '', headcountStr: '1', avgActiveStr: '250,000',
+      prevSummerStr: '', attritionStr: '', expanded: true,
+    }]);
+    requestAnimationFrame(() => {
+      vetSectionRef.current?.querySelector('[data-last-row]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
   const removeVet = (id: string) => setVetRowStates(p => p.filter(v => v.id !== id));
   const updateVet = (id: string, field: string, value: any) => setVetRowStates(p => p.map(v => v.id === id ? { ...v, [field]: value } : v));
 
-  const addTeam = () => setTeamRowStates(p => [...p, {
-    id: nextId(), name: `Team ${p.length + 1}`, useManualRevenue: false,
-    manualActiveStr: '', numRookiesStr: '5', numVetsStr: '0',
-    avgRookieServicedStr: '150,000', avgVetActiveStr: '250,000',
-    rookieAttrStr: '', vetAttrStr: '', cancelStr: '', expanded: true,
-  }]);
+  const addTeam = () => {
+    setTeamRowStates(p => [...p, {
+      id: nextId(), name: `Team ${p.length + 1}`, useManualRevenue: false,
+      manualActiveStr: '', numRookiesStr: '5', numVetsStr: '0',
+      avgRookieServicedStr: '150,000', avgVetActiveStr: '250,000',
+      rookieAttrStr: '', vetAttrStr: '', cancelStr: '', expanded: true,
+    }]);
+    requestAnimationFrame(() => {
+      teamSectionRef.current?.querySelector('[data-last-row]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
   const removeTeam = (id: string) => setTeamRowStates(p => p.filter(t => t.id !== id));
   const updateTeam = (id: string, field: string, value: any) => setTeamRowStates(p => p.map(t => t.id === id ? { ...t, [field]: value } : t));
 
