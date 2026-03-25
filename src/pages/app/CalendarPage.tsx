@@ -78,7 +78,7 @@ const getEventCategory = (type: string | null): EventCategory =>
 const CATEGORY_COLORS: Record<EventCategory, { bg: string; text: string; dot: string; border: string; label: string }> = {
   all: { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-foreground', border: 'border-foreground', label: 'All' },
   mandatory: { bg: 'bg-red-500/10', text: 'text-primary', dot: 'bg-red-500', border: 'border-red-500/50', label: 'Mandatory' },
-  optional: { bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary', border: 'border-yellow-500/50', label: 'Optional' },
+  optional: { bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary', border: 'border-primary/50', label: 'Optional' },
 };
 
 const getColor = (type: string | null) => CATEGORY_COLORS[getEventCategory(type)];
@@ -636,7 +636,7 @@ export default function CalendarPage() {
                         {currentRSVPEvent.description && <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{currentRSVPEvent.description}</p>}
                         <div className="flex gap-3">
                           <button onClick={() => handleRSVP('not_attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-red-500/10 text-primary font-bold text-base hover:bg-red-500/20 transition-all active:scale-95 border border-red-500/20"><X className="w-5 h-5" />Can't Make It</button>
-                          <button onClick={() => handleRSVP('attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-primary/10 text-primary font-bold text-base hover:bg-primary/20 transition-all active:scale-95 border border-emerald-500/20"><Check className="w-5 h-5" />I'll Be There</button>
+                          <button onClick={() => handleRSVP('attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-primary/10 text-primary font-bold text-base hover:bg-primary/20 transition-all active:scale-95 border border-primary/20"><Check className="w-5 h-5" />I'll Be There</button>
                         </div>
                       </div>
                     </div>

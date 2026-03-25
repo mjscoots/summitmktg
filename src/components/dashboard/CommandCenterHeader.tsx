@@ -109,9 +109,9 @@ export function CommandCenterHeader() {
         {pointsData && (
           <div className="grid grid-cols-3 gap-2.5 mt-4 relative z-10">
             {[
-              { icon: Zap, value: `${dailyPts}`, label: 'PTS TODAY', color: 'text-primary', glow: 'hsl(43 96% 56% / 0.12)' },
+              { icon: Zap, value: `${dailyPts}`, label: 'PTS TODAY', color: 'text-primary', glow: 'hsl(216 89% 53% / 0.12)' },
               { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'ACTIVITY', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.12)' },
-              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary', glow: 'hsl(43 96% 56% / 0.1)' },
+              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary', glow: 'hsl(216 89% 53% / 0.1)' },
             ].map(({ icon: Icon, value, label, color, glow }) => (
               <div
                 key={label}

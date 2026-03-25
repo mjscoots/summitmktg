@@ -121,13 +121,13 @@ function PipelineBadge({ status }: { status: string }) {
 
   const className =
     key === 'summer_ready'
-      ? 'bg-primary/15 text-primary border-emerald-500/30'
+      ? 'bg-primary/15 text-primary border-primary/30'
       : key === 'onboarded'
         ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
         : key === 'info_added'
-          ? 'bg-primary/15 text-primary border-yellow-500/30'
+          ? 'bg-primary/15 text-primary border-primary/30'
           : key === 'contract_signed'
-            ? 'bg-primary/15 text-primary border-orange-500/30'
+            ? 'bg-primary/15 text-primary border-primary/30'
             : 'bg-red-500/15 text-primary border-red-500/30';
 
   return (

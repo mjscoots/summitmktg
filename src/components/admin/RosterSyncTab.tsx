@@ -24,10 +24,10 @@ import {
 const STATUS_ORDER = ['summer_ready', 'onboarded', 'contract_signed', 'info_added', 'pending'] as const;
 
 const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  summer_ready: { label: 'Summer Ready', color: 'text-primary', bg: 'bg-primary/15 border-green-500/30' },
+  summer_ready: { label: 'Summer Ready', color: 'text-primary', bg: 'bg-primary/15 border-primary/30' },
   onboarded: { label: 'Onboarded', color: 'text-blue-400', bg: 'bg-blue-500/15 border-blue-500/30' },
-  contract_signed: { label: 'Contract Signed', color: 'text-primary', bg: 'bg-primary/15 border-amber-500/30' },
-  info_added: { label: 'Info Added', color: 'text-primary', bg: 'bg-primary/15 border-orange-500/30' },
+  contract_signed: { label: 'Contract Signed', color: 'text-primary', bg: 'bg-primary/15 border-primary/30' },
+  info_added: { label: 'Info Added', color: 'text-primary', bg: 'bg-primary/15 border-primary/30' },
   pending: { label: 'Pending', color: 'text-muted-foreground', bg: 'bg-muted/30 border-muted' },
 };
 
@@ -225,7 +225,7 @@ function ProfileDetailModal({
               <div className="flex items-center gap-2 text-primary">
                 <CheckCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">{detail.direct_manager}</span>
-                <Badge className="bg-primary/20 text-primary border-green-500/30 text-[10px]">Synced</Badge>
+                <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px]">Synced</Badge>
               </div>
             ) : needsSync ? (
               <div className="space-y-2">

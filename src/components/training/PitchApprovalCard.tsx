@@ -92,7 +92,7 @@ export function PitchApprovalCard({
           "rounded-xl border-2 border-dashed p-5 mt-4",
           status === 'rejected'
             ? "border-destructive/40 bg-destructive/5"
-            : "border-amber-500/40 bg-primary/5"
+            : "border-primary/40 bg-primary/5"
         )}>
           <div className="flex items-start gap-3 mb-4">
             <div className={cn(
@@ -179,7 +179,7 @@ export function PitchApprovalCard({
   // Pending approval
   if (status === 'pending') {
     return (
-      <div className="rounded-xl border-2 border-amber-500/30 bg-primary/5 p-5 mt-4">
+      <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-5 mt-4">
         <div className="flex items-start gap-3 mb-3">
           <div className="p-2 rounded-lg bg-primary/10">
             <Clock className="w-5 h-5 text-primary" />
@@ -214,7 +214,7 @@ export function PitchApprovalCard({
           </Button>
         </div>
 
-        <div className="p-3 rounded-lg bg-primary/10 border border-amber-500/20">
+        <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
           <p className="text-xs font-semibold text-amber-600">⚠️ MODULE LOCKED</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             You cannot progress to the next module until your pitch is approved.
@@ -237,7 +237,7 @@ export function PitchApprovalCard({
   // Approved
   if (status === 'approved') {
     return (
-      <div className="rounded-xl border border-green-500/30 bg-primary/5 p-4 mt-4">
+      <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 mt-4">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-primary" />
           <div>

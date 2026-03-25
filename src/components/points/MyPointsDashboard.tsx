@@ -138,7 +138,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
 
           {/* Threshold progress */}
           {data.nextThreshold.targetMinutes && data.nextThreshold.remainingMinutes > 0 && (
-            <div className="p-3 rounded-lg bg-primary/5 border border-yellow-500/20">
+            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-1">
                 <Target className="w-3.5 h-3.5 text-primary" />
                 <span className="text-xs font-bold text-primary">Next Weekly Bonus</span>

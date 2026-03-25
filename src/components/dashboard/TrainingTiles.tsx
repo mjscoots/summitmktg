@@ -295,7 +295,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 // Primary card (Learn Your Pitch) gets highlight border
                 !isLockedCourse && !isComingSoon && isPrimary && (
                   isRookie
-                    ? "border-2 border-green-500/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-green-500/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
+                    ? "border-2 border-primary/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-primary/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
                     : "border-2 border-blue-500/50 shadow-[0_0_25px_-8px_rgba(59,130,246,0.25)] hover:border-blue-500/70 hover:shadow-[0_0_35px_-8px_rgba(59,130,246,0.35)]"
                 ),
                 // Non-primary cards
@@ -303,7 +303,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                   course.progress === 100 
                     ? 'border border-success/40 hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.25)]' 
                     : isRookie
-                      ? 'border border-border hover:border-green-500/40 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.2)]'
+                      ? 'border border-border hover:border-primary/40 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.2)]'
                       : 'border border-border hover:border-blue-500/40 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]'
                 ),
                 // In-progress glow
@@ -365,7 +365,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                         LOCKED
                       </span>
                     ) : isRookie ? (
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-green-500/30 transition-all duration-300 group-hover:bg-primary/25">
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30 transition-all duration-300 group-hover:bg-primary/25">
                         SALES
                       </span>
                     ) : (
@@ -393,7 +393,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                       {displayTitle}
                     </h3>
                     {course.slug === 'summer-sales-manual' && manualReadCount > 0 && (
-                      <Badge className="bg-primary/15 text-primary border-amber-500/30 font-bold text-[10px] px-1.5 py-0">
+                      <Badge className="bg-primary/15 text-primary border-primary/30 font-bold text-[10px] px-1.5 py-0">
                         {manualReadCount}x
                       </Badge>
                     )}

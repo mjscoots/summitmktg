@@ -138,7 +138,7 @@ export default function RepLogisticsPage() {
             <p className="text-2xl font-bold text-foreground">{entries.length}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Total Reps</p>
           </div>
-          <div className="bg-card rounded-xl border border-green-500/20 p-4 text-center">
+          <div className="bg-card rounded-xl border border-primary/20 p-4 text-center">
             <p className="text-2xl font-bold text-primary">{readyCount}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Ready</p>
           </div>

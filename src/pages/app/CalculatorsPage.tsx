@@ -33,7 +33,7 @@ export default function CalculatorsPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/15 border border-emerald-500/20">
+            <div className="p-2 rounded-xl bg-primary/15 border border-primary/20">
               <Calculator className="w-5 h-5 text-primary" />
             </div>
             <div>

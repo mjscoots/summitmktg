@@ -78,7 +78,7 @@ export function ModuleCompletionCelebration({
         <div className={cn(
           "inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-sm font-semibold",
           isRookieCourse 
-            ? "bg-primary/20 text-primary border border-green-500/30"
+            ? "bg-primary/20 text-primary border border-primary/30"
             : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
         )}>
           <Star className={cn("w-4 h-4", isRookieCourse ? "text-primary" : "text-blue-400")} />

@@ -291,7 +291,7 @@ export function AICoachChat() {
       }`}
     >
       <div className={`bg-card border rounded-xl shadow-2xl flex flex-col overflow-hidden h-full ${
-        isManager ? 'border-blue-500/30 shadow-blue-500/10' : 'border-green-500/30 shadow-green-500/10'
+        isManager ? 'border-blue-500/30 shadow-blue-500/10' : 'border-primary/30 shadow-green-500/10'
       }`}>
         {/* Header */}
         <div className={`p-3 flex items-center justify-between ${

@@ -20,20 +20,20 @@ const STATUS_OPTIONS = [
   { value: 'interview_1', label: 'Interview 1', color: 'bg-purple-500/15 text-primary border-purple-500/30' },
   { value: 'interview_2', label: 'Interview 2', color: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30' },
   { value: 'interview_3', label: 'Interview 3', color: 'bg-violet-500/15 text-violet-400 border-violet-500/30' },
-  { value: 'agreement_sent', label: 'Agreement Sent', color: 'bg-primary/15 text-primary border-orange-500/30' },
-  { value: 'hired', label: 'Hired', color: 'bg-primary/15 text-primary border-green-500/30' },
+  { value: 'agreement_sent', label: 'Agreement Sent', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'hired', label: 'Hired', color: 'bg-primary/15 text-primary border-primary/30' },
   { value: 'no_hire', label: 'No Hire', color: 'bg-red-500/15 text-primary border-red-500/30' },
   { value: 'declined', label: 'Declined', color: 'bg-red-500/15 text-red-300 border-red-500/30' },
-  { value: 'follow_up', label: 'Follow Up', color: 'bg-primary/15 text-primary border-yellow-500/30' },
+  { value: 'follow_up', label: 'Follow Up', color: 'bg-primary/15 text-primary border-primary/30' },
   { value: 'unresponsive', label: 'Unresponsive', color: 'bg-gray-500/15 text-gray-400 border-gray-500/30' },
 ];
 
 const POSITION_OPTIONS = [
   { value: '', label: '—', color: 'bg-muted/40 text-muted-foreground border-border/50' },
-  { value: 'pest_rookie', label: 'PEST Rookie', color: 'bg-primary/15 text-primary border-green-500/30' },
-  { value: 'pest_vet', label: 'PEST Vet', color: 'bg-primary/15 text-primary/80 border-green-500/30' },
-  { value: 'solar_rookie', label: 'Solar Rookie', color: 'bg-primary/15 text-primary border-yellow-500/30' },
-  { value: 'solar_vet', label: 'Solar Vet', color: 'bg-primary/15 text-primary/80 border-yellow-500/30' },
+  { value: 'pest_rookie', label: 'PEST Rookie', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'pest_vet', label: 'PEST Vet', color: 'bg-primary/15 text-primary/80 border-primary/30' },
+  { value: 'solar_rookie', label: 'Solar Rookie', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'solar_vet', label: 'Solar Vet', color: 'bg-primary/15 text-primary/80 border-primary/30' },
   { value: 'fiber_rookie', label: 'Fiber Rookie', color: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30' },
   { value: 'fiber_vet', label: 'Fiber Vet', color: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30' },
   { value: 'setter', label: 'Setter', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
@@ -44,21 +44,21 @@ const POSITION_OPTIONS = [
 const INTERVIEW_OPTIONS = [
   { value: '', label: '—', color: 'bg-muted/40 text-muted-foreground border-border/50' },
   { value: 'scheduled', label: 'Scheduled', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  { value: 'done', label: 'Done', color: 'bg-primary/15 text-primary border-green-500/30' },
-  { value: 'reschedule', label: 'Reschedule', color: 'bg-primary/15 text-primary border-yellow-500/30' },
+  { value: 'done', label: 'Done', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'reschedule', label: 'Reschedule', color: 'bg-primary/15 text-primary border-primary/30' },
   { value: 'no_show', label: 'No Show', color: 'bg-red-500/15 text-primary border-red-500/30' },
-  { value: 'pass', label: 'Pass', color: 'bg-primary/15 text-primary border-emerald-500/30' },
+  { value: 'pass', label: 'Pass', color: 'bg-primary/15 text-primary border-primary/30' },
   { value: 'fail', label: 'Fail', color: 'bg-red-500/15 text-red-300 border-red-500/30' },
 ];
 
 const ONBOARDING_OPTIONS = [
   { value: '', label: '—', color: 'bg-muted/40 text-muted-foreground border-border/50' },
   { value: 'in_progress', label: 'In Progress', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  { value: 'onboarded', label: 'Onboarded', color: 'bg-primary/15 text-primary border-green-500/30' },
+  { value: 'onboarded', label: 'Onboarded', color: 'bg-primary/15 text-primary border-primary/30' },
   { value: 'declined', label: 'Declined', color: 'bg-red-500/15 text-primary border-red-500/30' },
-  { value: 'pending_docs', label: 'Pending Docs', color: 'bg-primary/15 text-primary border-yellow-500/30' },
-  { value: 'needs_followup', label: 'Needs Follow-up', color: 'bg-primary/15 text-primary border-orange-500/30' },
-  { value: 'completed', label: 'Completed', color: 'bg-primary/15 text-primary border-emerald-500/30' },
+  { value: 'pending_docs', label: 'Pending Docs', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'needs_followup', label: 'Needs Follow-up', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'completed', label: 'Completed', color: 'bg-primary/15 text-primary border-primary/30' },
 ];
 
 interface Recruit {

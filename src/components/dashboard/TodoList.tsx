@@ -588,7 +588,7 @@ function MissionTaskCard({
           onCheckedChange={onToggle}
           className={cn(
             "shrink-0 transition-all duration-300 w-[18px] h-[18px]",
-            justCompleted && "scale-110 data-[state=checked]:bg-primary data-[state=checked]:border-emerald-500"
+            justCompleted && "scale-110 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           )}
         />
       </div>

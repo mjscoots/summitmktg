@@ -54,7 +54,7 @@ export function MomentumIndicator({ count, visible }: MomentumIndicatorProps) {
       "absolute -top-10 left-1/2 -translate-x-1/2 z-30",
       "animate-[momentum-pop_0.4s_ease-out_forwards]"
     )}>
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 backdrop-blur-sm">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-primary/30 backdrop-blur-sm">
         <span className="text-sm">🔥</span>
         <span className="text-xs font-bold text-primary">Momentum +{count}</span>
       </div>

@@ -26,7 +26,7 @@ const badgeGlows = [
 const cardBorderAccents = [
   'hover:border-blue-500/20',
   'hover:border-violet-500/20',
-  'hover:border-amber-500/20',
+  'hover:border-primary/20',
 ];
 
 const interviewCards = [

@@ -38,7 +38,7 @@ export function ContinueCard({
       "relative p-6 rounded-xl border-2 bg-card overflow-hidden transition-all duration-300 hover:scale-[1.01]",
       isManager 
         ? "border-blue-500/40 shadow-[0_0_30px_-5px_rgba(59,130,246,0.25)]" 
-        : "border-green-500/40 shadow-[0_0_30px_-5px_rgba(34,197,94,0.25)]"
+        : "border-primary/40 shadow-[0_0_30px_-5px_rgba(34,197,94,0.25)]"
     )}>
       {/* Subtle gradient overlay */}
       <div className={cn(

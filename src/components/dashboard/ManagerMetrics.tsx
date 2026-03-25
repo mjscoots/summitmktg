@@ -24,7 +24,7 @@ export function ManagerMetrics({ streak, momentum, lastTrainedAgo }: ManagerMetr
 
   const getMomentumBg = (pct: number) => {
     if (pct >= 71) return 'bg-success/10 border-success/30';
-    if (pct >= 41) return 'bg-primary/10 border-yellow-500/30';
+    if (pct >= 41) return 'bg-primary/10 border-primary/30';
     return 'bg-destructive/10 border-destructive/30';
   };
 
@@ -37,7 +37,7 @@ export function ManagerMetrics({ streak, momentum, lastTrainedAgo }: ManagerMetr
             onClick={() => navigate('/app/training')}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full",
-              "bg-primary/10 border border-orange-500/30",
+              "bg-primary/10 border border-primary/30",
               "hover:bg-primary/20 transition-all duration-200",
               "hover:scale-105"
             )}

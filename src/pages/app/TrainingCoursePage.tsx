@@ -353,14 +353,14 @@ export default function TrainingCoursePage() {
             <span className={cn(
               "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border",
               isRookieCourse 
-                ? "bg-primary/15 text-primary border-green-500/30"
+                ? "bg-primary/15 text-primary border-primary/30"
                 : "bg-blue-500/15 text-blue-400 border-blue-500/30"
             )}>
               {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
             </span>
             {/* Manual re-read counter badge */}
             {isManualCourse && manualReadCount > 0 && (
-              <Badge className="bg-primary/15 text-primary border-amber-500/30 font-bold text-xs">
+              <Badge className="bg-primary/15 text-primary border-primary/30 font-bold text-xs">
                 <RotateCcw className="w-3 h-3 mr-1" />
                 {manualReadCount}x Read
               </Badge>
@@ -437,10 +437,10 @@ export default function TrainingCoursePage() {
                       ? 'border-border/50 opacity-60'
                       : isCurrentModule
                         ? isRookieCourse
-                          ? 'border-green-500/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
+                          ? 'border-primary/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
                           : 'border-blue-500/50 ring-1 ring-blue-500/20 shadow-[0_0_15px_-5px_rgba(59,130,246,0.15)]'
                         : isRookieCourse
-                          ? 'border-border hover:border-green-500/30'
+                          ? 'border-border hover:border-primary/30'
                           : 'border-border hover:border-blue-500/30'
                 )}
               >

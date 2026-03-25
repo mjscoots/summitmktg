@@ -636,7 +636,7 @@ export default function LessonPage() {
           <div className={cn(
             "fixed top-4 right-4 z-50 p-4 rounded-lg border shadow-lg animate-fade-in",
             isRookieCourse 
-              ? "bg-primary/10 border-green-500/30 text-primary"
+              ? "bg-primary/10 border-primary/30 text-primary"
               : "bg-blue-500/10 border-blue-500/30 text-blue-400"
           )}>
             <p className="font-semibold">{getStreakMessage()}</p>
@@ -672,7 +672,7 @@ export default function LessonPage() {
                 <span className={cn(
                   "text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider border",
                   isRookieCourse 
-                    ? "bg-primary/15 text-primary border-green-500/30"
+                    ? "bg-primary/15 text-primary border-primary/30"
                     : "bg-blue-500/15 text-blue-400 border-blue-500/30"
                 )}>
                   {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
@@ -765,7 +765,7 @@ export default function LessonPage() {
               <div className={cn(
                 "border rounded-lg p-4 mb-4",
                 isRookieCourse 
-                  ? "bg-primary/5 border-green-500/20"
+                  ? "bg-primary/5 border-primary/20"
                   : "bg-blue-500/5 border-blue-500/20"
               )}>
                 <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5 uppercase tracking-wide">
@@ -821,8 +821,8 @@ export default function LessonPage() {
               <div className={cn(
                 "text-center py-4 px-4 rounded-lg border-2 border-dashed mt-4",
                 isRookieCourse 
-                  ? "border-amber-500/40 bg-primary/5"
-                  : "border-amber-500/40 bg-primary/5"
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-primary/40 bg-primary/5"
               )}>
                 <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
                 <p className="text-sm font-semibold text-amber-600">Waiting for Manager Approval</p>
@@ -883,7 +883,7 @@ export default function LessonPage() {
                               "flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm",
                               answers[question.id] === option.id
                                 ? isRookieCourse 
-                                  ? 'border-green-500 bg-primary/10'
+                                  ? 'border-primary bg-primary/10'
                                   : 'border-blue-500 bg-blue-500/10'
                                 : 'border-border hover:border-muted-foreground/50'
                             )}
@@ -899,7 +899,7 @@ export default function LessonPage() {
                             <div className={cn(
                               "w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
                               answers[question.id] === option.id
-                                ? isRookieCourse ? "border-green-500" : "border-blue-500"
+                                ? isRookieCourse ? "border-primary" : "border-blue-500"
                                 : "border-muted-foreground/50"
                             )}>
                               {answers[question.id] === option.id && (

@@ -103,7 +103,7 @@ export function HierarchyDiagnosticsPanel({
 
           {/* Deprecated Manager Redirects */}
           {diagnostics.deprecatedManagerRefs.length > 0 && (
-            <div className="bg-primary/10 border border-amber-500/30 rounded-lg p-3">
+            <div className="bg-primary/10 border border-primary/30 rounded-lg p-3">
               <h4 className="text-sm font-medium text-primary mb-2">
                 Deprecated Manager Redirects Applied
               </h4>
@@ -199,7 +199,7 @@ export function HierarchyDiagnosticsPanel({
                       "p-2 rounded-lg border text-xs",
                       stat.hasOwner 
                         ? "bg-muted/30 border-border/30" 
-                        : "bg-primary/10 border-amber-500/30"
+                        : "bg-primary/10 border-primary/30"
                     )}
                   >
                     <p className="font-medium text-foreground">{stat.name}</p>

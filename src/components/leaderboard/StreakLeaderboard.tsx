@@ -107,7 +107,7 @@ export function StreakLeaderboard() {
   return (
     <div className="space-y-4">
       {/* Bonus schedule banner */}
-      <div className="mx-4 mt-4 p-2.5 rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/5 border border-orange-500/15">
+      <div className="mx-4 mt-4 p-2.5 rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/5 border border-primary/15">
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground justify-center flex-wrap">
           <span className="font-semibold text-primary">Daily Login: +75</span>
           <span>·</span>
@@ -130,7 +130,7 @@ export function StreakLeaderboard() {
             const rank = index + 1;
             const isCurrentUser = entry.user_id === user?.id;
             const bgClass = rank === 1
-              ? 'bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-amber-500/30'
+              ? 'bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-primary/30'
               : rank === 2
                 ? 'bg-gradient-to-b from-slate-400/20 to-slate-400/5 border-slate-400/30'
                 : 'bg-gradient-to-b from-orange-600/20 to-orange-600/5 border-orange-600/30';

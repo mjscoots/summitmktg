@@ -48,7 +48,7 @@ export function LessonDebugPanel({
     <div className="fixed bottom-20 right-4 z-50 max-w-xs">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-2 py-1 text-xs font-mono bg-primary/20 text-primary border border-amber-500/30 rounded-t"
+        className="flex items-center gap-1 px-2 py-1 text-xs font-mono bg-primary/20 text-primary border border-primary/30 rounded-t"
       >
         <Bug className="w-3 h-3" />
         Debug
@@ -56,7 +56,7 @@ export function LessonDebugPanel({
       </button>
       
       {isOpen && (
-        <div className="bg-card border border-amber-500/30 border-t-0 rounded-b p-2 text-xs font-mono space-y-1 max-h-60 overflow-y-auto">
+        <div className="bg-card border border-primary/30 border-t-0 rounded-b p-2 text-xs font-mono space-y-1 max-h-60 overflow-y-auto">
           <Row label="Track" value={currentTrack} />
           <Row label="Module" value={moduleTitle || 'N/A'} />
           <Row label="Lesson ID" value={currentLessonId.slice(0, 8) + '...'} />

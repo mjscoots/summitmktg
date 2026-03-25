@@ -186,7 +186,7 @@ export function TodaysPriorities() {
              {needsCheckIn.map(member => (
                <div 
                  key={member.id}
-                 className="flex items-center gap-2 p-1.5 rounded-lg bg-primary/5 border border-amber-500/20 hover:bg-primary/10 transition-colors cursor-pointer group"
+                 className="flex items-center gap-2 p-1.5 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors cursor-pointer group"
                  onClick={() => setSelectedMember(convertToTeamMember(member))}
                >
                  <UserAvatar 

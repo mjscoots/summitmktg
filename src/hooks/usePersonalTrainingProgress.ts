@@ -209,9 +209,9 @@ export function usePersonalTrainingProgress() {
   };
 
   const getProgressBgColor = (percentage: number): string => {
-    if (percentage === 100) return 'bg-primary/15 border-green-500/30';
+    if (percentage === 100) return 'bg-primary/15 border-primary/30';
     if (percentage >= 71) return 'bg-primary/15 border-primary/30';
-    if (percentage >= 41) return 'bg-primary/15 border-yellow-500/30';
+    if (percentage >= 41) return 'bg-primary/15 border-primary/30';
     return 'bg-destructive/15 border-destructive/30';
   };
 

@@ -56,7 +56,7 @@ function XPCounter({ points, isRookie }: { points: number; isRookie: boolean }) 
     <div className={cn(
       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold animate-scale-in",
       isRookie
-        ? "bg-primary/20 text-primary border border-green-500/30"
+        ? "bg-primary/20 text-primary border border-primary/30"
         : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
     )}>
       <Zap className="w-4 h-4" />
@@ -146,7 +146,7 @@ export function LessonCompletionFeedback({
         "relative z-10 text-center px-8 py-10 max-w-sm mx-4 rounded-2xl border-2 transition-all duration-500",
         isVisible ? "scale-100" : "scale-95",
         isRookieCourse
-          ? "bg-card border-green-500/50 shadow-[0_0_60px_-15px_rgba(34,197,94,0.5)]"
+          ? "bg-card border-primary/50 shadow-[0_0_60px_-15px_rgba(34,197,94,0.5)]"
           : "bg-card border-blue-500/50 shadow-[0_0_60px_-15px_rgba(59,130,246,0.5)]"
       )}>
         {/* Success Icon */}

@@ -318,8 +318,8 @@ export default function AdminAuditPanel() {
       {/* Health Score */}
       <div className={cn(
         "rounded-xl border p-4 flex items-center gap-4",
-        healthScore >= 80 ? "bg-primary/5 border-emerald-500/30" :
-        healthScore >= 50 ? "bg-primary/5 border-amber-500/30" :
+        healthScore >= 80 ? "bg-primary/5 border-primary/30" :
+        healthScore >= 50 ? "bg-primary/5 border-primary/30" :
         "bg-destructive/5 border-destructive/30"
       )}>
         <div className={cn(
@@ -362,7 +362,7 @@ export default function AdminAuditPanel() {
 
       {/* Duplicate Pairs */}
       {stats.duplicatePairs.length > 0 && (
-        <div className="bg-primary/10 border border-amber-500/30 rounded-lg p-3 space-y-3">
+        <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 space-y-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">

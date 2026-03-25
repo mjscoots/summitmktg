@@ -79,7 +79,7 @@ export function StreakCelebration({
       <div className={cn(
         "flex items-center gap-4 px-6 py-4 rounded-2xl border-2 backdrop-blur-sm",
         isRookieCourse
-          ? "bg-primary/10 border-green-500/50 shadow-[0_0_40px_-10px_rgba(34,197,94,0.6)]"
+          ? "bg-primary/10 border-primary/50 shadow-[0_0_40px_-10px_rgba(34,197,94,0.6)]"
           : "bg-blue-500/10 border-blue-500/50 shadow-[0_0_40px_-10px_rgba(59,130,246,0.6)]"
       )}>
         {/* Animated Icon */}

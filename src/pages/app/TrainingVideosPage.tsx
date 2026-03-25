@@ -294,7 +294,7 @@ export default function TrainingVideosPage() {
                     className={cn(
                       "text-left p-5 rounded-xl border transition-all group",
                       "bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
-                      isBonus ? "border-yellow-500/20" : "border-border"
+                      isBonus ? "border-primary/20" : "border-border"
                     )}
                   >
                     <div className="flex items-start justify-between mb-3">

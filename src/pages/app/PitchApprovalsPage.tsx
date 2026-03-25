@@ -173,7 +173,7 @@ export default function PitchApprovalsPage() {
                     key={req.id}
                     className={cn(
                       "bg-card rounded-lg border p-4 flex items-center gap-3 transition-colors hover:bg-muted/30",
-                      isOverdue ? "border-amber-500/40" : "border-border"
+                      isOverdue ? "border-primary/40" : "border-border"
                     )}
                     style={{ borderLeftWidth: 3, borderLeftColor: `hsl(${tc.hsl})` }}
                   >

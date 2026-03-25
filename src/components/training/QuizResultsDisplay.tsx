@@ -52,7 +52,7 @@ function XPBadge({ points, delay = 0 }: { points: number; delay?: number }) {
   if (!show) return null;
 
   return (
-    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-green-500/30 text-sm font-bold animate-scale-in">
+    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-sm font-bold animate-scale-in">
       <Zap className="w-4 h-4" />
       +{displayPts} XP
     </div>
@@ -73,7 +73,7 @@ export function QuizResultsDisplay({
 }: QuizResultsDisplayProps) {
   if (passed) {
     return (
-      <div className="p-6 rounded-lg text-center bg-primary/10 border border-green-500/20">
+      <div className="p-6 rounded-lg text-center bg-primary/10 border border-primary/20">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center animate-scale-in">
           <Trophy className="w-8 h-8 text-primary" />
         </div>
@@ -125,7 +125,7 @@ export function QuizResultsDisplay({
 
   // Failed quiz - show detailed feedback
   return (
-    <div className="p-6 rounded-lg bg-primary/10 border border-amber-500/20">
+    <div className="p-6 rounded-lg bg-primary/10 border border-primary/20">
       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
         <AlertTriangle className="w-8 h-8 text-primary" />
       </div>

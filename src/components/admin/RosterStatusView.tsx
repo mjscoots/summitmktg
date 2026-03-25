@@ -32,10 +32,10 @@ const STATUS_TABS = [
 type StatusTab = typeof STATUS_TABS[number]['key'];
 
 const STATUS_COLORS: Record<string, { badge: string }> = {
-  summer_ready: { badge: 'bg-primary/15 text-primary border-green-500/30' },
+  summer_ready: { badge: 'bg-primary/15 text-primary border-primary/30' },
   onboarded: { badge: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  contract_signed: { badge: 'bg-primary/15 text-primary border-amber-500/30' },
-  info_added: { badge: 'bg-primary/15 text-primary border-orange-500/30' },
+  contract_signed: { badge: 'bg-primary/15 text-primary border-primary/30' },
+  info_added: { badge: 'bg-primary/15 text-primary border-primary/30' },
   pending: { badge: 'bg-muted/30 text-muted-foreground border-muted' },
 };
 

@@ -138,7 +138,7 @@ export function VideoUploader({ onUploadComplete, onError, className }: VideoUpl
             ? "border-primary bg-primary/5" 
             : "border-border hover:border-primary/50",
           uploadState === 'error' && "border-destructive bg-destructive/5",
-          uploadState === 'success' && "border-green-500 bg-primary/5"
+          uploadState === 'success' && "border-primary bg-primary/5"
         )}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}

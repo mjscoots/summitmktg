@@ -77,7 +77,7 @@ export function ChatLeaderboardWidget() {
 
   return (
     <div className="px-4 py-2 border-b border-border/30 flex-shrink-0">
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-500/10">
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-primary/10">
         <Trophy className="w-3.5 h-3.5 text-primary flex-shrink-0" />
         <span className="text-[10px] font-bold uppercase tracking-widest text-primary/80 flex-shrink-0">Today</span>
         <div className="flex items-center gap-3 ml-auto">

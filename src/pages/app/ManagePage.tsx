@@ -52,7 +52,7 @@ export default function ManagePage() {
               'group relative w-full p-5 bg-card rounded-xl text-left overflow-hidden',
               'border border-border/50 cursor-pointer',
               'transition-all duration-300 hover:scale-[1.01]',
-              'hover:border-orange-500/40',
+              'hover:border-primary/40',
               'hover:shadow-[0_0_30px_-10px_rgba(249,115,22,0.4)]'
             )}
           >
@@ -115,7 +115,7 @@ export default function ManagePage() {
               'group relative w-full p-5 bg-card rounded-xl text-left overflow-hidden',
               'border border-border/50 cursor-pointer',
               'transition-all duration-300 hover:scale-[1.01]',
-              'hover:border-amber-500/40',
+              'hover:border-primary/40',
               'hover:shadow-[0_0_30px_-10px_rgba(245,158,11,0.4)]'
             )}
           >

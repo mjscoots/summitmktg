@@ -816,7 +816,7 @@ export default function DownlineGrowthCalculator() {
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Vets</h3>
             <InfoTip text="Veterans you directly manage. Previous summer production can lock in a higher commission bracket." />
           </div>
-          <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all border border-green-500/20">
+          <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all border border-primary/20">
             <Plus className="w-3 h-3" /> Add Vet
           </button>
         </div>
@@ -826,7 +826,7 @@ export default function DownlineGrowthCalculator() {
         )}
 
         {vetRows.length > 0 && (
-          <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-green-500/10 text-[10px]">
+          <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-[10px]">
             <span className="text-muted-foreground uppercase font-semibold">Vet Subtotal</span>
             <span className="text-primary font-bold">{fmt(result.totalVetEarnings)}</span>
           </div>

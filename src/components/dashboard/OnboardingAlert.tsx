@@ -41,7 +41,7 @@ export function OnboardingAlert() {
   const isWarn = config.severity === 'warn';
 
   return (
-    <Card className={`mb-4 border ${isWarn ? 'border-amber-500/40 bg-primary/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+    <Card className={`mb-4 border ${isWarn ? 'border-primary/40 bg-primary/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
       <div className="p-4 flex items-start gap-3">
         <div className={`rounded-full p-1.5 ${isWarn ? 'bg-primary/15' : 'bg-blue-500/15'}`}>
           <AlertTriangle className={`w-4 h-4 ${isWarn ? 'text-primary' : 'text-blue-400'}`} />
@@ -49,7 +49,7 @@ export function OnboardingAlert() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-sm font-semibold text-foreground">Join Onboarding Zoom</h3>
-            <Badge variant="outline" className={`text-[9px] ${isWarn ? 'text-primary border-amber-500/30' : 'text-blue-400 border-blue-500/30'}`}>
+            <Badge variant="outline" className={`text-[9px] ${isWarn ? 'text-primary border-primary/30' : 'text-blue-400 border-blue-500/30'}`}>
               {config.label}
             </Badge>
           </div>
@@ -58,7 +58,7 @@ export function OnboardingAlert() {
             <Button
               size="sm"
               variant="outline"
-              className={`gap-1.5 text-xs h-7 ${isWarn ? 'border-amber-500/30 text-primary/80 hover:bg-primary/10' : 'border-blue-500/30 text-blue-300 hover:bg-blue-500/10'}`}
+              className={`gap-1.5 text-xs h-7 ${isWarn ? 'border-primary/30 text-primary/80 hover:bg-primary/10' : 'border-blue-500/30 text-blue-300 hover:bg-blue-500/10'}`}
               onClick={() => window.location.href = '/app/links'}
             >
               <ExternalLink className="w-3 h-3" />

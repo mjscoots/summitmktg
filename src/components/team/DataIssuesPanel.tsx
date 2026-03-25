@@ -92,7 +92,7 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
   }
 
   return (
-    <div className="bg-primary/10 border border-amber-500/30 rounded-xl p-4">
+    <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-primary" />
@@ -175,7 +175,7 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
               Other Issues ({otherIssues.length})
             </h4>
             {otherIssues.slice(0, 3).map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-sm py-2 border-b border-amber-500/20 last:border-0">
+              <div key={idx} className="flex items-start gap-3 text-sm py-2 border-b border-primary/20 last:border-0">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{item.person.full_name}</p>
                   <p className="text-primary/80 text-xs">{item.issue}</p>

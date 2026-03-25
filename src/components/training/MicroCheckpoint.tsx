@@ -42,7 +42,7 @@ export function MicroCheckpoint({
       <div className={cn(
         "p-6 rounded-xl border-2 transition-all duration-500",
         isRookieCourse 
-          ? "border-green-500/50 bg-primary/10"
+          ? "border-primary/50 bg-primary/10"
           : "border-blue-500/50 bg-blue-500/10"
       )}>
         <div className="flex items-center justify-center gap-3">
@@ -60,7 +60,7 @@ export function MicroCheckpoint({
     <div className={cn(
       "p-6 rounded-xl border-2 transition-all duration-300",
       isRookieCourse 
-        ? "border-green-500/30 bg-primary/5"
+        ? "border-primary/30 bg-primary/5"
         : "border-blue-500/30 bg-blue-500/5"
     )}>
       <div className="flex items-start gap-3 mb-4">
@@ -91,7 +91,7 @@ export function MicroCheckpoint({
                 "w-full p-3 rounded-lg border text-left transition-all duration-200",
                 selectedOption === option
                   ? isRookieCourse
-                    ? "border-green-500 bg-primary/20 text-foreground"
+                    ? "border-primary bg-primary/20 text-foreground"
                     : "border-blue-500 bg-blue-500/20 text-foreground"
                   : "border-border bg-muted/30 text-muted-foreground hover:text-foreground hover:border-muted-foreground/50"
               )}

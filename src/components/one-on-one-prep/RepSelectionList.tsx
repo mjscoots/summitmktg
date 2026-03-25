@@ -136,7 +136,7 @@ function CompletedRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void
   return (
     <button
       onClick={onSelect}
-      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-green-500/20 bg-primary/5 text-left opacity-70 hover:opacity-90 transition-opacity"
+      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-primary/20 bg-primary/5 text-left opacity-70 hover:opacity-90 transition-opacity"
     >
       <Check className="w-4 h-4 text-primary flex-shrink-0" />
       {rep.avatar_url ? (
@@ -304,7 +304,7 @@ export function RepSelectionList({
           </DndContext>
         </>
       ) : (
-        <div className="text-center py-10 rounded-lg border border-green-500/20 bg-primary/5">
+        <div className="text-center py-10 rounded-lg border border-primary/20 bg-primary/5">
           <span className="text-2xl">🎉</span>
           <p className="text-sm font-medium text-foreground mt-2">All 1:1s completed for this week!</p>
           <p className="text-xs text-muted-foreground mt-1">{completedCount} reps checked in</p>

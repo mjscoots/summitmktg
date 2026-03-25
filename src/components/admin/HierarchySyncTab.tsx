@@ -425,7 +425,7 @@ export default function HierarchySyncTab({
               </div>
 
               {item.suggestedManager && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-emerald-500/20 rounded-lg">
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg">
                   <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   <span className="text-xs text-muted-foreground">Suggested:</span>
                   <span className="text-xs font-medium text-primary">
@@ -442,7 +442,7 @@ export default function HierarchySyncTab({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="ml-auto h-6 text-[10px] gap-1 border-emerald-500/30 text-primary hover:bg-primary/10"
+                    className="ml-auto h-6 text-[10px] gap-1 border-primary/30 text-primary hover:bg-primary/10"
                     disabled={saving.has(item.profile.user_id)}
                     onClick={() => handleSaveOne(item.profile.user_id, item.suggestedManager!)}
                   >
