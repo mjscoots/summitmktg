@@ -809,14 +809,14 @@ export default function DownlineGrowthCalculator() {
       </div>
 
       {/* ====== DIRECT VETS ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-green-500/40" ref={vetSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-green-400" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Vets</h3>
             <InfoTip text="Veterans you directly manage. Previous summer production can lock in a higher commission bracket." />
           </div>
-          <button onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all border border-green-500/20">
+          <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all border border-green-500/20">
             <Plus className="w-3 h-3" /> Add Vet
           </button>
         </div>
@@ -832,11 +832,12 @@ export default function DownlineGrowthCalculator() {
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {vetRowStates.map((row, i) => {
             const vr = result.vetResults[i];
+            const isLast = i === vetRowStates.length - 1;
             return (
-              <div key={row.id} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
+              <div key={row.id} {...(isLast ? { 'data-last-row': '' } : {})} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
                 <div className="flex items-center gap-2 p-3 cursor-pointer" onClick={() => updateVet(row.id, 'expanded', !row.expanded)}>
                   {row.expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
                   <input value={row.label} onChange={e => updateVet(row.id, 'label', e.target.value)} onClick={e => e.stopPropagation()}
@@ -844,7 +845,7 @@ export default function DownlineGrowthCalculator() {
                     className="bg-transparent text-xs font-bold text-foreground border-none outline-none w-28 placeholder:text-muted-foreground/40" />
                   <span className="text-[10px] text-muted-foreground ml-auto">×{row.headcountStr || '1'}</span>
                   {vr && <span className="text-[10px] text-green-400 font-bold ml-2">{fmt(vr.earnings)}</span>}
-                  <button onClick={e => { e.stopPropagation(); removeVet(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={e => { e.stopPropagation(); removeVet(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
                 {row.expanded && (
                   <div className="px-3 pb-3 space-y-2 border-t border-border/20 pt-3">
