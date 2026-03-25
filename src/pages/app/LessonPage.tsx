@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight, Sparkles, AlertCircle, Clock } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -150,15 +150,17 @@ export default function LessonPage() {
   // Determine if user can proceed
   const hasCompletedRequirements = lessonCompleted || questions.length === 0 || isQuizOptional;
   const scrollUnlocked = atBottom || lessonCompleted;
-  const canProceed = scrollUnlocked && hasCompletedRequirements;
+  // Block progression if pitch is required but not yet approved
+  const pitchBlocking = requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved');
+  const canProceed = scrollUnlocked && hasCompletedRequirements && !pitchBlocking;
 
   // Button state machine
   const buttonState: ButtonState = useMemo(() => {
-    if (!scrollUnlocked) return 'locked';
+    if (!scrollUnlocked || pitchBlocking) return 'locked';
     if (isLastLesson && hasCompletedRequirements) return 'finalReady';
     if (hasCompletedRequirements) return 'ready';
     return 'locked';
-  }, [scrollUnlocked, isLastLesson, hasCompletedRequirements]);
+  }, [scrollUnlocked, isLastLesson, hasCompletedRequirements, pitchBlocking]);
 
   // Button label based on state
   const buttonLabel = useMemo(() => {
@@ -811,6 +813,22 @@ export default function LessonPage() {
                   Take Quiz
                   <HelpCircle className="w-4 h-4 ml-2" />
                 </Button>
+              </div>
+            )}
+
+            {/* Pitch approval waiting message */}
+            {pitchBlocking && lessonCompleted && (
+              <div className={cn(
+                "text-center py-4 px-4 rounded-lg border-2 border-dashed mt-4",
+                isRookieCourse 
+                  ? "border-amber-500/40 bg-amber-500/5"
+                  : "border-amber-500/40 bg-amber-500/5"
+              )}>
+                <Clock className="w-5 h-5 text-amber-500 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-amber-600">Waiting for Manager Approval</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your manager needs to approve your pitch before you can continue to the next lesson.
+                </p>
               </div>
             )}
 

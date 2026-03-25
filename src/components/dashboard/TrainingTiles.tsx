@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, RotateCcw, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface Course {
@@ -75,6 +76,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [manualReadCount, setManualReadCount] = useState(0);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -195,6 +197,23 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
     fetchCourses();
   }, [user, filterRole]);
+
+  // Fetch manual read count
+  useEffect(() => {
+    if (!user) return;
+    const fetchReadCount = async () => {
+      const { data } = await supabase
+        .from('manual_read_completions')
+        .select('completion_number')
+        .eq('user_id', user.id)
+        .eq('course_slug', 'summer-sales-manual')
+        .order('completion_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setManualReadCount(data?.completion_number || 0);
+    };
+    fetchReadCount();
+  }, [user]);
 
   const handleCourseClick = (slug: string) => {
     if (slug === 'manager-videos') {
@@ -366,12 +385,19 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
                 {/* === BODY REGION (flex-grow, contains title + description) === */}
                 <div className="flex-1 min-h-0">
-                  <h3 className={cn(
-                    "font-bold text-base text-foreground mb-2 transition-colors duration-300",
-                    !isComingSoon && (isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400")
-                  )}>
-                    {displayTitle}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className={cn(
+                      "font-bold text-base text-foreground transition-colors duration-300",
+                      !isComingSoon && (isRookie ? "group-hover:text-green-400" : "group-hover:text-blue-400")
+                    )}>
+                      {displayTitle}
+                    </h3>
+                    {course.slug === 'summer-sales-manual' && manualReadCount > 0 && (
+                      <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 font-bold text-[10px] px-1.5 py-0">
+                        {manualReadCount}x
+                      </Badge>
+                    )}
+                  </div>
                   
                   {course.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic } from 'lucide-react';
+import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic, RotateCcw } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface Module {
   id: string;
@@ -58,6 +59,10 @@ export default function TrainingCoursePage() {
   const [editVideoUrl, setEditVideoUrl] = useState('');
   const [editContent, setEditContent] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  
+  // Manual re-read tracking
+  const [manualReadCount, setManualReadCount] = useState(0);
+  const [showRereadCelebration, setShowRereadCelebration] = useState(false);
 
   const isAdmin = role === 'admin' || role === 'owner';
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
@@ -184,6 +189,88 @@ export default function TrainingCoursePage() {
     fetchCourseData();
   }, [courseSlug, user, navigate]);
 
+  // Manual re-read tracking for summer-sales-manual
+  const isManualCourse = courseSlug === 'summer-sales-manual';
+  
+  const handleManualRereadComplete = useCallback(async () => {
+    if (!user || !isManualCourse) return;
+    
+    // Record new completion
+    const newCount = manualReadCount + 1;
+    await supabase.from('manual_read_completions').insert({
+      user_id: user.id,
+      course_slug: 'summer-sales-manual',
+      completion_number: newCount,
+    });
+    
+    // Reset all lesson progress for this course's lessons
+    const allLessonIds = modules.flatMap(m => m.lessons.map(l => l.id));
+    if (allLessonIds.length > 0) {
+      for (const lid of allLessonIds) {
+        await supabase
+          .from('lesson_progress')
+          .update({ completed_at: null, quiz_passed: false, quiz_score: null })
+          .eq('user_id', user.id)
+          .eq('lesson_id', lid);
+      }
+    }
+    
+    setManualReadCount(newCount);
+    setShowRereadCelebration(true);
+    toast.success(`Manual completed for the ${newCount}${newCount === 1 ? 'st' : newCount === 2 ? 'nd' : newCount === 3 ? 'rd' : 'th'} time! 🎉`);
+    
+    // Reload page to show reset progress
+    window.location.reload();
+  }, [user, isManualCourse, manualReadCount, modules]);
+
+  // Fetch manual read count and check for completion
+  useEffect(() => {
+    if (!user || !isManualCourse) return;
+    
+    const fetchReadCount = async () => {
+      const { data } = await supabase
+        .from('manual_read_completions')
+        .select('completion_number')
+        .eq('user_id', user.id)
+        .eq('course_slug', 'summer-sales-manual')
+        .order('completion_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      setManualReadCount(data?.completion_number || 0);
+    };
+    
+    fetchReadCount();
+  }, [user, isManualCourse]);
+
+  // Check if manual course just hit 100% and auto-trigger re-read
+  useEffect(() => {
+    if (!isManualCourse || overallProgress !== 100 || modules.length === 0 || !user) return;
+    
+    // Check if this completion was already recorded
+    const checkAndRecord = async () => {
+      const { data } = await supabase
+        .from('manual_read_completions')
+        .select('completion_number')
+        .eq('user_id', user.id)
+        .eq('course_slug', 'summer-sales-manual')
+        .order('completion_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      const currentCount = data?.completion_number || 0;
+      
+      // Only auto-complete if progress is 100% and we haven't recorded it yet
+      // We use a simple heuristic: if all lessons show completed but count hasn't incremented
+      const allComplete = modules.every(m => m.lessons.every(l => l.quiz_passed));
+      if (allComplete && currentCount === manualReadCount) {
+        handleManualRereadComplete();
+      }
+    };
+    
+    checkAndRecord();
+  }, [overallProgress, isManualCourse, modules, user]);
+
   const handleEditLesson = async (lessonId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const { data } = await supabase
@@ -271,6 +358,13 @@ export default function TrainingCoursePage() {
             )}>
               {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
             </span>
+            {/* Manual re-read counter badge */}
+            {isManualCourse && manualReadCount > 0 && (
+              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 font-bold text-xs">
+                <RotateCcw className="w-3 h-3 mr-1" />
+                {manualReadCount}x Read
+              </Badge>
+            )}
           </div>
           {course.description && (
             <p className="text-muted-foreground">{course.description}</p>
@@ -412,8 +506,12 @@ export default function TrainingCoursePage() {
                 {isExpanded && !isModuleLocked && (
                 <div className="divide-y divide-border">
                   {module.lessons.map((lesson, lessonIndex) => {
-                    const isLessonLocked = isModuleLocked || 
-                      (lessonIndex > 0 && !module.lessons[lessonIndex - 1].quiz_passed);
+                     // Lesson is locked if module locked, previous lesson not passed,
+                     // OR previous lesson requires pitch that isn't approved yet
+                     const prevLesson = lessonIndex > 0 ? module.lessons[lessonIndex - 1] : null;
+                     const prevPitchBlocking = prevLesson?.requires_pitch_approval && prevLesson.pitch_status !== 'approved';
+                     const isLessonLocked = isModuleLocked || 
+                      (lessonIndex > 0 && (!module.lessons[lessonIndex - 1].quiz_passed || prevPitchBlocking));
                     
                     // First incomplete, unlocked lesson in this module = current lesson
                     const isCurrentLesson = !isLessonLocked && !lesson.quiz_passed &&
