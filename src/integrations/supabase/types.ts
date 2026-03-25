@@ -1343,6 +1343,30 @@ export type Database = {
         }
         Relationships: []
       }
+      manual_read_completions: {
+        Row: {
+          completed_at: string
+          completion_number: number
+          course_slug: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          completion_number?: number
+          course_slug?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          completion_number?: number
+          course_slug?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           bootcamp_reminders: boolean
