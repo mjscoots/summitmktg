@@ -110,8 +110,8 @@ export default {
           "100%": { transform: "translateX(-50%) translateY(0) scale(1)", opacity: "1" },
         },
         "hot-pulse": {
-          "0%, 100%": { boxShadow: "0 0 0 0 hsl(15 95% 55% / 0)" },
-          "50%": { boxShadow: "0 0 12px -2px hsl(15 95% 55% / 0.2)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 hsl(216 89% 53% / 0)" },
+          "50%": { boxShadow: "0 0 12px -2px hsl(216 89% 53% / 0.2)" },
         },
         "ripple": {
           "0%": { transform: "scale(0)", opacity: "0.4" },
