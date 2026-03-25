@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 
-const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthCalculator"));
+const RookieCalculator = lazy(() => import("@/components/RookieCalculator"));
+const VetCalculator = lazy(() => import("@/components/VetCalculator"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -181,10 +182,37 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Downline Growth Calculator */}
-      <Suspense fallback={<div className="py-16 text-center text-muted-foreground text-sm">Loading calculator...</div>}>
-        <DownlineGrowthCalculator />
-      </Suspense>
+      {/* Calculators */}
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 space-y-12">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
+            Estimate Your Earnings
+          </h2>
+          <p className="text-muted-foreground text-sm">See what you could make this summer.</p>
+        </div>
+        <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading...</div>}>
+          <RookieCalculator />
+        </Suspense>
+        <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading...</div>}>
+          <VetCalculator />
+        </Suspense>
+      </div>
+
+      {/* Apply Now CTA */}
+      <div className="relative z-10 text-center py-16 px-6">
+        <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-3">
+          Ready to Start?
+        </h2>
+        <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+          Join Summit Marketing and start building your career in door-to-door sales.
+        </p>
+        <button
+          onClick={() => navigate("/apply")}
+          className="inline-flex items-center gap-2 bg-primary hover:scale-[1.02] transition-all px-8 py-4 rounded-xl text-primary-foreground font-black uppercase tracking-wider text-base hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)]"
+        >
+          Apply Now <ArrowRight className="w-5 h-5" />
+        </button>
+      </div>
 
       {/* Divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
