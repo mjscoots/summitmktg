@@ -885,14 +885,14 @@ export default function DownlineGrowthCalculator() {
       </div>
 
       {/* ====== TEAMS ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-purple-500/40" ref={teamSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-purple-400" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Teams</h3>
             <InfoTip text="Teams with their own team lead. You earn the override spread: your deal minus their team deal." />
           </div>
-          <button onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
+          <button type="button" onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
             <Plus className="w-3 h-3" /> Add Team
           </button>
         </div>
@@ -908,11 +908,12 @@ export default function DownlineGrowthCalculator() {
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {teamRowStates.map((t, i) => {
             const tr = result.teamResults[i];
+            const isLast = i === teamRowStates.length - 1;
             return (
-              <div key={t.id} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
+              <div key={t.id} {...(isLast ? { 'data-last-row': '' } : {})} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
                 <div className="flex items-center gap-2 p-3 cursor-pointer" onClick={() => updateTeam(t.id, 'expanded', !t.expanded)}>
                   {t.expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
                   <input value={t.name} onChange={e => updateTeam(t.id, 'name', e.target.value)} onClick={e => e.stopPropagation()}
