@@ -150,6 +150,12 @@ const RevenueMethodToggle = ({ method, onChange }: { method: 'total' | 'perRep';
 
 // ===================== TYPES =====================
 
+interface PersonalData {
+  selling: boolean;
+  grossRevenue: number;
+  previousSummerRevenue: number;
+}
+
 interface Assumptions {
   rookieAttrition: number;
   vetAttrition: number;
@@ -256,24 +262,39 @@ function calcTeam(t: TeamData, topDeal: number) {
   };
 }
 
+function calcPersonal(p: PersonalData, a: Assumptions) {
+  if (!p.selling || p.grossRevenue === 0) return { activeRevenue: 0, commission: 0, earnings: 0, usedPrevSummer: false };
+  const activeRevenue = p.grossRevenue * (1 - a.cancellationReduction / 100);
+  const currentRate = getVetRate(activeRevenue);
+  const prevRate = p.previousSummerRevenue > 0 ? getVetRate(p.previousSummerRevenue) : 0;
+  const usedPrevSummer = prevRate > currentRate;
+  const commission = Math.max(currentRate, prevRate);
+  const earnings = activeRevenue * commission;
+  return { activeRevenue, commission, earnings, usedPrevSummer };
+}
+
 function calcAll(
+  personal: PersonalData,
   directRookies: DirectRookiesData,
   directVets: DirectVetsData,
   teams: TeamData[],
   assumptions: Assumptions,
 ) {
+  // Personal
+  const personalResult = calcPersonal(personal, assumptions);
+
   // Step 1: compute total system active revenue for top-level marketing deal
   const rookieServiced = directRookies.revenueMethod === 'total' ? directRookies.totalServicedRevenue : directRookies.count * directRookies.avgServicedRevenue;
   const rookieActive = rookieServiced * (1 - assumptions.cancellationReduction / 100) * (1 - assumptions.rookieAttrition / 100);
   const vetActive = (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue : directVets.count * directVets.avgActiveRevenue) * (1 - assumptions.vetAttrition / 100);
 
   let teamActiveTotal = 0;
-  const teamResults = teams.map(t => {
-    const r = calcTeam(t, 0); // temp call to get active rev
+  teams.forEach(t => {
+    const r = calcTeam(t, 0);
     teamActiveTotal += r.teamActiveRevenue;
-    return r;
   });
 
+  // Total system active = all downline active (personal is NOT included in marketing deal calc — marketing deal is based on system/team revenue)
   const totalSystemActive = rookieActive + vetActive + teamActiveTotal;
   const topDeal = getMktgRate(totalSystemActive);
 
@@ -284,17 +305,18 @@ function calcAll(
   const totalTeamEarnings = finalTeamResults.reduce((s, r) => s + r.earnings, 0);
 
   const totalServiced = rookieServiced + (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue : directVets.count * directVets.avgActiveRevenue) + teamActiveTotal;
-  const totalEarnings = drResult.earnings + dvResult.earnings + totalTeamEarnings;
+  const totalDownlineEarnings = drResult.earnings + dvResult.earnings + totalTeamEarnings;
+  const totalEarnings = personalResult.earnings + totalDownlineEarnings;
 
-  // Weighted spread
-  const weightedSpread = totalSystemActive > 0 ? totalEarnings / totalSystemActive : 0;
+  // Weighted spread (downline only)
+  const weightedSpread = totalSystemActive > 0 ? totalDownlineEarnings / totalSystemActive : 0;
 
   // Active headcount
   const totalHeadcount = drResult.adjustedCount + dvResult.adjustedCount + finalTeamResults.reduce((s, r) => s + r.adjustedHeadcount, 0);
 
   return {
-    topDeal, totalSystemActive, totalServiced, totalEarnings, weightedSpread, totalHeadcount,
-    drResult, dvResult, teamResults: finalTeamResults,
+    topDeal, totalSystemActive, totalServiced, totalEarnings, totalDownlineEarnings, weightedSpread, totalHeadcount,
+    personalResult, drResult, dvResult, teamResults: finalTeamResults,
     rookieActive, vetActive, teamActiveTotal,
   };
 }
