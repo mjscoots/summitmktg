@@ -535,7 +535,7 @@ export default function DownlineGrowthCalculator() {
   const removeTeam = (id: string) => setTeams(p => p.filter(t => t.id !== id));
   const updateTeam = (id: string, field: string, value: any) => setTeams(p => p.map(t => t.id === id ? { ...t, [field]: value } : t));
 
-  const hasData = directRookies.count > 0 || directVets.count > 0 || teamData.some(t => t.totalActiveRevenue > 0 || t.numRookies > 0 || t.numVets > 0);
+  const hasData = personal.selling || directRookies.count > 0 || directVets.count > 0 || teamData.some(t => t.totalActiveRevenue > 0 || t.numRookies > 0 || t.numVets > 0);
 
   // Find strongest / weakest team
   const teamResultsSorted = [...result.teamResults].map((r, i) => ({ ...r, team: teamData[i] })).filter(r => r.earnings > 0);
@@ -593,8 +593,9 @@ export default function DownlineGrowthCalculator() {
           </div>
 
           {/* Segments row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className={cn("grid gap-2", result.personalResult.earnings > 0 ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4")}>
             {[
+              ...(result.personalResult.earnings > 0 ? [{ label: 'Personal', value: fmt(result.personalResult.earnings), color: 'text-amber-400' }] : []),
               { label: 'From Rookies', value: fmt(result.drResult.earnings), color: 'text-blue-400' },
               { label: 'From Vets', value: fmt(result.dvResult.earnings), color: 'text-green-400' },
               { label: 'From Teams', value: fmt(result.teamResults.reduce((s, r) => s + r.earnings, 0)), color: 'text-purple-400' },
@@ -618,6 +619,49 @@ export default function DownlineGrowthCalculator() {
           )}
         </div>
       )}
+
+      {/* ====== PERSONAL REVENUE ====== */}
+      <div className="glass-card rounded-2xl p-4 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-amber-400" />
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Revenue</h3>
+            <InfoTip text="Your own personal production this summer. Commission based on your active revenue (vet scale). Previous summer can lock in a higher bracket." />
+          </div>
+          <button
+            onClick={() => setSellingThisSummer(!sellingThisSummer)}
+            className={cn(
+              "relative w-12 h-6 rounded-full transition-all duration-300 shrink-0",
+              sellingThisSummer ? "bg-green-500/80" : "bg-muted/40 border border-border/40"
+            )}
+            aria-label="Toggle selling this summer"
+          >
+            <div className={cn(
+              "absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all duration-300",
+              sellingThisSummer ? "left-[26px] bg-white" : "left-0.5 bg-muted-foreground/60"
+            )} />
+          </button>
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-2">Are you selling this summer?</p>
+
+        {sellingThisSummer && (
+          <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
+            <CurrencyInput value={personalRevStr} onChange={setPersonalRevStr} label="Your Gross Revenue Goal" icon={DollarSign} placeholder="e.g. 300,000" hint="Total serviced revenue you plan to write" />
+            <CurrencyInput value={personalPrevSummerStr} onChange={setPersonalPrevSummerStr} label="Previous Summer Revenue" icon={Shield} placeholder="Optional" hint="If higher, locks in the higher vet commission bracket" />
+
+            {personal.grossRevenue > 0 && (
+              <div className="p-2.5 rounded-lg bg-muted/10 border border-border/20 space-y-1 text-[10px] font-mono">
+                <div className="flex justify-between"><span className="text-muted-foreground">Active Revenue</span><span>{fmt(result.personalResult.activeRevenue)}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Commission {result.personalResult.usedPrevSummer ? '(prev summer bracket)' : ''}</span>
+                  <span>{pct(result.personalResult.commission)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-amber-400 border-t border-border/20 pt-1"><span>Personal Earnings</span><span>{fmt(result.personalResult.earnings)}</span></div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ====== 2. DIRECT REPS ====== */}
       <div className="grid md:grid-cols-2 gap-3 mb-4">
