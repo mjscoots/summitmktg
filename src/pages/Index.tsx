@@ -9,6 +9,7 @@ const VetCalculator = lazy(() => import("@/components/VetCalculator"));
 const Index = () => {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [calcMode, setCalcMode] = useState<'rookie' | 'vet'>('rookie');
   const [stars, setStars] = useState<Array<{id: number;x: number;y: number;size: number;opacity: number;delay: number;}>>([]);
 
   // Preload logo then reveal
@@ -183,18 +184,29 @@ const Index = () => {
       </div>
 
       {/* Calculators */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 space-y-12">
-        <div className="text-center mb-8">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 space-y-8">
+        <div className="text-center mb-4">
           <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
             Estimate Your Earnings
           </h2>
-          <p className="text-muted-foreground text-sm">See what you could make this summer.</p>
+          <p className="text-muted-foreground text-sm mb-6">See what you could make this summer.</p>
+          <div className="inline-flex items-center rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-1">
+            <button
+              onClick={() => setCalcMode('rookie')}
+              className={`px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${calcMode === 'rookie' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Rookie
+            </button>
+            <button
+              onClick={() => setCalcMode('vet')}
+              className={`px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${calcMode === 'vet' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Veteran
+            </button>
+          </div>
         </div>
         <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading...</div>}>
-          <RookieCalculator />
-        </Suspense>
-        <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading...</div>}>
-          <VetCalculator />
+          {calcMode === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
         </Suspense>
       </div>
 
