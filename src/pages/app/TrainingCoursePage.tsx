@@ -358,6 +358,13 @@ export default function TrainingCoursePage() {
             )}>
               {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
             </span>
+            {/* Manual re-read counter badge */}
+            {isManualCourse && manualReadCount > 0 && (
+              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 font-bold text-xs">
+                <RotateCcw className="w-3 h-3 mr-1" />
+                {manualReadCount}x Read
+              </Badge>
+            )}
           </div>
           {course.description && (
             <p className="text-muted-foreground">{course.description}</p>
