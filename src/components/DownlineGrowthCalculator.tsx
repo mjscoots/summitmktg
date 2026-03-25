@@ -574,27 +574,47 @@ export default function DownlineGrowthCalculator() {
 
   const hasData = personal.selling || rookieRows.length > 0 || vetRows.length > 0 || teamRows.length > 0;
 
-  // Add/remove helpers
-  const addRookie = () => setRookieRowStates(p => [...p, {
-    id: nextId(), label: '', headcountStr: '1', avgServicedStr: '150,000',
-    attritionStr: '', cancellationStr: '', expanded: true,
-  }]);
+  // Ref for scrolling to newly added items
+  const rookieSectionRef = useRef<HTMLDivElement>(null);
+  const vetSectionRef = useRef<HTMLDivElement>(null);
+  const teamSectionRef = useRef<HTMLDivElement>(null);
+
+  // Add/remove helpers — scroll into view after adding
+  const addRookie = () => {
+    setRookieRowStates(p => [...p, {
+      id: nextId(), label: '', headcountStr: '1', avgServicedStr: '150,000',
+      attritionStr: '', cancellationStr: '', expanded: true,
+    }]);
+    requestAnimationFrame(() => {
+      rookieSectionRef.current?.querySelector('[data-last-row]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
   const removeRookie = (id: string) => setRookieRowStates(p => p.filter(r => r.id !== id));
   const updateRookie = (id: string, field: string, value: any) => setRookieRowStates(p => p.map(r => r.id === id ? { ...r, [field]: value } : r));
 
-  const addVet = () => setVetRowStates(p => [...p, {
-    id: nextId(), label: '', headcountStr: '1', avgActiveStr: '250,000',
-    prevSummerStr: '', attritionStr: '', expanded: true,
-  }]);
+  const addVet = () => {
+    setVetRowStates(p => [...p, {
+      id: nextId(), label: '', headcountStr: '1', avgActiveStr: '250,000',
+      prevSummerStr: '', attritionStr: '', expanded: true,
+    }]);
+    requestAnimationFrame(() => {
+      vetSectionRef.current?.querySelector('[data-last-row]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
   const removeVet = (id: string) => setVetRowStates(p => p.filter(v => v.id !== id));
   const updateVet = (id: string, field: string, value: any) => setVetRowStates(p => p.map(v => v.id === id ? { ...v, [field]: value } : v));
 
-  const addTeam = () => setTeamRowStates(p => [...p, {
-    id: nextId(), name: `Team ${p.length + 1}`, useManualRevenue: false,
-    manualActiveStr: '', numRookiesStr: '5', numVetsStr: '0',
-    avgRookieServicedStr: '150,000', avgVetActiveStr: '250,000',
-    rookieAttrStr: '', vetAttrStr: '', cancelStr: '', expanded: true,
-  }]);
+  const addTeam = () => {
+    setTeamRowStates(p => [...p, {
+      id: nextId(), name: `Team ${p.length + 1}`, useManualRevenue: false,
+      manualActiveStr: '', numRookiesStr: '5', numVetsStr: '0',
+      avgRookieServicedStr: '150,000', avgVetActiveStr: '250,000',
+      rookieAttrStr: '', vetAttrStr: '', cancelStr: '', expanded: true,
+    }]);
+    requestAnimationFrame(() => {
+      teamSectionRef.current?.querySelector('[data-last-row]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
   const removeTeam = (id: string) => setTeamRowStates(p => p.filter(t => t.id !== id));
   const updateTeam = (id: string, field: string, value: any) => setTeamRowStates(p => p.map(t => t.id === id ? { ...t, [field]: value } : t));
 
@@ -671,7 +691,7 @@ export default function DownlineGrowthCalculator() {
       )}
 
       {/* ====== PERSONAL REVENUE ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-amber-500/40">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-amber-400" />
@@ -713,14 +733,14 @@ export default function DownlineGrowthCalculator() {
       </div>
 
       {/* ====== DIRECT RECRUIT ROOKIES ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-blue-500/40" ref={rookieSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-blue-400" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Recruit Rookies</h3>
             <InfoTip text="Rookies you personally manage. Each row can be an individual or a group of similar rookies." />
           </div>
-          <button onClick={addRookie} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-all border border-blue-500/20">
+          <button type="button" onClick={addRookie} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-all border border-blue-500/20">
             <Plus className="w-3 h-3" /> Add Rookie
           </button>
         </div>
@@ -737,11 +757,12 @@ export default function DownlineGrowthCalculator() {
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {rookieRowStates.map((row, i) => {
             const rr = result.rookieResults[i];
+            const isLast = i === rookieRowStates.length - 1;
             return (
-              <div key={row.id} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
+              <div key={row.id} {...(isLast ? { 'data-last-row': '' } : {})} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
                 <div className="flex items-center gap-2 p-3 cursor-pointer" onClick={() => updateRookie(row.id, 'expanded', !row.expanded)}>
                   {row.expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
                   <input value={row.label} onChange={e => updateRookie(row.id, 'label', e.target.value)} onClick={e => e.stopPropagation()}
@@ -749,7 +770,7 @@ export default function DownlineGrowthCalculator() {
                     className="bg-transparent text-xs font-bold text-foreground border-none outline-none w-28 placeholder:text-muted-foreground/40" />
                   <span className="text-[10px] text-muted-foreground ml-auto">×{row.headcountStr || '1'}</span>
                   {rr && <span className="text-[10px] text-blue-400 font-bold ml-2">{fmt(rr.earnings)}</span>}
-                  <button onClick={e => { e.stopPropagation(); removeRookie(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={e => { e.stopPropagation(); removeRookie(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
                 {row.expanded && (
                   <div className="px-3 pb-3 space-y-2 border-t border-border/20 pt-3">
@@ -788,14 +809,14 @@ export default function DownlineGrowthCalculator() {
       </div>
 
       {/* ====== DIRECT VETS ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-green-500/40" ref={vetSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-green-400" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Vets</h3>
             <InfoTip text="Veterans you directly manage. Previous summer production can lock in a higher commission bracket." />
           </div>
-          <button onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all border border-green-500/20">
+          <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all border border-green-500/20">
             <Plus className="w-3 h-3" /> Add Vet
           </button>
         </div>
@@ -811,11 +832,12 @@ export default function DownlineGrowthCalculator() {
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {vetRowStates.map((row, i) => {
             const vr = result.vetResults[i];
+            const isLast = i === vetRowStates.length - 1;
             return (
-              <div key={row.id} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
+              <div key={row.id} {...(isLast ? { 'data-last-row': '' } : {})} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
                 <div className="flex items-center gap-2 p-3 cursor-pointer" onClick={() => updateVet(row.id, 'expanded', !row.expanded)}>
                   {row.expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
                   <input value={row.label} onChange={e => updateVet(row.id, 'label', e.target.value)} onClick={e => e.stopPropagation()}
@@ -823,7 +845,7 @@ export default function DownlineGrowthCalculator() {
                     className="bg-transparent text-xs font-bold text-foreground border-none outline-none w-28 placeholder:text-muted-foreground/40" />
                   <span className="text-[10px] text-muted-foreground ml-auto">×{row.headcountStr || '1'}</span>
                   {vr && <span className="text-[10px] text-green-400 font-bold ml-2">{fmt(vr.earnings)}</span>}
-                  <button onClick={e => { e.stopPropagation(); removeVet(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={e => { e.stopPropagation(); removeVet(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
                 {row.expanded && (
                   <div className="px-3 pb-3 space-y-2 border-t border-border/20 pt-3">
@@ -863,14 +885,14 @@ export default function DownlineGrowthCalculator() {
       </div>
 
       {/* ====== TEAMS ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-4">
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-purple-500/40" ref={teamSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-purple-400" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Teams</h3>
             <InfoTip text="Teams with their own team lead. You earn the override spread: your deal minus their team deal." />
           </div>
-          <button onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
+          <button type="button" onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
             <Plus className="w-3 h-3" /> Add Team
           </button>
         </div>
@@ -886,11 +908,12 @@ export default function DownlineGrowthCalculator() {
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {teamRowStates.map((t, i) => {
             const tr = result.teamResults[i];
+            const isLast = i === teamRowStates.length - 1;
             return (
-              <div key={t.id} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
+              <div key={t.id} {...(isLast ? { 'data-last-row': '' } : {})} className="rounded-xl border border-border/30 bg-muted/5 overflow-hidden">
                 <div className="flex items-center gap-2 p-3 cursor-pointer" onClick={() => updateTeam(t.id, 'expanded', !t.expanded)}>
                   {t.expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
                   <input value={t.name} onChange={e => updateTeam(t.id, 'name', e.target.value)} onClick={e => e.stopPropagation()}
@@ -902,18 +925,18 @@ export default function DownlineGrowthCalculator() {
                       <span className="text-purple-400 font-bold">{fmt(tr.earnings)}</span>
                     </div>
                   )}
-                  <button onClick={e => { e.stopPropagation(); removeTeam(t.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={e => { e.stopPropagation(); removeTeam(t.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
 
                 {t.expanded && (
                   <div className="px-3 pb-3 space-y-2.5 border-t border-border/20 pt-3">
                     {/* Revenue mode toggle */}
                     <div className="flex gap-1 p-0.5 rounded-lg bg-muted/30 border border-border/30 w-fit">
-                      <button onClick={() => updateTeam(t.id, 'useManualRevenue', false)}
+                      <button type="button" onClick={() => updateTeam(t.id, 'useManualRevenue', false)}
                         className={cn("px-2.5 py-1 text-[9px] font-bold rounded-md transition-all uppercase tracking-wider",
                           !t.useManualRevenue ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
                         )}>Rep-Based</button>
-                      <button onClick={() => updateTeam(t.id, 'useManualRevenue', true)}
+                      <button type="button" onClick={() => updateTeam(t.id, 'useManualRevenue', true)}
                         className={cn("px-2.5 py-1 text-[9px] font-bold rounded-md transition-all uppercase tracking-wider",
                           t.useManualRevenue ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
                         )}>Manual Revenue</button>
@@ -1094,7 +1117,7 @@ export default function DownlineGrowthCalculator() {
                 { label: 'Reduce Attrition 5%', apply: () => setAssumptions(a => ({ ...a, rookieAttrition: Math.max(0, a.rookieAttrition - 5), vetAttrition: Math.max(0, a.vetAttrition - 5) })) },
                 { label: 'Better Retention 5%', apply: () => setAssumptions(a => ({ ...a, cancellationReduction: Math.max(0, a.cancellationReduction - 5) })) },
               ].map(s => (
-                <button key={s.label} onClick={s.apply}
+                <button type="button" key={s.label} onClick={s.apply}
                   className="p-2.5 rounded-lg border border-border/30 bg-muted/5 text-[10px] font-bold text-foreground uppercase tracking-wider hover:bg-primary/5 hover:border-primary/20 transition-all text-center">
                   {s.label}
                 </button>
