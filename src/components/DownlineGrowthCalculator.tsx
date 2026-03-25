@@ -511,9 +511,15 @@ export default function DownlineGrowthCalculator() {
     cancellation: parseFloat(t.cancelStr) || assumptions.cancellationReduction,
   })), [teams, assumptions]);
 
-  const result = useMemo(() => calcAll(directRookies, directVets, teamData, assumptions), [directRookies, directVets, teamData, assumptions]);
-  const insights = useMemo(() => generateInsights(result, directRookies, directVets, teamData, assumptions), [result, directRookies, directVets, teamData, assumptions]);
-  const leftOnTable = useMemo(() => calcLeftOnTable(result, directRookies, directVets, teamData, assumptions), [result, directRookies, directVets, teamData, assumptions]);
+  const personal: PersonalData = useMemo(() => ({
+    selling: sellingThisSummer,
+    grossRevenue: parseNum(personalRevStr),
+    previousSummerRevenue: parseNum(personalPrevSummerStr),
+  }), [sellingThisSummer, personalRevStr, personalPrevSummerStr]);
+
+  const result = useMemo(() => calcAll(personal, directRookies, directVets, teamData, assumptions), [personal, directRookies, directVets, teamData, assumptions]);
+  const insights = useMemo(() => generateInsights(result, personal, directRookies, directVets, teamData, assumptions), [result, personal, directRookies, directVets, teamData, assumptions]);
+  const leftOnTable = useMemo(() => calcLeftOnTable(result, personal, directRookies, directVets, teamData, assumptions), [result, personal, directRookies, directVets, teamData, assumptions]);
 
   const addTeam = () => {
     teamCounter++;
