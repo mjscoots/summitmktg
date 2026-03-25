@@ -26,7 +26,7 @@ const badgeGlows = [
 const cardBorderAccents = [
   'hover:border-blue-500/20',
   'hover:border-violet-500/20',
-  'hover:border-amber-500/20',
+  'hover:border-primary/20',
 ];
 
 const interviewCards = [
@@ -81,7 +81,7 @@ export default function FormsPage() {
             <div className="relative mt-0.5">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-orange-500/30 to-amber-400/20 blur-xl" />
               <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/25 to-amber-500/15 border border-orange-400/20 flex items-center justify-center shadow-[0_0_24px_-6px_rgba(249,115,22,0.35)]">
-                <FileText className="w-5.5 h-5.5 text-orange-400" />
+                <FileText className="w-5.5 h-5.5 text-primary" />
               </div>
             </div>
             {/* Title block */}

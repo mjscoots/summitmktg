@@ -318,14 +318,14 @@ export default function AdminAuditPanel() {
       {/* Health Score */}
       <div className={cn(
         "rounded-xl border p-4 flex items-center gap-4",
-        healthScore >= 80 ? "bg-emerald-500/5 border-emerald-500/30" :
-        healthScore >= 50 ? "bg-amber-500/5 border-amber-500/30" :
+        healthScore >= 80 ? "bg-primary/5 border-primary/30" :
+        healthScore >= 50 ? "bg-primary/5 border-primary/30" :
         "bg-destructive/5 border-destructive/30"
       )}>
         <div className={cn(
           "w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-black",
-          healthScore >= 80 ? "bg-emerald-500/15 text-emerald-400" :
-          healthScore >= 50 ? "bg-amber-500/15 text-amber-400" :
+          healthScore >= 80 ? "bg-primary/15 text-primary" :
+          healthScore >= 50 ? "bg-primary/15 text-primary" :
           "bg-destructive/15 text-destructive"
         )}>
           {healthScore}
@@ -362,10 +362,10 @@ export default function AdminAuditPanel() {
 
       {/* Duplicate Pairs */}
       {stats.duplicatePairs.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 space-y-3">
+        <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 space-y-3">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-medium text-amber-400">
+            <AlertTriangle className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">
               Potential Duplicates ({stats.duplicatePairs.length} pairs)
             </span>
           </div>
@@ -377,8 +377,8 @@ export default function AdminAuditPanel() {
                   <span className="text-muted-foreground mx-1">↔</span>
                   <span className="font-medium text-foreground">{pair.b.full_name}</span>
                   <span className="text-muted-foreground ml-2">({Math.round(pair.score * 100)}% match)</span>
-                  {pair.a.status === 'nlc' && <span className="ml-1 text-red-400">(NLC)</span>}
-                  {pair.b.status === 'nlc' && <span className="ml-1 text-red-400">(NLC)</span>}
+                  {pair.a.status === 'nlc' && <span className="ml-1 text-primary">(NLC)</span>}
+                  {pair.b.status === 'nlc' && <span className="ml-1 text-primary">(NLC)</span>}
                 </div>
                 {pair.canAutoMerge ? (
                   <Button size="sm" variant="outline" className="h-6 text-[10px] gap-1"
@@ -426,17 +426,17 @@ export default function AdminAuditPanel() {
                 <span className="text-muted-foreground">Total:</span>
                 <span className="text-foreground font-medium">{p.total}</span>
                 <span className="text-muted-foreground">Active:</span>
-                <span className="text-emerald-400 font-medium">{p.active}</span>
+                <span className="text-primary font-medium">{p.active}</span>
                 <span className="text-muted-foreground">In-App:</span>
                 <span className="text-primary font-medium">{p.inApp}</span>
                 <span className="text-muted-foreground">Not In-App:</span>
                 <span className="text-muted-foreground font-medium">{p.notInApp}</span>
                 <span className="text-muted-foreground">NLC:</span>
-                <span className="text-red-400 font-medium">{p.nlc}</span>
+                <span className="text-primary font-medium">{p.nlc}</span>
                 {p.noEdge > 0 && (
                   <>
-                    <span className="text-amber-400">⚠ Unsynced:</span>
-                    <span className="text-amber-400 font-medium">{p.noEdge}</span>
+                    <span className="text-primary">⚠ Unsynced:</span>
+                    <span className="text-primary font-medium">{p.noEdge}</span>
                   </>
                 )}
               </div>
@@ -530,10 +530,10 @@ function StatCard({ label, value, icon: Icon, color = 'primary' }: {
 }) {
   const colorMap: Record<string, string> = {
     primary: 'text-primary bg-primary/10',
-    emerald: 'text-emerald-400 bg-emerald-500/10',
-    amber: 'text-amber-400 bg-amber-500/10',
-    red: 'text-red-400 bg-red-500/10',
-    green: 'text-emerald-400 bg-emerald-500/10',
+    emerald: 'text-primary bg-primary/10',
+    amber: 'text-primary bg-primary/10',
+    red: 'text-primary bg-red-500/10',
+    green: 'text-primary bg-primary/10',
     muted: 'text-muted-foreground bg-muted',
   };
 

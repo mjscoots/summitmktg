@@ -24,7 +24,7 @@ export function HierarchyDiagnosticsPanel({
     diagnostics.pillarsWithMissingOwners.length > 0;
 
   const statusIcon = hasIssues ? (
-    <AlertTriangle className="w-4 h-4 text-amber-400" />
+    <AlertTriangle className="w-4 h-4 text-primary" />
   ) : (
     <CheckCircle2 className="w-4 h-4 text-success" />
   );
@@ -45,7 +45,7 @@ export function HierarchyDiagnosticsPanel({
           <span className="font-medium text-foreground">Hierarchy Diagnostics</span>
           {statusIcon}
           {hasIssues && (
-            <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
               {diagnostics.unresolvedManagerRefs.length + diagnostics.pillarsWithMissingOwners.length} issues
             </span>
           )}
@@ -103,14 +103,14 @@ export function HierarchyDiagnosticsPanel({
 
           {/* Deprecated Manager Redirects */}
           {diagnostics.deprecatedManagerRefs.length > 0 && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-amber-400 mb-2">
+            <div className="bg-primary/10 border border-primary/30 rounded-lg p-3">
+              <h4 className="text-sm font-medium text-primary mb-2">
                 Deprecated Manager Redirects Applied
               </h4>
               <div className="space-y-1">
                 {diagnostics.deprecatedManagerRefs.map((ref, idx) => (
                   <div key={idx} className="text-xs text-muted-foreground">
-                    <span className="line-through text-red-400">{ref.deprecated}</span>
+                    <span className="line-through text-primary">{ref.deprecated}</span>
                     {' → '}
                     <span className="text-success">{ref.rewrittenTo}</span>
                     <span className="text-muted-foreground ml-2">({ref.affectedCount} affected)</span>
@@ -127,7 +127,7 @@ export function HierarchyDiagnosticsPanel({
                 onClick={() => setShowUnresolved(!showUnresolved)}
                 className="w-full flex items-center justify-between"
               >
-                <h4 className="text-sm font-medium text-red-400">
+                <h4 className="text-sm font-medium text-primary">
                   Unresolved Manager References ({diagnostics.unresolvedManagerRefs.length})
                 </h4>
                 {showUnresolved ? (
@@ -155,12 +155,12 @@ export function HierarchyDiagnosticsPanel({
           {/* Pillars with Missing Owners */}
           {diagnostics.pillarsWithMissingOwners.length > 0 && (
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-red-400 mb-2">
+              <h4 className="text-sm font-medium text-primary mb-2">
                 Pillars with Missing Owners
               </h4>
               <div className="flex flex-wrap gap-2">
                 {diagnostics.pillarsWithMissingOwners.map((pillar, idx) => (
-                  <span key={idx} className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">
+                  <span key={idx} className="text-xs bg-red-500/20 text-primary px-2 py-1 rounded">
                     {pillar}
                   </span>
                 ))}
@@ -199,14 +199,14 @@ export function HierarchyDiagnosticsPanel({
                       "p-2 rounded-lg border text-xs",
                       stat.hasOwner 
                         ? "bg-muted/30 border-border/30" 
-                        : "bg-amber-500/10 border-amber-500/30"
+                        : "bg-primary/10 border-primary/30"
                     )}
                   >
                     <p className="font-medium text-foreground">{stat.name}</p>
                     <p className="text-muted-foreground">
                       {stat.count} members
                       {!stat.hasOwner && (
-                        <span className="text-amber-400 ml-1">(no owner)</span>
+                        <span className="text-primary ml-1">(no owner)</span>
                       )}
                     </p>
                   </div>

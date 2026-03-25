@@ -286,10 +286,10 @@ export function MemberProfileModal({
       { label: 'Hours Logged', value: bd.hours, icon: Clock, color: 'text-blue-400' },
       { label: 'Time Bonuses', value: bd.threshold, icon: Target, color: 'text-primary' },
       { label: 'Daily Login', value: bd.login, icon: Zap, color: 'text-primary' },
-      { label: 'Streak', value: bd.streak, icon: Flame, color: 'text-orange-400' },
+      { label: 'Streak', value: bd.streak, icon: Flame, color: 'text-primary' },
       { label: 'Lessons', value: bd.lessons, icon: BookOpen, color: 'text-primary' },
       { label: 'Videos', value: bd.video, icon: Video, color: 'text-primary' },
-      { label: 'Chat', value: bd.chat, icon: MessageSquare, color: 'text-emerald-400' },
+      { label: 'Chat', value: bd.chat, icon: MessageSquare, color: 'text-primary' },
       { label: 'Reactions', value: bd.reactions, icon: Star, color: 'text-primary' },
       { label: 'Manual', value: bd.manual, icon: FileText, color: 'text-primary' },
       { label: '1:1 Sessions', value: bd.oneOnOne, icon: Users, color: 'text-primary' },
@@ -398,7 +398,7 @@ export function MemberProfileModal({
               {!isNLC && (
                 <div className="grid grid-cols-4 gap-2">
                   <div className="text-center p-2.5 bg-muted/30 rounded-lg">
-                    <Flame className="w-3.5 h-3.5 text-orange-400 mx-auto mb-0.5" />
+                    <Flame className="w-3.5 h-3.5 text-primary mx-auto mb-0.5" />
                     <p className="text-lg font-black text-foreground tabular-nums">{streakDays}</p>
                     <p className="text-[9px] text-muted-foreground font-medium">Streak</p>
                   </div>
@@ -408,7 +408,7 @@ export function MemberProfileModal({
                     <p className="text-[9px] text-muted-foreground font-medium">Weekly</p>
                   </div>
                   <div className="text-center p-2.5 bg-muted/30 rounded-lg">
-                    <Star className="w-3.5 h-3.5 text-yellow-500 mx-auto mb-0.5" />
+                    <Star className="w-3.5 h-3.5 text-primary mx-auto mb-0.5" />
                     <p className="text-lg font-black text-foreground tabular-nums">{allTimeBreakdown?.total?.toLocaleString() || 0}</p>
                     <p className="text-[9px] text-muted-foreground font-medium">All-Time</p>
                   </div>
@@ -479,10 +479,10 @@ export function MemberProfileModal({
                 <div className="p-3 bg-muted/30 rounded-lg">
                   <button onClick={() => setAllTimeExpanded(!allTimeExpanded)} className="w-full flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
+                      <Star className="w-4 h-4 text-primary" />
                       <p className="text-xs font-semibold text-foreground">All-Time Points</p>
                       {allTimeBreakdown.rank > 0 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500">#{allTimeBreakdown.rank}</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">#{allTimeBreakdown.rank}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">

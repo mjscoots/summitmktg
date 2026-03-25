@@ -114,7 +114,7 @@ export function WelcomeBanner({
           {/* Streak info */}
           {streakData.currentStreak > 0 && (
             <div className="flex items-center gap-2 mt-2 text-xs">
-              <Flame className="w-3.5 h-3.5 text-orange-400/70" />
+              <Flame className="w-3.5 h-3.5 text-primary/70" />
               <span className="text-muted-foreground/80">
                 {getStreakMessage()}
               </span>

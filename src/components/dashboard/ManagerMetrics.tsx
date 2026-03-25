@@ -18,13 +18,13 @@ export function ManagerMetrics({ streak, momentum, lastTrainedAgo }: ManagerMetr
 
   const getMomentumColor = (pct: number) => {
     if (pct >= 71) return 'text-success';
-    if (pct >= 41) return 'text-yellow-500';
+    if (pct >= 41) return 'text-primary';
     return 'text-destructive';
   };
 
   const getMomentumBg = (pct: number) => {
     if (pct >= 71) return 'bg-success/10 border-success/30';
-    if (pct >= 41) return 'bg-yellow-500/10 border-yellow-500/30';
+    if (pct >= 41) return 'bg-primary/10 border-primary/30';
     return 'bg-destructive/10 border-destructive/30';
   };
 
@@ -37,13 +37,13 @@ export function ManagerMetrics({ streak, momentum, lastTrainedAgo }: ManagerMetr
             onClick={() => navigate('/app/training')}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full",
-              "bg-orange-500/10 border border-orange-500/30",
-              "hover:bg-orange-500/20 transition-all duration-200",
+              "bg-primary/10 border border-primary/30",
+              "hover:bg-primary/20 transition-all duration-200",
               "hover:scale-105"
             )}
           >
-            <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
-            <span className="text-sm font-bold text-orange-500">
+            <Flame className="w-4 h-4 text-primary animate-pulse" />
+            <span className="text-sm font-bold text-primary">
               Day {streak}
             </span>
           </button>
@@ -89,7 +89,7 @@ export function ManagerMetrics({ streak, momentum, lastTrainedAgo }: ManagerMetr
               <p className="text-success mt-2">✅ Great engagement!</p>
             )}
             {momentum >= 41 && momentum < 71 && (
-              <p className="text-yellow-500 mt-2">⚡ Building momentum</p>
+              <p className="text-primary mt-2">⚡ Building momentum</p>
             )}
             {momentum < 41 && (
               <p className="text-destructive mt-2">⚠️ Needs more activity</p>

@@ -38,7 +38,7 @@ export function NextPointOpportunity({ data }: NextPointOpportunityProps) {
 
   if (lessonRemaining > 0) {
     opportunities.push({
-      icon: <BookOpen className="w-3.5 h-3.5 text-green-400" />,
+      icon: <BookOpen className="w-3.5 h-3.5 text-primary" />,
       label: 'Complete next lesson',
       points: Math.min(60, lessonRemaining),
     });
@@ -46,7 +46,7 @@ export function NextPointOpportunity({ data }: NextPointOpportunityProps) {
 
   if (manualRemaining > 0) {
     opportunities.push({
-      icon: <FileText className="w-3.5 h-3.5 text-amber-400" />,
+      icon: <FileText className="w-3.5 h-3.5 text-primary" />,
       label: 'Manual review (15 min)',
       points: Math.min(50, manualRemaining),
     });

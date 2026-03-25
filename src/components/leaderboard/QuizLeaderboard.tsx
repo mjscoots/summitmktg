@@ -60,7 +60,7 @@ export function QuizLeaderboard() {
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Trophy className="w-4 h-4 text-yellow-500" />;
+      case 1: return <Trophy className="w-4 h-4 text-primary" />;
       case 2: return <Medal className="w-4 h-4 text-gray-400" />;
       case 3: return <Award className="w-4 h-4 text-amber-600" />;
       default: return <span className="text-xs font-medium text-muted-foreground w-4 text-center">{rank}</span>;
@@ -90,9 +90,9 @@ export function QuizLeaderboard() {
       {myIdx > 0 && rivalCallout && (
         <div className="mx-4 mt-4 p-3 rounded-xl border bg-gradient-to-r from-purple-500/10 to-purple-500/5 border-purple-500/20">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-purple-400" />
+            <Target className="w-4 h-4 text-primary" />
             <p className="text-sm font-semibold text-foreground">
-              <span className="text-purple-400">{rivalCallout.avgScore - entries[myIdx].avgScore}%</span> behind {displayName(rivalCallout)}
+              <span className="text-primary">{rivalCallout.avgScore - entries[myIdx].avgScore}%</span> behind {displayName(rivalCallout)}
             </p>
           </div>
           <p className="text-[10px] text-muted-foreground mt-0.5 ml-6">Ace your next quiz to overtake!</p>
@@ -130,7 +130,7 @@ export function QuizLeaderboard() {
               <div className="text-right">
                 <span className={cn(
                   "text-base font-black tabular-nums",
-                  entry.avgScore >= 95 ? "text-success" : entry.avgScore >= 80 ? "text-primary" : "text-amber-500"
+                  entry.avgScore >= 95 ? "text-success" : entry.avgScore >= 80 ? "text-primary" : "text-primary"
                 )}>
                   {entry.avgScore}%
                 </span>

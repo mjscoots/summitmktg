@@ -263,9 +263,9 @@ export default function EstimateEarningsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {([
-                { key: 'low' as const, label: 'Conservative', color: 'from-amber-500/20 to-orange-500/10', border: 'border-amber-500/30', text: 'text-amber-400', accent: 'bg-amber-500/10' },
+                { key: 'low' as const, label: 'Conservative', color: 'from-amber-500/20 to-orange-500/10', border: 'border-primary/30', text: 'text-primary', accent: 'bg-primary/10' },
                 { key: 'moderate' as const, label: 'Moderate', color: 'from-primary/20 to-blue-500/10', border: 'border-primary/30', text: 'text-primary', accent: 'bg-primary/10' },
-                { key: 'high' as const, label: 'Optimistic', color: 'from-emerald-500/20 to-teal-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', accent: 'bg-emerald-500/10' },
+                { key: 'high' as const, label: 'Optimistic', color: 'from-emerald-500/20 to-teal-500/10', border: 'border-primary/30', text: 'text-primary', accent: 'bg-primary/10' },
               ]).map(tier => (
                 <div
                   key={tier.key}

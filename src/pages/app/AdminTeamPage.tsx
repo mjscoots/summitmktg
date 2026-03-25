@@ -425,9 +425,9 @@ export default function AdminTeamPage() {
                         </Select>
                       </td>
                       <td className="px-3 py-3 text-center text-foreground font-medium">{team.member_count}</td>
-                      <td className="px-3 py-3 text-center text-green-400 font-medium">{team.active_count}</td>
+                      <td className="px-3 py-3 text-center text-primary font-medium">{team.active_count}</td>
                       <td className="px-3 py-3 text-center text-blue-400 font-medium">{team.summer_ready_count}</td>
-                      <td className="px-3 py-3 text-center text-red-400 font-medium">{team.nlc_count}</td>
+                      <td className="px-3 py-3 text-center text-primary font-medium">{team.nlc_count}</td>
                       {isSuperAdmin && (
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
@@ -475,10 +475,10 @@ export default function AdminTeamPage() {
                         <td className="px-4 py-3 text-muted-foreground text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-green-500/30 text-green-400 hover:bg-green-500/10" onClick={() => handleApprove(user.user_id)}>
+                            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => handleApprove(user.user_id)}>
                               <CheckCircle className="w-3 h-3" /> Approve
                             </Button>
-                            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-red-500/30 text-red-400 hover:bg-red-500/10" onClick={() => handleReject(user.user_id)}>
+                            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-red-500/30 text-primary hover:bg-red-500/10" onClick={() => handleReject(user.user_id)}>
                               <XCircle className="w-3 h-3" /> Reject
                             </Button>
                           </div>

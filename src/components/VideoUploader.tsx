@@ -138,7 +138,7 @@ export function VideoUploader({ onUploadComplete, onError, className }: VideoUpl
             ? "border-primary bg-primary/5" 
             : "border-border hover:border-primary/50",
           uploadState === 'error' && "border-destructive bg-destructive/5",
-          uploadState === 'success' && "border-green-500 bg-green-500/5"
+          uploadState === 'success' && "border-primary bg-primary/5"
         )}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -210,7 +210,7 @@ export function VideoUploader({ onUploadComplete, onError, className }: VideoUpl
 
         {uploadState === 'success' && (
           <div className="space-y-3">
-            <CheckCircle className="w-12 h-12 mx-auto text-green-500" />
+            <CheckCircle className="w-12 h-12 mx-auto text-primary" />
             <p className="text-lg font-medium text-foreground">Upload Complete!</p>
             <Button variant="outline" onClick={resetUploader}>
               Upload Another

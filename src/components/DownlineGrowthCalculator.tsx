@@ -669,10 +669,10 @@ export default function DownlineGrowthCalculator() {
 
           <div className={cn("grid gap-2", result.personalResult.earnings > 0 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3")}>
             {[
-              ...(result.personalResult.earnings > 0 ? [{ label: 'Personal', value: fmt(result.personalResult.earnings), color: 'text-amber-400' }] : []),
+              ...(result.personalResult.earnings > 0 ? [{ label: 'Personal', value: fmt(result.personalResult.earnings), color: 'text-primary' }] : []),
               { label: 'From Rookies', value: fmt(result.totalRookieEarnings), color: 'text-blue-400' },
-              { label: 'From Vets', value: fmt(result.totalVetEarnings), color: 'text-green-400' },
-              { label: 'From Teams', value: fmt(result.totalTeamEarnings), color: 'text-purple-400' },
+              { label: 'From Vets', value: fmt(result.totalVetEarnings), color: 'text-primary' },
+              { label: 'From Teams', value: fmt(result.totalTeamEarnings), color: 'text-primary' },
             ].map(s => (
               <div key={s.label} className="rounded-lg p-2 text-center border border-border/10 bg-muted/5">
                 <p className="text-[8px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
@@ -683,8 +683,8 @@ export default function DownlineGrowthCalculator() {
 
           {(strongest || weakest) && (
             <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
-              {strongest && <div className="flex items-center gap-1 text-green-400"><ArrowUpRight className="w-3 h-3" /> Strongest: {strongest.name}</div>}
-              {weakest && <div className="flex items-center gap-1 text-red-400"><AlertTriangle className="w-3 h-3" /> Weakest: {weakest.name}</div>}
+              {strongest && <div className="flex items-center gap-1 text-primary"><ArrowUpRight className="w-3 h-3" /> Strongest: {strongest.name}</div>}
+              {weakest && <div className="flex items-center gap-1 text-primary"><AlertTriangle className="w-3 h-3" /> Weakest: {weakest.name}</div>}
             </div>
           )}
         </div>
@@ -694,7 +694,7 @@ export default function DownlineGrowthCalculator() {
       <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-amber-500/40">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-amber-400" />
+            <DollarSign className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Revenue</h3>
             <InfoTip text="Your own personal production this summer. Commission based on your active revenue (vet scale)." />
           </div>
@@ -702,7 +702,7 @@ export default function DownlineGrowthCalculator() {
             onClick={() => setSellingThisSummer(!sellingThisSummer)}
             className={cn(
               "relative w-12 h-6 rounded-full transition-all duration-300 shrink-0",
-              sellingThisSummer ? "bg-green-500/80" : "bg-muted/40 border border-border/40"
+              sellingThisSummer ? "bg-primary/80" : "bg-muted/40 border border-border/40"
             )}
             aria-label="Toggle selling this summer"
           >
@@ -725,7 +725,7 @@ export default function DownlineGrowthCalculator() {
                   <span className="text-muted-foreground">Commission {result.personalResult.usedPrevSummer ? '(prev summer)' : ''}</span>
                   <span>{pct(result.personalResult.commission)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-amber-400 border-t border-border/20 pt-1"><span>Personal Earnings</span><span>{fmt(result.personalResult.earnings)}</span></div>
+                <div className="flex justify-between font-bold text-primary border-t border-border/20 pt-1"><span>Personal Earnings</span><span>{fmt(result.personalResult.earnings)}</span></div>
               </div>
             )}
           </div>
@@ -812,11 +812,11 @@ export default function DownlineGrowthCalculator() {
       <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-green-500/40" ref={vetSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-green-400" />
+            <TrendingUp className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Vets</h3>
             <InfoTip text="Veterans you directly manage. Previous summer production can lock in a higher commission bracket." />
           </div>
-          <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider hover:bg-green-500/20 transition-all border border-green-500/20">
+          <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all border border-primary/20">
             <Plus className="w-3 h-3" /> Add Vet
           </button>
         </div>
@@ -826,9 +826,9 @@ export default function DownlineGrowthCalculator() {
         )}
 
         {vetRows.length > 0 && (
-          <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-green-500/5 border border-green-500/10 text-[10px]">
+          <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-[10px]">
             <span className="text-muted-foreground uppercase font-semibold">Vet Subtotal</span>
-            <span className="text-green-400 font-bold">{fmt(result.totalVetEarnings)}</span>
+            <span className="text-primary font-bold">{fmt(result.totalVetEarnings)}</span>
           </div>
         )}
 
@@ -844,7 +844,7 @@ export default function DownlineGrowthCalculator() {
                     placeholder={`Vet ${i + 1}`}
                     className="bg-transparent text-xs font-bold text-foreground border-none outline-none w-28 placeholder:text-muted-foreground/40" />
                   <span className="text-[10px] text-muted-foreground ml-auto">×{row.headcountStr || '1'}</span>
-                  {vr && <span className="text-[10px] text-green-400 font-bold ml-2">{fmt(vr.earnings)}</span>}
+                  {vr && <span className="text-[10px] text-primary font-bold ml-2">{fmt(vr.earnings)}</span>}
                   <button type="button" onClick={e => { e.stopPropagation(); removeVet(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
                 {row.expanded && (
@@ -873,7 +873,7 @@ export default function DownlineGrowthCalculator() {
                           <span>{pct(vr.vetCommission)}</span>
                         </div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Net Spread</span><span>{pct(vr.netSpread)}</span></div>
-                        <div className="flex justify-between font-bold text-green-400 border-t border-border/20 pt-1"><span>Contribution</span><span>{fmt(vr.earnings)}</span></div>
+                        <div className="flex justify-between font-bold text-primary border-t border-border/20 pt-1"><span>Contribution</span><span>{fmt(vr.earnings)}</span></div>
                       </div>
                     )}
                   </div>
@@ -888,11 +888,11 @@ export default function DownlineGrowthCalculator() {
       <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-purple-500/40" ref={teamSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-purple-400" />
+            <Target className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Teams</h3>
             <InfoTip text="Teams with their own team lead. You earn the override spread: your deal minus their team deal." />
           </div>
-          <button type="button" onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
+          <button type="button" onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
             <Plus className="w-3 h-3" /> Add Team
           </button>
         </div>
@@ -904,7 +904,7 @@ export default function DownlineGrowthCalculator() {
         {teamRows.length > 0 && (
           <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-purple-500/5 border border-purple-500/10 text-[10px]">
             <span className="text-muted-foreground uppercase font-semibold">Team Subtotal</span>
-            <span className="text-purple-400 font-bold">{fmt(result.totalTeamEarnings)}</span>
+            <span className="text-primary font-bold">{fmt(result.totalTeamEarnings)}</span>
           </div>
         )}
 
@@ -922,7 +922,7 @@ export default function DownlineGrowthCalculator() {
                     <div className="ml-auto flex items-center gap-3 text-[10px]">
                       <span className="text-muted-foreground">Deal: <span className="text-foreground font-bold">{pct(tr.teamLeadDeal)}</span></span>
                       <span className="text-muted-foreground">Spread: <span className="text-foreground font-bold">{pct(tr.overrideSpread)}</span></span>
-                      <span className="text-purple-400 font-bold">{fmt(tr.earnings)}</span>
+                      <span className="text-primary font-bold">{fmt(tr.earnings)}</span>
                     </div>
                   )}
                   <button type="button" onClick={e => { e.stopPropagation(); removeTeam(t.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -973,7 +973,7 @@ export default function DownlineGrowthCalculator() {
                         <div className="flex justify-between"><span className="text-muted-foreground">Team Lead Deal</span><span>{pct(tr.teamLeadDeal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Your Deal</span><span>{pct(result.topDeal)}</span></div>
                         <div className="flex justify-between font-bold text-foreground border-t border-border/20 pt-1"><span>Override Spread</span><span>{pct(tr.overrideSpread)}</span></div>
-                        <div className="flex justify-between font-bold text-purple-400"><span>Contribution</span><span>{fmt(tr.earnings)}</span></div>
+                        <div className="flex justify-between font-bold text-primary"><span>Contribution</span><span>{fmt(tr.earnings)}</span></div>
                         {tr.adjustedHeadcount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Active Headcount</span><span>{tr.adjustedHeadcount}</span></div>}
                         {tr.revPerRep > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Rev / Active Rep</span><span>{fmt(tr.revPerRep)}</span></div>}
                       </div>
@@ -1083,7 +1083,7 @@ export default function DownlineGrowthCalculator() {
           {insights.length > 0 && (
             <div className="glass-card rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="w-4 h-4 text-amber-400" />
+                <Lightbulb className="w-4 h-4 text-primary" />
                 <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Insights</h3>
               </div>
               <div className="space-y-2">

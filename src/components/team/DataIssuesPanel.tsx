@@ -92,11 +92,11 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
   }
 
   return (
-    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+    <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-amber-400" />
-          <h3 className="font-semibold text-amber-400">Data Issues ({totalIssues})</h3>
+          <AlertTriangle className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-primary">Data Issues ({totalIssues})</h3>
         </div>
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
           <X className="w-4 h-4" />
@@ -107,14 +107,14 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
         {/* Missing Pillar Owners */}
         {missingPillarOwners.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-amber-300 uppercase tracking-wide flex items-center gap-1.5">
+            <h4 className="text-xs font-semibold text-primary/80 uppercase tracking-wide flex items-center gap-1.5">
               <UserPlus className="w-3.5 h-3.5" />
               Missing Pillar Owners ({missingPillarOwners.length})
             </h4>
             {missingPillarOwners.map((owner, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm py-2 px-3 bg-amber-500/5 rounded-lg">
+              <div key={idx} className="flex items-center gap-3 text-sm py-2 px-3 bg-primary/5 rounded-lg">
                 <span className="text-foreground">{owner}</span>
-                <span className="text-amber-400/60 text-xs">needs to be added to database</span>
+                <span className="text-primary/60 text-xs">needs to be added to database</span>
               </div>
             ))}
           </div>
@@ -123,22 +123,22 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
         {/* Deprecated Manager References */}
         {deprecatedManagerIssues.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-amber-300 uppercase tracking-wide flex items-center gap-1.5">
+            <h4 className="text-xs font-semibold text-primary/80 uppercase tracking-wide flex items-center gap-1.5">
               <ArrowRight className="w-3.5 h-3.5" />
               Deprecated Manager Refs ({deprecatedManagerIssues.length})
             </h4>
             {deprecatedManagerIssues.slice(0, 5).map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-sm py-2 px-3 bg-amber-500/5 rounded-lg">
+              <div key={idx} className="flex items-start gap-3 text-sm py-2 px-3 bg-primary/5 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{item.person.full_name}</p>
-                  <p className="text-amber-400/80 text-xs">
+                  <p className="text-primary/80 text-xs">
                     Manager "{item.person.direct_manager}" → {item.suggestedFix}
                   </p>
                 </div>
               </div>
             ))}
             {deprecatedManagerIssues.length > 5 && (
-              <p className="text-xs text-amber-400/60">
+              <p className="text-xs text-primary/60">
                 +{deprecatedManagerIssues.length - 5} more with deprecated manager refs
               </p>
             )}
@@ -148,20 +148,20 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
         {/* Missing Manager Issues */}
         {missingManagerIssues.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-amber-300 uppercase tracking-wide flex items-center gap-1.5">
+            <h4 className="text-xs font-semibold text-primary/80 uppercase tracking-wide flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
               Manager Not Found ({missingManagerIssues.length})
             </h4>
             {missingManagerIssues.slice(0, 5).map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-sm py-2 px-3 bg-amber-500/5 rounded-lg">
+              <div key={idx} className="flex items-start gap-3 text-sm py-2 px-3 bg-primary/5 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{item.person.full_name}</p>
-                  <p className="text-amber-400/80 text-xs">{item.issue}</p>
+                  <p className="text-primary/80 text-xs">{item.issue}</p>
                 </div>
               </div>
             ))}
             {missingManagerIssues.length > 5 && (
-              <p className="text-xs text-amber-400/60">
+              <p className="text-xs text-primary/60">
                 +{missingManagerIssues.length - 5} more with missing managers
               </p>
             )}
@@ -171,19 +171,19 @@ export function DataIssuesPanel({ issues, roster = [], onClose, onApplyFix }: Da
         {/* Other Issues */}
         {otherIssues.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-amber-300 uppercase tracking-wide">
+            <h4 className="text-xs font-semibold text-primary/80 uppercase tracking-wide">
               Other Issues ({otherIssues.length})
             </h4>
             {otherIssues.slice(0, 3).map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-sm py-2 border-b border-amber-500/20 last:border-0">
+              <div key={idx} className="flex items-start gap-3 text-sm py-2 border-b border-primary/20 last:border-0">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{item.person.full_name}</p>
-                  <p className="text-amber-400/80 text-xs">{item.issue}</p>
+                  <p className="text-primary/80 text-xs">{item.issue}</p>
                 </div>
               </div>
             ))}
             {otherIssues.length > 3 && (
-              <p className="text-xs text-amber-400/60">
+              <p className="text-xs text-primary/60">
                 +{otherIssues.length - 3} more
               </p>
             )}

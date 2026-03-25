@@ -301,7 +301,7 @@ export function PitchRecordingModal({
               >
                 Start Over
               </Button>
-              <Button onClick={handleSubmit} className="flex-1 gap-2 bg-green-500 hover:bg-green-600">
+              <Button onClick={handleSubmit} className="flex-1 gap-2 bg-primary hover:bg-primary">
                 <CheckCircle2 className="w-4 h-4" />
                 Submit for Approval
               </Button>
@@ -325,7 +325,7 @@ export function PitchRecordingModal({
 
         {recordingState === 'done' && (
           <div className="text-center py-8 space-y-3">
-            <CheckCircle2 className="w-12 h-12 mx-auto text-green-500" />
+            <CheckCircle2 className="w-12 h-12 mx-auto text-primary" />
             <p className="text-lg font-semibold text-foreground">Pitch Submitted!</p>
             <p className="text-sm text-muted-foreground">Your manager will review it shortly.</p>
           </div>

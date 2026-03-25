@@ -114,15 +114,15 @@ function SortableRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void 
               ⚠️ No activity
             </span>
           ) : rep.lastWeekMinutes / 7 < 20 ? (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 font-medium">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
               ⚠️ Low avg
             </span>
           ) : rep.peerRank === 1 ? (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
               ✅ #1
             </span>
           ) : (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
               ✅ On pace
             </span>
           )}
@@ -136,13 +136,13 @@ function CompletedRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void
   return (
     <button
       onClick={onSelect}
-      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-green-500/20 bg-green-500/5 text-left opacity-70 hover:opacity-90 transition-opacity"
+      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-primary/20 bg-primary/5 text-left opacity-70 hover:opacity-90 transition-opacity"
     >
-      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+      <Check className="w-4 h-4 text-primary flex-shrink-0" />
       {rep.avatar_url ? (
         <img src={rep.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
       ) : (
-        <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-green-600">
+        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-green-600">
           {rep.full_name.charAt(0)}
         </div>
       )}
@@ -304,7 +304,7 @@ export function RepSelectionList({
           </DndContext>
         </>
       ) : (
-        <div className="text-center py-10 rounded-lg border border-green-500/20 bg-green-500/5">
+        <div className="text-center py-10 rounded-lg border border-primary/20 bg-primary/5">
           <span className="text-2xl">🎉</span>
           <p className="text-sm font-medium text-foreground mt-2">All 1:1s completed for this week!</p>
           <p className="text-xs text-muted-foreground mt-1">{completedCount} reps checked in</p>
@@ -314,7 +314,7 @@ export function RepSelectionList({
       {/* Completed section */}
       {completedReps.length > 0 && (
         <Collapsible defaultOpen={false}>
-          <CollapsibleTrigger className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-green-600 hover:text-green-500 transition-colors w-full group">
+          <CollapsibleTrigger className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-green-600 hover:text-primary transition-colors w-full group">
             <ChevronDown className="w-3.5 h-3.5 transition-transform group-data-[state=open]:rotate-180" />
             Completed ({completedReps.length})
           </CollapsibleTrigger>

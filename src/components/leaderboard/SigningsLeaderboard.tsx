@@ -71,7 +71,7 @@ export function SigningsLeaderboard() {
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Trophy className="w-4 h-4 text-yellow-500" />;
+      case 1: return <Trophy className="w-4 h-4 text-primary" />;
       case 2: return <Medal className="w-4 h-4 text-gray-400" />;
       case 3: return <Award className="w-4 h-4 text-amber-600" />;
       default: return <span className="text-xs font-medium text-muted-foreground w-4 text-center">{rank}</span>;

@@ -79,13 +79,13 @@ export function StreakCelebration({
       <div className={cn(
         "flex items-center gap-4 px-6 py-4 rounded-2xl border-2 backdrop-blur-sm",
         isRookieCourse
-          ? "bg-green-500/10 border-green-500/50 shadow-[0_0_40px_-10px_rgba(34,197,94,0.6)]"
+          ? "bg-primary/10 border-primary/50 shadow-[0_0_40px_-10px_rgba(34,197,94,0.6)]"
           : "bg-blue-500/10 border-blue-500/50 shadow-[0_0_40px_-10px_rgba(59,130,246,0.6)]"
       )}>
         {/* Animated Icon */}
         <div className={cn(
           "p-3 rounded-xl animate-pulse",
-          isRookieCourse ? "bg-green-500/20 text-green-400" : "bg-blue-500/20 text-blue-400"
+          isRookieCourse ? "bg-primary/20 text-primary" : "bg-blue-500/20 text-blue-400"
         )}>
           {getMilestoneIcon()}
         </div>
@@ -94,7 +94,7 @@ export function StreakCelebration({
         <div>
           <h3 className={cn(
             "font-black text-lg",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )}>
             {getMilestoneTitle()}
           </h3>
@@ -106,7 +106,7 @@ export function StreakCelebration({
             <div className={cn(
               "inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold animate-scale-in",
               isRookieCourse
-                ? "bg-green-500/20 text-green-400"
+                ? "bg-primary/20 text-primary"
                 : "bg-blue-500/20 text-blue-400"
             )}>
               <Zap className="w-3 h-3" />
@@ -118,11 +118,11 @@ export function StreakCelebration({
         {/* Streak Number with count-up */}
         <div className={cn(
           "flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg",
-          isRookieCourse ? "bg-green-500/20" : "bg-blue-500/20"
+          isRookieCourse ? "bg-primary/20" : "bg-blue-500/20"
         )}>
           <span className={cn(
             "text-2xl font-black tabular-nums",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )}>
             {countUp}
           </span>

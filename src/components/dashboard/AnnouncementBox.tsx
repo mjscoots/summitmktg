@@ -7,11 +7,11 @@ import { AnnouncementEditorModal } from './AnnouncementEditorModal';
 import { formatDistanceToNow } from 'date-fns';
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Sparkles; accent: string }> = {
-  new_feature: { label: 'New Feature', icon: Sparkles, accent: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
-  update: { label: 'Update', icon: Settings, accent: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-  training: { label: 'Training', icon: BookOpen, accent: 'bg-orange-400/20 text-orange-300 border-orange-400/30' },
+  new_feature: { label: 'New Feature', icon: Sparkles, accent: 'bg-primary/20 text-primary/80 border-primary/30' },
+  update: { label: 'Update', icon: Settings, accent: 'bg-primary/20 text-primary/80 border-primary/30' },
+  training: { label: 'Training', icon: BookOpen, accent: 'bg-primary/20 text-primary/80 border-orange-400/30' },
   important: { label: 'Important', icon: AlertTriangle, accent: 'bg-red-500/20 text-red-300 border-red-500/30' },
-  admin_note: { label: 'Admin Note', icon: Megaphone, accent: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
+  admin_note: { label: 'Admin Note', icon: Megaphone, accent: 'bg-primary/20 text-primary/80 border-primary/30' },
 };
 
 interface AnnouncementPost {
@@ -121,7 +121,7 @@ export function AnnouncementBox() {
             Updates & Announcements
           </h2>
           {isAdmin && draftPosts.length > 0 && (
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
               {draftPosts.length} draft{draftPosts.length > 1 ? 's' : ''}
             </span>
           )}
@@ -222,8 +222,8 @@ function AnnouncementCard({
     <div className={cn(
       "mx-3 mb-2 rounded-xl p-3.5 transition-all",
       isPinned
-        ? "border border-orange-500/20"
-        : "border border-transparent hover:border-orange-500/10",
+        ? "border border-primary/20"
+        : "border border-transparent hover:border-primary/10",
       isDraft && "opacity-60",
     )} style={{
       background: isPinned
@@ -245,7 +245,7 @@ function AnnouncementCard({
               {cat.label}
             </span>
             {isDraft && (
-              <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">
+              <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/20">
                 Draft
               </span>
             )}
@@ -255,7 +255,7 @@ function AnnouncementCard({
               </span>
             )}
             {post.is_important && (
-              <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/20">
+              <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-red-500/15 text-primary border border-red-500/20">
                 Important
               </span>
             )}
@@ -285,7 +285,7 @@ function AnnouncementCard({
           <button onClick={() => onPublish(post)} className="text-[9px] font-semibold px-2 py-0.5 rounded transition-colors" style={{ color: isDraft ? 'hsl(142 71% 45%)' : 'hsl(25 95% 60%)' }}>
             {isDraft ? 'Publish' : 'Unpublish'}
           </button>
-          <button onClick={() => { if (confirm('Delete this announcement?')) onDelete(post.id); }} className="text-[9px] font-semibold text-red-400/60 hover:text-red-400 px-2 py-0.5 rounded transition-colors ml-auto">Delete</button>
+          <button onClick={() => { if (confirm('Delete this announcement?')) onDelete(post.id); }} className="text-[9px] font-semibold text-primary/60 hover:text-primary px-2 py-0.5 rounded transition-colors ml-auto">Delete</button>
         </div>
       )}
     </div>

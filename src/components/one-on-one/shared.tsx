@@ -873,10 +873,10 @@ export function ResponsesTab({ teams }: { teams: Team[] }) {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "p-2 rounded-lg",
-                    response.form_type === 'rookie' ? "bg-green-500/10" : "bg-blue-500/10"
+                    response.form_type === 'rookie' ? "bg-primary/10" : "bg-blue-500/10"
                   )}>
                     {response.form_type === 'rookie'
-                      ? <User className="w-4 h-4 text-green-500" />
+                      ? <User className="w-4 h-4 text-primary" />
                       : <UserCheck className="w-4 h-4 text-blue-500" />
                     }
                   </div>
@@ -885,7 +885,7 @@ export function ResponsesTab({ teams }: { teams: Team[] }) {
                       <span className={cn(
                         "text-xs font-semibold px-2 py-0.5 rounded-full",
                         response.form_type === 'rookie'
-                          ? "bg-green-500/10 text-green-500"
+                          ? "bg-primary/10 text-primary"
                           : "bg-blue-500/10 text-blue-500"
                       )}>
                         {response.form_type === 'rookie' ? 'Rookie 1:1' : 'Manager 1:1'}
@@ -954,10 +954,10 @@ export function ResponseDetailModal({ response, onClose }: { response: ResponseD
             <div className="flex items-center gap-3">
               <div className={cn(
                 "p-2.5 rounded-lg",
-                response.form_type === 'rookie' ? "bg-green-500/10" : "bg-blue-500/10"
+                response.form_type === 'rookie' ? "bg-primary/10" : "bg-blue-500/10"
               )}>
                 {response.form_type === 'rookie'
-                  ? <User className="w-5 h-5 text-green-500" />
+                  ? <User className="w-5 h-5 text-primary" />
                   : <UserCheck className="w-5 h-5 text-blue-500" />
                 }
               </div>

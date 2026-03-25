@@ -49,7 +49,7 @@ export function TeamCard({ team, onClick, canUploadLogo = false, isAdmin = false
     if (team.rank > 3) return null;
     
     const colors = {
-      1: 'bg-yellow-400 text-black',
+      1: 'bg-primary text-black',
       2: 'bg-gray-300 text-black',
       3: 'bg-amber-600 text-white',
     };

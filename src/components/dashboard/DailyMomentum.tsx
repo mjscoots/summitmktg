@@ -8,8 +8,8 @@ interface DailyMomentumProps {
 const LEVELS = [
   { label: 'Cold', minHours: 0, color: 'bg-muted-foreground/40' },
   { label: 'Focused', minHours: 2, color: 'bg-blue-500' },
-  { label: 'Locked In', minHours: 4, color: 'bg-orange-500' },
-  { label: 'Elite', minHours: 5, color: 'bg-yellow-400' },
+  { label: 'Locked In', minHours: 4, color: 'bg-primary' },
+  { label: 'Elite', minHours: 5, color: 'bg-primary' },
 ];
 
 export function DailyMomentum({ hoursToday }: DailyMomentumProps) {
@@ -20,14 +20,14 @@ export function DailyMomentum({ hoursToday }: DailyMomentumProps) {
     <div className="bg-card rounded-xl border border-border p-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
         <Flame className={cn("w-4 h-4", 
-          hoursToday >= 5 ? "text-yellow-400" : 
-          hoursToday >= 4 ? "text-orange-400" : 
+          hoursToday >= 5 ? "text-primary" : 
+          hoursToday >= 4 ? "text-primary" : 
           hoursToday >= 2 ? "text-blue-400" : "text-muted-foreground"
         )} />
         <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Daily Momentum</h2>
         <span className={cn("ml-auto text-xs font-black uppercase tracking-wider",
-          hoursToday >= 5 ? "text-yellow-400" : 
-          hoursToday >= 4 ? "text-orange-400" : 
+          hoursToday >= 5 ? "text-primary" : 
+          hoursToday >= 4 ? "text-primary" : 
           hoursToday >= 2 ? "text-blue-400" : "text-muted-foreground"
         )}>
           {currentLevel.label}

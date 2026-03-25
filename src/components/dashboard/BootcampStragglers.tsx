@@ -133,11 +133,11 @@ export function BootcampStragglers() {
     let color = 'text-muted-foreground';
     let bgColor = 'bg-muted/30';
     if (totalHours >= 24) {
-      color = 'text-red-400';
+      color = 'text-primary';
       bgColor = 'bg-red-500/10';
     } else if (totalHours >= 1) {
-      color = 'text-yellow-400';
-      bgColor = 'bg-yellow-500/10';
+      color = 'text-primary';
+      bgColor = 'bg-primary/10';
     }
 
     return { label, color, bgColor };
@@ -220,7 +220,7 @@ export function BootcampStragglers() {
                         key={i}
                         className={cn(
                           'w-2 h-2 rounded-full',
-                          done ? 'bg-green-400' : 'bg-muted-foreground/20'
+                          done ? 'bg-primary' : 'bg-muted-foreground/20'
                         )}
                       />
                     ))}

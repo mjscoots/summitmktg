@@ -166,7 +166,7 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
           </span>
           {data.bonusTotal > 0 && (
             <span className="flex items-center gap-1">
-              <Star className="w-3 h-3 text-yellow-400" />
+              <Star className="w-3 h-3 text-primary" />
               {data.bonusCompleted} bonus watched
             </span>
           )}

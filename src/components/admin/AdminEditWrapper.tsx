@@ -110,14 +110,14 @@ export function AdminEditWrapper({
       {showConfirm && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
           <div className="bg-card border border-border rounded-xl p-5 shadow-xl max-w-sm mx-4 text-center space-y-3">
-            <ShieldAlert className="w-8 h-8 text-amber-500 mx-auto" />
+            <ShieldAlert className="w-8 h-8 text-primary mx-auto" />
             <h3 className="font-bold text-sm text-foreground">Protected Content</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Training material is standardized. Are you sure you want to modify this content?
             </p>
             <div className="flex gap-2 pt-1">
               <Button variant="outline" size="sm" className="flex-1" onClick={() => setShowConfirm(false)}>Cancel</Button>
-              <Button size="sm" className="flex-1 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => { setShowConfirm(false); setIsEditing(true); }}>Yes, Continue</Button>
+              <Button size="sm" className="flex-1 bg-primary hover:bg-amber-600 text-white" onClick={() => { setShowConfirm(false); setIsEditing(true); }}>Yes, Continue</Button>
             </div>
           </div>
         </div>

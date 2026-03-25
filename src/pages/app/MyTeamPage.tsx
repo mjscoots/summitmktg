@@ -617,9 +617,9 @@ export default function MyTeamPage() {
                     {flatMembers.map((member: any) => {
                       const progress = getProgress(member.user_id);
                       const isMgr = managerRoles.has(member.user_id);
-                      const progressColor = progress.percentage >= 100 ? 'text-green-400' :
+                      const progressColor = progress.percentage >= 100 ? 'text-primary' :
                         progress.percentage >= 71 ? 'text-primary' :
-                        progress.percentage >= 41 ? 'text-yellow-500' : 'text-destructive';
+                        progress.percentage >= 41 ? 'text-primary' : 'text-destructive';
 
                       return (
                         <tr
@@ -629,14 +629,14 @@ export default function MyTeamPage() {
                         >
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2.5">
-                              <div className={cn("w-2 h-2 rounded-full flex-shrink-0", isMgr ? "bg-primary" : "bg-green-500")} />
+                              <div className={cn("w-2 h-2 rounded-full flex-shrink-0", isMgr ? "bg-primary" : "bg-primary")} />
                               <span className="font-medium text-foreground">{getDisplayName(member.full_name)}</span>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn(
                               "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide",
-                              isMgr ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400"
+                              isMgr ? "bg-primary/20 text-primary" : "bg-primary/20 text-primary"
                             )}>
                               {isMgr ? 'Manager' : 'Rookie'}
                             </span>
@@ -647,9 +647,9 @@ export default function MyTeamPage() {
                               const bc = bootcampMap.get(member.user_id);
                               if (isMgr) return <span className="text-[10px] text-muted-foreground">N/A</span>;
                               if (!bc) return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-destructive/15 text-destructive">Not Started</span>;
-                              if (bc.completed || bc.exempt) return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/15 text-green-400">✓ Done</span>;
+                              if (bc.completed || bc.exempt) return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary">✓ Done</span>;
                               return (
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-500">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary">
                                   {bc.phases}/3
                                 </span>
                               );
@@ -660,9 +660,9 @@ export default function MyTeamPage() {
                               <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                                 <div
                                   className={cn("h-full rounded-full transition-all",
-                                    progress.percentage >= 100 ? "bg-green-400" :
+                                    progress.percentage >= 100 ? "bg-primary" :
                                     progress.percentage >= 71 ? "bg-primary" :
-                                    progress.percentage >= 41 ? "bg-yellow-500" : "bg-destructive"
+                                    progress.percentage >= 41 ? "bg-primary" : "bg-destructive"
                                   )}
                                   style={{ width: `${Math.min(progress.percentage, 100)}%` }}
                                 />
@@ -687,9 +687,9 @@ export default function MyTeamPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1.5">
                               {member.is_active_now && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                               )}
-                              <span className={cn("text-xs", member.is_active_now ? "text-green-400 font-medium" : "text-muted-foreground")}>
+                              <span className={cn("text-xs", member.is_active_now ? "text-primary font-medium" : "text-muted-foreground")}>
                                 {getLastActive(member.last_active_at, member.is_active_now)}
                               </span>
                             </div>

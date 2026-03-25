@@ -42,7 +42,7 @@ export default function LeaderboardPage() {
     },
     streak: {
       subtitle: 'Includes everyone',
-      icon: <Users className="w-3.5 h-3.5 text-orange-400" />,
+      icon: <Users className="w-3.5 h-3.5 text-primary" />,
     },
   };
 
@@ -112,7 +112,7 @@ export default function LeaderboardPage() {
                 >
                   <Icon className={cn(
                     'w-3.5 h-3.5',
-                    isActive && (tab.id === 'streak' ? 'text-orange-500' : 'text-primary')
+                    isActive && (tab.id === 'streak' ? 'text-primary' : 'text-primary')
                   )} />
                   {tab.label}
                 </button>

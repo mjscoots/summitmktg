@@ -44,9 +44,9 @@ export function LessonNavigation({
                   className={cn(
                     "w-2 h-2 rounded-full transition-all duration-300",
                     i < currentStep
-                      ? isRookieCourse ? "bg-green-500" : "bg-blue-500"
+                      ? isRookieCourse ? "bg-primary" : "bg-blue-500"
                       : i === currentStep
-                        ? isRookieCourse ? "bg-green-400 ring-2 ring-green-400/30" : "bg-blue-400 ring-2 ring-blue-400/30"
+                        ? isRookieCourse ? "bg-primary ring-2 ring-green-400/30" : "bg-blue-400 ring-2 ring-blue-400/30"
                         : "bg-muted"
                   )}
                 />
@@ -65,7 +65,7 @@ export function LessonNavigation({
               "gap-2 font-bold transition-all duration-300",
               canProceed && (
                 isRookieCourse
-                  ? "bg-green-500 hover:bg-green-600 shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] hover:shadow-[0_0_30px_-5px_rgba(34,197,94,0.7)]"
+                  ? "bg-primary hover:bg-primary shadow-[0_0_20px_-5px_rgba(34,197,94,0.5)] hover:shadow-[0_0_30px_-5px_rgba(34,197,94,0.7)]"
                   : "bg-blue-500 hover:bg-blue-600 shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.7)]"
               )
             )}

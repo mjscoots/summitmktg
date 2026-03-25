@@ -1,4 +1,5 @@
 // Each team gets a unique color identity used across avatars, profiles, tree nodes, etc.
+// All teams now use blue-spectrum tones to match the brand palette.
 
 export interface TeamColor {
   /** Tailwind bg class for avatar fallback */
@@ -15,62 +16,62 @@ export interface TeamColor {
 
 const TEAM_COLORS: Record<string, TeamColor> = {
   'quality control': {
-    bg: 'bg-cyan-500',
-    text: 'text-cyan-400',
-    bgTint: 'bg-cyan-500/10',
-    bgBadge: 'bg-cyan-500/15',
-    hsl: '188 95% 43%',
+    bg: 'bg-sky-600',
+    text: 'text-sky-400',
+    bgTint: 'bg-sky-600/10',
+    bgBadge: 'bg-sky-600/15',
+    hsl: '199 89% 48%',
   },
   'minions': {
-    bg: 'bg-amber-500',
-    text: 'text-amber-400',
-    bgTint: 'bg-amber-500/10',
-    bgBadge: 'bg-amber-500/15',
-    hsl: '38 92% 50%',
+    bg: 'bg-blue-500',
+    text: 'text-blue-400',
+    bgTint: 'bg-blue-500/10',
+    bgBadge: 'bg-blue-500/15',
+    hsl: '217 91% 60%',
   },
   'legion mafia': {
-    bg: 'bg-red-500',
-    text: 'text-red-400',
-    bgTint: 'bg-red-500/10',
-    bgBadge: 'bg-red-500/15',
-    hsl: '0 84% 60%',
+    bg: 'bg-indigo-500',
+    text: 'text-indigo-400',
+    bgTint: 'bg-indigo-500/10',
+    bgBadge: 'bg-indigo-500/15',
+    hsl: '239 84% 67%',
   },
   'paper route': {
-    bg: 'bg-violet-500',
-    text: 'text-violet-400',
-    bgTint: 'bg-violet-500/10',
-    bgBadge: 'bg-violet-500/15',
-    hsl: '258 90% 66%',
+    bg: 'bg-blue-600',
+    text: 'text-blue-300',
+    bgTint: 'bg-blue-600/10',
+    bgBadge: 'bg-blue-600/15',
+    hsl: '216 89% 53%',
   },
   'apex': {
-    bg: 'bg-orange-500',
-    text: 'text-orange-400',
-    bgTint: 'bg-orange-500/10',
-    bgBadge: 'bg-orange-500/15',
-    hsl: '25 95% 53%',
+    bg: 'bg-cyan-600',
+    text: 'text-cyan-400',
+    bgTint: 'bg-cyan-600/10',
+    bgBadge: 'bg-cyan-600/15',
+    hsl: '188 78% 41%',
   },
   'atlas': {
-    bg: 'bg-emerald-500',
-    text: 'text-emerald-400',
-    bgTint: 'bg-emerald-500/10',
-    bgBadge: 'bg-emerald-500/15',
-    hsl: '160 84% 39%',
+    bg: 'bg-sky-500',
+    text: 'text-sky-300',
+    bgTint: 'bg-sky-500/10',
+    bgBadge: 'bg-sky-500/15',
+    hsl: '199 89% 48%',
   },
   'altitude': {
-    bg: 'bg-pink-500',
-    text: 'text-pink-400',
-    bgTint: 'bg-pink-500/10',
-    bgBadge: 'bg-pink-500/15',
-    hsl: '330 81% 60%',
+    bg: 'bg-blue-400',
+    text: 'text-blue-300',
+    bgTint: 'bg-blue-400/10',
+    bgBadge: 'bg-blue-400/15',
+    hsl: '213 94% 68%',
   },
 };
 
 const DEFAULT_COLOR: TeamColor = {
-  bg: 'bg-slate-500',
+  bg: 'bg-slate-600',
   text: 'text-slate-400',
-  bgTint: 'bg-slate-500/10',
-  bgBadge: 'bg-slate-500/15',
-  hsl: '215 16% 47%',
+  bgTint: 'bg-slate-600/10',
+  bgBadge: 'bg-slate-600/15',
+  hsl: '215 20% 45%',
 };
 
 export function getTeamColor(teamName?: string | null): TeamColor {

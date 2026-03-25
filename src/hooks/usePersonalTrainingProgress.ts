@@ -202,16 +202,16 @@ export function usePersonalTrainingProgress() {
   }, [user?.id, calculateProgress]);
 
   const getProgressColor = (percentage: number): string => {
-    if (percentage === 100) return 'text-green-500';
+    if (percentage === 100) return 'text-primary';
     if (percentage >= 71) return 'text-primary';
-    if (percentage >= 41) return 'text-yellow-500';
+    if (percentage >= 41) return 'text-primary';
     return 'text-destructive';
   };
 
   const getProgressBgColor = (percentage: number): string => {
-    if (percentage === 100) return 'bg-green-500/15 border-green-500/30';
+    if (percentage === 100) return 'bg-primary/15 border-primary/30';
     if (percentage >= 71) return 'bg-primary/15 border-primary/30';
-    if (percentage >= 41) return 'bg-yellow-500/15 border-yellow-500/30';
+    if (percentage >= 41) return 'bg-primary/15 border-primary/30';
     return 'bg-destructive/15 border-destructive/30';
   };
 

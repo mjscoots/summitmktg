@@ -69,7 +69,7 @@ class TableErrorBoundary extends Component<{ children: ReactNode; onRetry: () =>
     if (this.state.hasError) {
       return (
         <div className="p-8 text-center space-y-3">
-          <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto" />
+          <AlertTriangle className="w-8 h-8 text-primary mx-auto" />
           <p className="text-sm text-foreground font-medium">Table failed to render</p>
           <Button
             size="sm"
@@ -121,14 +121,14 @@ function PipelineBadge({ status }: { status: string }) {
 
   const className =
     key === 'summer_ready'
-      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+      ? 'bg-primary/15 text-primary border-primary/30'
       : key === 'onboarded'
         ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
         : key === 'info_added'
-          ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30'
+          ? 'bg-primary/15 text-primary border-primary/30'
           : key === 'contract_signed'
-            ? 'bg-orange-500/15 text-orange-400 border-orange-500/30'
-            : 'bg-red-500/15 text-red-400 border-red-500/30';
+            ? 'bg-primary/15 text-primary border-primary/30'
+            : 'bg-red-500/15 text-primary border-red-500/30';
 
   return (
     <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap', className)}>
@@ -154,7 +154,7 @@ function StatusDot({ status }: { status: string | null }) {
   }
 
   if (status === 'active') {
-    return <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400" title="Active" />;
+    return <span className="inline-block w-2.5 h-2.5 rounded-full bg-primary" title="Active" />;
   }
 
   return <span className="inline-block w-2.5 h-2.5 rounded-full bg-muted-foreground/40" title="Disabled" />;
@@ -235,7 +235,7 @@ function SummaryBar({ users }: { users: UserRow[] }) {
       <h2 className="text-sm font-bold text-foreground">In-App Users</h2>
       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{inApp}</span>
       <span className="w-px h-4 bg-border" />
-      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">In-App {inApp}</span>
+      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">In-App {inApp}</span>
       <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">Not In-App {notInApp}</span>
 
       <button
@@ -249,14 +249,14 @@ function SummaryBar({ users }: { users: UserRow[] }) {
       {expanded && (
         <>
           <span className="w-px h-4 bg-border" />
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400">Active {active}</span>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">NLC {nlc}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Active {active}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-primary">NLC {nlc}</span>
           <span className="w-px h-4 bg-border" />
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">Prospect {pending}</span>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400">Signed {contractSigned}</span>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400">Info Added {infoAdded}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-primary">Prospect {pending}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Signed {contractSigned}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Info Added {infoAdded}</span>
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400">Onboarded {onboarded}</span>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Summer Ready {summerReady}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Summer Ready {summerReady}</span>
         </>
       )}
     </div>
@@ -683,7 +683,7 @@ export default function AdminUsersTab({
                     </td>
 
                     <td className="px-3 py-2.5 text-xs text-muted-foreground truncate">
-                      {managerName || <span className="text-amber-400/70 text-[10px]">No Manager</span>}
+                      {managerName || <span className="text-primary/70 text-[10px]">No Manager</span>}
                     </td>
 
                     <td className="px-3 py-2.5 text-xs text-muted-foreground truncate">

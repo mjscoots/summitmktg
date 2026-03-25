@@ -21,7 +21,7 @@ interface BreakdownItem {
 const TIERS = [
   { name: 'Bronze', threshold: 25, icon: Shield, color: 'text-amber-600', bg: 'bg-amber-600', glow: 'shadow-[0_0_20px_-5px_rgba(217,119,6,0.5)]' },
   { name: 'Silver', threshold: 50, icon: Award, color: 'text-slate-300', bg: 'bg-slate-300', glow: 'shadow-[0_0_20px_-5px_rgba(203,213,225,0.5)]' },
-  { name: 'Gold', threshold: 75, icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-400', glow: 'shadow-[0_0_20px_-5px_rgba(250,204,21,0.5)]' },
+  { name: 'Gold', threshold: 75, icon: Star, color: 'text-primary', bg: 'bg-primary', glow: 'shadow-[0_0_20px_-5px_rgba(250,204,21,0.5)]' },
   { name: 'Summit', threshold: 100, icon: Mountain, color: 'text-primary', bg: 'bg-primary', glow: 'shadow-[0_0_25px_-5px_hsl(var(--primary)/0.6)]' },
 ];
 
@@ -129,8 +129,8 @@ export function EliteProgressBar() {
 
   const breakdown: BreakdownItem[] = [
     { label: 'Training', value: trainingPct, icon: <BookOpen className="w-3.5 h-3.5" />, color: 'text-success' },
-    { label: 'Forms', value: formsPct, icon: <Zap className="w-3.5 h-3.5" />, color: 'text-yellow-400' },
-    { label: 'Streak', value: streakPct, icon: <Flame className="w-3.5 h-3.5" />, color: 'text-orange-400' },
+    { label: 'Forms', value: formsPct, icon: <Zap className="w-3.5 h-3.5" />, color: 'text-primary' },
+    { label: 'Streak', value: streakPct, icon: <Flame className="w-3.5 h-3.5" />, color: 'text-primary' },
   ];
 
   if (trainingLoading) {
@@ -165,7 +165,7 @@ export function EliteProgressBar() {
               <span className={cn("text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full border", currentTier.color,
                 currentTier.name === 'Bronze' && 'bg-amber-600/10 border-amber-600/30',
                 currentTier.name === 'Silver' && 'bg-slate-300/10 border-slate-300/30',
-                currentTier.name === 'Gold' && 'bg-yellow-400/10 border-yellow-400/30',
+                currentTier.name === 'Gold' && 'bg-primary/10 border-yellow-400/30',
                 currentTier.name === 'Summit' && 'bg-primary/10 border-primary/30',
               )}>
                 {currentTier.name}
@@ -175,7 +175,7 @@ export function EliteProgressBar() {
           <div className="flex items-center gap-2">
             <span className={cn(
               "text-lg font-black tabular-nums",
-              systemPct >= 100 ? 'text-primary' : systemPct >= 75 ? 'text-yellow-400' : 'text-foreground'
+              systemPct >= 100 ? 'text-primary' : systemPct >= 75 ? 'text-primary' : 'text-foreground'
             )}>
               {animatedPct}%
             </span>

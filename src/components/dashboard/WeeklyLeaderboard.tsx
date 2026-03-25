@@ -74,7 +74,7 @@ export function WeeklyLeaderboard() {
   const getRankDisplay = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-5 h-5 text-yellow-500" />;
+        return <Trophy className="w-5 h-5 text-primary" />;
       case 2:
         return <Medal className="w-5 h-5 text-gray-400" />;
       case 3:
@@ -154,8 +154,8 @@ export function WeeklyLeaderboard() {
               {entry.current_streak > 0 && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                   <Flame className={cn("w-3 h-3", 
-                    entry.current_streak >= 14 ? "text-green-400" :
-                    entry.current_streak >= 7 ? "text-green-500" :
+                    entry.current_streak >= 14 ? "text-primary" :
+                    entry.current_streak >= 7 ? "text-primary" :
                     entry.current_streak >= 3 ? "text-blue-400" :
                     "text-muted-foreground"
                   )} />

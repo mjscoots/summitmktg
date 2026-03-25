@@ -42,9 +42,9 @@ function DailyChart({ daily, label }: { daily: number[]; label: string }) {
 
 function TrendArrow({ current, previous }: { current: number; previous: number }) {
   if (previous === 0 && current === 0) return <Minus className="w-3 h-3 text-muted-foreground" />;
-  if (previous === 0) return <TrendingUp className="w-3 h-3 text-green-500" />;
+  if (previous === 0) return <TrendingUp className="w-3 h-3 text-primary" />;
   const pctChange = ((current - previous) / previous) * 100;
-  if (pctChange > 5) return <TrendingUp className="w-3 h-3 text-green-500" />;
+  if (pctChange > 5) return <TrendingUp className="w-3 h-3 text-primary" />;
   if (pctChange < -5) return <TrendingDown className="w-3 h-3 text-destructive" />;
   return <Minus className="w-3 h-3 text-muted-foreground" />;
 }
@@ -76,21 +76,21 @@ export function TrainingDataPanel({
   // Auto-insights
   const insights: { icon: React.ReactNode; text: string; color: string }[] = [];
   if (rep.lastWeekMinutes > rep.weekBeforeMinutes && rep.weekBeforeMinutes > 0) {
-    insights.push({ icon: <Flame className="w-3 h-3" />, text: 'Hours up week-over-week', color: 'text-orange-400' });
+    insights.push({ icon: <Flame className="w-3 h-3" />, text: 'Hours up week-over-week', color: 'text-primary' });
   }
   if (rep.lastWeekMinutes < rep.weekBeforeMinutes && rep.weekBeforeMinutes > 0) {
     insights.push({ icon: <AlertTriangle className="w-3 h-3" />, text: 'Hours down week-over-week', color: 'text-destructive' });
   }
   if (rep.lastWeekCompletedLessons.length > 0) {
-    insights.push({ icon: <Check className="w-3 h-3" />, text: `${rep.lastWeekCompletedLessons.length} modules completed`, color: 'text-green-500' });
+    insights.push({ icon: <Check className="w-3 h-3" />, text: `${rep.lastWeekCompletedLessons.length} modules completed`, color: 'text-primary' });
   } else {
-    insights.push({ icon: <AlertTriangle className="w-3 h-3" />, text: 'No modules completed last week', color: 'text-yellow-500' });
+    insights.push({ icon: <AlertTriangle className="w-3 h-3" />, text: 'No modules completed last week', color: 'text-primary' });
   }
   if (rep.peerRank === 1) {
-    insights.push({ icon: <Trophy className="w-3 h-3" />, text: '#1 team performer', color: 'text-yellow-400' });
+    insights.push({ icon: <Trophy className="w-3 h-3" />, text: '#1 team performer', color: 'text-primary' });
   }
   if (rep.lastWeekMinutes > 480 && rep.lastWeekCompletedLessons.length === 0) {
-    insights.push({ icon: <Clock className="w-3 h-3" />, text: 'High time, low gain', color: 'text-yellow-500' });
+    insights.push({ icon: <Clock className="w-3 h-3" />, text: 'High time, low gain', color: 'text-primary' });
   }
 
   const teamAvgPct = rep.teamAvgMinutes > 0
@@ -145,7 +145,7 @@ export function TrainingDataPanel({
           <h4 className="text-xs font-semibold text-foreground">Completed Last Week</h4>
           {rep.lastWeekCompletedLessons.map(l => (
             <div key={l.id} className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Check className="w-3 h-3 text-green-500 flex-shrink-0" />
+              <Check className="w-3 h-3 text-primary flex-shrink-0" />
               <span className="truncate">{l.title}</span>
             </div>
           ))}

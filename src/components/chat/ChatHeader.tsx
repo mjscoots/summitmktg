@@ -37,7 +37,7 @@ export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, 
         {pinnedCount > 0 && (
           <button
             onClick={onPinnedClick}
-            className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] text-amber-500/60 hover:bg-amber-500/10 transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] text-primary/60 hover:bg-primary/10 transition-colors"
           >
             <Pin className="w-3 h-3" />
             {pinnedCount}

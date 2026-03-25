@@ -277,7 +277,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
                   <Button
                     onClick={handleApprove}
                     disabled={isSubmitting}
-                    className="flex-1 gap-1.5 bg-green-500 hover:bg-green-600"
+                    className="flex-1 gap-1.5 bg-primary hover:bg-primary"
                   >
                     {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                     Approve

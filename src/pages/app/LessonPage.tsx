@@ -572,7 +572,7 @@ export default function LessonPage() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className={cn(
             "w-8 h-8 animate-spin",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )} />
         </div>
       </AppLayout>
@@ -590,7 +590,7 @@ export default function LessonPage() {
           </p>
           <button 
             onClick={() => navigate(`/app/training/${courseSlug}`)}
-            className={cn("hover:underline", isRookieCourse ? "text-green-400" : "text-blue-400")}
+            className={cn("hover:underline", isRookieCourse ? "text-primary" : "text-blue-400")}
           >
             Back to Course
           </button>
@@ -636,7 +636,7 @@ export default function LessonPage() {
           <div className={cn(
             "fixed top-4 right-4 z-50 p-4 rounded-lg border shadow-lg animate-fade-in",
             isRookieCourse 
-              ? "bg-green-500/10 border-green-500/30 text-green-400"
+              ? "bg-primary/10 border-primary/30 text-primary"
               : "bg-blue-500/10 border-blue-500/30 text-blue-400"
           )}>
             <p className="font-semibold">{getStreakMessage()}</p>
@@ -657,11 +657,11 @@ export default function LessonPage() {
         <header className="mb-4">
           <div className="flex items-start gap-2 mb-1">
             {lessonCompleted ? (
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             ) : (
               <BookOpen className={cn(
                 "w-5 h-5 mt-0.5 flex-shrink-0",
-                isRookieCourse ? "text-green-400" : "text-blue-400"
+                isRookieCourse ? "text-primary" : "text-blue-400"
               )} />
             )}
             <div className="flex-1 min-w-0">
@@ -672,13 +672,13 @@ export default function LessonPage() {
                 <span className={cn(
                   "text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider border",
                   isRookieCourse 
-                    ? "bg-green-500/15 text-green-400 border-green-500/30"
+                    ? "bg-primary/15 text-primary border-primary/30"
                     : "bg-blue-500/15 text-blue-400 border-blue-500/30"
                 )}>
                   {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
                 </span>
                 {lessonCompleted && (
-                  <span className="text-xs text-green-500 font-medium">Completed</span>
+                  <span className="text-xs text-primary font-medium">Completed</span>
                 )}
                 {isQuizOptional && !lessonCompleted && (
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -752,7 +752,7 @@ export default function LessonPage() {
                 />
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-400" />
+                  <AlertCircle className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <p>Content not available for this lesson.</p>
                   <p className="text-xs mt-1">Lesson ID: {lesson.id}</p>
                 </div>
@@ -765,20 +765,20 @@ export default function LessonPage() {
               <div className={cn(
                 "border rounded-lg p-4 mb-4",
                 isRookieCourse 
-                  ? "bg-green-500/5 border-green-500/20"
+                  ? "bg-primary/5 border-primary/20"
                   : "bg-blue-500/5 border-blue-500/20"
               )}>
                 <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5 uppercase tracking-wide">
                   <CheckCircle2 className={cn(
                     "w-3.5 h-3.5",
-                    isRookieCourse ? "text-green-400" : "text-blue-400"
+                    isRookieCourse ? "text-primary" : "text-blue-400"
                   )} />
                   Key Takeaways
                 </h3>
                 <ul className="space-y-1">
                   {lesson.key_takeaways.map((takeaway, index) => (
                     <li key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                      <span className={cn("mt-0.5", isRookieCourse ? "text-green-400" : "text-blue-400")}>•</span>
+                      <span className={cn("mt-0.5", isRookieCourse ? "text-primary" : "text-blue-400")}>•</span>
                       {takeaway}
                     </li>
                   ))}
@@ -806,7 +806,7 @@ export default function LessonPage() {
                   className={cn(
                     "w-full font-semibold h-10",
                     isRookieCourse 
-                      ? "bg-green-500 hover:bg-green-600" 
+                      ? "bg-primary hover:bg-primary" 
                       : "bg-blue-500 hover:bg-blue-600"
                   )}
                 >
@@ -821,10 +821,10 @@ export default function LessonPage() {
               <div className={cn(
                 "text-center py-4 px-4 rounded-lg border-2 border-dashed mt-4",
                 isRookieCourse 
-                  ? "border-amber-500/40 bg-amber-500/5"
-                  : "border-amber-500/40 bg-amber-500/5"
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-primary/40 bg-primary/5"
               )}>
-                <Clock className="w-5 h-5 text-amber-500 mx-auto mb-2" />
+                <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
                 <p className="text-sm font-semibold text-amber-600">Waiting for Manager Approval</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Your manager needs to approve your pitch before you can continue to the next lesson.
@@ -844,7 +844,7 @@ export default function LessonPage() {
           /* Quiz View */
           <div className="bg-card rounded-lg border border-border p-5">
             <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
-              <HelpCircle className={cn("w-4 h-4", isRookieCourse ? "text-green-400" : "text-blue-400")} />
+              <HelpCircle className={cn("w-4 h-4", isRookieCourse ? "text-primary" : "text-blue-400")} />
               Lesson Quiz
             </h2>
 
@@ -868,7 +868,7 @@ export default function LessonPage() {
                 {questions.map((question, index) => (
                   <div key={question.id} className="p-3 bg-muted/30 rounded-lg">
                     <p className="font-medium text-foreground mb-2 text-sm">
-                      <span className={cn("mr-1.5 font-bold", isRookieCourse ? "text-green-400" : "text-blue-400")}>
+                      <span className={cn("mr-1.5 font-bold", isRookieCourse ? "text-primary" : "text-blue-400")}>
                         {index + 1}.
                       </span>
                       {question.question_text}
@@ -883,7 +883,7 @@ export default function LessonPage() {
                               "flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm",
                               answers[question.id] === option.id
                                 ? isRookieCourse 
-                                  ? 'border-green-500 bg-green-500/10'
+                                  ? 'border-primary bg-primary/10'
                                   : 'border-blue-500 bg-blue-500/10'
                                 : 'border-border hover:border-muted-foreground/50'
                             )}
@@ -899,13 +899,13 @@ export default function LessonPage() {
                             <div className={cn(
                               "w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
                               answers[question.id] === option.id
-                                ? isRookieCourse ? "border-green-500" : "border-blue-500"
+                                ? isRookieCourse ? "border-primary" : "border-blue-500"
                                 : "border-muted-foreground/50"
                             )}>
                               {answers[question.id] === option.id && (
                                 <div className={cn(
                                   "w-1.5 h-1.5 rounded-full",
-                                  isRookieCourse ? "bg-green-500" : "bg-blue-500"
+                                  isRookieCourse ? "bg-primary" : "bg-blue-500"
                                 )} />
                               )}
                             </div>
@@ -927,7 +927,7 @@ export default function LessonPage() {
                     className={cn(
                       "flex-1 font-semibold",
                       isRookieCourse 
-                        ? "bg-green-500 hover:bg-green-600" 
+                        ? "bg-primary hover:bg-primary" 
                         : "bg-blue-500 hover:bg-blue-600"
                     )}
                   >
@@ -965,9 +965,9 @@ export default function LessonPage() {
                       className={cn(
                         "w-1.5 h-1.5 rounded-full transition-all",
                         i < currentLessonIndex
-                          ? isRookieCourse ? "bg-green-500" : "bg-blue-500"
+                          ? isRookieCourse ? "bg-primary" : "bg-blue-500"
                           : i === currentLessonIndex
-                            ? isRookieCourse ? "bg-green-400 ring-1 ring-green-400/30" : "bg-blue-400 ring-1 ring-blue-400/30"
+                            ? isRookieCourse ? "bg-primary ring-1 ring-green-400/30" : "bg-blue-400 ring-1 ring-blue-400/30"
                             : "bg-muted"
                       )}
                     />
@@ -987,7 +987,7 @@ export default function LessonPage() {
                   "gap-1.5 font-semibold transition-all",
                   buttonState !== 'locked' && (
                     isRookieCourse
-                      ? "bg-green-500 hover:bg-green-600"
+                      ? "bg-primary hover:bg-primary"
                       : "bg-blue-500 hover:bg-blue-600"
                   )
                 )}

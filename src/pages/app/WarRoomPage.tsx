@@ -34,7 +34,7 @@ export default function WarRoomPage() {
             <div className="absolute inset-0 flex items-center px-6">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-red-500/20 border border-red-500/30">
-                  <BarChart3 className="w-6 h-6 text-red-400" />
+                  <BarChart3 className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">STATS</h1>

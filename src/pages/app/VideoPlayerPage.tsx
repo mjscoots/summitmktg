@@ -275,7 +275,7 @@ export default function VideoPlayerPage() {
                     className={cn(
                       "gap-1.5",
                       bookmarkedIds.has(video.id)
-                        ? "text-yellow-500 hover:text-yellow-600"
+                        ? "text-primary hover:text-yellow-600"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >

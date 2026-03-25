@@ -119,9 +119,9 @@ export function RookieXPPanel() {
         {/* Stat pills */}
         <div className="flex gap-2 flex-wrap">
           <StatPill icon={Zap} label="Lessons" value={xpData.lessonsComplete} color="text-primary" />
-          <StatPill icon={Trophy} label="Quizzes" value={xpData.quizzesPassed} color="text-yellow-400" />
+          <StatPill icon={Trophy} label="Quizzes" value={xpData.quizzesPassed} color="text-primary" />
           {streakData.currentStreak > 0 && (
-            <StatPill icon={Flame} label="Streak" value={streakData.currentStreak} color="text-orange-400" />
+            <StatPill icon={Flame} label="Streak" value={streakData.currentStreak} color="text-primary" />
           )}
           <StatPill icon={TrendingUp} label="Videos" value={xpData.videosWatched} color="text-blue-400" />
         </div>

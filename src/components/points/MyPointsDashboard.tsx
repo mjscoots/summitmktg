@@ -45,12 +45,12 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
   const we = data.weeklyEvents;
   const weeklyBreakdown = [
     { icon: Clock, color: 'text-blue-500', label: 'Hours Logged', value: data.weeklyHoursPoints },
-    { icon: Zap, color: 'text-yellow-500', label: 'Threshold Bonus', value: data.weeklyThresholdBonus },
-    { icon: Flame, color: 'text-orange-500', label: 'Login + Streak', value: (we.daily_login || 0) + (we.streak || 0) },
-    { icon: MessageSquare, color: 'text-emerald-500', label: 'Chat', value: we.chat || 0 },
-    { icon: BookOpen, color: 'text-green-500', label: 'Lessons + Quizzes', value: (we.lesson || 0) + (we.quiz_bonus || 0) },
+    { icon: Zap, color: 'text-primary', label: 'Threshold Bonus', value: data.weeklyThresholdBonus },
+    { icon: Flame, color: 'text-primary', label: 'Login + Streak', value: (we.daily_login || 0) + (we.streak || 0) },
+    { icon: MessageSquare, color: 'text-primary', label: 'Chat', value: we.chat || 0 },
+    { icon: BookOpen, color: 'text-primary', label: 'Lessons + Quizzes', value: (we.lesson || 0) + (we.quiz_bonus || 0) },
     { icon: Video, color: 'text-purple-500', label: 'Videos', value: we.video || 0 },
-    { icon: FileText, color: 'text-teal-500', label: 'Manual', value: we.manual || 0 },
+    { icon: FileText, color: 'text-primary', label: 'Manual', value: we.manual || 0 },
   ].filter(x => x.value > 0);
 
   const hoursToday = Math.floor(data.timeTodayMinutes / 60);
@@ -71,7 +71,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
       <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+            <Trophy className="w-5 h-5 text-primary" />
             My Points
           </DialogTitle>
         </DialogHeader>
@@ -100,7 +100,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
             </div>
             <div className="flex-1 p-2.5 rounded-lg bg-muted/30 border border-border/20">
               <div className="flex items-center gap-1.5">
-                <Flame className={cn('w-3.5 h-3.5', data.currentStreak >= 7 ? 'text-orange-500' : 'text-orange-400/70')} />
+                <Flame className={cn('w-3.5 h-3.5', data.currentStreak >= 7 ? 'text-primary' : 'text-primary/70')} />
                 <span className="text-xs font-bold">{data.currentStreak}d streak</span>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">Best: {data.longestStreak}d</p>
@@ -130,18 +130,18 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Today's Cap Status</p>
             <div className="space-y-2">
               <CapBar icon={Clock} color="text-blue-500" label="Hours" cap={data.capsToday.hours} />
-              <CapBar icon={MessageSquare} color="text-emerald-500" label="Chat" cap={data.capsToday.chat} />
-              <CapBar icon={BookOpen} color="text-green-500" label="Lessons" cap={data.capsToday.lesson} />
+              <CapBar icon={MessageSquare} color="text-primary" label="Chat" cap={data.capsToday.chat} />
+              <CapBar icon={BookOpen} color="text-primary" label="Lessons" cap={data.capsToday.lesson} />
               <CapBar icon={Video} color="text-purple-500" label="Videos" cap={data.capsToday.video} />
             </div>
           </div>
 
           {/* Threshold progress */}
           {data.nextThreshold.targetMinutes && data.nextThreshold.remainingMinutes > 0 && (
-            <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-1">
-                <Target className="w-3.5 h-3.5 text-yellow-500" />
-                <span className="text-xs font-bold text-yellow-400">Next Weekly Bonus</span>
+                <Target className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-bold text-primary">Next Weekly Bonus</span>
               </div>
               <Progress value={Math.round((data.timeWeekMinutes / data.nextThreshold.targetMinutes) * 100)} className="h-1.5 mb-1" />
               <p className="text-[10px] text-muted-foreground">

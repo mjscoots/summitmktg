@@ -77,8 +77,8 @@ const getEventCategory = (type: string | null): EventCategory =>
 
 const CATEGORY_COLORS: Record<EventCategory, { bg: string; text: string; dot: string; border: string; label: string }> = {
   all: { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-foreground', border: 'border-foreground', label: 'All' },
-  mandatory: { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-500', border: 'border-red-500/50', label: 'Mandatory' },
-  optional: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-500', border: 'border-yellow-500/50', label: 'Optional' },
+  mandatory: { bg: 'bg-red-500/10', text: 'text-primary', dot: 'bg-red-500', border: 'border-red-500/50', label: 'Mandatory' },
+  optional: { bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary', border: 'border-primary/50', label: 'Optional' },
 };
 
 const getColor = (type: string | null) => CATEGORY_COLORS[getEventCategory(type)];
@@ -407,10 +407,10 @@ export default function CalendarPage() {
               <span className={cn("w-2 h-2 rounded-full flex-shrink-0", color.dot)} />
               <p className="text-sm font-semibold text-foreground break-words">{event.title}</p>
               {isMandatory && (
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 uppercase shrink-0">Required</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-primary uppercase shrink-0">Required</span>
               )}
               {remote !== null && (
-                <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0", remote ? "bg-purple-500/15 text-purple-400" : "bg-orange-500/15 text-orange-400")}>
+                <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0", remote ? "bg-purple-500/15 text-primary" : "bg-primary/15 text-primary")}>
                   {remote ? 'Remote' : 'In Person'}
                 </span>
               )}
@@ -428,23 +428,23 @@ export default function CalendarPage() {
             )}
             <div className="mt-1.5 ml-3.5">
               {myStatus === 'attending' ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full"><Check className="w-3 h-3" /> Attending</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full"><Check className="w-3 h-3" /> Attending</span>
               ) : myStatus === 'not_attending' ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full"><X className="w-3 h-3" /> Not Attending</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-red-500/10 px-2 py-0.5 rounded-full"><X className="w-3 h-3" /> Not Attending</span>
               ) : wasMissed ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full"><X className="w-3 h-3" /> Missed</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-red-500/10 px-2 py-0.5 rounded-full"><X className="w-3 h-3" /> Missed</span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-full"><Clock className="w-3 h-3" /> Pending</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full"><Clock className="w-3 h-3" /> Pending</span>
               )}
             </div>
           </div>
           {!eventPast && !compact && (
             <div className="flex gap-0.5 shrink-0">
               <button onClick={(e) => { e.stopPropagation(); handleAttendanceToggle(event.id, 'attending'); }}
-                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all", myStatus === 'attending' ? "bg-emerald-500/20 text-emerald-400" : "text-muted-foreground/40 hover:text-emerald-400 hover:bg-emerald-500/10")}
+                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all", myStatus === 'attending' ? "bg-primary/20 text-primary" : "text-muted-foreground/40 hover:text-primary hover:bg-primary/10")}
                 title="Attending"><Check className="w-3.5 h-3.5" /></button>
               <button onClick={(e) => { e.stopPropagation(); handleAttendanceToggle(event.id, 'not_attending'); }}
-                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all", myStatus === 'not_attending' ? "bg-red-500/20 text-red-400" : "text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10")}
+                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all", myStatus === 'not_attending' ? "bg-red-500/20 text-primary" : "text-muted-foreground/40 hover:text-primary hover:bg-red-500/10")}
                 title="Not attending"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
@@ -487,8 +487,8 @@ export default function CalendarPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-xs font-bold text-emerald-400">{attending.length} ✓</span>
-                        {notAttending.length > 0 && <span className="text-xs font-bold text-red-400">{notAttending.length} ✗</span>}
+                        <span className="text-xs font-bold text-primary">{attending.length} ✓</span>
+                        {notAttending.length > 0 && <span className="text-xs font-bold text-primary">{notAttending.length} ✗</span>}
                         <ChevronRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
                       </div>
                     </summary>
@@ -499,13 +499,13 @@ export default function CalendarPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-5">
                           {attending.map(a => (
                             <div key={a.user_id} className="flex items-center gap-2 text-xs py-1">
-                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <Check className="w-3.5 h-3.5 text-primary shrink-0" />
                               <span className="text-foreground font-medium truncate">{a.profile?.full_name || 'Unknown'}</span>
                             </div>
                           ))}
                           {notAttending.map(a => (
                             <div key={a.user_id} className="flex items-center gap-2 text-xs py-1">
-                              <X className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                              <X className="w-3.5 h-3.5 text-primary shrink-0" />
                               <span className="text-muted-foreground truncate">{a.profile?.full_name || 'Unknown'}</span>
                             </div>
                           ))}
@@ -600,8 +600,8 @@ export default function CalendarPage() {
               <div className="max-w-md mx-auto">
                 {pendingRSVPEvents.length === 0 ? (
                   <div className="bg-card rounded-2xl border border-border/50 p-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-                      <Check className="w-8 h-8 text-emerald-400" />
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Check className="w-8 h-8 text-primary" />
                     </div>
                     <h3 className="text-lg font-bold text-foreground mb-1">You're all caught up!</h3>
                     <p className="text-sm text-muted-foreground">No events need your RSVP this week.</p>
@@ -618,7 +618,7 @@ export default function CalendarPage() {
                       </div>
                     </div>
                     <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-xl shadow-black/10">
-                      <div className={cn("h-1.5 rounded-t-2xl", getEventCategory(currentRSVPEvent.event_type) === 'mandatory' ? "bg-red-500" : "bg-yellow-500")} />
+                      <div className={cn("h-1.5 rounded-t-2xl", getEventCategory(currentRSVPEvent.event_type) === 'mandatory' ? "bg-red-500" : "bg-primary")} />
                       <div className="p-6">
                         <div className="flex items-center gap-2 mb-3">
                           {(() => { const cat = getEventCategory(currentRSVPEvent.event_type); const c = CATEGORY_COLORS[cat]; return <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider", c.bg, c.text)}>{c.label}</span>; })()}
@@ -635,8 +635,8 @@ export default function CalendarPage() {
                         </div>
                         {currentRSVPEvent.description && <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{currentRSVPEvent.description}</p>}
                         <div className="flex gap-3">
-                          <button onClick={() => handleRSVP('not_attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-red-500/10 text-red-400 font-bold text-base hover:bg-red-500/20 transition-all active:scale-95 border border-red-500/20"><X className="w-5 h-5" />Can't Make It</button>
-                          <button onClick={() => handleRSVP('attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold text-base hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20"><Check className="w-5 h-5" />I'll Be There</button>
+                          <button onClick={() => handleRSVP('not_attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-red-500/10 text-primary font-bold text-base hover:bg-red-500/20 transition-all active:scale-95 border border-red-500/20"><X className="w-5 h-5" />Can't Make It</button>
+                          <button onClick={() => handleRSVP('attending')} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-primary/10 text-primary font-bold text-base hover:bg-primary/20 transition-all active:scale-95 border border-primary/20"><Check className="w-5 h-5" />I'll Be There</button>
                         </div>
                       </div>
                     </div>
@@ -769,7 +769,7 @@ export default function CalendarPage() {
                                     <div className="flex items-center gap-2">
                                       <span className="text-xs font-medium text-muted-foreground">{showT ? formatTimeLocal(event.event_date) : 'All day'}</span>
                                       {remote !== null && (
-                                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase", remote ? "bg-purple-500/15 text-purple-400" : "bg-orange-500/15 text-orange-400")}>{remote ? 'Remote' : 'In Person'}</span>
+                                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase", remote ? "bg-purple-500/15 text-primary" : "bg-primary/15 text-primary")}>{remote ? 'Remote' : 'In Person'}</span>
                                       )}
                                     </div>
                                     <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">{event.title}</p>

@@ -62,10 +62,10 @@ function displayName(entry: LeaderboardEntry) {
 }
 
 const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: string; check: (e: LeaderboardEntry, rank: number) => boolean }[] = [
-  { id: 'champion', icon: Crown, label: 'Weekly Champion', color: 'text-yellow-500', check: (_, rank) => rank === 1 },
+  { id: 'champion', icon: Crown, label: 'Weekly Champion', color: 'text-primary', check: (_, rank) => rank === 1 },
   { id: 'grinder', icon: Clock, label: 'Grinder (5h+)', color: 'text-blue-500', check: (e) => e.hoursThisWeek >= 5 },
-  { id: 'consistent', icon: Flame, label: 'Consistent (7d+)', color: 'text-orange-500', check: (e) => e.streakDays >= 7 },
-  { id: 'social', icon: MessageSquare, label: 'Social', color: 'text-emerald-500', check: (e) => (e.breakdown.chatPoints || 0) >= 200 },
+  { id: 'consistent', icon: Flame, label: 'Consistent (7d+)', color: 'text-primary', check: (e) => e.streakDays >= 7 },
+  { id: 'social', icon: MessageSquare, label: 'Social', color: 'text-primary', check: (e) => (e.breakdown.chatPoints || 0) >= 200 },
 ];
 
 export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardProps) {
@@ -200,7 +200,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     return (
       <div className="p-6 text-center">
         <div className="flex flex-col items-center gap-2">
-          <Trophy className="w-6 h-6 text-yellow-500 animate-bounce" />
+          <Trophy className="w-6 h-6 text-primary animate-bounce" />
           <span className="text-muted-foreground text-sm animate-pulse">Loading rankings...</span>
         </div>
       </div>
@@ -230,7 +230,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       {top3.length >= 3 && (
         <div className="relative px-4 pt-10 pb-6 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-yellow-500/5 rounded-full blur-[60px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/5 rounded-full blur-[60px]" />
           <div className="relative flex items-end justify-center gap-4">
             <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
               podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent" ringColor="ring-gray-400/60"
@@ -238,7 +238,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
               onClick={() => setSelectedEntry(top3[1])} />
             <PodiumSlot entry={top3[0]} rank={1} animateIn={animateIn} delay="0ms" podiumH="h-28"
               podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent" ringColor="ring-yellow-500/70"
-              medalIcon={<Trophy className="w-7 h-7 text-yellow-500" />} rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
+              medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
               isChampion onClick={() => setSelectedEntry(top3[0])} />
             <PodiumSlot entry={top3[2]} rank={3} animateIn={animateIn} delay="400ms" podiumH="h-14"
               podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent" ringColor="ring-amber-600/60"
@@ -280,7 +280,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                   <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
                     {entry.streakDays > 0 && (
                       <span className="flex items-center gap-0.5">
-                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-green-400" : entry.streakDays >= 7 ? "text-green-500" : entry.streakDays >= 3 ? "text-blue-400" : "text-muted-foreground")} /> {entry.streakDays}d
+                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-primary" : entry.streakDays >= 7 ? "text-primary" : entry.streakDays >= 3 ? "text-blue-400" : "text-muted-foreground")} /> {entry.streakDays}d
                       </span>
                     )}
                     {entry.hoursThisWeek > 0 && (
@@ -349,7 +349,7 @@ function PodiumSlot({
             className={cn("shadow-md", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
         </div>
         {isChampion ? (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Crown className="w-6 h-6 text-yellow-500 drop-shadow-md" /></div>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Crown className="w-6 h-6 text-primary drop-shadow-md" /></div>
         ) : (
           <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm", rankBg)}>{rank}</div>
         )}

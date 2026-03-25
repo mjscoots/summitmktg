@@ -90,7 +90,7 @@ export function VideoNotesPanel({ videoId }: VideoNotesPanelProps) {
           {isSaving ? (
             <><Loader2 className="w-2.5 h-2.5 animate-spin text-muted-foreground" /> <span className="text-muted-foreground">Saving</span></>
           ) : lastSaved ? (
-            <><Check className="w-2.5 h-2.5 text-emerald-500" /> <span className="text-muted-foreground">Saved</span></>
+            <><Check className="w-2.5 h-2.5 text-primary" /> <span className="text-muted-foreground">Saved</span></>
           ) : (
             <span className="text-muted-foreground">No notes yet</span>
           )}

@@ -56,7 +56,7 @@ function XPCounter({ points, isRookie }: { points: number; isRookie: boolean }) 
     <div className={cn(
       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold animate-scale-in",
       isRookie
-        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+        ? "bg-primary/20 text-primary border border-primary/30"
         : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
     )}>
       <Zap className="w-4 h-4" />
@@ -146,17 +146,17 @@ export function LessonCompletionFeedback({
         "relative z-10 text-center px-8 py-10 max-w-sm mx-4 rounded-2xl border-2 transition-all duration-500",
         isVisible ? "scale-100" : "scale-95",
         isRookieCourse
-          ? "bg-card border-green-500/50 shadow-[0_0_60px_-15px_rgba(34,197,94,0.5)]"
+          ? "bg-card border-primary/50 shadow-[0_0_60px_-15px_rgba(34,197,94,0.5)]"
           : "bg-card border-blue-500/50 shadow-[0_0_60px_-15px_rgba(59,130,246,0.5)]"
       )}>
         {/* Success Icon */}
         <div className={cn(
           "inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 animate-scale-in",
-          isRookieCourse ? "bg-green-500/20" : "bg-blue-500/20"
+          isRookieCourse ? "bg-primary/20" : "bg-blue-500/20"
         )}>
           <CheckCircle2 className={cn(
             "w-8 h-8",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )} />
         </div>
 
@@ -164,12 +164,12 @@ export function LessonCompletionFeedback({
         <div className="flex items-center justify-center gap-2 mb-2">
           <Sparkles className={cn(
             "w-5 h-5",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )} />
           <h3 className="text-xl font-black text-foreground">Lesson Complete</h3>
           <Sparkles className={cn(
             "w-5 h-5",
-            isRookieCourse ? "text-green-400" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-blue-400"
           )} />
         </div>
 
@@ -188,17 +188,17 @@ export function LessonCompletionFeedback({
         {/* Progress Display */}
         <div className={cn(
           "p-4 rounded-xl mb-4",
-          isRookieCourse ? "bg-green-500/10" : "bg-blue-500/10"
+          isRookieCourse ? "bg-primary/10" : "bg-blue-500/10"
         )}>
           <div className="flex items-center justify-center gap-3">
             <TrendingUp className={cn(
               "w-5 h-5",
-              isRookieCourse ? "text-green-400" : "text-blue-400"
+              isRookieCourse ? "text-primary" : "text-blue-400"
             )} />
             <div>
               <span className={cn(
                 "text-3xl font-black tabular-nums",
-                isRookieCourse ? "text-green-400" : "text-blue-400"
+                isRookieCourse ? "text-primary" : "text-blue-400"
               )}>
                 {displayProgress}%
               </span>
@@ -230,7 +230,7 @@ export function LessonCompletionFeedback({
         {/* Motivational Message */}
         <p className={cn(
           "text-sm font-medium",
-          isRookieCourse ? "text-green-400" : "text-blue-400"
+          isRookieCourse ? "text-primary" : "text-blue-400"
         )}>
           {getMessage()}
         </p>

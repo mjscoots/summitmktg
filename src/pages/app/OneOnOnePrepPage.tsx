@@ -377,9 +377,9 @@ export default function OneOnOnePrepPage() {
 
         {/* Duplicate warning */}
         {existingForSelectedRep && (
-          <div className="mx-4 mt-2 p-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 flex items-center gap-2 text-sm">
-            <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0" />
-            <span className="text-yellow-600 dark:text-yellow-400">
+          <div className="mx-4 mt-2 p-3 rounded-lg border border-primary/30 bg-primary/10 flex items-center gap-2 text-sm">
+            <AlertTriangle className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-yellow-600 dark:text-primary">
               You already submitted a 1:1 for <strong>{selectedRep.full_name}</strong> this week. Submitting again will create a duplicate.
             </span>
           </div>

@@ -67,7 +67,7 @@ export function StreakLeaderboard() {
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Trophy className="w-4 h-4 text-yellow-500" />;
+      case 1: return <Trophy className="w-4 h-4 text-primary" />;
       case 2: return <Medal className="w-4 h-4 text-gray-400" />;
       case 3: return <Award className="w-4 h-4 text-amber-600" />;
       default: return <span className="text-xs font-medium text-muted-foreground w-4 text-center">{rank}</span>;
@@ -78,7 +78,7 @@ export function StreakLeaderboard() {
     return (
       <div className="p-6 text-center">
         <div className="flex flex-col items-center gap-2">
-          <Flame className="w-6 h-6 text-orange-500 animate-bounce" />
+          <Flame className="w-6 h-6 text-primary animate-bounce" />
           <span className="text-muted-foreground text-sm animate-pulse">Loading streaks...</span>
         </div>
       </div>
@@ -88,7 +88,7 @@ export function StreakLeaderboard() {
   if (entries.length === 0) {
     return (
       <div className="p-8 text-center bg-gradient-to-b from-orange-500/5 to-transparent rounded-xl">
-        <Flame className="w-12 h-12 text-orange-400/50 mx-auto mb-2" />
+        <Flame className="w-12 h-12 text-primary/50 mx-auto mb-2" />
         <p className="text-muted-foreground text-sm">No active streaks yet</p>
         <p className="text-xs text-muted-foreground/70 mt-1">Log in daily to build your streak!</p>
         <div className="mt-3 text-[10px] text-muted-foreground/60 space-y-0.5">
@@ -107,9 +107,9 @@ export function StreakLeaderboard() {
   return (
     <div className="space-y-4">
       {/* Bonus schedule banner */}
-      <div className="mx-4 mt-4 p-2.5 rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/5 border border-orange-500/15">
+      <div className="mx-4 mt-4 p-2.5 rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/5 border border-primary/15">
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground justify-center flex-wrap">
-          <span className="font-semibold text-orange-400">Daily Login: +75</span>
+          <span className="font-semibold text-primary">Daily Login: +75</span>
           <span>·</span>
           <span>Streak: +25/day</span>
           <span>·</span>
@@ -130,7 +130,7 @@ export function StreakLeaderboard() {
             const rank = index + 1;
             const isCurrentUser = entry.user_id === user?.id;
             const bgClass = rank === 1
-              ? 'bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-amber-500/30'
+              ? 'bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-primary/30'
               : rank === 2
                 ? 'bg-gradient-to-b from-slate-400/20 to-slate-400/5 border-slate-400/30'
                 : 'bg-gradient-to-b from-orange-600/20 to-orange-600/5 border-orange-600/30';
@@ -154,8 +154,8 @@ export function StreakLeaderboard() {
                   {streakDisplayName(entry)}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
-                  <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
-                  <span className="text-lg font-bold text-orange-500">{entry.streak}</span>
+                  <Flame className="w-4 h-4 text-primary animate-pulse" />
+                  <span className="text-lg font-bold text-primary">{entry.streak}</span>
                 </div>
                 <p className="text-[9px] text-muted-foreground">Best: {entry.longest_streak}d</p>
               </button>
@@ -197,7 +197,7 @@ export function StreakLeaderboard() {
                 <div className="flex items-center gap-1">
                   <Flame className={cn(
                     "w-3.5 h-3.5",
-                    entry.streak >= 7 ? "text-orange-500" : "text-orange-400/70"
+                    entry.streak >= 7 ? "text-primary" : "text-primary/70"
                   )} />
                   <span className="text-sm font-bold text-foreground">{entry.streak}</span>
                 </div>

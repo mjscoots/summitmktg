@@ -19,12 +19,12 @@ const MANAGER_ACTIONS: QuickAction[] = [
 ];
 
 const COLOR_MAP: Record<string, { text: string; border: string; bg: string; hoverBorder: string }> = {
-  orange:  { text: 'text-orange-400',  border: 'border-orange-500/20',  bg: 'bg-orange-500/5',  hoverBorder: 'hover:border-orange-500/50' },
+  orange:  { text: 'text-primary',  border: 'border-primary/20',  bg: 'bg-primary/5',  hoverBorder: 'hover:border-primary/50' },
   blue:    { text: 'text-blue-400',    border: 'border-blue-500/20',    bg: 'bg-blue-500/5',    hoverBorder: 'hover:border-blue-500/50' },
-  emerald: { text: 'text-emerald-400', border: 'border-emerald-500/20', bg: 'bg-emerald-500/5', hoverBorder: 'hover:border-emerald-500/50' },
+  emerald: { text: 'text-primary', border: 'border-primary/20', bg: 'bg-primary/5', hoverBorder: 'hover:border-primary/50' },
   cyan:    { text: 'text-cyan-400',    border: 'border-cyan-500/20',    bg: 'bg-cyan-500/5',    hoverBorder: 'hover:border-cyan-500/50' },
-  amber:   { text: 'text-amber-400',   border: 'border-amber-500/20',   bg: 'bg-amber-500/5',   hoverBorder: 'hover:border-amber-500/50' },
-  purple:  { text: 'text-purple-400',  border: 'border-purple-500/20',  bg: 'bg-purple-500/5',  hoverBorder: 'hover:border-purple-500/50' },
+  amber:   { text: 'text-primary',   border: 'border-primary/20',   bg: 'bg-primary/5',   hoverBorder: 'hover:border-primary/50' },
+  purple:  { text: 'text-primary',  border: 'border-purple-500/20',  bg: 'bg-purple-500/5',  hoverBorder: 'hover:border-purple-500/50' },
 };
 
 export function QuickActions() {

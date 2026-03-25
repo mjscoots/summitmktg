@@ -405,14 +405,14 @@ export default function TeamPage() {
           </div>
 
           {/* Role dot */}
-          <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-green-500")} />
+          <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-primary")} />
 
           {/* Name - clickable */}
           <button
             onClick={() => handleMemberClick(node.member)}
             className={cn(
               "font-medium text-sm hover:underline text-left",
-              isNLC ? "text-muted-foreground line-through" : isVeteran ? "text-primary" : "text-green-400"
+              isNLC ? "text-muted-foreground line-through" : isVeteran ? "text-primary" : "text-primary"
             )}
           >
             {getDisplayName(node.member.full_name)}
@@ -421,7 +421,7 @@ export default function TeamPage() {
           {/* Role badge */}
           <span className={cn(
             "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide",
-            isVeteran ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400"
+            isVeteran ? "bg-primary/20 text-primary" : "bg-primary/20 text-primary"
           )}>
             {isVeteran ? 'Manager' : 'Rookie'}
           </span>
@@ -598,7 +598,7 @@ export default function TeamPage() {
                 <span className="text-muted-foreground">Manager / Veteran</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <div className="w-3 h-3 rounded-full bg-primary" />
                 <span className="text-muted-foreground">Rookie</span>
               </div>
             </div>
@@ -684,9 +684,9 @@ export default function TeamPage() {
                     {filteredMembers.map(member => {
                       const progress = getProgress(member.user_id);
                       const isVeteran = member.role === 'manager' || member.role === 'admin' || member.role === 'owner';
-                      const progressColor = progress.percentage >= 100 ? 'text-green-400' :
+                      const progressColor = progress.percentage >= 100 ? 'text-primary' :
                         progress.percentage >= 71 ? 'text-primary' :
-                        progress.percentage >= 41 ? 'text-yellow-500' : 'text-destructive';
+                        progress.percentage >= 41 ? 'text-primary' : 'text-destructive';
 
                       return (
                         <tr
@@ -696,14 +696,14 @@ export default function TeamPage() {
                         >
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2.5">
-                              <div className={cn("w-2 h-2 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-green-500")} />
+                              <div className={cn("w-2 h-2 rounded-full flex-shrink-0", isVeteran ? "bg-primary" : "bg-primary")} />
                               <span className="font-medium text-foreground">{getDisplayName(member.full_name)}</span>
                             </div>
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn(
                               "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide",
-                              isVeteran ? "bg-primary/20 text-primary" : "bg-green-500/20 text-green-400"
+                              isVeteran ? "bg-primary/20 text-primary" : "bg-primary/20 text-primary"
                             )}>
                               {member.role === 'admin' ? 'Admin' : isVeteran ? 'Manager' : 'Rookie'}
                             </span>
@@ -714,9 +714,9 @@ export default function TeamPage() {
                               <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                                 <div
                                   className={cn("h-full rounded-full transition-all", 
-                                    progress.percentage >= 100 ? "bg-green-400" :
+                                    progress.percentage >= 100 ? "bg-primary" :
                                     progress.percentage >= 71 ? "bg-primary" :
-                                    progress.percentage >= 41 ? "bg-yellow-500" : "bg-destructive"
+                                    progress.percentage >= 41 ? "bg-primary" : "bg-destructive"
                                   )}
                                   style={{ width: `${Math.min(progress.percentage, 100)}%` }}
                                 />
@@ -741,9 +741,9 @@ export default function TeamPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1.5">
                               {member.is_active_now && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                               )}
-                              <span className={cn("text-xs", member.is_active_now ? "text-green-400 font-medium" : "text-muted-foreground")}>
+                              <span className={cn("text-xs", member.is_active_now ? "text-primary font-medium" : "text-muted-foreground")}>
                                 {getLastActive(member.last_active_at, member.is_active_now)}
                               </span>
                             </div>

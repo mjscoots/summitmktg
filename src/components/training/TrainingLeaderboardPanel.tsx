@@ -20,7 +20,7 @@ function displayName(entry: LeaderboardEntry) {
 const BADGE_ICONS: Record<string, React.ReactNode> = {
   bronze: <Shield className="w-3.5 h-3.5 text-amber-600" />,
   silver: <Award className="w-3.5 h-3.5 text-slate-300" />,
-  gold: <Star className="w-3.5 h-3.5 text-yellow-400" />,
+  gold: <Star className="w-3.5 h-3.5 text-primary" />,
   summit: <Mountain className="w-3.5 h-3.5 text-primary" />,
 };
 
@@ -94,7 +94,7 @@ export function TrainingLeaderboardPanel() {
               {/* Rank */}
               <span className={cn(
                 "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0",
-                rank === 1 ? "bg-yellow-400/20 text-yellow-400" :
+                rank === 1 ? "bg-primary/20 text-primary" :
                 rank === 2 ? "bg-slate-300/20 text-slate-300" :
                 rank === 3 ? "bg-amber-600/20 text-amber-600" :
                 "bg-muted text-muted-foreground"

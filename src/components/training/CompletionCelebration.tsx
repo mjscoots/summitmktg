@@ -78,11 +78,11 @@ export function CompletionCelebration({ percentage }: CompletionCelebrationProps
             <Mountain className="w-12 h-12 text-primary" />
           </div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-400" />
+            <Sparkles className="w-5 h-5 text-primary" />
             <h2 className="text-2xl font-black text-foreground tracking-tight">
               CONGRATULATIONS
             </h2>
-            <Sparkles className="w-5 h-5 text-yellow-400" />
+            <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <p className="text-muted-foreground text-sm max-w-xs">
             You've completed The Academy. Your dedication sets you apart.

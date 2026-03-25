@@ -31,7 +31,7 @@ export function NextRankPush({ pointsToNext, rivalName, currentRank }: NextRankP
   }
   const lessonsNeeded = Math.ceil(pointsToNext / 60);
   if (lessonsNeeded <= 5) {
-    actions.push({ icon: <BookOpen className="w-3.5 h-3.5 text-green-400" />, label: `${lessonsNeeded} lessons`, points: lessonsNeeded * 60 });
+    actions.push({ icon: <BookOpen className="w-3.5 h-3.5 text-primary" />, label: `${lessonsNeeded} lessons`, points: lessonsNeeded * 60 });
   }
 
   return (

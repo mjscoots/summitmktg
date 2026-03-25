@@ -100,7 +100,7 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg border-orange-500/20" style={{ background: 'hsl(220 20% 8%)' }}>
+      <DialogContent className="max-w-lg border-primary/20" style={{ background: 'hsl(220 20% 8%)' }}>
         <DialogHeader>
           <DialogTitle className="text-foreground">{post ? 'Edit Announcement' : 'New Announcement'}</DialogTitle>
         </DialogHeader>
@@ -121,7 +121,7 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(c => (
                 <button key={c.value} onClick={() => setCategory(c.value)}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all ${category === c.value ? 'border-orange-500/40 text-orange-300' : 'border-border/30 text-muted-foreground hover:text-foreground'}`}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all ${category === c.value ? 'border-primary/40 text-primary/80' : 'border-border/30 text-muted-foreground hover:text-foreground'}`}
                   style={category === c.value ? { background: 'hsl(25 95% 53% / 0.12)' } : {}}
                 >
                   {c.label}

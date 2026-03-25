@@ -328,7 +328,7 @@ export default function TrainingCoursePage() {
             onClick={() => navigate('/app/training')}
             className={cn(
               "hover:underline",
-              isRookieCourse ? "text-green-400" : "text-blue-400"
+              isRookieCourse ? "text-primary" : "text-blue-400"
             )}
           >
             Back to Training
@@ -353,14 +353,14 @@ export default function TrainingCoursePage() {
             <span className={cn(
               "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border",
               isRookieCourse 
-                ? "bg-green-500/15 text-green-400 border-green-500/30"
+                ? "bg-primary/15 text-primary border-primary/30"
                 : "bg-blue-500/15 text-blue-400 border-blue-500/30"
             )}>
               {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
             </span>
             {/* Manual re-read counter badge */}
             {isManualCourse && manualReadCount > 0 && (
-              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 font-bold text-xs">
+              <Badge className="bg-primary/15 text-primary border-primary/30 font-bold text-xs">
                 <RotateCcw className="w-3 h-3 mr-1" />
                 {manualReadCount}x Read
               </Badge>
@@ -376,14 +376,14 @@ export default function TrainingCoursePage() {
               <span className="text-sm text-muted-foreground">Overall Progress</span>
               <span className={cn(
                 "text-sm font-medium",
-                isRookieCourse ? "text-green-400" : "text-blue-400"
+                isRookieCourse ? "text-primary" : "text-blue-400"
               )}>{overallProgress}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div 
                 className={cn(
                   "h-full rounded-full transition-all",
-                  isRookieCourse ? "bg-green-500" : "bg-blue-500"
+                  isRookieCourse ? "bg-primary" : "bg-blue-500"
                 )}
                 style={{ width: `${overallProgress}%` }}
               />
@@ -437,10 +437,10 @@ export default function TrainingCoursePage() {
                       ? 'border-border/50 opacity-60'
                       : isCurrentModule
                         ? isRookieCourse
-                          ? 'border-green-500/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
+                          ? 'border-primary/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
                           : 'border-blue-500/50 ring-1 ring-blue-500/20 shadow-[0_0_15px_-5px_rgba(59,130,246,0.15)]'
                         : isRookieCourse
-                          ? 'border-border hover:border-green-500/30'
+                          ? 'border-border hover:border-primary/30'
                           : 'border-border hover:border-blue-500/30'
                 )}
               >
@@ -461,7 +461,7 @@ export default function TrainingCoursePage() {
                         isModuleComplete
                           ? "text-muted-foreground bg-muted/50"
                           : isRookieCourse 
-                            ? "text-green-400 bg-green-500/10"
+                            ? "text-primary bg-primary/10"
                             : "text-blue-400 bg-blue-500/10"
                       )}>
                         {isModuleComplete ? '✓' : `Chapter ${moduleIndex + 1}`}
@@ -474,7 +474,7 @@ export default function TrainingCoursePage() {
                         <span className={cn(
                           "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse",
                           isRookieCourse 
-                            ? "bg-green-500/15 text-green-400"
+                            ? "bg-primary/15 text-primary"
                             : "bg-blue-500/15 text-blue-400"
                         )}>
                           CONTINUE
@@ -491,7 +491,7 @@ export default function TrainingCoursePage() {
                           "w-4 h-4 transition-transform duration-200",
                           isExpanded && "rotate-90",
                           isCurrentModule 
-                            ? isRookieCourse ? "text-green-400" : "text-blue-400"
+                            ? isRookieCourse ? "text-primary" : "text-blue-400"
                             : "text-muted-foreground"
                         )} />
                       )}
@@ -532,7 +532,7 @@ export default function TrainingCoursePage() {
                                 ? cn(
                                     'cursor-pointer',
                                     isRookieCourse 
-                                      ? 'bg-green-500/5 hover:bg-green-500/10' 
+                                      ? 'bg-primary/5 hover:bg-primary/10' 
                                       : 'bg-blue-500/5 hover:bg-blue-500/10'
                                   )
                                 : 'hover:bg-muted/50 cursor-pointer'
@@ -546,12 +546,12 @@ export default function TrainingCoursePage() {
                           ) : isCurrentLesson ? (
                             <PlayCircle className={cn(
                               "w-5 h-5 flex-shrink-0 animate-pulse",
-                              isRookieCourse ? "text-green-400" : "text-blue-400"
+                              isRookieCourse ? "text-primary" : "text-blue-400"
                             )} />
                           ) : (
                             <PlayCircle className={cn(
                               "w-5 h-5 flex-shrink-0",
-                              isRookieCourse ? "text-green-400/60" : "text-blue-400/60"
+                              isRookieCourse ? "text-primary/60" : "text-blue-400/60"
                             )} />
                           )}
                           <span className={cn(
@@ -571,12 +571,12 @@ export default function TrainingCoursePage() {
                             <span className={cn(
                               "text-[10px] font-medium px-1.5 py-0.5 rounded-full ml-1",
                               lesson.pitch_status === 'approved'
-                                ? "bg-green-500/15 text-green-500"
+                                ? "bg-primary/15 text-primary"
                                 : lesson.pitch_status === 'pending'
-                                  ? "bg-amber-500/15 text-amber-500"
+                                  ? "bg-primary/15 text-primary"
                                   : lesson.pitch_status === 'rejected'
                                     ? "bg-destructive/15 text-destructive"
-                                    : "bg-amber-500/15 text-amber-500"
+                                    : "bg-primary/15 text-primary"
                             )}>
                               {lesson.pitch_status === 'approved' ? '🎤 Approved' 
                                 : lesson.pitch_status === 'pending' ? '🎤 Pending'
@@ -599,7 +599,7 @@ export default function TrainingCoursePage() {
                             <ChevronRight className={cn(
                               "w-4 h-4",
                               isCurrentLesson 
-                                ? isRookieCourse ? "text-green-400" : "text-blue-400"
+                                ? isRookieCourse ? "text-primary" : "text-blue-400"
                                 : "text-muted-foreground"
                             )} />
                           )}

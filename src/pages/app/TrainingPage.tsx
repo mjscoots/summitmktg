@@ -118,16 +118,16 @@ export default function TrainingPage() {
             onClick={() => navigate('/app/videos')}
             className="group w-full mt-6 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
           >
-            <div className="p-3.5 rounded-xl bg-rose-500/15 text-rose-400 group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
+            <div className="p-3.5 rounded-xl bg-rose-500/15 text-primary group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
               <Play className="w-7 h-7" fill="currentColor" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-foreground group-hover:text-rose-400 transition-colors">
+              <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                 Sales Training Videos
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">Watch training videos, walkthroughs, and recorded sessions</p>
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-rose-400 transition-colors flex-shrink-0" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
           </button>
 
           <div className="mt-6">
@@ -164,7 +164,7 @@ export default function TrainingPage() {
               <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
               <div className="absolute inset-0 bg-gradient-to-br from-success/8 via-transparent to-success/3 pointer-events-none rounded-xl" />
               <div className="absolute top-3 right-3">
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30">
                   SALES
                 </span>
               </div>
@@ -207,16 +207,16 @@ export default function TrainingPage() {
             onClick={() => navigate('/app/videos')}
             className="group w-full mt-5 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
           >
-            <div className="p-3.5 rounded-xl bg-rose-500/15 text-rose-400 group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
+            <div className="p-3.5 rounded-xl bg-rose-500/15 text-primary group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
               <Play className="w-7 h-7" fill="currentColor" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-foreground group-hover:text-rose-400 transition-colors">
+              <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                 Sales Training Videos
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">Watch training videos, walkthroughs, and recorded sessions</p>
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-rose-400 transition-colors flex-shrink-0" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
           </button>
         </div>
       </AppLayout>

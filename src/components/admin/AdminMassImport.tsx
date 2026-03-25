@@ -997,7 +997,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
               {LOADING_STEPS.map((step, i) => (
                 <div key={step} className="flex items-center gap-2">
                   {i < loadingStep ? (
-                    <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
                   ) : i === loadingStep ? (
                     <Loader2 className="w-4 h-4 text-primary animate-spin flex-shrink-0" />
                   ) : (
@@ -1005,7 +1005,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                   )}
                   <span className={cn(
                     'text-xs',
-                    i < loadingStep ? 'text-green-400' : i === loadingStep ? 'text-foreground font-medium' : 'text-muted-foreground'
+                    i < loadingStep ? 'text-primary' : i === loadingStep ? 'text-foreground font-medium' : 'text-muted-foreground'
                   )}>{step}</span>
                 </div>
               ))}

@@ -11,7 +11,7 @@ export function getMessageHighlight(reactionCount: number): {
 } {
   if (reactionCount >= 15) {
     return {
-      className: 'ring-1 ring-amber-500/40 bg-amber-500/[0.03] rounded-lg',
+      className: 'ring-1 ring-amber-500/40 bg-primary/[0.03] rounded-lg',
       badge: '⭐ Top Insight',
       isHot: true,
     };

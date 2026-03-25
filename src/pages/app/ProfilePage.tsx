@@ -46,7 +46,7 @@ function PointsCard() {
   return (
     <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-yellow-500" />
+        <Trophy className="w-4 h-4 text-primary" />
         <h3 className="font-semibold text-foreground text-sm">Points Card</h3>
       </div>
 
@@ -63,7 +63,7 @@ function PointsCard() {
 
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="p-2 rounded-lg bg-muted/30">
-          <Flame className={cn("w-3.5 h-3.5 mx-auto mb-0.5", data.currentStreak >= 7 ? "text-orange-500" : "text-orange-400/70")} />
+          <Flame className={cn("w-3.5 h-3.5 mx-auto mb-0.5", data.currentStreak >= 7 ? "text-primary" : "text-primary/70")} />
           <p className="text-xs font-bold">{data.currentStreak}d</p>
           <p className="text-[9px] text-muted-foreground">Streak</p>
         </div>
@@ -358,12 +358,12 @@ export default function ProfilePage() {
               ) : (
                 <div className={cn(
                   "w-20 h-20 rounded-full flex items-center justify-center",
-                  isManager ? "bg-blue-500/15" : "bg-green-500/15",
+                  isManager ? "bg-blue-500/15" : "bg-primary/15",
                   getTierBorderClass(systemPct)
                 )}>
                   <User className={cn(
                     "w-8 h-8",
-                    isManager ? "text-blue-400" : "text-green-400"
+                    isManager ? "text-blue-400" : "text-primary"
                   )} />
                 </div>
               )}
@@ -387,7 +387,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2 mt-1">
                 <span className={cn(
                   "text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                  isManager ? "bg-blue-500/15 text-blue-400" : "bg-green-500/15 text-green-400"
+                  isManager ? "bg-blue-500/15 text-blue-400" : "bg-primary/15 text-primary"
                 )}>
                   {isManager ? 'MANAGER' : 'ROOKIE'}
                 </span>

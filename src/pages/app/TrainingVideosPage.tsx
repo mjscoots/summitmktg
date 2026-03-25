@@ -265,8 +265,8 @@ export default function TrainingVideosPage() {
                 onClick={() => setActiveGroup('bookmarks')}
                 className="w-full flex items-center gap-3 p-4 mb-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all group"
               >
-                <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                  <Bookmark className="w-5 h-5 text-yellow-500" />
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Bookmark className="w-5 h-5 text-primary" />
                 </div>
                 <div className="text-left flex-1">
                   <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">Bookmarked Videos</p>
@@ -294,13 +294,13 @@ export default function TrainingVideosPage() {
                     className={cn(
                       "text-left p-5 rounded-xl border transition-all group",
                       "bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
-                      isBonus ? "border-yellow-500/20" : "border-border"
+                      isBonus ? "border-primary/20" : "border-border"
                     )}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <span className="text-2xl">{group.icon}</span>
                       {isBonus && (
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 uppercase tracking-wider">
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">
                           Optional
                         </span>
                       )}
@@ -373,7 +373,7 @@ export default function TrainingVideosPage() {
               All Categories
             </button>
             <div className="flex items-center gap-3 mb-5">
-              <Bookmark className="w-5 h-5 text-yellow-500" />
+              <Bookmark className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Bookmarked Videos</h2>
             </div>
             {videos.filter(v => bookmarkedIds.has(v.id)).length === 0 ? (

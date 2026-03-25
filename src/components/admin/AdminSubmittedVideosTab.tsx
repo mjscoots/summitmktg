@@ -231,7 +231,7 @@ export default function AdminSubmittedVideosTab() {
                               if (!done) return null; // Only show completed items
                               return (
                                 <div key={label} className="flex items-center gap-1.5 text-[11px]">
-                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                  <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
                                   <span className="text-foreground">{label}</span>
                                 </div>
                               );

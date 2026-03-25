@@ -338,7 +338,7 @@ export default function HierarchySyncTab({
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="p-4 bg-card/50 rounded-xl border border-border/30 text-center">
-          <CheckCircle className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
+          <CheckCircle className="w-5 h-5 text-primary mx-auto mb-1" />
           <p className="text-2xl font-bold text-foreground">{stats.alreadyCorrect}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Already Correct</p>
         </div>
@@ -348,7 +348,7 @@ export default function HierarchySyncTab({
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Auto-Resolvable</p>
         </div>
         <div className="p-4 bg-card/50 rounded-xl border border-border/30 text-center">
-          <AlertTriangle className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+          <AlertTriangle className="w-5 h-5 text-primary mx-auto mb-1" />
           <p className="text-2xl font-bold text-foreground">{stats.unresolvable}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Needs Manual Fix</p>
         </div>
@@ -385,7 +385,7 @@ export default function HierarchySyncTab({
       {/* Unresolved List */}
       {unresolved.length === 0 ? (
         <div className="text-center py-16">
-          <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
+          <CheckCircle className="w-10 h-10 text-primary mx-auto mb-3" />
           <p className="text-sm font-medium text-foreground">All hierarchy resolved</p>
           <p className="text-xs text-muted-foreground mt-1">
             Every person is connected to a manager chain
@@ -394,7 +394,7 @@ export default function HierarchySyncTab({
       ) : (
         <div className="space-y-2">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <AlertTriangle className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-bold text-foreground">
               Unresolved ({unresolved.length})
             </h3>
@@ -416,7 +416,7 @@ export default function HierarchySyncTab({
                   <p className="text-sm font-semibold text-foreground truncate">
                     {item.profile.full_name}
                   </p>
-                  <p className="text-[10px] text-amber-400">{item.reason}</p>
+                  <p className="text-[10px] text-primary">{item.reason}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-muted-foreground">Current Team</p>
@@ -425,10 +425,10 @@ export default function HierarchySyncTab({
               </div>
 
               {item.suggestedManager && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg">
+                  <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   <span className="text-xs text-muted-foreground">Suggested:</span>
-                  <span className="text-xs font-medium text-emerald-400">
+                  <span className="text-xs font-medium text-primary">
                     {item.suggestedManager}
                   </span>
                   {item.suggestedTeam && (
@@ -442,7 +442,7 @@ export default function HierarchySyncTab({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="ml-auto h-6 text-[10px] gap-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                    className="ml-auto h-6 text-[10px] gap-1 border-primary/30 text-primary hover:bg-primary/10"
                     disabled={saving.has(item.profile.user_id)}
                     onClick={() => handleSaveOne(item.profile.user_id, item.suggestedManager!)}
                   >

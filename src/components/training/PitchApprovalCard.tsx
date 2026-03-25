@@ -92,14 +92,14 @@ export function PitchApprovalCard({
           "rounded-xl border-2 border-dashed p-5 mt-4",
           status === 'rejected'
             ? "border-destructive/40 bg-destructive/5"
-            : "border-amber-500/40 bg-amber-500/5"
+            : "border-primary/40 bg-primary/5"
         )}>
           <div className="flex items-start gap-3 mb-4">
             <div className={cn(
               "p-2 rounded-lg",
-              status === 'rejected' ? "bg-destructive/10" : "bg-amber-500/10"
+              status === 'rejected' ? "bg-destructive/10" : "bg-primary/10"
             )}>
-              <Mic className={cn("w-5 h-5", status === 'rejected' ? "text-destructive" : "text-amber-500")} />
+              <Mic className={cn("w-5 h-5", status === 'rejected' ? "text-destructive" : "text-primary")} />
             </div>
             <div>
               <h3 className={cn(
@@ -143,7 +143,7 @@ export function PitchApprovalCard({
               <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Requirements:</p>
               {requirements.map((req, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <CheckCircle2 className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
                   <span>{req}</span>
                 </div>
               ))}
@@ -155,7 +155,7 @@ export function PitchApprovalCard({
               onClick={() => setShowRecording(true)}
               className={cn(
                 "gap-2 font-semibold flex-1",
-                isRookieCourse ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"
+                isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
               )}
             >
               <Mic className="w-4 h-4" />
@@ -179,10 +179,10 @@ export function PitchApprovalCard({
   // Pending approval
   if (status === 'pending') {
     return (
-      <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/5 p-5 mt-4">
+      <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-5 mt-4">
         <div className="flex items-start gap-3 mb-3">
-          <div className="p-2 rounded-lg bg-amber-500/10">
-            <Clock className="w-5 h-5 text-amber-500" />
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Clock className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h3 className="font-bold text-sm text-amber-600">🎤 PITCH SUBMITTED — AWAITING APPROVAL</h3>
@@ -214,7 +214,7 @@ export function PitchApprovalCard({
           </Button>
         </div>
 
-        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+        <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
           <p className="text-xs font-semibold text-amber-600">⚠️ MODULE LOCKED</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             You cannot progress to the next module until your pitch is approved.
@@ -237,11 +237,11 @@ export function PitchApprovalCard({
   // Approved
   if (status === 'approved') {
     return (
-      <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-4 mt-4">
+      <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 mt-4">
         <div className="flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-green-500" />
+          <CheckCircle2 className="w-5 h-5 text-primary" />
           <div>
-            <h3 className="font-bold text-sm text-green-500">✅ PITCH APPROVED</h3>
+            <h3 className="font-bold text-sm text-primary">✅ PITCH APPROVED</h3>
             <p className="text-xs text-muted-foreground">
               Approved by {managerName || 'manager'} on{' '}
               {pitchRequest.reviewed_at && format(new Date(pitchRequest.reviewed_at), 'MMM d, yyyy')}
