@@ -189,6 +189,88 @@ export default function TrainingCoursePage() {
     fetchCourseData();
   }, [courseSlug, user, navigate]);
 
+  // Manual re-read tracking for summer-sales-manual
+  const isManualCourse = courseSlug === 'summer-sales-manual';
+  
+  const handleManualRereadComplete = useCallback(async () => {
+    if (!user || !isManualCourse) return;
+    
+    // Record new completion
+    const newCount = manualReadCount + 1;
+    await supabase.from('manual_read_completions').insert({
+      user_id: user.id,
+      course_slug: 'summer-sales-manual',
+      completion_number: newCount,
+    });
+    
+    // Reset all lesson progress for this course's lessons
+    const allLessonIds = modules.flatMap(m => m.lessons.map(l => l.id));
+    if (allLessonIds.length > 0) {
+      for (const lid of allLessonIds) {
+        await supabase
+          .from('lesson_progress')
+          .update({ completed_at: null, quiz_passed: false, quiz_score: null })
+          .eq('user_id', user.id)
+          .eq('lesson_id', lid);
+      }
+    }
+    
+    setManualReadCount(newCount);
+    setShowRereadCelebration(true);
+    toast.success(`Manual completed for the ${newCount}${newCount === 1 ? 'st' : newCount === 2 ? 'nd' : newCount === 3 ? 'rd' : 'th'} time! 🎉`);
+    
+    // Reload page to show reset progress
+    window.location.reload();
+  }, [user, isManualCourse, manualReadCount, modules]);
+
+  // Fetch manual read count and check for completion
+  useEffect(() => {
+    if (!user || !isManualCourse) return;
+    
+    const fetchReadCount = async () => {
+      const { data } = await supabase
+        .from('manual_read_completions')
+        .select('completion_number')
+        .eq('user_id', user.id)
+        .eq('course_slug', 'summer-sales-manual')
+        .order('completion_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      setManualReadCount(data?.completion_number || 0);
+    };
+    
+    fetchReadCount();
+  }, [user, isManualCourse]);
+
+  // Check if manual course just hit 100% and auto-trigger re-read
+  useEffect(() => {
+    if (!isManualCourse || overallProgress !== 100 || modules.length === 0 || !user) return;
+    
+    // Check if this completion was already recorded
+    const checkAndRecord = async () => {
+      const { data } = await supabase
+        .from('manual_read_completions')
+        .select('completion_number')
+        .eq('user_id', user.id)
+        .eq('course_slug', 'summer-sales-manual')
+        .order('completion_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      const currentCount = data?.completion_number || 0;
+      
+      // Only auto-complete if progress is 100% and we haven't recorded it yet
+      // We use a simple heuristic: if all lessons show completed but count hasn't incremented
+      const allComplete = modules.every(m => m.lessons.every(l => l.quiz_passed));
+      if (allComplete && currentCount === manualReadCount) {
+        handleManualRereadComplete();
+      }
+    };
+    
+    checkAndRecord();
+  }, [overallProgress, isManualCourse, modules, user]);
+
   const handleEditLesson = async (lessonId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const { data } = await supabase
