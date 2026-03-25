@@ -11,97 +11,103 @@ html, body, #root {
 
 @layer base {
   :root {
-    /* Deep premium background — #06070B */
-    --background: 228 30% 3%;
-    --foreground: 0 0% 100%;
+    /* ━━━ BRAND COLOR SYSTEM ━━━ */
+    /* --color-bg-primary: #080C14 */
+    --background: 216 30% 5%;
+    --foreground: 223 100% 97%;
 
-    /* Glass card — translucent */
-    --card: 230 20% 8%;
-    --card-foreground: 0 0% 100%;
+    /* --color-bg-secondary: #0D1526 */
+    --card: 220 40% 10%;
+    --card-foreground: 223 100% 97%;
 
-    /* Popover */
-    --popover: 230 20% 8%;
-    --popover-foreground: 0 0% 100%;
+    /* Popover matches card */
+    --popover: 220 40% 10%;
+    --popover-foreground: 223 100% 97%;
 
-    /* Primary — Blue accent #3B82F6 */
-    --primary: 217 91% 60%;
+    /* --color-accent-blue: #1B6CF2 */
+    --primary: 216 89% 53%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary — Dark panel */
-    --secondary: 228 20% 10%;
-    --secondary-foreground: 0 0% 90%;
+    /* Secondary — --color-bg-tertiary: #111D35 */
+    --secondary: 218 46% 14%;
+    --secondary-foreground: 223 100% 97%;
 
-    /* Muted — Subtle dark */
-    --muted: 228 18% 12%;
-    --muted-foreground: 220 10% 52%;
+    /* Muted */
+    --muted: 218 46% 14%;
+    --muted-foreground: 217 25% 50%;
 
-    /* Accent — Purple #7C3AED */
-    --accent: 263 84% 58%;
+    /* Accent — same as primary (no purple) */
+    --accent: 216 89% 53%;
     --accent-foreground: 0 0% 100%;
 
-    /* Destructive */
-    --destructive: 0 72% 51%;
+    /* Destructive — mandatory red only */
+    --destructive: 4 72% 46%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success */
-    --success: 142 70% 45%;
+    /* Success — blue-based, NOT green */
+    --success: 210 55% 50%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning — Gold #F59E0B */
-    --warning: 43 96% 56%;
-    --warning-foreground: 0 0% 0%;
+    /* Warning — kept subtle */
+    --warning: 210 55% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    /* Borders — Very subtle glass edge */
-    --border: 228 15% 14%;
-    --input: 228 18% 9%;
-    --ring: 217 91% 60%;
+    /* --color-border: #1E2D4A */
+    --border: 217 44% 20%;
+    --input: 220 40% 10%;
+    --ring: 216 89% 53%;
 
     --radius: 0.75rem;
 
-    /* Role accent colors */
-    --rookie-accent: 142 70% 45%;
-    --rookie-glow: 142 70% 45%;
-    --manager-accent: 217 91% 60%;
-    --manager-glow: 217 91% 60%;
+    /* Role accent colors — all blue now */
+    --rookie-accent: 216 89% 53%;
+    --rookie-glow: 216 89% 53%;
+    --manager-accent: 216 89% 53%;
+    --manager-glow: 216 89% 53%;
 
     /* Glass design tokens */
-    --glass-bg: 230 20% 7% / 0.6;
-    --glass-border: 0 0% 100% / 0.06;
-    --glass-glow: 217 91% 60% / 0.08;
+    --glass-bg: 220 40% 10% / 0.6;
+    --glass-border: 217 44% 20%;
+    --glass-glow: 216 89% 53% / 0.08;
 
-    /* Gradient tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(263 84% 58%));
-    --gradient-gold: linear-gradient(135deg, hsl(43 96% 56%), hsl(24 94% 53%));
-    --gradient-surface: linear-gradient(180deg, hsl(230 20% 9%), hsl(230 20% 7%));
+    /* Gradient tokens — cool blue only */
+    --gradient-primary: linear-gradient(135deg, hsl(216 89% 53%), hsl(216 70% 62%));
+    --gradient-gold: linear-gradient(135deg, hsl(216 89% 53%), hsl(216 70% 62%));
+    --gradient-surface: linear-gradient(135deg, hsl(220 40% 10%), hsl(218 46% 14%));
 
-    /* Sidebar — Deeper than body */
-    --sidebar-background: 228 30% 2.5%;
+    /* Sidebar — deepest black #060A10 */
+    --sidebar-background: 216 40% 3%;
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 216 89% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 228 18% 8%;
+    --sidebar-accent: 218 46% 14%;
     --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 228 15% 10%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-border: 217 44% 15%;
+    --sidebar-ring: 216 89% 53%;
   }
 
-  /* Rookie theme */
+  /* Rookie theme — same blue */
   .theme-rookie {
-    --primary: 142 70% 45%;
-    --accent: 142 70% 45%;
-    --ring: 142 70% 45%;
+    --primary: 216 89% 53%;
+    --accent: 216 89% 53%;
+    --ring: 216 89% 53%;
   }
 
-  /* Manager theme */
+  /* Manager theme — same blue */
   .theme-manager {
-    --primary: 217 91% 60%;
-    --accent: 217 91% 60%;
-    --ring: 217 91% 60%;
+    --primary: 216 89% 53%;
+    --accent: 216 89% 53%;
+    --ring: 216 89% 53%;
   }
 
   .dark {
-    --background: 228 30% 3%;
-    --foreground: 0 0% 98%;
+    --background: 216 30% 5%;
+    --foreground: 223 100% 97%;
+  }
+
+  .light {
+    --background: 216 30% 5%;
+    --foreground: 223 100% 97%;
   }
 }
 
@@ -134,14 +140,35 @@ html, body, #root {
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
-    color: hsl(0 0% 97%);
+    @apply tracking-tight;
+    font-weight: 700;
+    color: hsl(223 100% 97%);
   }
 
   h1 { @apply text-3xl; }
   h2 { @apply text-2xl; }
   h3 { @apply text-xl; }
   p, li { line-height: 1.65; }
+
+  /* Scrollbar styling — thin, dark, blue thumb */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(216 89% 53% / 0.3) hsl(216 30% 5%);
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: hsl(216 30% 5%);
+  }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(216 89% 53% / 0.3);
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(216 89% 53% / 0.5);
+  }
 }
 
 @layer utilities {
@@ -168,14 +195,10 @@ html, body, #root {
 
   /* ━━━ GLASS CARD — Premium depth ━━━ */
   .glass-card {
-    background: var(--gradient-surface);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--glass-border));
-    box-shadow:
-      0 8px 32px -8px hsl(0 0% 0% / 0.5),
-      0 0 0 1px hsl(0 0% 100% / 0.02),
-      inset 0 1px 0 hsl(0 0% 100% / 0.04);
+    background: hsl(220 40% 10%);
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    box-shadow: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
   }
 
   .glass-card-hover {
@@ -183,11 +206,11 @@ html, body, #root {
   }
 
   .glass-card-hover:hover {
-    border-color: hsl(217 91% 60% / 0.25);
+    border-color: hsl(216 89% 53% / 0.25);
+    background: hsl(216 89% 53% / 0.04);
     box-shadow:
       0 16px 48px -8px hsl(0 0% 0% / 0.6),
-      0 0 24px -4px hsl(var(--glass-glow)),
-      inset 0 1px 0 hsl(0 0% 100% / 0.06);
+      0 0 16px -4px hsl(216 89% 53% / 0.15);
     transform: translateY(-2px);
   }
 
@@ -200,7 +223,7 @@ html, body, #root {
   }
 
   .gradient-text-gold {
-    background: var(--gradient-gold);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -213,10 +236,10 @@ html, body, #root {
   
   .card-hover:hover {
     @apply -translate-y-0.5;
-    border-color: hsl(217 91% 60% / 0.3);
+    border-color: hsl(216 89% 53% / 0.3);
     box-shadow:
-      0 8px 30px -12px hsl(217 91% 60% / 0.25),
-      0 0 0 1px hsl(217 91% 60% / 0.08);
+      0 8px 30px -12px hsl(216 89% 53% / 0.25),
+      0 0 0 1px hsl(216 89% 53% / 0.08);
   }
 
   /* Training tile glow effects */
@@ -235,14 +258,14 @@ html, body, #root {
   }
 
   .rookie-glow {
-    box-shadow: 0 0 25px -8px hsl(142 70% 45% / 0.25);
+    box-shadow: 0 0 25px -8px hsl(216 89% 53% / 0.25);
   }
 
   .manager-glow {
-    box-shadow: 0 0 25px -8px hsl(217 91% 60% / 0.25);
+    box-shadow: 0 0 25px -8px hsl(216 89% 53% / 0.25);
   }
 
-  /* ━━━ AMBIENT ATMOSPHERE — Subtle cosmic glow ━━━ */
+  /* ━━━ AMBIENT ATMOSPHERE — Subtle blue glow ━━━ */
   .ambient-glow {
     position: relative;
   }
@@ -255,9 +278,9 @@ html, body, #root {
     width: 140%;
     height: 140%;
     background:
-      radial-gradient(ellipse at 20% 50%, hsl(217 91% 60% / 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, hsl(263 84% 58% / 0.035) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 80%, hsl(217 91% 60% / 0.02) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 50%, hsl(216 89% 53% / 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, hsl(216 70% 62% / 0.025) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, hsl(216 89% 53% / 0.015) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
     animation: ambient-shift 25s ease-in-out infinite;
@@ -319,11 +342,11 @@ html, body, #root {
     animation: progress-pulse 1s ease-in-out infinite;
   }
 
-  /* Task completion glow flash */
+  /* Task completion glow flash — blue */
   @keyframes task-complete-flash {
-    0% { box-shadow: 0 0 0 0 hsl(142 70% 45% / 0.4); }
-    50% { box-shadow: 0 0 16px -2px hsl(142 70% 45% / 0.3); }
-    100% { box-shadow: 0 0 0 0 hsl(142 70% 45% / 0); }
+    0% { box-shadow: 0 0 0 0 hsl(216 89% 53% / 0.4); }
+    50% { box-shadow: 0 0 16px -2px hsl(216 89% 53% / 0.3); }
+    100% { box-shadow: 0 0 0 0 hsl(216 89% 53% / 0); }
   }
 
   .task-complete-flash {
@@ -353,14 +376,14 @@ html, body, #root {
     width: 3px;
     border-radius: 9999px;
   }
-  .mission-bar-urgent::before { background: hsl(270 80% 60%); box-shadow: 0 0 8px hsl(270 80% 60% / 0.5); }
-  .mission-bar-high::before { background: hsl(270 70% 55%); box-shadow: 0 0 6px hsl(270 70% 55% / 0.35); }
-  .mission-bar-medium::before { background: hsl(270 60% 50% / 0.7); }
-  .mission-bar-low::before { background: hsl(270 40% 45% / 0.4); }
+  .mission-bar-urgent::before { background: hsl(216 89% 53%); box-shadow: 0 0 8px hsl(216 89% 53% / 0.5); }
+  .mission-bar-high::before { background: hsl(216 70% 62%); box-shadow: 0 0 6px hsl(216 70% 62% / 0.35); }
+  .mission-bar-medium::before { background: hsl(216 60% 55% / 0.7); }
+  .mission-bar-low::before { background: hsl(216 40% 50% / 0.4); }
 }
 
 @layer components {
-  /* ━━━ ELEVATED CARD — Glass ━━━ */
+  /* ━━━ ELEVATED CARD — Clean ━━━ */
   .card-elevated {
     @apply rounded-xl glass-card;
   }
@@ -368,11 +391,12 @@ html, body, #root {
   /* ━━━ PRIMARY BUTTON — Blue with glow ━━━ */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm text-primary-foreground transition-all duration-250;
-    background: var(--gradient-primary);
+    background: hsl(216 89% 53%);
+    box-shadow: 0 0 16px hsl(216 89% 53% / 0.3);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 0 28px -5px hsl(217 91% 60% / 0.45);
+    box-shadow: 0 0 28px -5px hsl(216 89% 53% / 0.45);
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
@@ -382,39 +406,40 @@ html, body, #root {
     filter: brightness(0.95);
   }
 
-  /* ━━━ SECONDARY BUTTON — Dark with blue border ━━━ */
+  /* ━━━ SECONDARY BUTTON — Ghost with border ━━━ */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-medium text-sm bg-secondary text-foreground transition-all duration-250;
-    border: 1px solid hsl(217 91% 60% / 0.25);
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-medium text-sm text-foreground transition-all duration-250;
+    background: transparent;
+    border: 1px solid hsl(var(--border));
   }
 
   .btn-secondary:hover {
-    border-color: hsl(217 91% 60% / 0.5);
-    background: hsl(217 91% 60% / 0.08);
+    border-color: hsl(216 89% 53% / 0.4);
+    background: hsl(218 46% 14%);
     transform: translateY(-1px);
-    box-shadow: 0 0 16px -6px hsl(217 91% 60% / 0.3);
   }
 
   /* Input field */
   .input-field {
-    @apply w-full rounded-lg bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-250;
-    border: 1px solid hsl(var(--glass-border));
+    @apply w-full rounded-lg px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-250;
+    background: hsl(220 40% 10%);
+    border: 1px solid hsl(var(--border));
   }
 
   .input-field:focus {
-    border-color: hsl(217 91% 60% / 0.4);
-    box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.1), 0 0 12px -4px hsl(217 91% 60% / 0.2);
+    border-color: hsl(216 89% 53% / 0.4);
+    box-shadow: 0 0 0 3px hsl(216 89% 53% / 0.1), 0 0 12px -4px hsl(216 89% 53% / 0.2);
   }
 
   /* Progress */
   .progress-track {
     @apply h-1.5 w-full rounded-full overflow-hidden;
-    background: hsl(228 18% 12%);
+    background: hsl(218 46% 14%);
   }
 
   .progress-fill {
     @apply h-full rounded-full transition-all duration-700 ease-out;
-    background: var(--gradient-primary);
+    background: hsl(216 70% 62%);
   }
 
   /* Status badges */
@@ -427,7 +452,7 @@ html, body, #root {
   }
 
   .status-complete {
-    @apply bg-success/15 text-success;
+    @apply bg-primary/15 text-primary;
   }
 
   /* ━━━ MODULE CARD — Premium progression feel ━━━ */
@@ -436,10 +461,10 @@ html, body, #root {
   }
 
   .module-card:hover {
-    border-color: hsl(217 91% 60% / 0.3);
+    border-color: hsl(216 89% 53% / 0.3);
     box-shadow:
-      0 12px 36px -12px hsl(217 91% 60% / 0.25),
-      0 0 0 1px hsl(217 91% 60% / 0.08);
+      0 12px 36px -12px hsl(216 89% 53% / 0.25),
+      0 0 0 1px hsl(216 89% 53% / 0.08);
     transform: translateY(-2px);
   }
 
@@ -450,18 +475,19 @@ html, body, #root {
 
   .tab-pill-active {
     @apply text-primary-foreground;
-    background: var(--gradient-primary);
-    box-shadow: 0 0 20px -5px hsl(217 91% 60% / 0.45);
+    background: hsl(216 89% 53%);
+    box-shadow: 0 0 20px -5px hsl(216 89% 53% / 0.45);
   }
 
   .tab-pill-inactive {
-    @apply bg-secondary text-muted-foreground hover:text-foreground;
-    border: 1px solid hsl(var(--glass-border));
+    @apply text-muted-foreground hover:text-foreground;
+    background: hsl(220 40% 10%);
+    border: 1px solid hsl(var(--border));
   }
 
   .tab-pill-inactive:hover {
-    border-color: hsl(217 91% 60% / 0.2);
-    box-shadow: 0 0 12px -6px hsl(217 91% 60% / 0.15);
+    border-color: hsl(216 89% 53% / 0.2);
+    background: hsl(218 46% 14%);
   }
 }
 
@@ -474,11 +500,11 @@ html, body, #root {
   display: none;
 }
 
-/* Post of the Day - golden glow */
+/* Post of the Day - blue glow instead of gold */
 @layer components {
   .post-of-the-day {
-    background: linear-gradient(135deg, hsl(45 80% 50% / 0.06), hsl(35 90% 45% / 0.03), transparent);
-    border-left: 2px solid hsl(45 80% 50% / 0.6);
+    background: linear-gradient(135deg, hsl(216 89% 53% / 0.06), hsl(216 70% 62% / 0.03), transparent);
+    border-left: 2px solid hsl(216 89% 53% / 0.6);
     position: relative;
   }
 
@@ -488,8 +514,8 @@ html, body, #root {
     inset: 0;
     border-radius: inherit;
     box-shadow:
-      inset 0 0 20px -8px hsl(45 80% 50% / 0.1),
-      0 0 15px -5px hsl(45 80% 50% / 0.08);
+      inset 0 0 20px -8px hsl(216 89% 53% / 0.1),
+      0 0 15px -5px hsl(216 89% 53% / 0.08);
     pointer-events: none;
     animation: potd-glow 3s ease-in-out infinite;
   }
@@ -498,7 +524,9 @@ html, body, #root {
     0%, 100% { opacity: 0.6; }
     50% { opacity: 1; }
   }
+}
 
+@layer components {
   @keyframes pulse-glow {
     0%, 90%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
     95% { box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.3); }
@@ -521,18 +549,13 @@ button, a, [role="button"] {
 
 /* Shadcn button upgrades */
 .inline-flex[class*="bg-primary"]:hover {
-  box-shadow: 0 0 20px -6px hsl(217 91% 60% / 0.35);
+  box-shadow: 0 0 20px -6px hsl(216 89% 53% / 0.35);
 }
 
 /* ━━━ MISSION BOARD — Premium container ━━━ */
 .mission-board-container {
-  background: linear-gradient(180deg, hsl(230 22% 9%), hsl(230 20% 6%));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(0 0% 100% / 0.06);
-  box-shadow:
-    0 12px 40px -12px hsl(0 0% 0% / 0.6),
-    0 0 0 1px hsl(0 0% 100% / 0.02),
-    inset 0 1px 0 hsl(0 0% 100% / 0.04),
-    inset 0 0 40px -20px hsl(217 91% 60% / 0.04);
+  background: linear-gradient(180deg, hsl(220 40% 10%), hsl(218 46% 14%));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow: 0 12px 40px -12px hsl(0 0% 0% / 0.6);
 }
