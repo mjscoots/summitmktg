@@ -1,63 +1,102 @@
 
 
-## Fix: Fake Approvals, All-Time Leaderboard, Calendar Polish
+# Plan: Slow Down Learn Your Pitch + Manual Re-Read Tracking
 
-### ISSUE 1 — Fake/Test Users in Approvals Queue
+## Problem Summary
 
-**Root cause**: Security scans created auth accounts via the signup flow. The `handle_new_user` trigger automatically sets `approved: false` for each, putting them in the pending approvals queue. All 32 records share identical patterns: name "New User", emails ending in `@example.invalid`, null phones.
+1. **Learn Your Pitch rushing**: Reps submit pitch videos and immediately move to the next lesson without waiting for manager approval. The pitch gate currently only blocks the *next module*, not the *next lesson*. Reps blow through the entire pitch course in minutes.
 
-**Fix (3 parts)**:
+2. **Summer Sales Manual re-reads**: Once the manual is completed, there's no incentive or tracking for re-reading it. You want a visible counter (1x, 2x, 3x...) showing how many times they've read through the manual, with continued point earning on each pass.
 
-1. **Database migration**: Auto-reject all existing fake records by setting `approved = NULL, status = 'rejected'` for profiles matching test patterns:
-   - `full_name = 'New User'`
-   - email containing `example.invalid`, `poc-`, `test-`, `inject`, `xss`, `sqli`, `rce`, `bypass`
-   - null phone with `@example.invalid` domain
+---
 
-2. **Frontend filter** in `AdminTeamPage.tsx`: Add a client-side filter so even if new test records appear before the next cleanup, they're excluded from the live approvals tab. Detection rules:
-   - Name is generic ("New User", "Test User")
-   - Email domain is `example.invalid` or contains test/security keywords
-   - Phone is null AND email contains suspicious patterns
+## Part 1: Slow Down Learn Your Pitch
 
-3. **Admin counts** in `useAdminCounts.ts`: Apply the same filter so the badge count excludes fake entries.
+### What Changes
 
-### ISSUE 2 — All-Time Leaderboard Empty State
+**Lesson-level pitch blocking**: When a lesson requires pitch approval (`requires_pitch_approval = true`), the lesson itself should NOT be marked complete until the pitch is approved. Currently, the quiz pass marks it complete regardless.
 
-**Root cause**: The DB function returns `bigint` columns, but the frontend code at line 211-217 of `TrainingLeaderboard.tsx` shows "No activity yet this period" for ALL modes when `entries.length === 0`. The actual RPC works (verified: Hewitt has 10445 pts). The problem is likely a **race condition or type casting issue** — the `(supabase as any)` cast works, but the empty state text is misleading.
+**Specific changes:**
 
-**Fix**:
-- Change empty state text to differentiate: for `overall` mode show "Loading all-time data..." or "No all-time activity recorded" vs the generic "No activity yet this period"  
-- Add `console.warn` when all-time mode returns empty data so we can catch it in logs
-- Ensure the `totalPoints` mapping handles BigInt → Number correctly (JS `Number()` cast on bigint values)
+- **`LessonPage.tsx`**: Add a pitch-approval gate to `canProceed`. If the lesson requires a pitch and the pitch is not yet approved, the "Next" button stays disabled even after the quiz is passed. Show a clear message: "Waiting for manager to approve your pitch before you can continue."
 
-### ISSUE 3 — Calendar Redesign (Closer to Google Calendar)
+- **`TrainingCoursePage.tsx`**: Already blocks next lessons when `quiz_passed` is false, so if we prevent `quiz_passed` from being set until pitch is approved, sequential lesson locking handles the rest automatically.
 
-**Current state**: Already has Month/Week/Day/Agenda views with filters. But needs significant polish.
+- **`LessonPage.tsx` completion logic**: Modify `handleMarkComplete` and the quiz pass flow so that if `requiresPitch` is true, the lesson is NOT marked as `completed_at` / `quiz_passed = true` until the pitch status is `'approved'`. Instead, save quiz results but keep the lesson in an "awaiting pitch approval" state.
 
-**Changes to `CalendarPage.tsx`**:
+- **`PitchApprovalCard.tsx`**: When pitch is approved (status changes), trigger lesson completion automatically via a realtime listener or on the next page load.
 
-1. **Top toolbar**: Move view mode toggles and filter pills into a unified toolbar bar (like Google Calendar's top bar: `< Today >  Month  Week  Day  Agenda`)
-2. **"Today" button**: Add a quick-jump "Today" button between nav arrows
-3. **Month view cells**: Increase min-height, show more events per cell (5 instead of 3), better event chip styling with rounded pill look
-4. **Week view**: Add current-time red line indicator, better column borders, tighter hour labels
-5. **Day view**: Add current-time indicator, better event card rendering with duration-based height
-6. **Mini calendar sidebar**: Add a small month calendar in the side panel for quick date navigation (on wider screens only)
-7. **Better empty states**: Show subtle "No events" instead of blank cells
-8. **Event chips**: More Google Calendar-like pill shape with colored left border and subtle background
-9. **Mobile**: Stack filters into collapsible drawer, maintain touch-friendly spacing
+- **Waiting state UI**: Show a polished "awaiting approval" card with status, submission time, and encouragement. The rep cannot proceed but can re-record if rejected.
 
-### Files Modified
+### Result
+Reps must wait for their manager to review and approve each pitch before the next lesson unlocks. This forces real practice time between submissions.
 
-| File | Changes |
-|------|---------|
-| New migration SQL | Auto-reject 32 fake test profiles |
-| `src/pages/app/AdminTeamPage.tsx` | Add `isFakeTestRecord()` filter to exclude test entries from pending approvals |
-| `src/hooks/useAdminCounts.ts` | Apply same fake-record filter to badge count |
-| `src/components/leaderboard/TrainingLeaderboard.tsx` | Fix empty state text for all-time; add debug logging; ensure BigInt handling |
-| `src/pages/app/CalendarPage.tsx` | Full redesign: toolbar, today button, time indicators, better grid, mini calendar |
+---
 
-### Execution Order
-1. Database migration to auto-reject fake records (immediate fix)
-2. Frontend approvals filter (prevents recurrence)  
-3. Leaderboard empty state fix
-4. Calendar redesign
+## Part 2: Summer Sales Manual Re-Read Counter
+
+### Database Change
+
+Add a new table `manual_read_completions`:
+
+```sql
+CREATE TABLE public.manual_read_completions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  course_slug text NOT NULL DEFAULT 'summer-sales-manual',
+  completion_number integer NOT NULL DEFAULT 1,
+  completed_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(user_id, course_slug, completion_number)
+);
+
+ALTER TABLE public.manual_read_completions ENABLE ROW LEVEL SECURITY;
+
+-- Users can read/insert their own
+CREATE POLICY "Users can view own completions"
+  ON public.manual_read_completions FOR SELECT
+  TO authenticated USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own completions"
+  ON public.manual_read_completions FOR INSERT
+  TO authenticated WITH CHECK (auth.uid() = user_id);
+```
+
+### How It Works
+
+1. When a rep completes 100% of the Summer Sales Manual lessons (all `quiz_passed`), record a row with `completion_number = 1`.
+
+2. After completion, reset all `lesson_progress` rows for manual lessons (clear `completed_at` and `quiz_passed`), so the manual re-locks from the beginning.
+
+3. The rep goes through again. On second full completion, record `completion_number = 2`, and so on.
+
+4. Award points on each completion pass (same lesson completion points apply each time since progress is reset).
+
+### UI Changes
+
+- **`TrainingCoursePage.tsx`** (for `summer-sales-manual`): Show a badge at the top: "1x", "2x", "3x" etc. indicating how many times completed. Style as a polished counter badge.
+
+- **`TrainingTiles.tsx`** (dashboard tiles): Show the read count badge on the manual tile so it's visible from the dashboard.
+
+- After each full completion, show a celebration modal: "Manual completed for the Xth time!" with the updated counter.
+
+---
+
+## Files to Edit
+
+| File | Change |
+|------|--------|
+| `src/pages/app/LessonPage.tsx` | Add pitch-approval gate to `canProceed`; prevent completion until pitch approved; add waiting UI state |
+| `src/components/training/PitchApprovalCard.tsx` | Add realtime listener for approval; trigger lesson completion on approval |
+| `src/pages/app/TrainingCoursePage.tsx` | Add manual read count badge; handle manual reset on completion |
+| `src/components/dashboard/TrainingTiles.tsx` | Show read count badge on manual tile |
+| Database migration | Create `manual_read_completions` table |
+
+---
+
+## Technical Details
+
+- **Pitch gate logic**: `canProceed = scrollUnlocked && hasCompletedRequirements && (!requiresPitch || pitchRequest?.status === 'approved')`
+- **Manual reset**: On detecting all manual lessons complete + new completion count, run a batch update to clear `completed_at` and `quiz_passed` for all manual lesson IDs for that user
+- **Points**: Each manual re-read triggers the same `award_lesson_completion_points` RPC since progress rows are fresh
+- **No new edge functions needed**: All logic is client-side with existing Supabase queries
 
