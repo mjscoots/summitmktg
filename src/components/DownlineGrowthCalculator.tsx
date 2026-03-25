@@ -932,11 +932,11 @@ export default function DownlineGrowthCalculator() {
                   <div className="px-3 pb-3 space-y-2.5 border-t border-border/20 pt-3">
                     {/* Revenue mode toggle */}
                     <div className="flex gap-1 p-0.5 rounded-lg bg-muted/30 border border-border/30 w-fit">
-                      <button onClick={() => updateTeam(t.id, 'useManualRevenue', false)}
+                      <button type="button" onClick={() => updateTeam(t.id, 'useManualRevenue', false)}
                         className={cn("px-2.5 py-1 text-[9px] font-bold rounded-md transition-all uppercase tracking-wider",
                           !t.useManualRevenue ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
                         )}>Rep-Based</button>
-                      <button onClick={() => updateTeam(t.id, 'useManualRevenue', true)}
+                      <button type="button" onClick={() => updateTeam(t.id, 'useManualRevenue', true)}
                         className={cn("px-2.5 py-1 text-[9px] font-bold rounded-md transition-all uppercase tracking-wider",
                           t.useManualRevenue ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
                         )}>Manual Revenue</button>
