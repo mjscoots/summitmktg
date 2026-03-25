@@ -327,6 +327,7 @@ interface Insight { text: string; type: 'opportunity' | 'warning' | 'tip'; value
 
 function generateInsights(
   result: ReturnType<typeof calcAll>,
+  personal: PersonalData,
   directRookies: DirectRookiesData,
   directVets: DirectVetsData,
   teams: TeamData[],
@@ -359,7 +360,7 @@ function generateInsights(
   // Attrition impact
   if (directRookies.count > 0) {
     const noAttritionAssumptions = { ...assumptions, rookieAttrition: 0 };
-    const noAttrResult = calcAll(directRookies, directVets, teams, noAttritionAssumptions);
+    const noAttrResult = calcAll(personal, directRookies, directVets, teams, noAttritionAssumptions);
     const attritionCost = noAttrResult.totalEarnings - totalEarnings;
     if (attritionCost > 1000) {
       insights.push({ text: `Rookie attrition is costing you ${fmt(attritionCost)} in projected earnings.`, type: 'warning', value: attritionCost });
@@ -369,7 +370,7 @@ function generateInsights(
   // Cancellation impact
   if (result.totalServiced > 0) {
     const noCancelAssumptions = { ...assumptions, cancellationReduction: 0 };
-    const noCancelResult = calcAll(directRookies, directVets, teams, noCancelAssumptions);
+    const noCancelResult = calcAll(personal, directRookies, directVets, teams, noCancelAssumptions);
     const cancelCost = noCancelResult.totalEarnings - totalEarnings;
     if (cancelCost > 1000) {
       insights.push({ text: `Cancellations are reducing your earnings by ${fmt(cancelCost)}.`, type: 'warning', value: cancelCost });
@@ -396,8 +397,8 @@ function generateInsights(
     const perVetAvg = directVets.count > 0 ? (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue / directVets.count : directVets.avgActiveRevenue) : 250000;
     const add2Vets = { ...directVets, count: directVets.count + 2, totalActiveRevenue: directVets.totalActiveRevenue + 2 * perVetAvg };
     const add4Rookies = { ...directRookies, count: directRookies.count + 4, totalServicedRevenue: directRookies.totalServicedRevenue + 4 * 100000 };
-    const v2Result = calcAll(directRookies, add2Vets as any, teams, assumptions);
-    const r4Result = calcAll(add4Rookies as any, directVets, teams, assumptions);
+    const v2Result = calcAll(personal, directRookies, add2Vets as any, teams, assumptions);
+    const r4Result = calcAll(personal, add4Rookies as any, directVets, teams, assumptions);
     const v2Delta = v2Result.totalEarnings - totalEarnings;
     const r4Delta = r4Result.totalEarnings - totalEarnings;
     if (v2Delta > r4Delta && v2Delta > 1000) {
@@ -410,17 +411,18 @@ function generateInsights(
 
 function calcLeftOnTable(
   result: ReturnType<typeof calcAll>,
+  personal: PersonalData,
   directRookies: DirectRookiesData,
   directVets: DirectVetsData,
   teams: TeamData[],
   assumptions: Assumptions,
 ): { total: number; attrition: number; cancellation: number; weakTeams: number } {
   // Attrition cost
-  const noAttr = calcAll(directRookies, directVets, teams, { ...assumptions, rookieAttrition: 0, vetAttrition: 0 });
+  const noAttr = calcAll(personal, directRookies, directVets, teams, { ...assumptions, rookieAttrition: 0, vetAttrition: 0 });
   const attrition = noAttr.totalEarnings - result.totalEarnings;
 
   // Cancellation cost
-  const noCancel = calcAll(directRookies, directVets, teams, { ...assumptions, cancellationReduction: 0 });
+  const noCancel = calcAll(personal, directRookies, directVets, teams, { ...assumptions, cancellationReduction: 0 });
   const cancellation = noCancel.totalEarnings - result.totalEarnings;
 
   // Weak teams cost (normalize to best)
@@ -434,7 +436,7 @@ function calcLeftOnTable(
       }
       return t;
     });
-    const normalizedResult = calcAll(directRookies, directVets, normalizedTeams, assumptions);
+    const normalizedResult = calcAll(personal, directRookies, directVets, normalizedTeams, assumptions);
     weakTeams = Math.max(0, normalizedResult.totalEarnings - result.totalEarnings);
   }
 
