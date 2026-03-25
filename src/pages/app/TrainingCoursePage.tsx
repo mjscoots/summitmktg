@@ -59,6 +59,10 @@ export default function TrainingCoursePage() {
   const [editVideoUrl, setEditVideoUrl] = useState('');
   const [editContent, setEditContent] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  
+  // Manual re-read tracking
+  const [manualReadCount, setManualReadCount] = useState(0);
+  const [showRereadCelebration, setShowRereadCelebration] = useState(false);
 
   const isAdmin = role === 'admin' || role === 'owner';
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
