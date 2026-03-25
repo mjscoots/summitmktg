@@ -76,6 +76,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [manualReadCount, setManualReadCount] = useState(0);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -196,6 +197,23 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
 
     fetchCourses();
   }, [user, filterRole]);
+
+  // Fetch manual read count
+  useEffect(() => {
+    if (!user) return;
+    const fetchReadCount = async () => {
+      const { data } = await supabase
+        .from('manual_read_completions')
+        .select('completion_number')
+        .eq('user_id', user.id)
+        .eq('course_slug', 'summer-sales-manual')
+        .order('completion_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setManualReadCount(data?.completion_number || 0);
+    };
+    fetchReadCount();
+  }, [user]);
 
   const handleCourseClick = (slug: string) => {
     if (slug === 'manager-videos') {
