@@ -1117,7 +1117,7 @@ export default function DownlineGrowthCalculator() {
                 { label: 'Reduce Attrition 5%', apply: () => setAssumptions(a => ({ ...a, rookieAttrition: Math.max(0, a.rookieAttrition - 5), vetAttrition: Math.max(0, a.vetAttrition - 5) })) },
                 { label: 'Better Retention 5%', apply: () => setAssumptions(a => ({ ...a, cancellationReduction: Math.max(0, a.cancellationReduction - 5) })) },
               ].map(s => (
-                <button key={s.label} onClick={s.apply}
+                <button type="button" key={s.label} onClick={s.apply}
                   className="p-2.5 rounded-lg border border-border/30 bg-muted/5 text-[10px] font-bold text-foreground uppercase tracking-wider hover:bg-primary/5 hover:border-primary/20 transition-all text-center">
                   {s.label}
                 </button>
