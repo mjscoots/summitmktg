@@ -412,8 +412,12 @@ export default function TrainingCoursePage() {
                 {isExpanded && !isModuleLocked && (
                 <div className="divide-y divide-border">
                   {module.lessons.map((lesson, lessonIndex) => {
-                    const isLessonLocked = isModuleLocked || 
-                      (lessonIndex > 0 && !module.lessons[lessonIndex - 1].quiz_passed);
+                     // Lesson is locked if module locked, previous lesson not passed,
+                     // OR previous lesson requires pitch that isn't approved yet
+                     const prevLesson = lessonIndex > 0 ? module.lessons[lessonIndex - 1] : null;
+                     const prevPitchBlocking = prevLesson?.requires_pitch_approval && prevLesson.pitch_status !== 'approved';
+                     const isLessonLocked = isModuleLocked || 
+                      (lessonIndex > 0 && (!module.lessons[lessonIndex - 1].quiz_passed || prevPitchBlocking));
                     
                     // First incomplete, unlocked lesson in this module = current lesson
                     const isCurrentLesson = !isLessonLocked && !lesson.quiz_passed &&
