@@ -371,7 +371,8 @@ function generateInsights(
 
   // +2 producing vets vs +4 low rookies
   if (directRookies.count > 0 && directVets.count > 0) {
-    const add2Vets = { ...directVets, count: directVets.count + 2, totalActiveRevenue: directVets.totalActiveRevenue + 2 * (directVets.perVetActive || 250000) };
+    const perVetAvg = directVets.count > 0 ? (directVets.revenueMethod === 'total' ? directVets.totalActiveRevenue / directVets.count : directVets.avgActiveRevenue) : 250000;
+    const add2Vets = { ...directVets, count: directVets.count + 2, totalActiveRevenue: directVets.totalActiveRevenue + 2 * perVetAvg };
     const add4Rookies = { ...directRookies, count: directRookies.count + 4, totalServicedRevenue: directRookies.totalServicedRevenue + 4 * 100000 };
     const v2Result = calcAll(directRookies, add2Vets as any, teams, assumptions);
     const r4Result = calcAll(add4Rookies as any, directVets, teams, assumptions);
