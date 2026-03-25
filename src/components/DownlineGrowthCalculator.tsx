@@ -646,7 +646,7 @@ export default function DownlineGrowthCalculator() {
 
         {sellingThisSummer && (
           <div className="space-y-2.5 mt-3 pt-3 border-t border-border/20">
-            <CurrencyInput value={personalRevStr} onChange={setPersonalRevStr} label="Your Gross Revenue Goal" icon={DollarSign} placeholder="e.g. 300,000" hint="Total serviced revenue you plan to write" />
+            <CurrencyInput value={personalRevStr} onChange={setPersonalRevStr} label="Your Gross Revenue Goal" icon={DollarSign} placeholder="e.g. 300,000" hint="Total serviced revenue you plan to sell" />
             <CurrencyInput value={personalPrevSummerStr} onChange={setPersonalPrevSummerStr} label="Previous Summer Revenue" icon={Shield} placeholder="Optional" hint="If higher, locks in the higher vet commission bracket" />
 
             {personal.grossRevenue > 0 && (
