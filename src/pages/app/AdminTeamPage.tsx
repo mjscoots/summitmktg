@@ -465,16 +465,16 @@ export default function AdminTeamPage() {
                       variant="outline"
                       size="sm"
                       className="text-xs h-7"
-                      onClick={() => { (window as any).__approvalShowHistory = !showingHistory; fetchData(); }}
+                      onClick={() => { setApprovalShowHistory(!approvalShowHistory); }}
                     >
-                      {showingHistory ? 'Show Pending' : 'Show History'}
+                      {approvalShowHistory ? 'Show Pending' : 'Show History'}
                     </Button>
                   </div>
 
                   {isEmpty ? (
                     <div className="text-center py-16 text-muted-foreground">
                       <CheckCircle className="w-8 h-8 mx-auto mb-3 text-primary/40" />
-                      <p className="font-medium">{showingHistory ? 'No approval history' : 'No pending approvals'}</p>
+                      <p className="font-medium">{approvalShowHistory ? 'No approval history' : 'No pending approvals'}</p>
                     </div>
                   ) : (
                     <div className="border border-border/30 rounded-lg overflow-x-auto">
@@ -487,7 +487,7 @@ export default function AdminTeamPage() {
                             <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Level</th>
                             <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Team</th>
                             <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Date</th>
-                            <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">{showingHistory ? 'Status' : 'Actions'}</th>
+                            <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">{approvalShowHistory ? 'Status' : 'Actions'}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -500,7 +500,7 @@ export default function AdminTeamPage() {
                               <td className="px-4 py-3 text-muted-foreground">{getTeamName(user.team_id)}</td>
                               <td className="px-4 py-3 text-muted-foreground text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
                               <td className="px-4 py-3 text-right">
-                                {showingHistory ? (
+                                {approvalShowHistory ? (
                                   <Badge variant={user.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[9px] px-1.5 py-0 capitalize">
                                     {user.status === 'rejected' ? 'Rejected' : 'Approved'}
                                   </Badge>
