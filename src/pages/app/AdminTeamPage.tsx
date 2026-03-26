@@ -448,8 +448,7 @@ export default function AdminTeamPage() {
           <TabsContent value="approvals">
             {loading ? <TableSkeleton columns={7} rows={3} /> : (() => {
               const approvalHistory = allUsers.filter(u => u.approved === true || u.status === 'rejected');
-              const showingHistory = (window as any).__approvalShowHistory;
-              const displayList = showingHistory ? approvalHistory : pendingUsers;
+              const displayList = approvalShowHistory ? approvalHistory : pendingUsers;
               const isEmpty = displayList.length === 0;
 
               return (
