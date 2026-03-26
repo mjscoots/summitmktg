@@ -87,6 +87,7 @@ export default function AdminTeamPage() {
   const [editTeamName, setEditTeamName] = useState('');
   const [deleteTeam, setDeleteTeam] = useState<TeamRow | null>(null);
   const [reassignTeamId, setReassignTeamId] = useState('');
+  const [approvalShowHistory, setApprovalShowHistory] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -445,50 +446,84 @@ export default function AdminTeamPage() {
 
           {/* ========== APPROVALS TAB ========== */}
           <TabsContent value="approvals">
-            {loading ? <TableSkeleton columns={7} rows={3} /> : pendingUsers.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <CheckCircle className="w-8 h-8 mx-auto mb-3 text-primary/40" />
-                <p className="font-medium">No pending approvals</p>
-              </div>
-            ) : (
-              <div className="border border-border/30 rounded-lg overflow-x-auto">
-                <table className="w-full table-fixed text-sm">
-                  <thead>
-                    <tr className="border-b border-border/20 bg-card/30">
-                      <th className="w-[180px] text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Name</th>
-                      <th className="w-[200px] text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Email</th>
-                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Phone</th>
-                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Level</th>
-                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Team</th>
-                      <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Date</th>
-                      <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pendingUsers.map(user => (
-                      <tr key={user.user_id} className="border-b border-border/10 hover:bg-card/20">
-                        <td className="px-4 py-3 font-medium text-foreground truncate">{user.full_name}</td>
-                        <td className="px-4 py-3 text-muted-foreground truncate">{user.email}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{user.phone || '—'}</td>
-                        <td className="px-4 py-3"><Badge variant="secondary" className="text-[9px] px-1.5 py-0 capitalize">{user.role}</Badge></td>
-                        <td className="px-4 py-3 text-muted-foreground">{getTeamName(user.team_id)}</td>
-                        <td className="px-4 py-3 text-muted-foreground text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => handleApprove(user.user_id)}>
-                              <CheckCircle className="w-3 h-3" /> Approve
-                            </Button>
-                            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-red-500/30 text-primary hover:bg-red-500/10" onClick={() => handleReject(user.user_id)}>
-                              <XCircle className="w-3 h-3" /> Reject
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            {loading ? <TableSkeleton columns={7} rows={3} /> : (() => {
+              const approvalHistory = allUsers.filter(u => u.approved === true || u.status === 'rejected');
+              const displayList = approvalShowHistory ? approvalHistory : pendingUsers;
+              const isEmpty = displayList.length === 0;
+
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {pendingUsers.length > 0 && (
+                        <span className="bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+                          {pendingUsers.length} pending
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7"
+                      onClick={() => { setApprovalShowHistory(!approvalShowHistory); }}
+                    >
+                      {approvalShowHistory ? 'Show Pending' : 'Show History'}
+                    </Button>
+                  </div>
+
+                  {isEmpty ? (
+                    <div className="text-center py-16 text-muted-foreground">
+                      <CheckCircle className="w-8 h-8 mx-auto mb-3 text-primary/40" />
+                      <p className="font-medium">{approvalShowHistory ? 'No approval history' : 'No pending approvals'}</p>
+                    </div>
+                  ) : (
+                    <div className="border border-border/30 rounded-lg overflow-x-auto">
+                      <table className="w-full table-fixed text-sm">
+                        <thead>
+                          <tr className="border-b border-border/20 bg-card/30">
+                            <th className="w-[180px] text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Name</th>
+                            <th className="w-[200px] text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Email</th>
+                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Phone</th>
+                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Level</th>
+                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Team</th>
+                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Date</th>
+                            <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">{approvalShowHistory ? 'Status' : 'Actions'}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {displayList.map(user => (
+                            <tr key={user.user_id} className="border-b border-border/10 hover:bg-card/20">
+                              <td className="px-4 py-3 font-medium text-foreground truncate">{user.full_name}</td>
+                              <td className="px-4 py-3 text-muted-foreground truncate">{user.email}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{user.phone || '—'}</td>
+                              <td className="px-4 py-3"><Badge variant="secondary" className="text-[9px] px-1.5 py-0 capitalize">{user.role}</Badge></td>
+                              <td className="px-4 py-3 text-muted-foreground">{getTeamName(user.team_id)}</td>
+                              <td className="px-4 py-3 text-muted-foreground text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
+                              <td className="px-4 py-3 text-right">
+                                {approvalShowHistory ? (
+                                  <Badge variant={user.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[9px] px-1.5 py-0 capitalize">
+                                    {user.status === 'rejected' ? 'Rejected' : 'Approved'}
+                                  </Badge>
+                                ) : (
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => handleApprove(user.user_id)}>
+                                      <CheckCircle className="w-3 h-3" /> Approve
+                                    </Button>
+                                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-red-500/30 text-primary hover:bg-red-500/10" onClick={() => handleReject(user.user_id)}>
+                                      <XCircle className="w-3 h-3" /> Reject
+                                    </Button>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </TabsContent>
 
           {/* ========== APPS TAB ========== */}
