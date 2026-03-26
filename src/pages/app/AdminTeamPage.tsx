@@ -87,6 +87,7 @@ export default function AdminTeamPage() {
   const [editTeamName, setEditTeamName] = useState('');
   const [deleteTeam, setDeleteTeam] = useState<TeamRow | null>(null);
   const [reassignTeamId, setReassignTeamId] = useState('');
+  const [approvalShowHistory, setApprovalShowHistory] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
