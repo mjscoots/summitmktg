@@ -54,9 +54,9 @@ export function useActivityTracking() {
       // Guard: idle (no interaction for 90 s)
       if (Date.now() - lastInteractionRef.current > IDLE_TIMEOUT_MS) return;
 
-      // Guard: rate-limit to 1 call per 60 s
+      // Guard: rate-limit to 1 call per ~55s (allows for setInterval jitter)
       const now = Date.now();
-      if (now - lastUpdateRef.current < 60_000) return;
+      if (now - lastUpdateRef.current < 55_000) return;
       lastUpdateRef.current = now;
 
       try {
