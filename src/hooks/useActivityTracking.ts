@@ -17,7 +17,7 @@ function getRouteCategory(): string {
  *
  * Rules:
  * - Only counts time when tab is VISIBLE (Page Visibility API)
- * - Only counts time when user has interacted within the last 90 seconds
+ * - Only counts time when user has interacted within the last 3 minutes
  * - Heartbeat fires every 60 seconds; skips if idle or hidden
  */
 export function useActivityTracking() {
