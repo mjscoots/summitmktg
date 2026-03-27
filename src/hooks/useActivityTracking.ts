@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-const IDLE_TIMEOUT_MS = 90_000; // 90 seconds — no interaction = pause time accrual
+const IDLE_TIMEOUT_MS = 180_000; // 3 minutes — no interaction = pause time accrual
 
 function getRouteCategory(): string {
   const path = window.location.pathname;
@@ -17,7 +17,7 @@ function getRouteCategory(): string {
  *
  * Rules:
  * - Only counts time when tab is VISIBLE (Page Visibility API)
- * - Only counts time when user has interacted within the last 90 seconds
+ * - Only counts time when user has interacted within the last 3 minutes
  * - Heartbeat fires every 60 seconds; skips if idle or hidden
  */
 export function useActivityTracking() {
@@ -54,9 +54,9 @@ export function useActivityTracking() {
       // Guard: idle (no interaction for 90 s)
       if (Date.now() - lastInteractionRef.current > IDLE_TIMEOUT_MS) return;
 
-      // Guard: rate-limit to 1 call per 60 s
+      // Guard: rate-limit to 1 call per ~55s (allows for setInterval jitter)
       const now = Date.now();
-      if (now - lastUpdateRef.current < 60_000) return;
+      if (now - lastUpdateRef.current < 55_000) return;
       lastUpdateRef.current = now;
 
       try {
