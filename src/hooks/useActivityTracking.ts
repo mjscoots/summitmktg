@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-const IDLE_TIMEOUT_MS = 90_000; // 90 seconds — no interaction = pause time accrual
+const IDLE_TIMEOUT_MS = 180_000; // 3 minutes — no interaction = pause time accrual
 
 function getRouteCategory(): string {
   const path = window.location.pathname;
