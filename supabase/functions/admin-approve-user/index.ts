@@ -201,7 +201,7 @@ Deno.serve(async (req) => {
       const { data: callerProfile } = await supabaseAdmin
         .from("profiles")
         .select("email")
-        .eq("user_id", callerUser.id)
+        .eq("user_id", callerId)
         .maybeSingle();
 
       if (callerProfile?.email !== "mjscoots9@gmail.com") {
@@ -212,7 +212,7 @@ Deno.serve(async (req) => {
       }
 
       // Prevent deleting self
-      if (user_id === callerUser.id) {
+      if (user_id === callerId) {
         return new Response(JSON.stringify({ error: "Cannot delete your own account" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
