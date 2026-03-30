@@ -17,6 +17,7 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
 import { BackgroundDust } from '@/components/chat/BackgroundDust';
 import { SummitLoader } from '@/components/shared/SummitLoader';
+import { ChannelTabs, getTeamChannelSlug, buildChannelTabs } from '@/components/chat/ChannelTabs';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
