@@ -13,6 +13,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false }
@@ -29,23 +30,30 @@ Deno.serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    // Validate the user token using the admin client (most reliable)
-    const { data: { user: callerUser }, error: userError } = await supabaseAdmin.auth.getUser(token);
-    if (userError || !callerUser) {
-      console.error("Token validation failed:", userError?.message);
+    // Validate the user token using getClaims (works reliably in edge functions)
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      console.error("Token validation failed:", claimsError?.message);
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    const callerId = claimsData.claims.sub;
+
     // Check caller has admin or owner role
     const { data: roleRows, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", callerUser.id);
+      .eq("user_id", callerId);
 
-    console.log("Caller:", callerUser.id, "Roles:", roleRows, "Error:", roleError);
+    console.log("Caller:", callerId, "Roles:", roleRows, "Error:", roleError);
 
     const hasAccess = roleRows?.some(r => r.role === "admin" || r.role === "owner");
     if (!hasAccess) {
@@ -193,7 +201,7 @@ Deno.serve(async (req) => {
       const { data: callerProfile } = await supabaseAdmin
         .from("profiles")
         .select("email")
-        .eq("user_id", callerUser.id)
+        .eq("user_id", callerId)
         .maybeSingle();
 
       if (callerProfile?.email !== "mjscoots9@gmail.com") {
@@ -204,7 +212,7 @@ Deno.serve(async (req) => {
       }
 
       // Prevent deleting self
-      if (user_id === callerUser.id) {
+      if (user_id === callerId) {
         return new Response(JSON.stringify({ error: "Cannot delete your own account" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
