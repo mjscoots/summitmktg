@@ -20,6 +20,7 @@ import RookieApplication from "./pages/RookieApplication";
 import VetApplication from "./pages/VetApplication";
 import ApplySuccess from "./pages/ApplySuccess";
 import PendingApproval from "./pages/app/PendingApproval";
+import ResetPasswordPage from "./pages/app/ResetPasswordPage";
 
 // Core app pages (keep eager – most users hit these immediately)
 import { BootcampGate } from "@/components/BootcampGate";
