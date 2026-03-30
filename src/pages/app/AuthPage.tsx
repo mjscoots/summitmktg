@@ -204,6 +204,13 @@ const AuthPage = () => {
             <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
               {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>) : "Sign In"}
             </button>
+            <button
+              type="button"
+              onClick={() => setMode('forgot')}
+              className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors mt-2"
+            >
+              Forgot your password?
+            </button>
           </form>
         )}
 
