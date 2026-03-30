@@ -51,9 +51,9 @@ Deno.serve(async (req) => {
     const { data: roleRows, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", callerUser.id);
+      .eq("user_id", callerId);
 
-    console.log("Caller:", callerUser.id, "Roles:", roleRows, "Error:", roleError);
+    console.log("Caller:", callerId, "Roles:", roleRows, "Error:", roleError);
 
     const hasAccess = roleRows?.some(r => r.role === "admin" || r.role === "owner");
     if (!hasAccess) {
