@@ -4,6 +4,7 @@ import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CheckCircle } from "lucide-react";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -11,7 +12,9 @@ const AuthPage = () => {
   const declinedReason = searchParams.get("reason") === "declined";
   const { signIn, signUp, isAuthenticated } = useAuth();
   
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
   
   // Sign In state
   const [email, setEmail] = useState("");
@@ -204,6 +207,13 @@ const AuthPage = () => {
             <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
               {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>) : "Sign In"}
             </button>
+            <button
+              type="button"
+              onClick={() => setMode('forgot')}
+              className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors mt-2"
+            >
+              Forgot your password?
+            </button>
           </form>
         )}
 
@@ -265,11 +275,65 @@ const AuthPage = () => {
           </form>
         )}
 
-        <p className="mt-8 text-center text-xs text-muted-foreground">
-          {mode === 'signin' 
-            ? "Don't have an account? Switch to Sign Up above." 
-            : "Already have an account? Switch to Sign In above."}
-        </p>
+        {/* FORGOT PASSWORD */}
+        {mode === 'forgot' && (
+          <div className="space-y-4">
+            {forgotSent ? (
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <CheckCircle className="w-6 h-6 text-primary" />
+                </div>
+                <p className="text-foreground font-medium">Check your email</p>
+                <p className="text-muted-foreground text-sm">
+                  If an account exists for <span className="font-medium text-foreground">{forgotEmail}</span>, we've sent a password reset link.
+                </p>
+                <button
+                  onClick={() => { setMode('signin'); setForgotSent(false); setForgotEmail(''); }}
+                  className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                setIsLoading(true);
+                setError('');
+                const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+                  redirectTo: `${window.location.origin}/reset-password`,
+                });
+                setIsLoading(false);
+                if (error) {
+                  setError(error.message);
+                } else {
+                  setForgotSent(true);
+                }
+              }} className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+                  <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
+                </div>
+                <button type="submit" disabled={isLoading} className="btn-primary w-full">
+                  {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>) : "Send Reset Link"}
+                </button>
+                <button type="button" onClick={() => { setMode('signin'); setError(''); }} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Back to Sign In
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {mode !== 'forgot' && (
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            {mode === 'signin' 
+              ? "Don't have an account? Switch to Sign Up above." 
+              : "Already have an account? Switch to Sign In above."}
+          </p>
+        )}
       </div>
     </div>
   );
