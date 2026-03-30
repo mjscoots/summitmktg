@@ -549,7 +549,9 @@ export default function LessonPage() {
     allModules, 
     nextLesson, 
     navigate, 
-    courseSlug
+    courseSlug,
+    requiresPitch,
+    pitchRequest
   ]);
 
   // Handle celebration continue - navigate to first lesson of next module
