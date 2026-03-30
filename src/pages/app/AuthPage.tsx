@@ -11,7 +11,9 @@ const AuthPage = () => {
   const declinedReason = searchParams.get("reason") === "declined";
   const { signIn, signUp, isAuthenticated } = useAuth();
   
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
   
   // Sign In state
   const [email, setEmail] = useState("");
