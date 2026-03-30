@@ -464,6 +464,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }}
         />
+        <ChannelTabs
+          tabs={channelTabs}
+          activeSlug={activeChannel}
+          onSelect={(slug) => { setActiveChannel(slug); }}
+        />
       </div>
 
       {/* Messages thread */}
