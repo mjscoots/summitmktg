@@ -91,7 +91,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-
+  const teamChannelSlug = getTeamChannelSlug(profile?.team_id);
+  const channelTabs = buildChannelTabs(teamChannelSlug, isManager);
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
   const scrollToBottom = useCallback((smooth = true) => {
