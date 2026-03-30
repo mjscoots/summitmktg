@@ -503,6 +503,14 @@ export default function LessonPage() {
   const handleNext = useCallback(async () => {
     if (!lesson || !moduleInfo) return;
 
+    // Block navigation if pitch approval is required but not yet approved
+    if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
+      // Switch back to lesson view to show PitchApprovalCard
+      setShowQuiz(false);
+      toast.error('Submit and get your pitch approved before continuing.');
+      return;
+    }
+
     // Mark complete if no quiz required
     if (!lessonCompleted && (questions.length === 0 || isQuizOptional)) {
       await handleMarkComplete();
