@@ -58,6 +58,35 @@ export function useLessonPitchStatus(lessonId: string | undefined) {
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  useEffect(() => {
+    if (!user || !lessonId) return;
+
+    const channel = supabase
+      .channel(`pitch-status-${lessonId}-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'pitch_approval_requests',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const nextRow = payload.new as Partial<PitchApprovalRequest> | null;
+          const prevRow = payload.old as Partial<PitchApprovalRequest> | null;
+          const changedLessonId = nextRow?.lesson_id ?? prevRow?.lesson_id;
+          if (changedLessonId === lessonId) {
+            refresh();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, lessonId, refresh]);
+
   return { pitchRequest, requiresPitch, isLoading, refresh };
 }
 
