@@ -231,7 +231,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
 
-  useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading]);
+  useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
 
   // Read receipts
   useEffect(() => {
