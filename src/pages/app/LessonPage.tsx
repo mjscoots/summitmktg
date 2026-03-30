@@ -326,6 +326,17 @@ export default function LessonPage() {
           recordActivity();
           toast.success('Quiz passed — 100% correct!');
           
+          // If this lesson requires pitch approval, switch back to lesson view
+          // so the rep sees the PitchApprovalCard instead of a "Continue" button
+          if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
+            // Small delay so the "passed" result flashes briefly before switching views
+            setTimeout(() => {
+              setShowQuiz(false);
+              setQuizResult(null);
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 1200);
+          }
+          
           // Check if this completes 100% training — notify manager
           notifyManagerOf100PercentCompletion();
         } else {
@@ -492,6 +503,14 @@ export default function LessonPage() {
   const handleNext = useCallback(async () => {
     if (!lesson || !moduleInfo) return;
 
+    // Block navigation if pitch approval is required but not yet approved
+    if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
+      // Switch back to lesson view to show PitchApprovalCard
+      setShowQuiz(false);
+      toast.error('Submit and get your pitch approved before continuing.');
+      return;
+    }
+
     // Mark complete if no quiz required
     if (!lessonCompleted && (questions.length === 0 || isQuizOptional)) {
       await handleMarkComplete();
@@ -530,7 +549,9 @@ export default function LessonPage() {
     allModules, 
     nextLesson, 
     navigate, 
-    courseSlug
+    courseSlug,
+    requiresPitch,
+    pitchRequest
   ]);
 
   // Handle celebration continue - navigate to first lesson of next module
