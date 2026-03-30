@@ -229,7 +229,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => { supabase.removeChannel(channel); };
   }, [user?.id, onNewMessage]);
 
-  const channelMessages = messages.filter(m => (m.channel || 'general') === 'general');
+  const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
 
   useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading]);
 
@@ -271,7 +271,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
     try {
       const { data: msg, error } = await supabase.from('chat_messages').insert({
-        user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: 'general'
+        user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: activeChannel
       }).select('id').single();
       if (error) throw error;
       if (msg) {
@@ -361,26 +361,26 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const handleSendFile = async (content: string) => {
     if (!user) return;
-    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: 'general' });
+    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: activeChannel });
     if (error) { toast.error('Failed to send'); return; }
     setReplyingTo(null); scrollToBottom();
   };
 
   const handleSendGif = async (gifUrl: string) => {
     if (!user) return;
-    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: 'general' });
+    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: activeChannel });
     setReplyingTo(null); scrollToBottom();
   };
 
   const handleSendSticker = async (sticker: any) => {
     if (!user) return;
-    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: 'general' });
+    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: activeChannel });
     setReplyingTo(null); scrollToBottom();
   };
 
   const handleCreatePoll = async (question: string, options: string[]) => {
     if (!user) return;
-    const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: 'general' }).select('id').single();
+    const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: activeChannel }).select('id').single();
     if (error || !msg) { toast.error('Failed to create poll'); return; }
     await supabase.from('chat_polls').insert({ message_id: msg.id, question, options, created_by: user.id });
     scrollToBottom();
