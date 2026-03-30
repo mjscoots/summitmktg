@@ -326,6 +326,17 @@ export default function LessonPage() {
           recordActivity();
           toast.success('Quiz passed — 100% correct!');
           
+          // If this lesson requires pitch approval, switch back to lesson view
+          // so the rep sees the PitchApprovalCard instead of a "Continue" button
+          if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
+            // Small delay so the "passed" result flashes briefly before switching views
+            setTimeout(() => {
+              setShowQuiz(false);
+              setQuizResult(null);
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 1200);
+          }
+          
           // Check if this completes 100% training — notify manager
           notifyManagerOf100PercentCompletion();
         } else {
