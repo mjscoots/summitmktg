@@ -121,6 +121,7 @@ function LazyFallback() {
               <Route path="/pending-approval" element={<PendingApproval />} />
               {/* Redirect any signup attempts to login */}
               <Route path="/signup" element={<Navigate to="/login" replace />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
 
               {/* ========== SUMMER CHECKLIST ROUTES ========== */}
               <Route path="/summer-checklist" element={
