@@ -17,6 +17,7 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
 import { BackgroundDust } from '@/components/chat/BackgroundDust';
 import { SummitLoader } from '@/components/shared/SummitLoader';
+import { ChannelTabs, getTeamChannelSlug, buildChannelTabs } from '@/components/chat/ChannelTabs';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -65,6 +66,7 @@ function SystemMessage({ content }: { content: string }) {
 
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
+  const [activeChannel, setActiveChannel] = useState('general');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
@@ -89,7 +91,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-
+  const teamChannelSlug = getTeamChannelSlug(profile?.team_id);
+  const channelTabs = buildChannelTabs(teamChannelSlug, isManager);
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
 
   const scrollToBottom = useCallback((smooth = true) => {
@@ -226,9 +229,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     return () => { supabase.removeChannel(channel); };
   }, [user?.id, onNewMessage]);
 
-  const channelMessages = messages.filter(m => (m.channel || 'general') === 'general');
+  const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
 
-  useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading]);
+  useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
 
   // Read receipts
   useEffect(() => {
@@ -268,7 +271,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
     try {
       const { data: msg, error } = await supabase.from('chat_messages').insert({
-        user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: 'general'
+        user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: activeChannel
       }).select('id').single();
       if (error) throw error;
       if (msg) {
@@ -358,26 +361,26 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const handleSendFile = async (content: string) => {
     if (!user) return;
-    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: 'general' });
+    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: activeChannel });
     if (error) { toast.error('Failed to send'); return; }
     setReplyingTo(null); scrollToBottom();
   };
 
   const handleSendGif = async (gifUrl: string) => {
     if (!user) return;
-    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: 'general' });
+    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: activeChannel });
     setReplyingTo(null); scrollToBottom();
   };
 
   const handleSendSticker = async (sticker: any) => {
     if (!user) return;
-    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: 'general' });
+    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: activeChannel });
     setReplyingTo(null); scrollToBottom();
   };
 
   const handleCreatePoll = async (question: string, options: string[]) => {
     if (!user) return;
-    const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: 'general' }).select('id').single();
+    const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: activeChannel }).select('id').single();
     if (error || !msg) { toast.error('Failed to create poll'); return; }
     await supabase.from('chat_polls').insert({ message_id: msg.id, question, options, created_by: user.id });
     scrollToBottom();
@@ -460,6 +463,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             const pinned = channelMessages.filter(m => m.is_pinned);
             if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }}
+        />
+        <ChannelTabs
+          tabs={channelTabs}
+          activeSlug={activeChannel}
+          onSelect={(slug) => { setActiveChannel(slug); }}
         />
       </div>
 
