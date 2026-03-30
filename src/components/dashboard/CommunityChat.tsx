@@ -66,6 +66,7 @@ function SystemMessage({ content }: { content: string }) {
 
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
+  const [activeChannel, setActiveChannel] = useState('general');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
