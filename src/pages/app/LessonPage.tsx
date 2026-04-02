@@ -16,6 +16,7 @@ import { useScrollGate } from '@/hooks/useScrollGate';
 import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
 import { useLessonPitchStatus } from '@/hooks/usePitchApprovals';
 import { PitchApprovalCard } from '@/components/training/PitchApprovalCard';
+import { PitchRecordingModal } from '@/components/training/PitchRecordingModal';
 import { QuizResultsDisplay } from '@/components/training/QuizResultsDisplay';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
 
@@ -107,6 +108,8 @@ export default function LessonPage() {
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
   const [nextModuleName, setNextModuleName] = useState<string | null>(null);
+  // Pitch recording modal (standalone trigger from quiz results or fallback button)
+  const [showPitchModal, setShowPitchModal] = useState(false);
 
   const isRookieCourse = ROOKIE_COURSES.includes(courseSlug || '');
   
@@ -505,9 +508,13 @@ export default function LessonPage() {
 
     // Block navigation if pitch approval is required but not yet approved
     if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
-      // Switch back to lesson view to show PitchApprovalCard
+      if (!pitchRequest || pitchRequest.status === 'rejected') {
+        setShowPitchModal(true);
+        toast.error('Record and submit your pitch before continuing.');
+      } else if (pitchRequest.status === 'pending') {
+        toast.error('⏳ Waiting for your manager to approve your pitch.');
+      }
       setShowQuiz(false);
-      toast.error('Submit and get your pitch approved before continuing.');
       return;
     }
 
@@ -882,6 +889,9 @@ export default function LessonPage() {
                 onNext={handleNext}
                 onRetake={handleRetakeQuiz}
                 onReviewMaterial={handleBackToLesson}
+                requiresPitch={requiresPitch}
+                pitchStatus={pitchRequest?.status as 'pending' | 'approved' | 'rejected' | null | undefined}
+                onRecordPitch={() => setShowPitchModal(true)}
               />
             ) : (
               /* Quiz Questions */
@@ -1013,12 +1023,32 @@ export default function LessonPage() {
                   )
                 )}
               >
-                {buttonLabel}
-                <ArrowRight className="w-3.5 h-3.5" />
+                {pitchBlocking && !pitchRequest
+                  ? '🔒 Submit Pitch'
+                  : pitchBlocking && pitchRequest?.status === 'pending'
+                    ? '⏳ Awaiting Approval'
+                    : pitchBlocking && pitchRequest?.status === 'rejected'
+                      ? '❌ Re-record Pitch'
+                      : buttonLabel}
+                {!pitchBlocking && <ArrowRight className="w-3.5 h-3.5" />}
               </Button>
             </div>
           </div>
         </div>
+      )}
+      {/* Standalone Pitch Recording Modal (triggered from quiz results or bottom nav) */}
+      {lesson && (
+        <PitchRecordingModal
+          open={showPitchModal}
+          onClose={() => setShowPitchModal(false)}
+          lessonId={lesson.id}
+          lessonTitle={lesson.title}
+          attemptNumber={(pitchRequest?.attempt_number || 0) + 1}
+          onSubmitted={() => {
+            refreshPitch();
+            setShowPitchModal(false);
+          }}
+        />
       )}
     </AppLayout>
   );

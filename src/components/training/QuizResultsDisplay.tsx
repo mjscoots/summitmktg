@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, AlertTriangle, ArrowRight, RotateCcw, Zap, Trophy } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, ArrowRight, RotateCcw, Zap, Trophy, Mic, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +23,12 @@ interface QuizResultsDisplayProps {
   onNext: () => void;
   onRetake: () => void;
   onReviewMaterial: () => void;
+  /** If true, this lesson requires pitch approval before advancing */
+  requiresPitch?: boolean;
+  /** Current pitch status */
+  pitchStatus?: 'pending' | 'approved' | 'rejected' | null;
+  /** Callback to open pitch recording modal */
+  onRecordPitch?: () => void;
 }
 
 function XPBadge({ points, delay = 0 }: { points: number; delay?: number }) {
@@ -70,7 +76,11 @@ export function QuizResultsDisplay({
   onNext,
   onRetake,
   onReviewMaterial,
+  requiresPitch,
+  pitchStatus,
+  onRecordPitch,
 }: QuizResultsDisplayProps) {
+  const pitchBlocking = requiresPitch && pitchStatus !== 'approved';
   if (passed) {
     return (
       <div className="p-6 rounded-lg text-center bg-primary/10 border border-primary/20">
@@ -107,18 +117,70 @@ export function QuizResultsDisplay({
           Your manager has been notified of your success.
         </p>
         
-        <Button 
-          onClick={onNext}
-          className={cn(
-            "font-semibold h-11 px-6 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg",
-            isRookieCourse 
-              ? "bg-primary hover:bg-primary" 
-              : "bg-blue-500 hover:bg-blue-600"
-          )}
-        >
-          {isLastLesson ? 'Complete Course' : 'Continue to Next Section'}
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        {pitchBlocking ? (
+          <div className="w-full space-y-3">
+            {!pitchStatus && (
+              <>
+                <div className="p-4 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mic className="w-5 h-5 text-primary" />
+                    <h4 className="font-bold text-sm text-primary">📹 Pitch Recording Required</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    You must record and submit your pitch for this lesson before you can continue. Your manager will review it and provide feedback.
+                  </p>
+                  <Button
+                    onClick={onRecordPitch}
+                    className={cn(
+                      "w-full gap-2 font-semibold",
+                      isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
+                    )}
+                  >
+                    <Mic className="w-4 h-4" />
+                    Record Your Pitch
+                  </Button>
+                </div>
+              </>
+            )}
+            {pitchStatus === 'pending' && (
+              <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5 text-center">
+                <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
+                <p className="text-sm font-semibold text-amber-600">⏳ Waiting for Manager Approval</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your pitch has been submitted. You'll be notified when it's approved.
+                </p>
+              </div>
+            )}
+            {pitchStatus === 'rejected' && (
+              <div className="space-y-2">
+                <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-center">
+                  <p className="text-sm font-semibold text-destructive">❌ Pitch Needs Improvement</p>
+                  <p className="text-xs text-muted-foreground mt-1">Your manager provided feedback. Please re-record.</p>
+                </div>
+                <Button
+                  onClick={onRecordPitch}
+                  className="w-full gap-2 font-semibold bg-primary hover:bg-primary"
+                >
+                  <Mic className="w-4 h-4" />
+                  Re-record Your Pitch
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Button 
+            onClick={onNext}
+            className={cn(
+              "font-semibold h-11 px-6 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg",
+              isRookieCourse 
+                ? "bg-primary hover:bg-primary" 
+                : "bg-blue-500 hover:bg-blue-600"
+            )}
+          >
+            {isLastLesson ? 'Complete Course' : 'Continue to Next Section'}
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        )}
       </div>
     );
   }
