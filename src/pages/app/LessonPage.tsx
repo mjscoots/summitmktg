@@ -1032,6 +1032,20 @@ export default function LessonPage() {
           </div>
         </div>
       )}
+      {/* Standalone Pitch Recording Modal (triggered from quiz results or bottom nav) */}
+      {lesson && (
+        <PitchRecordingModal
+          open={showPitchModal}
+          onClose={() => setShowPitchModal(false)}
+          lessonId={lesson.id}
+          lessonTitle={lesson.title}
+          attemptNumber={(pitchRequest?.attempt_number || 0) + 1}
+          onSubmitted={() => {
+            refreshPitch();
+            setShowPitchModal(false);
+          }}
+        />
+      )}
     </AppLayout>
   );
 }
