@@ -508,9 +508,13 @@ export default function LessonPage() {
 
     // Block navigation if pitch approval is required but not yet approved
     if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
-      // Switch back to lesson view to show PitchApprovalCard
+      if (!pitchRequest || pitchRequest.status === 'rejected') {
+        setShowPitchModal(true);
+        toast.error('Record and submit your pitch before continuing.');
+      } else if (pitchRequest.status === 'pending') {
+        toast.error('⏳ Waiting for your manager to approve your pitch.');
+      }
       setShowQuiz(false);
-      toast.error('Submit and get your pitch approved before continuing.');
       return;
     }
 
