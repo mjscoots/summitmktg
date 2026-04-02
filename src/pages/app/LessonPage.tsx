@@ -885,6 +885,9 @@ export default function LessonPage() {
                 onNext={handleNext}
                 onRetake={handleRetakeQuiz}
                 onReviewMaterial={handleBackToLesson}
+                requiresPitch={requiresPitch}
+                pitchStatus={pitchRequest?.status as 'pending' | 'approved' | 'rejected' | null | undefined}
+                onRecordPitch={() => setShowPitchModal(true)}
               />
             ) : (
               /* Quiz Questions */
@@ -1016,8 +1019,14 @@ export default function LessonPage() {
                   )
                 )}
               >
-                {buttonLabel}
-                <ArrowRight className="w-3.5 h-3.5" />
+                {pitchBlocking && !pitchRequest
+                  ? '🔒 Submit Pitch'
+                  : pitchBlocking && pitchRequest?.status === 'pending'
+                    ? '⏳ Awaiting Approval'
+                    : pitchBlocking && pitchRequest?.status === 'rejected'
+                      ? '❌ Re-record Pitch'
+                      : buttonLabel}
+                {!pitchBlocking && <ArrowRight className="w-3.5 h-3.5" />}
               </Button>
             </div>
           </div>
