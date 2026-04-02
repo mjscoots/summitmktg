@@ -108,6 +108,8 @@ export default function LessonPage() {
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
   const [nextModuleName, setNextModuleName] = useState<string | null>(null);
+  // Pitch recording modal (standalone trigger from quiz results or fallback button)
+  const [showPitchModal, setShowPitchModal] = useState(false);
 
   const isRookieCourse = ROOKIE_COURSES.includes(courseSlug || '');
   
