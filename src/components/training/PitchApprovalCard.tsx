@@ -68,7 +68,35 @@ export function PitchApprovalCard({
   const [showRecording, setShowRecording] = useState(false);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
 
-  if (!requiresPitch || !lessonCompleted) return null;
+  if (!requiresPitch) return null;
+
+  // Before quiz completion: show a heads-up that pitch will be required
+  if (!lessonCompleted) {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4 mt-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Mic className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-amber-600">🎤 PITCH RECORDING REQUIRED</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              After you pass the quiz for this lesson, you'll need to record yourself delivering this pitch and get manager approval before moving on.
+            </p>
+            <div className="mt-3 space-y-1.5">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Requirements:</p>
+              {requirements.map((req, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <CheckCircle2 className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
+                  <span>{req}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const status = pitchRequest?.status;
   const requirements = getRequirements(lessonTitle);
