@@ -33,28 +33,48 @@ export function useScrollGate(
     const container = containerRef?.current;
     
     if (container) {
-      // Container-based scrolling
       const { scrollTop, scrollHeight, clientHeight } = container;
       const maxScroll = scrollHeight - clientHeight;
-      
-      // If content fits without scrolling, we're at bottom
+
+      // Non-scrollable content block inside a page that scrolls at the window level
       if (maxScroll <= threshold) {
-        setAtBottom(true);
-        setScrollProgress(100);
+        const rect = container.getBoundingClientRect();
+        const viewportHeight = window.visualViewport?.height || window.innerHeight;
+        const contentHeight = rect.height;
+
+        if (contentHeight <= viewportHeight + threshold) {
+          setAtBottom(true);
+          setScrollProgress(100);
+          return;
+        }
+
+        const distanceIntoView = viewportHeight - rect.top;
+        const progress = Math.max(0, Math.min(100, (distanceIntoView / Math.max(contentHeight, 1)) * 100));
+        setScrollProgress(progress);
+
+        if (rect.bottom <= viewportHeight + threshold) {
+          setAtBottom(true);
+        }
         return;
       }
-      
+
       const progress = Math.min(100, (scrollTop / maxScroll) * 100);
       setScrollProgress(progress);
-      
+
       if (scrollTop + clientHeight >= scrollHeight - threshold) {
         setAtBottom(true);
       }
     } else {
       // Window-based scrolling (default)
-      const { scrollY, innerHeight } = window;
-      const { scrollHeight } = document.documentElement;
-      const maxScroll = scrollHeight - innerHeight;
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const scrollY = window.scrollY || window.pageYOffset;
+      const scrollHeight = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+        document.documentElement.offsetHeight,
+        document.body.offsetHeight
+      );
+      const maxScroll = scrollHeight - viewportHeight;
       
       // If page fits without scrolling, we're at bottom
       if (maxScroll <= threshold) {
@@ -66,7 +86,7 @@ export function useScrollGate(
       const progress = Math.min(100, (scrollY / maxScroll) * 100);
       setScrollProgress(progress);
       
-      if (scrollY + innerHeight >= scrollHeight - threshold) {
+      if (scrollY + viewportHeight >= scrollHeight - threshold) {
         setAtBottom(true);
       }
     }
