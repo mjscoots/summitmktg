@@ -120,7 +120,7 @@ export default function LessonPage() {
     : null;
 
   // Use the scroll gate hook - reset when lesson changes
-  const { atBottom, scrollProgress, resetGate } = useScrollGate(undefined, {
+  const { atBottom, scrollProgress, resetGate } = useScrollGate(contentRef, {
     threshold: 50,
     enabled: !lessonCompleted, // If already completed, don't require scroll
   });
