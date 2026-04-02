@@ -68,6 +68,9 @@ export function PitchApprovalCard({
   const [showRecording, setShowRecording] = useState(false);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
 
+  const status = pitchRequest?.status;
+  const requirements = getRequirements(lessonTitle);
+
   if (!requiresPitch) return null;
 
   // Before quiz completion: show a heads-up that pitch will be required
@@ -97,9 +100,6 @@ export function PitchApprovalCard({
       </div>
     );
   }
-
-  const status = pitchRequest?.status;
-  const requirements = getRequirements(lessonTitle);
 
   // Generate signed URL for viewing submission
   const handleWatchSubmission = async () => {
