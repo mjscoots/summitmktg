@@ -16,6 +16,7 @@ import { useScrollGate } from '@/hooks/useScrollGate';
 import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
 import { useLessonPitchStatus } from '@/hooks/usePitchApprovals';
 import { PitchApprovalCard } from '@/components/training/PitchApprovalCard';
+import { PitchRecordingModal } from '@/components/training/PitchRecordingModal';
 import { QuizResultsDisplay } from '@/components/training/QuizResultsDisplay';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
 
