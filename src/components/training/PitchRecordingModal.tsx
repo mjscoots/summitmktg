@@ -177,7 +177,7 @@ export function PitchRecordingModal({
 
       setUploadProgress(90);
 
-      // Notify manager
+      // Notify manager (non-blocking)
       if (profile?.direct_manager) {
         const { data: managerProfile } = await supabase
           .from('profiles')
@@ -186,12 +186,16 @@ export function PitchRecordingModal({
           .maybeSingle();
 
         if (managerProfile) {
-          await supabase.from('user_notifications').insert({
+          const { error: notificationError } = await supabase.from('user_notifications').insert({
             user_id: managerProfile.user_id,
             title: `🎤 ${profile.full_name} submitted their ${lessonTitle} pitch`,
             message: `Review and approve/reject the pitch recording.`,
             link: '/app/pitch-approvals',
           });
+
+          if (notificationError) {
+            console.warn('Manager notification failed after pitch upload:', notificationError);
+          }
         }
       }
 

@@ -42,6 +42,12 @@ interface Course {
 // Rookie courses always show green
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
+const isLessonSatisfied = (lesson: Lesson) => {
+  if (!lesson.quiz_passed) return false;
+  if (!lesson.requires_pitch_approval) return true;
+  return lesson.pitch_status === 'approved';
+};
+
 export default function TrainingCoursePage() {
   const { courseSlug } = useParams();
   const navigate = useNavigate();
@@ -165,8 +171,8 @@ export default function TrainingCoursePage() {
         // Auto-expand the current (first incomplete, unlocked) module
         for (let i = 0; i < modulesWithLessons.length; i++) {
           const m = modulesWithLessons[i];
-          const mComplete = m.lessons.every(l => l.quiz_passed);
-          const prevIncomplete = i > 0 && modulesWithLessons[i - 1].lessons.some(l => !l.quiz_passed);
+          const mComplete = m.lessons.every(isLessonSatisfied);
+          const prevIncomplete = i > 0 && modulesWithLessons[i - 1].lessons.some(l => !isLessonSatisfied(l));
           if (!mComplete && !prevIncomplete) {
             setExpandedModuleId(m.id);
             break;
@@ -175,7 +181,7 @@ export default function TrainingCoursePage() {
 
         const totalLessons = modulesWithLessons.reduce((sum, m) => sum + m.lessons.length, 0);
         const completedLessons = modulesWithLessons.reduce(
-          (sum, m) => sum + m.lessons.filter(l => l.quiz_passed).length, 
+          (sum, m) => sum + m.lessons.filter(isLessonSatisfied).length,
           0
         );
         setOverallProgress(totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0);
@@ -395,27 +401,15 @@ export default function TrainingCoursePage() {
         <div className="space-y-6">
           {modules.map((module, moduleIndex) => {
             const moduleProgress = module.lessons.length > 0
-              ? Math.round((module.lessons.filter(l => l.quiz_passed).length / module.lessons.length) * 100)
+              ? Math.round((module.lessons.filter(isLessonSatisfied).length / module.lessons.length) * 100)
               : 0;
             
             const isModuleComplete = moduleProgress === 100;
-            // Module is locked if previous module has incomplete quizzes
-            // OR if previous module has unapproved pitch approvals
             const prevModule = moduleIndex > 0 ? modules[moduleIndex - 1] : null;
-            const prevQuizzesIncomplete = prevModule ? prevModule.lessons.some(l => !l.quiz_passed) : false;
-            const prevPitchesBlocking = prevModule ? prevModule.lessons.some(
-              l => l.requires_pitch_approval && l.pitch_status !== 'approved'
-            ) : false;
-            const isModuleLocked = moduleIndex > 0 && (prevQuizzesIncomplete || prevPitchesBlocking);
+            const isModuleLocked = moduleIndex > 0 && !!prevModule?.lessons.some(l => !isLessonSatisfied(l));
 
-            // Find the first incomplete lesson across all modules to determine "continue" point
             const isCurrentModule = !isModuleLocked && !isModuleComplete && 
-              (moduleIndex === 0 || !modules[moduleIndex - 1].lessons.some(l => !l.quiz_passed));
-
-            // Find the first incomplete lesson to navigate to
-            const firstIncompleteLessonId = !isModuleLocked 
-              ? module.lessons.find(l => !l.quiz_passed)?.id || module.lessons[0]?.id
-              : null;
+              (moduleIndex === 0 || !modules[moduleIndex - 1].lessons.some(l => !isLessonSatisfied(l)));
 
             const isExpanded = expandedModuleId === module.id;
 
@@ -506,16 +500,13 @@ export default function TrainingCoursePage() {
                 {isExpanded && !isModuleLocked && (
                 <div className="divide-y divide-border">
                   {module.lessons.map((lesson, lessonIndex) => {
-                     // Lesson is locked if module locked, previous lesson not passed,
-                     // OR previous lesson requires pitch that isn't approved yet
+                     const isLessonComplete = isLessonSatisfied(lesson);
                      const prevLesson = lessonIndex > 0 ? module.lessons[lessonIndex - 1] : null;
-                     const prevPitchBlocking = prevLesson?.requires_pitch_approval && prevLesson.pitch_status !== 'approved';
+                      const prevLessonComplete = prevLesson ? isLessonSatisfied(prevLesson) : true;
                      const isLessonLocked = isModuleLocked || 
-                      (lessonIndex > 0 && (!module.lessons[lessonIndex - 1].quiz_passed || prevPitchBlocking));
+                       (lessonIndex > 0 && !prevLessonComplete);
                     
-                    // First incomplete, unlocked lesson in this module = current lesson
-                    const isCurrentLesson = !isLessonLocked && !lesson.quiz_passed &&
-                      (lessonIndex === 0 || module.lessons[lessonIndex - 1].quiz_passed);
+                     const isCurrentLesson = !isLessonLocked && !isLessonComplete && prevLessonComplete;
 
                     return (
                       <button
@@ -526,7 +517,7 @@ export default function TrainingCoursePage() {
                           "w-full p-4 flex items-center justify-between text-left transition-all",
                           isLessonLocked 
                             ? 'cursor-not-allowed opacity-40' 
-                            : lesson.quiz_passed
+                            : isLessonComplete
                               ? 'opacity-60 hover:opacity-80 cursor-pointer'
                               : isCurrentLesson
                                 ? cn(
@@ -539,7 +530,7 @@ export default function TrainingCoursePage() {
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          {lesson.quiz_passed ? (
+                          {isLessonComplete ? (
                             <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-muted-foreground" />
                           ) : isLessonLocked ? (
                             <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -556,7 +547,7 @@ export default function TrainingCoursePage() {
                           )}
                           <span className={cn(
                             "text-sm",
-                            lesson.quiz_passed 
+                            isLessonComplete
                               ? 'text-muted-foreground line-through decoration-muted-foreground/30' 
                               : isLessonLocked 
                                 ? 'text-muted-foreground'
