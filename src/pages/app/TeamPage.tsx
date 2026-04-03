@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, Trash2, Clock, TrendingUp, Activity } from 'lucide-react';
+import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, ArrowRightLeft, Trash2, Clock, TrendingUp, Activity } from 'lucide-react';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Input } from '@/components/ui/input';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
