@@ -821,6 +821,18 @@ export default function TeamPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Move Rep Modal */}
+      {moveTarget.member && profile?.user_id && (
+        <MoveRepModal
+          open={moveTarget.open}
+          onClose={() => setMoveTarget({ open: false, member: null })}
+          repUserId={moveTarget.member.user_id}
+          repName={getDisplayName(moveTarget.member.full_name)}
+          currentManagerUserId={profile.user_id}
+          onMoved={() => { setIsLoading(true); fetchAllMembers(); }}
+        />
+      )}
     </AppLayout>
   );
 }
