@@ -468,12 +468,19 @@ export default function TeamPage() {
                   <Pencil className="w-3.5 h-3.5 mr-2" /> Edit Member
                 </DropdownMenuItem>
                 {node.member.status !== 'nlc' && (
-                  <DropdownMenuItem
-                    onClick={() => setNlcConfirm({ open: true, member: node.member })}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <UserX className="w-3.5 h-3.5 mr-2" /> Mark as NLC
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => setMoveTarget({ open: true, member: node.member })}
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 mr-2" /> Move Rep
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setNlcConfirm({ open: true, member: node.member })}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <UserX className="w-3.5 h-3.5 mr-2" /> Mark as NLC
+                    </DropdownMenuItem>
+                  </>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
