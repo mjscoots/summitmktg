@@ -157,6 +157,11 @@ export default function TeamPage() {
     open: false, member: null
   });
 
+  // Move rep dialog
+  const [moveTarget, setMoveTarget] = useState<{ open: boolean; member: TeamMemberLocal | null }>({
+    open: false, member: null
+  });
+
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const isAdmin = role === 'admin' || role === 'owner';
 
