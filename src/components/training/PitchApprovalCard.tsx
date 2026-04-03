@@ -73,31 +73,65 @@ export function PitchApprovalCard({
 
   if (!requiresPitch) return null;
 
-  // Before quiz completion: show a heads-up that pitch will be required
+  // Before quiz completion: show heads-up with option to record early
   if (!lessonCompleted) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4 mt-4">
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Mic className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-amber-600">🎤 PITCH RECORDING REQUIRED</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              After you pass the quiz for this lesson, you'll need to record yourself delivering this pitch and get manager approval before moving on.
-            </p>
-            <div className="mt-3 space-y-1.5">
-              <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Requirements:</p>
-              {requirements.map((req, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <CheckCircle2 className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
-                  <span>{req}</span>
+      <>
+        <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4 mt-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Mic className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-sm text-amber-600">🎤 PITCH RECORDING REQUIRED</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                You'll need to record yourself delivering this pitch and get manager approval before moving on. You can record now or after passing the quiz.
+              </p>
+              <div className="mt-3 space-y-1.5">
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Requirements:</p>
+                {requirements.map((req, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <CheckCircle2 className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
+                    <span>{req}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Show record button if no pitch submitted or rejected */}
+              {(!pitchRequest || status === 'rejected') && (
+                <Button
+                  onClick={() => setShowRecording(true)}
+                  className={cn(
+                    "mt-3 gap-2 font-semibold w-full",
+                    isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
+                  )}
+                  size="sm"
+                >
+                  <Mic className="w-4 h-4" />
+                  {status === 'rejected' ? 'Re-record Your Pitch' : 'Record Your Pitch Now'}
+                </Button>
+              )}
+              {status === 'pending' && (
+                <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
+                  <p className="text-xs font-semibold text-amber-600">⏳ Pitch Submitted — Awaiting Approval</p>
                 </div>
-              ))}
+              )}
+              {status === 'approved' && (
+                <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
+                  <p className="text-xs font-semibold text-primary">✅ Pitch Approved</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
+        <PitchRecordingModal
+          open={showRecording}
+          onClose={() => setShowRecording(false)}
+          lessonId={lessonId}
+          lessonTitle={lessonTitle}
+          attemptNumber={(pitchRequest?.attempt_number || 0) + 1}
+          onSubmitted={onRefresh}
+        />
+      </>
     );
   }
 
