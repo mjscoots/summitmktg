@@ -16,6 +16,7 @@ interface PitchApprovalCardProps {
   managerName?: string;
   isRookieCourse?: boolean;
   onRefresh: () => void;
+  onTakeQuiz?: () => void;
 }
 
 // Per-lesson requirements
@@ -64,6 +65,7 @@ export function PitchApprovalCard({
   managerName,
   isRookieCourse = true,
   onRefresh,
+  onTakeQuiz,
 }: PitchApprovalCardProps) {
   const [showRecording, setShowRecording] = useState(false);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
@@ -73,7 +75,7 @@ export function PitchApprovalCard({
 
   if (!requiresPitch) return null;
 
-  // Before quiz completion: show heads-up with option to record early
+  // Before quiz completion: show heads-up with direct actions
   if (!lessonCompleted) {
     return (
       <>
@@ -85,7 +87,7 @@ export function PitchApprovalCard({
             <div className="flex-1">
               <h3 className="font-bold text-sm text-amber-600">🎤 PITCH RECORDING REQUIRED</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                You'll need to record yourself delivering this pitch and get manager approval before moving on. You can record now or after passing the quiz.
+                You need to pass the quiz and submit a pitch for manager approval before moving on.
               </p>
               <div className="mt-3 space-y-1.5">
                 <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Requirements:</p>
@@ -96,20 +98,34 @@ export function PitchApprovalCard({
                   </div>
                 ))}
               </div>
-              {/* Show record button if no pitch submitted or rejected */}
-              {(!pitchRequest || status === 'rejected') && (
-                <Button
-                  onClick={() => setShowRecording(true)}
-                  className={cn(
-                    "mt-3 gap-2 font-semibold w-full",
-                    isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
-                  )}
-                  size="sm"
-                >
-                  <Mic className="w-4 h-4" />
-                  {status === 'rejected' ? 'Re-record Your Pitch' : 'Record Your Pitch Now'}
-                </Button>
-              )}
+
+              <div className="mt-3 flex flex-col gap-2">
+                {onTakeQuiz && (
+                  <Button
+                    onClick={onTakeQuiz}
+                    variant="outline"
+                    className="w-full font-semibold"
+                    size="sm"
+                  >
+                    Take Quiz
+                  </Button>
+                )}
+
+                {(!pitchRequest || status === 'rejected') && (
+                  <Button
+                    onClick={() => setShowRecording(true)}
+                    className={cn(
+                      "gap-2 font-semibold w-full",
+                      isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
+                    )}
+                    size="sm"
+                  >
+                    <Mic className="w-4 h-4" />
+                    {status === 'rejected' ? 'Re-record Your Pitch' : 'Record Your Pitch Now'}
+                  </Button>
+                )}
+              </div>
+
               {status === 'pending' && (
                 <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
                   <p className="text-xs font-semibold text-amber-600">⏳ Pitch Submitted — Awaiting Approval</p>
