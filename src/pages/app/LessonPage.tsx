@@ -824,6 +824,7 @@ export default function LessonPage() {
               managerName={profile?.direct_manager || undefined}
               isRookieCourse={isRookieCourse}
               onRefresh={refreshPitch}
+              onTakeQuiz={() => setShowQuiz(true)}
             />
 
             {/* Quiz Section - Only show if has quiz and not complete */}
