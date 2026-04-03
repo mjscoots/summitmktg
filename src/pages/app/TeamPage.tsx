@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, Trash2, Clock, TrendingUp, Activity } from 'lucide-react';
+import { Users, ChevronRight, ChevronDown, Search, UserPlus, MoreHorizontal, Pencil, UserX, ArrowRightLeft, Trash2, Clock, TrendingUp, Activity } from 'lucide-react';
 import { MiniWeekChart } from '@/components/team/MiniWeekChart';
 import { Input } from '@/components/ui/input';
 import { useTrainingProgress } from '@/hooks/useTrainingProgress';
@@ -37,6 +37,7 @@ import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { MoveRepModal } from '@/components/team/MoveRepModal';
 
 interface TeamPillar {
   name: string;
@@ -153,6 +154,11 @@ export default function TeamPage() {
 
   // NLC confirm dialog
   const [nlcConfirm, setNlcConfirm] = useState<{ open: boolean; member: TeamMemberLocal | null }>({
+    open: false, member: null
+  });
+
+  // Move rep dialog
+  const [moveTarget, setMoveTarget] = useState<{ open: boolean; member: TeamMemberLocal | null }>({
     open: false, member: null
   });
 
@@ -462,12 +468,19 @@ export default function TeamPage() {
                   <Pencil className="w-3.5 h-3.5 mr-2" /> Edit Member
                 </DropdownMenuItem>
                 {node.member.status !== 'nlc' && (
-                  <DropdownMenuItem
-                    onClick={() => setNlcConfirm({ open: true, member: node.member })}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <UserX className="w-3.5 h-3.5 mr-2" /> Mark as NLC
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => setMoveTarget({ open: true, member: node.member })}
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 mr-2" /> Move Rep
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setNlcConfirm({ open: true, member: node.member })}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <UserX className="w-3.5 h-3.5 mr-2" /> Mark as NLC
+                    </DropdownMenuItem>
+                  </>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -808,6 +821,18 @@ export default function TeamPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Move Rep Modal */}
+      {moveTarget.member && profile?.user_id && (
+        <MoveRepModal
+          open={moveTarget.open}
+          onClose={() => setMoveTarget({ open: false, member: null })}
+          repUserId={moveTarget.member.user_id}
+          repName={getDisplayName(moveTarget.member.full_name)}
+          currentManagerUserId={profile.user_id}
+          onMoved={() => { setIsLoading(true); fetchAllMembers(); }}
+        />
+      )}
     </AppLayout>
   );
 }
