@@ -37,6 +37,7 @@ import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { MoveRepModal } from '@/components/team/MoveRepModal';
 
 interface TeamPillar {
   name: string;
