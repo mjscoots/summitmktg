@@ -894,6 +894,17 @@ export default function LessonPage() {
                 pitchStatus={pitchRequest?.status as 'pending' | 'approved' | 'rejected' | null | undefined}
                 onRecordPitch={() => setShowPitchModal(true)}
               />
+            ) : questions.length === 0 ? (
+              /* No questions loaded - show error */
+              <div className="text-center py-8">
+                <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-3" />
+                <p className="text-sm font-medium text-foreground mb-1">Quiz questions could not be loaded</p>
+                <p className="text-xs text-muted-foreground mb-4">Please try refreshing the page. If the problem persists, contact your manager.</p>
+                <div className="flex gap-2 justify-center">
+                  <Button variant="outline" size="sm" onClick={() => setShowQuiz(false)}>Back to Lesson</Button>
+                  <Button size="sm" onClick={() => window.location.reload()}>Refresh Page</Button>
+                </div>
+              </div>
             ) : (
               /* Quiz Questions */
               <div className="space-y-4">
