@@ -277,7 +277,18 @@ export default function LessonPage() {
         }
 
         if (questionsResult.data && questionsResult.data.length > 0) {
-          setQuestions(questionsResult.data as QuizQuestion[]);
+          // Normalize options: DB may store as string[] or {id,text}[]
+          const normalized = questionsResult.data.map((q: any) => ({
+            ...q,
+            options: Array.isArray(q.options)
+              ? q.options.map((opt: any, i: number) =>
+                  typeof opt === 'string'
+                    ? { id: `opt-${i}`, text: opt }
+                    : opt
+                )
+              : q.options,
+          }));
+          setQuestions(normalized as QuizQuestion[]);
         } else {
           setQuestions([]);
         }
