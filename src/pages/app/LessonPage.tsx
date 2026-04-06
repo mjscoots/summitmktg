@@ -41,7 +41,7 @@ interface QuizQuestion {
   id: string;
   question_text: string;
   question_type: 'multiple_choice' | 'short_answer' | 'scenario';
-  options: { id: string; text: string; isCorrect?: boolean }[] | null;
+  options: { id: string; text: string; value: string; isCorrect?: boolean }[] | null;
   display_order: number;
   correct_answer?: string;
 }
@@ -62,6 +62,16 @@ interface QuizResultData {
   total: number;
   results: QuizQuestionResult[];
 }
+
+const formatQuizAnswerLabel = (question: QuizQuestion | undefined, answer: string) => {
+  if (!question?.options || !answer) return answer;
+
+  const matchedOption = question.options.find(
+    (option) => option.id === answer || option.value === answer || option.text === answer,
+  );
+
+  return matchedOption?.text || answer;
+};
 
 // Rookie courses always use green
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
@@ -283,8 +293,12 @@ export default function LessonPage() {
             options: Array.isArray(q.options)
               ? q.options.map((opt: any, i: number) =>
                   typeof opt === 'string'
-                    ? { id: `opt-${i}`, text: opt }
-                    : opt
+                    ? { id: `opt-${i}`, text: opt, value: opt }
+                    : {
+                        id: opt.id ?? `opt-${i}`,
+                        text: opt.text ?? String(opt.id ?? `Option ${i + 1}`),
+                        value: opt.id ?? opt.text ?? String(opt.id ?? `opt-${i}`),
+                      }
                 )
               : q.options,
           }));
@@ -333,9 +347,22 @@ export default function LessonPage() {
       const result = data as unknown as QuizResultData | null;
       
       if (result) {
-        setQuizResult(result);
+        const formattedResult = {
+          ...result,
+          results: (result.results || []).map((questionResult) => {
+            const matchingQuestion = questions.find((question) => question.id === questionResult.question_id);
 
-        if (result.passed) {
+            return {
+              ...questionResult,
+              user_answer: formatQuizAnswerLabel(matchingQuestion, questionResult.user_answer),
+              correct_answer: formatQuizAnswerLabel(matchingQuestion, questionResult.correct_answer),
+            };
+          }),
+        };
+
+        setQuizResult(formattedResult);
+
+        if (formattedResult.passed) {
           setLessonCompleted(true);
           recordActivity();
           toast.success('Quiz passed — 100% correct!');
@@ -354,7 +381,7 @@ export default function LessonPage() {
           // Check if this completes 100% training — notify manager
           notifyManagerOf100PercentCompletion();
         } else {
-          toast.error(`You need 100% to pass. You got ${result.score}%`);
+          toast.error(`You need 100% to pass. You got ${formattedResult.score}%`);
         }
       }
     } catch (err) {
@@ -935,7 +962,7 @@ export default function LessonPage() {
                             key={option.id}
                             className={cn(
                               "flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm",
-                              answers[question.id] === option.text
+                              answers[question.id] === option.value
                                 ? isRookieCourse 
                                   ? 'border-primary bg-primary/10'
                                   : 'border-blue-500 bg-blue-500/10'
@@ -945,18 +972,18 @@ export default function LessonPage() {
                             <input
                               type="radio"
                               name={question.id}
-                              value={option.id}
-                              checked={answers[question.id] === option.text}
-                              onChange={() => setAnswers(prev => ({ ...prev, [question.id]: option.text }))}
+                              value={option.value}
+                              checked={answers[question.id] === option.value}
+                              onChange={() => setAnswers(prev => ({ ...prev, [question.id]: option.value }))}
                               className="sr-only"
                             />
                             <div className={cn(
                               "w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
-                              answers[question.id] === option.text
+                              answers[question.id] === option.value
                                 ? isRookieCourse ? "border-primary" : "border-blue-500"
                                 : "border-muted-foreground/50"
                             )}>
-                              {answers[question.id] === option.text && (
+                              {answers[question.id] === option.value && (
                                 <div className={cn(
                                   "w-1.5 h-1.5 rounded-full",
                                   isRookieCourse ? "bg-primary" : "bg-blue-500"
