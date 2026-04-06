@@ -277,7 +277,18 @@ export default function LessonPage() {
         }
 
         if (questionsResult.data && questionsResult.data.length > 0) {
-          setQuestions(questionsResult.data as QuizQuestion[]);
+          // Normalize options: DB may store as string[] or {id,text}[]
+          const normalized = questionsResult.data.map((q: any) => ({
+            ...q,
+            options: Array.isArray(q.options)
+              ? q.options.map((opt: any, i: number) =>
+                  typeof opt === 'string'
+                    ? { id: `opt-${i}`, text: opt }
+                    : opt
+                )
+              : q.options,
+          }));
+          setQuestions(normalized as QuizQuestion[]);
         } else {
           setQuestions([]);
         }
@@ -924,7 +935,7 @@ export default function LessonPage() {
                             key={option.id}
                             className={cn(
                               "flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm",
-                              answers[question.id] === option.id
+                              answers[question.id] === option.text
                                 ? isRookieCourse 
                                   ? 'border-primary bg-primary/10'
                                   : 'border-blue-500 bg-blue-500/10'
@@ -935,17 +946,17 @@ export default function LessonPage() {
                               type="radio"
                               name={question.id}
                               value={option.id}
-                              checked={answers[question.id] === option.id}
-                              onChange={() => setAnswers(prev => ({ ...prev, [question.id]: option.id }))}
+                              checked={answers[question.id] === option.text}
+                              onChange={() => setAnswers(prev => ({ ...prev, [question.id]: option.text }))}
                               className="sr-only"
                             />
                             <div className={cn(
                               "w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
-                              answers[question.id] === option.id
+                              answers[question.id] === option.text
                                 ? isRookieCourse ? "border-primary" : "border-blue-500"
                                 : "border-muted-foreground/50"
                             )}>
-                              {answers[question.id] === option.id && (
+                              {answers[question.id] === option.text && (
                                 <div className={cn(
                                   "w-1.5 h-1.5 rounded-full",
                                   isRookieCourse ? "bg-primary" : "bg-blue-500"
