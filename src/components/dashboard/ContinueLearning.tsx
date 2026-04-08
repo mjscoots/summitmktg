@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Brain, FileText, Play, ChevronRight } from 'lucide-react';
+import { BookOpen, FileText, Play, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PointsBreakdown } from '@/hooks/useMyPoints';
 
@@ -30,9 +30,6 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
 
   if (lessonRemaining > 0) {
     actions.push({ icon: <BookOpen className="w-4 h-4" />, label: 'Resume Lesson', points: `+${Math.min(60, lessonRemaining)}`, route: '/app/training', priority: hoursRemaining > 0 ? 1 : 2, iconColor: 'text-primary' });
-  }
-  if (lessonRemaining >= 20) {
-    actions.push({ icon: <Brain className="w-4 h-4" />, label: 'Take Quiz', points: '+75', route: '/app/training', priority: 3, iconColor: 'text-primary' });
   }
   if (manualRemaining > 0) {
     actions.push({ icon: <FileText className="w-4 h-4" />, label: 'Sales Manual', points: `+${Math.min(50, manualRemaining)}`, route: '/app/training', priority: 4, iconColor: 'text-primary' });
