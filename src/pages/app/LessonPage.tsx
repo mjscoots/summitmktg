@@ -3,21 +3,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ArrowLeft, CheckCircle2, BookOpen, HelpCircle, ChevronRight, Loader2, ArrowRight, Sparkles, AlertCircle, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, BookOpen, ChevronRight, Loader2, ArrowRight, Sparkles, AlertCircle, Clock } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ModuleCompletionCelebration } from '@/components/training/ModuleCompletionCelebration';
 import { LessonContent } from '@/components/training/LessonContent';
-import { TeamScriptSelector } from '@/components/training/TeamScriptSelector';
 import { useStreak } from '@/hooks/useStreak';
 import { useScrollGate } from '@/hooks/useScrollGate';
 import { LessonDebugPanel } from '@/components/training/LessonDebugPanel';
 import { useLessonPitchStatus } from '@/hooks/usePitchApprovals';
 import { PitchApprovalCard } from '@/components/training/PitchApprovalCard';
 import { PitchRecordingModal } from '@/components/training/PitchRecordingModal';
-import { QuizResultsDisplay } from '@/components/training/QuizResultsDisplay';
 import { sanitizeUrl } from '@/lib/sanitizeUrl';
 
 interface Lesson {
@@ -37,46 +35,8 @@ interface ModuleInfo {
   display_order: number;
 }
 
-interface QuizQuestion {
-  id: string;
-  question_text: string;
-  question_type: 'multiple_choice' | 'short_answer' | 'scenario';
-  options: { id: string; text: string; value: string; isCorrect?: boolean }[] | null;
-  display_order: number;
-  correct_answer?: string;
-}
-
-interface QuizQuestionResult {
-  question_id: string;
-  question_text: string;
-  user_answer: string;
-  correct_answer: string;
-  is_correct: boolean;
-  explanation: string;
-}
-
-interface QuizResultData {
-  passed: boolean;
-  score: number;
-  correct: number;
-  total: number;
-  results: QuizQuestionResult[];
-}
-
-const formatQuizAnswerLabel = (question: QuizQuestion | undefined, answer: string) => {
-  if (!question?.options || !answer) return answer;
-
-  const matchedOption = question.options.find(
-    (option) => option.id === answer || option.value === answer || option.text === answer,
-  );
-
-  return matchedOption?.text || answer;
-};
-
 // Rookie courses always use green
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
-
-// All quizzes are now required - no optional modules
 
 // Scripts module ID for team-specific script selector
 const SCRIPTS_MODULE_ID = 'a1b2c3d4-0002-4000-8000-000000000002';
