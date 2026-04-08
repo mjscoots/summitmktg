@@ -43,7 +43,7 @@ interface Course {
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
 const isLessonSatisfied = (lesson: Lesson) => {
-  if (!lesson.quiz_passed) return false;
+  if (!lesson.completed) return false;
   if (!lesson.requires_pitch_approval) return true;
   return lesson.pitch_status === 'approved';
 };
