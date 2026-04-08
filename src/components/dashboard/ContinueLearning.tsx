@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Brain, FileText, Play, ChevronRight } from 'lucide-react';
+import { BookOpen, FileText, Play, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PointsBreakdown } from '@/hooks/useMyPoints';
 
