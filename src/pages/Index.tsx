@@ -12,14 +12,16 @@ const Index = () => {
   const [calcMode, setCalcMode] = useState<'rookie' | 'vet'>('rookie');
   const [stars, setStars] = useState<Array<{id: number;x: number;y: number;size: number;opacity: number;delay: number;}>>([]);
 
-  // Preload logo then reveal
+  // Preload logo then reveal — short timeout to avoid stuck loading screen
   useEffect(() => {
     const img = new Image();
     img.src = summitLogo;
     img.onload = () => setReady(true);
     img.onerror = () => setReady(true);
-    // Fallback timeout
-    const t = setTimeout(() => setReady(true), 3000);
+    // If image is already cached, complete attribute is true immediately
+    if (img.complete) { setReady(true); return; }
+    // Short fallback timeout
+    const t = setTimeout(() => setReady(true), 1500);
     return () => clearTimeout(t);
   }, []);
 
