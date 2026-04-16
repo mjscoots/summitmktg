@@ -111,10 +111,10 @@ export default function LessonPage() {
     return siblingLessons[currentLessonIndex + 1];
   }, [currentLessonIndex, siblingLessons]);
 
-  // Determine if user can proceed (no quiz gate — just scroll + pitch)
+  // Determine if user can proceed (no quiz gate — pitch is optional)
   const scrollUnlocked = atBottom || lessonCompleted;
-  const pitchBlocking = requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved');
-  const canProceed = scrollUnlocked && !pitchBlocking;
+  const pitchBlocking = false; // Pitch upload is now optional — reps can skip
+  const canProceed = scrollUnlocked;
 
   // Button state machine
   const buttonState: ButtonState = useMemo(() => {
@@ -268,16 +268,7 @@ export default function LessonPage() {
   const handleNext = useCallback(async () => {
     if (!lesson || !moduleInfo) return;
 
-    // Block navigation if pitch approval is required but not yet approved
-    if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
-      if (!pitchRequest || pitchRequest.status === 'rejected') {
-        setShowPitchModal(true);
-        toast.error('Record and submit your pitch before continuing.');
-      } else if (pitchRequest.status === 'pending') {
-        toast.error('⏳ Waiting for your manager to approve your pitch.');
-      }
-      return;
-    }
+    // Pitch upload is optional — no longer blocks navigation
 
     // Mark complete automatically
     if (!lessonCompleted) {
@@ -659,16 +650,16 @@ export default function LessonPage() {
           onRefresh={refreshPitch}
         />
 
-        {/* Pitch approval waiting message */}
-        {pitchBlocking && lessonCompleted && (
+        {/* Pitch status info (non-blocking) */}
+        {requiresPitch && pitchRequest?.status === 'pending' && (
           <div className={cn(
-            "text-center py-4 px-4 rounded-lg border-2 border-dashed mt-4",
-            "border-primary/40 bg-primary/5"
+            "text-center py-4 px-4 rounded-lg border border-dashed mt-4",
+            "border-primary/30 bg-primary/5"
           )}>
             <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
-            <p className="text-sm font-semibold text-amber-600">Waiting for Manager Approval</p>
+            <p className="text-sm font-semibold text-primary">Pitch Submitted — Awaiting Review</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Your manager needs to approve your pitch before you can continue to the next lesson.
+              You can continue to the next lesson while your manager reviews your pitch.
             </p>
           </div>
         )}
