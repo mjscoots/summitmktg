@@ -111,10 +111,10 @@ export default function LessonPage() {
     return siblingLessons[currentLessonIndex + 1];
   }, [currentLessonIndex, siblingLessons]);
 
-  // Determine if user can proceed (no quiz gate — just scroll + pitch)
+  // Determine if user can proceed (no quiz gate — pitch is optional)
   const scrollUnlocked = atBottom || lessonCompleted;
-  const pitchBlocking = requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved');
-  const canProceed = scrollUnlocked && !pitchBlocking;
+  const pitchBlocking = false; // Pitch upload is now optional — reps can skip
+  const canProceed = scrollUnlocked;
 
   // Button state machine
   const buttonState: ButtonState = useMemo(() => {
@@ -268,16 +268,7 @@ export default function LessonPage() {
   const handleNext = useCallback(async () => {
     if (!lesson || !moduleInfo) return;
 
-    // Block navigation if pitch approval is required but not yet approved
-    if (requiresPitch && (!pitchRequest || pitchRequest.status !== 'approved')) {
-      if (!pitchRequest || pitchRequest.status === 'rejected') {
-        setShowPitchModal(true);
-        toast.error('Record and submit your pitch before continuing.');
-      } else if (pitchRequest.status === 'pending') {
-        toast.error('⏳ Waiting for your manager to approve your pitch.');
-      }
-      return;
-    }
+    // Pitch upload is optional — no longer blocks navigation
 
     // Mark complete automatically
     if (!lessonCompleted) {

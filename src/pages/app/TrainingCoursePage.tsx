@@ -43,9 +43,8 @@ interface Course {
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
 const isLessonSatisfied = (lesson: Lesson) => {
-  if (!lesson.completed) return false;
-  if (!lesson.requires_pitch_approval) return true;
-  return lesson.pitch_status === 'approved';
+  // Pitch upload is optional — completion is the only gate
+  return lesson.completed;
 };
 
 export default function TrainingCoursePage() {
