@@ -650,16 +650,16 @@ export default function LessonPage() {
           onRefresh={refreshPitch}
         />
 
-        {/* Pitch approval waiting message */}
-        {pitchBlocking && lessonCompleted && (
+        {/* Pitch status info (non-blocking) */}
+        {requiresPitch && pitchRequest?.status === 'pending' && (
           <div className={cn(
-            "text-center py-4 px-4 rounded-lg border-2 border-dashed mt-4",
-            "border-primary/40 bg-primary/5"
+            "text-center py-4 px-4 rounded-lg border border-dashed mt-4",
+            "border-primary/30 bg-primary/5"
           )}>
             <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
-            <p className="text-sm font-semibold text-amber-600">Waiting for Manager Approval</p>
+            <p className="text-sm font-semibold text-primary">Pitch Submitted — Awaiting Review</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Your manager needs to approve your pitch before you can continue to the next lesson.
+              You can continue to the next lesson while your manager reviews your pitch.
             </p>
           </div>
         )}
