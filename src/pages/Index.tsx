@@ -107,6 +107,8 @@ const Index = () => {
         </div>
       </nav>
 
+      {/* Main content */}
+      <main className="flex-1 flex flex-col">
       {/* Hero Section */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="relative z-10 max-w-2xl mx-auto text-center">
@@ -136,7 +138,7 @@ const Index = () => {
                 letterSpacing: '-0.02em'
               }}>
 
-              Summit Marketing
+              Summit Marketing — Elite Sales Training & Recruiting
             </h1>
             <p className="text-muted-foreground text-lg font-medium tracking-wide">
               Door-to-door sales. Done differently.
@@ -227,6 +229,7 @@ const Index = () => {
           Apply Now <ArrowRight className="w-5 h-5" />
         </button>
       </div>
+      </main>
 
       {/* Divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
