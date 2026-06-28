@@ -1268,6 +1268,33 @@ export type Database = {
         }
         Relationships: []
       }
+      manager_meeting_submissions: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          updated_at: string
+          user_id: string
+          week_of: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id?: string
+          week_of: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id?: string
+          week_of?: string
+        }
+        Relationships: []
+      }
       manager_notifications: {
         Row: {
           created_at: string

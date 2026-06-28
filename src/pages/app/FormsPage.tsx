@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
+import ManagerMeetingHubContent from '@/components/forms/ManagerMeetingHubContent';
 
-type FormSection = 'interviews' | 'weekly-1on1s';
+type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting';
 type InterviewSubTab = 'forms' | 'responses';
 
 const badgeGradients = [
@@ -72,7 +73,7 @@ export default function FormsPage() {
   return (
     <AppLayout>
       <main className="relative max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <PageBackButton to="/app/operations" label="Operations" />
+        <PageBackButton to="/app" label="Home" />
 
         {/* ── Hero Header ── */}
         <div className="flex items-start justify-between mb-12">
@@ -113,6 +114,7 @@ export default function FormsPage() {
             {[
               { key: 'interviews' as FormSection, label: 'Interview Forms' },
               { key: 'weekly-1on1s' as FormSection, label: 'Weekly 1:1 Forms' },
+              { key: 'manager-meeting' as FormSection, label: 'Manager Meeting' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -244,8 +246,10 @@ export default function FormsPage() {
               <InterviewResponsesTable />
             )}
           </>
-        ) : (
+        ) : activeSection === 'weekly-1on1s' ? (
           <WeeklyOneOnOnesContent />
+        ) : (
+          <ManagerMeetingHubContent />
         )}
       </main>
     </AppLayout>
