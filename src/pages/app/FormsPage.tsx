@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
+import ManagerMeetingHubContent from '@/components/forms/ManagerMeetingHubContent';
 
-type FormSection = 'interviews' | 'weekly-1on1s';
+type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting';
 type InterviewSubTab = 'forms' | 'responses';
 
 const badgeGradients = [
