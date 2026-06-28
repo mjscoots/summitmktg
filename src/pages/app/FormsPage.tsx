@@ -114,6 +114,7 @@ export default function FormsPage() {
             {[
               { key: 'interviews' as FormSection, label: 'Interview Forms' },
               { key: 'weekly-1on1s' as FormSection, label: 'Weekly 1:1 Forms' },
+              { key: 'manager-meeting' as FormSection, label: 'Manager Meeting' },
             ].map((tab) => (
               <button
                 key={tab.key}
