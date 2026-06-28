@@ -73,7 +73,7 @@ export default function FormsPage() {
   return (
     <AppLayout>
       <main className="relative max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <PageBackButton to="/app/operations" label="Operations" />
+        <PageBackButton to="/app" label="Home" />
 
         {/* ── Hero Header ── */}
         <div className="flex items-start justify-between mb-12">
