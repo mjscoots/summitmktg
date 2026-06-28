@@ -236,25 +236,25 @@ export default function ManagerMeetingPage() {
 
         <div className="space-y-6">
           {/* 1 Accountability */}
-          <SectionCard n={1} title="Last Week's Accountability" subtitle="Did last week's rules, roles, and assigned activity actually happen?">
+          <SectionCard n={1} title="Last Week's Accountability" subtitle="Whether last week's rules, roles, and activity were completed. Goal vs. actual.">
             <div className="space-y-2">
               <Label>Recap</Label>
-              <Textarea rows={4} value={data.last_week_accountability} onChange={(e) => update('last_week_accountability', e.target.value)} placeholder="What got executed, what slipped, who owned it…" />
+              <Textarea rows={4} value={data.last_week_accountability} onChange={(e) => update('last_week_accountability', e.target.value)} placeholder="What was completed, what slipped, and who owned it" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div><Label>Goal</Label><Input value={data.last_week_goal} onChange={(e) => update('last_week_goal', e.target.value)} placeholder="$ / units" /></div>
-              <div><Label>Actual</Label><Input value={data.last_week_actual} onChange={(e) => update('last_week_actual', e.target.value)} placeholder="$ / units" /></div>
+              <div><Label>Goal</Label><Input value={data.last_week_goal} onChange={(e) => update('last_week_goal', e.target.value)} placeholder="Goal" /></div>
+              <div><Label>Actual</Label><Input value={data.last_week_actual} onChange={(e) => update('last_week_actual', e.target.value)} placeholder="Actual" /></div>
               <div><Label>% to goal</Label><Input value={data.last_week_pct} onChange={(e) => update('last_week_pct', e.target.value)} placeholder="e.g. 87%" /></div>
             </div>
           </SectionCard>
 
           {/* 2 Wins */}
-          <SectionCard n={2} title="Wins of the Week" subtitle="What good happened — celebrate it.">
-            <Textarea rows={5} value={data.wins} onChange={(e) => update('wins', e.target.value)} placeholder="• Big sale&#10;• Rookie breakthrough&#10;• Team milestone…" />
+          <SectionCard n={2} title="Wins of the Week" subtitle="What went well this week.">
+            <Textarea rows={5} value={data.wins} onChange={(e) => update('wins', e.target.value)} placeholder="" />
           </SectionCard>
 
           {/* 3 Rep Triage */}
-          <SectionCard n={3} title="Rep Triage" subtitle="Tag each rep — Cut, Watch, Needs Help, or Promote.">
+          <SectionCard n={3} title="Rep Triage" subtitle="Tag each rep: Cut, Watch, Needs Help, or Promote.">
             <div className="space-y-3">
               {data.reps.map((r) => {
                 const m = statusMeta[r.status];
@@ -278,12 +278,12 @@ export default function ManagerMeetingPage() {
           </SectionCard>
 
           {/* 4 Constitutional Rules */}
-          <SectionCard n={4} title="Constitutional Rules" subtitle="Rules to implement or reinforce this week.">
+          <SectionCard n={4} title="Constitutional Rules" subtitle="Rules to implement or reinforce, with enforcement.">
             <div className="space-y-3">
               {data.rules.map((r) => (
                 <div key={r.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 flex flex-col sm:flex-row gap-3">
-                  <Input className="sm:max-w-[260px]" placeholder="Rule (e.g. Curfew 11pm)" value={r.rule} onChange={(e) => update('rules', data.rules.map(x => x.id === r.id ? { ...x, rule: e.target.value } : x))} />
-                  <Input className="flex-1" placeholder="Enforcement / fine / consequence" value={r.enforcement} onChange={(e) => update('rules', data.rules.map(x => x.id === r.id ? { ...x, enforcement: e.target.value } : x))} />
+                  <Input className="sm:max-w-[260px]" placeholder="Rule" value={r.rule} onChange={(e) => update('rules', data.rules.map(x => x.id === r.id ? { ...x, rule: e.target.value } : x))} />
+                  <Input className="flex-1" placeholder="Enforcement or consequence" value={r.enforcement} onChange={(e) => update('rules', data.rules.map(x => x.id === r.id ? { ...x, enforcement: e.target.value } : x))} />
                   <Button variant="ghost" size="icon" onClick={() => update('rules', data.rules.filter(x => x.id !== r.id))}><Trash2 className="w-4 h-4" /></Button>
                 </div>
               ))}
@@ -292,12 +292,12 @@ export default function ManagerMeetingPage() {
           </SectionCard>
 
           {/* 5 Office Issues */}
-          <SectionCard n={5} title="Office Issues" subtitle="Common issues at the office to address.">
-            <Textarea rows={4} value={data.office_issues} onChange={(e) => update('office_issues', e.target.value)} placeholder="Cleanliness, attendance, energy, tension between reps…" />
+          <SectionCard n={5} title="Office Issues" subtitle="Issues at the office to address.">
+            <Textarea rows={4} value={data.office_issues} onChange={(e) => update('office_issues', e.target.value)} placeholder="" />
           </SectionCard>
 
           {/* 6 Roles */}
-          <SectionCard n={6} title="Roles for Next Week" subtitle="Every role must be assigned. No skips.">
+          <SectionCard n={6} title="Roles for Next Week" subtitle="Assign every role. Host, DJ, Breakdown Lead, and training slots.">
             <div className="space-y-3">
               {data.roles.map((r) => (
                 <div key={r.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
@@ -318,7 +318,7 @@ export default function ManagerMeetingPage() {
           </SectionCard>
 
           {/* 7 Managers */}
-          <SectionCard n={7} title="Manager Compliment + Critique" subtitle="Each manager: one compliment, one thing to work on.">
+          <SectionCard n={7} title="Manager Compliment + Critique" subtitle="One compliment and one area to improve per manager.">
             <div className="space-y-3">
               {data.managers.map((m) => (
                 <div key={m.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
@@ -337,21 +337,21 @@ export default function ManagerMeetingPage() {
           </SectionCard>
 
           {/* 8 Weekend */}
-          <SectionCard n={8} title="Weekend Activity Assignment" subtitle="Plan it now — not Friday night.">
+          <SectionCard n={8} title="Weekend Activity Assignment" subtitle="Who plans next weekend's activity, and the plan.">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label>Planner (who owns it)</Label><Input value={data.weekend_planner} onChange={(e) => update('weekend_planner', e.target.value)} placeholder="Name" /></div>
-              <div><Label>Activity idea</Label><Input value={data.weekend_idea} onChange={(e) => update('weekend_idea', e.target.value)} placeholder="e.g. Lake day, paintball, BBQ" /></div>
+              <div><Label>Activity idea</Label><Input value={data.weekend_idea} onChange={(e) => update('weekend_idea', e.target.value)} placeholder="Activity" /></div>
             </div>
           </SectionCard>
 
           {/* 9 Car groups */}
-          <SectionCard n={9} title="Area Map + Car Groups" subtitle="Who's driving who, where.">
+          <SectionCard n={9} title="Area Map + Car Groups" subtitle="Driver, riders, and assigned area per group.">
             <div className="space-y-3">
               {data.car_groups.map((g) => (
                 <div key={g.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 flex flex-col sm:flex-row gap-3">
-                  <Input className="sm:max-w-[200px]" placeholder="Driver / Group name" value={g.group_name} onChange={(e) => update('car_groups', data.car_groups.map(x => x.id === g.id ? { ...x, group_name: e.target.value } : x))} />
-                  <Input className="flex-1" placeholder="Riders (comma separated)" value={g.riders} onChange={(e) => update('car_groups', data.car_groups.map(x => x.id === g.id ? { ...x, riders: e.target.value } : x))} />
-                  <Input className="sm:max-w-[220px]" placeholder="Area / territory" value={g.area} onChange={(e) => update('car_groups', data.car_groups.map(x => x.id === g.id ? { ...x, area: e.target.value } : x))} />
+                  <Input className="sm:max-w-[200px]" placeholder="Driver" value={g.group_name} onChange={(e) => update('car_groups', data.car_groups.map(x => x.id === g.id ? { ...x, group_name: e.target.value } : x))} />
+                  <Input className="flex-1" placeholder="Riders" value={g.riders} onChange={(e) => update('car_groups', data.car_groups.map(x => x.id === g.id ? { ...x, riders: e.target.value } : x))} />
+                  <Input className="sm:max-w-[220px]" placeholder="Area" value={g.area} onChange={(e) => update('car_groups', data.car_groups.map(x => x.id === g.id ? { ...x, area: e.target.value } : x))} />
                   <Button variant="ghost" size="icon" onClick={() => update('car_groups', data.car_groups.filter(x => x.id !== g.id))}><Trash2 className="w-4 h-4" /></Button>
                 </div>
               ))}
@@ -360,9 +360,9 @@ export default function ManagerMeetingPage() {
           </SectionCard>
 
           {/* 10 Team goal */}
-          <SectionCard n={10} title="Team Goal + Action Items Recap" subtitle="One rallying goal. Clear owners.">
-            <div><Label>Team goal for the week</Label><Input value={data.team_goal} onChange={(e) => update('team_goal', e.target.value)} placeholder="e.g. 35 sales / $80K" /></div>
-            <div><Label>Action items recap</Label><Textarea rows={5} value={data.action_items} onChange={(e) => update('action_items', e.target.value)} placeholder="• Owner — task — due date" /></div>
+          <SectionCard n={10} title="Team Goal + Action Items Recap" subtitle="The week's goal and who owns what.">
+            <div><Label>Team goal for the week</Label><Input value={data.team_goal} onChange={(e) => update('team_goal', e.target.value)} placeholder="Goal for the week" /></div>
+            <div><Label>Action items recap</Label><Textarea rows={5} value={data.action_items} onChange={(e) => update('action_items', e.target.value)} placeholder="Owner — task — due" /></div>
           </SectionCard>
         </div>
 
