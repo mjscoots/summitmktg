@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, UserCheck, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Team, ResponsesTab } from '@/components/one-on-one/shared';
+import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 
 type OneOnOneSubTab = 'forms' | 'responses';
 
