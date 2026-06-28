@@ -101,7 +101,10 @@ export default function ManagerMeetingHubContent() {
             </span>
           )}
         </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <CopyLinkButton path="/app/manager-meeting" label="Copy link" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
+        </div>
       </div>
 
       {/* Admin overview */}
