@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, UserCheck, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Team, ResponsesTab } from '@/components/one-on-one/shared';
+import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 
 type OneOnOneSubTab = 'forms' | 'responses';
 
@@ -66,13 +67,16 @@ export default function WeeklyOneOnOnesContent() {
                 </div>
               </div>
               <div className="flex-1" />
-              <button
-                onClick={(e) => { e.stopPropagation(); navigate('/app/one-on-ones/prep'); }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
-              >
-                <Pencil className="w-4 h-4" />
-                <span>Open</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate('/app/one-on-ones/prep'); }}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span>Open</span>
+                </button>
+                <CopyLinkButton path="/app/one-on-ones/prep" size="md" />
+              </div>
             </div>
 
             <div
@@ -89,13 +93,16 @@ export default function WeeklyOneOnOnesContent() {
                 </div>
               </div>
               <div className="flex-1" />
-              <button
-                onClick={(e) => { e.stopPropagation(); navigate('/app/one-on-ones/prep?mode=manager'); }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
-              >
-                <Pencil className="w-4 h-4" />
-                <span>Open</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate('/app/one-on-ones/prep?mode=manager'); }}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg transition-all duration-200 hover:bg-primary/85 hover:shadow-[0_0_15px_-5px_hsl(var(--primary)/0.4)]"
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span>Open</span>
+                </button>
+                <CopyLinkButton path="/app/one-on-ones/prep?mode=manager" size="md" />
+              </div>
             </div>
           </div>
 

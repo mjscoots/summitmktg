@@ -8,6 +8,7 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
 import ManagerMeetingHubContent from '@/components/forms/ManagerMeetingHubContent';
+import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 
 type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting';
 type InterviewSubTab = 'forms' | 'responses';
@@ -196,6 +197,9 @@ export default function FormsPage() {
                           <ChevronRight className="w-4.5 h-4.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-all duration-200 group-hover:translate-x-0.5 flex-shrink-0" />
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed pl-[3.25rem]">{card.subtitle}</p>
+                        <div className="pl-[3.25rem] mt-3" onClick={(e) => e.stopPropagation()}>
+                          <CopyLinkButton path={card.path} />
+                        </div>
                       </div>
 
                       {/* Bottom accent line */}
