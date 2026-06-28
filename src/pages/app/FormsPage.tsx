@@ -8,6 +8,7 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
 import ManagerMeetingHubContent from '@/components/forms/ManagerMeetingHubContent';
+import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 
 type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting';
 type InterviewSubTab = 'forms' | 'responses';
