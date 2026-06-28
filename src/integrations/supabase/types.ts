@@ -3113,6 +3113,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_profile_contact: {
+        Args: { _user_id: string }
+        Returns: {
+          calendly_url: string
+          email: string
+          phone: string
+          revenue_goal: number
+          user_id: string
+        }[]
+      }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
