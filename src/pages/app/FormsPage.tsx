@@ -246,8 +246,10 @@ export default function FormsPage() {
               <InterviewResponsesTable />
             )}
           </>
-        ) : (
+        ) : activeSection === 'weekly-1on1s' ? (
           <WeeklyOneOnOnesContent />
+        ) : (
+          <ManagerMeetingHubContent />
         )}
       </main>
     </AppLayout>
