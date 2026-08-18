@@ -36,6 +36,7 @@ import {
 
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
 const LazyPitchApprovals = lazy(() => import('@/components/admin/AdminPitchApprovalsTab'));
+const LazyRecruiting = lazy(() => import('@/components/admin/AdminRecruitingTab'));
 
 interface TeamRow {
   id: string;
@@ -348,6 +349,9 @@ export default function AdminTeamPage() {
               <TabsTrigger value="apps" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Apps
               </TabsTrigger>
+              <TabsTrigger value="recruiting" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                Recruiting
+              </TabsTrigger>
               <TabsTrigger value="pitches" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
               </TabsTrigger>
@@ -529,6 +533,13 @@ export default function AdminTeamPage() {
           {/* ========== APPS TAB ========== */}
           <TabsContent value="apps">
             <AdminApplicationsTab />
+          </TabsContent>
+
+          {/* ========== RECRUITING TAB ========== */}
+          <TabsContent value="recruiting">
+            <Suspense fallback={<TableSkeleton columns={7} rows={8} />}>
+              <LazyRecruiting reps={allUsers.map(u => ({ user_id: u.user_id, full_name: u.full_name || u.email || 'Unknown' }))} />
+            </Suspense>
           </TabsContent>
 
           {/* ========== PITCHES TAB ========== */}

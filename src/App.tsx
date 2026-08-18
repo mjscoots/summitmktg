@@ -62,6 +62,8 @@ const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage
 const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
 const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
 const ManagerMeetingPage = lazy(() => import("./pages/app/ManagerMeetingPage"));
+const TicketPage = lazy(() => import("./pages/TicketPage"));
+const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 
 function LazyFallback() {
   return (
@@ -115,6 +117,8 @@ function LazyFallback() {
              {/* ========== PUBLIC ROUTES ========== */}
              <Route path="/" element={<Index />} />
              <Route path="/recruiting" element={<Recruiting />} />
+             {/* Public Golden Ticket lead capture (QR / no login) */}
+             <Route path="/ticket" element={<TicketPage />} />
              {/* Redirect /apply to /recruiting#apply section */}
              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
              <Route path="/apply/rookie" element={<RookieApplication />} />
@@ -268,6 +272,16 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+
+              {/* Recruits — lead funnel (all reps) */}
+              <Route path="/app/recruits" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <RecruitsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
 
               {/* Leaderboard */}
               <Route path="/app/leaderboard" element={
