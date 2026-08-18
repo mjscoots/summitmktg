@@ -57,7 +57,27 @@ html, body, #root {
     --input: 220 40% 10%;
     --ring: 216 89% 53%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
+
+    /* ━━━ SURFACE LAYERS ━━━ */
+    --surface: 220 40% 10%;          /* standard card */
+    --surface-elevated: 218 46% 14%; /* raised card / hover */
+    --surface-sunken: 216 34% 7%;    /* inset wells, inputs */
+
+    /* ━━━ BORDER LAYERS ━━━ */
+    --border-subtle: 217 44% 16%;
+    --border-strong: 217 44% 26%;
+
+    /* ━━━ TEXT HIERARCHY ━━━ */
+    --text-primary: 223 100% 97%;
+    --text-secondary: 217 25% 72%;
+    --text-muted: 217 25% 50%;
+
+    /* ━━━ REFINED BLUE ACCENT SCALE ━━━ */
+    --primary-soft: 216 89% 53% / 0.12;
+    --primary-muted: 216 60% 62%;
+    --primary-glow: 216 80% 64%;
+    --primary-deep: 216 89% 42%;
 
     /* Role accent colors — all blue now */
     --rookie-accent: 216 89% 53%;
