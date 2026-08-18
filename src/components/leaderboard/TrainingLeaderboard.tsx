@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/shared/EmptyState';
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -197,24 +199,16 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
   };
 
   if (isLoading) {
-    return (
-      <div className="p-6 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <Trophy className="w-6 h-6 text-primary animate-bounce" />
-          <span className="text-muted-foreground text-sm animate-pulse">Loading rankings...</span>
-        </div>
-      </div>
-    );
+    return <LoadingList rows={6} />;
   }
 
   if (entries.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <GraduationCap className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-        <p className="text-muted-foreground text-sm">
-          {mode === 'overall' ? 'No all-time activity recorded yet' : 'No activity yet this week'}
-        </p>
-      </div>
+      <EmptyState
+        icon={GraduationCap}
+        title={mode === 'overall' ? 'No all-time activity yet' : 'Nothing logged this week'}
+        description="Rankings fill in as reps train, log time, and close."
+      />
     );
   }
 
