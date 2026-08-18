@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
-import { Trophy, Flame, Calendar, Info, Mountain, Users } from 'lucide-react';
+import { RecruitingLeaderboard } from '@/components/leaderboard/RecruitingLeaderboard';
+import { Trophy, Flame, Calendar, Info, Mountain, Users, Target } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { isManagerOrAbove } from '@/lib/roles';
 
-type LeaderboardTab = 'overall' | 'weekly' | 'streak';
+type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting';
 
 const GRID_PATTERN =
   "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]";
@@ -44,12 +45,17 @@ export default function LeaderboardPage() {
       subtitle: 'Includes everyone',
       icon: <Users className="w-3.5 h-3.5 text-primary" />,
     },
+    recruiting: {
+      subtitle: 'Signed leads this month',
+      icon: <Target className="w-3.5 h-3.5 text-primary" />,
+    },
   };
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
     { id: 'weekly', label: 'This Week', icon: Calendar },
     { id: 'overall', label: 'All-Time', icon: Trophy },
     { id: 'streak', label: 'Streaks', icon: Flame },
+    { id: 'recruiting', label: 'Recruiting', icon: Target },
   ];
 
   const meta = TAB_META[activeTab];
@@ -133,6 +139,7 @@ export default function LeaderboardPage() {
             {activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
             {activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
             {activeTab === 'streak' && <StreakLeaderboard />}
+            {activeTab === 'recruiting' && <RecruitingLeaderboard />}
           </div>
         </main>
       </div>

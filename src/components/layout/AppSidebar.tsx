@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Calendar, Settings2 } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Calendar, Settings2, Target } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
+import { useNewLeads } from '@/hooks/useNewLeads';
 
 interface NavItem {
   label: string;
@@ -29,6 +30,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
+  { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
 ];
 
@@ -44,6 +46,7 @@ export function AppSidebar() {
   const collapsed = state === 'collapsed';
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
   const adminCounts = useAdminCounts();
+  const { newCount: newLeads } = useNewLeads();
 
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
@@ -73,6 +76,7 @@ export function AppSidebar() {
 
   const getBadge = (path: string) => {
     if (path === '/app/chat') return unreadChat;
+    if (path === '/app/recruits') return newLeads;
     return 0;
   };
 
