@@ -579,7 +579,7 @@ html, body, #root {
 /* All buttons get smooth transitions */
 button, a, [role="button"] {
   transition-property: color, background-color, border-color, box-shadow, transform, opacity, filter;
-  transition-duration: 250ms;
+  transition-duration: 180ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
