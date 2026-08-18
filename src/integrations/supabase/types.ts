@@ -1814,6 +1814,78 @@ export type Database = {
         }
         Relationships: []
       }
+      recruiting_leads: {
+        Row: {
+          city: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          created_at: string
+          first_name: string
+          id: string
+          interest_reason: string | null
+          last_activity_at: string | null
+          notes: string | null
+          phone: string
+          ref_code: string | null
+          status: string
+        }
+        Insert: {
+          city?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          first_name: string
+          id?: string
+          interest_reason?: string | null
+          last_activity_at?: string | null
+          notes?: string | null
+          phone: string
+          ref_code?: string | null
+          status?: string
+        }
+        Update: {
+          city?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          first_name?: string
+          id?: string
+          interest_reason?: string | null
+          last_activity_at?: string | null
+          notes?: string | null
+          phone?: string
+          ref_code?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      recruiting_ref_codes: {
+        Row: {
+          assigned_user_id: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+        }
+        Insert: {
+          assigned_user_id?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+        }
+        Update: {
+          assigned_user_id?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+        }
+        Relationships: []
+      }
       rep_logistics: {
         Row: {
           arrival_date: string | null
@@ -2970,6 +3042,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_assign_lead: {
+        Args: { _lead_id: string; _user_id: string }
+        Returns: Json
+      }
       auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
         Args: { _content: string; _message_id?: string; _user_id: string }
@@ -3016,6 +3092,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_lead: { Args: { _lead_id: string }; Returns: Json }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3122,7 +3199,35 @@ export type Database = {
               user_id: string
             }[]
           }
+      get_lead_board: {
+        Args: never
+        Returns: {
+          city: string
+          created_at: string
+          first_name: string
+          id: string
+          interest_reason: string
+          ref_code: string
+        }[]
+      }
+      get_my_leads: {
+        Args: never
+        Returns: {
+          city: string
+          claimed_at: string
+          created_at: string
+          first_name: string
+          id: string
+          interest_reason: string
+          last_activity_at: string
+          notes: string
+          phone: string
+          ref_code: string
+          status: string
+        }[]
+      }
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
+      get_new_lead_count: { Args: never; Returns: number }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
         Returns: {
@@ -3173,6 +3278,27 @@ export type Database = {
           question_type: string
         }[]
       }
+      get_recruiting_funnel: { Args: never; Returns: Json }
+      get_recruiting_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          active_claims: number
+          avatar_url: string
+          booked: number
+          full_name: string
+          nickname: string
+          signed: number
+          user_id: string
+        }[]
+      }
+      get_ref_code_leaderboard: {
+        Args: never
+        Returns: {
+          leads: number
+          ref_code: string
+          signed: number
+        }[]
+      }
       get_streak_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3185,6 +3311,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_ticket_config: { Args: never; Returns: Json }
       get_training_leaderboard_panel: {
         Args: { _limit?: number }
         Returns: {
@@ -3231,10 +3358,15 @@ export type Database = {
         Args: { _category: string; _user_id: string }
         Returns: undefined
       }
+      release_stale_leads: { Args: never; Returns: number }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string
+      }
+      update_my_lead: {
+        Args: { _lead_id: string; _notes: string; _status: string }
+        Returns: Json
       }
       update_user_activity: { Args: { _user_id: string }; Returns: undefined }
       validate_access_code: { Args: { input_code: string }; Returns: boolean }
