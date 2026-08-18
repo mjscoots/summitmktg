@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Trophy, Loader2 } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { LoadingList } from '@/components/shared/LoadingList';
 
 interface RecruitingEntry {
   user_id: string;
@@ -31,19 +33,16 @@ export function RecruitingLeaderboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-14">
-        <Loader2 className="w-5 h-5 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingList rows={5} />;
   }
 
   if (entries.length === 0) {
     return (
-      <div className="px-6 py-14 text-center">
-        <Trophy className="w-7 h-7 text-muted-foreground/40 mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">No leads signed this month yet.</p>
-      </div>
+      <EmptyState
+        icon={Trophy}
+        title="No signings yet this month"
+        description="The first rep to close a lead takes the top spot."
+      />
     );
   }
 
