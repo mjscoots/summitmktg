@@ -273,6 +273,16 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Recruits — lead funnel (all reps) */}
+              <Route path="/app/recruits" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <RecruitsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+
               {/* Leaderboard */}
               <Route path="/app/leaderboard" element={
                 <ProtectedRoute>
