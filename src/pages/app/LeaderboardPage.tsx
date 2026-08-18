@@ -67,17 +67,15 @@ export default function LeaderboardPage() {
           <PageBackButton to="/app" label="Dashboard" />
 
           {/* Hero Banner — Training page style */}
-          <div className="relative h-24 rounded-xl overflow-hidden mb-6">
+          <div className="relative rounded-[var(--radius)] overflow-hidden mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-amber-600/30 via-yellow-500/15 to-orange-500/25" />
             <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
             {/* Golden spotlight glow */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(234,179,8,0.12),transparent_60%)]" />
-            <div className="absolute inset-0 flex items-center justify-between px-6">
+            <div className="relative flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6">
               <div className="flex flex-col items-start justify-center">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight drop-shadow-sm">
-                  LEADERBOARD
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <h1 className="text-foreground drop-shadow-sm">LEADERBOARD</h1>
+                <p className="text-[13px] text-muted-foreground mt-1.5">
                   Outwork everyone. No excuses.
                 </p>
               </div>
@@ -85,10 +83,10 @@ export default function LeaderboardPage() {
               <button
                 onClick={() => setShowPointSystem(true)}
                 className={cn(
-                  'shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full',
+                  'shrink-0 self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-full',
                   'bg-warning/15 border border-warning/30',
-                  'text-warning text-xs font-bold uppercase tracking-wide',
-                  'transition-all duration-300',
+                  'text-warning text-[11px] font-bold uppercase tracking-micro',
+                  'transition-all duration-200',
                   'hover:bg-warning/25 hover:border-warning/50',
                   'hover:-translate-y-0.5 hover:shadow-[0_0_20px_-4px_rgba(234,179,8,0.4)]'
                 )}
@@ -100,7 +98,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Filter Tabs — pill style */}
-          <div className="flex gap-2 mb-4">
+          <div className="grid grid-cols-2 gap-2 mb-4 sm:flex">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -109,22 +107,20 @@ export default function LeaderboardPage() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold rounded-xl',
-                    'transition-all duration-300 border-2',
+                    'flex items-center justify-center gap-1.5 min-h-[44px] px-3 text-[13px] font-bold rounded-xl sm:flex-1',
+                    'transition-all duration-200 border',
                     isActive
                       ? 'bg-card border-primary/40 text-foreground shadow-[0_0_16px_-4px_hsl(var(--primary)/0.3)]'
-                      : 'bg-card/50 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60 hover:-translate-y-0.5'
+                      : 'bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/70'
                   )}
                 >
-                  <Icon className={cn(
-                    'w-3.5 h-3.5',
-                    isActive && (tab.id === 'streak' ? 'text-primary' : 'text-primary')
-                  )} />
+                  <Icon className="w-4 h-4 shrink-0" />
                   {tab.label}
                 </button>
               );
             })}
           </div>
+
 
           {/* Inclusion Banner — only for managers */}
           {isManager && (
