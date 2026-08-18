@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -125,9 +126,7 @@ export default function VideosPage() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
+        <LoadingList rows={5} className="py-6" />
       </AppLayout>
     );
   }

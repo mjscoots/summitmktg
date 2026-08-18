@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useMemo } from 'react';
 import { useManagerPitchApprovals, PitchApprovalWithDetails } from '@/hooks/usePitchApprovals';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -22,9 +23,7 @@ export default function AdminPitchApprovalsTab() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
+      <LoadingList rows={5} className="py-6" />
     );
   }
 

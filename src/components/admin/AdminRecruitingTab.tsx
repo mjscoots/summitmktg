@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -166,9 +167,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
+      <LoadingList rows={5} className="py-6" />
     );
   }
 

@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
@@ -500,9 +501,7 @@ export default function RecruitPipelinePage() {
 
         {/* ─── Table ─── */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
+          <LoadingList rows={5} className="py-6" />
         ) : (
           <div className="border border-border/60 rounded-xl bg-card/40 backdrop-blur-sm">
             <div className="overflow-x-auto">

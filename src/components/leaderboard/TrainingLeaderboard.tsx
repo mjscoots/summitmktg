@@ -212,8 +212,12 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     );
   }
 
-  const top3 = entries.slice(0, Math.min(3, entries.length));
-  const rest = entries.slice(3);
+  // Podium only renders with a full set of 3. With 1–2 entries we must still list
+  // them, otherwise the card renders completely empty.
+  const hasPodium = entries.length >= 3;
+  const top3 = hasPodium ? entries.slice(0, 3) : [];
+  const rest = hasPodium ? entries.slice(3) : entries;
+  const rankOffset = hasPodium ? 4 : 1;
   const isWeekly = mode === 'weekly';
 
   return (
@@ -246,7 +250,7 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       <div className="divide-y divide-border/30">
         {rest.map((entry, index) => {
           const isCurrentUser = entry.user_id === user?.id;
-          const rank = index + 4;
+          const rank = index + rankOffset;
           const badge = getBadgeInfo(entry.weeklyBadge);
 
           return (

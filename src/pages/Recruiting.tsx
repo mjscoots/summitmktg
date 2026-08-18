@@ -297,13 +297,13 @@ const Recruiting = () => {
                 href="https://www.instagram.com/summitmktgsales/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 Instagram
               </a>
               <button
                 onClick={() => navigate("/login")}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 Member Login
               </button>

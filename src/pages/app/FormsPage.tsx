@@ -109,9 +109,9 @@ export default function FormsPage() {
         </div>
 
         {/* ── Section Toggle Tabs ── */}
-        <div className="relative mb-10">
-          <div className="absolute inset-x-0 bottom-0 h-px bg-white/[0.06]" />
-          <div className="flex gap-1">
+        <div className="relative mb-8 sm:mb-10">
+          <div className="absolute inset-x-0 bottom-0 h-px bg-border/50" />
+          <div className="-mx-4 flex gap-1 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
               { key: 'interviews' as FormSection, label: 'Interview Forms' },
               { key: 'weekly-1on1s' as FormSection, label: 'Weekly 1:1 Forms' },
@@ -121,7 +121,7 @@ export default function FormsPage() {
                 key={tab.key}
                 onClick={() => setActiveSection(tab.key)}
                 className={cn(
-                  'relative px-5 py-3 text-sm font-medium transition-all duration-200 rounded-t-lg',
+                  'relative min-h-11 shrink-0 whitespace-nowrap rounded-t-xl px-4 text-[13px] font-semibold transition-all duration-180 sm:px-5 sm:text-sm',
                   activeSection === tab.key
                     ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground/80'
@@ -129,7 +129,7 @@ export default function FormsPage() {
               >
                 {tab.label}
                 {activeSection === tab.key && (
-                  <div className="absolute bottom-0 inset-x-2 h-0.5 rounded-full bg-gradient-to-r from-primary to-primary/60" />
+                  <div className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-gradient-to-r from-primary to-primary/60" />
                 )}
               </button>
             ))}
@@ -140,7 +140,7 @@ export default function FormsPage() {
         {activeSection === 'interviews' ? (
           <>
             {/* Sub-tabs */}
-            <div className="flex gap-2 mb-8">
+            <div className="mb-8 flex gap-2">
               {[
                 { key: 'forms' as InterviewSubTab, label: 'Forms' },
                 { key: 'responses' as InterviewSubTab, label: 'Responses' },
@@ -149,10 +149,10 @@ export default function FormsPage() {
                   key={sub.key}
                   onClick={() => setInterviewSubTab(sub.key)}
                   className={cn(
-                    'text-xs px-4 py-1.5 rounded-full border transition-all duration-200',
+                    'micro-label min-h-10 rounded-full border px-4 transition-all duration-180',
                     interviewSubTab === sub.key
-                      ? 'bg-primary/10 border-primary/25 text-primary font-semibold'
-                      : 'border-white/[0.06] text-muted-foreground hover:text-foreground hover:border-white/10 hover:bg-white/[0.02]'
+                      ? 'border-primary/25 bg-primary/10 !text-primary'
+                      : 'border-border/50 hover:border-border/80 hover:text-foreground'
                   )}
                 >
                   {sub.label}

@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
@@ -194,22 +195,19 @@ const Index = () => {
             Estimate Your Earnings
           </h2>
           <p className="text-muted-foreground text-sm mb-6">See what you could make this summer.</p>
-          <div className="inline-flex items-center rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-1">
-            <button
-              onClick={() => setCalcMode('rookie')}
-              className={`px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${calcMode === 'rookie' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              Rookie
-            </button>
-            <button
-              onClick={() => setCalcMode('vet')}
-              className={`px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${calcMode === 'vet' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              Veteran
-            </button>
+          <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1 backdrop-blur-sm">
+            {(['rookie', 'vet'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setCalcMode(mode)}
+                className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all duration-180 ${calcMode === mode ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                {mode === 'rookie' ? 'Rookie' : 'Veteran'}
+              </button>
+            ))}
           </div>
         </div>
-        <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading...</div>}>
+        <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
           {calcMode === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
         </Suspense>
       </div>
@@ -240,25 +238,22 @@ const Index = () => {
           <span className="text-xs text-muted-foreground">
             © 2026 Summit Marketing
           </span>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate("/recruiting")}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors">
-
+              className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
               Recruiting
             </button>
             <button
               onClick={() => navigate("/apply")}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors">
-
+              className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
               Apply
             </button>
             <a
               href="https://www.instagram.com/summitmktgsales/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-primary transition-colors">
-
+              className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
               Instagram
             </a>
           </div>

@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
@@ -155,9 +156,7 @@ export default function AdminSubmittedVideosTab() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
+      <LoadingList rows={5} className="py-6" />
     );
   }
 

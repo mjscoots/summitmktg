@@ -150,12 +150,12 @@ export default function RecruitsPage() {
           <PageBackButton to="/app" label="Home" />
 
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 mb-5">
-            <div>
+          <div className="mb-5 flex items-start justify-between gap-3">
+            <div className="min-w-0">
               <h1 className="text-2xl font-black tracking-tight text-foreground">
                 {tab === 'board' ? 'GET ME LEADS' : 'My Leads'}
               </h1>
-              <p className="text-[13px] text-muted-foreground mt-1">
+              <p className="mt-1.5 text-[13px] text-muted-foreground">
                 {tab === 'board'
                   ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
                   : `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`}
@@ -163,14 +163,14 @@ export default function RecruitsPage() {
             </div>
             <button
               onClick={load}
-              className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="micro-label inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 transition-colors hover:border-primary/30 hover:text-foreground"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Refresh
+              <RefreshCw className="h-3.5 w-3.5" /> Refresh
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1.5 mb-5">
+          <div className="mb-5 grid grid-cols-2 gap-2">
             {([
               { id: 'board' as const, label: 'Lead Board', icon: Sparkles, count: board.length },
               { id: 'mine' as const, label: 'My Leads', icon: Users, count: mine.length },
@@ -179,15 +179,15 @@ export default function RecruitsPage() {
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  'flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-all',
+                  'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-[13px] font-bold transition-all duration-180',
                   tab === t.id
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
-                    : 'bg-white/[0.03] text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                    ? 'border-primary/40 bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'border-border/50 bg-surface text-muted-foreground hover:border-border/80 hover:text-foreground'
                 )}
               >
-                <t.icon className="w-3.5 h-3.5" />
+                <t.icon className="h-3.5 w-3.5" />
                 {t.label}
-                <span className={cn('text-[11px] font-bold', tab === t.id ? 'opacity-80' : 'text-primary')}>
+                <span className={cn('text-[11px] font-black tabular-nums', tab === t.id ? 'opacity-80' : 'text-primary')}>
                   {t.count}
                 </span>
               </button>

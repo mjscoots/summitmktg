@@ -318,10 +318,10 @@ export function TodoList() {
                 key={tab.key}
                 onClick={() => setFilterTab(tab.key)}
                 className={cn(
-                  "text-[11px] font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition-all duration-200",
+                  "inline-flex min-h-10 items-center whitespace-nowrap rounded-xl px-3 text-[11px] font-bold uppercase tracking-wider transition-all duration-180",
                   isActive
-                    ? "bg-primary/15 text-primary border border-primary/25 shadow-[0_0_8px_-2px_hsl(var(--primary)/0.3)]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border border-transparent"
+                    ? "border border-primary/25 bg-primary/15 text-primary shadow-[0_0_8px_-2px_hsl(var(--primary)/0.3)]"
+                    : "border border-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
                 )}
               >
                 {tab.label}

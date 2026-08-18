@@ -21,7 +21,7 @@ const iconMap = {
 
 export function ChannelTabs({ tabs, activeSlug, onSelect }: ChannelTabsProps) {
   return (
-    <div className="flex gap-1 px-3 py-1.5 border-b border-border/10 bg-background/40 backdrop-blur-xl overflow-x-auto no-scrollbar flex-shrink-0">
+    <div className="no-scrollbar flex flex-shrink-0 gap-1.5 overflow-x-auto border-b border-border/20 bg-background/40 px-3 py-2 backdrop-blur-xl">
       {tabs.map(tab => {
         const Icon = iconMap[tab.icon];
         const active = tab.slug === activeSlug;
@@ -30,13 +30,13 @@ export function ChannelTabs({ tabs, activeSlug, onSelect }: ChannelTabsProps) {
             key={tab.slug}
             onClick={() => onSelect(tab.slug)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all",
+              "flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-xs font-bold transition-all duration-180",
               active
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                ? "border-primary/40 bg-primary text-primary-foreground shadow-sm"
+                : "border-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             )}
           >
-            <Icon className="w-3 h-3" />
+            <Icon className="h-3.5 w-3.5" />
             {tab.label}
           </button>
         );
