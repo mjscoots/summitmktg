@@ -193,13 +193,19 @@ export default function RecruitsPage() {
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-[132px] rounded-[var(--radius)]" />
+              ))}
             </div>
           ) : tab === 'board' ? (
             board.length === 0 ? (
-              <div className={cn(CARD, 'p-10 text-center')}>
-                <p className="text-sm text-muted-foreground">No unclaimed leads right now.</p>
+              <div className={cn(CARD, 'py-4')}>
+                <EmptyState
+                  icon={Sparkles}
+                  title="Board is clear"
+                  description="Every lead is claimed. New ones land here the moment a ticket comes in."
+                />
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
