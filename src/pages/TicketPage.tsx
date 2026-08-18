@@ -26,7 +26,7 @@ const leadSchema = z.object({
 
 export default function TicketPage() {
   const [params] = useSearchParams();
-  const refCode = (params.get('ref') || '').trim().slice(0, 40) || null;
+  const refCode = (params.get('ref') || '').trim().slice(0, 40) || 'direct';
 
   const [form, setForm] = useState({ first_name: '', phone: '', city: '', interest_reason: '' });
   const [error, setError] = useState<string | null>(null);

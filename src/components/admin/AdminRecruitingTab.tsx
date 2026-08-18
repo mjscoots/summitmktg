@@ -80,7 +80,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
     setRefCodes((codesRes.data as RefCode[]) || []);
     setFunnel(funnelRes.data || null);
     setCodeBoard((boardRes.data as any[]) || []);
-    setCalendly(settingsRes.data?.value || '');
+    setCalendly(settingsRes.data?.value || 'https://calendly.com/REPLACE-ME');
     setLoading(false);
   }, []);
 
