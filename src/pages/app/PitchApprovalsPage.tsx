@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useMemo, lazy, Suspense } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
@@ -131,7 +132,7 @@ export default function PitchApprovalsPage() {
         </div>
 
         {activeTab === 'checklist' ? (
-          <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+          <Suspense fallback={<LoadingList rows={4} />}>
             <AdminSubmittedVideosTab />
           </Suspense>
         ) : (

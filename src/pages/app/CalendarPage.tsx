@@ -545,7 +545,7 @@ export default function CalendarPage() {
               </div>
               <div className="flex items-center gap-2 pt-1">
                 {isManager && (
-                  <Button size="sm" onClick={() => setIsFormOpen(true)} className="gap-1.5 h-9 rounded-xl shadow-lg shadow-primary/20">
+                  <Button size="sm" onClick={() => setIsFormOpen(true)} className="h-11 gap-1.5 rounded-xl shadow-lg shadow-primary/20">
                     <Plus className="w-4 h-4" />Event
                   </Button>
                 )}
@@ -553,30 +553,30 @@ export default function CalendarPage() {
             </div>
 
             {/* Segmented tab control */}
-            <div className="mt-4 inline-flex items-center rounded-xl bg-white/[0.06] backdrop-blur-sm p-1 border border-white/[0.08]">
+            <div className="mt-4 grid grid-cols-2 items-center gap-1 rounded-[var(--radius)] border border-border/50 bg-foreground/[0.04] p-1 backdrop-blur-sm sm:inline-flex sm:grid-cols-none">
               <button
                 onClick={() => setActiveTab('calendar')}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200",
+                  "flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-bold transition-all duration-180",
                   activeTab === 'calendar'
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-                    : "text-white/50 hover:text-white/80"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <CalendarIcon className="w-4 h-4" />Calendar
+                <CalendarIcon className="h-4 w-4" />Calendar
               </button>
               <button
                 onClick={() => { setActiveTab('attendance'); setAttendanceCardIndex(0); setRsvpSubView('cards'); }}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 relative",
+                  "relative flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-bold transition-all duration-180",
                   activeTab === 'attendance'
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-                    : "text-white/50 hover:text-white/80"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <ListChecks className="w-4 h-4" />Weekly RSVP
+                <ListChecks className="h-4 w-4" />Weekly RSVP
                 {pendingRSVPEvents.length > 0 && activeTab !== 'attendance' && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center animate-pulse">
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
                     {pendingRSVPEvents.length}
                   </span>
                 )}
@@ -589,10 +589,10 @@ export default function CalendarPage() {
         {activeTab === 'attendance' && (
           <>
             {isManager && rsvpSubView === 'cards' && (
-              <div className="flex justify-end mb-3">
+              <div className="mb-3 flex justify-end">
                 <button onClick={() => setRsvpSubView('responses')}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg bg-muted/50 hover:bg-muted border border-border/30">
-                  <Eye className="w-3.5 h-3.5" />See Responses
+                  className="micro-label flex min-h-11 items-center gap-1.5 rounded-xl border border-border/50 bg-surface px-3 transition-colors hover:border-primary/30 hover:text-foreground">
+                  <Eye className="h-3.5 w-3.5" />See Responses
                 </button>
               </div>
             )}
@@ -699,8 +699,8 @@ export default function CalendarPage() {
                     return (
                       <button key={cat} onClick={() => { setActiveFilter(cat); if (cat === 'all') setLocationFilter('all'); }}
                         className={cn(
-                          "flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md transition-all uppercase tracking-wider",
-                          activeFilter === cat ? `${c.bg} ${c.text} ring-1 ${c.border}` : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30"
+                          "flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[10px] font-bold uppercase tracking-wider transition-all duration-180",
+                          activeFilter === cat ? `${c.bg} ${c.text} ring-1 ${c.border}` : "text-muted-foreground/60 hover:bg-foreground/5 hover:text-muted-foreground"
                         )}>
                         {cat !== 'all' && <span className={cn("w-1.5 h-1.5 rounded-full", c.dot)} />}
                         {c.label}

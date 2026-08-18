@@ -29,11 +29,11 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
       <SidebarProvider defaultOpen={true}>
         <ImpersonationBanner />
-        <div className={cn("min-h-screen flex w-full summit-atmosphere", fullHeight && "h-[100dvh] max-h-[100dvh]")} style={{ background: '#080C14' }}>
+        <div className={cn("min-h-screen flex w-full summit-atmosphere bg-background", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0">
             {/* Desktop top bar */}
-            <header className="hidden lg:flex sticky top-0 z-40 h-12 items-center justify-between px-4" style={{ background: '#080C14', borderBottom: '1px solid hsl(217 44% 20%)' }}>
+            <header className="hidden lg:flex sticky top-0 z-40 h-14 items-center justify-between border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl">
               <div /> {/* Spacer */}
               <div className="flex items-center gap-3">
                 <StatusBar />
@@ -42,16 +42,16 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             </header>
 
             {/* Mobile header */}
-            <header className="lg:hidden sticky top-0 z-40 px-2 py-2" style={{ background: '#080C14', borderBottom: '1px solid hsl(217 44% 20%)' }}>
+            <header className="lg:hidden sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl">
               <div className="flex items-center justify-between gap-1">
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <SidebarTrigger className="w-8 h-8 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary border border-primary/20 rounded-lg shadow-sm" />
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <SidebarTrigger className="h-11 w-11 rounded-xl border border-primary/20 bg-primary/15 text-primary shadow-sm transition-colors hover:bg-primary/25 hover:text-primary" />
                   <button
                     onClick={() => navigate('/app')}
-                    className="flex items-center gap-1 px-1.5 py-1 rounded-md transition-all duration-200 hover:bg-white/5 active:scale-95 cursor-pointer"
+                    className="flex min-h-11 items-center gap-1.5 rounded-xl px-2 transition-colors duration-180 hover:bg-foreground/5 active:scale-95"
                   >
-                    <Mountain className="w-3.5 h-3.5 text-white" />
-                    <span className="text-xs font-black tracking-tight text-white hover:text-primary transition-colors">SUMMIT</span>
+                    <Mountain className="h-4 w-4 text-foreground" />
+                    <span className="text-[13px] font-black tracking-tight text-foreground transition-colors hover:text-primary">SUMMIT</span>
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">

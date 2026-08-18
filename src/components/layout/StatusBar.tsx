@@ -16,7 +16,7 @@ export function StatusBar() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="flex items-center gap-1.5 px-2 lg:px-3 py-1 rounded-full bg-card border border-border text-xs font-medium text-muted-foreground cursor-default">
+        <div className="flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-surface px-3 text-xs font-semibold text-muted-foreground cursor-default">
           <Flame className={cn(
             "w-3 h-3 flex-shrink-0",
             streakData.currentStreak > 0 ? "text-primary" : "text-muted-foreground"

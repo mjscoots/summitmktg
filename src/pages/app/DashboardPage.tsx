@@ -197,35 +197,33 @@ export default function DashboardPage() {
           <CommandCenterHeader />
         ) : (
           /* ── HERO CARD ── */
-          <div className="glass-card rounded-2xl p-5 mb-5 relative overflow-hidden">
+          <div className="glass-card relative mb-5 overflow-hidden rounded-[var(--radius)] p-5 sm:p-6">
             {/* Gradient glow behind hero */}
             <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
-            <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full opacity-10 blur-2xl pointer-events-none" style={{ background: 'hsl(263 84% 58%)' }} />
-            
-            <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight mb-1 relative z-10">
+            <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-primary/10 opacity-40 blur-2xl" />
+
+            <h1 className="relative z-10 mb-1.5 text-[22px] font-black uppercase leading-[1.05] tracking-tight text-foreground sm:text-2xl">
               Welcome back, <span className="gradient-text">{firstName}</span>
             </h1>
-            <p className="text-xs text-muted-foreground mb-4 relative z-10">
+            <p className="relative z-10 mb-5 text-[13px] text-muted-foreground">
               Complete training. Build momentum.
             </p>
 
             {/* Hero stats row */}
             {pointsData && (
-              <div className="grid grid-cols-4 gap-2.5 relative z-10">
+              <div className="relative z-10 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                 {[
-                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'PTS TODAY', color: 'text-primary', glow: 'hsl(216 89% 53% / 0.15)' },
-                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'TRAINING', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.15)' },
-                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary', glow: 'hsl(216 89% 53% / 0.12)' },
-                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'STREAK', color: 'text-primary', glow: 'hsl(25 95% 53% / 0.12)' },
-                ].map(({ icon: Icon, value, label, color, glow }) => (
-                  <div
-                    key={label}
-                    className="rounded-xl p-2.5 text-center group hover:-translate-y-0.5 transition-all duration-250 border border-border/20"
-                    style={{ background: `linear-gradient(180deg, hsl(230 20% 10%), hsl(230 20% 7%))`, boxShadow: `0 0 20px -8px ${glow}` }}
-                  >
-                    <Icon className={cn("w-3.5 h-3.5 mx-auto mb-1", color)} />
-                    <p className="text-lg font-bold text-foreground tabular-nums leading-tight animate-count-up">{value}</p>
-                    <p className="text-[7px] text-muted-foreground uppercase font-semibold tracking-wider mt-0.5">{label}</p>
+                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'Pts today' },
+                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'Training' },
+                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'Rank' },
+                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'Streak' },
+                ].map(({ icon: Icon, value, label }) => (
+                  <div key={label} className="stat-card">
+                    <div className="relative z-10 flex items-center gap-2">
+                      <Icon className="h-3.5 w-3.5 text-primary" />
+                      <span className="micro-label">{label}</span>
+                    </div>
+                    <p className="stat-value relative z-10 mt-2 tabular-nums">{value}</p>
                   </div>
                 ))}
               </div>
@@ -242,31 +240,25 @@ export default function DashboardPage() {
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
         {isManager && (
-          <div className="flex gap-1 mb-2">
-            <button
-              onClick={() => setDashboardView('todo')}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
-                dashboardView === 'todo'
-                  ? "bg-primary/10 text-primary border border-primary/20"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <ListTodo className="w-3.5 h-3.5" />
-              Missions
-            </button>
-            <button
-              onClick={() => setDashboardView('funnel')}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-250",
-                dashboardView === 'funnel'
-                  ? "bg-primary/10 text-primary border border-primary/20"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <GitBranch className="w-3.5 h-3.5" />
-              Funnel Tracker
-            </button>
+          <div className="mb-3 grid grid-cols-2 gap-2 sm:inline-flex">
+            {[
+              { id: 'todo' as const, label: 'Missions', icon: ListTodo },
+              { id: 'funnel' as const, label: 'Funnel Tracker', icon: GitBranch },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setDashboardView(id)}
+                className={cn(
+                  'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-4 text-[13px] font-bold transition-all duration-180',
+                  dashboardView === id
+                    ? 'border-primary/30 bg-primary/10 text-primary'
+                    : 'border-border/40 bg-surface text-muted-foreground hover:border-border/70 hover:text-foreground'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
           </div>
         )}
         {dashboardView === 'todo' || !isManager ? <TodoList /> : <DashboardFunnelTracker />}
@@ -274,28 +266,27 @@ export default function DashboardPage() {
         {/* See My Points — glass card */}
         <button
           onClick={() => setShowPoints(true)}
-          className="w-full mb-5 px-4 py-3 glass-card rounded-xl flex items-center gap-2.5 glass-card-hover group"
+          className="glass-card glass-card-hover group mb-5 flex min-h-14 w-full items-center gap-3 rounded-[var(--radius)] px-4 py-3"
         >
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--gradient-gold)' }}>
-            <Trophy className="w-3.5 h-3.5 text-white" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'var(--gradient-gold)' }}>
+            <Trophy className="h-4 w-4 text-white" />
           </div>
-          <span className="text-sm font-bold text-foreground">My Points</span>
-          <span className="text-xs text-muted-foreground ml-auto group-hover:text-foreground transition-colors">View →</span>
+          <span className="text-[15px] font-bold text-foreground">My Points</span>
+          <span className="micro-label ml-auto transition-colors group-hover:text-foreground">View →</span>
         </button>
 
         {/* ── TODAY'S DASHBOARD ── */}
         {pointsData ? (
-          <div className="glass-card rounded-2xl p-5 mb-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
-                <Zap className="w-3 h-3 text-white" />
+          <div className="glass-card mb-5 rounded-[var(--radius)] p-5 sm:p-6">
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
+                <Zap className="h-3.5 w-3.5 text-white" />
               </div>
-              <h2 className="text-sm font-bold text-foreground">Today's Progress</h2>
-              <span className={cn("ml-auto text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider",
-                hoursToday < 1 ? "bg-muted/40 text-muted-foreground" :
-                hoursToday < 2 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
-                hoursToday < 4 ? "bg-primary/10 text-primary border border-primary/20" :
-                "bg-primary/10 text-primary border border-primary/20"
+              <h2 className="micro-label !text-[11px] !text-foreground">Today's Progress</h2>
+              <span className={cn("micro-label ml-auto rounded-full border px-2.5 py-1.5",
+                hoursToday < 1
+                  ? "border-border/40 bg-muted/30"
+                  : "border-primary/20 bg-primary/10 !text-primary"
               )}>
                 {momentumLevel}
               </span>
@@ -303,9 +294,9 @@ export default function DashboardPage() {
 
             {/* Elite progress bar */}
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-medium text-muted-foreground">Elite Goal</span>
-                <span className="text-[10px] text-muted-foreground tabular-nums">{hoursToday.toFixed(1)} / {eliteGoal}h</span>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="micro-label">Elite Goal</span>
+                <span className="text-[11px] tabular-nums text-muted-foreground">{hoursToday.toFixed(1)} / {eliteGoal}h</span>
               </div>
               <div className="progress-track">
                 <div
@@ -320,11 +311,11 @@ export default function DashboardPage() {
 
             {/* Daily Challenge */}
             {challengeData && (
-              <div className={cn("p-3.5 rounded-xl border", challengeData.all_complete ? "bg-success/5 border-success/20" : "bg-muted/10 border-border/30")}>
-                <div className="flex items-center gap-2 mb-2.5">
-                  <Target className={cn("w-3.5 h-3.5", challengeData.all_complete ? "text-success" : "text-muted-foreground")} />
-                  <span className="text-xs font-bold text-foreground">Daily Challenge</span>
-                  <span className={cn("ml-auto text-[10px] font-semibold",
+              <div className={cn("rounded-xl border p-4", challengeData.all_complete ? "border-success/20 bg-success/5" : "surface-sunken")}>
+                <div className="mb-3 flex items-center gap-2">
+                  <Target className={cn("h-3.5 w-3.5", challengeData.all_complete ? "text-success" : "text-muted-foreground")} />
+                  <span className="micro-label !text-foreground">Daily Challenge</span>
+                  <span className={cn("ml-auto text-[11px] font-bold tabular-nums",
                     challengeData.all_complete ? "text-success" : "text-muted-foreground"
                   )}>{challengeCompleted}/{challengeTotal}</span>
                 </div>
@@ -363,14 +354,13 @@ export default function DashboardPage() {
             )}
           </div>
         ) : pointsLoading ? (
-          <div className="glass-card rounded-2xl p-5 mb-5 space-y-3">
-            <Skeleton className="h-4 w-24" />
-            <div className="grid grid-cols-4 gap-2">
+          <div className="glass-card mb-5 space-y-4 rounded-[var(--radius)] p-5 sm:p-6">
+            <Skeleton className="h-3 w-28" />
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-xl bg-muted/20 p-3 space-y-2">
-                  <Skeleton className="h-3 w-3 mx-auto" />
-                  <Skeleton className="h-6 w-10 mx-auto" />
-                  <Skeleton className="h-2 w-8 mx-auto" />
+                <div key={i} className="surface-sunken space-y-2.5 p-4">
+                  <Skeleton className="h-3 w-14" />
+                  <Skeleton className="h-6 w-12" />
                 </div>
               ))}
             </div>
@@ -389,7 +379,7 @@ export default function DashboardPage() {
 
         {/* Downline Growth Calculator */}
         {isManager && (
-          <Suspense fallback={<div className="py-8 text-center text-muted-foreground text-sm">Loading calculator...</div>}>
+          <Suspense fallback={<Skeleton className="mb-5 h-40 w-full rounded-[var(--radius)]" />}>
             <DownlineGrowthCalculator />
           </Suspense>
         )}

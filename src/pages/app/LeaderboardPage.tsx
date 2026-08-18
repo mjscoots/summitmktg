@@ -83,7 +83,7 @@ export default function LeaderboardPage() {
               <button
                 onClick={() => setShowPointSystem(true)}
                 className={cn(
-                  'shrink-0 self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-full',
+                  'shrink-0 self-start inline-flex min-h-11 items-center gap-2 px-4 rounded-full',
                   'bg-warning/15 border border-warning/30',
                   'text-warning text-[11px] font-bold uppercase tracking-micro',
                   'transition-all duration-200',

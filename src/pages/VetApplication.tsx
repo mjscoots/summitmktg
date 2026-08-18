@@ -214,7 +214,7 @@ const VetApplication = () => {
         <div className="max-w-4xl mx-auto px-6 py-4">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+            className="-ml-2 inline-flex min-h-11 items-center rounded-xl px-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back

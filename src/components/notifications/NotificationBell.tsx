@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/shared/EmptyState';
 import { useState, useEffect, useRef } from 'react';
 import { Bell, BellRing, Check, CheckCheck, Calendar } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -47,7 +48,7 @@ export function NotificationBell() {
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button
-          className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+          className="relative flex h-11 w-11 items-center justify-center rounded-xl transition-colors hover:bg-foreground/5"
           aria-label={hasUnread ? `${unreadCount} unread notifications` : 'Notifications'}
         >
           {hasUnread ? (
@@ -59,10 +60,10 @@ export function NotificationBell() {
             )} />
           )}
           {hasUnread && (
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-in zoom-in-50 duration-200" />
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary animate-in zoom-in-50 duration-200" />
           )}
           {justCleared && (
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-out zoom-out-50 fade-out duration-500" />
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary animate-out fade-out zoom-out-50 duration-500" />
           )}
         </button>
       </PopoverTrigger>
@@ -79,10 +80,7 @@ export function NotificationBell() {
 
         <div className="max-h-[400px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="py-10 text-center">
-              <Bell className="w-6 h-6 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground">All caught up</p>
-            </div>
+            <EmptyState icon={Bell} title="All caught up" description="No notifications right now." className="py-10" />
           ) : (
             notifications.map((notification) => (
               <button

@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronDown as ChevronDownIcon, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
@@ -796,7 +797,7 @@ export default function AdminUsersTab({
             </DialogDescription>
           </DialogHeader>
 
-          <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+          <Suspense fallback={<LoadingList rows={4} />}>
             <LazyMassImport
               profiles={users.map((u) => ({
                 user_id: u.user_id,

@@ -29,9 +29,9 @@ export function PageBackButton({ label = 'Back', to, className }: PageBackButton
       variant="ghost"
       size="sm"
       onClick={handleClick}
-      className={`gap-1.5 text-muted-foreground hover:text-foreground -ml-2 mb-4 ${className || ''}`}
+      className={`-ml-2 mb-4 min-h-11 gap-1.5 text-muted-foreground hover:text-foreground ${className || ''}`}
     >
-      <ChevronLeft className="w-4 h-4" />
+      <ChevronLeft className="h-4 w-4" />
       {label}
     </Button>
   );

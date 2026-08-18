@@ -33,8 +33,8 @@ export function CopyLinkButton({ path, label = 'Copy link', className, size = 's
       type="button"
       onClick={handleCopy}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] text-muted-foreground hover:text-foreground hover:border-white/15 hover:bg-white/[0.05] transition-all duration-200',
-        size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-sm',
+        'inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-surface text-muted-foreground transition-all duration-180 hover:border-primary/30 hover:bg-primary/[0.06] hover:text-foreground',
+        size === 'sm' ? 'min-h-9 px-3 text-xs font-semibold' : 'min-h-11 px-3.5 text-sm font-semibold',
         className
       )}
       aria-label={label}

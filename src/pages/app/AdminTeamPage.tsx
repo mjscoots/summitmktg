@@ -1,3 +1,4 @@
+import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -544,14 +545,14 @@ export default function AdminTeamPage() {
 
           {/* ========== PITCHES TAB ========== */}
           <TabsContent value="pitches">
-            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+            <Suspense fallback={<LoadingList rows={4} />}>
               <LazyPitchApprovals />
             </Suspense>
           </TabsContent>
 
           {/* ========== FEEDBACK TAB ========== */}
           <TabsContent value="feedback">
-            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+            <Suspense fallback={<LoadingList rows={4} />}>
               <LazyFeedback />
             </Suspense>
           </TabsContent>
@@ -595,7 +596,7 @@ export default function AdminTeamPage() {
 
           {/* ========== AUDIT TAB ========== */}
           <TabsContent value="audit">
-            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+            <Suspense fallback={<LoadingList rows={4} />}>
               <LazyAuditPanel />
             </Suspense>
           </TabsContent>
