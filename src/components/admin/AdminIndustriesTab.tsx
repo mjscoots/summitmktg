@@ -178,7 +178,10 @@ export default function AdminIndustriesTab() {
 
   return (
     <div className="space-y-5">
+      <AdminLadderSettings />
+
       {/* Path builder */}
+
       {paths.map((p) => {
         const mine = steps.filter((s) => s.vertical === p.vertical).sort((a, b) => a.display_order - b.display_order);
         const draft = drafts[p.vertical] || {};
