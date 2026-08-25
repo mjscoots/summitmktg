@@ -623,6 +623,44 @@ export default function ProfilePage() {
               </p>
             </div>
 
+            {isManager && (
+              <div className="rounded-xl border border-white/[0.06] bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Accepting new reps</p>
+                    <p className="text-xs text-muted-foreground">
+                      When on, reps picking an industry manager can see and choose you.
+                    </p>
+                  </div>
+                  <Switch checked={acceptingNewReps} onCheckedChange={setAcceptingNewReps} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Mentee capacity <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={menteeCapacity}
+                    onChange={(e) => setMenteeCapacity(e.target.value)}
+                    placeholder="No limit"
+                    className="max-w-[160px] tabular-nums"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Your intro line <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                  </label>
+                  <Input
+                    value={managerIntro}
+                    onChange={(e) => setManagerIntro(e.target.value.slice(0, 160))}
+                    placeholder="One line reps will see on your card"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 tabular-nums">{managerIntro.length}/160</p>
+                </div>
+              </div>
+            )}
+
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
