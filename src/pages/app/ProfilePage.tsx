@@ -460,6 +460,24 @@ export default function ProfilePage() {
               </div>
               {user?.id && <BadgeShelf userId={user.id} className="mt-2" />}
 
+              {committedLastDay && (
+                <div className="mt-2 rounded-lg border border-white/[0.06] bg-background/40 px-3 py-2">
+                  <p className="text-xs font-semibold text-foreground">
+                    Committed last day:{' '}
+                    <span className="tabular-nums">
+                      {new Date(committedLastDay + 'T00:00:00').toLocaleDateString(undefined, {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </p>
+                  {commitmentTerms && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">{commitmentTerms}</p>
+                  )}
+                </div>
+              )}
+
               <p className="text-xs text-muted-foreground mt-1">
                 Click the camera icon to upload a new photo
               </p>
