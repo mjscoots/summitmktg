@@ -77,8 +77,20 @@ const PendingApproval = () => {
           Your account is awaiting admin approval to unlock full access.
         </p>
         <p className="text-muted-foreground text-sm mb-8">
-          You'll receive an email once your manager approves you.
+          You'll receive an email once your manager approves you. This page checks your status
+          automatically.
         </p>
+        {liveApproved && (
+          <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/10 p-4">
+            <p className="text-sm font-semibold text-foreground">You're approved.</p>
+            <button
+              onClick={() => window.location.assign('/app')}
+              className="mt-3 min-h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
+            >
+              Enter the app
+            </button>
+          </div>
+        )}
         <button
           onClick={handleSignOut}
           className="flex items-center gap-2 mx-auto text-sm text-muted-foreground hover:text-foreground transition-colors"
