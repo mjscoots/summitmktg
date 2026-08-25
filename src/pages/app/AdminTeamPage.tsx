@@ -41,6 +41,9 @@ const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
 
 const LazyPitchApprovals = lazy(() => import('@/components/admin/AdminPitchApprovalsTab'));
 const LazyRecruiting = lazy(() => import('@/components/admin/AdminRecruitingTab'));
+const LazyExport = lazy(() =>
+  import('@/components/admin/AdminExportTab').then((m) => ({ default: m.AdminExportTab }))
+);
 
 interface TeamRow {
   id: string;
@@ -369,6 +372,11 @@ export default function AdminTeamPage() {
               {isSuperAdmin && (
                 <TabsTrigger value="system" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">System</TabsTrigger>
               )}
+              {isAdmin && (
+                <TabsTrigger value="export" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                  Export
+                </TabsTrigger>
+              )}
               <TabsTrigger value="sync" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Sync {adminCounts.syncIssues > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.syncIssues}</span>}
               </TabsTrigger>
@@ -610,6 +618,15 @@ export default function AdminTeamPage() {
               <LazyAuditPanel />
             </Suspense>
           </TabsContent>
+
+          {/* ========== EXPORT TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="export">
+              <Suspense fallback={<TableSkeleton columns={2} rows={3} />}>
+                <LazyExport />
+              </Suspense>
+            </TabsContent>
+          )}
 
           {/* ========== SYNC TAB ========== */}
           <TabsContent value="sync">

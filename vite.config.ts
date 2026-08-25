@@ -15,4 +15,18 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-supabase": ["@supabase/supabase-js"],
+          "vendor-charts": ["recharts"],
+          "vendor-editor": ["react-quill", "dompurify"],
+          "vendor-forms": ["react-hook-form", "zod", "@hookform/resolvers"],
+          "vendor-dates": ["date-fns", "react-day-picker"],
+        },
+      },
+    },
+  },
 }));

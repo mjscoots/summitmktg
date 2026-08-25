@@ -7,8 +7,9 @@ import { toast } from "sonner";
 
 const PendingApproval = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, profile, signOut, isLoading, role } = useAuth();
+  const { isAuthenticated, profile, signOut, isLoading, role, user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [liveApproved, setLiveApproved] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -19,6 +20,29 @@ const PendingApproval = () => {
       navigate("/app", { replace: true });
     }
   }, [isLoading, isAuthenticated, profile, role, navigate]);
+
+  // Live approval status — poll so the page reflects reality without a reload
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+
+    const check = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('approved')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!cancelled && data?.approved) setLiveApproved(true);
+    };
+
+    check();
+    const timer = setInterval(check, 20000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [user?.id]);
+
 
   const handleSignOut = async () => {
     await signOut();
@@ -53,8 +77,20 @@ const PendingApproval = () => {
           Your account is awaiting admin approval to unlock full access.
         </p>
         <p className="text-muted-foreground text-sm mb-8">
-          You'll receive an email once your manager approves you.
+          You'll receive an email once your manager approves you. This page checks your status
+          automatically.
         </p>
+        {liveApproved && (
+          <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/10 p-4">
+            <p className="text-sm font-semibold text-foreground">You're approved.</p>
+            <button
+              onClick={() => window.location.assign('/app')}
+              className="mt-3 min-h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
+            >
+              Enter the app
+            </button>
+          </div>
+        )}
         <button
           onClick={handleSignOut}
           className="flex items-center gap-2 mx-auto text-sm text-muted-foreground hover:text-foreground transition-colors"

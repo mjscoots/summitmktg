@@ -59,6 +59,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   const [refFilter, setRefFilter] = useState('all');
   const [repFilter, setRepFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const [newCode, setNewCode] = useState('');
   const [newCodeLabel, setNewCodeLabel] = useState('');
@@ -278,7 +279,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((l) => (
+            {filtered.slice(0, visibleCount).map((l) => (
               <tr key={l.id} className="border-b border-white/[0.04]">
                 <td className="px-3 py-2 font-semibold text-foreground whitespace-nowrap">{l.first_name}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone || '—'}</td>
@@ -327,6 +328,19 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             )}
           </tbody>
         </table>
+        {filtered.length > visibleCount && (
+          <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] px-3 py-3">
+            <span className="text-[11px] text-muted-foreground">
+              Showing {visibleCount} of {filtered.length}
+            </span>
+            <button
+              onClick={() => setVisibleCount((c) => c + 50)}
+              className="min-h-9 rounded-lg border border-white/10 px-3 text-[11px] font-semibold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              Load 50 more
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Attribution */}
