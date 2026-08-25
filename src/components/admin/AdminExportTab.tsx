@@ -32,7 +32,7 @@ function download(filename: string, csv: string) {
   URL.revokeObjectURL(url);
 }
 
-type ExportKey = 'leads' | 'profiles' | 'training' | 'forms' | 'announcements';
+type ExportKey = 'leads' | 'profiles' | 'training' | 'forms' | 'announcements' | 'payroll';
 
 const EXPORTS: { key: ExportKey; label: string; description: string }[] = [
   { key: 'leads', label: 'Leads', description: 'Every recruiting lead with status, ref code, and assigned rep.' },
