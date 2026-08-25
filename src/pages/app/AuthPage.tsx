@@ -147,7 +147,7 @@ const AuthPage = () => {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <img src={summitLogo} alt="Summit Marketing" className="mx-auto mb-4 h-10 w-auto" />
+          <img src={summitLogo} alt="Summit Marketing" className="mx-auto mb-4 h-14 w-auto" />
           <h1 className="text-2xl font-semibold text-foreground mb-2">Welcome to Summit</h1>
           <p className="text-muted-foreground text-sm">
             Sign in to your account or create a new one
