@@ -250,6 +250,24 @@ export function AppSidebar() {
                   </button>
                 </SidebarMenuItem>
               )}
+              {isOwner && (
+                <SidebarMenuItem>
+                  <button
+                    onClick={() => { navigate('/command'); if (isMobile) setOpenMobile(false); }}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
+                      isActive('/command') ? "text-amber-200" : "text-amber-300/50 hover:text-amber-200 hover:bg-sidebar-accent",
+                      collapsed && "justify-center px-2"
+                    )}
+                  >
+                    {isActive('/command') && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(43 96% 56%)', boxShadow: '0 0 8px hsl(43 96% 56% / 0.4)' }} />
+                    )}
+                    <Crown className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
+                    {!collapsed && <span className="text-[12px] font-medium">Command</span>}
+                  </button>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
