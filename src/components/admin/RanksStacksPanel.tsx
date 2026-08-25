@@ -317,7 +317,64 @@ export function RanksStacksPanel() {
       </div>
 
       <div className={CARD}>
+        <h3 className="text-sm font-semibold text-foreground">Stack visibility</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Who can see the stacks above their own. Draft tables never show to reps.
+        </p>
+        <div className="mt-3 space-y-3">
+          <label className="block">
+            <span className="mb-1 block text-[11px] text-muted-foreground">How far up a person can see</span>
+            <div className="flex gap-2">
+              <select
+                value={settings['stack_visibility'] ?? 'direct_leader'}
+                onChange={(e) => setSettings((d) => ({ ...d, stack_visibility: e.target.value }))}
+                className="h-8 rounded-md border border-white/[0.08] bg-background/60 px-2 text-xs text-foreground"
+              >
+                <option value="self">Their own stack only</option>
+                <option value="direct_leader">Their own plus their direct leader</option>
+                <option value="full_chain">The full chain up to Summit</option>
+              </select>
+              <Button size="sm" variant="ghost" className="h-8 text-xs" disabled={busy} onClick={() => saveSetting('stack_visibility')}>
+                Save
+              </Button>
+            </div>
+          </label>
+          {[
+            { key: 'show_stacks_to_rookies', label: 'Show dollar values above their own to Rookie-rank reps' },
+            { key: 'publish_stacks_publicly', label: 'Publish pay tables on the public site' },
+          ].map((t) => {
+            const on = (settings[t.key] ?? 'false') === 'true';
+            return (
+              <div key={t.key} className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">{t.label}</span>
+                <Button
+                  size="sm"
+                  variant={on ? 'default' : 'outline'}
+                  className="h-8 text-xs"
+                  disabled={busy}
+                  onClick={async () => {
+                    const next = on ? 'false' : 'true';
+                    setSettings((d) => ({ ...d, [t.key]: next }));
+                    setBusy(true);
+                    const { error } = await supabase
+                      .from('app_settings')
+                      .upsert({ key: t.key, value: next }, { onConflict: 'key' });
+                    setBusy(false);
+                    if (error) { toast.error(error.message); return; }
+                    toast.success('Saved');
+                  }}
+                >
+                  {on ? 'On' : 'Off'}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={CARD}>
         <h3 className="text-sm font-semibold text-foreground">Settings</h3>
+
         <div className="mt-3 space-y-3">
           {SETTING_KEYS.map((s) => (
             <label key={s.key} className="block">
