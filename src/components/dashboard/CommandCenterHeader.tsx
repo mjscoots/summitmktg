@@ -100,7 +100,7 @@ export function CommandCenterHeader() {
               Welcome back, <span className={isOwner ? "gradient-text-gold" : "gradient-text"}>{firstName}</span>
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {isOwner ? "Full command. Total visibility." : "Lead with pressure. Train with purpose."}
+              {isOwner ? "Owner view — all teams." : "Manager view — your team."}
             </p>
           </div>
         </div>

@@ -200,7 +200,7 @@ export function useStreak() {
     if (currentStreak === 7) return "7-day streak — One week strong. +150 bonus pts";
     if (currentStreak <= 13) return `${currentStreak} days — You're in the top 10%.`;
     if (currentStreak === 14) return "14-day streak — Two weeks dominant. +300 bonus pts";
-    if (currentStreak <= 20) return `${currentStreak} days — Elite discipline.`;
+    if (currentStreak <= 20) return `${currentStreak} days in a row.`;
     if (currentStreak === 21) return "21-day streak — Habit formed. +500 bonus pts";
     if (currentStreak === 30) return "30-day streak — Legendary. +1000 bonus pts";
     return `${currentStreak} days — Unstoppable.`;

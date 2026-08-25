@@ -188,7 +188,7 @@ const RookieApplication = () => {
   const RequiredAsterisk = () => <span className="text-destructive ml-1">*</span>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="gold-world min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-4">

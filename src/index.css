@@ -129,6 +129,58 @@ html, body, #root {
     --background: 216 30% 5%;
     --foreground: 223 100% 97%;
   }
+
+  /* ━━━ GOLD WORLD — outward-facing pages only (cover, recruiting, applications) ━━━ */
+  .gold-world {
+    --background: 0 0% 2%;
+    --foreground: 40 20% 96%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 40 20% 96%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 40 20% 96%;
+
+    --primary: 46 65% 52%;
+    --primary-foreground: 0 0% 6%;
+    --accent: 46 65% 52%;
+    --accent-foreground: 0 0% 6%;
+    --ring: 46 65% 52%;
+
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 40 20% 96%;
+    --muted: 0 0% 9%;
+    --muted-foreground: 42 8% 62%;
+
+    --success: 46 65% 52%;
+    --success-foreground: 0 0% 6%;
+
+    --border: 45 18% 14%;
+    --input: 0 0% 6%;
+
+    --surface: 0 0% 5%;
+    --surface-elevated: 0 0% 8%;
+    --surface-sunken: 0 0% 3%;
+    --border-subtle: 45 14% 11%;
+    --border-strong: 45 20% 22%;
+
+    --text-primary: 40 20% 96%;
+    --text-secondary: 42 10% 76%;
+    --text-muted: 42 8% 60%;
+
+    --primary-soft: 46 65% 52% / 0.12;
+    --primary-muted: 46 45% 62%;
+    --primary-glow: 46 72% 72%;
+    --primary-deep: 42 60% 42%;
+
+    --glass-bg: 0 0% 5% / 0.6;
+    --glass-border: 45 18% 14%;
+    --glass-glow: 46 65% 52% / 0.08;
+
+    --gradient-primary: linear-gradient(135deg, hsl(46 65% 52%), hsl(46 72% 72%));
+    --gradient-gold: linear-gradient(135deg, hsl(46 65% 52%), hsl(46 72% 72%));
+    --gradient-surface: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 8%));
+  }
+
 }
 
 @layer base {
@@ -231,7 +283,7 @@ html, body, #root {
 
   /* ━━━ GLASS CARD — Premium depth ━━━ */
   .glass-card {
-    background: hsl(220 40% 10%);
+    background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 12px;
     box-shadow: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
@@ -242,11 +294,11 @@ html, body, #root {
   }
 
   .glass-card-hover:hover {
-    border-color: hsl(216 89% 53% / 0.25);
-    background: hsl(216 89% 53% / 0.04);
+    border-color: hsl(var(--primary) / 0.25);
+    background: hsl(var(--primary) / 0.04);
     box-shadow:
       0 16px 48px -8px hsl(0 0% 0% / 0.6),
-      0 0 16px -4px hsl(216 89% 53% / 0.15);
+      0 0 16px -4px hsl(var(--primary) / 0.15);
     transform: translateY(-2px);
   }
 
@@ -427,12 +479,12 @@ html, body, #root {
   /* ━━━ PRIMARY BUTTON — Blue with glow ━━━ */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm text-primary-foreground transition-all duration-250;
-    background: hsl(216 89% 53%);
-    box-shadow: 0 0 16px hsl(216 89% 53% / 0.3);
+    background: hsl(var(--primary));
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.3);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 0 28px -5px hsl(216 89% 53% / 0.45);
+    box-shadow: 0 0 28px -5px hsl(var(--primary) / 0.45);
     transform: translateY(-1px);
     filter: brightness(1.1);
   }

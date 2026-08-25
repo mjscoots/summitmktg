@@ -116,7 +116,7 @@ export function useSmartNotifications() {
           await supabase.from('user_notifications').insert({
             user_id: user.id,
             title: '\u{1F3C6} You are #1 on the leaderboard!',
-            message: 'You just took the top spot on the training leaderboard this week. Keep dominating!',
+            message: 'You took the top spot on the training leaderboard this week.',
             link: '/app/leaderboard',
           });
         }
@@ -192,7 +192,7 @@ export function useSmartNotifications() {
         await supabase.from('user_notifications').insert({
           user_id: user.id,
           title: `🔥 ${hit}-day streak!`,
-          message: `You've logged in ${hit} days in a row. That's elite consistency — keep it going!`,
+          message: `You've logged in ${hit} days in a row. Keep it going.`,
           link: '/app',
         });
       }
