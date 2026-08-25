@@ -11,7 +11,8 @@ interface IndustryData {
   vertical: string;
   label: string;
   description: string | null;
-  carriers: string[];
+  public_note: string | null;
+  how_it_works: string[];
   ranks: { name: string; value: number | null }[];
   leads: { full_name: string | null; avatar_url: string | null; intro: string | null }[];
 }
@@ -26,6 +27,7 @@ export default function IndustryPage() {
   const vertical = SLUGS[slug.toLowerCase()];
   const [data, setData] = useState<IndustryData | null>(null);
   const [loading, setLoading] = useState(true);
+  const steps = data?.how_it_works?.length ? data.how_it_works : STEPS;
 
   useEffect(() => {
     if (!vertical) {
@@ -90,34 +92,25 @@ export default function IndustryPage() {
           <p className="text-sm text-muted-foreground">Loading</p>
         ) : (
           <div className="space-y-10">
+            {data?.public_note && (
+              <p className="max-w-2xl text-sm text-muted-foreground">{data.public_note}</p>
+            )}
+
             {data?.description && (
               <p className="max-w-2xl text-base md:text-lg text-muted-foreground whitespace-pre-line">
                 {data.description}
               </p>
             )}
 
-            {data?.carriers?.length ? (
-              <section>
-                <h2 className="micro-label text-muted-foreground mb-3">Carriers</h2>
-                <div className="flex flex-wrap gap-2">
-                  {data.carriers.map((c) => (
-                    <span key={c} className="rounded-lg border border-primary/25 px-3 py-1.5 text-sm text-foreground">
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
             <section>
               <h2 className="micro-label text-muted-foreground mb-3">How it works</h2>
               <ol className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                {STEPS.map((s, i) => (
+                {steps.map((s, i) => (
                   <li key={s} className="flex items-center gap-2 sm:gap-3">
                     <span className="rounded-xl border border-primary/25 bg-white/[0.02] px-3 py-2 text-sm text-foreground">
                       {s}
                     </span>
-                    {i < STEPS.length - 1 && <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground" />}
+                    {i < steps.length - 1 && <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground" />}
                   </li>
                 ))}
               </ol>
