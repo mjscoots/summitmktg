@@ -5484,6 +5484,7 @@ export type Database = {
       get_daily_drill: { Args: { _timezone?: string }; Returns: Json }
       get_data_active_counts: { Args: never; Returns: Json }
       get_data_gap_people: { Args: { _gap: string }; Returns: Json }
+      get_data_health: { Args: never; Returns: Json }
       get_data_integrity_report: { Args: never; Returns: Json }
       get_data_person_lookup: { Args: { _q: string }; Returns: Json }
       get_data_under_led: { Args: never; Returns: Json }
@@ -5630,6 +5631,7 @@ export type Database = {
         Returns: Json
       }
       get_leaders_list: { Args: never; Returns: Json }
+      get_manager_directory: { Args: never; Returns: Json }
       get_missed_meeting_flags: {
         Args: never
         Returns: {
@@ -5700,6 +5702,7 @@ export type Database = {
       get_public_counters: { Args: never; Returns: Json }
       get_public_fiber_stacks: { Args: never; Returns: Json }
       get_public_industry: { Args: { p_vertical: string }; Returns: Json }
+      get_public_setting: { Args: { _key: string }; Returns: string }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -5871,6 +5874,7 @@ export type Database = {
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
       my_signed_count: { Args: never; Returns: number }
+      my_vertical: { Args: never; Returns: string }
       norm_person_name: { Args: { _t: string }; Returns: string }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
       notify_chat_mentions: {
@@ -5890,6 +5894,7 @@ export type Database = {
         Returns: undefined
       }
       recalculate_all_time_points: { Args: never; Returns: undefined }
+      recompute_missing_ranks: { Args: never; Returns: Json }
       record_daily_login: {
         Args: { _timezone?: string; _user_id: string }
         Returns: Json
