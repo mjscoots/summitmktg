@@ -11,9 +11,9 @@ import { useAuth } from '@/hooks/useAuth';
 const DAILY_CHIPS = [
   ['🔥 All gas', '✅ Locked in', '⛰️ To the top'],
   ['💪 Grind time', '🚀 Send it', '👑 We run this'],
-  ['⚔️ War mode', '💰 Money time', '🏆 Champions only'],
+  ['⚔️ Work mode', '💰 Money time', '🏆 Champions only'],
   ['🔥 No days off', '✅ Let\'s eat', '⛰️ Peak energy'],
-  ['💪 Beast mode', '🚀 Full send', '👑 Stay hungry'],
+  ['💪 Locked in', '🚀 Full send', '👑 Stay hungry'],
 ];
 
 const getDailyChips = () => {
