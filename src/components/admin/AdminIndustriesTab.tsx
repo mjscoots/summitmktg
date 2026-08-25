@@ -181,13 +181,15 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
 
+  const visiblePaths = restrictToVertical ? paths.filter((p) => p.vertical === restrictToVertical) : paths;
+
   return (
     <div className="space-y-5">
-      <AdminLadderSettings />
+      {!restrictToVertical && <AdminLadderSettings />}
 
       {/* Path builder */}
 
-      {paths.map((p) => {
+      {visiblePaths.map((p) => {
         const mine = steps.filter((s) => s.vertical === p.vertical).sort((a, b) => a.display_order - b.display_order);
         const draft = drafts[p.vertical] || {};
         const dirty = Object.keys(draft).length > 0;
