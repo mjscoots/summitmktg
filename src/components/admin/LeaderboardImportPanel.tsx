@@ -152,7 +152,7 @@ export function LeaderboardImportPanel() {
 
     const reviewRows: Row[] = ((matched.rows as Row[]) ?? []).map((r) => ({
       ...r,
-      candidates: r.candidates ?? [],
+      candidates: [...(r.candidates ?? [])].sort((a, b) => Number(b.score) - Number(a.score)),
       pick: r.auto_kind && r.auto_id ? `${r.auto_kind}:${r.auto_id}` : '',
       overwrite: false,
     }));
