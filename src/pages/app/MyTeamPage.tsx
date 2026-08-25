@@ -61,6 +61,7 @@ export default function MyTeamPage() {
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
+  const [incompleteProfiles, setIncompleteProfiles] = useState<Map<string, string[]>>(new Map());
 
   const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
     const t = searchParams.get('tab');
@@ -127,6 +128,18 @@ export default function MyTeamPage() {
         setWeekPoints(map);
       } catch {
         // points are optional
+      }
+
+      // Incomplete profile flags — manager/admin/owner only
+      try {
+        const { data: incomplete } = await supabase.rpc('get_incomplete_profiles' as never, {} as never);
+        const incMap = new Map<string, string[]>();
+        for (const row of (incomplete as any[]) ?? []) {
+          incMap.set(row.user_id, row.missing ?? []);
+        }
+        setIncompleteProfiles(incMap);
+      } catch {
+        // optional, only visible to managers+
       }
     } catch (err) {
       console.error('Error loading team data:', err);
