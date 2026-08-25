@@ -234,7 +234,7 @@ export default function ScriptsPage() {
               placeholder="Title"
             />
             <Select
-              value={(editing?.category as Category) || 'Opener'}
+              value={(editing?.category as Category) || 'Openers'}
               onValueChange={(v) => setEditing((p) => ({ ...(p || {}), category: v }))}
             >
               <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>
