@@ -78,6 +78,23 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
             {data.streak != null ? 'days in a row' : 'no streak data'}
           </p>
         </div>
+        <div className="p-3 rounded-lg bg-muted/40 border border-border/30 col-span-2">
+          <p className="micro-label flex items-center gap-1.5">
+            <CalendarCheck className="w-3 h-3" /> Attendance — last 30 days
+          </p>
+          <p className="text-xl font-black text-foreground tabular-nums">
+            {attendance && attendance.expected > 0 ? `${attendance.pct}%` : '—'}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {attendance && attendance.expected > 0
+              ? `${attendance.present} of ${attendance.expected} meetings`
+              : 'no meetings recorded'}
+            {attendance && attendance.missed_streak >= 2
+              ? ` · missed ${attendance.missed_streak} in a row`
+              : ''}
+          </p>
+        </div>
+
       </div>
 
       {/* Weekly points, last 4 weeks */}
