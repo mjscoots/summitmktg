@@ -124,11 +124,16 @@ export default function IndustriesPage() {
           </p>
         </header>
 
+        {!loading && verticals.length > 0 && (
+          <LadderStrip verticals={verticals.map((v) => ({ vertical: v.vertical, label: v.label }))} />
+        )}
+
         {loading ? (
           <div className={CARD}>
             <p className="text-sm text-muted-foreground">Loading...</p>
           </div>
         ) : (
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {verticals.map((v) => {
               const Icon = ICONS[v.vertical] || ListChecks;
