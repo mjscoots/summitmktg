@@ -380,15 +380,10 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
-              <Route path="/app/spreadsheets" element={<Navigate to="/app/recruiting" replace />} />
-              <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruiting" replace />} />
-              <Route path="/app/recruiting" element={
-                <ProtectedRoute>
-                  <BootcampGate>
-                    <RecruitPipelinePage />
-                  </BootcampGate>
-                </ProtectedRoute>
-              } />
+              {/* Legacy recruit pipeline routes now point at the unified leads funnel */}
+              <Route path="/app/spreadsheets" element={<Navigate to="/app/recruits" replace />} />
+              <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruits" replace />} />
+              <Route path="/app/recruiting" element={<Navigate to="/app/recruits" replace />} />
               {/* Redirect old analytics route */}
               <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
 
