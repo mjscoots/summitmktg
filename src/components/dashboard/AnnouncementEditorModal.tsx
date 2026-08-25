@@ -57,7 +57,7 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       setIsPinned(false);
       setIsImportant(false);
       setPublishNow(true);
-      setExpiresAt('');
+      setExpiresAt(new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]);
     }
   }, [post, open]);
 
