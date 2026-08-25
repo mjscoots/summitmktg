@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import RosterGapCounters from '@/components/roster/RosterGapCounters';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -235,7 +236,10 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {isManager && <RosterGapCounters />}
+
         {/* Action row — what to do right now */}
+
         <HomeActionRow />
 
         {/* Weekly team battle standing */}

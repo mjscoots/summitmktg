@@ -63,6 +63,7 @@ const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage
 const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
 const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
 const ManagerMeetingPage = lazy(() => import("./pages/app/ManagerMeetingPage"));
+const RosterSweepPage = lazy(() => import("./pages/app/RosterSweepPage"));
 const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
@@ -415,7 +416,15 @@ function LazyFallback() {
                  <ProtectedRoute requiredRole="manager">
                    <ManagerMeetingPage />
                  </ProtectedRoute>
-               } />
+                } />
+
+                <Route path="/app/roster/sweep" element={
+                  <ProtectedRoute requiredRole="manager">
+                    <RosterSweepPage />
+                  </ProtectedRoute>
+                } />
+
+
 
                {/* Weekly 1:1's - redirect to forms */}
                <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />

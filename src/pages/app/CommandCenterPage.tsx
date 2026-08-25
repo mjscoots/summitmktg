@@ -8,6 +8,7 @@ import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
+import RosterGapCounters from "@/components/roster/RosterGapCounters";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
 import PairingsPanel from "@/components/command/PairingsPanel";
@@ -557,8 +558,15 @@ export default function CommandCenterPage() {
         </div>
 
 
+        {/* ROSTER GAPS */}
+        <SectionHeader title="Roster Gaps" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RosterGapCounters />
+        </div>
+
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />
+
         <div style={{ marginBottom: 40 }}>
           <RegionSheet />
         </div>

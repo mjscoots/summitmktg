@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Download, Loader2, Printer } from 'lucide-react';
+import { Copy, Download, Loader2, Printer } from 'lucide-react';
 import { departureLabel } from '@/components/admin/DepartureIntakeDialog';
 
 const COLORS = {
@@ -33,7 +33,25 @@ interface SheetRow {
   departure_reason: string | null;
   last_day_worked: string | null;
   revenue_to_date: number | null;
+  committed_last_day?: string | null;
+  next_year_status?: string | null;
+  showed_up_date?: string | null;
+  revenue_total?: number | null;
+  months_active?: number | null;
+  last_revenue_month?: string | null;
   re_signed?: boolean | string | null;
+}
+
+interface FunnelLine {
+  label: string;
+  recruited: number;
+  showed_up: number;
+  still_here: number;
+  fell_off: number;
+  fired: number;
+  quit: number;
+  home_early: number;
+  unknown: number;
 }
 
 interface Sheet {
@@ -47,6 +65,7 @@ interface Sheet {
   };
   funnel: {
     ever_on_roster: number;
+    recruited?: number;
     showed_up: number;
     still_active: number;
     departed: number;
@@ -55,8 +74,11 @@ interface Sheet {
     home_early: number;
     unknown: number;
   };
+  funnel_by_office?: FunnelLine[];
+  funnel_by_leader?: FunnelLine[];
   rows: SheetRow[];
 }
+
 
 const blank = (v: unknown): string => {
   if (v === null || v === undefined) return '';
@@ -77,6 +99,8 @@ export default function RegionSheet() {
   const [error, setError] = useState<string | null>(null);
   const [officeFilter, setOfficeFilter] = useState('all');
   const [verticalFilter, setVerticalFilter] = useState('all');
+  const [copied, setCopied] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -117,10 +141,48 @@ export default function RegionSheet() {
     [sheet]
   );
 
+  const funnelText = () => {
+    const f0 = sheet?.funnel;
+    const line = (l: FunnelLine | null, name: string) =>
+      l
+        ? `${name}: recruited ${l.recruited} → showed up ${l.showed_up} → still here ${l.still_here} → fell off ${l.fell_off} (fired ${l.fired}, quit ${l.quit}, unknown ${l.unknown})`
+        : `${name}: no data yet`;
+    const out: string[] = [];
+    if (f0) {
+      out.push(
+        `Whole region: recruited ${f0.recruited ?? f0.ever_on_roster} → showed up ${f0.showed_up} → still here ${f0.still_active} → fell off ${f0.departed} (fired ${f0.fired}, quit ${f0.quit}, unknown ${f0.unknown})`
+      );
+    }
+    out.push('', 'By office:');
+    (sheet?.funnel_by_office ?? []).forEach(l => out.push(line(l, l.label || '—')));
+    out.push('', 'By leader:');
+    (sheet?.funnel_by_leader ?? []).forEach(l => out.push(line(l, l.label || '—')));
+    out.push('', 'Production for every name:');
+    rows.forEach(r => {
+      out.push(
+        `${blank(r.full_name) || '—'} · ${r.archived ? 'departed' : 'still here'} · revenue ${
+          r.revenue_total ? money(r.revenue_total) : 'no data yet'
+        } · months ${r.months_active ?? 0} · last revenue month ${blank(r.last_revenue_month) || 'no data yet'}`
+      );
+    });
+    return out.join('\n');
+  };
+
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(funnelText());
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   const exportCsv = () => {
     const headers = [
       'Name', 'Office', 'Team', 'Manager', 'Rep year', 'Recruited by', 'Vertical',
-      'Status', 'Departure type', 'Departure reason', 'Last day worked', 'Revenue',
+      'Status', 'Departure type', 'Departure reason', 'Last day worked', 'Committed last day',
+      'Next season', 'Showed up', 'Revenue total', 'Months active', 'Last revenue month', 'Revenue on file',
       ...(hasReSigned ? ['Re-signed'] : []),
     ];
     const lines = [headers.join(',')];
@@ -137,11 +199,18 @@ export default function RegionSheet() {
         departureLabel(r.departure_type),
         blank(r.departure_reason),
         blank(r.last_day_worked),
+        blank(r.committed_last_day),
+        blank(r.next_year_status),
+        blank(r.showed_up_date),
+        r.revenue_total === null || r.revenue_total === undefined ? '' : String(r.revenue_total),
+        r.months_active === null || r.months_active === undefined ? '' : String(r.months_active),
+        blank(r.last_revenue_month),
         r.revenue_to_date === null || r.revenue_to_date === undefined ? '' : String(r.revenue_to_date),
         ...(hasReSigned ? [blank(r.re_signed)] : []),
       ];
       lines.push(cells.map(csvEscape).join(','));
     }
+
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -219,11 +288,18 @@ export default function RegionSheet() {
         </select>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           <button
+            onClick={copyText}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}
+          >
+            <Copy className="w-3.5 h-3.5" /> {copied ? 'Copied' : 'Copy as text'}
+          </button>
+          <button
             onClick={exportCsv}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}
           >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </button>
+
           <button
             onClick={() => window.print()}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}
@@ -276,6 +352,17 @@ export default function RegionSheet() {
         </div>
       </Panel>
 
+      {/* Funnel by office / leader */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginTop: 16 }}>
+        <Panel title="Funnel by office">
+          <FunnelTable lines={sheet.funnel_by_office ?? []} />
+        </Panel>
+        <Panel title="Funnel by leader">
+          <FunnelTable lines={sheet.funnel_by_leader ?? []} />
+        </Panel>
+      </div>
+
+
       {/* Roster table */}
       <div
         className="panel"
@@ -295,8 +382,14 @@ export default function RegionSheet() {
               <th>Departure</th>
               <th>Reason</th>
               <th>Last day</th>
-              <th>Revenue</th>
+              <th>Committed last day</th>
+              <th>Next season</th>
+              <th>Revenue total</th>
+              <th>Months</th>
+              <th>Last revenue month</th>
+              <th>Revenue on file</th>
               {hasReSigned && <th>Re-signed</th>}
+
             </tr>
           </thead>
           <tbody>
@@ -322,8 +415,14 @@ export default function RegionSheet() {
                 <td>{departureLabel(r.departure_type)}</td>
                 <td style={{ whiteSpace: 'normal', maxWidth: 260 }}>{blank(r.departure_reason)}</td>
                 <td>{blank(r.last_day_worked)}</td>
+                <td>{blank(r.committed_last_day)}</td>
+                <td>{blank(r.next_year_status)}</td>
+                <td>{r.revenue_total ? money(r.revenue_total) : '—'}</td>
+                <td>{r.months_active ?? 0}</td>
+                <td>{blank(r.last_revenue_month)}</td>
                 <td>{money(r.revenue_to_date)}</td>
                 {hasReSigned && <td>{blank(r.re_signed)}</td>}
+
               </tr>
             ))}
           </tbody>
@@ -375,4 +474,42 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 function Empty() {
   return <div style={{ color: COLORS.textMuted, fontSize: 12 }}>—</div>;
+}
+
+function FunnelTable({ lines }: { lines: FunnelLine[] }) {
+  if (lines.length === 0) {
+    return <div style={{ color: COLORS.textMuted, fontSize: 12 }}>No data yet.</div>;
+  }
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Recruited</th>
+            <th>Showed up</th>
+            <th>Still here</th>
+            <th>Fell off</th>
+            <th>Fired</th>
+            <th>Quit</th>
+            <th>Unknown</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lines.map(l => (
+            <tr key={l.label || 'blank'}>
+              <td style={{ fontWeight: 500 }}>{l.label || '—'}</td>
+              <td>{l.recruited}</td>
+              <td>{l.showed_up}</td>
+              <td>{l.still_here}</td>
+              <td>{l.fell_off}</td>
+              <td>{l.fired}</td>
+              <td>{l.quit}</td>
+              <td>{l.unknown}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }

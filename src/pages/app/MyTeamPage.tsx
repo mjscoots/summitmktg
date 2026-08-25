@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import RosterGapCounters from '@/components/roster/RosterGapCounters';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -303,6 +304,10 @@ export default function MyTeamPage() {
             ))}
           </div>
         </header>
+
+        {isManagerRole && <RosterGapCounters />}
+
+
 
         {isManagerRole && finishingSoon.length > 0 && (
           <section className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 backdrop-blur-sm">
