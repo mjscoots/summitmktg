@@ -17,6 +17,9 @@ import {
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
 import { MyFiberWeeks } from '@/components/money/MyFiberWeeks';
+import { MyRevenueMonths } from '@/components/money/MyRevenueMonths';
+import { MySpreadSection } from '@/components/money/MySpreadSection';
+import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -40,7 +43,6 @@ export default function MyMoneyPage() {
   const [loading, setLoading] = useState(true);
   const [commission, setCommission] = useState<CommissionRow | null>(null);
   const [housing, setHousing] = useState<HousingRow | null>(null);
-  const [myMonths, setMyMonths] = useState<{ month: string; revenue: number | null }[]>([]);
   const [teamMonths, setTeamMonths] = useState<{ full_name: string | null; month: string; revenue: number | null }[]>(
     []
   );
@@ -66,10 +68,6 @@ export default function MyMoneyPage() {
       setCommission((c.data as CommissionRow) ?? null);
       setHousing((h.data as HousingRow) ?? null);
       setLoading(false);
-
-      const { data: mine } = await (supabase as any).rpc('get_my_revenue');
-      if (!active) return;
-      setMyMonths((mine?.rows as any[]) ?? []);
 
       if (isManagerRole) {
         const { data: team } = await (supabase as any).rpc('get_team_revenue');
