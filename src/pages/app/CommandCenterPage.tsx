@@ -16,6 +16,9 @@ import PairingsPanel from "@/components/command/PairingsPanel";
 import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
 import StackView from "@/components/command/StackView";
 import FiberReport from "@/components/command/FiberReport";
+import { FiberInstallsPanel } from "@/components/admin/FiberInstallsPanel";
+import AdminIndustriesTab from "@/components/admin/AdminIndustriesTab";
+import { useVerticalLead } from "@/hooks/useVerticalLead";
 
 
 // ---------- Tokens (scoped to this page) ----------
@@ -284,6 +287,7 @@ function InlineNumberEdit({
 export default function CommandCenterPage() {
   useCommandFonts();
   const { role, isLoading: authLoading } = useAuth();
+  const { loading: leadLoading, vertical: leadVertical } = useVerticalLead();
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [live, setLive] = useState({
     totalReps: 0,
@@ -384,7 +388,34 @@ export default function CommandCenterPage() {
       </div>
     );
   }
-  if (!isAdminOrAbove(role)) return <Navigate to="/app" replace />;
+  // Vertical leads get a slim view: their own industry only.
+  if (!isAdminOrAbove(role)) {
+    if (leadLoading) {
+      return (
+        <div style={{ minHeight: "100vh", background: COLORS.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Loader2 className="animate-spin" color={COLORS.gold} />
+        </div>
+      );
+    }
+    if (!leadVertical) return <Navigate to="/app" replace />;
+    return (
+      <div style={{ background: COLORS.bg, color: COLORS.text, fontFamily: fontBody, minHeight: "100vh" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 16px 80px" }}>
+          <div style={{ color: COLORS.gold, fontFamily: fontMono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
+            {leadVertical} lead
+          </div>
+          <h1 style={{ fontFamily: fontDisplay, fontSize: "clamp(28px, 5vw, 40px)", margin: "8px 0 24px" }}>
+            {leadVertical}
+          </h1>
+          <div style={{ display: "grid", gap: 20 }}>
+            {leadVertical === "Fiber" && <FiberReport />}
+            {leadVertical === "Fiber" && <FiberInstallsPanel />}
+            <AdminIndustriesTab restrictToVertical={leadVertical} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: COLORS.bg, color: COLORS.text, fontFamily: fontBody, minHeight: "100vh" }}>
