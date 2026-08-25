@@ -35,7 +35,18 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
   const [isImportant, setIsImportant] = useState(false);
   const [publishNow, setPublishNow] = useState(true);
   const [expiresAt, setExpiresAt] = useState('');
+  const [audience, setAudience] = useState<'everyone' | 'managers' | 'team'>('everyone');
+  const [audienceTeamId, setAudienceTeamId] = useState<string>('');
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await (supabase as any).from('teams').select('id, name').order('name');
+      setTeams(data || []);
+    })();
+  }, [open]);
 
   useEffect(() => {
     if (post) {
@@ -48,6 +59,8 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       setIsImportant(post.is_important || false);
       setPublishNow(post.status === 'published');
       setExpiresAt(post.expires_at ? post.expires_at.split('T')[0] : '');
+      setAudience(post.audience || 'everyone');
+      setAudienceTeamId(post.audience_team_id || '');
     } else {
       setTitle('');
       setBody('');
@@ -58,8 +71,11 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       setIsImportant(false);
       setPublishNow(true);
       setExpiresAt(new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]);
+      setAudience('everyone');
+      setAudienceTeamId('');
     }
   }, [post, open]);
+
 
   const handleSave = async () => {
     if (!title.trim()) { toast.error('Title is required'); return; }
