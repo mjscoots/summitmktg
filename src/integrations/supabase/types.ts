@@ -5181,6 +5181,21 @@ export type Database = {
       }
     }
     Views: {
+      manager_directory: {
+        Row: {
+          accepting_new_reps: boolean | null
+          avatar_url: string | null
+          full_name: string | null
+          manager_intro: string | null
+          mentee_capacity: number | null
+          nickname: string | null
+          office_name: string | null
+          rank_name: string | null
+          user_id: string | null
+          vertical: string | null
+        }
+        Relationships: []
+      }
       quiz_questions_safe: {
         Row: {
           created_at: string | null
@@ -5484,6 +5499,7 @@ export type Database = {
       get_daily_drill: { Args: { _timezone?: string }; Returns: Json }
       get_data_active_counts: { Args: never; Returns: Json }
       get_data_gap_people: { Args: { _gap: string }; Returns: Json }
+      get_data_health: { Args: never; Returns: Json }
       get_data_integrity_report: { Args: never; Returns: Json }
       get_data_person_lookup: { Args: { _q: string }; Returns: Json }
       get_data_under_led: { Args: never; Returns: Json }
@@ -5700,6 +5716,7 @@ export type Database = {
       get_public_counters: { Args: never; Returns: Json }
       get_public_fiber_stacks: { Args: never; Returns: Json }
       get_public_industry: { Args: { p_vertical: string }; Returns: Json }
+      get_public_setting: { Args: { _key: string }; Returns: string }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -5890,6 +5907,7 @@ export type Database = {
         Returns: undefined
       }
       recalculate_all_time_points: { Args: never; Returns: undefined }
+      recompute_missing_ranks: { Args: never; Returns: Json }
       record_daily_login: {
         Args: { _timezone?: string; _user_id: string }
         Returns: Json
