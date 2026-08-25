@@ -199,11 +199,11 @@ async function buildOwnerDataContext(admin: any) {
   const [people, enrollments, revenue, goalRow] = await Promise.all([
     admin
       .from("profiles")
-      .select("user_id, full_name, office, vertical, rep_year, direct_manager, departure_type, departure_reason, committed_last_day, next_year_status, archived")
+      .select("user_id, full_name, office_name, vertical, rep_year, direct_manager, departure_type, departure_reason, committed_last_day, next_year_status, archived")
       .eq("archived", false)
       .limit(1000),
     admin.from("rep_vertical_enrollments").select("user_id, vertical, status").limit(2000),
-    admin.from("rep_revenue").select("user_id, month, amount").limit(5000),
+    admin.from("rep_revenue").select("user_id, month, revenue").limit(5000),
     admin.from("app_settings").select("key, value").in("key", ["season_revenue_goal", "season_revenue_goal_note"]),
   ]);
 
@@ -212,7 +212,7 @@ async function buildOwnerDataContext(admin: any) {
 
   const byOffice = new Map<string, number>();
   for (const p of rows) {
-    const k = p.office || "No office";
+    const k = p.office_name || "No office";
     byOffice.set(k, (byOffice.get(k) ?? 0) + 1);
   }
   parts.push(
@@ -244,7 +244,7 @@ async function buildOwnerDataContext(admin: any) {
 
   const revByUser = new Map<string, number>();
   for (const r of (revenue.data ?? []) as any[]) {
-    revByUser.set(r.user_id, (revByUser.get(r.user_id) ?? 0) + Number(r.amount ?? 0));
+    revByUser.set(r.user_id, (revByUser.get(r.user_id) ?? 0) + Number(r.revenue ?? 0));
   }
   const teamCount = new Map<string, number>();
   const teamRev = new Map<string, number>();
@@ -285,7 +285,7 @@ async function buildOwnerDataContext(admin: any) {
     .slice(0, 600)
     .map(
       (p) =>
-        `- ${p.full_name} | office: ${p.office || "not set"} | manager: ${p.direct_manager || "not set"} | year: ${
+        `- ${p.full_name} | office: ${p.office_name || "not set"} | manager: ${p.direct_manager || "not set"} | year: ${
           p.rep_year || "not set"
         } | next season: ${p.next_year_status || "not set"} | last day: ${p.committed_last_day || "not set"}`
     );
