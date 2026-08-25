@@ -9,6 +9,7 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { PayScale, PAY_SCALE_LABELS, formatCurrency, formatRate, getRate, getTier, formatTierRange } from '@/lib/commission';
 import { cn } from '@/lib/utils';
 import { RevenueEntryPanel } from '@/components/admin/RevenueEntryPanel';
+import { LeaderboardImportPanel } from '@/components/admin/LeaderboardImportPanel';
 import { RanksStacksPanel } from '@/components/admin/RanksStacksPanel';
 import { FiberInstallsPanel } from '@/components/admin/FiberInstallsPanel';
 
@@ -55,7 +56,7 @@ const num = (v: string): number | null => {
 export function AdminMoneyTab() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'pay' | 'revenue' | 'fiber' | 'ranks'>('pay');
+  const [view, setView] = useState<'pay' | 'revenue' | 'import' | 'fiber' | 'ranks'>('pay');
   const [reps, setReps] = useState<RepRow[]>([]);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [commissions, setCommissions] = useState<Map<string, any>>(new Map());
@@ -166,6 +167,9 @@ export function AdminMoneyTab() {
       <Button size="sm" variant={view === 'revenue' ? 'default' : 'outline'} onClick={() => setView('revenue')}>
         Monthly revenue
       </Button>
+      <Button size="sm" variant={view === 'import' ? 'default' : 'outline'} onClick={() => setView('import')}>
+        Import
+      </Button>
       <Button size="sm" variant={view === 'fiber' ? 'default' : 'outline'} onClick={() => setView('fiber')}>
         Fiber
       </Button>
@@ -180,6 +184,15 @@ export function AdminMoneyTab() {
       <div className="space-y-4">
         {nav}
         <RevenueEntryPanel />
+      </div>
+    );
+  }
+
+  if (view === 'import') {
+    return (
+      <div className="space-y-4">
+        {nav}
+        <LeaderboardImportPanel />
       </div>
     );
   }
