@@ -2351,6 +2351,8 @@ export type Database = {
           last_active_at: string | null
           last_day_worked: string | null
           last_seen_release: string | null
+          last_sweep_at: string | null
+          last_sweep_by: string | null
           legacy_points_snapshot: number | null
           manager_intro: string | null
           mentee_capacity: number | null
@@ -2380,6 +2382,7 @@ export type Database = {
           revenue_to_date: number | null
           runs_vertical: boolean
           shirt_size: string | null
+          showed_up_date: string | null
           status: Database["public"]["Enums"]["user_status"] | null
           status_detail: string | null
           team_id: string | null
@@ -2418,6 +2421,8 @@ export type Database = {
           last_active_at?: string | null
           last_day_worked?: string | null
           last_seen_release?: string | null
+          last_sweep_at?: string | null
+          last_sweep_by?: string | null
           legacy_points_snapshot?: number | null
           manager_intro?: string | null
           mentee_capacity?: number | null
@@ -2447,6 +2452,7 @@ export type Database = {
           revenue_to_date?: number | null
           runs_vertical?: boolean
           shirt_size?: string | null
+          showed_up_date?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           status_detail?: string | null
           team_id?: string | null
@@ -2485,6 +2491,8 @@ export type Database = {
           last_active_at?: string | null
           last_day_worked?: string | null
           last_seen_release?: string | null
+          last_sweep_at?: string | null
+          last_sweep_by?: string | null
           legacy_points_snapshot?: number | null
           manager_intro?: string | null
           mentee_capacity?: number | null
@@ -2514,6 +2522,7 @@ export type Database = {
           revenue_to_date?: number | null
           runs_vertical?: boolean
           shirt_size?: string | null
+          showed_up_date?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           status_detail?: string | null
           team_id?: string | null
@@ -3694,6 +3703,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sweep_sessions: {
+        Row: {
+          actor_id: string
+          created_at: string
+          filter: Json
+          id: string
+          last_action_at: string
+          resolved_count: number
+          started_at: string
+          updated_at: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          filter?: Json
+          id?: string
+          last_action_at?: string
+          resolved_count?: number
+          started_at?: string
+          updated_at?: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          filter?: Json
+          id?: string
+          last_action_at?: string
+          resolved_count?: number
+          started_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       team_lead_applications: {
         Row: {
@@ -5033,6 +5075,7 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      can_sweep_person: { Args: { _target: string }; Returns: boolean }
       can_view_event: {
         Args: { p_scope: string; p_team_id: string; p_user_id: string }
         Returns: boolean
@@ -5447,6 +5490,7 @@ export type Database = {
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
       get_resign_board: { Args: never; Returns: Json }
       get_revenue_month: { Args: { _month: string }; Returns: Json }
+      get_roster_gaps: { Args: never; Returns: Json }
       get_season_hub: { Args: never; Returns: Json }
       get_session_prep: { Args: { _since?: string }; Returns: Json }
       get_setting: {
@@ -5465,6 +5509,10 @@ export type Database = {
           total_days_active: number
           user_id: string
         }[]
+      }
+      get_sweep_queue: {
+        Args: { _gap?: string; _leader?: string; _office_id?: string }
+        Returns: Json
       }
       get_team_battles: {
         Args: never
@@ -5625,6 +5673,7 @@ export type Database = {
         Args: { _lead_id: string; _priority: boolean }
         Returns: Json
       }
+      start_sweep_session: { Args: { _filter?: Json }; Returns: Json }
       submit_commitment_interview: {
         Args: {
           _better_next_year: string
@@ -5637,7 +5686,29 @@ export type Database = {
         }
         Returns: Json
       }
+      sweep_mark_gone: {
+        Args: {
+          _departure_type?: string
+          _last_sale_date?: string
+          _reason?: string
+          _session_id?: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      sweep_mark_here: {
+        Args: {
+          _committed_last_day?: string
+          _next_year_status?: string
+          _office_id?: string
+          _session_id?: string
+          _showed_up_date?: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       sweep_pairing_requests: { Args: never; Returns: Json }
+      sweep_restore: { Args: { _prev: Json }; Returns: Json }
       sweep_speed_to_lead: { Args: never; Returns: Json }
       sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }
