@@ -18,6 +18,7 @@ import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
 import AdminUsersTab from '@/components/admin/AdminUsersTab';
+import { AdminArchivedTab } from '@/components/admin/AdminArchivedTab';
 import type { UserRow } from '@/components/admin/AdminUsersTab';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { toast } from '@/hooks/use-toast';
@@ -383,6 +384,11 @@ export default function AdminTeamPage() {
             </TabsList>
             </div>
           </div>
+
+          {/* ========== ARCHIVED TAB ========== */}
+          <TabsContent value="archived">
+            <AdminArchivedTab />
+          </TabsContent>
 
           {/* ========== USERS TAB ========== */}
           <TabsContent value="users">
