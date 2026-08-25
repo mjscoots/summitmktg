@@ -125,6 +125,35 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_views: {
+        Row: {
+          announcement_id: string
+          id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          announcement_id: string
+          id?: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          announcement_id?: string
+          id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_views_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcement_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           author_id: string | null
@@ -3130,6 +3159,7 @@ export type Database = {
           videos_watched: number
         }[]
       }
+      get_announcement_seen_counts: { Args: never; Returns: Json }
       get_current_leaderboard: {
         Args: never
         Returns: {
@@ -3209,6 +3239,7 @@ export type Database = {
               user_id: string
             }[]
           }
+      get_home_snapshot: { Args: never; Returns: Json }
       get_lead_board: {
         Args: never
         Returns: {
@@ -3358,6 +3389,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_inactive_users: { Args: never; Returns: undefined }
       recalculate_all_time_points: { Args: never; Returns: undefined }
       record_daily_login: {
