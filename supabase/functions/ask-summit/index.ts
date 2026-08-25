@@ -114,7 +114,6 @@ async function buildContext(admin: any, userId: string) {
   parts.push(`CURRENT ANNOUNCEMENTS:\n${annLines.join("\n") || "- none"}`);
 
   // Training
-  const trainingCourses = courses.data ?? [];
   const trainingLines = (courses.data ?? []).map((c: any) => {
     const mods = (modules.data ?? []).filter((m: any) => m.course_id === c.id).map((m: any) => m.title);
     return `- Course "${c.title}": ${mods.join(", ") || "no modules"}`;
