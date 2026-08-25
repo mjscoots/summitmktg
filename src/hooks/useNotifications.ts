@@ -21,10 +21,14 @@ export function useNotifications() {
   const fetchNotifications = async () => {
     if (!user) return;
 
+    // Quiet-hours: rows with a future deliver_after are held back.
+    // Rows rolled into a digest are hidden behind their summary row.
     const { data, error } = await supabase
       .from('user_notifications')
       .select('*')
       .eq('user_id', user.id)
+      .eq('digested', false)
+      .lte('deliver_after', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -34,6 +38,7 @@ export function useNotifications() {
     }
     setIsLoading(false);
   };
+
 
   useEffect(() => {
     fetchNotifications();
