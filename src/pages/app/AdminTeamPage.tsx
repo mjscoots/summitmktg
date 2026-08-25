@@ -115,7 +115,7 @@ export default function AdminTeamPage() {
   const fetchData = async () => {
     setLoading(true);
     const [profilesRes, bootcampRes, roleRes, teamsRes, settingsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url, onboarding_status, organization, last_active_at, region, office_name, recruiter, archived, archived_at, archived_reason').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url, onboarding_status, organization, last_active_at, region, office_name, recruiter, archived, archived_at, archived_reason, office_id, vertical, runs_vertical, rep_year, recruited_by_name, status_detail').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('user_id, bootcamp_completed'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('teams').select('id, name, slug, created_at, leader_id').order('name'),

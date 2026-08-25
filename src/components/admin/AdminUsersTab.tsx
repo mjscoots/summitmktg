@@ -1,5 +1,7 @@
 import { LoadingList } from '@/components/shared/LoadingList';
-import { useState, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
+import { DepartureIntakeDialog } from '@/components/admin/DepartureIntakeDialog';
+
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronDown as ChevronDownIcon, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -89,6 +91,10 @@ class TableErrorBoundary extends Component<{ children: ReactNode; onRetry: () =>
     return this.props.children;
   }
 }
+
+const VERTICALS = ['Pest', 'Fiber', 'Virtual'] as const;
+const REP_YEARS = ['1st', '2nd', '3rd+'] as const;
+
 
 const PIPELINE_STATUSES = [
   { key: 'pending', label: 'Prospect Added' },
@@ -200,7 +206,15 @@ export interface UserRow {
   recruiter?: string | null;
   last_active_at?: string | null;
   bootcamp_completed?: boolean;
+  office_id?: string | null;
+  vertical?: string | null;
+  runs_vertical?: boolean | null;
+  rep_year?: string | null;
+  recruited_by_name?: string | null;
+  status_detail?: string | null;
+  archived?: boolean | null;
 }
+
 
 interface AdminUsersTabProps {
   users: UserRow[];
@@ -297,17 +311,34 @@ export default function AdminUsersTab({
   const [progressFilter, setProgressFilter] = useState<string>('all');
   const [recruiterFilter, setRecruiterFilter] = useState<string>('all');
   const [teamFilter, setTeamFilter] = useState<string>('all');
+  const [officeFilter, setOfficeFilter] = useState<string>('all');
+  const [verticalFilter, setVerticalFilter] = useState<string>('all');
   const [appFilter, setAppFilter] = useState<AppFilter>('in_app');
   const [sortBy, setSortBy] = useState<SortOption>('progress');
   const [sortAsc, setSortAsc] = useState(true);
   const [detailUser, setDetailUser] = useState<UserRow | null>(null);
   const [editingPipeline, setEditingPipeline] = useState('');
   const [isEditingDetail, setIsEditingDetail] = useState(false);
+  const [offices, setOffices] = useState<{ id: string; name: string }[]>([]);
+  const [departureTarget, setDepartureTarget] = useState<UserRow | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any).from('offices').select('id, name').order('name');
+      if (!cancelled) setOffices((data as { id: string; name: string }[]) || []);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const officeName = (officeId: string | null | undefined) =>
+    officeId ? offices.find((o) => o.id === officeId)?.name || '' : '';
 
   const getTeamName = (teamId: string | null | undefined) => {
     if (!teamId) return '—';
     return teams.find((t) => t.id === teamId)?.name || '—';
   };
+
 
   const recruiterNames = useMemo(() => {
     const names = new Set<string>();
@@ -358,6 +389,14 @@ export default function AdminUsersTab({
         if (teamFilter === 'none' && u.team_id) return false;
         if (teamFilter !== 'none' && u.team_id !== teamFilter) return false;
       }
+
+      if (officeFilter !== 'all') {
+        if (officeFilter === 'none' && u.office_id) return false;
+        if (officeFilter !== 'none' && u.office_id !== officeFilter) return false;
+      }
+
+      if (verticalFilter !== 'all' && (u.vertical || 'Pest') !== verticalFilter) return false;
+
 
       if (appFilter === 'in_app' && u.approved !== true) return false;
       if (appFilter === 'not_in_app' && u.approved === true) return false;
@@ -413,6 +452,8 @@ export default function AdminUsersTab({
     progressFilter,
     recruiterFilter,
     teamFilter,
+    officeFilter,
+    verticalFilter,
     appFilter,
     sortBy,
     sortAsc,
@@ -425,8 +466,24 @@ export default function AdminUsersTab({
     progressFilter !== 'all' ||
     recruiterFilter !== 'all' ||
     teamFilter !== 'all' ||
+    officeFilter !== 'all' ||
+    verticalFilter !== 'all' ||
     appFilter !== 'in_app' ||
     sortBy !== 'progress';
+
+  // Inline roster-field save (admin only, one field at a time)
+  const saveRosterField = async (userId: string, patch: Record<string, unknown>, label: string) => {
+    setDetailUser(prev => (prev ? { ...prev, ...patch } as UserRow : null));
+    const { error } = await supabase.from('profiles').update(patch as never).eq('user_id', userId);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      onRefresh();
+      return;
+    }
+    toast({ title: `${label} updated` });
+    onRefresh();
+  };
+
 
   const handleUpdatePipeline = async (userId: string, newStatus: string) => {
     // Optimistic: close modal + toast immediately
@@ -590,6 +647,33 @@ export default function AdminUsersTab({
           </SelectContent>
         </Select>
 
+        <Select value={officeFilter} onValueChange={setOfficeFilter}>
+          <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Office" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Offices</SelectItem>
+            <SelectItem value="none">No Office</SelectItem>
+            {offices.map((o) => (
+              <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={verticalFilter} onValueChange={setVerticalFilter}>
+          <SelectTrigger className="h-8 w-[105px] sm:w-[120px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Vertical" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Verticals</SelectItem>
+            {VERTICALS.map((v) => (
+              <SelectItem key={v} value={v}>{v}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+
+
         {/* Sort toggle */}
         <Popover>
           <PopoverTrigger asChild>
@@ -628,6 +712,9 @@ export default function AdminUsersTab({
               setProgressFilter('all');
               setRecruiterFilter('all');
               setTeamFilter('all');
+              setOfficeFilter('all');
+              setVerticalFilter('all');
+
               setAppFilter('in_app');
               setSortBy('progress');
               setSortAsc(true);
@@ -873,6 +960,25 @@ export default function AdminUsersTab({
                   <p className="text-xs text-foreground">{detailUser.direct_manager || detailUser.recruiter || '—'}</p>
                 </div>
 
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Office</p>
+                    <p className="text-xs text-foreground truncate">{officeName(detailUser.office_id) || detailUser.office_name || '—'}</p>
+                  </div>
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Vertical</p>
+                    <p className="text-xs text-foreground truncate">
+                      {detailUser.vertical || 'Pest'}
+                      {detailUser.runs_vertical && <span className="ml-1 text-primary">▲</span>}
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rep Year</p>
+                    <p className="text-xs text-foreground">{detailUser.rep_year || '—'}</p>
+                  </div>
+                </div>
+
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-2.5 bg-muted/30 rounded-lg">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progress</p>
@@ -944,6 +1050,109 @@ export default function AdminUsersTab({
                       </Select>
                     </div>
 
+                    <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Roster Details</p>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Select
+                          value={detailUser.office_id || '__none__'}
+                          onValueChange={(v) =>
+                            saveRosterField(detailUser.user_id, { office_id: v === '__none__' ? null : v }, 'Office')
+                          }
+                        >
+                          <SelectTrigger className="h-8 bg-background/70 text-xs">
+                            <SelectValue placeholder="Office" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__" className="text-xs">No office</SelectItem>
+                            {offices.map((o) => (
+                              <SelectItem key={o.id} value={o.id} className="text-xs">{o.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select
+                          value={detailUser.vertical || 'Pest'}
+                          onValueChange={(v) => saveRosterField(detailUser.user_id, { vertical: v }, 'Vertical')}
+                        >
+                          <SelectTrigger className="h-8 bg-background/70 text-xs">
+                            <SelectValue placeholder="Vertical" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {VERTICALS.map((v) => (
+                              <SelectItem key={v} value={v} className="text-xs">{v}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select
+                          value={detailUser.rep_year || '__none__'}
+                          onValueChange={(v) =>
+                            saveRosterField(detailUser.user_id, { rep_year: v === '__none__' ? null : v }, 'Rep year')
+                          }
+                        >
+                          <SelectTrigger className="h-8 bg-background/70 text-xs">
+                            <SelectValue placeholder="Rep year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__" className="text-xs">Not set</SelectItem>
+                            {REP_YEARS.map((y) => (
+                              <SelectItem key={y} value={y} className="text-xs">{y} year</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() =>
+                            saveRosterField(
+                              detailUser.user_id,
+                              { runs_vertical: !detailUser.runs_vertical },
+                              'Runs vertical'
+                            )
+                          }
+                        >
+                          {detailUser.runs_vertical ? 'Runs vertical ✓' : 'Mark runs vertical'}
+                        </Button>
+                      </div>
+
+                      <Input
+                        defaultValue={detailUser.recruited_by_name || ''}
+                        placeholder="Recruited by (name)"
+                        className="h-8 bg-background/70 text-xs"
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v !== (detailUser.recruited_by_name || '')) {
+                            saveRosterField(detailUser.user_id, { recruited_by_name: v || null }, 'Recruited by');
+                          }
+                        }}
+                      />
+
+                      <Input
+                        defaultValue={detailUser.status_detail || ''}
+                        placeholder="Status note (optional)"
+                        className="h-8 bg-background/70 text-xs"
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v !== (detailUser.status_detail || '')) {
+                            saveRosterField(detailUser.user_id, { status_detail: v || null }, 'Status note');
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                      onClick={() => setDepartureTarget(detailUser)}
+                    >
+                      Record departure & archive
+                    </Button>
+
+
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
@@ -982,6 +1191,18 @@ export default function AdminUsersTab({
           )}
         </DialogContent>
       </Dialog>
+
+      <DepartureIntakeDialog
+        target={departureTarget}
+        onClose={() => setDepartureTarget(null)}
+        onSaved={() => {
+          setDepartureTarget(null);
+          setDetailUser(null);
+          setIsEditingDetail(false);
+          onRefresh();
+        }}
+      />
+
     </div>
   );
 }

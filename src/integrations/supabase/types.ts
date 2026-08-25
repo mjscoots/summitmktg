@@ -1918,6 +1918,33 @@ export type Database = {
         }
         Relationships: []
       }
+      offices: {
+        Row: {
+          created_at: string
+          housing_address: string | null
+          id: string
+          meeting_space_note: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          housing_address?: string | null
+          id?: string
+          meeting_space_note?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          housing_address?: string | null
+          id?: string
+          meeting_space_note?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       one_on_one_rep_order: {
         Row: {
           display_order: number
@@ -2066,6 +2093,8 @@ export type Database = {
           calendly_url: string | null
           created_at: string | null
           cumulative_points: number | null
+          departure_reason: string | null
+          departure_type: string | null
           direct_manager: string | null
           email: string
           emergency_contact_name: string | null
@@ -2075,9 +2104,11 @@ export type Database = {
           id: string
           is_active_now: boolean | null
           last_active_at: string | null
+          last_day_worked: string | null
           last_seen_release: string | null
           legacy_points_snapshot: number | null
           nickname: string | null
+          office_id: string | null
           office_name: string | null
           onboarding_status: string | null
           organization: string | null
@@ -2086,18 +2117,25 @@ export type Database = {
           phone: string | null
           pillar_slug: string | null
           pre_archive_status: Database["public"]["Enums"]["user_status"] | null
+          recruited_by_name: string | null
+          recruited_by_user_id: string | null
           recruiter: string | null
           referred_by: string | null
           region: string | null
+          rep_year: string | null
           revenue_goal: number | null
+          revenue_to_date: number | null
+          runs_vertical: boolean
           shirt_size: string | null
           status: Database["public"]["Enums"]["user_status"] | null
+          status_detail: string | null
           team_id: string | null
           time_this_week_minutes: number | null
           timezone: string | null
           tour_completed: boolean | null
           updated_at: string | null
           user_id: string
+          vertical: string
           week_start: string | null
         }
         Insert: {
@@ -2110,6 +2148,8 @@ export type Database = {
           calendly_url?: string | null
           created_at?: string | null
           cumulative_points?: number | null
+          departure_reason?: string | null
+          departure_type?: string | null
           direct_manager?: string | null
           email: string
           emergency_contact_name?: string | null
@@ -2119,9 +2159,11 @@ export type Database = {
           id?: string
           is_active_now?: boolean | null
           last_active_at?: string | null
+          last_day_worked?: string | null
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
           nickname?: string | null
+          office_id?: string | null
           office_name?: string | null
           onboarding_status?: string | null
           organization?: string | null
@@ -2130,18 +2172,25 @@ export type Database = {
           phone?: string | null
           pillar_slug?: string | null
           pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
+          recruited_by_name?: string | null
+          recruited_by_user_id?: string | null
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
+          rep_year?: string | null
           revenue_goal?: number | null
+          revenue_to_date?: number | null
+          runs_vertical?: boolean
           shirt_size?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
+          status_detail?: string | null
           team_id?: string | null
           time_this_week_minutes?: number | null
           timezone?: string | null
           tour_completed?: boolean | null
           updated_at?: string | null
           user_id: string
+          vertical?: string
           week_start?: string | null
         }
         Update: {
@@ -2154,6 +2203,8 @@ export type Database = {
           calendly_url?: string | null
           created_at?: string | null
           cumulative_points?: number | null
+          departure_reason?: string | null
+          departure_type?: string | null
           direct_manager?: string | null
           email?: string
           emergency_contact_name?: string | null
@@ -2163,9 +2214,11 @@ export type Database = {
           id?: string
           is_active_now?: boolean | null
           last_active_at?: string | null
+          last_day_worked?: string | null
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
           nickname?: string | null
+          office_id?: string | null
           office_name?: string | null
           onboarding_status?: string | null
           organization?: string | null
@@ -2174,21 +2227,35 @@ export type Database = {
           phone?: string | null
           pillar_slug?: string | null
           pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
+          recruited_by_name?: string | null
+          recruited_by_user_id?: string | null
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
+          rep_year?: string | null
           revenue_goal?: number | null
+          revenue_to_date?: number | null
+          runs_vertical?: boolean
           shirt_size?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
+          status_detail?: string | null
           team_id?: string | null
           time_this_week_minutes?: number | null
           timezone?: string | null
           tour_completed?: boolean | null
           updated_at?: string | null
           user_id?: string
+          vertical?: string
           week_start?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "offices"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_team_id_fkey"
             columns: ["team_id"]
@@ -4538,6 +4605,7 @@ export type Database = {
           signed: number
         }[]
       }
+      get_region_sheet: { Args: never; Returns: Json }
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
       get_season_hub: { Args: never; Returns: Json }
       get_streak_leaderboard: {
@@ -4633,6 +4701,16 @@ export type Database = {
       }
       record_daily_time: {
         Args: { _category: string; _user_id: string }
+        Returns: undefined
+      }
+      record_departure: {
+        Args: {
+          _departure_type?: string
+          _last_day?: string
+          _reason?: string
+          _revenue?: number
+          _user_id: string
+        }
         Returns: undefined
       }
       release_stale_leads: { Args: never; Returns: number }
