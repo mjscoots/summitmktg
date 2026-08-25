@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezones';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { RepScorecard } from '@/components/shared/RepScorecard';
