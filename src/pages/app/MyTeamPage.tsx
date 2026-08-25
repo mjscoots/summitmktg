@@ -68,9 +68,9 @@ export default function MyTeamPage() {
     { user_id: string; full_name: string | null; committed_last_day: string }[]
   >([]);
 
-  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
+  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars' | 'mentees'>(() => {
     const t = searchParams.get('tab');
-    if (t === 'members' || t === 'triage' || t === 'cars') return t;
+    if (t === 'members' || t === 'triage' || t === 'cars' || t === 'mentees') return t;
     return 'teams';
   });
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export default function MyTeamPage() {
   // Manager-only tabs: reps landing on ?tab=triage fall back to Teams
   useEffect(() => {
     if (authLoading) return;
-    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars')) setViewMode('teams');
+    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars' || viewMode === 'mentees')) setViewMode('teams');
   }, [authLoading, isManagerRole, viewMode]);
 
   useManagerNotifications();
