@@ -476,6 +476,13 @@ export default function RecruitsPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          <WinMoment
+            open={winMoment !== null}
+            firstName={winMoment?.firstName || ''}
+            signedCount={winMoment?.signedCount ?? null}
+            onDismiss={() => setWinMoment(null)}
+          />
         </main>
       </div>
     </AppLayout>
