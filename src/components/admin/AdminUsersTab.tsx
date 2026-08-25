@@ -200,7 +200,15 @@ export interface UserRow {
   recruiter?: string | null;
   last_active_at?: string | null;
   bootcamp_completed?: boolean;
+  office_id?: string | null;
+  vertical?: string | null;
+  runs_vertical?: boolean | null;
+  rep_year?: string | null;
+  recruited_by_name?: string | null;
+  status_detail?: string | null;
+  archived?: boolean | null;
 }
+
 
 interface AdminUsersTabProps {
   users: UserRow[];
