@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain, Loader2 } from "lucide-react";
-import RookieCalculator from "@/components/RookieCalculator";
+import EarningsCalculator from "@/components/EarningsCalculator";
 import Testimonials, { rookieTestimonials } from "@/components/Testimonials";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -221,7 +221,7 @@ const RookieApplication = () => {
 
         {/* Calculator with Apply CTA */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <RookieCalculator onApplyClick={scrollToForm} />
+          <EarningsCalculator lockScale="rookie" onApplyClick={scrollToForm} />
         </div>
 
         {/* Why Different Section */}
