@@ -3457,6 +3457,33 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_reports: {
+        Row: {
+          created_at: string
+          generated_at: string
+          id: string
+          payload: Json
+          updated_at: string
+          week_ending: string
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string
+          id?: string
+          payload?: Json
+          updated_at?: string
+          week_ending: string
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string
+          id?: string
+          payload?: Json
+          updated_at?: string
+          week_ending?: string
+        }
+        Relationships: []
+      }
       winback_contacts: {
         Row: {
           created_at: string
@@ -3600,6 +3627,11 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: Json
       }
+      compute_weekly_report: {
+        Args: { _from: string; _to: string }
+        Returns: Json
+      }
+      generate_weekly_report: { Args: never; Returns: Json }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3629,6 +3661,7 @@ export type Database = {
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
       get_chat_channel_state: { Args: never; Returns: Json }
+      get_command_analytics: { Args: never; Returns: Json }
       get_current_leaderboard: {
         Args: never
         Returns: {
