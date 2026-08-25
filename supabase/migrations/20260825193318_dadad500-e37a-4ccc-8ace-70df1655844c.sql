@@ -1,0 +1,28 @@
+REVOKE EXECUTE ON FUNCTION public.mentee_count(uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_eligible_managers(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_my_pairing_request(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.request_pairing(text, uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.auto_pair(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_my_pairing_requests() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.respond_pairing(uuid, boolean, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_my_mentees() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.nudge_mentee(uuid, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_pairings(text, text, uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.admin_set_paired_manager(uuid, text, uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.sweep_pairing_requests() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.approve_vertical_step(uuid, uuid, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_pending_vertical_approvals() FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.mentee_count(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_eligible_managers(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_my_pairing_request(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.request_pairing(text, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.auto_pair(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_my_pairing_requests() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.respond_pairing(uuid, boolean, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_my_mentees() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.nudge_mentee(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_pairings(text, text, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_set_paired_manager(uuid, text, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.approve_vertical_step(uuid, uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_pending_vertical_approvals() TO authenticated;
