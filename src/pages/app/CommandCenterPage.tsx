@@ -315,7 +315,7 @@ export default function CommandCenterPage() {
         supabase.from("profiles").select("id", { count: "exact", head: true }).gt("last_active_at", sevenAgo),
         supabase.from("profiles").select("id", { count: "exact", head: true }).gt("last_active_at", thirtyAgo),
         supabase.from("teams").select("id", { count: "exact", head: true }),
-        supabase.from("recruit_pipeline").select("id", { count: "exact", head: true }),
+        supabase.from("recruiting_leads").select("id", { count: "exact", head: true }),
         supabase
           .from("applications")
           .select("id", { count: "exact", head: true })

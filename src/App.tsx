@@ -57,7 +57,6 @@ const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
 const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
 const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 const ManagePage = lazy(() => import("./pages/app/ManagePage"));
-const RecruitPipelinePage = lazy(() => import("./pages/app/RecruitPipelinePage"));
 const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
 const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
 const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
@@ -380,15 +379,10 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
-              <Route path="/app/spreadsheets" element={<Navigate to="/app/recruiting" replace />} />
-              <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruiting" replace />} />
-              <Route path="/app/recruiting" element={
-                <ProtectedRoute>
-                  <BootcampGate>
-                    <RecruitPipelinePage />
-                  </BootcampGate>
-                </ProtectedRoute>
-              } />
+              {/* Legacy recruit pipeline routes now point at the unified leads funnel */}
+              <Route path="/app/spreadsheets" element={<Navigate to="/app/recruits" replace />} />
+              <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruits" replace />} />
+              <Route path="/app/recruiting" element={<Navigate to="/app/recruits" replace />} />
               {/* Redirect old analytics route */}
               <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
 

@@ -6,8 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
-  Users, Loader2, Phone, MapPin, Clock, Sparkles, Lock, RefreshCw,
+  Users, Loader2, Phone, MapPin, Clock, Sparkles, Lock, RefreshCw, Plus,
 } from 'lucide-react';
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -39,7 +43,7 @@ interface BoardLead {
 }
 
 interface MyLead extends BoardLead {
-  phone: string;
+  phone: string | null;
   status: string;
   claimed_at: string | null;
   last_activity_at: string | null;
@@ -76,6 +80,9 @@ export default function RecruitsPage() {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+  const [addOpen, setAddOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ first_name: '', phone: '', city: '', interest_reason: '', notes: '' });
   const [, setTick] = useState(0);
 
   const activeClaims = mine.filter((l) => l.status === 'Claimed' || l.status === 'Contacted').length;
@@ -143,6 +150,31 @@ export default function RecruitsPage() {
     }
   };
 
+  const addManualLead = async () => {
+    if (!form.first_name.trim()) {
+      toast.error('Add a name first');
+      return;
+    }
+    setSaving(true);
+    const { data, error } = await (supabase as any).rpc('add_manual_lead', {
+      _first_name: form.first_name,
+      _phone: form.phone || null,
+      _city: form.city || null,
+      _interest_reason: form.interest_reason || null,
+      _notes: form.notes || null,
+    });
+    setSaving(false);
+    if (error || !data?.success) {
+      toast.error(data?.error || 'Could not add that lead');
+      return;
+    }
+    toast.success('Lead added to My Leads');
+    setForm({ first_name: '', phone: '', city: '', interest_reason: '', notes: '' });
+    setAddOpen(false);
+    setTab('mine');
+    load();
+  };
+
   return (
     <AppLayout>
       <div className="h-full overflow-y-auto">
@@ -161,12 +193,20 @@ export default function RecruitsPage() {
                   : `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`}
               </p>
             </div>
-            <button
-              onClick={load}
-              className="micro-label inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 transition-colors hover:border-primary/30 hover:text-foreground"
-            >
-              <RefreshCw className="h-3.5 w-3.5" /> Refresh
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                onClick={() => setAddOpen(true)}
+                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
+              >
+                <Plus className="h-4 w-4" /> Add lead
+              </button>
+              <button
+                onClick={load}
+                className="micro-label inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 transition-colors hover:border-primary/30 hover:text-foreground"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Refresh
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -267,6 +307,12 @@ export default function RecruitsPage() {
           ) : mine.length === 0 ? (
             <div className={cn(CARD, 'p-10 text-center')}>
               <p className="text-sm text-muted-foreground">You haven’t claimed any leads yet.</p>
+              <button
+                onClick={() => setAddOpen(true)}
+                className="mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 text-[13px] font-semibold text-primary-foreground"
+              >
+                <Plus className="h-4 w-4" /> Add a lead manually
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -298,12 +344,18 @@ export default function RecruitsPage() {
                       </span>
                     </div>
 
-                    <a
-                      href={`tel:${lead.phone.replace(/[^\d+]/g, '')}`}
-                      className="mt-3 inline-flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-[13px] font-semibold text-primary"
-                    >
-                      <Phone className="w-3.5 h-3.5" /> {lead.phone}
-                    </a>
+                    {lead.phone ? (
+                      <a
+                        href={`tel:${lead.phone.replace(/[^\d+]/g, '')}`}
+                        className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-[13px] font-semibold text-primary"
+                      >
+                        <Phone className="w-3.5 h-3.5" /> {lead.phone}
+                      </a>
+                    ) : (
+                      <p className="mt-3 inline-flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12px] text-muted-foreground">
+                        <Phone className="w-3.5 h-3.5" /> No phone on file
+                      </p>
+                    )}
 
                     <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:items-center">
                       <Select value={lead.status} onValueChange={(v) => updateLead(lead.id, v, null)}>
@@ -342,6 +394,61 @@ export default function RecruitsPage() {
               })}
             </div>
           )}
+          {/* Add lead manually */}
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogContent className="sm:max-w-[420px]">
+              <DialogHeader>
+                <DialogTitle>Add a lead</DialogTitle>
+                <DialogDescription>
+                  Added leads are assigned to you immediately and tagged “manual”.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                <Input
+                  value={form.first_name}
+                  onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))}
+                  placeholder="First name"
+                  maxLength={120}
+                />
+                <Input
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="Phone (optional)"
+                  inputMode="tel"
+                  maxLength={40}
+                />
+                <Input
+                  value={form.city}
+                  onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                  placeholder="City (optional)"
+                  maxLength={80}
+                />
+                <Input
+                  value={form.interest_reason}
+                  onChange={(e) => setForm((f) => ({ ...f, interest_reason: e.target.value }))}
+                  placeholder="Interest reason (optional)"
+                  maxLength={120}
+                />
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  rows={3}
+                  maxLength={4000}
+                  placeholder="Notes (optional)"
+                  className="w-full rounded-lg border border-white/[0.06] bg-background/50 px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-primary/40"
+                />
+              </div>
+              <DialogFooter>
+                <button
+                  onClick={addManualLead}
+                  disabled={saving}
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-[13px] font-semibold text-primary-foreground disabled:opacity-60"
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add lead
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </AppLayout>

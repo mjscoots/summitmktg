@@ -23,7 +23,7 @@ const STATUS_STYLE: Record<string, string> = {
 interface Lead {
   id: string;
   first_name: string;
-  phone: string;
+  phone: string | null;
   city: string | null;
   interest_reason: string | null;
   ref_code: string | null;
@@ -57,6 +57,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [refFilter, setRefFilter] = useState('all');
   const [repFilter, setRepFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
 
   const [newCode, setNewCode] = useState('');
   const [newCodeLabel, setNewCodeLabel] = useState('');
@@ -87,15 +88,19 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
 
   useEffect(() => { load(); }, [load]);
 
+  const sourceOf = (l: Lead) =>
+    l.ref_code === 'pipeline-import' ? 'pipeline-import' : l.ref_code === 'manual' ? 'manual' : 'ticket';
+
   const filtered = useMemo(
     () =>
       leads.filter(
         (l) =>
           (statusFilter === 'all' || l.status === statusFilter) &&
           (refFilter === 'all' || (l.ref_code || 'none') === refFilter) &&
-          (repFilter === 'all' || (l.claimed_by || 'none') === repFilter)
+          (repFilter === 'all' || (l.claimed_by || 'none') === repFilter) &&
+          (sourceFilter === 'all' || sourceOf(l) === sourceFilter)
       ),
-    [leads, statusFilter, refFilter, repFilter]
+    [leads, statusFilter, refFilter, repFilter, sourceFilter]
   );
 
   const signedLeads = useMemo(() => leads.filter((l) => l.status === 'Signed'), [leads]);
@@ -219,6 +224,15 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             {reps.map((r) => <SelectItem key={r.user_id} value={r.user_id}>{r.full_name}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue placeholder="Source" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All sources</SelectItem>
+            <SelectItem value="ticket">Golden Ticket (ref)</SelectItem>
+            <SelectItem value="pipeline-import">Pipeline import</SelectItem>
+            <SelectItem value="manual">Manually added</SelectItem>
+          </SelectContent>
+        </Select>
         <button
           onClick={load}
           className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
@@ -246,7 +260,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             {filtered.map((l) => (
               <tr key={l.id} className="border-b border-white/[0.04]">
                 <td className="px-3 py-2 font-semibold text-foreground whitespace-nowrap">{l.first_name}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.city || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.interest_reason || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-primary/80">{l.ref_code || '—'}</td>
