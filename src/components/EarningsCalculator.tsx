@@ -157,20 +157,13 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           <Cell label={`Active revenue (−${d.reductionPct}%)`} value={formatCurrency(active)} />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 mb-6">
-          <div className="p-5 rounded-lg bg-primary/10 border border-primary/20">
-            <p className="micro-label mb-2">Tier reached</p>
-            <p className="text-2xl font-bold stat-num text-primary">
-              {band ? `${bandLabel(band)} · ${(rate * 100).toFixed(0)}%` : "—"}
-            </p>
-          </div>
-          <div className="p-5 rounded-lg bg-secondary border border-border">
-            <p className="micro-label mb-2">Season earnings</p>
-            <p className="text-3xl font-bold stat-num text-foreground">
-              {formatCurrency(seasonEarnings)}
-            </p>
-          </div>
+        <div className="mb-6 p-5 rounded-lg bg-secondary border border-border">
+          <p className="micro-label mb-2">Season earnings</p>
+          <p className="text-3xl font-bold stat-num text-foreground">
+            {formatCurrency(seasonEarnings)}
+          </p>
         </div>
+
 
         <p className="text-xs text-muted-foreground mb-2 text-center">
           {accountsPerWeek} accounts × {weeks} weeks = {accounts} accounts at{" "}
