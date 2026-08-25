@@ -34,10 +34,15 @@ interface HousingRow {
 }
 
 export default function MyMoneyPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, role, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [commission, setCommission] = useState<CommissionRow | null>(null);
   const [housing, setHousing] = useState<HousingRow | null>(null);
+  const [myMonths, setMyMonths] = useState<{ month: string; revenue: number | null }[]>([]);
+  const [teamMonths, setTeamMonths] = useState<{ full_name: string | null; month: string; revenue: number | null }[]>(
+    []
+  );
+  const isManagerRole = isManagerOrAbove(role);
 
   useEffect(() => {
     if (authLoading || !user) return;
