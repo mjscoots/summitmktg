@@ -141,15 +141,15 @@ export default function PitchApprovalsPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-primary">{pending.length}</p>
+            <p className="text-2xl font-bold text-primary stat-num">{pending.length}</p>
             <p className="text-xs text-muted-foreground">Pending</p>
           </div>
           <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-primary">{approved.length}</p>
+            <p className="text-2xl font-bold text-primary stat-num">{approved.length}</p>
             <p className="text-xs text-muted-foreground">Approved</p>
           </div>
           <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-destructive">{rejected.length}</p>
+            <p className="text-2xl font-bold text-destructive stat-num">{rejected.length}</p>
             <p className="text-xs text-muted-foreground">Rejected</p>
           </div>
         </div>

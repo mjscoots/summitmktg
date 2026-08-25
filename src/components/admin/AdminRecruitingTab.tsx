@@ -224,7 +224,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
         ].map((c) => (
           <div key={c.label} className={cn(CARD, 'p-3')}>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{c.label}</p>
-            <p className="text-xl font-black text-foreground mt-1">{c.value}</p>
+            <p className="text-xl font-black text-foreground mt-1 stat-num">{c.value}</p>
           </div>
         ))}
       </div>
