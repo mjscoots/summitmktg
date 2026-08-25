@@ -3,6 +3,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { RecruitingLeaderboard } from '@/components/leaderboard/RecruitingLeaderboard';
+import { WeekPaceStrip } from '@/components/leaderboard/WeekPaceStrip';
+
 import { Trophy, Flame, Calendar, Info, Mountain, Users, Target } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
