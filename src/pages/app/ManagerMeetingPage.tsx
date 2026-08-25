@@ -427,6 +427,13 @@ export default function ManagerMeetingPage() {
           <SectionCard n={10} title="Team Goal + Action Items Recap" subtitle="The week's goal and who owns what.">
             <div><Label>Team goal for the week</Label><Input value={data.team_goal} onChange={(e) => update('team_goal', e.target.value)} placeholder="Goal for the week" /></div>
             <div><Label>Action items recap</Label><Textarea rows={5} value={data.action_items} onChange={(e) => update('action_items', e.target.value)} placeholder="Owner — task — due" /></div>
+            <div className="pt-2">
+              <Label>Tracked action items</Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                These become real items — the assignee sees them on their Home page.
+              </p>
+              <ActionItemsField source="manager-meeting" assignees={roster} />
+            </div>
           </SectionCard>
         </div>
 
