@@ -1238,6 +1238,41 @@ export type Database = {
         }
         Relationships: []
       }
+      drill_completions: {
+        Row: {
+          created_at: string
+          drill_date: string
+          drill_id: string
+          id: string
+          response: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          drill_date: string
+          drill_id: string
+          id?: string
+          response?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          drill_date?: string
+          drill_id?: string
+          id?: string
+          response?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drill_completions_drill_id_fkey"
+            columns: ["drill_id"]
+            isOneToOne: false
+            referencedRelation: "training_drills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_notifications: {
         Row: {
           created_at: string | null
@@ -1763,7 +1798,7 @@ export type Database = {
           attempt_number: number | null
           created_at: string | null
           id: string
-          lesson_id: string
+          lesson_id: string | null
           manager_feedback: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -1776,7 +1811,7 @@ export type Database = {
           attempt_number?: number | null
           created_at?: string | null
           id?: string
-          lesson_id: string
+          lesson_id?: string | null
           manager_feedback?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -1789,7 +1824,7 @@ export type Database = {
           attempt_number?: number | null
           created_at?: string | null
           id?: string
-          lesson_id?: string
+          lesson_id?: string | null
           manager_feedback?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -1966,6 +2001,27 @@ export type Database = {
           },
         ]
       }
+      public_counter_cache: {
+        Row: {
+          active_reps: number
+          id: boolean
+          refreshed_at: string
+          signed_season: number
+        }
+        Insert: {
+          active_reps?: number
+          id?: boolean
+          refreshed_at?: string
+          signed_season?: number
+        }
+        Update: {
+          active_reps?: number
+          id?: boolean
+          refreshed_at?: string
+          signed_season?: number
+        }
+        Relationships: []
+      }
       quiz_questions: {
         Row: {
           correct_answer: string | null
@@ -2091,6 +2147,36 @@ export type Database = {
         }
         Relationships: []
       }
+      recruiting_faq: {
+        Row: {
+          answer: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recruiting_leads: {
         Row: {
           city: string | null
@@ -2172,6 +2258,75 @@ export type Database = {
           created_by?: string | null
           id?: string
           label?: string | null
+        }
+        Relationships: []
+      }
+      recruiting_testimonials: {
+        Row: {
+          created_at: string
+          display_order: number
+          first_summer_figure: string | null
+          id: string
+          is_active: boolean
+          quote: string | null
+          rep_name: string
+          school: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          first_summer_figure?: string | null
+          id?: string
+          is_active?: boolean
+          quote?: string | null
+          rep_name: string
+          school?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          first_summer_figure?: string | null
+          id?: string
+          is_active?: boolean
+          quote?: string | null
+          rep_name?: string
+          school?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recruiting_timeline: {
+        Row: {
+          body: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          time_label: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          time_label?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          time_label?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2869,6 +3024,7 @@ export type Database = {
       }
       training_courses: {
         Row: {
+          audience: string
           created_at: string | null
           description: string | null
           display_order: number | null
@@ -2879,6 +3035,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          audience?: string
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -2889,6 +3046,7 @@ export type Database = {
           title: string
         }
         Update: {
+          audience?: string
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -2897,6 +3055,42 @@ export type Database = {
           slug?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           title?: string
+        }
+        Relationships: []
+      }
+      training_drills: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          model_answer: string
+          scenario: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          model_answer: string
+          scenario: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          model_answer?: string
+          scenario?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3623,6 +3817,10 @@ export type Database = {
       }
       claim_lead: { Args: { _lead_id: string }; Returns: Json }
       claim_winback: { Args: { _lead_id: string }; Returns: Json }
+      complete_daily_drill: {
+        Args: { _drill_id: string; _response: string; _timezone?: string }
+        Returns: Json
+      }
       compute_weekly_awards: {
         Args: { _from: string; _to: string }
         Returns: Json
@@ -3631,6 +3829,7 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: Json
       }
+      ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       generate_weekly_report: { Args: never; Returns: Json }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
@@ -3687,6 +3886,7 @@ export type Database = {
         }[]
       }
       get_daily_challenge: { Args: { _user_id: string }; Returns: Json }
+      get_daily_drill: { Args: { _timezone?: string }; Returns: Json }
       get_data_integrity_report: { Args: never; Returns: Json }
       get_downline_from_edges: {
         Args: { _manager_user_id: string }
@@ -3770,6 +3970,7 @@ export type Database = {
         }[]
       }
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
+      get_my_ref_code: { Args: never; Returns: string }
       get_new_lead_count: { Args: never; Returns: number }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
@@ -3798,6 +3999,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_public_counters: { Args: never; Returns: Json }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3821,6 +4023,7 @@ export type Database = {
           question_type: string
         }[]
       }
+      get_recruiting_content: { Args: never; Returns: Json }
       get_recruiting_funnel: { Args: never; Returns: Json }
       get_recruiting_leaderboard: {
         Args: { _limit?: number }
@@ -3857,6 +4060,7 @@ export type Database = {
         }[]
       }
       get_ticket_config: { Args: never; Returns: Json }
+      get_ticket_series_status: { Args: never; Returns: Json }
       get_training_leaderboard_panel: {
         Args: { _limit?: number }
         Returns: {
