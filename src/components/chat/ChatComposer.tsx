@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react';
-import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2 } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2, Mic, Square } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { buildVoiceMessage, MAX_VOICE_SECONDS, pickAudioMime, voiceRecordingSupported } from '@/components/chat/VoiceNote';
 import { cn } from '@/lib/utils';
 import { StickerPicker, type Sticker } from '@/components/dashboard/StickerPicker';
 import { GifPicker } from '@/components/dashboard/GifPicker';
@@ -34,6 +36,8 @@ interface ChatComposerProps {
   onCancelReply: () => void;
   onTyping: () => void;
   typingUsers: { fullName: string }[];
+  onSendVoice?: (content: string) => Promise<void> | void;
+  mentionables?: { user_id: string; full_name: string }[];
 }
 
 export function ChatComposer({
@@ -49,6 +53,8 @@ export function ChatComposer({
   onCancelReply,
   onTyping,
   typingUsers,
+  onSendVoice,
+  mentionables = [],
 }: ChatComposerProps) {
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,9 +64,120 @@ export function ChatComposer({
   const [showStickers, setShowStickers] = useState(false);
   const [showPoll, setShowPoll] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const cancelledRef = useRef(false);
   const chips = getDailyChips();
+  const canRecord = !!onSendVoice && voiceRecordingSupported();
+
+  // --- @mention autocomplete ---
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+
+  const mentionMatches =
+    mentionQuery === null
+      ? []
+      : mentionables
+          .filter(m => m.full_name?.toLowerCase().includes(mentionQuery.toLowerCase()))
+          .slice(0, 5);
+
+  const detectMention = (value: string) => {
+    const match = /(?:^|\s)@([\w'-]*(?: [\w'-]*)?)$/.exec(value);
+    setMentionQuery(match ? match[1] : null);
+    setMentionIndex(0);
+  };
+
+  const applyMention = (name: string) => {
+    const next = input.replace(/(^|\s)@([\w'-]*(?: [\w'-]*)?)$/, `$1@${name} `);
+    onInputChange(next);
+    setMentionQuery(null);
+    inputRef.current?.focus();
+  };
+
+  // --- voice notes ---
+  useEffect(() => {
+    if (!recording) return;
+    const id = window.setInterval(() => {
+      setRecordSeconds(prev => {
+        if (prev + 1 >= MAX_VOICE_SECONDS) {
+          recorderRef.current?.state === 'recording' && recorderRef.current.stop();
+          return MAX_VOICE_SECONDS;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [recording]);
+
+  const cleanupStream = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    recorderRef.current = null;
+    chunksRef.current = [];
+  };
+
+  const startRecording = async () => {
+    if (!canRecord || !user || recording) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mime = pickAudioMime();
+      const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      recorderRef.current = recorder;
+      chunksRef.current = [];
+      cancelledRef.current = false;
+      recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        const seconds = recordSecondsRef.current;
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        cleanupStream();
+        setRecording(false);
+        setRecordSeconds(0);
+        if (cancelledRef.current || blob.size === 0 || seconds < 1) return;
+        setUploading(true);
+        try {
+          const ext = (recorder.mimeType || '').includes('mp4') ? 'm4a' : 'webm';
+          const path = `${user.id}/voice-${Date.now()}.${ext}`;
+          const { error } = await supabase.storage.from('chat-uploads').upload(path, blob, {
+            contentType: recorder.mimeType || 'audio/webm',
+          });
+          if (error) throw error;
+          const { data } = supabase.storage.from('chat-uploads').getPublicUrl(path);
+          await onSendVoice?.(buildVoiceMessage(data.publicUrl, seconds));
+        } catch {
+          toast.error('Failed to send voice note');
+        } finally {
+          setUploading(false);
+        }
+      };
+      recorder.start();
+      setRecordSeconds(0);
+      setRecording(true);
+    } catch {
+      cleanupStream();
+      toast.error('Microphone unavailable. Check browser permissions.');
+    }
+  };
+
+  const stopRecording = (cancel = false) => {
+    cancelledRef.current = cancel;
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
+    else { cleanupStream(); setRecording(false); setRecordSeconds(0); }
+  };
+
+  const recordSecondsRef = useRef(0);
+  recordSecondsRef.current = recordSeconds;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (mentionMatches.length > 0) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIndex(i => (i + 1) % mentionMatches.length); return; }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIndex(i => (i - 1 + mentionMatches.length) % mentionMatches.length); return; }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applyMention(mentionMatches[mentionIndex].full_name); return; }
+      if (e.key === 'Escape') { setMentionQuery(null); return; }
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();
@@ -122,8 +239,21 @@ export function ChatComposer({
         </div>
       )}
 
+      {/* Recording status */}
+      {recording && (
+        <div className="mx-3 mt-1.5 flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1.5">
+          <span className="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-destructive" />
+          <span className="text-[11px] font-semibold text-foreground">
+            Recording {recordSeconds}s <span className="font-normal text-muted-foreground">/ {MAX_VOICE_SECONDS}s</span>
+          </span>
+          <button onClick={() => stopRecording(true)} className="ml-auto text-[11px] font-semibold text-muted-foreground hover:text-foreground">
+            Cancel
+          </button>
+        </div>
+      )}
+
       {/* Quick chips - small pills */}
-      {!input && !showDrawer && (
+      {!input && !showDrawer && !recording && (
         <div className="flex items-center gap-1 px-3 pt-1.5 pb-0.5 overflow-x-auto scrollbar-none">
           {chips.map(chip => (
             <button
@@ -193,6 +323,25 @@ export function ChatComposer({
         </div>
       )}
 
+      {/* @mention autocomplete */}
+      {mentionMatches.length > 0 && (
+        <div className="mx-3 mb-1 overflow-hidden rounded-2xl border border-border/20 bg-card/95 backdrop-blur-xl">
+          {mentionMatches.map((m, i) => (
+            <button
+              key={m.user_id}
+              onMouseDown={(e) => { e.preventDefault(); applyMention(m.full_name); }}
+              className={cn(
+                'flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] transition-colors',
+                i === mentionIndex ? 'bg-primary/15 text-foreground' : 'text-muted-foreground hover:bg-muted/20'
+              )}
+            >
+              <span className="text-primary">@</span>
+              <span className="truncate">{m.full_name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Input row - iMessage style */}
       <div className={cn("flex items-end gap-1.5 px-2 py-2", replyingTo && "pt-0")}>
         {/* + button */}
@@ -218,7 +367,7 @@ export function ChatComposer({
             ref={inputRef}
             type="text"
             value={input}
-            onChange={(e) => { onInputChange(e.target.value); onTyping(); }}
+            onChange={(e) => { onInputChange(e.target.value); detectMention(e.target.value); onTyping(); }}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder="Message..."
@@ -226,6 +375,23 @@ export function ChatComposer({
             disabled={isSending}
           />
         </div>
+
+        {/* Voice note - press to record, press again to send */}
+        {canRecord && !input.trim() && (
+          <button
+            onClick={() => (recording ? stopRecording(false) : startRecording())}
+            aria-label={recording ? 'Stop and send voice note' : 'Record voice note'}
+            className={cn(
+              'mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all',
+              recording
+                ? 'bg-destructive text-destructive-foreground animate-pulse'
+                : 'bg-muted/30 text-muted-foreground/40 hover:text-muted-foreground/60'
+            )}
+            disabled={uploading}
+          >
+            {recording ? <Square className="h-3 w-3" /> : <Mic className="h-4 w-4" />}
+          </button>
+        )}
 
         {/* Send button - circular with up arrow */}
         <button
