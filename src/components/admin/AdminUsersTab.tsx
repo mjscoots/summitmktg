@@ -708,6 +708,9 @@ export default function AdminUsersTab({
               setProgressFilter('all');
               setRecruiterFilter('all');
               setTeamFilter('all');
+              setOfficeFilter('all');
+              setVerticalFilter('all');
+
               setAppFilter('in_app');
               setSortBy('progress');
               setSortAsc(true);
