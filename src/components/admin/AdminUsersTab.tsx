@@ -643,6 +643,33 @@ export default function AdminUsersTab({
           </SelectContent>
         </Select>
 
+        <Select value={officeFilter} onValueChange={setOfficeFilter}>
+          <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Office" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Offices</SelectItem>
+            <SelectItem value="none">No Office</SelectItem>
+            {offices.map((o) => (
+              <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={verticalFilter} onValueChange={setVerticalFilter}>
+          <SelectTrigger className="h-8 w-[105px] sm:w-[120px] bg-card/40 border-border/30 text-xs">
+            <SelectValue placeholder="Vertical" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Verticals</SelectItem>
+            {VERTICALS.map((v) => (
+              <SelectItem key={v} value={v}>{v}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+
+
         {/* Sort toggle */}
         <Popover>
           <PopoverTrigger asChild>
