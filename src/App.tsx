@@ -277,6 +277,24 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* My Money — rep pay, housing, next tier */}
+              <Route path="/app/money" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <MyMoneyPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* Ask Summit — grounded AI assistant */}
+              <Route path="/app/ask" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <AskSummitPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
 
               {/* Leaderboard */}
               <Route path="/app/leaderboard" element={
