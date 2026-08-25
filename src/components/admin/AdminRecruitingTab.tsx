@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Loader2, Trash2, Plus, RefreshCw, Ticket } from 'lucide-react';
+import { Loader2, Trash2, Plus, RefreshCw, Ticket, BadgeCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { PROOF_FIELDS } from '@/components/recruiting/RecruitingProof';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -63,6 +64,8 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   const [newCodeLabel, setNewCodeLabel] = useState('');
   const [newCodeUser, setNewCodeUser] = useState('none');
   const [calendly, setCalendly] = useState('');
+  const [proof, setProof] = useState<Record<string, string>>({});
+  const [savingProof, setSavingProof] = useState(false);
   const [savingCalendly, setSavingCalendly] = useState(false);
 
   const repName = useCallback(

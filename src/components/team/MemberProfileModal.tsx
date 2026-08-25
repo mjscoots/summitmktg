@@ -57,6 +57,7 @@ import { MemberStatusToggle } from './MemberStatusToggle';
 import { MemberEditForm } from './MemberEditForm';
 import { DailyTimeBreakdown } from './DailyTimeBreakdown';
 import { toast } from 'sonner';
+import { RepScorecard } from '@/components/shared/RepScorecard';
 
 interface MemberProfileModalProps {
   member: TeamMember | null;
@@ -642,6 +643,11 @@ export function MemberProfileModal({
                     )}
                   </div>
                 </div>
+              )}
+
+              {/* Scorecard (read-only) */}
+              {member.user_id && (isManagerRole || isSelf) && (
+                <RepScorecard userId={member.user_id} />
               )}
 
               {/* Status Toggle */}
