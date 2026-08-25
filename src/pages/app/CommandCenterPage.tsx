@@ -8,6 +8,8 @@ import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
+import RegionPace from "@/components/command/RegionPace";
+import SessionPrep from "@/components/command/SessionPrep";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
@@ -512,6 +514,19 @@ export default function CommandCenterPage() {
           <StatCard label="No Committed Date" value={commitment.noDate} />
           <StatCard label="Finishing In 14 Days" value={commitment.soon} />
         </div>
+
+        {/* SEASON REVENUE PACE */}
+        <SectionHeader title="Season Revenue" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RegionPace />
+        </div>
+
+        {/* SESSION PREP */}
+        <SectionHeader title="Session Prep" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <SessionPrep />
+        </div>
+
 
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />

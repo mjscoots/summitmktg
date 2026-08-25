@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { PayScale, PAY_SCALE_LABELS, formatCurrency, formatRate, getRate, getTier, formatTierRange } from '@/lib/commission';
 import { cn } from '@/lib/utils';
+import { RevenueEntryPanel } from '@/components/admin/RevenueEntryPanel';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -52,6 +53,7 @@ const num = (v: string): number | null => {
 export function AdminMoneyTab() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'pay' | 'revenue'>('pay');
   const [reps, setReps] = useState<RepRow[]>([]);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [commissions, setCommissions] = useState<Map<string, any>>(new Map());
@@ -154,8 +156,29 @@ export function AdminMoneyTab() {
     }
   };
 
+  if (view === 'revenue') {
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setView('pay')}>
+            Pay & housing
+          </Button>
+          <Button size="sm">Monthly revenue</Button>
+        </div>
+        <RevenueEntryPanel />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
+      <div className="flex gap-2">
+        <Button size="sm">Pay & housing</Button>
+        <Button variant="outline" size="sm" onClick={() => setView('revenue')}>
+          Monthly revenue
+        </Button>
+      </div>
+
       <div className={cn(CARD, 'p-4')}>
         <div className="flex items-center gap-3 mb-1">
           <DollarSign className="w-4 h-4 text-primary" />

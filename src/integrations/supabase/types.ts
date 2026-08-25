@@ -2783,6 +2783,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rep_revenue: {
+        Row: {
+          created_at: string
+          entered_by: string | null
+          id: string
+          month: string
+          pending_amount: number | null
+          revenue: number
+          serviced_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entered_by?: string | null
+          id?: string
+          month: string
+          pending_amount?: number | null
+          revenue?: number
+          serviced_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entered_by?: string | null
+          id?: string
+          month?: string
+          pending_amount?: number | null
+          revenue?: number
+          serviced_amount?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rep_signups: {
         Row: {
           created_at: string
@@ -4270,6 +4306,7 @@ export type Database = {
         Args: { _lead_id: string; _user_id: string }
         Returns: Json
       }
+      apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
       apply_winback_gold: { Args: { _rows: Json }; Returns: Json }
       auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
@@ -4611,6 +4648,7 @@ export type Database = {
       }
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
       get_my_ref_code: { Args: never; Returns: string }
+      get_my_revenue: { Args: never; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
@@ -4686,10 +4724,13 @@ export type Database = {
           signed: number
         }[]
       }
+      get_region_pace: { Args: never; Returns: Json }
       get_region_sheet: { Args: never; Returns: Json }
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
       get_resign_board: { Args: never; Returns: Json }
+      get_revenue_month: { Args: { _month: string }; Returns: Json }
       get_season_hub: { Args: never; Returns: Json }
+      get_session_prep: { Args: { _since?: string }; Returns: Json }
       get_streak_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -4712,6 +4753,7 @@ export type Database = {
           total_points: number
         }[]
       }
+      get_team_revenue: { Args: never; Returns: Json }
       get_ticket_config: { Args: never; Returns: Json }
       get_ticket_series_status: { Args: never; Returns: Json }
       get_training_leaderboard_panel: {
@@ -4752,6 +4794,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_in_my_downline: { Args: { _child: string }; Returns: boolean }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
         Returns: Json
@@ -4766,6 +4809,7 @@ export type Database = {
         Returns: undefined
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
@@ -4839,6 +4883,16 @@ export type Database = {
         Returns: Json
       }
       update_user_activity: { Args: { _user_id: string }; Returns: undefined }
+      upsert_rep_revenue: {
+        Args: {
+          _month: string
+          _pending?: number
+          _revenue: number
+          _serviced?: number
+          _user_id: string
+        }
+        Returns: Json
+      }
       validate_access_code: { Args: { input_code: string }; Returns: boolean }
       validate_and_record_quiz: {
         Args: { _answers: Json; _lesson_id: string }
