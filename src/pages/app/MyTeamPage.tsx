@@ -64,6 +64,9 @@ export default function MyTeamPage() {
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
   const [incompleteProfiles, setIncompleteProfiles] = useState<Map<string, string[]>>(new Map());
   const [missedMeetings, setMissedMeetings] = useState<Map<string, number>>(new Map());
+  const [finishingSoon, setFinishingSoon] = useState<
+    { user_id: string; full_name: string | null; committed_last_day: string }[]
+  >([]);
 
   const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
     const t = searchParams.get('tab');
