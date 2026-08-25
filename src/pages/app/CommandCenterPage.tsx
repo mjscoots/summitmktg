@@ -532,11 +532,14 @@ export default function CommandCenterPage() {
         <SectionHeader title="Session Prep" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <SessionPrep />
-        </Section>
+        </div>
 
-        <Section title="Leaders">
+        {/* LEADERS */}
+        <SectionHeader title="Leaders" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
           <LeadersSection />
         </div>
+
 
         {/* PAIRINGS */}
         <SectionHeader title="Pairings" tag="Owner" />
