@@ -14,39 +14,27 @@ interface TourStep {
 
 const TOUR_STEPS: TourStep[] = [
   {
-    target: '[data-tour="sidebar"]',
-    title: 'Navigation',
-    description: 'Use the sidebar to move between sections. Everything you need is right here.',
+    target: '[data-tour="home"]',
+    title: 'Home',
+    description: 'Your starting point: today\'s events, your leads, and announcements.',
     position: 'right',
   },
   {
-    target: '[data-tour="home"]',
-    title: 'Home Dashboard',
-    description: 'Your home base — see announcements, your schedule, and daily tasks at a glance.',
+    target: '[data-tour="recruits"]',
+    title: 'Recruits',
+    description: 'Claim leads off the board and work them here. Four at a time.',
     position: 'right',
   },
   {
     target: '[data-tour="training"]',
     title: 'Training',
-    description: 'Complete your training modules here. Stay consistent and build momentum.',
+    description: 'Work through your lessons. Progress is tracked automatically.',
     position: 'right',
   },
   {
     target: '[data-tour="chat"]',
-    title: 'Team Chat',
-    description: 'Connect with your team, ask questions, and stay in the loop.',
-    position: 'right',
-  },
-  {
-    target: '[data-tour="calendar"]',
-    title: 'Calendar',
-    description: 'See upcoming events, calls, and meetings your manager schedules.',
-    position: 'right',
-  },
-  {
-    target: '[data-tour="profile"]',
-    title: 'Your Profile',
-    description: 'Update your photo, timezone, and contact info here.',
+    title: 'Chat',
+    description: 'Team chat. Ask questions here and keep up with the group.',
     position: 'right',
   },
 ];
