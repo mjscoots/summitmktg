@@ -12,6 +12,8 @@ import { cn } from '@/lib/utils';
 import {
   Plus, Trash2, ArrowUp, ArrowDown, Save, Loader2, ShieldCheck, Users,
 } from 'lucide-react';
+import AdminLadderSettings from '@/components/admin/AdminLadderSettings';
+
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
 
