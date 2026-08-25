@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { DollarSign, TrendingUp, Home } from "lucide-react";
+import { TrendingUp, Home } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { formatCurrency } from "@/lib/commission";
 import {
@@ -83,7 +83,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-foreground">Earnings Calculator</h3>
+            <h3 className="text-xl font-semibold text-foreground">Earnings calculator</h3>
             <p className="text-sm text-muted-foreground">
               Accounts per week, weeks worked, and what the pay scale does with it
             </p>
@@ -93,7 +93,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         {/* Accounts per week */}
         <div className="mb-8">
           <div className="flex items-baseline justify-between mb-3">
-            <label className="text-sm font-bold uppercase tracking-wide text-foreground">
+            <label className="text-sm font-semibold text-foreground">
               Accounts per week
             </label>
             <span className="text-2xl font-extrabold tabular-nums text-foreground">
@@ -132,7 +132,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         {/* Weeks worked */}
         <div className="mb-8">
           <div className="flex items-baseline justify-between mb-3">
-            <label className="text-sm font-bold uppercase tracking-wide text-foreground">
+            <label className="text-sm font-semibold text-foreground">
               Weeks worked
             </label>
             <span className="text-2xl font-extrabold tabular-nums text-foreground">{weeks}</span>
@@ -203,7 +203,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         <div className="p-4 rounded-lg bg-secondary/30 border border-border mb-6">
           <div className="flex items-center gap-2 mb-2">
             <Home className="w-5 h-5 text-primary" />
-            <p className="text-sm font-bold text-foreground uppercase tracking-wide">Housing note</p>
+            <p className="text-sm font-semibold text-foreground">Housing note</p>
           </div>
           <p className="text-sm text-muted-foreground">Rent is free at $125,000 active revenue.</p>
         </div>
@@ -211,9 +211,9 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         {onApplyClick && (
           <button
             onClick={onApplyClick}
-            className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide"
+            className="w-full min-h-11 py-4 bg-primary text-primary-foreground font-semibold text-base rounded-lg hover:bg-primary/90 transition-colors"
           >
-            Apply Now
+            Apply now
           </button>
         )}
 
