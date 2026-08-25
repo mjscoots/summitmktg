@@ -107,9 +107,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const teamChannelSlug = getTeamChannelSlug(profile?.team_id);
-  const channelTabs = buildChannelTabs(teamChannelSlug, isManager);
+  const { channels, markChannelRead } = useChatChannels();
+  const channelTabs = channels.map(c => ({ slug: c.slug, label: c.label, icon: c.icon, unread: c.unread }));
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
+
+  // Mark the channel being viewed as read
+  useEffect(() => {
+    if (!user || channels.length === 0) return;
+    void markChannelRead(activeChannel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeChannel, user?.id, channels.length]);
 
   const scrollToBottom = useCallback((smooth = true) => {
     const container = containerRef.current;
