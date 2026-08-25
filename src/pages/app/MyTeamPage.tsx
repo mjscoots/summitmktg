@@ -158,6 +158,14 @@ export default function MyTeamPage() {
       } catch {
         // optional, only visible to managers+
       }
+
+      // Finishing soon (committed last day within 14 days) — manager/admin/owner only
+      try {
+        const { data: fs } = await (supabase as any).rpc('get_finishing_soon', { _days: 14 });
+        setFinishingSoon((fs?.soon as any[]) ?? []);
+      } catch {
+        // optional, only visible to managers+
+      }
     } catch (err) {
       console.error('Error loading team data:', err);
     } finally {
