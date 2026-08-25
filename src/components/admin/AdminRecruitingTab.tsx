@@ -99,7 +99,13 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   useEffect(() => { load(); }, [load]);
 
   const sourceOf = (l: Lead) =>
-    l.ref_code === 'pipeline-import' ? 'pipeline-import' : l.ref_code === 'manual' ? 'manual' : 'ticket';
+    l.ref_code === 'winback'
+      ? 'winback'
+      : l.ref_code === 'pipeline-import'
+        ? 'pipeline-import'
+        : l.ref_code === 'manual'
+          ? 'manual'
+          : 'ticket';
 
   const filtered = useMemo(
     () =>
