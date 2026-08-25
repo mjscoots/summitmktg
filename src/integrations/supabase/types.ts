@@ -5682,6 +5682,10 @@ export type Database = {
         Args: { _uid: string; _vertical: string }
         Returns: boolean
       }
+      is_vertical_lead_of_rep: {
+        Args: { _rep: string; _uid: string }
+        Returns: boolean
+      }
       join_vertical: { Args: { _vertical: string }; Returns: Json }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
