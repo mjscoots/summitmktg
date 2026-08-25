@@ -502,6 +502,8 @@ export default function MyTeamPage() {
 
         {!loading && viewMode === 'cars' && isManagerRole && <CarGroupsTab />}
 
+        {!loading && viewMode === 'mentees' && isManagerRole && <MyMenteesPanel />}
+
 
         {/* Member detail sheet */}
         <Sheet open={!!sheetMember} onOpenChange={open => !open && setSheetMember(null)}>
