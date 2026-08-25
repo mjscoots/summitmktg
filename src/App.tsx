@@ -65,6 +65,7 @@ const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
+const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
 const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
 
 
@@ -270,6 +271,13 @@ function LazyFallback() {
                   <BootcampGate>
                     <ProfilePage />
                   </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* Alumni — read-only view for alumni-status accounts */}
+              <Route path="/app/alumni" element={
+                <ProtectedRoute>
+                  <AlumniPage />
                 </ProtectedRoute>
               } />
 
