@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, Home } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
+import { FiberEarningsPanel } from "@/components/FiberEarningsPanel";
 import {
   getRate,
   getTier,
@@ -35,6 +36,7 @@ interface EarningsCalculatorProps {
 }
 
 const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps) => {
+  const [industry, setIndustry] = useState<"pest" | "fiber">("pest");
   const [scale, setScale] = useState<Exclude<PayScale, "marketing">>(lockScale ?? "rookie");
   const [accountsPerWeek, setAccountsPerWeek] = useState(FALLBACK_ACCOUNTS_PER_WEEK);
   const [weeks, setWeeks] = useState(FALLBACK_WEEKS);
@@ -86,6 +88,25 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
           </div>
         </div>
 
+        {/* Industry toggle */}
+        <div className="mb-6 flex justify-center">
+          <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1">
+            {(["pest", "fiber"] as const).map((i) => (
+              <button
+                key={i}
+                onClick={() => setIndustry(i)}
+                className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all ${industry === i ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {i === "pest" ? "Pest" : "Fiber"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {industry === "fiber" && <FiberEarningsPanel />}
+
+        {industry === "pest" && (
+        <>
         {/* Pay scale toggle */}
         {!lockScale && (
           <div className="mb-8 flex justify-center">
@@ -229,6 +250,9 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
             At $100,000 in serviced revenue, summer housing is <span className="text-success font-bold">free</span>.
           </p>
         </div>
+
+        </>
+        )}
 
         {onApplyClick && (
           <button

@@ -3184,6 +3184,7 @@ export type Database = {
           current_step: number
           id: string
           paired_manager: string | null
+          stack_source: string
           status: string
           updated_at: string
           user_id: string
@@ -3195,6 +3196,7 @@ export type Database = {
           current_step?: number
           id?: string
           paired_manager?: string | null
+          stack_source?: string
           status?: string
           updated_at?: string
           user_id: string
@@ -3206,6 +3208,7 @@ export type Database = {
           current_step?: number
           id?: string
           paired_manager?: string | null
+          stack_source?: string
           status?: string
           updated_at?: string
           user_id?: string
@@ -4809,6 +4812,10 @@ export type Database = {
         Args: { _rank_id: string; _user_id: string }
         Returns: Json
       }
+      admin_set_stack_source: {
+        Args: { _source: string; _user_id: string; _vertical: string }
+        Returns: Json
+      }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
       apply_run_team: {
         Args: {
@@ -4895,6 +4902,11 @@ export type Database = {
       }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       expand_event_series: { Args: { p_weeks?: number }; Returns: number }
+      fiber_installs_total: { Args: { _user: string }; Returns: number }
+      fiber_producing_reps: {
+        Args: { _leader: string; _vertical: string }
+        Returns: number
+      }
       finalize_season: { Args: { _season_id: string }; Returns: undefined }
       generate_weekly_report: { Args: never; Returns: Json }
       get_all_time_leaderboard: {
@@ -5062,6 +5074,7 @@ export type Database = {
           title: string
         }[]
       }
+      get_fiber_stack_table: { Args: never; Returns: Json }
       get_finishing_soon: { Args: { _days?: number }; Returns: Json }
       get_global_leaderboard:
         | {
@@ -5171,11 +5184,13 @@ export type Database = {
         }[]
       }
       get_my_mentees: { Args: never; Returns: Json }
+      get_my_money: { Args: never; Returns: Json }
       get_my_pairing_request: { Args: { _vertical: string }; Returns: Json }
       get_my_pairing_requests: { Args: never; Returns: Json }
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
       get_my_ref_code: { Args: never; Returns: string }
       get_my_revenue: { Args: never; Returns: Json }
+      get_my_spread: { Args: never; Returns: Json }
       get_my_vertical_path: { Args: { _vertical: string }; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
       get_pairings: {
@@ -5211,6 +5226,7 @@ export type Database = {
         }[]
       }
       get_public_counters: { Args: never; Returns: Json }
+      get_public_fiber_stacks: { Args: never; Returns: Json }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -5264,6 +5280,10 @@ export type Database = {
       get_revenue_month: { Args: { _month: string }; Returns: Json }
       get_season_hub: { Args: never; Returns: Json }
       get_session_prep: { Args: { _since?: string }; Returns: Json }
+      get_setting: {
+        Args: { _default?: string; _key: string }
+        Returns: string
+      }
       get_streak_leaderboard: {
         Args: { _limit?: number }
         Returns: {
