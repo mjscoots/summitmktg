@@ -38,6 +38,7 @@ const TrainingCoursePage = lazy(() => import("./pages/app/TrainingCoursePage"));
 const LessonPage = lazy(() => import("./pages/app/LessonPage"));
 const LeaderboardPage = lazy(() => import("./pages/app/LeaderboardPage"));
 const CalendarPage = lazy(() => import("./pages/app/CalendarPage"));
+const EventsPage = lazy(() => import("./pages/app/EventsPage"));
 const MyTeamPage = lazy(() => import("./pages/app/MyTeamPage"));
 const ProfilePage = lazy(() => import("./pages/app/ProfilePage"));
 const InterviewsPage = lazy(() => import("./pages/app/InterviewsPage"));
@@ -349,6 +350,15 @@ function LazyFallback() {
                {/* Calculators - redirect to Resources */}
                <Route path="/app/calculators" element={<Navigate to="/app/links" replace />} />
 
+               {/* Events */}
+               <Route path="/app/events" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <EventsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
                {/* Calendar */}
                <Route path="/app/calendar" element={
                 <ProtectedRoute>
@@ -357,6 +367,7 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+
 
              {/* Forms (unified - Manager Only) */}
              <Route path="/app/forms" element={

@@ -7,7 +7,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
 import { TeamBattleStrip } from '@/components/leaderboard/TeamBattles';
-import { MyCarTodayCard, MyActionItemsCard } from '@/components/dashboard/HomeOpsCards';
+import { MyCarTodayCard, MyActionItemsCard, MyEventsTodayCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
@@ -246,6 +246,7 @@ export default function DashboardPage() {
 
         {/* Today's car assignment (only when published for today) */}
         <div className="mb-4 space-y-3">
+          <MyEventsTodayCard />
           <MyCarTodayCard />
           <MyActionItemsCard />
         </div>

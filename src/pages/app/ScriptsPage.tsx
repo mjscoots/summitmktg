@@ -16,7 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 
-const CATEGORIES = ['Opener', 'Objections', 'Closes'] as const;
+const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections'] as const;
 type Category = (typeof CATEGORIES)[number];
 
 interface ScriptRow {
@@ -111,7 +111,7 @@ export default function ScriptsPage() {
             </div>
             {isAdmin && (
               <button
-                onClick={() => setEditing({ category: 'Opener', body: '', display_order: 0, is_active: true })}
+                onClick={() => setEditing({ category: 'Openers', body: '', display_order: 0, is_active: true })}
                 className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
               >
                 <Plus className="h-4 w-4" /> Add script
@@ -234,7 +234,7 @@ export default function ScriptsPage() {
               placeholder="Title"
             />
             <Select
-              value={(editing?.category as Category) || 'Opener'}
+              value={(editing?.category as Category) || 'Openers'}
               onValueChange={(v) => setEditing((p) => ({ ...(p || {}), category: v }))}
             >
               <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>

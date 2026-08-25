@@ -172,6 +172,12 @@ async function buildContext(admin: any, userId: string) {
   const faqLines = (faq.data ?? []).map((f: any) => `- Q: ${f.question}\n  A: ${f.answer}`);
   parts.push(`TEAM FAQ (answers approved by leadership):\n${faqLines.join("\n") || "- none"}`);
 
+  // Sales scripts (the company's actual method)
+  const scriptCards = await loadScriptCards(admin);
+  if (scriptCards.length > 0) {
+    parts.push(`SALES SCRIPTS AND METHOD (the company's own material — quote it directly when asked what to say):\n${formatScriptCards(scriptCards)}`);
+  }
+
   // App navigation hints
   parts.push(`WHERE THINGS LIVE IN THE APP:
 - Pay scales and calculators: Resources tab
@@ -185,27 +191,53 @@ async function buildContext(admin: any, userId: string) {
   return `\n\n=== CONTEXT START ===\n${parts.join("\n\n")}\n=== CONTEXT END ===`;
 }
 
-async function buildPracticeContext(admin: any) {
-  const { data: scripts } = await admin
+async function loadScriptCards(admin: any) {
+  const { data } = await admin
     .from("scripts")
-    .select("category, title")
+    .select("category, title, body")
     .eq("is_active", true)
-    .order("category");
+    .order("display_order");
+  return (data ?? []) as Array<{ category: string; title: string; body: string }>;
+}
 
-  if (!scripts || scripts.length === 0) {
+function formatScriptCards(scripts: Array<{ category: string; title: string; body: string }>) {
+  return scripts
+    .map((s) => `--- ${s.category} / ${s.title} ---\n${(s.body ?? "").trim()}`)
+    .join("\n\n");
+}
+
+async function buildPracticeContext(admin: any) {
+  const scripts = await loadScriptCards(admin);
+  const { data: drills } = await admin
+    .from("training_drills")
+    .select("scenario, model_answer")
+    .eq("is_active", true)
+    .order("display_order");
+
+  if (scripts.length === 0 && (!drills || drills.length === 0)) {
     return `\n\nSCRIPT CATEGORIES: none configured yet — use generic, realistic door objections (not interested, already have someone, too expensive, bad timing, need to ask my spouse, in the middle of something).`;
   }
 
-  const byCategory = new Map<string, Set<string>>();
-  for (const s of scripts) {
-    if (!byCategory.has(s.category)) byCategory.set(s.category, new Set());
-    byCategory.get(s.category)!.add(s.title);
+  const parts: string[] = [];
+
+  if (drills && drills.length > 0) {
+    const objectionLines = drills.map(
+      (d: any) => `- Homeowner line: "${d.scenario}"\n  Model rebuttal the rep was taught: ${String(d.model_answer ?? "").replace(/\n+/g, " ")}`
+    );
+    parts.push(
+      `OBJECTIONS YOU MUST USE (pick from this exact set — do not invent other objections):\n${objectionLines.join("\n")}`
+    );
   }
-  const lines = Array.from(byCategory.entries()).map(
-    ([cat, titles]) => `- ${cat}: ${Array.from(titles).join(", ")}`
-  );
-  return `\n\nSCRIPT CATEGORIES REPS ARE TRAINED ON:\n${lines.join("\n")}`;
+
+  if (scripts.length > 0) {
+    parts.push(
+      `THE SALES SYSTEM THE REP WAS TAUGHT (judge their handling against these when giving post-session feedback; never quote it during the roleplay):\n${formatScriptCards(scripts)}`
+    );
+  }
+
+  return `\n\n${parts.join("\n\n")}`;
 }
+
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));

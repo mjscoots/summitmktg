@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart3, Flame, GraduationCap, Users } from 'lucide-react';
+import { BarChart3, CalendarCheck, Flame, GraduationCap, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Scorecard {
@@ -13,17 +13,29 @@ interface Scorecard {
   error?: string;
 }
 
+interface AttendanceSummary {
+  expected: number;
+  present: number;
+  pct: number;
+  missed_streak: number;
+}
+
 export function RepScorecard({ userId, compact = false }: { userId: string; compact?: boolean }) {
   const [data, setData] = useState<Scorecard | null>(null);
+  const [attendance, setAttendance] = useState<AttendanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
     (async () => {
-      const { data: res } = await (supabase as any).rpc('get_rep_scorecard', { _user_id: userId });
+      const [{ data: res }, { data: att }] = await Promise.all([
+        (supabase as any).rpc('get_rep_scorecard', { _user_id: userId }),
+        (supabase as any).rpc('get_attendance_summary', { p_user_id: userId }),
+      ]);
       if (!alive) return;
       setData((res as Scorecard) || null);
+      setAttendance((Array.isArray(att) ? att[0] : att) as AttendanceSummary || null);
       setLoading(false);
     })();
     return () => {
@@ -33,6 +45,7 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
 
   if (loading) return <Skeleton className="h-40 w-full rounded-xl" />;
   if (!data || data.error) return null;
+
 
   const weeks = data.weeks || [];
   const maxPoints = Math.max(1, ...weeks.map((w) => w.points));
@@ -65,6 +78,23 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
             {data.streak != null ? 'days in a row' : 'no streak data'}
           </p>
         </div>
+        <div className="p-3 rounded-lg bg-muted/40 border border-border/30 col-span-2">
+          <p className="micro-label flex items-center gap-1.5">
+            <CalendarCheck className="w-3 h-3" /> Attendance — last 30 days
+          </p>
+          <p className="text-xl font-black text-foreground tabular-nums">
+            {attendance && attendance.expected > 0 ? `${attendance.pct}%` : '—'}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {attendance && attendance.expected > 0
+              ? `${attendance.present} of ${attendance.expected} meetings`
+              : 'no meetings recorded'}
+            {attendance && attendance.missed_streak >= 2
+              ? ` · missed ${attendance.missed_streak} in a row`
+              : ''}
+          </p>
+        </div>
+
       </div>
 
       {/* Weekly points, last 4 weeks */}
