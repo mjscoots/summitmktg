@@ -234,7 +234,7 @@ const RookieApplication = () => {
 
         {/* Calculator with Apply CTA */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <EarningsCalculator lockScale="rookie" onApplyClick={scrollToForm} />
+          <EarningsCalculator onApplyClick={scrollToForm} />
         </div>
 
         {/* Why Different Section */}

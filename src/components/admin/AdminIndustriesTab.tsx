@@ -21,9 +21,12 @@ interface PathRow {
   vertical: string;
   label: string;
   description: string | null;
+  public_note: string | null;
+  public_how_it_works: string[] | null;
   is_configured: boolean;
   display_order: number;
 }
+
 
 interface StepRow {
   id: string;
@@ -213,7 +216,8 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12px]">Description shown to reps</Label>
+              <Label className="text-[12px]">Description — public industry page and landing toggle</Label>
+
               <Textarea
                 rows={3}
                 value={draft.description ?? p.description ?? ''}
@@ -222,8 +226,36 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
                 }
                 placeholder="One plain paragraph."
               />
+              <Label className="text-[12px]">Extra public note (optional)</Label>
+              <Textarea
+                rows={2}
+                value={draft.public_note ?? p.public_note ?? ''}
+                onChange={(e) =>
+                  setDrafts((d) => ({ ...d, [p.vertical]: { ...d[p.vertical], public_note: e.target.value } }))
+                }
+                placeholder="Shown under the description on the public site."
+              />
+              <Label className="text-[12px]">How it works — one step per line</Label>
+              <Textarea
+                rows={4}
+                value={(draft.public_how_it_works ?? p.public_how_it_works ?? []).join('\n')}
+                onChange={(e) =>
+                  setDrafts((d) => ({
+                    ...d,
+                    [p.vertical]: {
+                      ...d[p.vertical],
+                      public_how_it_works: e.target.value
+                        .split('\n')
+                        .map((l) => l.trim())
+                        .filter(Boolean),
+                    },
+                  }))
+                }
+                placeholder={'Apply\nSetup steps\nPick your manager\nStart'}
+              />
               <div className="flex flex-wrap items-center gap-3">
                 <label className="flex items-center gap-2 text-[13px] text-muted-foreground">
+
                   <input
                     type="checkbox"
                     checked={draft.is_configured ?? p.is_configured}

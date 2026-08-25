@@ -1,11 +1,10 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect, lazy, Suspense } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
+import IndustrySwitcher from "@/components/IndustrySwitcher";
 
-const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
 
 const Index = () => {
@@ -105,7 +104,7 @@ const Index = () => {
               Summit Marketing
             </h1>
             <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
-              We recruit, train, and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
+              We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
             </p>
 
             <div className="mx-auto mt-8 max-w-xl space-y-1.5 text-sm md:text-base text-muted-foreground">
@@ -135,45 +134,9 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Pick your industry */}
-        <section className="relative z-10 max-w-4xl mx-auto w-full px-6 py-12">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-6 text-center">
-            Pick your industry
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              { slug: 'pest', label: 'Pest Control', line: 'The summer product.' },
-              { slug: 'fiber', label: 'Fiber Internet', line: 'The winter product.' },
-              { slug: 'life', label: 'Life Insurance', line: 'Year-round.' },
-            ].map((i) => (
-              <Link
-                key={i.slug}
-                to={`/industries/${i.slug}`}
-                className="rounded-2xl border border-primary/20 bg-white/[0.02] p-5 transition-colors hover:border-primary/50"
-              >
-                <p className="text-base font-bold text-foreground">{i.label}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{i.line}</p>
-                <span className="micro-label mt-4 inline-flex items-center gap-1.5 text-primary">
-                  Learn more <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Pick your industry — toggles content, calculator and Apply target in place */}
+        <IndustrySwitcher />
 
-        {/* Calculator */}
-        <div id="earnings" className="relative z-10 max-w-4xl mx-auto w-full px-6 py-16 space-y-8 scroll-mt-8">
-
-          <div className="text-center mb-4">
-            <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
-              Estimate Your Earnings
-            </h2>
-            <p className="text-muted-foreground text-sm mb-6">See what you could make.</p>
-          </div>
-          <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
-            <EarningsCalculator />
-          </Suspense>
-        </div>
 
 
         {/* Apply CTA */}

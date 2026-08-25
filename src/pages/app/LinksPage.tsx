@@ -769,7 +769,7 @@ export default function LinksPage() {
                 </button>
               </div>
             </div>
-            {calcTab === 'rookie' ? <EarningsCalculator lockScale="rookie" /> : <VetCalculator />}
+            {calcTab === 'rookie' ? <EarningsCalculator /> : <VetCalculator />}
           </div>
         )}
 

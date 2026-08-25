@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.ask-summit]
 verify_jwt = false
+
+[functions.submit-vet-lead]
+verify_jwt = false

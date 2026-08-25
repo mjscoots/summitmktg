@@ -1,10 +1,13 @@
 # Summit Marketing
 
-> Sales recruiting and training in pest control, fiber internet, and life insurance, for rookies and veterans.
+> We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
 
 ## Pages
 
-- [Home](/): Overview of Summit Marketing, earnings calculator for rookies and veterans, and how to get started.
-- [Recruiting](/recruiting): Who we recruit, what the role looks like, and how to apply.
+- [Home](/): Overview of Summit Marketing, the industry toggle, and the earnings calculator.
+- [Pest Control](/industries/pest): The summer product — how pest works and how you get paid.
+- [Fiber Internet](/industries/fiber): The winter product — paid per install.
+- [Life Insurance](/industries/life): In development.
+- [Recruiting](/recruiting): What the role looks like, and how to apply.
 - [Rookie Application](/apply/rookie): Apply as a first-time sales rep.
 - [Veteran Application](/apply/veteran): Apply as an experienced sales professional.
