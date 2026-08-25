@@ -23,7 +23,7 @@ const STATUS_STYLE: Record<string, string> = {
 interface Lead {
   id: string;
   first_name: string;
-  phone: string;
+  phone: string | null;
   city: string | null;
   interest_reason: string | null;
   ref_code: string | null;
@@ -260,7 +260,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             {filtered.map((l) => (
               <tr key={l.id} className="border-b border-white/[0.04]">
                 <td className="px-3 py-2 font-semibold text-foreground whitespace-nowrap">{l.first_name}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.city || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.interest_reason || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-primary/80">{l.ref_code || '—'}</td>
