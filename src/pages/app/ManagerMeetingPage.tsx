@@ -334,7 +334,10 @@ export default function ManagerMeetingPage() {
                   </div>
                 );
               })}
-              <Button variant="outline" size="sm" onClick={() => update('reps', [...data.reps, { id: uid(), name: '', status: 'watch', note: '' }])}><Plus className="w-4 h-4 mr-1" /> Add rep</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={() => update('reps', [...data.reps, { id: uid(), name: '', status: 'watch', note: '' }])}><Plus className="w-4 h-4 mr-1" /> Add rep</Button>
+                <Button variant="ghost" size="sm" onClick={prefillFromBoard}>Pull from live board</Button>
+              </div>
             </div>
           </SectionCard>
 
