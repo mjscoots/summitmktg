@@ -14,6 +14,8 @@ import { Plus, Trash2, Calendar as CalendarIcon, CheckCircle2, AlertCircle, Clip
 import { cn } from '@/lib/utils';
 import { format, startOfWeek } from 'date-fns';
 import { toast } from 'sonner';
+import { ActionItemsField } from '@/components/shared/ActionItemsField';
+import { getDisplayName } from '@/lib/hierarchyUtils';
 
 // ───────────────────── Types ─────────────────────
 type RepStatus = 'cut' | 'watch' | 'help' | 'promote';
