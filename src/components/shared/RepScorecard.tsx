@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart3, Flame, GraduationCap, Users } from 'lucide-react';
+import { BarChart3, CalendarCheck, Flame, GraduationCap, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Scorecard {
