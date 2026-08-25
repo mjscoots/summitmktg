@@ -21,10 +21,14 @@ export function useNotifications() {
   const fetchNotifications = async () => {
     if (!user) return;
 
+    // Quiet-hours: rows with a future deliver_after are held back.
+    // Rows rolled into a digest are hidden behind their summary row.
     const { data, error } = await supabase
       .from('user_notifications')
       .select('*')
       .eq('user_id', user.id)
+      .eq('digested', false)
+      .lte('deliver_after', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -34,6 +38,7 @@ export function useNotifications() {
     }
     setIsLoading(false);
   };
+
 
   useEffect(() => {
     fetchNotifications();
@@ -52,14 +57,18 @@ export function useNotifications() {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const newNotification = payload.new as UserNotification;
+          const newNotification = payload.new as UserNotification & { deliver_after?: string; digested?: boolean };
+          // Held for quiet hours or already folded into a digest — don't surface now.
+          if (newNotification.digested) return;
+          if (newNotification.deliver_after && new Date(newNotification.deliver_after) > new Date()) return;
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
-          
+
           // Show browser notification if permission granted
           if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
             try {
               new Notification(newNotification.title, {
+
                 body: newNotification.message,
                 icon: '/favicon.png',
                 tag: newNotification.id

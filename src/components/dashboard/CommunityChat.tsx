@@ -282,6 +282,23 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
 
+  // Active, non-archived members the composer can @mention
+  const [mentionables, setMentionables] = useState<{ user_id: string; full_name: string }[]>([]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, archived')
+        .eq('archived', false)
+        .order('full_name');
+      setMentionables(
+        (data || [])
+          .filter(p => p.full_name && p.user_id && p.user_id !== user?.id)
+          .map(p => ({ user_id: p.user_id as string, full_name: p.full_name as string }))
+      );
+    })();
+  }, [user?.id]);
+
   useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
 
   // Read receipts
@@ -329,6 +346,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
           .then((res: any) => { if (res.error) console.error('[ChatPoints]', res.error); })
           .catch(() => {});
+        if (content.includes('@')) {
+          (supabase.rpc as any)('notify_chat_mentions', { _message_id: msg.id })
+            .then((res: any) => { if (res.error) console.error('[ChatMentions]', res.error); })
+            .catch(() => {});
+        }
       }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send'); } finally { setIsSending(false); }
   };
@@ -415,6 +437,13 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: activeChannel });
     if (error) { toast.error('Failed to send'); return; }
     setReplyingTo(null); scrollToBottom();
+  };
+
+  const handleSendVoice = async (content: string) => {
+    if (!user) return;
+    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content, reply_to: replyingTo?.id || null, channel: activeChannel });
+    if (error) { toast.error('Failed to send voice note'); return; }
+    setReplyingTo(null);
   };
 
   const handleSendGif = async (gifUrl: string) => {
@@ -620,6 +649,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           onCancelReply={() => setReplyingTo(null)}
           onTyping={onTyping}
           typingUsers={typingUsers}
+          onSendVoice={handleSendVoice}
+          mentionables={mentionables}
         />
       </div>
 

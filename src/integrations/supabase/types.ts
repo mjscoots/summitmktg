@@ -139,6 +139,8 @@ export type Database = {
       }
       announcement_posts: {
         Row: {
+          audience: string
+          audience_team_id: string | null
           body: string
           category: string
           created_at: string
@@ -158,6 +160,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          audience?: string
+          audience_team_id?: string | null
           body?: string
           category?: string
           created_at?: string
@@ -177,6 +181,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          audience?: string
+          audience_team_id?: string | null
           body?: string
           category?: string
           created_at?: string
@@ -195,7 +201,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "announcement_posts_audience_team_id_fkey"
+            columns: ["audience_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       announcement_views: {
         Row: {
@@ -3405,32 +3419,44 @@ export type Database = {
       user_notifications: {
         Row: {
           created_at: string | null
+          deliver_after: string
+          digested: boolean
           event_id: string | null
           id: string
+          is_digest: boolean
           is_read: boolean | null
           link: string | null
           message: string
           title: string
+          urgent: boolean
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          deliver_after?: string
+          digested?: boolean
           event_id?: string | null
           id?: string
+          is_digest?: boolean
           is_read?: boolean | null
           link?: string | null
           message: string
           title: string
+          urgent?: boolean
           user_id: string
         }
         Update: {
           created_at?: string | null
+          deliver_after?: string
+          digested?: boolean
           event_id?: string | null
           id?: string
+          is_digest?: boolean
           is_read?: boolean | null
           link?: string | null
           message?: string
           title?: string
+          urgent?: boolean
           user_id?: string
         }
         Relationships: [
@@ -4340,6 +4366,11 @@ export type Database = {
       }
       mark_inactive_users: { Args: never; Returns: undefined }
       my_signed_count: { Args: never; Returns: number }
+      notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
+      notify_chat_mentions: {
+        Args: { _message_id: string; _user_ids: string[] }
+        Returns: number
+      }
       notify_due_action_items: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
       post_weekly_awards: { Args: never; Returns: Json }
@@ -4354,6 +4385,7 @@ export type Database = {
       }
       release_stale_leads: { Args: never; Returns: number }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
+      run_notification_digest: { Args: never; Returns: number }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string

@@ -6,6 +6,7 @@ import { AppSidebar } from './AppSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { StatusBar } from './StatusBar';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { Mountain } from 'lucide-react';
@@ -36,6 +37,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             <header className="hidden lg:flex sticky top-0 z-40 h-14 items-center justify-between border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl">
               <div /> {/* Spacer */}
               <div className="flex items-center gap-3">
+                <GlobalSearch />
                 <StatusBar />
                 <NotificationBell />
               </div>
@@ -55,6 +57,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">
+                  <GlobalSearch />
                   <StatusBar />
                   <NotificationBell />
                 </div>

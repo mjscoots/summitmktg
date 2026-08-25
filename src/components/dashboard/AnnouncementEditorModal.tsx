@@ -35,7 +35,18 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
   const [isImportant, setIsImportant] = useState(false);
   const [publishNow, setPublishNow] = useState(true);
   const [expiresAt, setExpiresAt] = useState('');
+  const [audience, setAudience] = useState<'everyone' | 'managers' | 'team'>('everyone');
+  const [audienceTeamId, setAudienceTeamId] = useState<string>('');
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await (supabase as any).from('teams').select('id, name').order('name');
+      setTeams(data || []);
+    })();
+  }, [open]);
 
   useEffect(() => {
     if (post) {
@@ -48,6 +59,8 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       setIsImportant(post.is_important || false);
       setPublishNow(post.status === 'published');
       setExpiresAt(post.expires_at ? post.expires_at.split('T')[0] : '');
+      setAudience(post.audience || 'everyone');
+      setAudienceTeamId(post.audience_team_id || '');
     } else {
       setTitle('');
       setBody('');
@@ -58,11 +71,15 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       setIsImportant(false);
       setPublishNow(true);
       setExpiresAt(new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]);
+      setAudience('everyone');
+      setAudienceTeamId('');
     }
   }, [post, open]);
 
+
   const handleSave = async () => {
     if (!title.trim()) { toast.error('Title is required'); return; }
+    if (audience === 'team' && !audienceTeamId) { toast.error('Pick a team for this announcement'); return; }
     setSaving(true);
 
     const payload = {
@@ -77,6 +94,8 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       published_at: publishNow ? new Date().toISOString() : null,
       expires_at: expiresAt ? new Date(expiresAt + 'T23:59:59').toISOString() : null,
       created_by: user?.id,
+      audience,
+      audience_team_id: audience === 'team' ? audienceTeamId : null,
     };
 
     // If pinning, unpin others first
@@ -139,6 +158,34 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
               <Label className="text-xs text-muted-foreground mb-1.5 block">CTA Destination</Label>
               <Input value={ctaTarget} onChange={e => setCtaTarget(e.target.value)} placeholder="/app/videos" className="bg-background/50" />
             </div>
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Audience</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {([
+                { value: 'everyone', label: 'Everyone' },
+                { value: 'managers', label: 'Managers +' },
+                { value: 'team', label: 'One team' },
+              ] as const).map(a => (
+                <button key={a.value} onClick={() => setAudience(a.value)}
+                  className={`min-h-9 rounded-lg border px-2.5 text-[11px] font-bold transition-colors ${audience === a.value ? 'border-primary/40 bg-primary/12 text-primary' : 'border-border/30 text-muted-foreground hover:text-foreground'}`}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+            {audience === 'team' && (
+              <select
+                value={audienceTeamId}
+                onChange={e => setAudienceTeamId(e.target.value)}
+                className="mt-2 w-full rounded-lg border border-border/30 bg-background/50 px-2.5 py-2 text-xs text-foreground"
+              >
+                <option value="">Select a team...</option>
+                {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            )}
+            <p className="mt-1 text-[10px] text-muted-foreground">Only the chosen audience sees the post and gets the notification.</p>
           </div>
 
           <div>
