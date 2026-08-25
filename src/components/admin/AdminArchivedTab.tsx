@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { toast } from 'sonner';
-import { Archive, Loader2, RotateCcw, Search } from 'lucide-react';
+import { Archive, GraduationCap, Loader2, RotateCcw, Search } from 'lucide-react';
 import { LoadingList } from '@/components/shared/LoadingList';
 
 interface ArchivedRow {
@@ -16,6 +16,7 @@ interface ArchivedRow {
   archived_at: string | null;
   archived_reason: string | null;
   pre_archive_status: string | null;
+  alumni: boolean | null;
 }
 
 const REASON_LABEL: Record<string, string> = {
