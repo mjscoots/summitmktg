@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PairingRequestsPanel } from '@/components/industries/PairingRequestsPanel';
 
 const AdminSubmittedVideosTab = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 
