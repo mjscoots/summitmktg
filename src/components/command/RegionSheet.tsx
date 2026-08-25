@@ -343,6 +343,17 @@ export default function RegionSheet() {
         </div>
       </Panel>
 
+      {/* Funnel by office / leader */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginTop: 16 }}>
+        <Panel title="Funnel by office">
+          <FunnelTable lines={sheet.funnel_by_office ?? []} />
+        </Panel>
+        <Panel title="Funnel by leader">
+          <FunnelTable lines={sheet.funnel_by_leader ?? []} />
+        </Panel>
+      </div>
+
+
       {/* Roster table */}
       <div
         className="panel"
