@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import RosterGapCounters from '@/components/roster/RosterGapCounters';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
