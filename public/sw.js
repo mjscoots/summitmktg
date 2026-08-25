@@ -3,7 +3,7 @@
    - Static build assets: cache-first
    - Everything else (API, auth, uploads): untouched, straight to network */
 
-const VERSION = 'v1';
+const VERSION = 'v2-2026-08-25';
 const STATIC_CACHE = `summit-static-${VERSION}`;
 const SHELL_CACHE = `summit-shell-${VERSION}`;
 const KEEP = [STATIC_CACHE, SHELL_CACHE];
@@ -68,4 +68,9 @@ self.addEventListener('fetch', (event) => {
       )
     );
   }
+});
+
+// Allow the page to activate a waiting worker immediately (reload prompt).
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });

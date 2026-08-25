@@ -805,3 +805,39 @@ button, a, [role="button"] {
     display: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   iOS / Safari layout safety (Pass 40)
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  /* Safari's 100vh includes the URL bar, which clips full-height layouts.
+     Prefer the dynamic viewport unit wherever it is supported. */
+  @supports (height: 100dvh) {
+    .min-h-screen {
+      min-height: 100dvh;
+    }
+    .h-screen {
+      height: 100dvh;
+    }
+  }
+
+  /* Mobile Safari auto-zooms any focused control under 16px. Below the
+     desktop breakpoint every form control renders at 16px so focusing an
+     input never zooms and shifts the layout. */
+  @media (max-width: 1023px) {
+    input,
+    select,
+    textarea,
+    .input-field {
+      font-size: 16px;
+    }
+  }
+
+  /* Fixed / sticky chrome respects the notch and home indicator. */
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+}
