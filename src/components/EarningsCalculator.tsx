@@ -1,77 +1,78 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DollarSign, TrendingUp, Home } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { supabase } from "@/integrations/supabase/client";
-import { FiberEarningsPanel } from "@/components/FiberEarningsPanel";
+import { formatCurrency } from "@/lib/commission";
 import {
-  getRate,
-  getTier,
-  getTiers,
-  formatCurrency,
-  formatRate,
-  type PayScale,
-} from "@/lib/commission";
+  usePublicCalc,
+  chipsFor,
+  pestDefaults,
+  type PayBand,
+  type PublicCalc,
+} from "@/hooks/usePublicCalc";
+import VetBidForm from "@/components/VetBidForm";
 
 /**
- * Accounts-based earnings calculator.
+ * Public pest earnings calculator — rookie only.
  *
- * Assumptions and where they come from:
- * - Commission rates: the existing pay scale tables in src/lib/commission.ts
- *   (rookie and veteran pest scales).
- * - Average annual contract value: admin setting `calc_avg_contract_value`.
- *   Shows "Not set" until the owner enters it — no number is assumed.
- * - Weeks worked default: admin setting `calc_default_weeks`.
- * - Accounts per week default: admin setting `calc_default_accounts_per_week`.
- * - Attrition applied to earnings: 25%, carried over from the earlier
- *   calculator version in git history.
+ * Where the numbers come from:
+ * - Average account value: admin setting `calc_avg_contract_value`.
+ * - Weeks worked default / min / max: `calc_default_weeks`, `calc_min_weeks`, `calc_max_weeks`.
+ * - Accounts per week default: `calc_default_accounts_per_week`; preset chips from `public_calc_chips`.
+ * - Active revenue = serviced revenue minus `calc_active_reduction_pct` for cancellations.
+ * - Commission bands: the public pay scale record (2027 rookie scale), retroactive on all
+ *   season active revenue.
  */
-const ATTRITION = 0.25;
-const FALLBACK_ACCOUNTS_PER_WEEK = 5;
-const FALLBACK_WEEKS = 14;
-
 interface EarningsCalculatorProps {
   onApplyClick?: () => void;
-  /** Lock the calculator to a single pay scale (hides the toggle). */
-  lockScale?: Exclude<PayScale, "marketing">;
+  /** Pre-loaded payload (landing page shares one fetch across industries). */
+  calcData?: PublicCalc | null;
 }
 
-const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps) => {
-  const [industry, setIndustry] = useState<"pest" | "fiber">("pest");
-  const [scale, setScale] = useState<Exclude<PayScale, "marketing">>(lockScale ?? "rookie");
-  const [accountsPerWeek, setAccountsPerWeek] = useState(FALLBACK_ACCOUNTS_PER_WEEK);
-  const [weeks, setWeeks] = useState(FALLBACK_WEEKS);
-  const [contractValue, setContractValue] = useState<number | null>(null);
+function bandFor(bands: PayBand[], revenue: number): PayBand | null {
+  return (
+    bands.find((b) => revenue >= b.min && (b.max === null || revenue <= b.max)) ?? null
+  );
+}
+
+function bandLabel(b: PayBand) {
+  return b.max === null
+    ? `$${(b.min / 1000).toFixed(0)}k+`
+    : `$${(b.min / 1000).toFixed(0)}k–$${((b.max + 1) / 1000).toFixed(0)}k`;
+}
+
+const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps) => {
+  const fetched = usePublicCalc();
+  const calc = calcData ?? fetched;
+  const d = useMemo(() => pestDefaults(calc), [calc]);
+  const chips = chipsFor(calc, "Pest");
+  const bands = calc?.pay_scale?.bands ?? [];
+
+  const [accountsPerWeek, setAccountsPerWeek] = useState(d.accountsPerWeek);
+  const [weeks, setWeeks] = useState(d.weeks);
+  const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await (supabase as any)
-        .from("app_settings")
-        .select("key, value")
-        .in("key", [
-          "calc_avg_contract_value",
-          "calc_default_accounts_per_week",
-          "calc_default_weeks",
-        ]);
-      const map: Record<string, string> = {};
-      (data ?? []).forEach((r: any) => {
-        map[r.key] = r.value;
-      });
-      const acv = Number(map["calc_avg_contract_value"]);
-      if (Number.isFinite(acv) && acv > 0) setContractValue(acv);
-      const apw = Number(map["calc_default_accounts_per_week"]);
-      if (Number.isFinite(apw) && apw > 0) setAccountsPerWeek(Math.round(apw));
-      const wks = Number(map["calc_default_weeks"]);
-      if (Number.isFinite(wks) && wks > 0) setWeeks(Math.round(wks));
-    })();
-  }, []);
+    if (!calc || initialised) return;
+    setAccountsPerWeek(d.accountsPerWeek);
+    setWeeks(d.weeks);
+    setInitialised(true);
+  }, [calc, initialised, d.accountsPerWeek, d.weeks]);
 
   const accounts = accountsPerWeek * weeks;
-  const revenue = contractValue ? accounts * contractValue : 0;
-  const rate = getRate(scale, revenue);
-  const tier = getTier(scale, revenue);
-  const seasonEarnings = revenue * (1 - ATTRITION) * rate;
-  const weeklyEarnings = weeks > 0 ? seasonEarnings / weeks : 0;
-  const hasContractValue = contractValue !== null;
+  const serviced = accounts * d.contractValue;
+  const active = serviced * (1 - d.reductionPct / 100);
+  const band = bandFor(bands, active);
+  const rate = band?.rate ?? 0;
+  const seasonEarnings = active * rate;
+  const revenuePerWeek = accountsPerWeek * d.contractValue;
+
+  /** Tapping a band sets the weekly accounts needed to reach it at the chosen weeks. */
+  const jumpToBand = (b: PayBand) => {
+    const perWeekActive = weeks * d.contractValue * (1 - d.reductionPct / 100);
+    if (perWeekActive <= 0) return;
+    const needed = Math.max(1, Math.ceil(b.min / perWeekActive));
+    setAccountsPerWeek(Math.min(60, needed));
+  };
 
   return (
     <div className="space-y-8">
@@ -83,48 +84,10 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
           <div>
             <h3 className="text-lg font-bold text-foreground">Earnings Calculator</h3>
             <p className="text-sm text-muted-foreground">
-              {industry === "pest"
-                ? "Accounts per week, weeks worked, and what the pay scale does with it"
-                : "Installs per week, weeks worked, and what the carrier pays per install"}
+              Accounts per week, weeks worked, and what the pay scale does with it
             </p>
           </div>
         </div>
-
-        {/* Industry toggle */}
-        <div className="mb-6 flex justify-center">
-          <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1">
-            {(["pest", "fiber"] as const).map((i) => (
-              <button
-                key={i}
-                onClick={() => setIndustry(i)}
-                className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all ${industry === i ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {i === "pest" ? "Pest" : "Fiber"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {industry === "fiber" && <FiberEarningsPanel />}
-
-        {industry === "pest" && (
-        <>
-        {/* Pay scale toggle */}
-        {!lockScale && (
-          <div className="mb-8 flex justify-center">
-            <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1">
-              {(["rookie", "veteran"] as const).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setScale(s)}
-                  className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all ${scale === s ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  {s === "rookie" ? "Rookie" : "Veteran"}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Accounts per week */}
         <div className="mb-8">
@@ -132,7 +95,9 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
             <label className="text-sm font-bold uppercase tracking-wide text-foreground">
               Accounts per week
             </label>
-            <span className="text-2xl font-extrabold tabular-nums text-foreground">{accountsPerWeek}</span>
+            <span className="text-2xl font-extrabold tabular-nums text-foreground">
+              {accountsPerWeek}
+            </span>
           </div>
           <Slider
             value={[accountsPerWeek]}
@@ -141,120 +106,133 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
             max={40}
             step={1}
           />
-          <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-            <span>1</span>
-            <span>40</span>
-          </div>
+          {chips.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {chips.map((c) => (
+                <button
+                  key={c.value}
+                  onClick={() => setAccountsPerWeek(c.value)}
+                  className={`min-h-11 rounded-xl border px-4 text-sm font-semibold tabular-nums transition-colors ${
+                    accountsPerWeek === c.value
+                      ? "border-primary bg-primary/15 text-primary"
+                      : "border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {c.label ? `${c.label} · ${c.value}` : c.value}
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="mt-3 text-sm text-muted-foreground">
+            {accountsPerWeek} accounts a week = {formatCurrency(revenuePerWeek)} a week in revenue
+          </p>
         </div>
 
         {/* Weeks worked */}
         <div className="mb-8">
           <div className="flex items-baseline justify-between mb-3">
-            <label className="text-sm font-bold uppercase tracking-wide text-foreground">Weeks worked</label>
+            <label className="text-sm font-bold uppercase tracking-wide text-foreground">
+              Weeks worked
+            </label>
             <span className="text-2xl font-extrabold tabular-nums text-foreground">{weeks}</span>
           </div>
-          <Slider value={[weeks]} onValueChange={(v) => setWeeks(v[0])} min={1} max={30} step={1} />
+          <Slider
+            value={[weeks]}
+            onValueChange={(v) => setWeeks(v[0])}
+            min={d.minWeeks}
+            max={d.maxWeeks}
+            step={1}
+          />
           <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-            <span>1</span>
-            <span>30</span>
+            <span>{d.minWeeks}</span>
+            <span>{d.maxWeeks}</span>
           </div>
         </div>
 
         {/* Live math */}
         <div className="grid gap-3 sm:grid-cols-3 mb-4">
-          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Accounts, season</p>
-            <p className="text-xl font-bold tabular-nums text-foreground">{accounts}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-secondary/30 border border-border">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Serviced revenue</p>
-            <p className="text-xl font-bold tabular-nums text-foreground">
-              {hasContractValue ? formatCurrency(revenue) : "Not set"}
-            </p>
-          </div>
-          <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Pay scale tier</p>
-            <p className="text-xl font-bold tabular-nums text-primary">
-              {hasContractValue ? formatRate(rate) : "Not set"}
-            </p>
-          </div>
+          <Cell label="Revenue per week" value={formatCurrency(revenuePerWeek)} />
+          <Cell label="Season revenue" value={formatCurrency(serviced)} />
+          <Cell label={`Active revenue (−${d.reductionPct}%)`} value={formatCurrency(active)} />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 mb-4">
-          <div className="p-5 rounded-lg bg-secondary/30 border border-border">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Weekly earnings</p>
-            <p className="text-2xl font-black tabular-nums text-foreground">
-              {hasContractValue ? formatCurrency(weeklyEarnings) : "Not set"}
+          <div className="p-5 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+              Tier reached
+            </p>
+            <p className="text-2xl font-black tabular-nums text-primary">
+              {band ? `${bandLabel(band)} · ${(rate * 100).toFixed(0)}%` : "—"}
             </p>
           </div>
           <div className="p-5 rounded-lg bg-success/20 border-2 border-success">
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="w-5 h-5 text-success" />
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Season earnings</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Season earnings
+              </p>
             </div>
             <p className="text-3xl font-black tabular-nums text-success">
-              {hasContractValue ? formatCurrency(seasonEarnings) : "Not set"}
+              {formatCurrency(seasonEarnings)}
             </p>
           </div>
         </div>
 
         <p className="text-xs text-muted-foreground mb-2 text-center">
-          {hasContractValue ? (
-            <>
-              {accountsPerWeek} accounts × {weeks} weeks = {accounts} accounts, at{" "}
-              {formatCurrency(contractValue!)} average annual contract value, minus 25% attrition for
-              cancellations. That production reaches the{" "}
-              {tier.max === Infinity
-                ? `${formatCurrency(tier.min)}+`
-                : `${formatCurrency(tier.min)}–${formatCurrency(tier.max)}`}{" "}
-              tier at {formatRate(rate)}.
-            </>
-          ) : (
-            <>Average annual contract value is not set yet, so earnings cannot be calculated.</>
-          )}
+          {accountsPerWeek} accounts × {weeks} weeks = {accounts} accounts at{" "}
+          {formatCurrency(d.contractValue)} each, {formatCurrency(serviced)} serviced revenue, less{" "}
+          {d.reductionPct}% for cancellations ={" "}
+          {formatCurrency(active)} active revenue
+          {band ? ` at ${(rate * 100).toFixed(0)}% on the whole season` : ""}.
         </p>
-        <p className="text-xs font-semibold text-foreground mb-8 text-center">This is math, not a promise.</p>
+        <p className="text-xs font-semibold text-foreground mb-8 text-center">
+          This is math, not a promise.
+        </p>
 
         {/* Pay scale table */}
-        <div className="mb-8">
-          <h4 className="text-lg font-bold text-foreground mb-4 uppercase tracking-wide">
-            {scale === "rookie" ? "Rookie" : "Veteran"} Commission Pay Scale
-          </h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {getTiers(scale).map((bracket, index) => {
-              const active = hasContractValue && revenue >= bracket.min && revenue <= bracket.max;
-              return (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg text-center ${active ? "bg-primary/20 border-2 border-primary" : "bg-secondary/30 border border-border"}`}
-                >
-                  <p className="text-xs text-muted-foreground mb-1">
-                    {bracket.max === Infinity
-                      ? `$${(bracket.min / 1000).toFixed(0)}k+`
-                      : `$${(bracket.min / 1000).toFixed(0)}k–$${(bracket.max / 1000).toFixed(0)}k`}
-                  </p>
-                  <p className={`text-lg font-bold ${active ? "text-primary" : "text-foreground"}`}>
-                    {(bracket.rate * 100).toFixed(0)}%
-                  </p>
-                </div>
-              );
-            })}
+        {bands.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-bold text-foreground mb-1 uppercase tracking-wide">
+              Commission pay scale
+            </h4>
+            <p className="text-xs text-muted-foreground mb-4">
+              {calc?.pay_scale?.label} — the tier you reach pays that rate on all season active
+              revenue.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {bands.map((b, i) => {
+                const isActive = band?.min === b.min;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => jumpToBand(b)}
+                    className={`p-3 rounded-lg text-center transition-colors ${
+                      isActive
+                        ? "bg-primary/20 border-2 border-primary"
+                        : "bg-secondary/30 border border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="text-xs text-muted-foreground mb-1">{bandLabel(b)}</p>
+                    <p
+                      className={`text-lg font-bold tabular-nums ${isActive ? "text-primary" : "text-foreground"}`}
+                    >
+                      {(b.rate * 100).toFixed(0)}%
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Housing Note */}
+        {/* Housing note */}
         <div className="p-4 rounded-lg bg-secondary/30 border border-border mb-6">
           <div className="flex items-center gap-2 mb-2">
             <Home className="w-5 h-5 text-primary" />
-            <p className="text-sm font-bold text-foreground uppercase tracking-wide">Housing Note</p>
+            <p className="text-sm font-bold text-foreground uppercase tracking-wide">Housing note</p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            At $100,000 in serviced revenue, summer housing is <span className="text-success font-bold">free</span>.
-          </p>
+          <p className="text-sm text-muted-foreground">Rent is free at $125,000 active revenue.</p>
         </div>
-
-        </>
-        )}
 
         {onApplyClick && (
           <button
@@ -264,9 +242,22 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
             Apply Now
           </button>
         )}
+
+        <div className="mt-6 text-center">
+          <VetBidForm />
+        </div>
       </div>
     </div>
   );
 };
+
+function Cell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="p-4 rounded-lg bg-secondary/30 border border-border">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{label}</p>
+      <p className="text-xl font-bold tabular-nums text-foreground">{value}</p>
+    </div>
+  );
+}
 
 export default EarningsCalculator;
