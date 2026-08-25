@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { isAdminOrAbove } from "@/lib/roles";
 import { Loader2, Check, Pencil } from "lucide-react";
+import CommandFunnel from "@/components/command/CommandFunnel";
+import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
