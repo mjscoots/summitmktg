@@ -65,7 +65,12 @@ interface PendingRow {
 
 const STEP_TYPES: StepRow['step_type'][] = ['task', 'upload', 'training', 'approval'];
 
-export default function AdminIndustriesTab() {
+interface Props {
+  /** When set, only this vertical's path is shown and cross-industry sections are hidden. */
+  restrictToVertical?: string;
+}
+
+export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
   const [paths, setPaths] = useState<PathRow[]>([]);
   const [steps, setSteps] = useState<StepRow[]>([]);
   const [courses, setCourses] = useState<CourseRow[]>([]);
