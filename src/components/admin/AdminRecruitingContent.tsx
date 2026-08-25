@@ -5,6 +5,7 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PARENT_SECTIONS } from '@/pages/Parents';
+import PublicCalcPanel from '@/components/admin/PublicCalcPanel';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -146,6 +147,8 @@ export default function AdminRecruitingContent() {
           ))}
         </div>
       </div>
+
+      <PublicCalcPanel />
 
       {/* Timeline */}
       <div className={`${CARD} p-5`}>
