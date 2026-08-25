@@ -90,6 +90,7 @@ export default function RecruitsPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ first_name: '', phone: '', city: '', interest_reason: '', notes: '' });
   const [, setTick] = useState(0);
+  const [winMoment, setWinMoment] = useState<{ firstName: string; signedCount: number | null } | null>(null);
 
   const activeClaims = mine.filter((l) => l.status === 'Claimed' || l.status === 'Contacted').length;
   const atLimit = activeClaims >= MAX_ACTIVE_CLAIMS;
