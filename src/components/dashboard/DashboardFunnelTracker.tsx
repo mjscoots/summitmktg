@@ -130,7 +130,7 @@ export function DashboardFunnelTracker() {
           <button onClick={addRecruit} className="flex items-center gap-1 text-[10px] font-semibold text-primary hover:text-primary/80 transition-colors">
             <Plus className="w-3.5 h-3.5" /> Add
           </button>
-          <button onClick={() => navigate('/app/recruiting')} className="text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => navigate('/app/recruits')} className="text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors">
             Full View →
           </button>
         </div>
@@ -187,7 +187,7 @@ export function DashboardFunnelTracker() {
             </tbody>
           </table>
           {filtered.length > 15 && (
-            <button onClick={() => navigate('/app/recruiting')} className="w-full text-center py-2 text-[10px] text-muted-foreground hover:text-primary transition-colors">
+            <button onClick={() => navigate('/app/recruits')} className="w-full text-center py-2 text-[10px] text-muted-foreground hover:text-primary transition-colors">
               View all {filtered.length} recruits →
             </button>
           )}

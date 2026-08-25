@@ -89,7 +89,7 @@ export default function ManagePage() {
 
           {/* Recruiting Board */}
           <button
-            onClick={() => navigate('/app/recruiting')}
+            onClick={() => navigate('/app/recruits')}
             className={cn(
               'group relative w-full p-5 bg-card rounded-xl text-left overflow-hidden',
               'border border-border/50 cursor-pointer',
