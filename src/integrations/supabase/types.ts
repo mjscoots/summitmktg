@@ -478,6 +478,39 @@ export type Database = {
         }
         Relationships: []
       }
+      badge_definitions: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          icon: string
+          key: string
+          kind: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string
+          key: string
+          kind?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string
+          key?: string
+          kind?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       bootcamp_progress: {
         Row: {
           agreement_end_date: string | null
@@ -1398,6 +1431,39 @@ export type Database = {
           sent_at?: string
           subject?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      incentives: {
+        Row: {
+          created_at: string
+          ends_on: string | null
+          id: string
+          is_active: boolean
+          metric: string
+          name: string
+          prize_note: string | null
+          target: number
+        }
+        Insert: {
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          is_active?: boolean
+          metric: string
+          name: string
+          prize_note?: string | null
+          target: number
+        }
+        Update: {
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          is_active?: boolean
+          metric?: string
+          name?: string
+          prize_note?: string | null
+          target?: number
         }
         Relationships: []
       }
@@ -2646,6 +2712,77 @@ export type Database = {
         }
         Relationships: []
       }
+      season_results: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          metric: string
+          rank: number
+          season_id: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          metric: string
+          rank: number
+          season_id: string
+          user_id: string
+          value?: number
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          metric?: string
+          rank?: number
+          season_id?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_results_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seasons: {
+        Row: {
+          created_at: string
+          ends_on: string
+          id: string
+          is_active: boolean
+          name: string
+          starts_on: string
+        }
+        Insert: {
+          created_at?: string
+          ends_on: string
+          id?: string
+          is_active?: boolean
+          name: string
+          starts_on: string
+        }
+        Update: {
+          created_at?: string
+          ends_on?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          starts_on?: string
+        }
+        Relationships: []
+      }
       signup_logs: {
         Row: {
           direct_manager: string
@@ -3232,6 +3369,38 @@ export type Database = {
           visible_to_teams?: string[] | null
         }
         Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_key: string
+          granted_at: string
+          granted_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_key: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_key?: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_key_fkey"
+            columns: ["badge_key"]
+            isOneToOne: false
+            referencedRelation: "badge_definitions"
+            referencedColumns: ["key"]
+          },
+        ]
       }
       user_notifications: {
         Row: {
@@ -3830,6 +3999,7 @@ export type Database = {
         Returns: Json
       }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
+      finalize_season: { Args: { _season_id: string }; Returns: undefined }
       generate_weekly_report: { Args: never; Returns: Json }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
@@ -3859,6 +4029,19 @@ export type Database = {
         }[]
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
+      get_badges_for_users: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          badge_key: string
+          description: string
+          granted_at: string
+          icon: string
+          kind: string
+          name: string
+          sort_order: number
+          user_id: string
+        }[]
+      }
       get_chat_channel_state: { Args: never; Returns: Json }
       get_command_analytics: { Args: never; Returns: Json }
       get_current_leaderboard: {
@@ -3883,6 +4066,16 @@ export type Database = {
           total_points: number
           user_id: string
           video_points: number
+        }[]
+      }
+      get_current_season: {
+        Args: never
+        Returns: {
+          days_left: number
+          ends_on: string
+          id: string
+          name: string
+          starts_on: string
         }[]
       }
       get_daily_challenge: { Args: { _user_id: string }; Returns: Json }
@@ -3941,7 +4134,34 @@ export type Database = {
               user_id: string
             }[]
           }
+      get_hall_of_fame: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          ends_on: string
+          full_name: string
+          metric: string
+          rank: number
+          season_id: string
+          season_name: string
+          starts_on: string
+          user_id: string
+          value: number
+        }[]
+      }
       get_home_snapshot: { Args: never; Returns: Json }
+      get_incentive_progress: {
+        Args: never
+        Returns: {
+          ends_on: string
+          id: string
+          metric: string
+          my_value: number
+          name: string
+          prize_note: string
+          target: number
+        }[]
+      }
       get_lead_board: {
         Args: never
         Returns: {
@@ -4059,6 +4279,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_team_battles: {
+        Args: never
+        Returns: {
+          member_count: number
+          rank: number
+          team_id: string
+          team_name: string
+          total_points: number
+        }[]
+      }
       get_ticket_config: { Args: never; Returns: Json }
       get_ticket_series_status: { Args: never; Returns: Json }
       get_training_leaderboard_panel: {
@@ -4129,6 +4359,7 @@ export type Database = {
         Returns: string
       }
       sweep_speed_to_lead: { Args: never; Returns: Json }
+      sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }

@@ -54,6 +54,10 @@ const LazyDrills = lazy(() =>
 const LazyAssistant = lazy(() =>
   import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
 );
+const LazyCulture = lazy(() =>
+  import('@/components/admin/AdminCultureTab').then((m) => ({ default: m.AdminCultureTab }))
+);
+
 
 interface TeamRow {
   id: string;
@@ -383,6 +387,12 @@ export default function AdminTeamPage() {
                 </TabsTrigger>
               )}
               {isAdmin && (
+                <TabsTrigger value="culture" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                  Culture
+                </TabsTrigger>
+              )}
+
+              {isAdmin && (
                 <TabsTrigger value="money" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                   Money
                 </TabsTrigger>
@@ -421,6 +431,16 @@ export default function AdminTeamPage() {
               </Suspense>
             </TabsContent>
           )}
+
+          {/* ========== CULTURE TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="culture">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyCulture />
+              </Suspense>
+            </TabsContent>
+          )}
+
 
           {/* ========== ARCHIVED TAB ========== */}
           <TabsContent value="archived">

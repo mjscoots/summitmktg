@@ -6,6 +6,7 @@ import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
+import { TeamBattleStrip } from '@/components/leaderboard/TeamBattles';
 import { MyCarTodayCard, MyActionItemsCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
@@ -235,6 +236,12 @@ export default function DashboardPage() {
 
         {/* Action row — what to do right now */}
         <HomeActionRow />
+
+        {/* Weekly team battle standing */}
+        <div className="mb-4">
+          <TeamBattleStrip teamId={(profile as any)?.team_id} />
+        </div>
+
 
         {/* Today's car assignment (only when published for today) */}
         <div className="mb-4 space-y-3">

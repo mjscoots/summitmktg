@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Target, Check, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { isAdminOrAbove } from '@/lib/roles';
 
 interface DrillState {
   id: string;
@@ -29,6 +32,9 @@ export function DailyDrill() {
   const [completed, setCompleted] = useState(false);
   const [response, setResponse] = useState('');
   const [showModel, setShowModel] = useState(false);
+  const navigate = useNavigate();
+  const { role } = useAuth();
+  const isAdmin = isAdminOrAbove(role);
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
@@ -77,7 +83,29 @@ export function DailyDrill() {
     toast.success(res.first_today ? 'Drill logged — +15 points' : 'Drill logged');
   };
 
-  if (loading || !drill) return null;
+  if (loading) return null;
+
+  // No drills configured yet: prompt admins, stay invisible for reps.
+  if (!drill) {
+    if (!isAdmin) return null;
+    return (
+      <div className="mb-6 rounded-xl border border-dashed border-white/[0.1] bg-card/40 p-5 flex items-start gap-3">
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 text-primary flex-shrink-0">
+          <Target className="w-5 h-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-bold text-foreground">Daily drill</h3>
+          <p className="text-[13px] text-muted-foreground mt-1">
+            No drills yet. Add scenarios and model answers to start the daily rotation — reps won't see this card until then.
+          </p>
+          <Button size="sm" className="mt-3" onClick={() => navigate('/admin/team?tab=drills')}>
+            Add drills
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="mb-6 rounded-xl border border-white/[0.06] bg-card/60 backdrop-blur-sm p-5">

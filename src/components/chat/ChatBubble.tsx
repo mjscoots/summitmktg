@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { BadgeStrip } from '@/components/badges/BadgeStrip';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { CornerDownRight, SmilePlus, Reply } from 'lucide-react';
@@ -223,13 +224,17 @@ export function ChatBubble({
         <div className={cn("max-w-[75%] min-w-0 relative", isOwn && "ml-auto")}>
           {/* Name */}
           {!isOwn && isFirstInGroup && !message.is_ai && (
-            <button
-              onClick={() => onProfileClick(message.user_id)}
-              className={cn("text-[11px] font-semibold mb-0.5 ml-1 block", getRoleColor(profile.role))}
-            >
-              {profile.full_name}
-            </button>
+            <span className="flex items-center gap-1 mb-0.5 ml-1 min-w-0">
+              <button
+                onClick={() => onProfileClick(message.user_id)}
+                className={cn("text-[11px] font-semibold truncate", getRoleColor(profile.role))}
+              >
+                {profile.full_name}
+              </button>
+              <BadgeStrip userId={message.user_id} max={2} className="shrink-0" />
+            </span>
           )}
+
 
           {/* Reply preview */}
           {parentMsg && (
