@@ -13,6 +13,7 @@ interface Course {
   description: string | null;
   slug: string;
   target_role: 'rookie' | 'manager' | 'admin' | 'owner' | null;
+  audience?: string | null;
   display_order: number;
 }
 
@@ -94,8 +95,22 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           return;
         }
 
-        // Filter courses based on filterRole prop
-        let filteredCourses = coursesData || [];
+        // Audience gating: managers see everything, veterans also see vet courses
+        const { data: profileRow } = await supabase
+          .from('profiles')
+          .select('experience_level')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        const isManagerRole = role === 'manager' || role === 'admin' || role === 'owner';
+        const isVeteran = isManagerRole || profileRow?.experience_level === 'veteran';
+
+        let filteredCourses = (coursesData || []).filter((course) => {
+          const audience = (course as { audience?: string | null }).audience || 'rookie';
+          if (audience === 'all' || audience === 'rookie') return true;
+          if (audience === 'vet') return isVeteran;
+          if (audience === 'manager') return isManagerRole;
+          return true;
+        });
         
         if (filterRole === 'rookie') {
           filteredCourses = filteredCourses.filter(

@@ -48,6 +48,9 @@ const LazyExport = lazy(() =>
 const LazyMoney = lazy(() =>
   import('@/components/admin/AdminMoneyTab').then((m) => ({ default: m.AdminMoneyTab }))
 );
+const LazyDrills = lazy(() =>
+  import('@/components/admin/AdminDrillsTab').then((m) => ({ default: m.AdminDrillsTab }))
+);
 const LazyAssistant = lazy(() =>
   import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
 );
@@ -375,6 +378,11 @@ export default function AdminTeamPage() {
                 Feedback {adminCounts.newFeedback > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.newFeedback}</span>}
               </TabsTrigger>
               {isAdmin && (
+                <TabsTrigger value="drills" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                  Drills
+                </TabsTrigger>
+              )}
+              {isAdmin && (
                 <TabsTrigger value="money" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                   Money
                 </TabsTrigger>
@@ -404,6 +412,15 @@ export default function AdminTeamPage() {
             </TabsList>
             </div>
           </div>
+
+          {/* ========== DRILLS TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="drills">
+              <Suspense fallback={<AdminTabSkeleton />}>
+                <LazyDrills />
+              </Suspense>
+            </TabsContent>
+          )}
 
           {/* ========== ARCHIVED TAB ========== */}
           <TabsContent value="archived">
