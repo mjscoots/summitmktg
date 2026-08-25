@@ -13,17 +13,29 @@ interface Scorecard {
   error?: string;
 }
 
+interface AttendanceSummary {
+  expected: number;
+  present: number;
+  pct: number;
+  missed_streak: number;
+}
+
 export function RepScorecard({ userId, compact = false }: { userId: string; compact?: boolean }) {
   const [data, setData] = useState<Scorecard | null>(null);
+  const [attendance, setAttendance] = useState<AttendanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
     (async () => {
-      const { data: res } = await (supabase as any).rpc('get_rep_scorecard', { _user_id: userId });
+      const [{ data: res }, { data: att }] = await Promise.all([
+        (supabase as any).rpc('get_rep_scorecard', { _user_id: userId }),
+        (supabase as any).rpc('get_attendance_summary', { p_user_id: userId }),
+      ]);
       if (!alive) return;
       setData((res as Scorecard) || null);
+      setAttendance((Array.isArray(att) ? att[0] : att) as AttendanceSummary || null);
       setLoading(false);
     })();
     return () => {
@@ -33,6 +45,7 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
 
   if (loading) return <Skeleton className="h-40 w-full rounded-xl" />;
   if (!data || data.error) return null;
+
 
   const weeks = data.weeks || [];
   const maxPoints = Math.max(1, ...weeks.map((w) => w.points));
