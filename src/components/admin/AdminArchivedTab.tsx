@@ -35,11 +35,12 @@ export function AdminArchivedTab() {
   const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [visible, setVisible] = useState(PAGE);
   const [restoring, setRestoring] = useState<string | null>(null);
+  const [settingAlumni, setSettingAlumni] = useState<string | null>(null);
 
   const fetchRows = useCallback(async () => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('user_id, full_name, email, avatar_url, archived_at, archived_reason, pre_archive_status')
+      .select('user_id, full_name, email, avatar_url, archived_at, archived_reason, pre_archive_status, alumni')
       .eq('archived', true)
       .order('archived_at', { ascending: false });
     if (error) {
