@@ -38,7 +38,6 @@ const LessonPage = lazy(() => import("./pages/app/LessonPage"));
 const LeaderboardPage = lazy(() => import("./pages/app/LeaderboardPage"));
 const CalendarPage = lazy(() => import("./pages/app/CalendarPage"));
 const MyTeamPage = lazy(() => import("./pages/app/MyTeamPage"));
-const MembersPage = lazy(() => import("./pages/app/MembersPage"));
 const ProfilePage = lazy(() => import("./pages/app/ProfilePage"));
 const InterviewsPage = lazy(() => import("./pages/app/InterviewsPage"));
 const Interview1Page = lazy(() => import("./pages/app/Interview1Page"));
@@ -56,7 +55,6 @@ const LinksPage = lazy(() => import("./pages/app/LinksPage"));
 const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
 const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
 const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
-const ManagePage = lazy(() => import("./pages/app/ManagePage"));
 const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
 const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
 const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
@@ -256,12 +254,8 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Members Directory (Manager only) */}
-              <Route path="/app/members" element={
-                <ProtectedRoute requiredRole="manager">
-                  <MembersPage />
-                </ProtectedRoute>
-              } />
+              {/* Members directory now lives as a tab inside Team */}
+              <Route path="/app/members" element={<Navigate to="/app/team?tab=members" replace />} />
 
              {/* Profile */}
               <Route path="/app/profile" element={
@@ -372,19 +366,14 @@ function LazyFallback() {
                <Route path="/app/operations" element={<Navigate to="/app/calendar" replace />} />
 
               {/* Manage Hub (replaces Analytics) */}
-              <Route path="/app/manage" element={
-                <ProtectedRoute>
-                  <BootcampGate>
-                    <ManagePage />
-                  </BootcampGate>
-                </ProtectedRoute>
-              } />
+              {/* Manage hub dissolved — everything lives in the sidebar now */}
+              <Route path="/app/manage" element={<Navigate to="/app" replace />} />
               {/* Legacy recruit pipeline routes now point at the unified leads funnel */}
               <Route path="/app/spreadsheets" element={<Navigate to="/app/recruits" replace />} />
               <Route path="/app/recruit-pipeline" element={<Navigate to="/app/recruits" replace />} />
               <Route path="/app/recruiting" element={<Navigate to="/app/recruits" replace />} />
               {/* Redirect old analytics route */}
-              <Route path="/app/analytics" element={<Navigate to="/app/manage" replace />} />
+              <Route path="/app/analytics" element={<Navigate to="/app" replace />} />
 
               {/* Estimate My Earnings */}
               <Route path="/app/estimate-earnings" element={
