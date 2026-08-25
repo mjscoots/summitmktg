@@ -132,7 +132,7 @@ export function PayLadderTrack({
             isCurrent
               ? 'border-primary bg-primary/10'
               : isNext
-              ? 'border-border-strong bg-secondary/40'
+              ? 'border-primary/40 bg-secondary/40'
               : 'border-border bg-transparent'
           );
           return onTierSelect ? (
