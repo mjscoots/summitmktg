@@ -8,6 +8,8 @@ import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
+import RegionPace from "@/components/command/RegionPace";
+import SessionPrep from "@/components/command/SessionPrep";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
