@@ -1,0 +1,14 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.ranks TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.carriers TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.rank_stacks TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.rank_requirements TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.fiber_installs TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.partners TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.regions TO authenticated;
+GRANT ALL ON public.ranks TO service_role;
+GRANT ALL ON public.carriers TO service_role;
+GRANT ALL ON public.rank_stacks TO service_role;
+GRANT ALL ON public.rank_requirements TO service_role;
+GRANT ALL ON public.fiber_installs TO service_role;
+GRANT ALL ON public.partners TO service_role;
+GRANT ALL ON public.regions TO service_role;
