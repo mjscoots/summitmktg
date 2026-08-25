@@ -49,7 +49,8 @@ export function PracticePitchCard() {
       {open && (
         <PitchRecordingModal
           open={open}
-          onOpenChange={setOpen}
+          onClose={() => setOpen(false)}
+
           lessonId={null}
           lessonTitle="Practice pitch"
           attemptNumber={attempts + 1}
