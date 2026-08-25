@@ -304,6 +304,10 @@ export default function MyTeamPage() {
           </div>
         </header>
 
+        {isManagerRole && <RosterGapCounters />}
+
+
+
         {isManagerRole && finishingSoon.length > 0 && (
           <section className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 backdrop-blur-sm">
             <p className="micro-label mb-2 !text-amber-400">Finishing soon — next 14 days</p>
