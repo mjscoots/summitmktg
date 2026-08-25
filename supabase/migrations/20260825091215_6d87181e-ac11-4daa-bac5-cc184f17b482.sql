@@ -1,0 +1,11 @@
+REVOKE ALL ON FUNCTION public.audit_user_roles() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.audit_profiles() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.audit_recruiting_leads() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.get_audit_log(text,text,integer,integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.set_roster_state(uuid,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_incomplete_profiles() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_season_hub() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_audit_log(text,text,integer,integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.set_roster_state(uuid,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_incomplete_profiles() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_season_hub() TO authenticated;
