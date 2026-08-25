@@ -534,6 +534,24 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_job_tokens: {
+        Row: {
+          created_at: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       backup_snapshots: {
         Row: {
           created_at: string
