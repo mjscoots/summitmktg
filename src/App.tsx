@@ -61,6 +61,8 @@ const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
 const ManagerMeetingPage = lazy(() => import("./pages/app/ManagerMeetingPage"));
 const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
+const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
+const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 
 function LazyFallback() {
   return (
