@@ -22,6 +22,7 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
 import { EarningsWidget } from '@/components/dashboard/EarningsWidget';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
+import { CountUp } from '@/components/shared/CountUp';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gift, Zap, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -216,17 +217,17 @@ export default function DashboardPage() {
             {pointsData && (
               <div className="relative z-10 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                 {[
-                  { icon: Flame, value: `${dailyPointsEarned}`, label: 'Pts today' },
-                  { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'Training' },
-                  { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'Rank' },
-                  { icon: TrendingUp, value: `${pointsData.currentStreak}`, label: 'Streak' },
-                ].map(({ icon: Icon, value, label }) => (
+                  { icon: Flame, node: <CountUp value={dailyPointsEarned} />, label: 'Pts today' },
+                  { icon: Clock, node: <CountUp value={hoursToday} decimals={1} suffix="h" />, label: 'Training' },
+                  { icon: Trophy, node: leaderboardRank ? <CountUp value={leaderboardRank} prefix="#" /> : <span className="stat-num">—</span>, label: 'Rank' },
+                  { icon: TrendingUp, node: <CountUp value={pointsData.currentStreak} />, label: 'Streak' },
+                ].map(({ icon: Icon, node, label }) => (
                   <div key={label} className="stat-card">
                     <div className="relative z-10 flex items-center gap-2">
                       <Icon className="h-3.5 w-3.5 text-primary" />
                       <span className="micro-label">{label}</span>
                     </div>
-                    <p className="stat-value relative z-10 mt-2 tabular-nums">{value}</p>
+                    <p className="stat-value relative z-10 mt-2">{node}</p>
                   </div>
                 ))}
               </div>
