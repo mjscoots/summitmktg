@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Download, Loader2, Printer } from 'lucide-react';
+import { Copy, Download, Loader2, Printer } from 'lucide-react';
 import { departureLabel } from '@/components/admin/DepartureIntakeDialog';
 
 const COLORS = {
