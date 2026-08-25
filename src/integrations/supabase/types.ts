@@ -701,6 +701,9 @@ export type Database = {
           created_at: string | null
           event_id: string
           id: string
+          marked_at: string | null
+          marked_by: string | null
+          present: boolean | null
           status: string
           updated_at: string | null
           user_id: string
@@ -709,6 +712,9 @@ export type Database = {
           created_at?: string | null
           event_id: string
           id?: string
+          marked_at?: string | null
+          marked_by?: string | null
+          present?: boolean | null
           status: string
           updated_at?: string | null
           user_id: string
@@ -717,6 +723,9 @@ export type Database = {
           created_at?: string | null
           event_id?: string
           id?: string
+          marked_at?: string | null
+          marked_by?: string | null
+          present?: boolean | null
           status?: string
           updated_at?: string | null
           user_id?: string
@@ -767,6 +776,7 @@ export type Database = {
           description: string | null
           end_date: string | null
           event_date: string
+          event_kind: string
           event_type: string | null
           id: string
           is_team_wide: boolean | null
@@ -779,6 +789,7 @@ export type Database = {
           recurrence_end_date: string | null
           recurrence_interval: number | null
           recurrence_type: string | null
+          scope: string
           target_role: Database["public"]["Enums"]["app_role"] | null
           team_id: string | null
           timezone: string | null
@@ -791,6 +802,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           event_date: string
+          event_kind?: string
           event_type?: string | null
           id?: string
           is_team_wide?: boolean | null
@@ -803,6 +815,7 @@ export type Database = {
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
           recurrence_type?: string | null
+          scope?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
           timezone?: string | null
@@ -815,6 +828,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           event_date?: string
+          event_kind?: string
           event_type?: string | null
           id?: string
           is_team_wide?: boolean | null
@@ -827,6 +841,7 @@ export type Database = {
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
           recurrence_type?: string | null
+          scope?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
           timezone?: string | null
@@ -4148,6 +4163,10 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      can_view_event: {
+        Args: { p_scope: string; p_team_id: string; p_user_id: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           p_key: string
@@ -4171,6 +4190,7 @@ export type Database = {
         Returns: Json
       }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
+      expand_event_series: { Args: { p_weeks?: number }; Returns: number }
       finalize_season: { Args: { _season_id: string }; Returns: undefined }
       generate_weekly_report: { Args: never; Returns: Json }
       get_all_time_leaderboard: {
@@ -4201,6 +4221,15 @@ export type Database = {
         }[]
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
+      get_attendance_summary: {
+        Args: { p_user_id?: string }
+        Returns: {
+          expected: number
+          missed_streak: number
+          pct: number
+          present: number
+        }[]
+      }
       get_audit_log: {
         Args: {
           _action?: string
@@ -4290,6 +4319,35 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_event_checkin: {
+        Args: { p_event_id: string }
+        Returns: {
+          full_name: string
+          present: boolean
+          rsvp: string
+          team_name: string
+          user_id: string
+        }[]
+      }
+      get_events_feed: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          created_by: string
+          description: string
+          event_date: string
+          event_kind: string
+          going_count: number
+          id: string
+          is_series: boolean
+          location: string
+          my_rsvp: string
+          present_count: number
+          scope: string
+          team_id: string
+          team_name: string
+          title: string
+        }[]
+      }
       get_global_leaderboard:
         | {
             Args: { _limit?: number; _view_role?: string }
@@ -4370,6 +4428,13 @@ export type Database = {
           id: string
           interest_reason: string
           ref_code: string
+        }[]
+      }
+      get_missed_meeting_flags: {
+        Args: never
+        Returns: {
+          missed_streak: number
+          user_id: string
         }[]
       }
       get_my_leads: {
@@ -4538,6 +4603,10 @@ export type Database = {
         Args: { _all?: boolean; _channel: string }
         Returns: Json
       }
+      mark_event_present: {
+        Args: { p_event_id: string; p_present: boolean; p_user_id: string }
+        Returns: undefined
+      }
       mark_inactive_users: { Args: never; Returns: undefined }
       my_signed_count: { Args: never; Returns: number }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
@@ -4546,6 +4615,7 @@ export type Database = {
         Returns: number
       }
       notify_due_action_items: { Args: never; Returns: number }
+      notify_event_reminders: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
       post_weekly_awards: { Args: never; Returns: Json }
       recalculate_all_time_points: { Args: never; Returns: undefined }
@@ -4559,6 +4629,10 @@ export type Database = {
       }
       release_stale_leads: { Args: never; Returns: number }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
+      rsvp_event: {
+        Args: { p_event_id: string; p_status: string }
+        Returns: undefined
+      }
       run_notification_digest: { Args: never; Returns: number }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
