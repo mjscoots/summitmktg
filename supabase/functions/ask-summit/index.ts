@@ -110,7 +110,7 @@ async function buildContext(admin: any, userId: string) {
   // Announcements (published + unexpired)
   const annLines = (announcements.data ?? [])
     .filter((a: any) => !a.expires_at || new Date(a.expires_at) > now)
-    .map((a: any) => `- ${a.title}: ${String(a.content ?? "").slice(0, 400)}`);
+    .map((a: any) => `- ${a.title}: ${String(a.body ?? "").replace(/<[^>]+>/g, " ").slice(0, 400)}`);
   parts.push(`CURRENT ANNOUNCEMENTS:\n${annLines.join("\n") || "- none"}`);
 
   // Training
