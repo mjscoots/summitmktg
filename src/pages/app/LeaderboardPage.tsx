@@ -97,7 +97,10 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
+          <WeekPaceStrip />
+
           {/* Filter Tabs — pill style */}
+
           <div className="grid grid-cols-2 gap-2 mb-4 sm:flex">
             {TABS.map((tab) => {
               const Icon = tab.icon;
