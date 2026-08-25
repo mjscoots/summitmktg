@@ -37,7 +37,9 @@ const SETTING_KEYS = [
   { key: 'recruiting_content_hero_video_url', label: 'Hero video URL (YouTube / Vimeo)', hint: 'https://...' },
   { key: 'public_counter_min_reps', label: 'Hide "active reps" below', hint: '10' },
   { key: 'public_counter_min_signs', label: 'Hide "signed this season" below', hint: '5' },
-  { key: 'calc_avg_contract_value', label: 'Calculator: avg annual contract value ($)', hint: '550' },
+  { key: 'calc_avg_contract_value', label: 'Calculator: avg annual contract value ($)', hint: 'Not set' },
+  { key: 'calc_default_accounts_per_week', label: 'Calculator: default accounts per week', hint: '5' },
+  { key: 'calc_default_weeks', label: 'Calculator: default weeks worked', hint: '14' },
 ];
 
 export default function AdminRecruitingContent() {

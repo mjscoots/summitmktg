@@ -1,10 +1,10 @@
 # Summit Marketing
 
-> Door-to-door sales training and recruiting. Elite systems for rookies and veterans to build real income.
+> Sales recruiting and training in pest control, fiber internet, and life insurance, for rookies and veterans.
 
 ## Pages
 
-- [Home](/): Overview of Summit Marketing, earnings calculators for rookies and veterans, and how to get started.
+- [Home](/): Overview of Summit Marketing, earnings calculator for rookies and veterans, and how to get started.
 - [Recruiting](/recruiting): Who we recruit, what the role looks like, and how to apply.
-- [Rookie Application](/apply/rookie): Apply as a first-time door-to-door sales rep.
+- [Rookie Application](/apply/rookie): Apply as a first-time sales rep.
 - [Veteran Application](/apply/veteran): Apply as an experienced sales professional.

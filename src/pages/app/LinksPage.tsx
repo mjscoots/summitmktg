@@ -16,7 +16,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { SortableLinkCard } from '@/components/links/SortableLinkCard';
 import { cn } from '@/lib/utils';
-import RookieCalculator from '@/components/RookieCalculator';
+import EarningsCalculator from '@/components/EarningsCalculator';
 import VetCalculator from '@/components/VetCalculator';
 
 
@@ -769,7 +769,7 @@ export default function LinksPage() {
                 </button>
               </div>
             </div>
-            {calcTab === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
+            {calcTab === 'rookie' ? <EarningsCalculator lockScale="rookie" /> : <VetCalculator />}
           </div>
         )}
 
