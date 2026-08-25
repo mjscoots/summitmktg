@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ExternalLink, FileText, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
@@ -77,37 +78,22 @@ export default function FormsPage() {
       <main className="relative max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <PageBackButton to="/app" label="Home" />
 
-        {/* ── Hero Header ── */}
-        <div className="flex items-start justify-between mb-12">
-          <div className="flex items-start gap-4">
-            {/* Icon badge */}
-            <div className="relative mt-0.5">
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-orange-500/30 to-amber-400/20 blur-xl" />
-              <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/25 to-amber-500/15 border border-orange-400/20 flex items-center justify-center shadow-[0_0_24px_-6px_rgba(249,115,22,0.35)]">
-                <FileText className="w-5.5 h-5.5 text-primary" />
-              </div>
-            </div>
-            {/* Title block */}
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">
-                Forms
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5">
-                Interview forms and weekly check-ins
-              </p>
-            </div>
-          </div>
-
-          <a
-            href="https://www.gethawx.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-white/[0.06] rounded-xl hover:border-white/10 hover:bg-white/[0.03] transition-all duration-200 backdrop-blur-sm"
-          >
-            <span>Hawx Admin</span>
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        </div>
+        <PageHeader
+          title="Forms"
+          context="Interview forms and weekly check-ins."
+          action={
+            <a
+              href="https://www.gethawx.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden min-h-11 items-center gap-2 rounded border border-border px-4 text-sm font-medium text-muted-foreground hover:text-foreground sm:flex"
+            >
+              <span>Hawx admin</span>
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          }
+          className="mb-8"
+        />
 
         {/* ── Section Toggle Tabs ── */}
         <div className="relative mb-8 sm:mb-10">

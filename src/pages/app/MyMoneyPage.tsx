@@ -22,8 +22,9 @@ import { MySpreadSection } from '@/components/money/MySpreadSection';
 import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
 import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
+import { PageHeader } from '@/components/layout/PageHeader';
 
-const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
+const CARD = 'rounded border border-border bg-card';
 
 interface CommissionRow {
   pay_scale: string;
@@ -104,12 +105,10 @@ export default function MyMoneyPage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <header>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">My Money</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Your pay scale, season earnings, and housing. Set by your manager.
-          </p>
-        </header>
+        <PageHeader
+          title="My money"
+          context="Your pay scale, season earnings, and housing. Set by your manager."
+        />
 
         <VerticalMoneyCards
           renderExtra={(vertical) =>
