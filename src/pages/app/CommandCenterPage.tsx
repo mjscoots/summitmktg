@@ -11,6 +11,7 @@ import RegionSheet from "@/components/command/RegionSheet";
 import RosterGapCounters from "@/components/roster/RosterGapCounters";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
+import LeadersSection from "@/components/command/LeadersSection";
 import PairingsPanel from "@/components/command/PairingsPanel";
 import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
 import StackView from "@/components/command/StackView";
@@ -532,6 +533,13 @@ export default function CommandCenterPage() {
         <div style={{ marginBottom: 40 }}>
           <SessionPrep />
         </div>
+
+        {/* LEADERS */}
+        <SectionHeader title="Leaders" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <LeadersSection />
+        </div>
+
 
         {/* PAIRINGS */}
         <SectionHeader title="Pairings" tag="Owner" />

@@ -2880,6 +2880,7 @@ export type Database = {
           last_contact_at: string | null
           last_sale_date: string | null
           notes: string | null
+          outreach_task_id: string | null
           partner_id: string | null
           phone: string | null
           priority: boolean
@@ -2907,6 +2908,7 @@ export type Database = {
           last_contact_at?: string | null
           last_sale_date?: string | null
           notes?: string | null
+          outreach_task_id?: string | null
           partner_id?: string | null
           phone?: string | null
           priority?: boolean
@@ -2934,6 +2936,7 @@ export type Database = {
           last_contact_at?: string | null
           last_sale_date?: string | null
           notes?: string | null
+          outreach_task_id?: string | null
           partner_id?: string | null
           phone?: string | null
           priority?: boolean
@@ -3384,6 +3387,74 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vertical_paths"
             referencedColumns: ["vertical"]
+          },
+        ]
+      }
+      revenue_import_batches: {
+        Row: {
+          committed_at: string | null
+          committed_rows: Json | null
+          created_at: string
+          created_by: string
+          extracted: Json
+          id: string
+          note: string | null
+          period_label: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          committed_at?: string | null
+          committed_rows?: Json | null
+          created_at?: string
+          created_by: string
+          extracted?: Json
+          id?: string
+          note?: string | null
+          period_label?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          committed_at?: string | null
+          committed_rows?: Json | null
+          created_at?: string
+          created_by?: string
+          extracted?: Json
+          id?: string
+          note?: string | null
+          period_label?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      revenue_import_images: {
+        Row: {
+          batch_id: string
+          created_at: string
+          id: string
+          storage_path: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          id?: string
+          storage_path: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_import_images_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_import_batches"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -4996,6 +5067,7 @@ export type Database = {
         }
         Returns: Json
       }
+      add_under_led_outreach: { Args: { _lead_id: string }; Returns: Json }
       admin_assign_lead: {
         Args: { _lead_id: string; _user_id: string }
         Returns: Json
@@ -5030,6 +5102,10 @@ export type Database = {
       }
       admin_set_vertical_lead: {
         Args: { _is_lead: boolean; _user_id: string; _vertical: string }
+        Returns: Json
+      }
+      apply_leaderboard_import: {
+        Args: { _batch_id: string; _rows: Json }
         Returns: Json
       }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
@@ -5385,6 +5461,11 @@ export type Database = {
           ref_code: string
         }[]
       }
+      get_leader_scorecard: {
+        Args: { _office?: string; _season_id?: string; _user_id: string }
+        Returns: Json
+      }
+      get_leaders_list: { Args: never; Returns: Json }
       get_missed_meeting_flags: {
         Args: never
         Returns: {
@@ -5556,6 +5637,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_under_led: {
+        Args: { _max_weeks?: number; _min_revenue?: number }
+        Returns: Json
+      }
       get_user_downline: {
         Args: { _manager_name: string }
         Returns: {
@@ -5612,10 +5697,12 @@ export type Database = {
         Returns: undefined
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      match_leaderboard_rows: { Args: { _rows: Json }; Returns: Json }
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
       my_signed_count: { Args: never; Returns: number }
+      norm_person_name: { Args: { _t: string }; Returns: string }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
       notify_chat_mentions: {
         Args: { _message_id: string; _user_ids: string[] }

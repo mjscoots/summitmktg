@@ -12,6 +12,8 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { Link } from 'react-router-dom';
 import { WinbackGoldImport } from '@/components/recruiting/WinbackGoldImport';
 import { isManagerOrAbove } from '@/lib/roles';
+import { UnderLedView } from '@/components/recruiting/UnderLedView';
+import { useSearchParams } from 'react-router-dom';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 const RECENT_DAYS = 14;
@@ -121,6 +123,14 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
   const [busy, setBusy] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [sort, setSort] = useState<SortMode>('default');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const savedView = searchParams.get('view') === 'under-led' ? 'under-led' : 'pool';
+  const setSavedView = (v: 'pool' | 'under-led') => {
+    const next = new URLSearchParams(searchParams);
+    if (v === 'under-led') next.set('view', 'under-led');
+    else next.delete('view');
+    setSearchParams(next, { replace: true });
+  };
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -200,6 +210,37 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
     arr.sort((a, b) => Number(!!b.priority) - Number(!!a.priority));
     return arr;
   };
+
+  const viewSwitch = canFlag ? (
+    <div className="mb-3 flex flex-wrap gap-1.5">
+      {([
+        { id: 'pool', label: 'Win-back board' },
+        { id: 'under-led', label: 'Under-led' },
+      ] as const).map((v) => (
+        <button
+          key={v.id}
+          onClick={() => setSavedView(v.id)}
+          className={cn(
+            'micro-label min-h-9 rounded-full border px-3 transition-colors',
+            savedView === v.id
+              ? 'border-primary/25 bg-primary/10 !text-primary'
+              : 'border-border/50 hover:border-border/80 hover:text-foreground'
+          )}
+        >
+          {v.label}
+        </button>
+      ))}
+    </div>
+  ) : null;
+
+  if (canFlag && savedView === 'under-led') {
+    return (
+      <div>
+        {viewSwitch}
+        <UnderLedView />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -316,7 +357,9 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
   return (
     <div className="space-y-6">
+      {viewSwitch}
       {isAdmin && <WinbackGoldImport onApplied={load} />}
+
 
       {/* Returning */}
       {feed.returning.length > 0 && (
