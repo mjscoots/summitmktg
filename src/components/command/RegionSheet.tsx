@@ -286,11 +286,18 @@ export default function RegionSheet() {
         </select>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           <button
+            onClick={copyText}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}
+          >
+            <Copy className="w-3.5 h-3.5" /> {copied ? 'Copied' : 'Copy as text'}
+          </button>
+          <button
             onClick={exportCsv}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}
           >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </button>
+
           <button
             onClick={() => window.print()}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: `1px solid ${COLORS.border}`, color: COLORS.text, borderRadius: 8, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}
