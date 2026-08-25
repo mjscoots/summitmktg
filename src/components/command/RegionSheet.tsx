@@ -33,7 +33,25 @@ interface SheetRow {
   departure_reason: string | null;
   last_day_worked: string | null;
   revenue_to_date: number | null;
+  committed_last_day?: string | null;
+  next_year_status?: string | null;
+  showed_up_date?: string | null;
+  revenue_total?: number | null;
+  months_active?: number | null;
+  last_revenue_month?: string | null;
   re_signed?: boolean | string | null;
+}
+
+interface FunnelLine {
+  label: string;
+  recruited: number;
+  showed_up: number;
+  still_here: number;
+  fell_off: number;
+  fired: number;
+  quit: number;
+  home_early: number;
+  unknown: number;
 }
 
 interface Sheet {
@@ -47,6 +65,7 @@ interface Sheet {
   };
   funnel: {
     ever_on_roster: number;
+    recruited?: number;
     showed_up: number;
     still_active: number;
     departed: number;
@@ -55,8 +74,11 @@ interface Sheet {
     home_early: number;
     unknown: number;
   };
+  funnel_by_office?: FunnelLine[];
+  funnel_by_leader?: FunnelLine[];
   rows: SheetRow[];
 }
+
 
 const blank = (v: unknown): string => {
   if (v === null || v === undefined) return '';
