@@ -2565,6 +2565,39 @@ export type Database = {
           },
         ]
       }
+      public_calc_chips: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          label: string | null
+          updated_at: string
+          value: number
+          vertical: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          updated_at?: string
+          value: number
+          vertical: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          updated_at?: string
+          value?: number
+          vertical?: string
+        }
+        Relationships: []
+      }
       public_counter_cache: {
         Row: {
           active_reps: number
@@ -2583,6 +2616,74 @@ export type Database = {
           id?: boolean
           refreshed_at?: string
           signed_season?: number
+        }
+        Relationships: []
+      }
+      public_pay_bands: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          max_revenue: number | null
+          min_revenue: number
+          rate: number
+          scale_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          max_revenue?: number | null
+          min_revenue: number
+          rate: number
+          scale_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          max_revenue?: number | null
+          min_revenue?: number
+          rate?: number
+          scale_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_pay_bands_scale_id_fkey"
+            columns: ["scale_id"]
+            isOneToOne: false
+            referencedRelation: "public_pay_scales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_pay_scales: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          key: string
+          label: string
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key: string
+          label: string
+          updated_at?: string
+          vertical?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          label?: string
+          updated_at?: string
+          vertical?: string
         }
         Relationships: []
       }
@@ -4554,6 +4655,8 @@ export type Database = {
           display_order: number
           is_configured: boolean
           label: string
+          public_how_it_works: string[] | null
+          public_note: string | null
           updated_at: string
           vertical: string
         }
@@ -4563,6 +4666,8 @@ export type Database = {
           display_order?: number
           is_configured?: boolean
           label: string
+          public_how_it_works?: string[] | null
+          public_note?: string | null
           updated_at?: string
           vertical: string
         }
@@ -4572,6 +4677,8 @@ export type Database = {
           display_order?: number
           is_configured?: boolean
           label?: string
+          public_how_it_works?: string[] | null
+          public_note?: string | null
           updated_at?: string
           vertical?: string
         }
@@ -4671,6 +4778,63 @@ export type Database = {
             referencedColumns: ["vertical"]
           },
         ]
+      }
+      vet_leads: {
+        Row: {
+          best_time_to_call: string | null
+          bid_requested: boolean
+          created_at: string
+          current_company: string | null
+          email: string
+          full_name: string
+          id: string
+          last_season_active_revenue: number | null
+          markets: string | null
+          notes: string | null
+          phone: string
+          source_code: string | null
+          source_type: string | null
+          status: string
+          updated_at: string
+          years_d2d: string | null
+        }
+        Insert: {
+          best_time_to_call?: string | null
+          bid_requested?: boolean
+          created_at?: string
+          current_company?: string | null
+          email: string
+          full_name: string
+          id?: string
+          last_season_active_revenue?: number | null
+          markets?: string | null
+          notes?: string | null
+          phone: string
+          source_code?: string | null
+          source_type?: string | null
+          status?: string
+          updated_at?: string
+          years_d2d?: string | null
+        }
+        Update: {
+          best_time_to_call?: string | null
+          bid_requested?: boolean
+          created_at?: string
+          current_company?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          last_season_active_revenue?: number | null
+          markets?: string | null
+          notes?: string | null
+          phone?: string
+          source_code?: string | null
+          source_type?: string | null
+          status?: string
+          updated_at?: string
+          years_d2d?: string | null
+        }
+        Relationships: []
       }
       video_bookmarks: {
         Row: {
@@ -5532,6 +5696,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_public_calc: { Args: never; Returns: Json }
       get_public_counters: { Args: never; Returns: Json }
       get_public_fiber_stacks: { Args: never; Returns: Json }
       get_public_industry: { Args: { p_vertical: string }; Returns: Json }
