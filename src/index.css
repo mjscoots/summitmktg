@@ -129,6 +129,58 @@ html, body, #root {
     --background: 216 30% 5%;
     --foreground: 223 100% 97%;
   }
+
+  /* ━━━ GOLD WORLD — outward-facing pages only (cover, recruiting, applications) ━━━ */
+  .gold-world {
+    --background: 0 0% 2%;
+    --foreground: 40 20% 96%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 40 20% 96%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 40 20% 96%;
+
+    --primary: 46 65% 52%;
+    --primary-foreground: 0 0% 6%;
+    --accent: 46 65% 52%;
+    --accent-foreground: 0 0% 6%;
+    --ring: 46 65% 52%;
+
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 40 20% 96%;
+    --muted: 0 0% 9%;
+    --muted-foreground: 42 8% 62%;
+
+    --success: 46 65% 52%;
+    --success-foreground: 0 0% 6%;
+
+    --border: 45 18% 14%;
+    --input: 0 0% 6%;
+
+    --surface: 0 0% 5%;
+    --surface-elevated: 0 0% 8%;
+    --surface-sunken: 0 0% 3%;
+    --border-subtle: 45 14% 11%;
+    --border-strong: 45 20% 22%;
+
+    --text-primary: 40 20% 96%;
+    --text-secondary: 42 10% 76%;
+    --text-muted: 42 8% 60%;
+
+    --primary-soft: 46 65% 52% / 0.12;
+    --primary-muted: 46 45% 62%;
+    --primary-glow: 46 72% 72%;
+    --primary-deep: 42 60% 42%;
+
+    --glass-bg: 0 0% 5% / 0.6;
+    --glass-border: 45 18% 14%;
+    --glass-glow: 46 65% 52% / 0.08;
+
+    --gradient-primary: linear-gradient(135deg, hsl(46 65% 52%), hsl(46 72% 72%));
+    --gradient-gold: linear-gradient(135deg, hsl(46 65% 52%), hsl(46 72% 72%));
+    --gradient-surface: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 8%));
+  }
+
 }
 
 @layer base {
