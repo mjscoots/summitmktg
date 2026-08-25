@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogIn, ArrowRight, Mountain } from "lucide-react";
+import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 
 const RookieCalculator = lazy(() => import("@/components/RookieCalculator"));
@@ -11,7 +11,6 @@ const Index = () => {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
   const [calcMode, setCalcMode] = useState<'rookie' | 'vet'>('rookie');
-  const [stars, setStars] = useState<Array<{id: number;x: number;y: number;size: number;opacity: number;delay: number;}>>([]);
 
   // Preload logo then reveal — short timeout to avoid stuck loading screen
   useEffect(() => {
@@ -19,59 +18,43 @@ const Index = () => {
     img.src = summitLogo;
     img.onload = () => setReady(true);
     img.onerror = () => setReady(true);
-    // If image is already cached, complete attribute is true immediately
     if (img.complete) { setReady(true); return; }
-    // Short fallback timeout
     const t = setTimeout(() => setReady(true), 1500);
     return () => clearTimeout(t);
   }, []);
 
-  // Generate stars on mount
-  useEffect(() => {
-    const generatedStars = Array.from({ length: 80 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.6 + 0.2,
-      delay: Math.random() * 3
-    }));
-    setStars(generatedStars);
-  }, []);
+  const scrollToEarnings = () => {
+    document.getElementById('earnings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[hsl(220,30%,8%)] via-background to-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 animate-pulse">
-          <Mountain className="w-10 h-10 text-primary" />
-          <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Loading...</span>
-        </div>
+      <div className="gold-world min-h-screen bg-background flex items-center justify-center">
+        <span className="micro-label animate-pulse text-muted-foreground">Loading</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[hsl(220,30%,8%)] via-background to-background flex flex-col relative overflow-hidden">
-      {/* Starry background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {stars.map((star) =>
+    <div className="gold-world min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Calm premium background — deep near-black with a soft gold halo and faint texture */}
+      <div className="pointer-events-none absolute inset-0">
         <div
-          key={star.id}
-          className="absolute rounded-full bg-white animate-pulse"
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, hsl(46 65% 52% / 0.16), transparent 62%)' }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.035]"
           style={{
-            left: `${star.x}%`,
-            top: `${star.y}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            opacity: star.opacity,
-            animationDelay: `${star.delay}s`,
-            animationDuration: '3s'
-          }} />
-
-        )}
-        {/* Deep blue nebula accent */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/8 rounded-full blur-3xl" />
+            backgroundImage:
+              'radial-gradient(hsl(46 40% 80%) 0.5px, transparent 0.5px)',
+            backgroundSize: '3px 3px',
+          }}
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 h-1/2"
+          style={{ background: 'linear-gradient(to top, hsl(0 0% 0% / 0.7), transparent)' }}
+        />
       </div>
 
       {/* Top accent line */}
@@ -82,151 +65,103 @@ const Index = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors">
-
-            <Mountain className="w-5 h-5 text-primary" />
-            <span className="text-lg font-black tracking-tight uppercase" style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}>
-              Summit
-            </span>
+            aria-label="Summit Marketing home"
+            className="flex items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
+            <img src={summitLogo} alt="" className="h-6 w-auto" />
+            <span className="text-lg font-black tracking-tight uppercase">Summit</span>
           </button>
-          
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/recruiting")}
-              className="hidden sm:block text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
 
-              Learn More
-            </button>
-            <button
-              onClick={() => navigate("/login")}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-black text-foreground hover:text-primary border-2 border-primary/80 hover:border-primary rounded transition-all uppercase tracking-wider">
-
-              <LogIn className="w-4 h-4" />
-              Log In
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/login")}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary">
+            <LogIn className="w-4 h-4" />
+            Log in
+          </button>
         </div>
       </nav>
 
       {/* Main content */}
       <main className="flex-1 flex flex-col">
-      {/* Hero Section */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
-          {/* Logo */}
-          <div className="mb-6 relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-56 md:w-72 h-28 md:h-36 bg-primary/25 blur-3xl rounded-full" />
+        {/* Hero */}
+        <div className="flex-1 flex items-center justify-center px-6 py-16">
+          <div className="relative z-10 max-w-2xl mx-auto text-center">
+            <div className="mb-8 relative">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-56 md:w-72 h-28 md:h-36 bg-primary/20 blur-3xl rounded-full" />
+              </div>
+              <img
+                src={summitLogo}
+                alt="Summit Marketing"
+                className="w-64 md:w-80 mx-auto relative z-10"
+                style={{ filter: 'drop-shadow(0 0 20px hsl(46 65% 52% / 0.28))' }}
+                loading="eager"
+                fetchPriority="high" />
             </div>
-            <img
-              src={summitLogo}
-              alt="Summit Marketing"
-              className="w-72 md:w-96 mx-auto relative z-10"
-              style={{
-                filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.5)) drop-shadow(0 0 2px rgba(255,255,255,0.3)) drop-shadow(0 0 8px rgba(255,255,255,0.4)) drop-shadow(0 0 20px hsl(216, 80%, 45%, 0.35)) drop-shadow(0 0 40px hsl(216, 80%, 45%, 0.15))'
-              }}
-              loading="eager"
-              fetchPriority="high" />
 
-          </div>
-
-          {/* Main Heading */}
-          <div className="mb-10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <h1
-              className="text-4xl md:text-5xl font-black text-foreground mb-4 uppercase tracking-tight"
-              style={{
-                textShadow: '0 0 30px hsl(216, 80%, 45%, 0.4), 0 0 60px hsl(216, 80%, 45%, 0.2)',
-                letterSpacing: '-0.02em'
-              }}>
-
-              Summit Marketing — Elite Sales Training & Recruiting
+              className="mb-4 text-4xl md:text-6xl font-black uppercase tracking-tight text-foreground"
+              style={{ letterSpacing: '-0.02em' }}>
+              Summit Marketing
             </h1>
-            <p className="text-muted-foreground text-lg font-medium tracking-wide">
-              Door-to-door sales. Done differently.
+            <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
+              We train door-to-door reps, put them on doors, and pay on production. See what a summer is worth.
             </p>
-          </div>
 
-          {/* Dual CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            {/* Recruiting CTA */}
-            <div className="flex-1 flex flex-col items-center gap-1">
+            <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+              <button
+                onClick={scrollToEarnings}
+                className="flex-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]">
+                See what you'd make
+                <ArrowRight className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => navigate("/recruiting")}
-                className="w-full group bg-primary py-4 px-6 text-center transition-all duration-300 rounded-xl hover:scale-[1.02] hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)] cursor-pointer">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-base font-bold text-primary-foreground uppercase tracking-wide">
-                    Learn More
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-primary-foreground" />
-                </div>
+                className="flex-1 inline-flex min-h-12 items-center justify-center rounded-xl border border-primary/60 px-6 text-sm font-bold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary">
+                Apply
               </button>
-              <span className="text-xs text-muted-foreground font-medium">New to Summit?</span>
-            </div>
-            
-            {/* Member Login CTA */}
-            <div className="flex-1 flex flex-col items-center gap-1">
-              <button
-                onClick={() => navigate("/login")}
-                className="w-full group bg-primary/10 backdrop-blur-sm py-4 px-6 text-center transition-all duration-300 border-2 border-primary rounded-xl hover:bg-primary hover:scale-[1.02] cursor-pointer">
-                <div className="flex items-center justify-center gap-2">
-                  <User className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
-                  <span className="text-base font-bold text-foreground group-hover:text-primary-foreground uppercase tracking-wide transition-colors whitespace-nowrap">
-                    Member Login
-                  </span>
-                </div>
-              </button>
-              <span className="text-xs text-muted-foreground font-medium">Sign In / Sign Up</span>
             </div>
           </div>
-          
-          
-
-
-
-
-
         </div>
-      </div>
 
-      {/* Calculators */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 space-y-8">
-        <div className="text-center mb-4">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
-            Estimate Your Earnings
+        {/* Calculators */}
+        <div id="earnings" className="relative z-10 max-w-4xl mx-auto w-full px-6 py-16 space-y-8 scroll-mt-8">
+          <div className="text-center mb-4">
+            <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
+              Estimate Your Earnings
+            </h2>
+            <p className="text-muted-foreground text-sm mb-6">See what you could make this summer.</p>
+            <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1 backdrop-blur-sm">
+              {(['rookie', 'vet'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setCalcMode(mode)}
+                  className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all duration-180 ${calcMode === mode ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  {mode === 'rookie' ? 'Rookie' : 'Veteran'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
+            {calcMode === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
+          </Suspense>
+        </div>
+
+        {/* Apply CTA */}
+        <div className="relative z-10 text-center py-16 px-6">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-3">
+            Ready to Start?
           </h2>
-          <p className="text-muted-foreground text-sm mb-6">See what you could make this summer.</p>
-          <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1 backdrop-blur-sm">
-            {(['rookie', 'vet'] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setCalcMode(mode)}
-                className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all duration-180 ${calcMode === mode ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                {mode === 'rookie' ? 'Rookie' : 'Veteran'}
-              </button>
-            ))}
-          </div>
+          <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+            Applications take a few minutes. Rookie and veteran paths both open.
+          </p>
+          <button
+            onClick={() => navigate("/apply")}
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]"
+          >
+            Apply Now <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-        <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
-          {calcMode === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
-        </Suspense>
-      </div>
-
-      {/* Apply Now CTA */}
-      <div className="relative z-10 text-center py-16 px-6">
-        <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-3">
-          Ready to Start?
-        </h2>
-        <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-          Join Summit Marketing and start building your career in door-to-door sales.
-        </p>
-        <button
-          onClick={() => navigate("/apply")}
-          className="inline-flex items-center gap-2 bg-primary hover:scale-[1.02] transition-all px-8 py-4 rounded-xl text-primary-foreground font-black uppercase tracking-wider text-base hover:shadow-[0_8px_40px_-8px_hsl(216,80%,45%,0.7)]"
-        >
-          Apply Now <ArrowRight className="w-5 h-5" />
-        </button>
-      </div>
       </main>
 
       {/* Divider */}
@@ -259,11 +194,10 @@ const Index = () => {
           </div>
         </div>
       </footer>
-      
+
       {/* Bottom accent line */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
     </div>);
-
 };
 
 export default Index;
