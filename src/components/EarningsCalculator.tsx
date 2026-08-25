@@ -83,7 +83,9 @@ const EarningsCalculator = ({ onApplyClick, lockScale }: EarningsCalculatorProps
           <div>
             <h3 className="text-lg font-bold text-foreground">Earnings Calculator</h3>
             <p className="text-sm text-muted-foreground">
-              Accounts per week, weeks worked, and what the pay scale does with it
+              {industry === "pest"
+                ? "Accounts per week, weeks worked, and what the pay scale does with it"
+                : "Installs per week, weeks worked, and what the carrier pays per install"}
             </p>
           </div>
         </div>
