@@ -51,6 +51,7 @@ export function AdminQueueTab() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('oldest');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const staleItems = useMemo(() => items.filter(isStale), [items]);
 
@@ -245,7 +246,7 @@ export function AdminQueueTab() {
           </button>
 
           <div className="divide-y divide-white/[0.04]">
-            {visible.map((item) => (
+            {visible.slice(0, visibleCount).map((item) => (
               <QueueRow
                 key={item.key}
                 item={item}
@@ -254,6 +255,20 @@ export function AdminQueueTab() {
               />
             ))}
           </div>
+
+          {visible.length > visibleCount && (
+            <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] px-3 py-3">
+              <span className="text-[11px] text-muted-foreground">
+                Showing {visibleCount} of {visible.length}
+              </span>
+              <button
+                onClick={() => setVisibleCount((c) => c + 50)}
+                className="min-h-9 rounded-lg border border-white/10 px-3 text-[11px] font-semibold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                Load 50 more
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
