@@ -416,7 +416,7 @@ export default function AdminTeamPage() {
           {/* ========== DRILLS TAB ========== */}
           {isAdmin && (
             <TabsContent value="drills">
-              <Suspense fallback={<AdminTabSkeleton />}>
+              <Suspense fallback={<LoadingList rows={4} />}>
                 <LazyDrills />
               </Suspense>
             </TabsContent>

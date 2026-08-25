@@ -98,11 +98,11 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
         // Audience gating: managers see everything, veterans also see vet courses
         const { data: profileRow } = await supabase
           .from('profiles')
-          .select('experience_level')
+          .select('experience')
           .eq('user_id', user.id)
           .maybeSingle();
         const isManagerRole = role === 'manager' || role === 'admin' || role === 'owner';
-        const isVeteran = isManagerRole || profileRow?.experience_level === 'veteran';
+        const isVeteran = isManagerRole || (profileRow?.experience || '').toLowerCase() === 'veteran';
 
         let filteredCourses = (coursesData || []).filter((course) => {
           const audience = (course as { audience?: string | null }).audience || 'rookie';
