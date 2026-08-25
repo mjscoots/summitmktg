@@ -104,7 +104,7 @@ const Index = () => {
               Summit Marketing
             </h1>
             <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
-              We recruit, train, and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
+              We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
             </p>
 
             <div className="mx-auto mt-8 max-w-xl space-y-1.5 text-sm md:text-base text-muted-foreground">
