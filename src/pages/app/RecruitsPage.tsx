@@ -138,6 +138,8 @@ export default function RecruitsPage() {
   };
 
   const updateLead = async (leadId: string, status: string | null, notes: string | null) => {
+    const lead = mine.find((l) => l.id === leadId);
+    const wasSigned = lead?.status === 'Signed';
     setMine((prev) =>
       prev.map((l) =>
         l.id === leadId
@@ -153,6 +155,13 @@ export default function RecruitsPage() {
     if (error || !data?.success) {
       toast.error('Save failed');
       load();
+      return;
+    }
+    if (status === 'Signed' && !wasSigned) {
+      setWinMoment({
+        firstName: (lead?.first_name || 'Your recruit').split(' ')[0],
+        signedCount: typeof data.signed_count === 'number' ? data.signed_count : null,
+      });
     }
   };
 
