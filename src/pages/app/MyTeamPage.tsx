@@ -22,6 +22,7 @@ import { RepScorecard } from '@/components/shared/RepScorecard';
 import { RankInsignia } from '@/components/badges/RankInsignia';
 import { TriageBoard } from '@/components/team/TriageBoard';
 import { CarGroupsTab } from '@/components/team/CarGroupsTab';
+import { MyMenteesPanel } from '@/components/team/MyMenteesPanel';
 import { TeamActionItems } from '@/components/team/TeamActionItems';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
