@@ -5181,21 +5181,6 @@ export type Database = {
       }
     }
     Views: {
-      manager_directory: {
-        Row: {
-          accepting_new_reps: boolean | null
-          avatar_url: string | null
-          full_name: string | null
-          manager_intro: string | null
-          mentee_capacity: number | null
-          nickname: string | null
-          office_name: string | null
-          rank_name: string | null
-          user_id: string | null
-          vertical: string | null
-        }
-        Relationships: []
-      }
       quiz_questions_safe: {
         Row: {
           created_at: string | null
@@ -5646,6 +5631,7 @@ export type Database = {
         Returns: Json
       }
       get_leaders_list: { Args: never; Returns: Json }
+      get_manager_directory: { Args: never; Returns: Json }
       get_missed_meeting_flags: {
         Args: never
         Returns: {
