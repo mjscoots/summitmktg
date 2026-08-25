@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -105,6 +106,7 @@ export default function LinksPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [editingLink, setEditingLink] = useState<ManagedLink | null>(null);
   const [isReordering, setIsReordering] = useState(false);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<PageTab>('links');
   const [calcTab, setCalcTab] = useState<'rookie' | 'veteran'>('rookie');
 
