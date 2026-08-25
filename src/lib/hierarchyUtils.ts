@@ -809,7 +809,7 @@ export function validateHierarchy(
 export function canEditMemberStatus(
   roster: TeamMember[],
   currentUserName: string,
-  currentUserRole: 'rookie' | 'manager' | 'admin' | 'owner' | undefined,
+  currentUserRole: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | undefined,
   targetMember: TeamMember
 ): { canEdit: boolean; reason?: string } {
   // Admins can edit anyone
@@ -818,7 +818,7 @@ export function canEditMemberStatus(
   }
   
   // Rookies cannot edit anyone
-  if (currentUserRole === 'rookie' || !currentUserRole) {
+  if (currentUserRole === 'rookie' || currentUserRole === 'recruiter' || !currentUserRole) {
     return { canEdit: false, reason: 'Only managers can edit member status' };
   }
   
