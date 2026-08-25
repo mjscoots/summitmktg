@@ -45,6 +45,12 @@ const LazyRecruiting = lazy(() => import('@/components/admin/AdminRecruitingTab'
 const LazyExport = lazy(() =>
   import('@/components/admin/AdminExportTab').then((m) => ({ default: m.AdminExportTab }))
 );
+const LazyMoney = lazy(() =>
+  import('@/components/admin/AdminMoneyTab').then((m) => ({ default: m.AdminMoneyTab }))
+);
+const LazyAssistant = lazy(() =>
+  import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
+);
 
 interface TeamRow {
   id: string;
