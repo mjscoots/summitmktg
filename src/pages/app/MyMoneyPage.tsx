@@ -184,6 +184,90 @@ export default function MyMoneyPage() {
               )}
             </section>
 
+            {/* ===== MONTHLY REVENUE ===== */}
+            <section className={cn(CARD, 'p-5 sm:p-6')}>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Monthly revenue</h2>
+                  <p className="text-xs text-muted-foreground">Entered by an admin</p>
+                </div>
+              </div>
+
+              {myMonths.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No months entered yet.</p>
+              ) : (
+                <div className="rounded-xl border border-white/[0.06] overflow-hidden">
+                  {myMonths.map((m) => (
+                    <div
+                      key={m.month}
+                      className="flex items-center justify-between px-4 py-2.5 text-sm border-t border-white/[0.05] first:border-t-0"
+                    >
+                      <span className="text-muted-foreground">
+                        {new Date(m.month + 'T00:00:00').toLocaleDateString(undefined, {
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </span>
+                      <span className="tabular-nums font-semibold text-foreground">
+                        {formatCurrency(Number(m.revenue) || 0)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* ===== TEAM REVENUE (managers+) ===== */}
+            {isManagerRole && (
+              <section className={cn(CARD, 'p-5 sm:p-6')}>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-semibold text-foreground">My team's revenue</h2>
+                    <p className="text-xs text-muted-foreground">Only months that have been entered</p>
+                  </div>
+                </div>
+
+                {teamMonths.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No months entered yet.</p>
+                ) : (
+                  <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-xs text-muted-foreground">
+                          <th className="px-4 py-2 font-medium">Rep</th>
+                          <th className="px-4 py-2 font-medium">Month</th>
+                          <th className="px-4 py-2 font-medium text-right">Revenue</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {teamMonths.map((r, i) => (
+                          <tr key={i} className="border-t border-white/[0.05]">
+                            <td className="px-4 py-2 text-foreground">{r.full_name || '—'}</td>
+                            <td className="px-4 py-2 tabular-nums text-muted-foreground">
+                              {new Date(r.month + 'T00:00:00').toLocaleDateString(undefined, {
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </td>
+                            <td className="px-4 py-2 text-right tabular-nums font-semibold text-foreground">
+                              {formatCurrency(Number(r.revenue) || 0)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            )}
+
+
             {/* ===== HOUSING ===== */}
             <section className={cn(CARD, 'p-5 sm:p-6')}>
               <div className="flex items-center gap-3 mb-5">
