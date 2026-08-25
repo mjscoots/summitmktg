@@ -1102,6 +1102,10 @@ export default function AdminUsersTab({
                           </SelectContent>
                         </Select>
 
+                        <RankOverrideSelect userId={detailUser.user_id} />
+
+
+
                         <Button
                           variant="outline"
                           size="sm"
