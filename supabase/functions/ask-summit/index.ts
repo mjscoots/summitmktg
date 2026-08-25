@@ -103,7 +103,7 @@ async function buildContext(admin: any, userId: string) {
 
   // Calendar
   const eventLines = (events.data ?? []).map((e: any) =>
-    `- ${e.title} — ${fmtDate(e.start_time)}${e.location ? ` at ${e.location}` : ""}${e.event_type ? ` (${e.event_type})` : ""}${e.description ? ` — ${String(e.description).slice(0, 200)}` : ""}`
+    `- ${e.title} — ${fmtDate(e.event_date)}${e.location ? ` at ${e.location}` : ""}${e.event_type ? ` (${e.event_type})` : ""}${e.description ? ` — ${String(e.description).slice(0, 200)}` : ""}`
   );
   parts.push(`CALENDAR — NEXT 7 DAYS:\n${eventLines.join("\n") || "- no events scheduled"}`);
 
