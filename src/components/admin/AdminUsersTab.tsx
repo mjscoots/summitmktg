@@ -1172,6 +1172,18 @@ export default function AdminUsersTab({
           )}
         </DialogContent>
       </Dialog>
+
+      <DepartureIntakeDialog
+        target={departureTarget}
+        onClose={() => setDepartureTarget(null)}
+        onSaved={() => {
+          setDepartureTarget(null);
+          setDetailUser(null);
+          setIsEditingDetail(false);
+          onRefresh();
+        }}
+      />
+
     </div>
   );
 }
