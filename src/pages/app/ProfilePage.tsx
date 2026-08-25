@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { RepScorecard } from '@/components/shared/RepScorecard';
+import { InstallAppHint } from '@/components/shared/InstallAppHint';
 
 function PointsCard() {
   const { data } = useMyPoints();
@@ -530,6 +531,10 @@ export default function ProfilePage() {
               )}
             </Button>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <InstallAppHint />
         </div>
 
         {user?.id && (
