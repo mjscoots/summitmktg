@@ -239,6 +239,8 @@ export function AdminExportTab() {
             </button>
           </div>
         </div>
+
+        <BackupsPanel />
       </div>
     </div>
   );
