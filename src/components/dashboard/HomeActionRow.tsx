@@ -3,6 +3,8 @@ import { Calendar, Target, GraduationCap, TrendingUp, AlertTriangle, Activity, M
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useHomeSnapshot } from '@/hooks/useHomeSnapshot';
+import { useAdminCounts } from '@/hooks/useAdminCounts';
+
 
 function formatTime(iso: string) {
   try {

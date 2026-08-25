@@ -64,8 +64,8 @@ export function NotificationPreferences() {
           lead_expiry: (data as any).lead_expiry ?? true,
           announcements: (data as any).announcements ?? true,
           training_quiz: (data as any).training_quiz ?? true,
-
           calendar_events: (data as any).calendar_events ?? true,
+
           leaderboard: (data as any).leaderboard ?? true,
           chat_mentions: (data as any).chat_mentions ?? true,
           bootcamp_reminders: (data as any).bootcamp_reminders ?? true,
