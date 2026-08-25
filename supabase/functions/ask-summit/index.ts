@@ -172,6 +172,12 @@ async function buildContext(admin: any, userId: string) {
   const faqLines = (faq.data ?? []).map((f: any) => `- Q: ${f.question}\n  A: ${f.answer}`);
   parts.push(`TEAM FAQ (answers approved by leadership):\n${faqLines.join("\n") || "- none"}`);
 
+  // Sales scripts (the company's actual method)
+  const scriptCards = await loadScriptCards(admin);
+  if (scriptCards.length > 0) {
+    parts.push(`SALES SCRIPTS AND METHOD (the company's own material — quote it directly when asked what to say):\n${formatScriptCards(scriptCards)}`);
+  }
+
   // App navigation hints
   parts.push(`WHERE THINGS LIVE IN THE APP:
 - Pay scales and calculators: Resources tab
