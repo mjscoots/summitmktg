@@ -603,6 +603,13 @@ export default function CommandCenterPage() {
           <RosterGapCounters />
         </div>
 
+        {/* DATA HEALTH */}
+        <SectionHeader title="Data Health" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <DataHealthPanel />
+        </div>
+
+
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />
 
