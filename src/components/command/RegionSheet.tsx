@@ -99,6 +99,8 @@ export default function RegionSheet() {
   const [error, setError] = useState<string | null>(null);
   const [officeFilter, setOfficeFilter] = useState('all');
   const [verticalFilter, setVerticalFilter] = useState('all');
+  const [copied, setCopied] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
