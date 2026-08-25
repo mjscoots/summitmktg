@@ -133,15 +133,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setShowScrollDown(scrollHeight - scrollTop - clientHeight > 120);
   }, []);
 
-  // Fetch messages + profiles
+  // Fetch messages + profiles for the active channel
   useEffect(() => {
+    let cancelled = false;
     const fetchMessages = async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
+        .eq('channel', activeChannel)
         .order('created_at', { ascending: false })
         .limit(200);
+      if (cancelled) return;
       if (error) { console.error('Error:', error); setLoading(false); return; }
 
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
@@ -150,6 +153,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now, archived').in('user_id', userIds),
           supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
         ]);
+        if (cancelled) return;
         const rolePriority: Record<string, number> = { rookie: 0, manager: 1, admin: 2, owner: 3 };
         const roleMap: Record<string, string> = {};
         (rolesRes.data || []).forEach(r => {
@@ -160,13 +164,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         (profilesRes.data || []).forEach(p => {
           map[p.user_id] = { full_name: withArchivedSuffix(p.full_name, (p as any).archived), avatar_url: p.avatar_url, is_active_now: p.is_active_now, role: roleMap[p.user_id] };
         });
-        setProfileMap(map);
+        setProfileMap(prev => ({ ...prev, ...map }));
       }
       setMessages(([...(data || [])].reverse()).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
       setLoading(false);
     };
     fetchMessages();
-  }, []);
+    return () => { cancelled = true; };
+  }, [activeChannel]);
+
 
   // Batch-fetch all reactions once messages are loaded, single realtime channel
   const messagesRef = useRef<ChatMessage[]>([]);
