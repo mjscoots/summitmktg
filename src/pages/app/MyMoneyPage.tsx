@@ -64,11 +64,21 @@ export default function MyMoneyPage() {
       setCommission((c.data as CommissionRow) ?? null);
       setHousing((h.data as HousingRow) ?? null);
       setLoading(false);
+
+      const { data: mine } = await (supabase as any).rpc('get_my_revenue');
+      if (!active) return;
+      setMyMonths((mine?.rows as any[]) ?? []);
+
+      if (isManagerRole) {
+        const { data: team } = await (supabase as any).rpc('get_team_revenue');
+        if (!active) return;
+        setTeamMonths((team?.rows as any[]) ?? []);
+      }
     })();
     return () => {
       active = false;
     };
-  }, [user, authLoading]);
+  }, [user, authLoading, isManagerRole]);
 
   const money = useMemo(() => {
     if (!commission) return null;
