@@ -6,6 +6,7 @@ import { isAdminOrAbove } from "@/lib/roles";
 import { Loader2, Check, Pencil } from "lucide-react";
 import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
+import AuditLogPanel from "@/components/command/AuditLogPanel";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
@@ -496,6 +497,12 @@ export default function CommandCenterPage() {
 
         {/* OWNER WEEKLY REPORT */}
         <WeeklyReportSection />
+
+        {/* AUDIT LOG */}
+        <SectionHeader title="Audit" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <AuditLogPanel />
+        </div>
 
 
 

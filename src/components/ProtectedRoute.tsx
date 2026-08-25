@@ -27,7 +27,15 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   // Users can access bootcamp without approval.
   // BootcampGate handles the approval gate AFTER bootcamp completion.
 
-  // Archived accounts have no app access
+  // Alumni accounts keep limited read-only access to /app/alumni only
+  if ((profile as any)?.alumni === true) {
+    if (location.pathname !== '/app/alumni') {
+      return <Navigate to="/app/alumni" replace />;
+    }
+    return <>{children}</>;
+  }
+
+  // Archived (non-alumni) accounts have no app access
   if ((profile as any)?.archived === true) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">

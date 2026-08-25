@@ -19,6 +19,7 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { RepScorecard } from '@/components/shared/RepScorecard';
+import { RankInsignia } from '@/components/badges/RankInsignia';
 import { TriageBoard } from '@/components/team/TriageBoard';
 import { CarGroupsTab } from '@/components/team/CarGroupsTab';
 import { TeamActionItems } from '@/components/team/TeamActionItems';
@@ -61,6 +62,7 @@ export default function MyTeamPage() {
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
+  const [incompleteProfiles, setIncompleteProfiles] = useState<Map<string, string[]>>(new Map());
 
   const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
     const t = searchParams.get('tab');
@@ -127,6 +129,18 @@ export default function MyTeamPage() {
         setWeekPoints(map);
       } catch {
         // points are optional
+      }
+
+      // Incomplete profile flags — manager/admin/owner only
+      try {
+        const { data: incomplete } = await supabase.rpc('get_incomplete_profiles' as never, {} as never);
+        const incMap = new Map<string, string[]>();
+        for (const row of (incomplete as any[]) ?? []) {
+          incMap.set(row.user_id, row.missing ?? []);
+        }
+        setIncompleteProfiles(incMap);
+      } catch {
+        // optional, only visible to managers+
       }
     } catch (err) {
       console.error('Error loading team data:', err);
@@ -393,7 +407,18 @@ export default function MyTeamPage() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground truncate">{getDisplayName(m.full_name)}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-foreground truncate">{getDisplayName(m.full_name)}</p>
+                      <RankInsignia role={managerIds.has(m.user_id) ? 'manager' : 'rookie'} size="sm" />
+                      {isManagerRole && incompleteProfiles.has(m.user_id) && (
+                        <span
+                          title={`Missing: ${(incompleteProfiles.get(m.user_id) ?? []).join(', ')}`}
+                          className="flex-shrink-0 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-white/[0.06] text-muted-foreground/80"
+                        >
+                          Profile incomplete
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground truncate">{teamName(m.team_id)}</p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">

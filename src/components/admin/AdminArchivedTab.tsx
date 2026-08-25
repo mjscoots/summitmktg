@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { toast } from 'sonner';
-import { Archive, Loader2, RotateCcw, Search } from 'lucide-react';
+import { Archive, GraduationCap, Loader2, RotateCcw, Search } from 'lucide-react';
 import { LoadingList } from '@/components/shared/LoadingList';
 
 interface ArchivedRow {
@@ -16,6 +16,7 @@ interface ArchivedRow {
   archived_at: string | null;
   archived_reason: string | null;
   pre_archive_status: string | null;
+  alumni: boolean | null;
 }
 
 const REASON_LABEL: Record<string, string> = {
@@ -34,11 +35,12 @@ export function AdminArchivedTab() {
   const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [visible, setVisible] = useState(PAGE);
   const [restoring, setRestoring] = useState<string | null>(null);
+  const [settingAlumni, setSettingAlumni] = useState<string | null>(null);
 
   const fetchRows = useCallback(async () => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('user_id, full_name, email, avatar_url, archived_at, archived_reason, pre_archive_status')
+      .select('user_id, full_name, email, avatar_url, archived_at, archived_reason, pre_archive_status, alumni')
       .eq('archived', true)
       .order('archived_at', { ascending: false });
     if (error) {
@@ -61,23 +63,36 @@ export function AdminArchivedTab() {
 
   const restore = async (row: ArchivedRow) => {
     setRestoring(row.user_id);
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        archived: false,
-        archived_at: null,
-        archived_reason: null,
-        status: (row.pre_archive_status as never) ?? ('active' as never),
-      })
-      .eq('user_id', row.user_id);
+    const { error } = await (supabase as any).rpc('set_roster_state', {
+      _user_id: row.user_id,
+      _state: 'active',
+    });
     setRestoring(null);
     if (error) {
+      console.error(error);
       toast.error('Restore failed');
       return;
     }
     toast.success(`${row.full_name} restored`);
     setRows(prev => prev.filter(r => r.user_id !== row.user_id));
   };
+
+  const markAlumni = async (row: ArchivedRow) => {
+    setSettingAlumni(row.user_id);
+    const { error } = await (supabase as any).rpc('set_roster_state', {
+      _user_id: row.user_id,
+      _state: 'alumni',
+    });
+    setSettingAlumni(null);
+    if (error) {
+      console.error(error);
+      toast.error('Could not move to alumni');
+      return;
+    }
+    toast.success(`${row.full_name} moved to alumni`);
+    setRows(prev => prev.map(r => (r.user_id === row.user_id ? { ...r, alumni: true } : r)));
+  };
+
 
   if (loading) return <LoadingList rows={6} />;
 
@@ -112,25 +127,45 @@ export function AdminArchivedTab() {
             >
               <UserAvatar fullName={row.full_name} avatarUrl={row.avatar_url} size="sm" />
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-semibold text-foreground truncate">{row.full_name}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-semibold text-foreground truncate">{row.full_name}</div>
+                  <span className={`text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0 ${row.alumni ? 'bg-primary/15 text-primary' : 'bg-white/[0.06] text-muted-foreground'}`}>
+                    {row.alumni ? 'Alumni' : 'Archived'}
+                  </span>
+                </div>
                 <div className="text-xs text-muted-foreground truncate">
                   {REASON_LABEL[row.archived_reason || ''] || row.archived_reason || 'Archived'}
                   {row.archived_at && ` · ${new Date(row.archived_at).toLocaleDateString()}`}
                 </div>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => restore(row)}
-                disabled={restoring === row.user_id}
-                className="flex-shrink-0"
-              >
-                {restoring === row.user_id ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <><RotateCcw className="w-3.5 h-3.5 mr-1.5" />Restore</>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {!row.alumni && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => markAlumni(row)}
+                    disabled={settingAlumni === row.user_id}
+                  >
+                    {settingAlumni === row.user_id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <><GraduationCap className="w-3.5 h-3.5 mr-1.5" />Alumni</>
+                    )}
+                  </Button>
                 )}
-              </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => restore(row)}
+                  disabled={restoring === row.user_id}
+                >
+                  {restoring === row.user_id ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <><RotateCcw className="w-3.5 h-3.5 mr-1.5" />Restore</>
+                  )}
+                </Button>
+              </div>
             </div>
           ))}
           {filtered.length > visible && (

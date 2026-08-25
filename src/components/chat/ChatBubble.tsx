@@ -9,6 +9,7 @@ import { isGifMessage, getGifUrl } from '@/components/dashboard/GifPicker';
 import { isImageMessage, getImageUrl, ChatImage, isFileMessage, getFileInfo, ChatFile } from '@/components/dashboard/ChatImageUpload';
 import { ChatPoll } from '@/components/dashboard/ChatPoll';
 import { isVoiceMessage, getVoiceInfo, VoiceNoteBubble } from '@/components/chat/VoiceNote';
+import { RankInsignia } from '@/components/badges/RankInsignia';
 
 function renderMentions(text: string, keyPrefix: string) {
   // @First Last (up to two capitalised words) or @firstname
@@ -251,6 +252,7 @@ export function ChatBubble({
               >
                 {profile.full_name}
               </button>
+              <RankInsignia role={profile.role} size="sm" className="shrink-0" />
               <BadgeStrip userId={message.user_id} max={2} className="shrink-0" />
             </span>
           )}

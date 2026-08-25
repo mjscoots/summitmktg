@@ -30,6 +30,31 @@ PRIVACY RULES (absolute):
 - Never mention or list archived or former team members, job applications, admin queue items, or leads belonging to other reps.
 - Roster contact info in the context is shareable with the asking user. Nothing outside the context is.`;
 
+const PRACTICE_SYSTEM_PROMPT = `You are role-playing as a homeowner answering their front door for a door-to-door sales rep who is practicing their pitch. This is a TRAINING SIMULATION.
+
+STRICT CHARACTER RULES:
+- Stay in character as the homeowner at all times. Never coach, never break character, never explain sales technique, never say you are an AI.
+- Talk like a real, ordinary person who was just interrupted at their door: short, natural, sometimes distracted, busy, or mid-task ("hang on, my dog's barking", "I've got something on the stove").
+- Be skeptical but human, not hostile. Use ordinary real objections: not interested, already have someone, too expensive, bad timing, need to ask my spouse, in the middle of something, don't want to switch, seen this before.
+- Give realistic ground: if the rep handles an objection well, listens, and is genuinely helpful, warm up a little and keep the conversation going. If the rep is pushy, ignores what you said, rambles, or is pressuring you, get more closed off and can end the conversation (e.g. "I really need to go," and then stop engaging).
+- Keep every reply to 1-3 short sentences, like a real doorstep exchange. Never lecture or give a monologue.
+- Never offer feedback, tips, or meta commentary during the roleplay — that only happens after the rep ends the session.
+
+CONTEXT: below is a list of objection/script categories reps are trained on at this company. Base your objections and hesitations on these where they fit naturally, so the practice matches what the rep has learned. Do not invent or reference specific company names, numbers, or offers that aren't implied by these categories.
+`;
+
+const PRACTICE_FEEDBACK_PROMPT = `The practice roleplay above has ended. Drop the homeowner character completely. You are now a plain, direct sales coach reviewing the transcript.
+
+Give short, plain feedback in two parts:
+1. What worked — specific to something the rep actually said or did in this transcript.
+2. One thing to fix — specific and actionable, based on this transcript.
+
+Rules:
+- Two to four sentences total, combined.
+- Plain, specific, no scores, no ratings, no numbers out of ten, no emoji, no hype words, no praise inflation ("great job!", "amazing!").
+- Do not restate the whole conversation. Just the two points.
+- If the transcript is too short to say anything specific, say so plainly and suggest what to try next time.`;
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -160,6 +185,28 @@ async function buildContext(admin: any, userId: string) {
   return `\n\n=== CONTEXT START ===\n${parts.join("\n\n")}\n=== CONTEXT END ===`;
 }
 
+async function buildPracticeContext(admin: any) {
+  const { data: scripts } = await admin
+    .from("scripts")
+    .select("category, title")
+    .eq("is_active", true)
+    .order("category");
+
+  if (!scripts || scripts.length === 0) {
+    return `\n\nSCRIPT CATEGORIES: none configured yet — use generic, realistic door objections (not interested, already have someone, too expensive, bad timing, need to ask my spouse, in the middle of something).`;
+  }
+
+  const byCategory = new Map<string, Set<string>>();
+  for (const s of scripts) {
+    if (!byCategory.has(s.category)) byCategory.set(s.category, new Set());
+    byCategory.get(s.category)!.add(s.title);
+  }
+  const lines = Array.from(byCategory.entries()).map(
+    ([cat, titles]) => `- ${cat}: ${Array.from(titles).join(", ")}`
+  );
+  return `\n\nSCRIPT CATEGORIES REPS ARE TRAINED ON:\n${lines.join("\n")}`;
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
@@ -221,8 +268,10 @@ serve(async (req) => {
       });
     }
 
-    const body = await req.json().catch(() => null) as { messages?: Message[] } | null;
+    const body = await req.json().catch(() => null) as { messages?: Message[]; mode?: string; finish?: boolean } | null;
     const messages = body?.messages;
+    const mode: "ask" | "practice" = body?.mode === "practice" ? "practice" : "ask";
+    const finish = body?.finish === true;
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
@@ -250,10 +299,26 @@ serve(async (req) => {
       "rookie"
     );
 
-    const context = await buildContext(admin, userId);
-
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    let systemContent: string;
+    let gatewayMessages: Message[];
+
+    if (mode === "practice") {
+      const practiceContext = await buildPracticeContext(admin);
+      if (finish) {
+        systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext + "\n\n" + PRACTICE_FEEDBACK_PROMPT;
+        gatewayMessages = [...messages, { role: "user", content: "[END PRACTICE — give feedback now]" }];
+      } else {
+        systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext;
+        gatewayMessages = messages;
+      }
+    } else {
+      const context = await buildContext(admin, userId);
+      systemContent = SYSTEM_PROMPT + context;
+      gatewayMessages = messages;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -263,7 +328,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
-        messages: [{ role: "system", content: SYSTEM_PROMPT + context }, ...messages],
+        messages: [{ role: "system", content: systemContent }, ...gatewayMessages],
         stream: true,
       }),
     });
@@ -285,7 +350,10 @@ serve(async (req) => {
       });
     }
 
-    const lastQuestion = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const rawLastQuestion = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const lastQuestion = mode === "practice"
+      ? (finish ? "[practice] session ended — feedback requested" : `[practice] ${rawLastQuestion}`)
+      : rawLastQuestion;
 
     // Tee the stream so we can log the full answer without delaying the client
     const [clientStream, logStream] = response.body!.tee();

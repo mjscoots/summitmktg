@@ -339,17 +339,17 @@ export default function HierarchySyncTab({
       <div className="grid grid-cols-3 gap-3">
         <div className="p-4 bg-card/50 rounded-xl border border-border/30 text-center">
           <CheckCircle className="w-5 h-5 text-primary mx-auto mb-1" />
-          <p className="text-2xl font-bold text-foreground">{stats.alreadyCorrect}</p>
+          <p className="text-2xl font-bold text-foreground stat-num">{stats.alreadyCorrect}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Already Correct</p>
         </div>
         <div className="p-4 bg-card/50 rounded-xl border border-border/30 text-center">
           <GitBranch className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-          <p className="text-2xl font-bold text-foreground">{stats.autoResolvable}</p>
+          <p className="text-2xl font-bold text-foreground stat-num">{stats.autoResolvable}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Auto-Resolvable</p>
         </div>
         <div className="p-4 bg-card/50 rounded-xl border border-border/30 text-center">
           <AlertTriangle className="w-5 h-5 text-primary mx-auto mb-1" />
-          <p className="text-2xl font-bold text-foreground">{stats.unresolvable}</p>
+          <p className="text-2xl font-bold text-foreground stat-num">{stats.unresolvable}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Needs Manual Fix</p>
         </div>
       </div>

@@ -492,6 +492,96 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string | null
+          after_value: string | null
+          before_value: string | null
+          created_at: string
+          entity_id: string | null
+          entity_label: string | null
+          entity_type: string
+          field: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string | null
+          after_value?: string | null
+          before_value?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_label?: string | null
+          entity_type: string
+          field?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string | null
+          after_value?: string | null
+          before_value?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_label?: string | null
+          entity_type?: string
+          field?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      backup_job_tokens: {
+        Row: {
+          created_at: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
+      backup_snapshots: {
+        Row: {
+          created_at: string
+          file_bytes: number
+          id: string
+          row_count: number
+          storage_path: string
+          table_count: number
+          trigger_source: string
+        }
+        Insert: {
+          created_at?: string
+          file_bytes?: number
+          id?: string
+          row_count?: number
+          storage_path: string
+          table_count?: number
+          trigger_source?: string
+        }
+        Update: {
+          created_at?: string
+          file_bytes?: number
+          id?: string
+          row_count?: number
+          storage_path?: string
+          table_count?: number
+          trigger_source?: string
+        }
+        Relationships: []
+      }
       badge_definitions: {
         Row: {
           active: boolean
@@ -1952,6 +2042,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          alumni: boolean
           approved: boolean | null
           archived: boolean
           archived_at: string | null
@@ -1962,6 +2053,8 @@ export type Database = {
           cumulative_points: number | null
           direct_manager: string | null
           email: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
           experience: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
           id: string
@@ -1982,6 +2075,7 @@ export type Database = {
           referred_by: string | null
           region: string | null
           revenue_goal: number | null
+          shirt_size: string | null
           status: Database["public"]["Enums"]["user_status"] | null
           team_id: string | null
           time_this_week_minutes: number | null
@@ -1992,6 +2086,7 @@ export type Database = {
           week_start: string | null
         }
         Insert: {
+          alumni?: boolean
           approved?: boolean | null
           archived?: boolean
           archived_at?: string | null
@@ -2002,6 +2097,8 @@ export type Database = {
           cumulative_points?: number | null
           direct_manager?: string | null
           email: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
           id?: string
@@ -2022,6 +2119,7 @@ export type Database = {
           referred_by?: string | null
           region?: string | null
           revenue_goal?: number | null
+          shirt_size?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
           time_this_week_minutes?: number | null
@@ -2032,6 +2130,7 @@ export type Database = {
           week_start?: string | null
         }
         Update: {
+          alumni?: boolean
           approved?: boolean | null
           archived?: boolean
           archived_at?: string | null
@@ -2042,6 +2141,8 @@ export type Database = {
           cumulative_points?: number | null
           direct_manager?: string | null
           email?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name?: string
           id?: string
@@ -2062,6 +2163,7 @@ export type Database = {
           referred_by?: string | null
           region?: string | null
           revenue_goal?: number | null
+          shirt_size?: string | null
           status?: Database["public"]["Enums"]["user_status"] | null
           team_id?: string | null
           time_this_week_minutes?: number | null
@@ -2726,6 +2828,44 @@ export type Database = {
         }
         Relationships: []
       }
+      season_checklist_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          season_id: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          season_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          season_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_checklist_items_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       season_results: {
         Row: {
           avatar_url: string | null
@@ -2774,26 +2914,32 @@ export type Database = {
         Row: {
           created_at: string
           ends_on: string
+          housing_notes: string | null
           id: string
           is_active: boolean
           name: string
           starts_on: string
+          travel_notes: string | null
         }
         Insert: {
           created_at?: string
           ends_on: string
+          housing_notes?: string | null
           id?: string
           is_active?: boolean
           name: string
           starts_on: string
+          travel_notes?: string | null
         }
         Update: {
           created_at?: string
           ends_on?: string
+          housing_notes?: string | null
           id?: string
           is_active?: boolean
           name?: string
           starts_on?: string
+          travel_notes?: string | null
         }
         Relationships: []
       }
@@ -4055,6 +4201,25 @@ export type Database = {
         }[]
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
+      get_audit_log: {
+        Args: {
+          _action?: string
+          _days?: number
+          _entity?: string
+          _limit?: number
+        }
+        Returns: {
+          action: string
+          actor_name: string
+          after_value: string
+          before_value: string
+          created_at: string
+          entity_label: string
+          entity_type: string
+          field: string
+          id: string
+        }[]
+      }
       get_badges_for_users: {
         Args: { _user_ids: string[] }
         Returns: {
@@ -4188,6 +4353,14 @@ export type Database = {
           target: number
         }[]
       }
+      get_incomplete_profiles: {
+        Args: never
+        Returns: {
+          full_name: string
+          missing: string[]
+          user_id: string
+        }[]
+      }
       get_lead_board: {
         Args: never
         Returns: {
@@ -4293,6 +4466,7 @@ export type Database = {
         }[]
       }
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
+      get_season_hub: { Args: never; Returns: Json }
       get_streak_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -4390,6 +4564,10 @@ export type Database = {
         Args: { code_description?: string; new_code: string }
         Returns: string
       }
+      set_roster_state: {
+        Args: { _state: string; _user_id: string }
+        Returns: undefined
+      }
       sweep_speed_to_lead: { Args: never; Returns: Json }
       sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }
@@ -4412,6 +4590,18 @@ export type Database = {
           label: string
           slug: string
         }[]
+      }
+      write_audit: {
+        Args: {
+          _action: string
+          _after: string
+          _before: string
+          _entity_id: string
+          _entity_label: string
+          _entity_type: string
+          _field: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

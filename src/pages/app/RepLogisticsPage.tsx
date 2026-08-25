@@ -135,15 +135,15 @@ export default function RepLogisticsPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">{entries.length}</p>
+            <p className="text-2xl font-bold text-foreground stat-num">{entries.length}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Total Reps</p>
           </div>
           <div className="bg-card rounded-xl border border-primary/20 p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{readyCount}</p>
+            <p className="text-2xl font-bold text-primary stat-num">{readyCount}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Ready</p>
           </div>
           <div className="bg-card rounded-xl border border-red-500/20 p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{needsAttention}</p>
+            <p className="text-2xl font-bold text-primary stat-num">{needsAttention}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">Needs Help</p>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp } from 'lucide-react';
+import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
 import { TierBadge, getTierBorderClass } from '@/components/shared/TierBadge';
 import { BadgeShelf } from '@/components/badges/BadgeStrip';
 import { useEliteTier } from '@/hooks/useEliteTier';
@@ -105,6 +105,49 @@ function PointsCard() {
   );
 }
 
+
+function CompletenessMeter({
+  hasPhoto,
+  hasPhone,
+  hasEmergencyContact,
+  hasShirtSize,
+}: {
+  hasPhoto: boolean;
+  hasPhone: boolean;
+  hasEmergencyContact: boolean;
+  hasShirtSize: boolean;
+}) {
+  const items = [
+    { label: 'Profile photo', done: hasPhoto },
+    { label: 'Phone number', done: hasPhone },
+    { label: 'Emergency contact', done: hasEmergencyContact },
+    { label: 'Shirt size', done: hasShirtSize },
+  ];
+  const doneCount = items.filter(i => i.done).length;
+  const missing = items.filter(i => !i.done);
+  const pct = (doneCount / items.length) * 100;
+
+  return (
+    <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <ClipboardCheck className="w-4 h-4 text-primary" />
+          <h3 className="font-semibold text-foreground text-sm">Profile Completeness</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">{doneCount} of {items.length} complete</span>
+      </div>
+      <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden mb-2">
+        <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+      </div>
+      {missing.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Missing: {missing.map(m => m.label).join(', ')}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, role, isLoading: authLoading, refreshProfile, signOut } = useAuth();
@@ -116,6 +159,9 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
   const [timezone, setTimezone] = useState<string>('auto');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
+  const [shirtSize, setShirtSize] = useState<string>('');
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
@@ -148,13 +194,15 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname')
+          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
         setTimezone(dbTz || 'auto');
         setNickname((data as any)?.nickname || '');
-        
+        setEmergencyContactName((data as any)?.emergency_contact_name || '');
+        setEmergencyContactPhone((data as any)?.emergency_contact_phone || '');
+        setShirtSize((data as any)?.shirt_size || '');
       };
       fetchExtra();
     }
@@ -173,7 +221,9 @@ export default function ProfilePage() {
           nickname: nickname || null,
           phone: phone,
           timezone: timezone === 'auto' ? null : timezone,
-          
+          emergency_contact_name: emergencyContactName || null,
+          emergency_contact_phone: emergencyContactPhone || null,
+          shirt_size: shirtSize || null,
           updated_at: new Date().toISOString(),
         } as any)
         .eq('user_id', user.id);
@@ -426,6 +476,14 @@ export default function ProfilePage() {
         {/* Points Baseball Card */}
         <PointsCard />
 
+        {/* Profile completeness */}
+        <CompletenessMeter
+          hasPhoto={!!avatarUrl}
+          hasPhone={!!phone.trim()}
+          hasEmergencyContact={!!emergencyContactName.trim() && !!emergencyContactPhone.trim()}
+          hasShirtSize={!!shirtSize}
+        />
+
         {/* Profile Info */}
         <div className="bg-card rounded-xl border border-border/50 p-6 mb-6">
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -477,6 +535,45 @@ export default function ProfilePage() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 123-4567"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Emergency Contact Name <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                </label>
+                <Input
+                  value={emergencyContactName}
+                  onChange={(e) => setEmergencyContactName(e.target.value)}
+                  placeholder="Contact name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Emergency Contact Phone <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                </label>
+                <Input
+                  value={emergencyContactPhone}
+                  onChange={(e) => setEmergencyContactPhone(e.target.value)}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Shirt Size <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+              </label>
+              <Select value={shirtSize || undefined} onValueChange={setShirtSize}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                    <SelectItem key={size} value={size}>{size}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

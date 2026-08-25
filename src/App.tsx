@@ -65,6 +65,8 @@ const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
+const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
+const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
 
 
 function LazyFallback() {
@@ -272,6 +274,13 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Alumni — read-only view for alumni-status accounts */}
+              <Route path="/app/alumni" element={
+                <ProtectedRoute>
+                  <AlumniPage />
+                </ProtectedRoute>
+              } />
+
               {/* Recruits — lead funnel (all reps) */}
               <Route path="/app/recruits" element={
                 <ProtectedRoute>
@@ -295,6 +304,15 @@ function LazyFallback() {
                 <ProtectedRoute>
                   <BootcampGate>
                     <ScriptsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* Season Countdown Hub */}
+              <Route path="/app/season" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <SeasonPage />
                   </BootcampGate>
                 </ProtectedRoute>
               } />
