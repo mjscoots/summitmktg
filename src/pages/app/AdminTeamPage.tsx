@@ -622,7 +622,7 @@ export default function AdminTeamPage() {
           {/* ========== EXPORT TAB ========== */}
           {isAdmin && (
             <TabsContent value="export">
-              <Suspense fallback={<AdminTabSkeleton />}>
+              <Suspense fallback={<TableSkeleton columns={2} rows={3} />}>
                 <LazyExport />
               </Suspense>
             </TabsContent>
