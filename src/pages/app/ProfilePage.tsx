@@ -194,7 +194,7 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size')
+          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
@@ -203,6 +203,8 @@ export default function ProfilePage() {
         setEmergencyContactName((data as any)?.emergency_contact_name || '');
         setEmergencyContactPhone((data as any)?.emergency_contact_phone || '');
         setShirtSize((data as any)?.shirt_size || '');
+        setCommittedLastDay((data as any)?.committed_last_day || null);
+        setCommitmentTerms((data as any)?.commitment_terms || null);
       };
       fetchExtra();
     }
