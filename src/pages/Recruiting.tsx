@@ -120,7 +120,7 @@ const Recruiting = () => {
           <h2 className="mb-8 text-center text-2xl font-black uppercase tracking-wide text-foreground md:text-3xl">
             Run the numbers
           </h2>
-          <EarningsCalculator lockScale="rookie" onApplyClick={() => handleApplyClick("/apply/rookie")} />
+          <EarningsCalculator onApplyClick={() => handleApplyClick("/apply/rookie")} />
         </div>
       </section>
 
