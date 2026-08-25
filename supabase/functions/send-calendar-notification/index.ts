@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
         
         try {
           await resend.emails.send({
-            from: "Summit <notifications@summitmktgsales.com>",
+            from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
             to: profile.email,
             subject: `📅 Calendar Event: ${event_title}`,
             html: `

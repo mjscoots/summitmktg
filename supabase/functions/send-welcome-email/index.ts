@@ -95,7 +95,7 @@ serve(async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Summit Marketing <noreply@summitmktgsales.com>",
+        from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit Marketing <onboarding@resend.dev>",
         to: [email],
         subject: `Welcome to Summit Marketing, ${firstName}! 🏔️`,
         html: `
