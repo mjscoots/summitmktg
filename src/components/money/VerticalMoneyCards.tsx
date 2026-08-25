@@ -5,6 +5,7 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, DollarSign, Layers } from 'lucide-react';
 import { formatCurrency } from '@/lib/commission';
+import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -55,7 +56,10 @@ const RULE_LABELS: Record<string, string> = {
   producing_reps: 'producing reps',
   team_leads_under: 'team leads under you',
   managers_under: 'managers under you',
+  personal_active_revenue: 'personal active revenue',
+  team_active_revenue: 'team active revenue',
 };
+
 
 function ruleText(r: Requirement) {
   if (r.description) return r.description;
@@ -257,11 +261,13 @@ export function VerticalMoneyCards({
               </div>
             )}
           </section>
+          {v.enrolled && v.vertical === 'Pest' && <SentRepOverrideNote />}
           {v.enrolled && renderExtra?.(v.vertical)}
         </div>
       ))}
     </div>
   );
 }
+
 
 export default VerticalMoneyCards;

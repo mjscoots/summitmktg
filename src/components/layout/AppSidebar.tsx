@@ -62,7 +62,7 @@ export function AppSidebar() {
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isManager = role === 'manager' || isAdmin;
-  const roleLabel = isOwner ? 'OWNER' : role === 'admin' ? 'ADMIN' : isManager ? 'MANAGER' : 'ROOKIE';
+  const roleLabel = isOwner ? 'OWNER' : role === 'admin' ? 'ADMIN' : isManager ? 'MANAGER' : role === 'recruiter' ? 'RECRUITER' : 'ROOKIE';
 
   const handleSignOut = async () => {
     await signOut();
@@ -107,9 +107,15 @@ export function AppSidebar() {
     return 0;
   };
 
-  const visibleMainNavItems = season
-    ? [...mainNavItems, { label: 'Season', path: '/app/season', icon: CalendarClock }]
+  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/calendar', '/app/leaderboard', '/app/links'];
+  const baseNavItems = role === 'recruiter'
+    ? mainNavItems.filter((i) => recruiterPaths.includes(i.path))
     : mainNavItems;
+
+  const visibleMainNavItems = season && role !== 'recruiter'
+    ? [...baseNavItems, { label: 'Season', path: '/app/season', icon: CalendarClock }]
+    : baseNavItems;
+
 
   const NavButton = ({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) => (
     <button

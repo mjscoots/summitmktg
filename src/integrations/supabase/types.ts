@@ -2638,6 +2638,7 @@ export type Database = {
           from_rank_id: string
           id: string
           rule_type: string
+          source: string | null
           updated_at: string
           value: number | null
           vertical: string | null
@@ -2650,6 +2651,7 @@ export type Database = {
           from_rank_id: string
           id?: string
           rule_type: string
+          source?: string | null
           updated_at?: string
           value?: number | null
           vertical?: string | null
@@ -2662,6 +2664,7 @@ export type Database = {
           from_rank_id?: string
           id?: string
           rule_type?: string
+          source?: string | null
           updated_at?: string
           value?: number | null
           vertical?: string | null
@@ -5009,6 +5012,10 @@ export type Database = {
         Args: { _rank_id: string; _user_id: string }
         Returns: Json
       }
+      admin_set_recruiter_role: {
+        Args: { _on: boolean; _user_id: string }
+        Returns: Json
+      }
       admin_set_region_lead: {
         Args: { _region_id: string; _user_id: string }
         Returns: Json
@@ -5019,6 +5026,10 @@ export type Database = {
       }
       admin_set_stack_source: {
         Args: { _source: string; _user_id: string; _vertical: string }
+        Returns: Json
+      }
+      admin_set_vertical_lead: {
+        Args: { _is_lead: boolean; _user_id: string; _vertical: string }
         Returns: Json
       }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
@@ -5231,7 +5242,11 @@ export type Database = {
       }
       get_daily_challenge: { Args: { _user_id: string }; Returns: Json }
       get_daily_drill: { Args: { _timezone?: string }; Returns: Json }
+      get_data_active_counts: { Args: never; Returns: Json }
+      get_data_gap_people: { Args: { _gap: string }; Returns: Json }
       get_data_integrity_report: { Args: never; Returns: Json }
+      get_data_person_lookup: { Args: { _q: string }; Returns: Json }
+      get_data_under_led: { Args: never; Returns: Json }
       get_downline_from_edges: {
         Args: { _manager_user_id: string }
         Returns: {
@@ -5577,6 +5592,7 @@ export type Database = {
         Args: { _manager: string; _rep: string }
         Returns: boolean
       }
+      is_staff_data_reader: { Args: never; Returns: boolean }
       is_vertical_lead: {
         Args: { _uid: string; _vertical: string }
         Returns: boolean
@@ -5756,7 +5772,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "rookie" | "manager" | "admin" | "owner"
+      app_role: "rookie" | "manager" | "admin" | "owner" | "recruiter"
       experience_level: "rookie" | "veteran"
       priority_task_type:
         | "pitch_work"
@@ -5900,7 +5916,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["rookie", "manager", "admin", "owner"],
+      app_role: ["rookie", "manager", "admin", "owner", "recruiter"],
       experience_level: ["rookie", "veteran"],
       priority_task_type: [
         "pitch_work",

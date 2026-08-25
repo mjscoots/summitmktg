@@ -38,6 +38,7 @@ export default function RegionPace() {
   const [pace, setPace] = useState<Pace | null>(null);
   const [loading, setLoading] = useState(true);
   const [goalDraft, setGoalDraft] = useState('');
+  const [goalNote, setGoalNote] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -45,8 +46,16 @@ export default function RegionPace() {
     const { data } = await (supabase as any).rpc('get_region_pace');
     setPace((data as Pace) ?? { has_data: false });
     setGoalDraft(data?.goal != null ? String(data.goal) : '');
+    const { data: note } = await supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'season_revenue_goal_note')
+      .maybeSingle();
+    const value = (note?.value ?? '').trim();
+    setGoalNote(value === '' ? null : value);
     setLoading(false);
   };
+
 
   useEffect(() => {
     load();
@@ -177,6 +186,14 @@ export default function RegionPace() {
           )}
         </div>
       </div>
+
+
+      {goalNote && (
+        <p style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: fontMono, marginTop: 8 }}>
+          {goalNote}
+        </p>
+      )}
+
 
       {pct !== null && (
         <div style={{ marginTop: 14 }}>
