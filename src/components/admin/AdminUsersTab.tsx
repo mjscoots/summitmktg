@@ -386,6 +386,14 @@ export default function AdminUsersTab({
         if (teamFilter !== 'none' && u.team_id !== teamFilter) return false;
       }
 
+      if (officeFilter !== 'all') {
+        if (officeFilter === 'none' && u.office_id) return false;
+        if (officeFilter !== 'none' && u.office_id !== officeFilter) return false;
+      }
+
+      if (verticalFilter !== 'all' && (u.vertical || 'Pest') !== verticalFilter) return false;
+
+
       if (appFilter === 'in_app' && u.approved !== true) return false;
       if (appFilter === 'not_in_app' && u.approved === true) return false;
 
