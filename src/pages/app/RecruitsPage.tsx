@@ -372,7 +372,8 @@ export default function RecruitsPage() {
                       <span
                         className={cn(
                           'flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
-                          STATUS_STYLE[lead.status]
+                          STATUS_STYLE[lead.status],
+                          lead.status === 'Signed' && 'signed-shimmer'
                         )}
                       >
                         {lead.status}

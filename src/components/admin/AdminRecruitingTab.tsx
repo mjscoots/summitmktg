@@ -300,7 +300,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
                 <td className="px-3 py-2">
                   <Select value={l.status} onValueChange={(v) => setStatus(l.id, v)}>
                     <SelectTrigger
-                      className={cn('h-7 w-[120px] text-[11px] border', STATUS_STYLE[l.status])}
+                      className={cn('h-7 w-[120px] text-[11px] border', STATUS_STYLE[l.status], l.status === 'Signed' && 'signed-shimmer')}
                     >
                       <SelectValue />
                     </SelectTrigger>
