@@ -902,18 +902,21 @@ export type Database = {
       }
       chat_read_state: {
         Row: {
+          channel: string
           created_at: string
           last_read_at: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          channel?: string
           created_at?: string
           last_read_at?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          channel?: string
           created_at?: string
           last_read_at?: string
           updated_at?: string
@@ -3418,6 +3421,7 @@ export type Database = {
         }[]
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
+      get_chat_channel_state: { Args: never; Returns: Json }
       get_current_leaderboard: {
         Args: never
         Returns: {
@@ -3655,7 +3659,12 @@ export type Database = {
         Returns: Json
       }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
+      mark_chat_channel_read: {
+        Args: { _all?: boolean; _channel: string }
+        Returns: Json
+      }
       mark_inactive_users: { Args: never; Returns: undefined }
+      my_signed_count: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
       recalculate_all_time_points: { Args: never; Returns: undefined }
       record_daily_login: {
@@ -3673,6 +3682,7 @@ export type Database = {
         Returns: string
       }
       sweep_speed_to_lead: { Args: never; Returns: Json }
+      team_channel_slug: { Args: { _name: string }; Returns: string }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }
         Returns: Json
@@ -3682,6 +3692,16 @@ export type Database = {
       validate_and_record_quiz: {
         Args: { _answers: Json; _lesson_id: string }
         Returns: Json
+      }
+      visible_chat_channels: {
+        Args: { _user_id: string }
+        Returns: {
+          color: string
+          display_order: number
+          icon: string
+          label: string
+          slug: string
+        }[]
       }
     }
     Enums: {

@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { WinbackTab } from '@/components/recruiting/WinbackTab';
+import { WinMoment } from '@/components/chat/WinMoment';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -89,6 +90,7 @@ export default function RecruitsPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ first_name: '', phone: '', city: '', interest_reason: '', notes: '' });
   const [, setTick] = useState(0);
+  const [winMoment, setWinMoment] = useState<{ firstName: string; signedCount: number | null } | null>(null);
 
   const activeClaims = mine.filter((l) => l.status === 'Claimed' || l.status === 'Contacted').length;
   const atLimit = activeClaims >= MAX_ACTIVE_CLAIMS;
@@ -137,6 +139,8 @@ export default function RecruitsPage() {
   };
 
   const updateLead = async (leadId: string, status: string | null, notes: string | null) => {
+    const lead = mine.find((l) => l.id === leadId);
+    const wasSigned = lead?.status === 'Signed';
     setMine((prev) =>
       prev.map((l) =>
         l.id === leadId
@@ -152,6 +156,13 @@ export default function RecruitsPage() {
     if (error || !data?.success) {
       toast.error('Save failed');
       load();
+      return;
+    }
+    if (status === 'Signed' && !wasSigned) {
+      setWinMoment({
+        firstName: (lead?.first_name || 'Your recruit').split(' ')[0],
+        signedCount: typeof data.signed_count === 'number' ? data.signed_count : null,
+      });
     }
   };
 
@@ -465,6 +476,13 @@ export default function RecruitsPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          <WinMoment
+            open={winMoment !== null}
+            firstName={winMoment?.firstName || ''}
+            signedCount={winMoment?.signedCount ?? null}
+            onDismiss={() => setWinMoment(null)}
+          />
         </main>
       </div>
     </AppLayout>

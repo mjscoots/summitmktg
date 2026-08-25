@@ -18,7 +18,8 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
 import { BackgroundDust } from '@/components/chat/BackgroundDust';
 import { SummitLoader } from '@/components/shared/SummitLoader';
-import { ChannelTabs, getTeamChannelSlug, buildChannelTabs } from '@/components/chat/ChannelTabs';
+import { ChannelTabs } from '@/components/chat/ChannelTabs';
+import { useChatChannels } from '@/hooks/useChatChannels';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -65,6 +66,20 @@ function SystemMessage({ content }: { content: string }) {
   );
 }
 
+const WIN_PREFIX = /^\[\[WIN\|[0-9a-f-]+\]\]/i;
+const isWinPost = (content: string) => WIN_PREFIX.test(content);
+const stripWinPrefix = (content: string) => content.replace(WIN_PREFIX, '');
+
+function WinSystemMessage({ content }: { content: string }) {
+  return (
+    <div className="flex items-center justify-center my-3 px-4">
+      <span className="rounded-full border border-amber-400/25 bg-amber-400/[0.07] px-4 py-1.5 text-center text-[12px] font-bold text-amber-200/90">
+        {stripWinPrefix(content)}
+      </span>
+    </div>
+  );
+}
+
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const [activeChannel, setActiveChannel] = useState('general');
@@ -92,9 +107,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const teamChannelSlug = getTeamChannelSlug(profile?.team_id);
-  const channelTabs = buildChannelTabs(teamChannelSlug, isManager);
+  const { channels, markChannelRead } = useChatChannels();
+  const channelTabs = channels.map(c => ({ slug: c.slug, label: c.label, icon: c.icon, unread: c.unread }));
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
+
+  // Mark the channel being viewed as read
+  useEffect(() => {
+    if (!user || channels.length === 0) return;
+    void markChannelRead(activeChannel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeChannel, user?.id, channels.length]);
 
   const scrollToBottom = useCallback((smooth = true) => {
     const container = containerRef.current;
@@ -111,15 +133,18 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
     setShowScrollDown(scrollHeight - scrollTop - clientHeight > 120);
   }, []);
 
-  // Fetch messages + profiles
+  // Fetch messages + profiles for the active channel
   useEffect(() => {
+    let cancelled = false;
     const fetchMessages = async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
+        .eq('channel', activeChannel)
         .order('created_at', { ascending: false })
         .limit(200);
+      if (cancelled) return;
       if (error) { console.error('Error:', error); setLoading(false); return; }
 
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
@@ -128,6 +153,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now, archived').in('user_id', userIds),
           supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
         ]);
+        if (cancelled) return;
         const rolePriority: Record<string, number> = { rookie: 0, manager: 1, admin: 2, owner: 3 };
         const roleMap: Record<string, string> = {};
         (rolesRes.data || []).forEach(r => {
@@ -138,13 +164,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         (profilesRes.data || []).forEach(p => {
           map[p.user_id] = { full_name: withArchivedSuffix(p.full_name, (p as any).archived), avatar_url: p.avatar_url, is_active_now: p.is_active_now, role: roleMap[p.user_id] };
         });
-        setProfileMap(map);
+        setProfileMap(prev => ({ ...prev, ...map }));
       }
       setMessages(([...(data || [])].reverse()).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
       setLoading(false);
     };
     fetchMessages();
-  }, []);
+    return () => { cancelled = true; };
+  }, [activeChannel]);
+
 
   // Batch-fetch all reactions once messages are loaded, single realtime channel
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -457,8 +485,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {/* Header */}
       <div className="relative z-[1]">
         <ChatHeader
-          channelName="Team Chat"
-          subtitle="Summit Crew"
+          channelName={`#${activeChannel}`}
+          subtitle={channels.find(c => c.slug === activeChannel)?.label || 'Summit Crew'}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
@@ -468,7 +496,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         <ChannelTabs
           tabs={channelTabs}
           activeSlug={activeChannel}
-          onSelect={(slug) => { setActiveChannel(slug); }}
+          onSelect={(slug) => { setActiveChannel(slug); void markChannelRead(slug); }}
         />
       </div>
 
@@ -499,7 +527,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             return (
               <div key={msg.id}>
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                <SystemMessage content={msg.content} />
+                {isWinPost(msg.content)
+                  ? <WinSystemMessage content={msg.content} />
+                  : <SystemMessage content={msg.content} />}
               </div>
             );
           }
