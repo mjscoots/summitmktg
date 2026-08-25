@@ -557,8 +557,15 @@ export default function CommandCenterPage() {
         </div>
 
 
+        {/* ROSTER GAPS */}
+        <SectionHeader title="Roster Gaps" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RosterGapCounters />
+        </div>
+
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />
+
         <div style={{ marginBottom: 40 }}>
           <RegionSheet />
         </div>
