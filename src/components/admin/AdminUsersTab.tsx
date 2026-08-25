@@ -960,6 +960,25 @@ export default function AdminUsersTab({
                   <p className="text-xs text-foreground">{detailUser.direct_manager || detailUser.recruiter || '—'}</p>
                 </div>
 
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Office</p>
+                    <p className="text-xs text-foreground truncate">{officeName(detailUser.office_id) || detailUser.office_name || '—'}</p>
+                  </div>
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Vertical</p>
+                    <p className="text-xs text-foreground truncate">
+                      {detailUser.vertical || 'Pest'}
+                      {detailUser.runs_vertical && <span className="ml-1 text-primary">▲</span>}
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-muted/30 rounded-lg">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rep Year</p>
+                    <p className="text-xs text-foreground">{detailUser.rep_year || '—'}</p>
+                  </div>
+                </div>
+
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-2.5 bg-muted/30 rounded-lg">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Progress</p>
