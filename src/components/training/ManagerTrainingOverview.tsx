@@ -43,7 +43,8 @@ export function ManagerTrainingOverview({ teamId }: ManagerTrainingOverviewProps
             .from('profiles')
             .select('user_id, full_name')
             .eq('team_id', teamId)
-            .neq('status', 'nlc');
+            .neq('status', 'nlc')
+            .eq('archived', false);
 
           if (!teamProfiles || teamProfiles.length === 0) { setIsLoading(false); return; }
 

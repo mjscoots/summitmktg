@@ -59,7 +59,8 @@ export default function ManagerMeetingHubContent() {
           const { data: profs } = await supabase
             .from('profiles')
             .select('user_id, full_name, nickname, avatar_url')
-            .in('user_id', ids);
+            .in('user_id', ids)
+            .eq('archived', false);
           if (!cancelled) setManagers((profs as any) || []);
         }
         const { data: allSubs } = await supabase

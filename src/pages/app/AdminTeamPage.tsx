@@ -100,7 +100,7 @@ export default function AdminTeamPage() {
   const fetchData = async () => {
     setLoading(true);
     const [profilesRes, bootcampRes, roleRes, teamsRes, settingsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url, onboarding_status, organization, last_active_at, region, office_name, recruiter').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url, onboarding_status, organization, last_active_at, region, office_name, recruiter, archived, archived_at, archived_reason').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('user_id, bootcamp_completed'),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('teams').select('id, name, slug, created_at, leader_id').order('name'),
@@ -388,7 +388,7 @@ export default function AdminTeamPage() {
           <TabsContent value="users">
             {loading ? <TableSkeleton columns={8} rows={8} /> : (
               <AdminUsersTab
-                users={allUsers}
+                users={allUsers.filter(u => !(u as any).archived)}
                 managers={managers}
                 teams={teamsSimple}
                 isAdmin={isAdmin}
@@ -632,7 +632,7 @@ export default function AdminTeamPage() {
           <TabsContent value="sync">
             {loading ? <TableSkeleton columns={4} rows={5} /> : (
               <HierarchySyncTab
-                profiles={allUsers.map(u => ({
+                profiles={allUsers.filter(u => !(u as any).archived).map(u => ({
                   user_id: u.user_id,
                   full_name: u.full_name,
                   email: u.email,

@@ -148,6 +148,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
           .from('profiles')
           .select(`user_id, full_name, email, avatar_url, team_id, teams:team_id (name)`)
           .neq('status', 'nlc')
+          .eq('archived', false)
           .neq('user_id', user.id)
           .order('full_name');
         

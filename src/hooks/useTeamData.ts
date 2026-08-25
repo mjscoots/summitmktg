@@ -128,6 +128,7 @@ export function useTeamData(): TeamData {
                 .select('id, user_id, full_name, email, avatar_url, team_id, status, last_active_at, is_active_now, time_this_week_minutes')
                 .in('user_id', downlineUserIds)
                 .neq('status', 'nlc')
+                .eq('archived', false)
                 .order('last_active_at', { ascending: false, nullsFirst: false });
 
               membersData = profilesData || [];

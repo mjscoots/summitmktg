@@ -68,6 +68,7 @@ export function UserAutocomplete({
           teams!left(name)
         `)
         .neq('status', 'nlc')
+        .eq('archived', false)
         .order('full_name');
 
       const { data: profiles, error } = await query;

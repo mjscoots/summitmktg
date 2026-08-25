@@ -108,7 +108,7 @@ export function AdminArchivedTab() {
               key={row.user_id}
               className="flex items-center gap-3 rounded-xl bg-card/60 backdrop-blur-sm border border-white/[0.06] px-4 py-3"
             >
-              <UserAvatar name={row.full_name} avatarUrl={row.avatar_url} size="sm" />
+              <UserAvatar fullName={row.full_name} avatarUrl={row.avatar_url} size="sm" />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-foreground truncate">{row.full_name}</div>
                 <div className="text-xs text-muted-foreground truncate">
