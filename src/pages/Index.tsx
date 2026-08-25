@@ -1,11 +1,10 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect, lazy, Suspense } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
+import IndustrySwitcher from "@/components/IndustrySwitcher";
 
-const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
 
 const Index = () => {
