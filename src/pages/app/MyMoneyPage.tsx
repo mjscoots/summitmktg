@@ -199,7 +199,7 @@ export default function MyMoneyPage() {
                         label: formatTierRange(t),
                         rateLabel: formatRate(t.rate),
                         min: t.min,
-                        max: t.max ?? null,
+                        max: t.max === Infinity ? null : t.max,
                       }))}
                       value={money.revenue ?? 0}
                       formatAmount={formatCurrency}
@@ -326,10 +326,6 @@ export default function MyMoneyPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-sm text-foreground">
-                    Next bracket starts at {formatCurrency(money.next.min)} active revenue and pays{' '}
-                    <span className="font-semibold text-primary">{formatRate(money.next.rate)}</span>.
-                  </p>
                   <p className="text-sm text-foreground">
                     You need {formatCurrency(money.revenueToNext ?? 0)} more active revenue
                     {money.signsToNext !== null
