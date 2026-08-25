@@ -42,8 +42,16 @@ const EXPORTS: { key: ExportKey; label: string; description: string }[] = [
   { key: 'announcements', label: 'Announcements', description: 'Posts with status, category, and publish dates.' },
 ];
 
+function defaultStart() {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  return d.toISOString().slice(0, 10);
+}
+
 export function AdminExportTab() {
   const [busy, setBusy] = useState<ExportKey | null>(null);
+  const [start, setStart] = useState(defaultStart());
+  const [end, setEnd] = useState(() => new Date().toISOString().slice(0, 10));
 
   const run = async (key: ExportKey) => {
     setBusy(key);
@@ -51,7 +59,44 @@ export function AdminExportTab() {
       const db = supabase as any;
       let rows: Record<string, any>[] = [];
 
-      if (key === 'leads') {
+      if (key === 'payroll') {
+        const startTs = new Date(`${start}T00:00:00`).toISOString();
+        const endTs = new Date(`${end}T23:59:59`).toISOString();
+        const [{ data: profiles }, { data: comp }, { data: signups }] = await Promise.all([
+          db.from('profiles').select('user_id, full_name, email').eq('archived', false).order('full_name'),
+          db.from('rep_commission').select('user_id, pay_scale, avg_account_value, active_revenue, rate_override, notes'),
+          db.from('rep_signups').select('signed_by, signed_at').gte('signed_at', startTs).lte('signed_at', endTs),
+        ]);
+        const compMap = new Map((comp || []).map((c: any) => [c.user_id, c]));
+        const signCount = new Map<string, number>();
+        (signups || []).forEach((s: any) => {
+          if (!s.signed_by) return;
+          signCount.set(s.signed_by, (signCount.get(s.signed_by) || 0) + 1);
+        });
+        rows = (profiles || []).map((p: any) => {
+          const c: any = compMap.get(p.user_id) || {};
+          const scale = (c.pay_scale || 'rookie') as PayScale;
+          const signs = signCount.get(p.user_id) || 0;
+          const avg = Number(c.avg_account_value ?? 0);
+          const periodRevenue = signs * avg;
+          const revenueForTier = Number(c.active_revenue ?? 0) || periodRevenue;
+          const rate = c.rate_override != null ? Number(c.rate_override) : getRate(scale, revenueForTier);
+          return {
+            rep_name: p.full_name,
+            rep_email: p.email,
+            period_start: start,
+            period_end: end,
+            signs_in_period: signs,
+            pay_scale: PAY_SCALE_LABELS[scale],
+            avg_account_value_usd: avg || '',
+            period_revenue_usd: Math.round(periodRevenue),
+            revenue_used_for_tier_usd: Math.round(revenueForTier),
+            commission_rate_pct: (rate * 100).toFixed(1),
+            gross_estimate_usd: Math.round(periodRevenue * rate),
+            notes: c.notes || '',
+          };
+        }).filter((r: any) => r.signs_in_period > 0 || r.revenue_used_for_tier_usd > 0);
+      } else if (key === 'leads') {
         const { data, error } = await db
           .from('recruiting_leads')
           .select('*')
