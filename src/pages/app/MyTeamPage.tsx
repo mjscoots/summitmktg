@@ -84,6 +84,12 @@ export default function MyTeamPage() {
   const isAdmin = role === 'admin' || role === 'owner';
   const isManagerRole = role === 'manager' || isAdmin;
 
+  // Manager-only tabs: reps landing on ?tab=triage fall back to Teams
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars')) setViewMode('teams');
+  }, [authLoading, isManagerRole, viewMode]);
+
   useManagerNotifications();
 
   const fetchData = useCallback(async () => {
