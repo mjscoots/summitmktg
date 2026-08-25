@@ -13,6 +13,8 @@ import {
   GraduationCap, ShieldCheck, ListChecks, Loader2, ArrowLeft,
 } from 'lucide-react';
 import { ManagerPicker } from '@/components/industries/ManagerPicker';
+import { LadderStrip } from '@/components/industries/LadderStrip';
+
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
 
@@ -124,11 +126,16 @@ export default function IndustriesPage() {
           </p>
         </header>
 
+        {!loading && verticals.length > 0 && (
+          <LadderStrip verticals={verticals.map((v) => ({ vertical: v.vertical, label: v.label }))} />
+        )}
+
         {loading ? (
           <div className={CARD}>
             <p className="text-sm text-muted-foreground">Loading...</p>
           </div>
         ) : (
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {verticals.map((v) => {
               const Icon = ICONS[v.vertical] || ListChecks;

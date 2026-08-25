@@ -1631,6 +1631,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ladder_rungs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          rung: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          rung: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          rung?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leaderboard_points: {
         Row: {
           call_attendance_points: number | null
@@ -2187,6 +2214,7 @@ export type Database = {
           full_name: string
           id: string
           is_active_now: boolean | null
+          ladder_rung_override: number | null
           last_active_at: string | null
           last_day_worked: string | null
           last_seen_release: string | null
@@ -2251,6 +2279,7 @@ export type Database = {
           full_name: string
           id?: string
           is_active_now?: boolean | null
+          ladder_rung_override?: number | null
           last_active_at?: string | null
           last_day_worked?: string | null
           last_seen_release?: string | null
@@ -2315,6 +2344,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active_now?: boolean | null
+          ladder_rung_override?: number | null
           last_active_at?: string | null
           last_day_worked?: string | null
           last_seen_release?: string | null
@@ -3304,6 +3334,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_lead_applications: {
+        Row: {
+          availability: string | null
+          created_at: string
+          id: string
+          prior_results: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vertical: string
+          why: string
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          prior_results?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vertical: string
+          why: string
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          prior_results?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vertical?: string
+          why?: string
+        }
+        Relationships: []
       }
       team_notifications: {
         Row: {
@@ -4525,6 +4600,15 @@ export type Database = {
         Returns: Json
       }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
+      apply_run_team: {
+        Args: {
+          _availability: string
+          _prior_results: string
+          _vertical: string
+          _why: string
+        }
+        Returns: Json
+      }
       apply_winback_gold: { Args: { _rows: Json }; Returns: Json }
       approve_vertical_step: {
         Args: { _notes?: string; _step_id: string; _user_id: string }
@@ -4841,6 +4925,7 @@ export type Database = {
         }[]
       }
       get_industry_hub: { Args: never; Returns: Json }
+      get_ladder: { Args: never; Returns: Json }
       get_lead_board: {
         Args: never
         Returns: {
@@ -4991,7 +5076,9 @@ export type Database = {
           total_points: number
         }[]
       }
+      get_team_lead_applications: { Args: { _status?: string }; Returns: Json }
       get_team_revenue: { Args: never; Returns: Json }
+      get_the_stack: { Args: never; Returns: Json }
       get_ticket_config: { Args: never; Returns: Json }
       get_ticket_series_status: { Args: never; Returns: Json }
       get_training_leaderboard_panel: {
@@ -5103,6 +5190,10 @@ export type Database = {
         Returns: Json
       }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
+      review_team_lead_application: {
+        Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: Json
+      }
       rsvp_event: {
         Args: { p_event_id: string; p_status: string }
         Returns: undefined

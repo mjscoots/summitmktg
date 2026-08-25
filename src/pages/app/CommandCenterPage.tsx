@@ -11,6 +11,9 @@ import RegionSheet from "@/components/command/RegionSheet";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
 import PairingsPanel from "@/components/command/PairingsPanel";
+import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
+import StackView from "@/components/command/StackView";
+
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
@@ -532,6 +535,18 @@ export default function CommandCenterPage() {
         <SectionHeader title="Pairings" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <PairingsPanel />
+        </div>
+
+        {/* RUN A TEAM REQUESTS */}
+        <SectionHeader title="Run a Team" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <TeamLeadApplicationsPanel />
+        </div>
+
+        {/* THE STACK */}
+        <SectionHeader title="The Stack" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <StackView />
         </div>
 
 
