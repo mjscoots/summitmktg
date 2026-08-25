@@ -181,6 +181,9 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [committedLastDay, setCommittedLastDay] = useState<string | null>(null);
   const [commitmentTerms, setCommitmentTerms] = useState<string | null>(null);
+  const [acceptingNewReps, setAcceptingNewReps] = useState(false);
+  const [menteeCapacity, setMenteeCapacity] = useState<string>('');
+  const [managerIntro, setManagerIntro] = useState('');
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const canSelfDelete = role === 'rookie' || role === 'manager';
@@ -196,7 +199,7 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms')
+          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms, accepting_new_reps, mentee_capacity, manager_intro')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
@@ -207,6 +210,9 @@ export default function ProfilePage() {
         setShirtSize((data as any)?.shirt_size || '');
         setCommittedLastDay((data as any)?.committed_last_day || null);
         setCommitmentTerms((data as any)?.commitment_terms || null);
+        setAcceptingNewReps(Boolean((data as any)?.accepting_new_reps));
+        setMenteeCapacity((data as any)?.mentee_capacity != null ? String((data as any).mentee_capacity) : '');
+        setManagerIntro((data as any)?.manager_intro || '');
       };
       fetchExtra();
     }
