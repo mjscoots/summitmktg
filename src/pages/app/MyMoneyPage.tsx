@@ -15,6 +15,7 @@ import {
   getTiers,
 } from '@/lib/commission';
 import { cn } from '@/lib/utils';
+import { isManagerOrAbove } from '@/lib/roles';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
