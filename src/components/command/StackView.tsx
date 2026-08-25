@@ -17,6 +17,23 @@ interface Manager extends Person {
   capacity: number | null;
   mentee_count: number;
   rep_count: number;
+  region_name?: string | null;
+}
+
+interface Rep extends Person {
+  partner_name: string | null;
+}
+
+interface RegionManager extends Person {
+  reps: Rep[];
+}
+
+interface Region {
+  id: string;
+  name: string;
+  lead: Person | null;
+  rep_count: number;
+  managers: RegionManager[];
 }
 
 interface StackData {
@@ -26,6 +43,7 @@ interface StackData {
     label: string;
     lead: Person | null;
     total_reps: number;
+    regions: Region[];
     managers: Manager[];
   }[];
 }
@@ -102,6 +120,75 @@ export function StackView() {
               <p className="mt-2 text-[12px] text-muted-foreground">No industry lead designated.</p>
             )}
 
+            {(v.regions || []).length > 0 && (
+              <div className="mt-3 space-y-2 border-l border-border/50 pl-3">
+                {v.regions.map((g) => (
+                  <div key={g.id} className="rounded-lg border border-border/50 bg-card/40 p-2.5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-[13px] font-semibold text-foreground">
+                        {v.label} Lead — {g.name}
+                      </p>
+                      <p className="text-[12px] text-muted-foreground tabular-nums">{g.rep_count} reps</p>
+                    </div>
+                    {g.lead ? (
+                      <button
+                        type="button"
+                        onClick={() => goTo(g.lead!.user_id)}
+                        className="mt-1.5 flex w-full items-center gap-2 text-left"
+                      >
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={g.lead.avatar_url || undefined} />
+                          <AvatarFallback className="text-[10px]">{initials(g.lead.full_name)}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-[13px] text-foreground">{g.lead.full_name}</span>
+                      </button>
+                    ) : (
+                      <p className="mt-1.5 text-[12px] text-muted-foreground">No region lead assigned.</p>
+                    )}
+
+                    {g.managers.length > 0 ? (
+                      <ul className="mt-2 space-y-1.5 border-l border-border/50 pl-3">
+                        {g.managers.map((m) => (
+                          <li key={m.user_id}>
+                            <button
+                              type="button"
+                              onClick={() => goTo(m.user_id)}
+                              className="flex w-full items-center gap-2 text-left"
+                            >
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src={m.avatar_url || undefined} />
+                                <AvatarFallback className="text-[10px]">{initials(m.full_name)}</AvatarFallback>
+                              </Avatar>
+                              <span className="truncate text-[13px] text-foreground">{m.full_name}</span>
+                              <span className="shrink-0 text-[12px] text-muted-foreground tabular-nums">
+                                {m.reps.length} reps
+                              </span>
+                            </button>
+                            {m.reps.length > 0 && (
+                              <ul className="mt-1 space-y-1 border-l border-border/40 pl-3">
+                                {m.reps.map((r) => (
+                                  <li key={r.user_id} className="flex items-center gap-1.5">
+                                    <span className="truncate text-[12px] text-muted-foreground">{r.full_name}</span>
+                                    {r.partner_name && (
+                                      <span className="shrink-0 rounded border border-white/[0.08] bg-surface px-1 py-0.5 text-[10px] text-muted-foreground">
+                                        {r.partner_name}
+                                      </span>
+                                    )}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-2 text-[12px] text-muted-foreground">No managers in this region yet.</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {v.managers.length > 0 ? (
               <ul className="mt-2 space-y-1.5 border-l border-border/50 pl-3">
                 {v.managers.map((m) => (
@@ -126,7 +213,9 @@ export function StackView() {
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-[12px] text-muted-foreground">No managers in this industry yet.</p>
+              (v.regions || []).length === 0 && (
+                <p className="mt-2 text-[12px] text-muted-foreground">No managers in this industry yet.</p>
+              )
             )}
           </div>
         ))}
