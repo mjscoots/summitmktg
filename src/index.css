@@ -674,3 +674,31 @@ button, a, [role="button"] {
     padding-top: max(env(safe-area-inset-top), 0px);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 43 — token enforcement sweep.
+   One-off gradients, glow shadows and decorative blur blobs left in
+   component markup resolve to flat surfaces here so the token system
+   stays the single source of truth.
+   ───────────────────────────────────────────────────────────── */
+[class*="bg-gradient-to"] {
+  background-image: none !important;
+}
+
+[class*="bg-gradient-to"].bg-clip-text {
+  -webkit-text-fill-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+}
+
+/* Decorative blurred blobs */
+.blur-2xl,
+.blur-3xl {
+  display: none !important;
+}
+
+/* Ambient, non user-caused animation */
+.animate-pulse,
+.animate-bounce,
+.animate-ping {
+  animation: none !important;
+}
