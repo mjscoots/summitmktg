@@ -19,7 +19,7 @@ export async function postBotShoutout(
   const messages: Record<string, string> = {
     streak: `${firstName} just locked in a ${meta?.streakDays}-day streak. No days off.`,
     bootcamp: `${firstName} just graduated. Another soldier ready for war.`,
-    training: `${firstName} crushed 100% of training. Built different.`,
+    training: `${firstName} finished 100% of training.`,
     deal: `${firstName} just closed another one.${meta?.deals ? ` That's ${meta.deals} today.` : ''} Momentum is real.`,
   };
 

@@ -200,15 +200,15 @@ const VetApplication = () => {
 
   const summitUpside = [
     { icon: Users, title: "Instant Marketing Deal", description: "Plug directly into a marketing deal structure designed for scale, not capped overrides." },
-    { icon: Target, title: "Elite Training", description: "Direct training from a Golden Door record holder (56 days) and a recruiting record holder (1,000 reps in one off-season)." },
+    { icon: Target, title: "Training", description: "Direct training from a Golden Door record holder (56 days) and a recruiting record holder (1,000 reps in one off-season)." },
     { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts." },
     { icon: TrendingUp, title: "Uncapped Recruiting", description: "You will never be capped on how many people you want to bring out." },
-    { icon: Settings, title: "Elite Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and recruiting software — all provided free to veterans on day one." },
+    { icon: Settings, title: "Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and recruiting software — all provided free to veterans on day one." },
     { icon: DollarSign, title: "Scalable Structure", description: "Scalable overrides and a marketing deal structure designed for long-term upside." },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="gold-world min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-4">

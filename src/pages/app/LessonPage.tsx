@@ -385,7 +385,7 @@ export default function LessonPage() {
       await supabase.from('user_notifications').insert({
         user_id: user.id,
         title: '🎉 100% Training Complete!',
-        message: 'You crushed every single module. You are fully trained and ready to dominate.',
+        message: 'You completed every module. Your training is done.',
         link: '/app/training',
       });
 

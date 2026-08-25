@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
+import summitLogo from '@/assets/summit-logo-new.png';
 import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown } from 'lucide-react';
 import {
   Sidebar,
@@ -173,7 +174,7 @@ export function AppSidebar() {
           className="flex items-center gap-2.5 cursor-pointer rounded-lg px-1 py-1 transition-all duration-250 hover:bg-white/5 active:scale-95"
           onClick={() => navigate('/app')}
         >
-          <Mountain className={cn("text-white flex-shrink-0 w-5 h-5")} />
+          <img src={summitLogo} alt="" className="h-5 w-5 flex-shrink-0 object-contain" />
           {!collapsed && (
             <span className="text-sm font-black tracking-tight uppercase text-white">
               Summit

@@ -29,7 +29,7 @@ const Recruiting = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="gold-world min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -66,7 +66,7 @@ const Recruiting = () => {
               alt="Summit Marketing" 
               className="w-64 md:w-80 mx-auto"
               style={{
-                filter: 'drop-shadow(0 0 20px hsl(216, 80%, 45%, 0.35))',
+                filter: 'drop-shadow(0 0 20px hsl(46 65% 52% / 0.28))',
               }}
             />
           </div>
@@ -233,7 +233,7 @@ const Recruiting = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Elite systems & AI tools
+                  Systems & AI tools
                 </li>
               </ul>
               

@@ -175,9 +175,9 @@ export default function DashboardPage() {
   }
 
   const hoursToday = pointsData ? pointsData.timeTodayMinutes / 60 : 0;
-  const eliteGoal = 5;
-  const elitePercent = Math.min((hoursToday / eliteGoal) * 100, 100);
-  const momentumLevel = hoursToday < 1 ? 'Cold' : hoursToday < 2 ? 'Warming Up' : hoursToday < 4 ? 'Locked In' : 'Elite';
+  const dailyGoalHours = 5;
+  const dailyGoalPercent = Math.min((hoursToday / dailyGoalHours) * 100, 100);
+  const momentumLevel = hoursToday < 1 ? 'Cold' : hoursToday < 2 ? 'Warming Up' : hoursToday < 4 ? 'Locked In' : 'Peak';
 
   const dailyPointsEarned = pointsData
     ? pointsData.capsToday.hours.earned + pointsData.capsToday.chat.earned + pointsData.capsToday.lesson.earned + pointsData.capsToday.video.earned + pointsData.capsToday.manual.earned
@@ -207,7 +207,7 @@ export default function DashboardPage() {
               Welcome back, <span className="gradient-text">{firstName}</span>
             </h1>
             <p className="relative z-10 mb-5 text-[13px] text-muted-foreground">
-              Complete training. Build momentum.
+              Your points, activity and rank today.
             </p>
 
             {/* Hero stats row */}
@@ -296,18 +296,18 @@ export default function DashboardPage() {
               </span>
             </div>
 
-            {/* Elite progress bar */}
+            {/* Daily goal progress bar */}
             <div className="mb-4">
               <div className="mb-2 flex items-center justify-between">
-                <span className="micro-label">Elite Goal</span>
-                <span className="text-[11px] tabular-nums text-muted-foreground">{hoursToday.toFixed(1)} / {eliteGoal}h</span>
+                <span className="micro-label">Daily Goal</span>
+                <span className="text-[11px] tabular-nums text-muted-foreground">{hoursToday.toFixed(1)} / {dailyGoalHours}h</span>
               </div>
               <div className="progress-track">
                 <div
-                  className={cn("progress-fill", elitePercent === 100 && "!bg-none")}
+                  className={cn("progress-fill", dailyGoalPercent === 100 && "!bg-none")}
                   style={{
-                    width: `${elitePercent}%`,
-                    ...(elitePercent === 100 ? { background: 'var(--gradient-gold)' } : {}),
+                    width: `${dailyGoalPercent}%`,
+                    ...(dailyGoalPercent === 100 ? { background: 'var(--gradient-gold)' } : {}),
                   }}
                 />
               </div>
