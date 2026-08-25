@@ -57,7 +57,6 @@ const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
 const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
 const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
 const ManagePage = lazy(() => import("./pages/app/ManagePage"));
-const RecruitPipelinePage = lazy(() => import("./pages/app/RecruitPipelinePage"));
 const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
 const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
 const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
