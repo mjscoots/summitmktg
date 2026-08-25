@@ -107,7 +107,7 @@ async function buildContext(admin: any, userId: string) {
   const roleMap = new Map<string, string>();
   for (const r of roleRows.data ?? []) {
     const prev = roleMap.get(r.user_id);
-    const rank = ["rookie", "manager", "admin", "owner"];
+    const rank = ["rookie", "recruiter", "manager", "admin", "owner"];
     if (!prev || rank.indexOf(r.role) > rank.indexOf(prev)) roleMap.set(r.user_id, r.role);
   }
   const teamMap = new Map<string, string>((teams.data ?? []).map((t: any) => [t.id, t.name]));
@@ -189,6 +189,109 @@ async function buildContext(admin: any, userId: string) {
 - Team directory and contact info: Team tab`);
 
   return `\n\n=== CONTEXT START ===\n${parts.join("\n\n")}\n=== CONTEXT END ===`;
+}
+
+/**
+ * Owner/admin only. Read-only live data pulled with the service client. Every
+ * block names its source table so answers can cite it. No writes.
+ */
+async function buildOwnerDataContext(admin: any) {
+  const [people, enrollments, revenue, goalRow] = await Promise.all([
+    admin
+      .from("profiles")
+      .select("user_id, full_name, office_name, vertical, rep_year, direct_manager, departure_type, departure_reason, committed_last_day, next_year_status, archived")
+      .eq("archived", false)
+      .limit(1000),
+    admin.from("rep_vertical_enrollments").select("user_id, vertical, status").limit(2000),
+    admin.from("rep_revenue").select("user_id, month, revenue").limit(5000),
+    admin.from("app_settings").select("key, value").in("key", ["season_revenue_goal", "season_revenue_goal_note"]),
+  ]);
+
+  const rows = (people.data ?? []) as any[];
+  const parts: string[] = [];
+
+  const byOffice = new Map<string, number>();
+  for (const p of rows) {
+    const k = p.office_name || "No office";
+    byOffice.set(k, (byOffice.get(k) ?? 0) + 1);
+  }
+  parts.push(
+    `ACTIVE COUNT BY OFFICE (source table: profiles):\n${
+      [...byOffice.entries()].map(([k, v]) => `- ${k}: ${v}`).join("\n") || "- none"
+    }`
+  );
+
+  const byVertical = new Map<string, number>();
+  for (const e of (enrollments.data ?? []) as any[]) {
+    const k = `${e.vertical} (${e.status})`;
+    byVertical.set(k, (byVertical.get(k) ?? 0) + 1);
+  }
+  parts.push(
+    `COUNT BY INDUSTRY (source table: rep_vertical_enrollments):\n${
+      [...byVertical.entries()].map(([k, v]) => `- ${k}: ${v}`).join("\n") || "- none"
+    }`
+  );
+
+  const noLastDay = rows.filter((p) => !p.committed_last_day).map((p) => p.full_name);
+  const noReason = rows.filter((p) => p.departure_type && !p.departure_reason).map((p) => p.full_name);
+  const noStatus = rows.filter((p) => !p.next_year_status).map((p) => p.full_name);
+  parts.push(
+    `ROSTER GAPS (source table: profiles — fix them in the Roster Sweep):\n` +
+      `- No committed last day (${noLastDay.length}): ${noLastDay.slice(0, 60).join(", ") || "none"}\n` +
+      `- No departure reason (${noReason.length}): ${noReason.slice(0, 60).join(", ") || "none"}\n` +
+      `- No next-season status (${noStatus.length}): ${noStatus.slice(0, 60).join(", ") || "none"}`
+  );
+
+  const revByUser = new Map<string, number>();
+  for (const r of (revenue.data ?? []) as any[]) {
+    revByUser.set(r.user_id, (revByUser.get(r.user_id) ?? 0) + Number(r.revenue ?? 0));
+  }
+  const teamCount = new Map<string, number>();
+  const teamRev = new Map<string, number>();
+  for (const p of rows) {
+    const leader = p.direct_manager;
+    if (!leader) continue;
+    teamCount.set(leader, (teamCount.get(leader) ?? 0) + 1);
+    teamRev.set(leader, (teamRev.get(leader) ?? 0) + (revByUser.get(p.user_id) ?? 0));
+  }
+  const leaderLines = [...teamCount.entries()]
+    .sort((a, b) => (teamRev.get(b[0]) ?? 0) - (teamRev.get(a[0]) ?? 0))
+    .slice(0, 40)
+    .map(([leader, count]) => `- ${leader}: ${count} reps, $${Math.round(teamRev.get(leader) ?? 0).toLocaleString()} recorded revenue`);
+  parts.push(
+    `LEADER SCORECARD (source tables: profiles, rep_revenue):\n${leaderLines.join("\n") || "- none"}`
+  );
+
+  const underLed = rows.filter((p) => !p.direct_manager).map((p) => p.full_name);
+  parts.push(
+    `NO MANAGER ASSIGNED (${underLed.length}) (source table: profiles):\n${
+      underLed.slice(0, 60).map((n) => `- ${n}`).join("\n") || "- none"
+    }`
+  );
+
+  const total = [...revByUser.values()].reduce((a, b) => a + b, 0);
+  const settings = new Map<string, string>(((goalRow.data ?? []) as any[]).map((r) => [r.key, r.value ?? ""]));
+  const goal = Number(settings.get("season_revenue_goal") || 0);
+  parts.push(
+    `SEASON REVENUE (source tables: rep_revenue, app_settings):\n` +
+      `- Recorded revenue: $${Math.round(total).toLocaleString()}\n` +
+      `- Season goal: ${goal ? `$${goal.toLocaleString()}` : "not set"}${
+        goal ? ` (${((total / goal) * 100).toFixed(1)}% of goal)` : ""
+      }` +
+      (settings.get("season_revenue_goal_note") ? `\n- Goal note: ${settings.get("season_revenue_goal_note")}` : "")
+  );
+
+  const lookup = rows
+    .slice(0, 600)
+    .map(
+      (p) =>
+        `- ${p.full_name} | office: ${p.office_name || "not set"} | manager: ${p.direct_manager || "not set"} | year: ${
+          p.rep_year || "not set"
+        } | next season: ${p.next_year_status || "not set"} | last day: ${p.committed_last_day || "not set"}`
+    );
+  parts.push(`PERSON LOOKUP (source table: profiles):\n${lookup.join("\n") || "- none"}`);
+
+  return `\n\n=== LIVE DATA (owner/admin only, read-only) ===\n${parts.join("\n\n")}\n=== LIVE DATA END ===`;
 }
 
 async function loadScriptCards(admin: any) {
@@ -325,7 +428,7 @@ serve(async (req) => {
     }
 
     const { data: roleRows } = await admin.from("user_roles").select("role").eq("user_id", userId);
-    const rank = ["rookie", "manager", "admin", "owner"];
+    const rank = ["rookie", "recruiter", "manager", "admin", "owner"];
     const verifiedRole = (roleRows ?? []).reduce(
       (best: string, r: any) => (rank.indexOf(r.role) > rank.indexOf(best) ? r.role : best),
       "rookie"
@@ -348,7 +451,15 @@ serve(async (req) => {
       }
     } else {
       const context = await buildContext(admin, userId);
-      systemContent = SYSTEM_PROMPT + context;
+      const isStaff = verifiedRole === "admin" || verifiedRole === "owner";
+      const dataContext = isStaff ? await buildOwnerDataContext(admin) : "";
+      systemContent =
+        SYSTEM_PROMPT +
+        context +
+        (isStaff
+          ? "\n\nDATA MODE: the asking user is the owner or an admin. You may answer from the LIVE DATA block below as well. Name the source table for any number you give. Answer plainly, never write or change anything, and still refuse anything not present in the data."
+          : "") +
+        dataContext;
       gatewayMessages = messages;
     }
 

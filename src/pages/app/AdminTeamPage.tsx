@@ -14,6 +14,7 @@ import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, Chevr
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
+import AdminVerticalLeadsPanel from '@/components/admin/AdminVerticalLeadsPanel';
 const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
@@ -474,7 +475,8 @@ export default function AdminTeamPage() {
 
           {/* ========== TEAMS TAB ========== */}
           <TabsContent value="teams">
-            <div className="mb-4">
+            <div className="mb-4 space-y-4">
+              <AdminVerticalLeadsPanel />
               <AdminRegionsPanel />
             </div>
             {isSuperAdmin && (

@@ -28,6 +28,7 @@ interface Requirement {
   value: number | null;
   window_weeks: number | null;
   description: string | null;
+  source: string | null;
   confirmed: boolean;
 }
 
@@ -38,6 +39,7 @@ const SETTING_KEYS = [
   { key: 'fiber_expense_allowance_per_install', label: 'Fiber expense allowance per install' },
   { key: 'fiber_holdback_percent', label: 'Fiber holdback percent' },
   { key: 'producing_rep_definition', label: 'Producing rep definition' },
+  { key: 'pest_sent_rep_override', label: 'Pest sent-rep override (draft)' },
 ];
 
 function DraftBadge({ confirmed }: { confirmed: boolean }) {
@@ -306,6 +308,15 @@ export function RanksStacksPanel() {
                       }}
                       placeholder="Description"
                       className="h-8 min-w-[200px] flex-1 border-white/[0.08] bg-background/60 text-xs"
+                    />
+                    <Input
+                      defaultValue={row.source ?? ''}
+                      onBlur={(e) => {
+                        const t = e.target.value;
+                        if (t !== (row.source ?? '')) saveReq(row, { source: t });
+                      }}
+                      placeholder="Source"
+                      className="h-8 w-40 border-white/[0.08] bg-background/60 text-xs"
                     />
                     <DraftBadge confirmed={row.confirmed} />
                   </div>

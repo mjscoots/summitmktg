@@ -46,7 +46,7 @@ export const BASIC_EDITABLE_FIELDS = [
 export function canEditMemberProfile(
   roster: TeamMember[],
   currentUserName: string,
-  currentUserRole: 'rookie' | 'manager' | 'admin' | 'owner' | undefined,
+  currentUserRole: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | undefined,
   currentUserId: string,
   targetMember: TeamMember
 ): EditPermission {
@@ -85,7 +85,7 @@ export function canEditMemberProfile(
   }
 
   // Rookies cannot edit anyone else
-  if (currentUserRole === 'rookie' || !currentUserRole) {
+  if (currentUserRole === 'rookie' || currentUserRole === 'recruiter' || !currentUserRole) {
     return {
       canEdit: false,
       canEditAll: false,

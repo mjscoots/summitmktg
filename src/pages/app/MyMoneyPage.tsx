@@ -19,6 +19,7 @@ import { isManagerOrAbove } from '@/lib/roles';
 import { MyFiberWeeks } from '@/components/money/MyFiberWeeks';
 import { MyRevenueMonths } from '@/components/money/MyRevenueMonths';
 import { MySpreadSection } from '@/components/money/MySpreadSection';
+import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
@@ -119,7 +120,12 @@ export default function MyMoneyPage() {
           }
         />
 
-        {isManagerRole && <MySpreadSection />}
+        {isManagerRole && (
+          <>
+            <SentRepOverrideNote />
+            <MySpreadSection />
+          </>
+        )}
 
         {loading ? (
 
