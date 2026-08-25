@@ -475,3 +475,41 @@ function Stat({ label, value }: { label: string; value: number }) {
 function Empty() {
   return <div style={{ color: COLORS.textMuted, fontSize: 12 }}>—</div>;
 }
+
+function FunnelTable({ lines }: { lines: FunnelLine[] }) {
+  if (lines.length === 0) {
+    return <div style={{ color: COLORS.textMuted, fontSize: 12 }}>No data yet.</div>;
+  }
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Recruited</th>
+            <th>Showed up</th>
+            <th>Still here</th>
+            <th>Fell off</th>
+            <th>Fired</th>
+            <th>Quit</th>
+            <th>Unknown</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lines.map(l => (
+            <tr key={l.label || 'blank'}>
+              <td style={{ fontWeight: 500 }}>{l.label || '—'}</td>
+              <td>{l.recruited}</td>
+              <td>{l.showed_up}</td>
+              <td>{l.still_here}</td>
+              <td>{l.fell_off}</td>
+              <td>{l.fired}</td>
+              <td>{l.quit}</td>
+              <td>{l.unknown}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
