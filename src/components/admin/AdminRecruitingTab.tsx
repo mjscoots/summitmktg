@@ -7,6 +7,7 @@ import { Loader2, Trash2, Plus, RefreshCw, Ticket, BadgeCheck } from 'lucide-rea
 import { Input } from '@/components/ui/input';
 import { PROOF_FIELDS } from '@/components/recruiting/RecruitingProof';
 import AdminRecruitingContent from '@/components/admin/AdminRecruitingContent';
+import AdminSourcePanel from '@/components/admin/AdminSourcePanel';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -353,6 +354,8 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
           </div>
         )}
       </div>
+
+      <AdminSourcePanel />
 
       {/* Attribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

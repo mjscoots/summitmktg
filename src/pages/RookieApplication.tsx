@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain, Loader2 } from "lucide-react";
 import EarningsCalculator from "@/components/EarningsCalculator";
+import IndustryStep, { useApplicationSource } from "@/components/apply/IndustryStep";
 import Testimonials, { rookieTestimonials } from "@/components/Testimonials";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,8 @@ const RookieApplication = () => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { vertical, setVertical, source } = useApplicationSource();
+  const [verticalError, setVerticalError] = useState<string | undefined>();
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -131,6 +134,11 @@ const RookieApplication = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!vertical) {
+      setVerticalError("Pick one");
+      return;
+    }
+    setVerticalError(undefined);
     if (!validateForm()) return;
     
     setIsSubmitting(true);
@@ -142,7 +150,12 @@ const RookieApplication = () => {
         phone: formData.phone.trim(),
         city_state: formData.cityState.trim(),
         referral_source: formData.referralName.trim(),
-      });
+        vertical: vertical === "unsure" ? null : vertical,
+        source_type: source.source_type,
+        source_code: source.source_code,
+        referrer_user_id: source.referrer_user_id,
+        partner_id: source.partner_id,
+      } as never);
 
       if (error) throw error;
 
@@ -271,6 +284,8 @@ const RookieApplication = () => {
             <p className="text-sm text-muted-foreground mb-6">
               <span className="text-destructive">*</span> All fields are required
             </p>
+            <IndustryStep value={vertical} onChange={setVertical} error={verticalError} />
+
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">

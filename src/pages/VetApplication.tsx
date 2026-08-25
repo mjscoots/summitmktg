@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mountain, DollarSign, Loader2 } from "lucide-react";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import VetCalculator, { VetCalculatorValues } from "@/components/VetCalculator";
+import IndustryStep, { useApplicationSource } from "@/components/apply/IndustryStep";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,6 +32,8 @@ const VetApplication = () => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { vertical, setVertical, source } = useApplicationSource();
+  const [verticalError, setVerticalError] = useState<string | undefined>();
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -144,6 +147,11 @@ const VetApplication = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!vertical) {
+      setVerticalError("Pick one");
+      return;
+    }
+    setVerticalError(undefined);
     if (!validateForm()) return;
     
     setIsSubmitting(true);
@@ -157,7 +165,12 @@ const VetApplication = () => {
         referral_source: formData.referralName.trim(),
         previous_company: formData.intendedMarket.trim(), // Previously knocked markets
         years_experience: parseInt(formData.lastSeasonRevenue.replace(/[^0-9]/g, '')) || null, // Store as revenue number
-      });
+        vertical: vertical === "unsure" ? null : vertical,
+        source_type: source.source_type,
+        source_code: source.source_code,
+        referrer_user_id: source.referrer_user_id,
+        partner_id: source.partner_id,
+      } as never);
 
       if (error) throw error;
 
@@ -307,6 +320,7 @@ const VetApplication = () => {
             <p className="text-sm text-muted-foreground mb-6">
               <span className="text-destructive">*</span> All fields are required
             </p>
+            <IndustryStep value={vertical} onChange={setVertical} error={verticalError} />
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
