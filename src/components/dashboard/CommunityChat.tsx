@@ -549,9 +549,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             return (
               <div key={msg.id}>
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                {isWinPost(msg.content)
-                  ? <WinSystemMessage content={msg.content} />
-                  : <SystemMessage content={msg.content} />}
+                {isAwardsPost(msg.content)
+                  ? <AwardsSystemMessage content={msg.content} />
+                  : isWinPost(msg.content)
+                    ? <WinSystemMessage content={msg.content} />
+                    : <SystemMessage content={msg.content} />}
+
               </div>
             );
           }
