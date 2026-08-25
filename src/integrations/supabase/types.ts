@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_queue_dismissals: {
+        Row: {
+          created_at: string
+          dismissed_at: string
+          dismissed_by: string | null
+          id: string
+          item_key: string
+          item_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dismissed_at?: string
+          dismissed_by?: string | null
+          id?: string
+          item_key: string
+          item_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dismissed_at?: string
+          dismissed_by?: string | null
+          id?: string
+          item_key?: string
+          item_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_coach_conversations: {
         Row: {
           content: string
@@ -807,6 +837,27 @@ export type Database = {
           },
         ]
       }
+      chat_read_state: {
+        Row: {
+          created_at: string
+          last_read_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          last_read_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          last_read_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_challenges: {
         Row: {
           bonus_awarded: boolean
@@ -1425,36 +1476,45 @@ export type Database = {
       }
       notification_preferences: {
         Row: {
+          announcements: boolean
           bootcamp_reminders: boolean
           calendar_events: boolean
           chat_mentions: boolean
           created_at: string
           id: string
+          lead_expiry: boolean
           leaderboard: boolean
+          new_leads: boolean
           streak_milestones: boolean
           training_quiz: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
+          announcements?: boolean
           bootcamp_reminders?: boolean
           calendar_events?: boolean
           chat_mentions?: boolean
           created_at?: string
           id?: string
+          lead_expiry?: boolean
           leaderboard?: boolean
+          new_leads?: boolean
           streak_milestones?: boolean
           training_quiz?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
+          announcements?: boolean
           bootcamp_reminders?: boolean
           calendar_events?: boolean
           chat_mentions?: boolean
           created_at?: string
           id?: string
+          lead_expiry?: boolean
           leaderboard?: boolean
+          new_leads?: boolean
           streak_milestones?: boolean
           training_quiz?: boolean
           updated_at?: string
@@ -3391,6 +3451,7 @@ export type Database = {
       }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_inactive_users: { Args: never; Returns: undefined }
+      notify_lead_expiry_warnings: { Args: never; Returns: number }
       recalculate_all_time_points: { Args: never; Returns: undefined }
       record_daily_login: {
         Args: { _timezone?: string; _user_id: string }
