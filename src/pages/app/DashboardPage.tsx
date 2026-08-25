@@ -231,6 +231,9 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Action row — what to do right now */}
+        <HomeActionRow />
+
         {/* Announcement Box */}
         <AnnouncementBox />
 
