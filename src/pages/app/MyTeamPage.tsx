@@ -19,6 +19,7 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { RepScorecard } from '@/components/shared/RepScorecard';
+import { RankInsignia } from '@/components/badges/RankInsignia';
 import { TriageBoard } from '@/components/team/TriageBoard';
 import { CarGroupsTab } from '@/components/team/CarGroupsTab';
 import { TeamActionItems } from '@/components/team/TeamActionItems';
