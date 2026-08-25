@@ -120,6 +120,7 @@ function LazyFallback() {
              <Route path="/recruiting" element={<Recruiting />} />
              {/* Public Golden Ticket lead capture (QR / no login) */}
              <Route path="/ticket" element={<TicketPage />} />
+             <Route path="/parents" element={<Parents />} />
              {/* Redirect /apply to /recruiting#apply section */}
              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
              <Route path="/apply/rookie" element={<RookieApplication />} />
