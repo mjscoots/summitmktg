@@ -104,7 +104,7 @@ const Index = () => {
               Summit Marketing
             </h1>
             <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
-              We train door-to-door reps, put them on doors, and pay on production. See what a summer is worth.
+              We recruit, train, and field door-to-door sales reps. You knock, you close, you get paid on what you close.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
