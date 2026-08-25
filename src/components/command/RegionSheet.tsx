@@ -139,10 +139,48 @@ export default function RegionSheet() {
     [sheet]
   );
 
+  const funnelText = () => {
+    const f0 = sheet?.funnel;
+    const line = (l: FunnelLine | null, name: string) =>
+      l
+        ? `${name}: recruited ${l.recruited} → showed up ${l.showed_up} → still here ${l.still_here} → fell off ${l.fell_off} (fired ${l.fired}, quit ${l.quit}, unknown ${l.unknown})`
+        : `${name}: no data yet`;
+    const out: string[] = [];
+    if (f0) {
+      out.push(
+        `Whole region: recruited ${f0.recruited ?? f0.ever_on_roster} → showed up ${f0.showed_up} → still here ${f0.still_active} → fell off ${f0.departed} (fired ${f0.fired}, quit ${f0.quit}, unknown ${f0.unknown})`
+      );
+    }
+    out.push('', 'By office:');
+    (sheet?.funnel_by_office ?? []).forEach(l => out.push(line(l, l.label || '—')));
+    out.push('', 'By leader:');
+    (sheet?.funnel_by_leader ?? []).forEach(l => out.push(line(l, l.label || '—')));
+    out.push('', 'Production for every name:');
+    rows.forEach(r => {
+      out.push(
+        `${blank(r.full_name) || '—'} · ${r.archived ? 'departed' : 'still here'} · revenue ${
+          r.revenue_total ? money(r.revenue_total) : 'no data yet'
+        } · months ${r.months_active ?? 0} · last revenue month ${blank(r.last_revenue_month) || 'no data yet'}`
+      );
+    });
+    return out.join('\n');
+  };
+
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(funnelText());
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   const exportCsv = () => {
     const headers = [
       'Name', 'Office', 'Team', 'Manager', 'Rep year', 'Recruited by', 'Vertical',
-      'Status', 'Departure type', 'Departure reason', 'Last day worked', 'Revenue',
+      'Status', 'Departure type', 'Departure reason', 'Last day worked', 'Committed last day',
+      'Next season', 'Showed up', 'Revenue total', 'Months active', 'Last revenue month', 'Revenue on file',
       ...(hasReSigned ? ['Re-signed'] : []),
     ];
     const lines = [headers.join(',')];
@@ -159,11 +197,18 @@ export default function RegionSheet() {
         departureLabel(r.departure_type),
         blank(r.departure_reason),
         blank(r.last_day_worked),
+        blank(r.committed_last_day),
+        blank(r.next_year_status),
+        blank(r.showed_up_date),
+        r.revenue_total === null || r.revenue_total === undefined ? '' : String(r.revenue_total),
+        r.months_active === null || r.months_active === undefined ? '' : String(r.months_active),
+        blank(r.last_revenue_month),
         r.revenue_to_date === null || r.revenue_to_date === undefined ? '' : String(r.revenue_to_date),
         ...(hasReSigned ? [blank(r.re_signed)] : []),
       ];
       lines.push(cells.map(csvEscape).join(','));
     }
+
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
