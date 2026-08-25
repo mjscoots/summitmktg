@@ -7,6 +7,7 @@ import { Loader2, Check, Pencil } from "lucide-react";
 import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
+import RegionSheet from "@/components/command/RegionSheet";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
