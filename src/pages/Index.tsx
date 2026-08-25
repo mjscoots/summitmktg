@@ -120,6 +120,11 @@ const Index = () => {
                 Apply
               </button>
             </div>
+
+            <div className="mt-8">
+              <LiveCounters variant="inline" />
+            </div>
+
           </div>
         </div>
 
