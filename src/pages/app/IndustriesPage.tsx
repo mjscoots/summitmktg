@@ -13,6 +13,8 @@ import {
   GraduationCap, ShieldCheck, ListChecks, Loader2, ArrowLeft,
 } from 'lucide-react';
 import { ManagerPicker } from '@/components/industries/ManagerPicker';
+import { LadderStrip } from '@/components/industries/LadderStrip';
+
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
 
