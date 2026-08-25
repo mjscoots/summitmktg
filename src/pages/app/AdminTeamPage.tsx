@@ -342,8 +342,8 @@ export default function AdminTeamPage() {
 
 
         <Tabs defaultValue={
-          // Land on the triage queue whenever anything is pending
-          adminCounts.total > 0 ? 'queue' : 'users'
+          // Deep link wins, otherwise land on the triage queue whenever anything is pending
+          searchParams.get('tab') || (adminCounts.total > 0 ? 'queue' : 'users')
         } className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
             <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 min-w-max">
