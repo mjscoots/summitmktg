@@ -8,6 +8,7 @@ import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
+import RosterGapCounters from "@/components/roster/RosterGapCounters";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
 import PairingsPanel from "@/components/command/PairingsPanel";
