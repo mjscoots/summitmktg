@@ -295,6 +295,24 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
           )}
         </header>
 
+        {!loading && (
+          pairedManager ? (
+            <div className={cn(CARD, 'flex items-center gap-2')}>
+              <Users className="h-4 w-4 text-primary" />
+              <p className="text-[13px] text-muted-foreground">
+                Working with <span className="font-medium text-foreground">{pairedName || 'your manager'}</span>
+              </p>
+            </div>
+          ) : (
+            <ManagerPicker
+              vertical={vertical}
+              label={data?.label || vertical}
+              onPaired={load}
+            />
+          )
+        )}
+
+
         {loading ? (
           <div className={CARD}>
             <p className="text-sm text-muted-foreground">Loading...</p>
