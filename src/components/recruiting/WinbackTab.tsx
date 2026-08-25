@@ -357,7 +357,9 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
   return (
     <div className="space-y-6">
+      {viewSwitch}
       {isAdmin && <WinbackGoldImport onApplied={load} />}
+
 
       {/* Returning */}
       {feed.returning.length > 0 && (
