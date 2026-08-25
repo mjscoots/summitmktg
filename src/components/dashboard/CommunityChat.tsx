@@ -70,6 +70,9 @@ const WIN_PREFIX = /^\[\[WIN\|[0-9a-f-]+\]\]/i;
 const isWinPost = (content: string) => WIN_PREFIX.test(content);
 const stripWinPrefix = (content: string) => content.replace(WIN_PREFIX, '');
 
+const AWARDS_PREFIX = /^\[\[AWARDS\|[0-9-]+\]\]/i;
+const isAwardsPost = (content: string) => AWARDS_PREFIX.test(content);
+
 function WinSystemMessage({ content }: { content: string }) {
   return (
     <div className="flex items-center justify-center my-3 px-4">
@@ -79,6 +82,25 @@ function WinSystemMessage({ content }: { content: string }) {
     </div>
   );
 }
+
+function AwardsSystemMessage({ content }: { content: string }) {
+  const body = content.replace(AWARDS_PREFIX, '');
+  const [header, ...lines] = body.split('\n').filter(Boolean);
+  return (
+    <div className="my-3 px-4">
+      <div className="mx-auto max-w-sm rounded-xl border border-amber-400/25 bg-amber-400/[0.06] px-4 py-3">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-200/80">Weekly awards</p>
+        <p className="mt-0.5 text-[12px] text-amber-100/70">{header}</p>
+        <ul className="mt-2 space-y-1">
+          {lines.map((l) => (
+            <li key={l} className="text-[12px] font-semibold text-amber-200/90">{l}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
@@ -527,9 +549,12 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
             return (
               <div key={msg.id}>
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                {isWinPost(msg.content)
-                  ? <WinSystemMessage content={msg.content} />
-                  : <SystemMessage content={msg.content} />}
+                {isAwardsPost(msg.content)
+                  ? <AwardsSystemMessage content={msg.content} />
+                  : isWinPost(msg.content)
+                    ? <WinSystemMessage content={msg.content} />
+                    : <SystemMessage content={msg.content} />}
+
               </div>
             );
           }

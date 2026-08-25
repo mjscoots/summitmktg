@@ -281,11 +281,19 @@ export default function RecruitsPage() {
                 {board.map((lead) => (
                   <div key={lead.id} className={cn(CARD, 'p-4 flex flex-col')}>
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-[15px] font-bold text-foreground">{lead.first_name}</h3>
-                      <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <h3 className="text-[15px] font-bold text-foreground">{lead.first_name}</h3>
+                        {Date.now() - new Date(lead.created_at).getTime() < 86_400_000 && (
+                          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                            New today
+                          </span>
+                        )}
+                      </div>
+                      <span className="shrink-0 text-[11px] text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {timeAgo(lead.created_at)}
                       </span>
                     </div>
+
                     {lead.city && (
                       <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {lead.city}

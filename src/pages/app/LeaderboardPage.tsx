@@ -3,6 +3,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboard';
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { RecruitingLeaderboard } from '@/components/leaderboard/RecruitingLeaderboard';
+import { WeekPaceStrip } from '@/components/leaderboard/WeekPaceStrip';
+
 import { Trophy, Flame, Calendar, Info, Mountain, Users, Target } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
@@ -97,7 +99,10 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
+          <WeekPaceStrip />
+
           {/* Filter Tabs — pill style */}
+
           <div className="grid grid-cols-2 gap-2 mb-4 sm:flex">
             {TABS.map((tab) => {
               const Icon = tab.icon;

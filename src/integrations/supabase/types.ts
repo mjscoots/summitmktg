@@ -2312,6 +2312,42 @@ export type Database = {
           },
         ]
       }
+      scripts: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       signup_logs: {
         Row: {
           direct_manager: string
@@ -3131,6 +3167,30 @@ export type Database = {
           },
         ]
       }
+      weekly_awards: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          posted_at: string
+          week_ending: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          posted_at?: string
+          week_ending: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          posted_at?: string
+          week_ending?: string
+        }
+        Relationships: []
+      }
       weekly_one_on_ones_manager: {
         Row: {
           completed_mission: string
@@ -3393,6 +3453,10 @@ export type Database = {
       }
       claim_lead: { Args: { _lead_id: string }; Returns: Json }
       claim_winback: { Args: { _lead_id: string }; Returns: Json }
+      compute_weekly_awards: {
+        Args: { _from: string; _to: string }
+        Returns: Json
+      }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3646,6 +3710,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
       has_role: {
         Args: {
@@ -3666,6 +3731,7 @@ export type Database = {
       mark_inactive_users: { Args: never; Returns: undefined }
       my_signed_count: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
+      post_weekly_awards: { Args: never; Returns: Json }
       recalculate_all_time_points: { Args: never; Returns: undefined }
       record_daily_login: {
         Args: { _timezone?: string; _user_id: string }
