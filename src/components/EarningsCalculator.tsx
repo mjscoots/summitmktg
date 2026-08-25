@@ -10,6 +10,7 @@ import {
   type PublicCalc,
 } from "@/hooks/usePublicCalc";
 import VetBidForm from "@/components/VetBidForm";
+import { PayLadderTrack } from "@/components/shared/PayLadderTrack";
 
 /**
  * Public pest earnings calculator — rookie only.
@@ -156,23 +157,16 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           <Cell label={`Active revenue (−${d.reductionPct}%)`} value={formatCurrency(active)} />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 mb-4">
+        <div className="grid gap-3 sm:grid-cols-2 mb-6">
           <div className="p-5 rounded-lg bg-primary/10 border border-primary/20">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-              Tier reached
-            </p>
-            <p className="text-2xl font-black tabular-nums text-primary">
+            <p className="micro-label mb-2">Tier reached</p>
+            <p className="text-2xl font-bold stat-num text-primary">
               {band ? `${bandLabel(band)} · ${(rate * 100).toFixed(0)}%` : "—"}
             </p>
           </div>
-          <div className="p-5 rounded-lg bg-success/20 border-2 border-success">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-5 h-5 text-success" />
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Season earnings
-              </p>
-            </div>
-            <p className="text-3xl font-black tabular-nums text-success">
+          <div className="p-5 rounded-lg bg-secondary border border-border">
+            <p className="micro-label mb-2">Season earnings</p>
+            <p className="text-3xl font-bold stat-num text-foreground">
               {formatCurrency(seasonEarnings)}
             </p>
           </div>
@@ -189,41 +183,28 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           This is math, not a promise.
         </p>
 
-        {/* Pay scale table */}
+        {/* Pay ladder track */}
         {bands.length > 0 && (
           <div className="mb-8">
-            <h4 className="text-lg font-bold text-foreground mb-1 uppercase tracking-wide">
-              Commission pay scale
-            </h4>
+            <h4 className="text-base font-semibold text-foreground mb-1">Pay ladder</h4>
             <p className="text-xs text-muted-foreground mb-4">
               {calc?.pay_scale?.label} — the tier you reach pays that rate on all season active
-              revenue.
+              revenue. Tap a tier to set the accounts it takes.
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {bands.map((b, i) => {
-                const isActive = band?.min === b.min;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => jumpToBand(b)}
-                    className={`p-3 rounded-lg text-center transition-colors ${
-                      isActive
-                        ? "bg-primary/20 border-2 border-primary"
-                        : "bg-secondary/30 border border-border hover:border-primary/40"
-                    }`}
-                  >
-                    <p className="text-xs text-muted-foreground mb-1">{bandLabel(b)}</p>
-                    <p
-                      className={`text-lg font-bold tabular-nums ${isActive ? "text-primary" : "text-foreground"}`}
-                    >
-                      {(b.rate * 100).toFixed(0)}%
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+            <PayLadderTrack
+              tiers={bands.map((b) => ({
+                label: bandLabel(b),
+                rateLabel: `${(b.rate * 100).toFixed(0)}%`,
+                min: b.min,
+                max: b.max,
+              }))}
+              value={active}
+              formatAmount={formatCurrency}
+              onTierSelect={(_t, i) => jumpToBand(bands[i])}
+            />
           </div>
         )}
+
 
         {/* Housing note */}
         <div className="p-4 rounded-lg bg-secondary/30 border border-border mb-6">
