@@ -220,3 +220,77 @@ export function MyActionItemsCard({ className }: { className?: string }) {
     </div>
   );
 }
+
+interface VerticalOnboarding {
+  vertical: string;
+  label: string;
+  steps_total: number;
+  steps_done: number;
+  next_title: string | null;
+}
+
+/** Continue-setup card for an in-progress industry onboarding path. Hidden when none. */
+export function ContinueVerticalSetupCard({ className }: { className?: string }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [row, setRow] = useState<VerticalOnboarding | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data: enr } = await supabase
+        .from('rep_vertical_enrollments' as never)
+        .select('vertical')
+        .eq('user_id', user.id)
+        .eq('status', 'onboarding')
+        .limit(1);
+      const vertical = (enr as unknown as { vertical: string }[] | null)?.[0]?.vertical;
+      if (cancelled || !vertical) return;
+      const { data } = await supabase.rpc('get_my_vertical_path' as never, { _vertical: vertical } as never);
+      const res = data as unknown as {
+        vertical?: string;
+        label?: string;
+        enrollment?: { status: string } | null;
+        steps?: { state: string; title: string }[];
+      } | null;
+      if (cancelled || !res?.vertical || res.enrollment?.status !== 'onboarding') return;
+      const steps = res.steps ?? [];
+      setRow({
+        vertical: res.vertical,
+        label: res.label || res.vertical,
+        steps_total: steps.length,
+        steps_done: steps.filter(s => s.state === 'done').length,
+        next_title: steps.find(s => s.state === 'current')?.title ?? null,
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  if (!row) return null;
+
+  return (
+    <button
+      onClick={() => navigate(`/app/industries?v=${row.vertical}`)}
+      className={cn(
+        'flex w-full items-center gap-3 rounded-2xl border border-white/[0.06] bg-card/60 px-4 py-3 text-left backdrop-blur-sm transition-colors hover:bg-card/80',
+        className
+      )}
+    >
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5">
+        <ListChecks className="h-4 w-4 text-primary" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-foreground">
+          Finish your {row.label} setup
+        </p>
+        <p className="text-xs tabular-nums text-muted-foreground">
+          {row.steps_done} of {row.steps_total} steps done
+          {row.next_title ? ` · Next: ${row.next_title}` : ''}
+        </p>
+      </div>
+    </button>
+  );
+}

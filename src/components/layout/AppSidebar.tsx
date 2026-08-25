@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import summitLogo from '@/assets/summit-logo-new.png';
-import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock, Building2 } from 'lucide-react';
 import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
@@ -37,6 +37,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'My Money', path: '/app/money', icon: DollarSign },
+  { label: 'Industries', path: '/app/industries', icon: Building2 },
   { label: 'Resources', path: '/app/links', icon: BookOpen },
 ];
 

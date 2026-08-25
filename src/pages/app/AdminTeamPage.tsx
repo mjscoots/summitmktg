@@ -14,6 +14,7 @@ import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, Chevr
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
+const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
@@ -411,6 +412,9 @@ export default function AdminTeamPage() {
               <TabsTrigger value="audit" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                 Audit
               </TabsTrigger>
+              <TabsTrigger value="industries" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                Industries
+              </TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="export" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
                   Export
@@ -701,6 +705,15 @@ export default function AdminTeamPage() {
               <LazyAuditPanel />
             </Suspense>
           </TabsContent>
+
+          {/* ========== INDUSTRIES TAB ========== */}
+          <TabsContent value="industries">
+            <Suspense fallback={<LoadingList rows={4} />}>
+              <LazyIndustries />
+            </Suspense>
+          </TabsContent>
+
+
 
           {/* ========== EXPORT TAB ========== */}
           {isAdmin && (

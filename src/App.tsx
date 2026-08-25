@@ -68,6 +68,7 @@ const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
 const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
+const IndustriesPage = lazy(() => import("./pages/app/IndustriesPage"));
 
 
 function LazyFallback() {
@@ -317,6 +318,17 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+
+              {/* Industry hub + onboarding paths */}
+              <Route path="/app/industries" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <IndustriesPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+
 
               {/* Ask Summit — grounded AI assistant */}
               <Route path="/app/ask" element={
