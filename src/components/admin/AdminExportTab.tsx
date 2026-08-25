@@ -198,6 +198,46 @@ export function AdminExportTab() {
             </button>
           </div>
         ))}
+
+        {/* Payroll prep — date range driven */}
+        <div className={cn(CARD, 'p-4 sm:col-span-2')}>
+          <h3 className="text-sm font-semibold text-foreground">Payroll prep</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Per rep: signs in the selected period, their pay tier and rate from the Money system, and computed gross
+            (period revenue = signs x average account value; gross = period revenue x rate).
+          </p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <label className="text-xs text-muted-foreground">
+              From
+              <input
+                type="date"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+                className="ml-2 min-h-10 rounded-lg border border-white/[0.08] bg-card/50 px-2 text-xs text-foreground"
+              />
+            </label>
+            <label className="text-xs text-muted-foreground">
+              To
+              <input
+                type="date"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+                className="ml-2 min-h-10 rounded-lg border border-white/[0.08] bg-card/50 px-2 text-xs text-foreground"
+              />
+            </label>
+            <button
+              onClick={() => run('payroll')}
+              disabled={busy !== null}
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/40 px-3 text-xs font-semibold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-50">
+              {busy === 'payroll' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              Download CSV
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
