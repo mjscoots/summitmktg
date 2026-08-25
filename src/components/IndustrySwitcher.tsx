@@ -27,7 +27,7 @@ interface IndustryData {
 }
 
 const DEFAULT_STEPS = ["Apply", "Setup steps", "Pick your manager", "Start"];
-const CARD = "rounded-2xl border border-primary/20 bg-white/[0.02] p-5 sm:p-6";
+const CARD = "rounded border border-border bg-card p-5 sm:p-6";
 
 function hashSlug(): Slug | null {
   const h = window.location.hash.replace("#", "").toLowerCase();
@@ -85,16 +85,12 @@ export default function IndustrySwitcher() {
   };
 
   return (
-    <section id="industries" className="relative z-10 mx-auto w-full max-w-4xl px-6 py-12 scroll-mt-8">
-      <h2 className="mb-6 text-center text-2xl font-black uppercase tracking-tight text-foreground md:text-3xl">
-        Pick your industry
-      </h2>
-
+    <section id="industries" className="mx-auto w-full max-w-3xl px-4 sm:px-6 pb-12 scroll-mt-8">
       <div className="mb-8 flex justify-center">
         <div
           role="tablist"
           aria-label="Industry"
-          className="inline-flex items-center rounded-2xl border border-primary/25 bg-white/[0.02] p-1"
+          className="inline-flex items-center rounded border border-border bg-card p-1"
         >
           {TABS.map((t) => (
             <button
@@ -102,7 +98,7 @@ export default function IndustrySwitcher() {
               role="tab"
               aria-selected={slug === t.slug}
               onClick={() => select(t.slug)}
-              className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-colors ${
+              className={`min-h-11 rounded px-5 text-sm font-semibold transition-colors ${
                 slug === t.slug
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -116,12 +112,12 @@ export default function IndustrySwitcher() {
 
       <div className="space-y-8">
         {data?.description && (
-          <p className="mx-auto max-w-2xl whitespace-pre-line text-center text-base text-muted-foreground md:text-lg">
+          <p className="mx-auto max-w-2xl whitespace-pre-line text-base text-muted-foreground">
             {data.description}
           </p>
         )}
         {data?.public_note && (
-          <p className="mx-auto max-w-2xl text-center text-sm text-muted-foreground">
+          <p className="mx-auto max-w-2xl text-sm text-muted-foreground">
             {data.public_note}
           </p>
         )}
@@ -132,7 +128,7 @@ export default function IndustrySwitcher() {
             <ol className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
               {steps.map((s, i) => (
                 <li key={`${s}-${i}`} className="flex items-center gap-2 sm:gap-3">
-                  <span className="rounded-xl border border-primary/25 bg-white/[0.02] px-3 py-2 text-sm text-foreground">
+                  <span className="rounded border border-border bg-card px-3 py-2 text-sm text-foreground">
                     {s}
                   </span>
                   {i < steps.length - 1 && (
@@ -173,10 +169,12 @@ export default function IndustrySwitcher() {
                     {l.avatar_url ? (
                       <img src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                     ) : (
-                      <div className="h-11 w-11 rounded-full border border-primary/25" />
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-sm font-semibold text-foreground">
+                        {(l.full_name || "").trim().charAt(0).toUpperCase() || "\u2014"}
+                      </div>
                     )}
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-foreground">{l.full_name || ""}</p>
+                      <p className="truncate text-sm font-semibold text-foreground">{l.full_name || ""}</p>
                       {l.intro && <p className="text-xs text-muted-foreground">{l.intro}</p>}
                     </div>
                   </div>
@@ -198,10 +196,10 @@ export default function IndustrySwitcher() {
           </div>
         )}
 
-        <div className="text-center">
+        <div>
           <button
             onClick={() => navigate(applyHref)}
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]"
+            className="inline-flex min-h-11 items-center gap-2 rounded bg-primary px-8 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             Apply for {tab.label} <ArrowRight className="h-4 w-4" />
           </button>
