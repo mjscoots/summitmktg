@@ -5874,6 +5874,7 @@ export type Database = {
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
       my_signed_count: { Args: never; Returns: number }
+      my_vertical: { Args: never; Returns: string }
       norm_person_name: { Args: { _t: string }; Returns: string }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
       notify_chat_mentions: {
