@@ -57,6 +57,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [refFilter, setRefFilter] = useState('all');
   const [repFilter, setRepFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
 
   const [newCode, setNewCode] = useState('');
   const [newCodeLabel, setNewCodeLabel] = useState('');
