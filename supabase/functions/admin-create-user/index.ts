@@ -37,12 +37,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if caller is admin ONLY
+    // Check if caller is admin or owner
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerUser.id)
-      .eq("role", "admin");
+      .in("role", ["admin", "owner"]);
 
     if (!roleData || roleData.length === 0) {
       return new Response(JSON.stringify({ error: "Admin access required" }), {
@@ -50,6 +50,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     // Rate limit: max 10 account creations per 5 minutes
     const { data: allowed } = await supabaseAdmin.rpc("check_rate_limit", {
