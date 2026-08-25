@@ -110,7 +110,7 @@ const Index = () => {
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
               <button
                 onClick={scrollToEarnings}
-                className="flex-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]">
+                className="flex-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold uppercase tracking-wide whitespace-nowrap text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]">
                 See what you'd make
                 <ArrowRight className="w-4 h-4" />
               </button>

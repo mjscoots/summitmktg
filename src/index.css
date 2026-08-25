@@ -283,7 +283,7 @@ html, body, #root {
 
   /* ━━━ GLASS CARD — Premium depth ━━━ */
   .glass-card {
-    background: hsl(220 40% 10%);
+    background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 12px;
     box-shadow: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
@@ -294,11 +294,11 @@ html, body, #root {
   }
 
   .glass-card-hover:hover {
-    border-color: hsl(216 89% 53% / 0.25);
-    background: hsl(216 89% 53% / 0.04);
+    border-color: hsl(var(--primary) / 0.25);
+    background: hsl(var(--primary) / 0.04);
     box-shadow:
       0 16px 48px -8px hsl(0 0% 0% / 0.6),
-      0 0 16px -4px hsl(216 89% 53% / 0.15);
+      0 0 16px -4px hsl(var(--primary) / 0.15);
     transform: translateY(-2px);
   }
 
@@ -479,12 +479,12 @@ html, body, #root {
   /* ━━━ PRIMARY BUTTON — Blue with glow ━━━ */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm text-primary-foreground transition-all duration-250;
-    background: hsl(216 89% 53%);
-    box-shadow: 0 0 16px hsl(216 89% 53% / 0.3);
+    background: hsl(var(--primary));
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.3);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 0 28px -5px hsl(216 89% 53% / 0.45);
+    box-shadow: 0 0 28px -5px hsl(var(--primary) / 0.45);
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
