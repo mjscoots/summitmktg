@@ -5,8 +5,8 @@ import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 
-const RookieCalculator = lazy(() => import("@/components/RookieCalculator"));
-const VetCalculator = lazy(() => import("@/components/VetCalculator"));
+const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
+
 
 const Index = () => {
   const navigate = useNavigate();
