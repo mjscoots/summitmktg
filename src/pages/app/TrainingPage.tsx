@@ -130,9 +130,24 @@ export default function TrainingPage() {
             <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
           </button>
 
+          <button
+            onClick={() => navigate('/app/scripts')}
+            className="group w-full mt-4 p-5 rounded-xl border-2 border-primary/25 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent cursor-pointer transition-all duration-300 hover:border-primary/50 flex items-center gap-4 text-left"
+          >
+            <div className="p-3.5 rounded-xl bg-primary/15 text-primary flex-shrink-0">
+              <FileText className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">Scripts</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Openers, objections and closes — searchable</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+          </button>
+
           <div className="mt-6">
             <TrainingLeaderboardPanel />
           </div>
+
         </div>
       </AppLayout>
     );
