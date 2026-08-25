@@ -406,7 +406,17 @@ export default function MyTeamPage() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground truncate">{getDisplayName(m.full_name)}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-foreground truncate">{getDisplayName(m.full_name)}</p>
+                      {isManagerRole && incompleteProfiles.has(m.user_id) && (
+                        <span
+                          title={`Missing: ${(incompleteProfiles.get(m.user_id) ?? []).join(', ')}`}
+                          className="flex-shrink-0 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-white/[0.06] text-muted-foreground/80"
+                        >
+                          Profile incomplete
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground truncate">{teamName(m.team_id)}</p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
