@@ -250,16 +250,24 @@ export function PitchRecordingModal({
         {mode === 'choose' && recordingState === 'idle' && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Attempt #{attemptNumber} — Max 5 minutes
+              Attempt #{attemptNumber} — Max {Math.round(MAX_DURATION / 60)} min
             </p>
-            <Button
-              onClick={() => { setMode('record'); startRecording(); }}
-              className="w-full gap-2 h-12"
-              variant="outline"
-            >
-              <Circle className="w-5 h-5 text-destructive" />
-              Record with Camera
-            </Button>
+            {canRecord ? (
+              <Button
+                onClick={() => { setMode('record'); startRecording(); }}
+                className="w-full gap-2 h-12"
+                variant="outline"
+              >
+                <Circle className="w-5 h-5 text-destructive" />
+                Record with Camera
+              </Button>
+            ) : (
+              <p className="rounded-xl border border-border/60 bg-surface px-4 py-3 text-xs text-muted-foreground">
+                In-browser recording isn’t supported on this browser. Record with your phone’s camera app and use
+                “Upload Video File” below instead.
+              </p>
+            )}
+
             <div className="relative">
               <Button variant="outline" className="w-full gap-2 h-12" asChild>
                 <label className="cursor-pointer">
