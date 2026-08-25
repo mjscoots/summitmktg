@@ -209,12 +209,34 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
   const [data, setData] = useState<PathData | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [pairedManager, setPairedManager] = useState<string | null>(null);
+  const [pairedName, setPairedName] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data: res } = await supabase.rpc('get_my_vertical_path' as never, { _vertical: vertical } as never);
     setData((res as unknown as PathData) || { steps: [] });
+    if (user?.id) {
+      const { data: enr } = await supabase
+        .from('rep_vertical_enrollments')
+        .select('paired_manager')
+        .eq('user_id', user.id)
+        .eq('vertical', vertical)
+        .maybeSingle();
+      const mid = (enr as { paired_manager: string | null } | null)?.paired_manager || null;
+      setPairedManager(mid);
+      if (mid) {
+        const { data: mp } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('user_id', mid)
+          .maybeSingle();
+        setPairedName((mp as { full_name: string | null } | null)?.full_name || null);
+      } else {
+        setPairedName(null);
+      }
+    }
     setLoading(false);
-  }, [vertical]);
+  }, [vertical, user?.id]);
 
   useEffect(() => {
     load();
