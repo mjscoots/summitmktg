@@ -16,7 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 
-const CATEGORIES = ['Opener', 'Objections', 'Closes'] as const;
+const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections'] as const;
 type Category = (typeof CATEGORIES)[number];
 
 interface ScriptRow {
