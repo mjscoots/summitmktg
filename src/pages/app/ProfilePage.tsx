@@ -228,6 +228,13 @@ export default function ProfilePage() {
           emergency_contact_name: emergencyContactName || null,
           emergency_contact_phone: emergencyContactPhone || null,
           shirt_size: shirtSize || null,
+          ...(isManager
+            ? {
+                accepting_new_reps: acceptingNewReps,
+                mentee_capacity: menteeCapacity === '' ? null : Math.max(0, Number(menteeCapacity)),
+                manager_intro: managerIntro.trim() || null,
+              }
+            : {}),
           updated_at: new Date().toISOString(),
         } as any)
         .eq('user_id', user.id);
