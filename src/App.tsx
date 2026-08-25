@@ -63,6 +63,8 @@ const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
+const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
+
 
 function LazyFallback() {
   return (
