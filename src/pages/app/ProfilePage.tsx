@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp } from 'lucide-react';
 import { TierBadge, getTierBorderClass } from '@/components/shared/TierBadge';
+import { BadgeShelf } from '@/components/badges/BadgeStrip';
 import { useEliteTier } from '@/hooks/useEliteTier';
 import { useMyPoints } from '@/hooks/useMyPoints';
 import { Input } from '@/components/ui/input';
@@ -403,6 +404,8 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
+              {user?.id && <BadgeShelf userId={user.id} className="mt-2" />}
+
               <p className="text-xs text-muted-foreground mt-1">
                 Click the camera icon to upload a new photo
               </p>

@@ -4,15 +4,20 @@ import { TrainingLeaderboard } from '@/components/leaderboard/TrainingLeaderboar
 import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { RecruitingLeaderboard } from '@/components/leaderboard/RecruitingLeaderboard';
 import { WeekPaceStrip } from '@/components/leaderboard/WeekPaceStrip';
+import { TeamBattles } from '@/components/leaderboard/TeamBattles';
+import { IncentiveTracker } from '@/components/leaderboard/IncentiveTracker';
+import { SeasonBanner } from '@/components/leaderboard/SeasonBanner';
+import { HallOfFame } from '@/components/leaderboard/HallOfFame';
 
-import { Trophy, Flame, Calendar, Info, Mountain, Users, Target } from 'lucide-react';
+import { Trophy, Flame, Calendar, Info, Mountain, Users, Target, Crown } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { isManagerOrAbove } from '@/lib/roles';
 
-type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting';
+type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting' | 'hof';
+
 
 const GRID_PATTERN =
   "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]";
@@ -51,13 +56,20 @@ export default function LeaderboardPage() {
       subtitle: 'Signed leads this month',
       icon: <Target className="w-3.5 h-3.5 text-primary" />,
     },
+    hof: {
+      subtitle: 'Past seasons · frozen results',
+      icon: <Crown className="w-3.5 h-3.5 text-[#D4AF37]" />,
+    },
   };
+
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
     { id: 'weekly', label: 'This Week', icon: Calendar },
     { id: 'overall', label: 'All-Time', icon: Trophy },
     { id: 'streak', label: 'Streaks', icon: Flame },
     { id: 'recruiting', label: 'Recruiting', icon: Target },
+    { id: 'hof', label: 'Hall of Fame', icon: Crown },
+
   ];
 
   const meta = TAB_META[activeTab];
@@ -99,7 +111,11 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
+          <SeasonBanner />
           <WeekPaceStrip />
+          <TeamBattles />
+          <IncentiveTracker />
+
 
           {/* Filter Tabs — pill style */}
 
@@ -141,6 +157,8 @@ export default function LeaderboardPage() {
             {activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
             {activeTab === 'streak' && <StreakLeaderboard />}
             {activeTab === 'recruiting' && <RecruitingLeaderboard />}
+            {activeTab === 'hof' && <HallOfFame />}
+
           </div>
         </main>
       </div>
