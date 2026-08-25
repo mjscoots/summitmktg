@@ -448,6 +448,8 @@ export default function AdminUsersTab({
     progressFilter,
     recruiterFilter,
     teamFilter,
+    officeFilter,
+    verticalFilter,
     appFilter,
     sortBy,
     sortAsc,
@@ -460,8 +462,24 @@ export default function AdminUsersTab({
     progressFilter !== 'all' ||
     recruiterFilter !== 'all' ||
     teamFilter !== 'all' ||
+    officeFilter !== 'all' ||
+    verticalFilter !== 'all' ||
     appFilter !== 'in_app' ||
     sortBy !== 'progress';
+
+  // Inline roster-field save (admin only, one field at a time)
+  const saveRosterField = async (userId: string, patch: Record<string, unknown>, label: string) => {
+    setDetailUser(prev => (prev ? { ...prev, ...patch } as UserRow : null));
+    const { error } = await supabase.from('profiles').update(patch as never).eq('user_id', userId);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      onRefresh();
+      return;
+    }
+    toast({ title: `${label} updated` });
+    onRefresh();
+  };
+
 
   const handleUpdatePipeline = async (userId: string, newStatus: string) => {
     // Optimistic: close modal + toast immediately
