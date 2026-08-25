@@ -1825,7 +1825,7 @@ export type Database = {
           interest_reason: string | null
           last_activity_at: string | null
           notes: string | null
-          phone: string
+          phone: string | null
           ref_code: string | null
           status: string
         }
@@ -1839,7 +1839,7 @@ export type Database = {
           interest_reason?: string | null
           last_activity_at?: string | null
           notes?: string | null
-          phone: string
+          phone?: string | null
           ref_code?: string | null
           status?: string
         }
@@ -1853,7 +1853,7 @@ export type Database = {
           interest_reason?: string | null
           last_activity_at?: string | null
           notes?: string | null
-          phone?: string
+          phone?: string | null
           ref_code?: string | null
           status?: string
         }
@@ -3042,6 +3042,16 @@ export type Database = {
       }
     }
     Functions: {
+      add_manual_lead: {
+        Args: {
+          _city?: string
+          _first_name: string
+          _interest_reason?: string
+          _notes?: string
+          _phone?: string
+        }
+        Returns: Json
+      }
       admin_assign_lead: {
         Args: { _lead_id: string; _user_id: string }
         Returns: Json
