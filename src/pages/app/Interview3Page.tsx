@@ -110,7 +110,7 @@ export default function Interview3Page() {
       const { data: roleData } = await supabase.from('user_roles').select('user_id, role').in('role', ['manager', 'admin']);
       const managerUserIds = roleData?.map(r => r.user_id) || [];
       if (managerUserIds.length === 0) { setManagerOptions([]); return; }
-      const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, team_id, teams:team_id (name)').in('user_id', managerUserIds).neq('status', 'nlc');
+      const { data: profiles } = await supabase.from('profiles').select('user_id, full_name, team_id, teams:team_id (name)').in('user_id', managerUserIds).neq('status', 'nlc').eq('archived', false);
       const roleMap = new Map(roleData?.map(r => [r.user_id, r.role]) || []);
       const { data: teamsData } = await supabase.from('teams').select('leader_id');
       const pillarIds = new Set(teamsData?.map(t => t.leader_id).filter(Boolean) || []);

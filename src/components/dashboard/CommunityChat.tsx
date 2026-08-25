@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, DragEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { withArchivedSuffix } from '@/lib/archived';
 import { useAuth } from '@/hooks/useAuth';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { toast } from 'sonner';
@@ -124,7 +125,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
       if (userIds.length > 0) {
         const [profilesRes, rolesRes] = await Promise.all([
-          supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now').in('user_id', userIds),
+          supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now, archived').in('user_id', userIds),
           supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
         ]);
         const rolePriority: Record<string, number> = { rookie: 0, manager: 1, admin: 2, owner: 3 };
@@ -135,7 +136,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         });
         const map: Record<string, ProfileInfo> = {};
         (profilesRes.data || []).forEach(p => {
-          map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url, is_active_now: p.is_active_now, role: roleMap[p.user_id] };
+          map[p.user_id] = { full_name: withArchivedSuffix(p.full_name, (p as any).archived), avatar_url: p.avatar_url, is_active_now: p.is_active_now, role: roleMap[p.user_id] };
         });
         setProfileMap(map);
       }
@@ -211,11 +212,11 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         if (!newMsg.channel) newMsg.channel = 'general';
         if (!newMsg.is_ai && !profileMapRef.current[newMsg.user_id]) {
           const [pRes, rRes] = await Promise.all([
-            supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now').eq('user_id', newMsg.user_id).maybeSingle(),
+            supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now, archived').eq('user_id', newMsg.user_id).maybeSingle(),
             supabase.from('user_roles').select('role').eq('user_id', newMsg.user_id).maybeSingle(),
           ]);
           if (pRes.data) {
-            setProfileMap(prev => ({ ...prev, [pRes.data!.user_id]: { full_name: pRes.data!.full_name, avatar_url: pRes.data!.avatar_url, is_active_now: pRes.data!.is_active_now, role: rRes.data?.role } }));
+            setProfileMap(prev => ({ ...prev, [pRes.data!.user_id]: { full_name: withArchivedSuffix(pRes.data!.full_name, (pRes.data as any).archived), avatar_url: pRes.data!.avatar_url, is_active_now: pRes.data!.is_active_now, role: rRes.data?.role } }));
           }
         }
         setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);

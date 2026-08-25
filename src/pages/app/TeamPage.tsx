@@ -222,7 +222,7 @@ export default function TeamPage() {
 
   const fetchAllMembers = useCallback(async () => {
     try {
-      let query = supabase.from('profiles').select('*').order('full_name');
+      let query = supabase.from('profiles').select('*').eq('archived', false).order('full_name');
       
       if (statusFilter === 'active') {
         query = query.neq('status', 'nlc');

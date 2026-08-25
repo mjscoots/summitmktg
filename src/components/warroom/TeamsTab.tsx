@@ -21,7 +21,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
   useEffect(() => {
     const fetchData = async () => {
       const [profilesRes, teamsRes, rolesRes] = await Promise.all([
-        supabase.from('profiles').select('*').order('full_name'),
+        supabase.from('profiles').select('*').eq('archived', false).order('full_name'),
         supabase.from('teams').select('*').order('name'),
         supabase.from('user_roles').select('user_id, role'),
       ]);

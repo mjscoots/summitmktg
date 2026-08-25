@@ -99,7 +99,8 @@ export function useAdminQueue() {
           .from('profiles')
           .select(
             'id, user_id, full_name, status, approved, onboarding_status, direct_manager, recruiter, team_id, created_at'
-          ),
+          )
+          .eq('archived', false),
         supabase.from('user_roles').select('user_id, role'),
         supabase
           .from('pitch_approval_requests')

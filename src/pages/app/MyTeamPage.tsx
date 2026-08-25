@@ -80,6 +80,7 @@ export default function MyTeamPage() {
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
+        .eq('archived', false)
         .order('full_name');
 
       if (profilesError) throw profilesError;

@@ -207,6 +207,7 @@ export function RepSelectionList({
       .select('user_id, full_name, email, avatar_url')
       .ilike('full_name', `%${query}%`)
       .neq('status', 'nlc')
+      .eq('archived', false)
       .limit(10);
     const existingIds = new Set(orderedReps.map(r => r.user_id));
     setSearchResults((data || []).filter(p => !existingIds.has(p.user_id) && p.user_id !== user?.id));

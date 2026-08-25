@@ -27,6 +27,20 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   // Users can access bootcamp without approval.
   // BootcampGate handles the approval gate AFTER bootcamp completion.
 
+  // Archived accounts have no app access
+  if ((profile as any)?.archived === true) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Account inactive</h1>
+          <p className="text-muted-foreground">
+            Your account is inactive — contact your manager.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Check if user is NLC (no access)
   if (profile?.status === 'nlc') {
     return (

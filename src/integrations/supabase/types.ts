@@ -1662,6 +1662,9 @@ export type Database = {
       profiles: {
         Row: {
           approved: boolean | null
+          archived: boolean
+          archived_at: string | null
+          archived_reason: string | null
           avatar_url: string | null
           calendly_url: string | null
           created_at: string | null
@@ -1683,6 +1686,7 @@ export type Database = {
           password_changed: boolean | null
           phone: string | null
           pillar_slug: string | null
+          pre_archive_status: Database["public"]["Enums"]["user_status"] | null
           recruiter: string | null
           referred_by: string | null
           region: string | null
@@ -1698,6 +1702,9 @@ export type Database = {
         }
         Insert: {
           approved?: boolean | null
+          archived?: boolean
+          archived_at?: string | null
+          archived_reason?: string | null
           avatar_url?: string | null
           calendly_url?: string | null
           created_at?: string | null
@@ -1719,6 +1726,7 @@ export type Database = {
           password_changed?: boolean | null
           phone?: string | null
           pillar_slug?: string | null
+          pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
@@ -1734,6 +1742,9 @@ export type Database = {
         }
         Update: {
           approved?: boolean | null
+          archived?: boolean
+          archived_at?: string | null
+          archived_reason?: string | null
           avatar_url?: string | null
           calendly_url?: string | null
           created_at?: string | null
@@ -1755,6 +1766,7 @@ export type Database = {
           password_changed?: boolean | null
           phone?: string | null
           pillar_slug?: string | null
+          pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
