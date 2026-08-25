@@ -16,6 +16,7 @@ import {
 } from '@/lib/commission';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
+import { MyFiberWeeks } from '@/components/money/MyFiberWeeks';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 

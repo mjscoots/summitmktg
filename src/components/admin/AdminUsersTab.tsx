@@ -1,6 +1,7 @@
 import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
 import { DepartureIntakeDialog } from '@/components/admin/DepartureIntakeDialog';
+import { RankOverrideSelect } from '@/components/admin/RankOverrideSelect';
 
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronDown as ChevronDownIcon, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
