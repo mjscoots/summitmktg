@@ -534,6 +534,18 @@ export default function CommandCenterPage() {
           <PairingsPanel />
         </div>
 
+        {/* RUN A TEAM REQUESTS */}
+        <SectionHeader title="Run a Team" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <TeamLeadApplicationsPanel />
+        </div>
+
+        {/* THE STACK */}
+        <SectionHeader title="The Stack" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <StackView />
+        </div>
+
 
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />
