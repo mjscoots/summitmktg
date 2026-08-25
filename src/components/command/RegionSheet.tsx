@@ -395,8 +395,14 @@ export default function RegionSheet() {
                 <td>{departureLabel(r.departure_type)}</td>
                 <td style={{ whiteSpace: 'normal', maxWidth: 260 }}>{blank(r.departure_reason)}</td>
                 <td>{blank(r.last_day_worked)}</td>
+                <td>{blank(r.committed_last_day)}</td>
+                <td>{blank(r.next_year_status)}</td>
+                <td>{r.revenue_total ? money(r.revenue_total) : '—'}</td>
+                <td>{r.months_active ?? 0}</td>
+                <td>{blank(r.last_revenue_month)}</td>
                 <td>{money(r.revenue_to_date)}</td>
                 {hasReSigned && <td>{blank(r.re_signed)}</td>}
+
               </tr>
             ))}
           </tbody>
