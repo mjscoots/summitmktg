@@ -122,7 +122,7 @@ export default function RepLogisticsPage() {
   return (
     <AppLayout>
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-        <PageBackButton to="/app/manage" label="Manage" />
+        <PageBackButton to="/app/links" label="Resources" />
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">

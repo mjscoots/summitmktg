@@ -26,7 +26,7 @@ export default function WarRoomPage() {
     <AppLayout>
       <div className="h-full overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4 py-6">
-          <PageBackButton to="/app/manage" label="Manage" />
+          <PageBackButton to="/app" label="Home" />
 
           {/* Hero */}
           <div className="relative h-24 rounded-xl overflow-hidden mb-6">

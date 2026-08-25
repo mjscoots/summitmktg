@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Calendar, Settings2, Target } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Mountain, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -27,15 +27,19 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
+  { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
-  { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'Resources', path: '/app/links', icon: BookOpen },
 ];
 
-const manageNavItems: NavItem[] = [
-  { label: 'Manage', path: '/app/manage', icon: Settings2 },
+const managementNavItems: NavItem[] = [
+  { label: 'Team', path: '/app/team', icon: Users },
+  { label: 'Forms', path: '/app/forms', icon: FileText },
+  { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
+  { label: 'War Room', path: '/app/war-room', icon: Swords },
 ];
 
 export function AppSidebar() {
@@ -58,15 +62,31 @@ export function AppSidebar() {
     navigate('/');
   };
 
-  const managePaths = ['/app/manage', '/app/war-room', '/app/forms', '/app/pitch-approvals'];
-
   const isActive = (path: string) => {
     if (path === '/app') return location.pathname === '/app';
-    if (path === '/app/manage') {
-      return managePaths.some(p => location.pathname.startsWith(p));
-    }
     if (path === '/app/links') {
-      return location.pathname.startsWith('/app/links') || location.pathname.startsWith('/app/notepad');
+      return (
+        location.pathname.startsWith('/app/links') ||
+        location.pathname.startsWith('/app/notepad') ||
+        location.pathname.startsWith('/app/calculators') ||
+        location.pathname.startsWith('/app/logistics') ||
+        location.pathname.startsWith('/app/estimate-earnings')
+      );
+    }
+    if (path === '/app/team') {
+      return location.pathname.startsWith('/app/team') || location.pathname.startsWith('/app/members');
+    }
+    if (path === '/app/forms') {
+      return (
+        location.pathname.startsWith('/app/forms') ||
+        location.pathname.startsWith('/app/interviews') ||
+        location.pathname.startsWith('/app/manager-meeting') ||
+        location.pathname.startsWith('/app/one-on-ones') ||
+        location.pathname.startsWith('/app/weekly-one-on-ones')
+      );
+    }
+    if (path === '/app/recruits') {
+      return location.pathname.startsWith('/app/recruits') || location.pathname.startsWith('/app/recruiting');
     }
     if (path === '/app/training') {
       return location.pathname.startsWith('/app/training') || location.pathname.startsWith('/app/videos');
@@ -176,13 +196,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Manage section (managers+) */}
+        {/* Management section (managers+) */}
         {isManager && (
           <SidebarGroup className="mt-3">
             <Separator className="mb-2" style={{ background: 'hsl(217 44% 15% / 0.5)' }} />
+            {!collapsed && (
+              <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white/35">
+                Management
+              </p>
+            )}
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0.5">
-                {manageNavItems.map((item) => (
+                {managementNavItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
                   </SidebarMenuItem>
@@ -222,6 +247,24 @@ export function AppSidebar() {
                         {adminCounts.total > 99 ? '99+' : adminCounts.total}
                       </span>
                     )}
+                  </button>
+                </SidebarMenuItem>
+              )}
+              {isOwner && (
+                <SidebarMenuItem>
+                  <button
+                    onClick={() => { navigate('/command'); if (isMobile) setOpenMobile(false); }}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
+                      isActive('/command') ? "text-amber-200" : "text-amber-300/50 hover:text-amber-200 hover:bg-sidebar-accent",
+                      collapsed && "justify-center px-2"
+                    )}
+                  >
+                    {isActive('/command') && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(43 96% 56%)', boxShadow: '0 0 8px hsl(43 96% 56% / 0.4)' }} />
+                    )}
+                    <Crown className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
+                    {!collapsed && <span className="text-[12px] font-medium">Command</span>}
                   </button>
                 </SidebarMenuItem>
               )}

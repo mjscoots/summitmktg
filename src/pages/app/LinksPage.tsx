@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, Mail, DollarSign } from 'lucide-react';
+import { Plus, Link2, ArrowUpDown, Check, Phone, Calculator, Trash2, Edit2, Upload, Mail, DollarSign, Wrench, ClipboardList, TrendingUp, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -47,7 +48,7 @@ interface EmailEntry {
   display_order: number;
 }
 
-type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay-scales';
+type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay-scales' | 'tools';
 
 /** Normalize a phone number for display */
 function normalizePhone(raw: string): string {
@@ -105,6 +106,7 @@ export default function LinksPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [editingLink, setEditingLink] = useState<ManagedLink | null>(null);
   const [isReordering, setIsReordering] = useState(false);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<PageTab>('links');
   const [calcTab, setCalcTab] = useState<'rookie' | 'veteran'>('rookie');
 
@@ -376,12 +378,13 @@ export default function LinksPage() {
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
     { id: 'pay-scales', label: 'Pay Scales', icon: DollarSign },
+    { id: 'tools', label: 'Tools', icon: Wrench },
   ];
 
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
-        <PageBackButton to="/app/manage" label="Manage" />
+        <PageBackButton to="/app" label="Home" />
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-xl font-bold text-foreground">Resources</h1>
@@ -771,6 +774,40 @@ export default function LinksPage() {
         )}
 
         {/* Pay Scales Tab */}
+        {activeTab === 'tools' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              {
+                title: 'Rep Logistics',
+                description: 'Housing, travel and onboarding coordination for reps.',
+                path: '/app/logistics',
+                icon: ClipboardList,
+              },
+              {
+                title: 'Estimate My Earnings',
+                description: 'Project your season income from accounts and pay scale.',
+                path: '/app/estimate-earnings',
+                icon: TrendingUp,
+              },
+            ].map((tool) => (
+              <button
+                key={tool.path}
+                onClick={() => navigate(tool.path)}
+                className="group flex min-h-[88px] w-full items-start gap-3 rounded-xl border border-white/[0.06] bg-card/60 p-4 text-left backdrop-blur-sm transition-colors hover:border-primary/30"
+              >
+                <span className="rounded-xl bg-primary/15 p-2.5 text-primary">
+                  <tool.icon className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-bold text-foreground">{tool.title}</span>
+                  <span className="mt-0.5 block text-[12px] text-muted-foreground">{tool.description}</span>
+                </span>
+                <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            ))}
+          </div>
+        )}
+
         {activeTab === 'pay-scales' && (
           <div className="text-center py-16">
             <DollarSign className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />

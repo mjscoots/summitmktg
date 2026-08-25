@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -46,7 +47,10 @@ export default function MyTeamPage() {
   const [pillars, setPillars] = useState<{ id: string; name: string; slug: string; leader_id: string | null; logo_url?: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'teams' | 'members'>('teams');
+  const [searchParams] = useSearchParams();
+  const [viewMode, setViewMode] = useState<'teams' | 'members'>(
+    searchParams.get('tab') === 'members' ? 'members' : 'teams'
+  );
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
