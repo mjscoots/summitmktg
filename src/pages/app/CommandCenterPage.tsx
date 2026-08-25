@@ -7,6 +7,7 @@ import { Loader2, Check, Pencil } from "lucide-react";
 import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
+import RegionSheet from "@/components/command/RegionSheet";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
@@ -286,6 +287,7 @@ export default function CommandCenterPage() {
     topStreak: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [commitment, setCommitment] = useState({ noDate: 0, soon: 0 });
 
   // Load settings + live stats
   useEffect(() => {
@@ -338,6 +340,12 @@ export default function CommandCenterPage() {
         topStreak: (topStreakR.data?.[0] as any)?.current_streak || 0,
       });
       setLoading(false);
+
+      const { data: fs } = await (supabase as any).rpc("get_finishing_soon", { _days: 14 });
+      setCommitment({
+        noDate: fs?.no_date_count ?? 0,
+        soon: (fs?.soon as any[])?.length ?? 0,
+      });
     })();
   }, [authLoading, role]);
 
@@ -497,6 +505,19 @@ export default function CommandCenterPage() {
 
         {/* OWNER WEEKLY REPORT */}
         <WeeklyReportSection />
+
+        {/* NEXT SEASON */}
+        <SectionHeader title="Next Season" tag="Owner" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 40 }}>
+          <StatCard label="No Committed Date" value={commitment.noDate} />
+          <StatCard label="Finishing In 14 Days" value={commitment.soon} />
+        </div>
+
+        {/* REGION SHEET */}
+        <SectionHeader title="Region Sheet" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RegionSheet />
+        </div>
 
         {/* AUDIT LOG */}
         <SectionHeader title="Audit" tag="Owner" />

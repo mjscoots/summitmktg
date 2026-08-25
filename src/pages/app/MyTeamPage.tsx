@@ -64,6 +64,9 @@ export default function MyTeamPage() {
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
   const [incompleteProfiles, setIncompleteProfiles] = useState<Map<string, string[]>>(new Map());
   const [missedMeetings, setMissedMeetings] = useState<Map<string, number>>(new Map());
+  const [finishingSoon, setFinishingSoon] = useState<
+    { user_id: string; full_name: string | null; committed_last_day: string }[]
+  >([]);
 
   const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
     const t = searchParams.get('tab');
@@ -152,6 +155,14 @@ export default function MyTeamPage() {
           if ((row.missed_streak ?? 0) >= 2) fMap.set(row.user_id, row.missed_streak);
         }
         setMissedMeetings(fMap);
+      } catch {
+        // optional, only visible to managers+
+      }
+
+      // Finishing soon (committed last day within 14 days) — manager/admin/owner only
+      try {
+        const { data: fs } = await (supabase as any).rpc('get_finishing_soon', { _days: 14 });
+        setFinishingSoon((fs?.soon as any[]) ?? []);
       } catch {
         // optional, only visible to managers+
       }
@@ -291,6 +302,29 @@ export default function MyTeamPage() {
             ))}
           </div>
         </header>
+
+        {isManagerRole && finishingSoon.length > 0 && (
+          <section className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 backdrop-blur-sm">
+            <p className="micro-label mb-2 !text-amber-400">Finishing soon — next 14 days</p>
+            <div className="flex flex-wrap gap-2">
+              {finishingSoon.map(r => (
+                <span
+                  key={r.user_id}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-background/40 px-2.5 py-1 text-xs text-foreground"
+                >
+                  <span className="font-semibold">{r.full_name || '—'}</span>
+                  <span className="tabular-nums text-muted-foreground">
+                    {new Date(r.committed_last_day + 'T00:00:00').toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
 
         {loading ? (
           <LoadingList rows={6} />

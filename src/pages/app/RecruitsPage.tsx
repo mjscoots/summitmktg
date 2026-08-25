@@ -7,8 +7,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
-  Users, Loader2, Phone, MapPin, Clock, Sparkles, Lock, RefreshCw, Plus, RotateCcw,
+  Users, Loader2, Phone, MapPin, Clock, Sparkles, Lock, RefreshCw, Plus, RotateCcw, Handshake,
 } from 'lucide-react';
+import { isManagerOrAbove } from '@/lib/roles';
+import { ResignBoard } from '@/components/recruiting/ResignBoard';
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
@@ -77,10 +79,12 @@ const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl'
 
 export default function RecruitsPage() {
   const { user, role } = useAuth();
+  const isManagerRole = isManagerOrAbove(role);
   const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState<'board' | 'mine' | 'winback'>(
-    searchParams.get('tab') === 'winback' ? 'winback' : 'board'
-  );
+  const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns'>(() => {
+    const t = searchParams.get('tab');
+    return t === 'winback' || t === 'resigns' ? t : 'board';
+  });
   const [board, setBoard] = useState<BoardLead[]>([]);
   const [mine, setMine] = useState<MyLead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,14 +205,16 @@ export default function RecruitsPage() {
           <div className="mb-5 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h1 className="text-2xl font-black tracking-tight text-foreground">
-                {tab === 'board' ? 'GET ME LEADS' : tab === 'mine' ? 'My Leads' : 'Win-back Board'}
+                {tab === 'board' ? 'GET ME LEADS' : tab === 'mine' ? 'My Leads' : tab === 'resigns' ? 'Re-Signs' : 'Win-back Board'}
               </h1>
               <p className="mt-1.5 text-[13px] text-muted-foreground">
                 {tab === 'board'
                   ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
                   : tab === 'mine'
                     ? `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`
-                    : 'Former reps with a phone number — cold calls to bring them back'}
+                    : tab === 'resigns'
+                      ? 'Where every rep stands for next season'
+                      : 'Former reps with a phone number — cold calls to bring them back'}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -228,11 +234,14 @@ export default function RecruitsPage() {
           </div>
 
           {/* Tabs */}
-          <div className="mb-5 grid grid-cols-3 gap-2">
+          <div className={cn('mb-5 grid gap-2', isManagerRole ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3')}>
             {([
               { id: 'board' as const, label: 'Lead Board', icon: Sparkles, count: board.length },
               { id: 'mine' as const, label: 'My Leads', icon: Users, count: mine.length },
               { id: 'winback' as const, label: 'Win-back', icon: RotateCcw, count: null as number | null },
+              ...(isManagerRole
+                ? [{ id: 'resigns' as const, label: 'Re-Signs', icon: Handshake, count: null as number | null }]
+                : []),
             ]).map((t) => (
               <button
                 key={t.id}
@@ -256,7 +265,9 @@ export default function RecruitsPage() {
           </div>
 
 
-          {tab === 'winback' ? (
+          {tab === 'resigns' && isManagerRole ? (
+            <ResignBoard isAdmin={role === 'admin' || role === 'owner'} />
+          ) : tab === 'winback' ? (
             <WinbackTab
               isAdmin={role === 'admin' || role === 'owner'}
               focusId={searchParams.get('lead')}

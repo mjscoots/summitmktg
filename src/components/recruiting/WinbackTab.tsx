@@ -5,14 +5,17 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
   Phone, Lock, Loader2, Clock, MapPin, RotateCcw, PhoneOff, Voicemail,
-  ThumbsDown, CalendarClock, Check, ArrowRight,
+  ThumbsDown, CalendarClock, Check, ArrowRight, Star, DollarSign,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Link } from 'react-router-dom';
+import { WinbackGoldImport } from '@/components/recruiting/WinbackGoldImport';
+import { isManagerOrAbove } from '@/lib/roles';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 const RECENT_DAYS = 14;
+
 
 export const WINBACK_OUTCOMES = [
   { id: 'no_answer', label: 'No answer', icon: PhoneOff },
@@ -27,7 +30,15 @@ const OUTCOME_LABEL: Record<string, string> = WINBACK_OUTCOMES.reduce(
   {} as Record<string, string>
 );
 
-interface PoolLead {
+interface GoldFields {
+  revenue_total: number | null;
+  weeks_active: number | null;
+  last_sale_date: string | null;
+  story: string | null;
+  priority: boolean | null;
+}
+
+interface PoolLead extends GoldFields {
   id: string;
   name: string;
   city: string | null;
@@ -38,7 +49,7 @@ interface PoolLead {
   last_by: string | null;
 }
 
-interface MineLead {
+interface MineLead extends GoldFields {
   id: string;
   name: string;
   city: string | null;
@@ -89,12 +100,27 @@ function releaseCountdown(lead: MineLead) {
   return `Back to the pool in ${Math.max(1, Math.floor(msLeft / 60000))}m if no outcome`;
 }
 
+type SortMode = 'default' | 'rev_per_week' | 'recent_sale';
+
+const SORTS: { id: SortMode; label: string }[] = [
+  { id: 'default', label: 'Longest untouched' },
+  { id: 'rev_per_week', label: 'Revenue per week' },
+  { id: 'recent_sale', label: 'Most recent sale' },
+];
+
+function fmtMoney(n: number | null) {
+  if (n == null) return null;
+  return `$${Math.round(n).toLocaleString()}`;
+}
+
 export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: string | null }) {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const canFlag = isManagerOrAbove(role);
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [sort, setSort] = useState<SortMode>('default');
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -146,6 +172,35 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
     load();
   };
 
+  const togglePriority = async (id: string, next: boolean) => {
+    setBusy(id + 'prio');
+    const { data, error } = await (supabase as any).rpc('set_winback_priority', {
+      _lead_id: id,
+      _priority: next,
+    });
+    setBusy(null);
+    if (error || !data?.success) {
+      toast.error(data?.error || 'Could not update that flag');
+      return;
+    }
+    load();
+  };
+
+  const sortPool = (list: PoolLead[]) => {
+    const arr = [...list];
+    if (sort === 'rev_per_week') {
+      arr.sort((a, b) => {
+        const ra = a.revenue_total && a.weeks_active ? a.revenue_total / a.weeks_active : -1;
+        const rb = b.revenue_total && b.weeks_active ? b.revenue_total / b.weeks_active : -1;
+        return rb - ra;
+      });
+    } else if (sort === 'recent_sale') {
+      arr.sort((a, b) => (b.last_sale_date || '').localeCompare(a.last_sale_date || ''));
+    }
+    arr.sort((a, b) => Number(!!b.priority) - Number(!!a.priority));
+    return arr;
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -158,23 +213,73 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
   if (!feed) return null;
 
-  const fresh = feed.pool.filter((l) => daysSince(l.last_contact_at) >= RECENT_DAYS);
-  const recent = feed.pool.filter((l) => daysSince(l.last_contact_at) < RECENT_DAYS);
+  const fresh = sortPool(feed.pool.filter((l) => daysSince(l.last_contact_at) >= RECENT_DAYS));
+  const recent = sortPool(feed.pool.filter((l) => daysSince(l.last_contact_at) < RECENT_DAYS));
   const atCap = feed.my_active >= feed.cap;
 
+  const GoldLine = ({ lead }: { lead: GoldFields }) => {
+    const bits: string[] = [];
+    const money = fmtMoney(lead.revenue_total);
+    if (money) bits.push(money);
+    if (lead.weeks_active != null) bits.push(`${lead.weeks_active} ${lead.weeks_active === 1 ? 'week' : 'weeks'} active`);
+    if (lead.revenue_total && lead.weeks_active) bits.push(`${fmtMoney(lead.revenue_total / lead.weeks_active)}/wk`);
+    if (lead.last_sale_date) bits.push(`last sale ${fmtDate(lead.last_sale_date)}`);
+    if (bits.length === 0 && !lead.story) return null;
+    return (
+      <div className="mt-2 space-y-1">
+        {bits.length > 0 && (
+          <p className="flex items-center gap-1 text-[12px] font-medium tabular-nums text-foreground/85">
+            <DollarSign className="h-3 w-3 text-primary" /> {bits.join(' · ')}
+          </p>
+        )}
+        {lead.story && <p className="text-[11px] leading-relaxed text-muted-foreground/80">{lead.story}</p>}
+      </div>
+    );
+  };
+
+  const PriorityButton = ({ lead }: { lead: GoldFields & { id: string } }) =>
+    canFlag ? (
+      <button
+        onClick={() => togglePriority(lead.id, !lead.priority)}
+        disabled={busy === lead.id + 'prio'}
+        aria-label={lead.priority ? 'Remove priority flag' : 'Flag as priority'}
+        className={cn(
+          'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors',
+          lead.priority
+            ? 'border-amber-500/30 bg-amber-500/15 text-amber-400'
+            : 'border-border/60 bg-surface text-muted-foreground hover:text-foreground'
+        )}
+      >
+        <Star className={cn('h-3.5 w-3.5', lead.priority && 'fill-current')} />
+      </button>
+    ) : lead.priority ? (
+      <Star className="h-3.5 w-3.5 shrink-0 fill-current text-amber-400" />
+    ) : null;
+
   const PoolCard = ({ lead, muted }: { lead: PoolLead; muted?: boolean }) => (
-    <div className={cn(CARD, 'flex flex-col p-4', muted && 'opacity-55')}>
+    <div
+      className={cn(
+        CARD,
+        'flex flex-col p-4',
+        muted && 'opacity-55',
+        lead.priority && 'border-amber-500/25'
+      )}
+    >
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-[15px] font-bold text-foreground">{lead.name}</h3>
-        <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-          {lead.contact_count} {lead.contact_count === 1 ? 'attempt' : 'attempts'}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-[11px] tabular-nums text-muted-foreground">
+            {lead.contact_count} {lead.contact_count === 1 ? 'attempt' : 'attempts'}
+          </span>
+          <PriorityButton lead={lead} />
+        </div>
       </div>
       {lead.city && (
         <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
           <MapPin className="h-3 w-3" /> {lead.city}
         </p>
       )}
+      <GoldLine lead={lead} />
       <p className="mt-2 text-[12px] text-muted-foreground">
         {lead.last_contact_at
           ? `Last contacted: ${fmtDate(lead.last_contact_at)}${lead.last_by ? ` by ${lead.last_by}` : ''}${
@@ -211,6 +316,8 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
   return (
     <div className="space-y-6">
+      {isAdmin && <WinbackGoldImport onApplied={load} />}
+
       {/* Returning */}
       {feed.returning.length > 0 && (
         <section>
@@ -286,10 +393,15 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
                         </span>
                       </div>
                     </div>
-                    <span className="shrink-0 rounded-full border border-primary/30 bg-primary/15 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                      Claimed
-                    </span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="rounded-full border border-primary/30 bg-primary/15 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                        Claimed
+                      </span>
+                      <PriorityButton lead={lead} />
+                    </div>
                   </div>
+
+                  <GoldLine lead={lead} />
 
                   {lead.notes && (
                     <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">{lead.notes}</p>
@@ -353,9 +465,27 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
       {/* Pool */}
       <section>
-        <p className="micro-label mb-2">
-          Pool — {feed.pool.length} former {feed.pool.length === 1 ? 'rep' : 'reps'}
-        </p>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <p className="micro-label">
+            Pool — {feed.pool.length} former {feed.pool.length === 1 ? 'rep' : 'reps'}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {SORTS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setSort(s.id)}
+                className={cn(
+                  'micro-label min-h-9 rounded-full border px-3 transition-colors',
+                  sort === s.id
+                    ? 'border-primary/25 bg-primary/10 !text-primary'
+                    : 'border-border/50 hover:border-border/80 hover:text-foreground'
+                )}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {feed.pool.length === 0 ? (
           <div className={cn(CARD, 'py-4')}>
             <EmptyState

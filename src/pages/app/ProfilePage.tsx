@@ -179,6 +179,8 @@ export default function ProfilePage() {
   const [rawImageSrc, setRawImageSrc] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [committedLastDay, setCommittedLastDay] = useState<string | null>(null);
+  const [commitmentTerms, setCommitmentTerms] = useState<string | null>(null);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const canSelfDelete = role === 'rookie' || role === 'manager';
@@ -194,7 +196,7 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size')
+          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
@@ -203,6 +205,8 @@ export default function ProfilePage() {
         setEmergencyContactName((data as any)?.emergency_contact_name || '');
         setEmergencyContactPhone((data as any)?.emergency_contact_phone || '');
         setShirtSize((data as any)?.shirt_size || '');
+        setCommittedLastDay((data as any)?.committed_last_day || null);
+        setCommitmentTerms((data as any)?.commitment_terms || null);
       };
       fetchExtra();
     }
@@ -455,6 +459,24 @@ export default function ProfilePage() {
                 )}
               </div>
               {user?.id && <BadgeShelf userId={user.id} className="mt-2" />}
+
+              {committedLastDay && (
+                <div className="mt-2 rounded-lg border border-white/[0.06] bg-background/40 px-3 py-2">
+                  <p className="text-xs font-semibold text-foreground">
+                    Committed last day:{' '}
+                    <span className="tabular-nums">
+                      {new Date(committedLastDay + 'T00:00:00').toLocaleDateString(undefined, {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </p>
+                  {commitmentTerms && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">{commitmentTerms}</p>
+                  )}
+                </div>
+              )}
 
               <p className="text-xs text-muted-foreground mt-1">
                 Click the camera icon to upload a new photo
