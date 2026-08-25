@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -2896,6 +2896,50 @@ export type Database = {
         }
         Relationships: []
       }
+      rep_vertical_enrollments: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          current_step: number
+          id: string
+          paired_manager: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vertical: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          paired_manager?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vertical: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          paired_manager?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vertical?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rep_vertical_enrollments_vertical_fkey"
+            columns: ["vertical"]
+            isOneToOne: false
+            referencedRelation: "vertical_paths"
+            referencedColumns: ["vertical"]
+          },
+        ]
+      }
       schedule_items: {
         Row: {
           created_at: string | null
@@ -3907,6 +3951,131 @@ export type Database = {
         }
         Relationships: []
       }
+      vertical_paths: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          is_configured: boolean
+          label: string
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          is_configured?: boolean
+          label: string
+          updated_at?: string
+          vertical: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          is_configured?: boolean
+          label?: string
+          updated_at?: string
+          vertical?: string
+        }
+        Relationships: []
+      }
+      vertical_step_completions: {
+        Row: {
+          approved_by: string | null
+          completed_at: string
+          file_path: string | null
+          id: string
+          notes: string | null
+          step_id: string
+          user_id: string
+          vertical: string
+        }
+        Insert: {
+          approved_by?: string | null
+          completed_at?: string
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          step_id: string
+          user_id: string
+          vertical: string
+        }
+        Update: {
+          approved_by?: string | null
+          completed_at?: string
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          step_id?: string
+          user_id?: string
+          vertical?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vertical_step_completions_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "vertical_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vertical_steps: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          step_type: string
+          title: string
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          step_type?: string
+          title: string
+          updated_at?: string
+          vertical: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          step_type?: string
+          title?: string
+          updated_at?: string
+          vertical?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vertical_steps_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "training_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vertical_steps_vertical_fkey"
+            columns: ["vertical"]
+            isOneToOne: false
+            referencedRelation: "vertical_paths"
+            referencedColumns: ["vertical"]
+          },
+        ]
+      }
       video_bookmarks: {
         Row: {
           bookmarked_at: string | null
@@ -4308,6 +4477,10 @@ export type Database = {
       }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
       apply_winback_gold: { Args: { _rows: Json }; Returns: Json }
+      approve_vertical_step: {
+        Args: { _notes?: string; _step_id: string; _user_id: string }
+        Returns: Json
+      }
       auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
         Args: { _content: string; _message_id?: string; _user_id: string }
@@ -4362,6 +4535,10 @@ export type Database = {
       claim_winback: { Args: { _lead_id: string }; Returns: Json }
       complete_daily_drill: {
         Args: { _drill_id: string; _response: string; _timezone?: string }
+        Returns: Json
+      }
+      complete_vertical_step: {
+        Args: { _file_path?: string; _step_id: string }
         Returns: Json
       }
       compute_weekly_awards: {
@@ -4612,6 +4789,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_industry_hub: { Args: never; Returns: Json }
       get_lead_board: {
         Args: never
         Returns: {
@@ -4649,7 +4827,9 @@ export type Database = {
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
       get_my_ref_code: { Args: never; Returns: string }
       get_my_revenue: { Args: never; Returns: Json }
+      get_my_vertical_path: { Args: { _vertical: string }; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
+      get_pending_vertical_approvals: { Args: never; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
         Returns: {
@@ -4785,6 +4965,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_vertical_enrollments: { Args: never; Returns: Json }
       get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
       has_role: {
@@ -4794,7 +4975,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_course_complete: {
+        Args: { _course: string; _user: string }
+        Returns: boolean
+      }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
+      join_vertical: { Args: { _vertical: string }; Returns: Json }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
         Returns: Json
@@ -4821,6 +5007,10 @@ export type Database = {
       notify_event_reminders: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
       post_weekly_awards: { Args: never; Returns: Json }
+      recalc_vertical_enrollment: {
+        Args: { _user: string; _vertical: string }
+        Returns: undefined
+      }
       recalculate_all_time_points: { Args: never; Returns: undefined }
       record_daily_login: {
         Args: { _timezone?: string; _user_id: string }
