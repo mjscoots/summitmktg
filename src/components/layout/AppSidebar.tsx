@@ -30,9 +30,11 @@ const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'My Money', path: '/app/money', icon: DollarSign },
   { label: 'Resources', path: '/app/links', icon: BookOpen },
 ];
 
