@@ -75,11 +75,42 @@ Deno.serve(async (req) => {
     auth: { persistSession: false },
   });
 
-  // ── Authorize: cron secret OR an admin/owner JWT ───────────────────
+  // ── Authorize: single-use scheduler token OR an admin/owner JWT ─────
   let source = "cron";
-  const cronSecret = Deno.env.get("BACKUP_CRON_SECRET");
-  const providedSecret = req.headers.get("x-cron-secret");
-  const secretOk = !!cronSecret && providedSecret === cronSecret;
+  let secretOk = false;
+
+  let body: { job_token?: string } = {};
+  try {
+    body = await req.json();
+  } catch {
+    body = {};
+  }
+
+  const jobToken = typeof body.job_token === "string" ? body.job_token : null;
+  if (jobToken) {
+    // The scheduler inserts a fresh token row immediately before calling.
+    // Accept it once, and only within a short window.
+    const { data: tokenRow } = await admin
+      .from("backup_job_tokens")
+      .select("token, created_at, used_at")
+      .eq("token", jobToken)
+      .is("used_at", null)
+      .gt("created_at", new Date(Date.now() - 10 * 60 * 1000).toISOString())
+      .maybeSingle();
+    if (tokenRow) {
+      await admin
+        .from("backup_job_tokens")
+        .update({ used_at: new Date().toISOString() })
+        .eq("token", jobToken);
+      // prune old tokens opportunistically
+      await admin
+        .from("backup_job_tokens")
+        .delete()
+        .lt("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+      secretOk = true;
+    }
+  }
+
 
   if (!secretOk) {
     const authHeader = req.headers.get("Authorization") ?? "";
