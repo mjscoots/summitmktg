@@ -10,6 +10,7 @@ import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
+import PairingsPanel from "@/components/command/PairingsPanel";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
