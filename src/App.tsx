@@ -63,6 +63,7 @@ const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage
 const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
 const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
 const ManagerMeetingPage = lazy(() => import("./pages/app/ManagerMeetingPage"));
+const RosterSweepPage = lazy(() => import("./pages/app/RosterSweepPage"));
 const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
