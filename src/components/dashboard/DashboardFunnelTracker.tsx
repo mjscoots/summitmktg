@@ -1,47 +1,27 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Trash2, Loader2, ChevronDown, Search, X, Users } from 'lucide-react';
+import { Plus, Loader2, ChevronDown, Search, X, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
 const STATUS_OPTIONS = [
-  { value: '', label: '—', color: 'bg-muted/40 text-muted-foreground border-border/50' },
-  { value: 'new_lead', label: 'New Lead', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  { value: 'hype_up', label: 'Hype Up', color: 'bg-slate-500/15 text-slate-400 border-slate-500/30' },
-  { value: 'interview_1', label: 'Interview 1', color: 'bg-purple-500/15 text-primary border-purple-500/30' },
-  { value: 'interview_2', label: 'Interview 2', color: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30' },
-  { value: 'interview_3', label: 'Interview 3', color: 'bg-violet-500/15 text-violet-400 border-violet-500/30' },
-  { value: 'agreement_sent', label: 'Agreement Sent', color: 'bg-primary/15 text-primary border-primary/30' },
-  { value: 'hired', label: 'Hired', color: 'bg-primary/15 text-primary border-primary/30' },
-  { value: 'no_hire', label: 'No Hire', color: 'bg-red-500/15 text-primary border-red-500/30' },
-  { value: 'declined', label: 'Declined', color: 'bg-red-500/15 text-red-300 border-red-500/30' },
-  { value: 'follow_up', label: 'Follow Up', color: 'bg-primary/15 text-primary border-primary/30' },
-  { value: 'unresponsive', label: 'Unresponsive', color: 'bg-gray-500/15 text-gray-400 border-gray-500/30' },
+  { value: 'Claimed', label: 'Claimed', color: 'bg-primary/15 text-primary border-primary/30' },
+  { value: 'Contacted', label: 'Contacted', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+  { value: 'Booked', label: 'Booked', color: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
+  { value: 'Signed', label: 'Signed', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+  { value: 'Dead', label: 'Dead', color: 'bg-red-500/15 text-red-400 border-red-500/30' },
 ];
 
-const POSITION_OPTIONS = [
-  { value: '', label: '—', color: 'bg-muted/40 text-muted-foreground border-border/50' },
-  { value: 'pest_rookie', label: 'PEST Rookie', color: 'bg-primary/15 text-primary border-primary/30' },
-  { value: 'pest_vet', label: 'PEST Vet', color: 'bg-primary/15 text-primary/80 border-primary/30' },
-  { value: 'solar_rookie', label: 'Solar Rookie', color: 'bg-primary/15 text-primary border-primary/30' },
-  { value: 'solar_vet', label: 'Solar Vet', color: 'bg-primary/15 text-primary/80 border-primary/30' },
-  { value: 'fiber_rookie', label: 'Fiber Rookie', color: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30' },
-  { value: 'fiber_vet', label: 'Fiber Vet', color: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30' },
-  { value: 'setter', label: 'Setter', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  { value: 'recruiter', label: 'Recruiter', color: 'bg-purple-500/15 text-primary border-purple-500/30' },
-  { value: 'other', label: 'Other', color: 'bg-muted/40 text-muted-foreground border-border/50' },
-];
-
-interface Recruit {
+interface MyLead {
   id: string;
-  recruit_name: string;
+  first_name: string;
   phone: string | null;
-  stage: string;
-  position: string;
-  updated_at: string;
+  city: string | null;
+  status: string;
+  ref_code: string | null;
 }
 
 function MiniDropdown({ value, options, onChange }: { value: string; options: { value: string; label: string; color: string }[]; onChange: (v: string) => void }) {
@@ -78,56 +58,43 @@ function MiniDropdown({ value, options, onChange }: { value: string; options: { 
 export function DashboardFunnelTracker() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [recruits, setRecruits] = useState<Recruit[]>([]);
+  const [leads, setLeads] = useState<MyLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const fetchRecruits = useCallback(async () => {
+  const fetchLeads = useCallback(async () => {
     if (!user) return;
-    const { data } = await (supabase as any).from('recruit_pipeline').select('id, recruit_name, phone, stage, position, updated_at').eq('owner_id', user.id).order('updated_at', { ascending: false });
-    if (data) setRecruits(data as Recruit[]);
+    const { data } = await (supabase as any).rpc('get_my_leads');
+    if (data) setLeads(data as MyLead[]);
     setLoading(false);
   }, [user]);
 
-  useEffect(() => { fetchRecruits(); }, [fetchRecruits]);
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
-  const updateField = async (id: string, field: string, value: string) => {
-    // Optimistic update first
-    setRecruits(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
-    const { error } = await (supabase as any).from('recruit_pipeline').update({ [field]: value }).eq('id', id);
-    if (error) {
+  const setStatus = async (id: string, status: string) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+    const { data, error } = await (supabase as any).rpc('update_my_lead', { _lead_id: id, _status: status, _notes: null });
+    if (error || !data?.success) {
       toast.error('Save failed');
-      fetchRecruits(); // revert on error
+      fetchLeads();
     }
   };
 
-  const addRecruit = async () => {
-    if (!user) return;
-    const { data, error } = await (supabase as any).from('recruit_pipeline').insert({ owner_id: user.id, recruit_name: '', stage: 'new_lead', position: '', interview_2_status: '', interview_3_status: '', onboarding_status: '' }).select('id, recruit_name, phone, stage, position, updated_at').single();
-    if (error) { toast.error('Failed'); return; }
-    setRecruits(prev => [data as Recruit, ...prev]);
-  };
-
-  const deleteRecruit = async (id: string) => {
-    await (supabase as any).from('recruit_pipeline').delete().eq('id', id);
-    setRecruits(prev => prev.filter(r => r.id !== id));
-  };
-
   const filtered = useMemo(() => {
-    if (!search) return recruits;
+    if (!search) return leads;
     const q = search.toLowerCase();
-    return recruits.filter(r => r.recruit_name.toLowerCase().includes(q) || (r.phone || '').includes(q));
-  }, [recruits, search]);
+    return leads.filter(l => l.first_name.toLowerCase().includes(q) || (l.phone || '').includes(q));
+  }, [leads, search]);
 
   return (
     <div className="glass-card rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h2 className="text-base font-bold text-foreground tracking-tight">Funnel Tracker</h2>
-          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">{recruits.length}</span>
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">{leads.length}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={addRecruit} className="flex items-center gap-1 text-[10px] font-semibold text-primary hover:text-primary/80 transition-colors">
+          <button onClick={() => navigate('/app/recruits')} className="flex items-center gap-1 text-[10px] font-semibold text-primary hover:text-primary/80 transition-colors">
             <Plus className="w-3.5 h-3.5" /> Add
           </button>
           <button onClick={() => navigate('/app/recruits')} className="text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -148,7 +115,7 @@ export function DashboardFunnelTracker() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Users className="w-6 h-6 mx-auto mb-1.5 opacity-30" />
-          <p className="text-[11px]">{search ? 'No matches' : 'No recruits yet'}</p>
+          <p className="text-[11px]">{search ? 'No matches' : 'No leads yet'}</p>
         </div>
       ) : (
         <div className="overflow-x-auto -mx-4 px-4">
@@ -158,58 +125,31 @@ export function DashboardFunnelTracker() {
                 <th className="text-left py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Name</th>
                 <th className="text-left py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Phone</th>
                 <th className="text-left py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Status</th>
-                <th className="text-left py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Position</th>
-                <th className="w-6" />
+                <th className="text-left py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Source</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.slice(0, 15).map((r, i) => (
-                <tr key={r.id} className={cn("border-b border-border/20 hover:bg-accent/10 transition-colors group", i % 2 === 1 && "bg-muted/5")}>
-                  <td className="py-1.5 pr-2">
-                    <InlineEdit value={r.recruit_name} onChange={v => updateField(r.id, 'recruit_name', v)} placeholder="Name..." />
+              {filtered.slice(0, 15).map((l, i) => (
+                <tr key={l.id} className={cn("border-b border-border/20 hover:bg-accent/10 transition-colors group", i % 2 === 1 && "bg-muted/5")}>
+                  <td className="py-1.5 pr-2 text-foreground truncate">{l.first_name || '—'}</td>
+                  <td className="py-1.5 pr-2 text-muted-foreground">
+                    {l.phone ? <a href={`tel:${l.phone.replace(/[^\d+]/g, '')}`} className="hover:text-primary">{l.phone}</a> : '—'}
                   </td>
                   <td className="py-1.5 pr-2">
-                    <InlineEdit value={r.phone || ''} onChange={v => updateField(r.id, 'phone', v)} placeholder="Phone..." />
+                    <MiniDropdown value={l.status} options={STATUS_OPTIONS} onChange={v => setStatus(l.id, v)} />
                   </td>
-                  <td className="py-1.5 pr-2">
-                    <MiniDropdown value={r.stage} options={STATUS_OPTIONS} onChange={v => updateField(r.id, 'stage', v)} />
-                  </td>
-                  <td className="py-1.5 pr-2">
-                    <MiniDropdown value={r.position || ''} options={POSITION_OPTIONS} onChange={v => updateField(r.id, 'position', v)} />
-                  </td>
-                  <td className="py-1.5">
-                    <button onClick={() => deleteRecruit(r.id)} className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-destructive transition-all">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </td>
+                  <td className="py-1.5 pr-2 text-muted-foreground/70">{l.ref_code || '—'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {filtered.length > 15 && (
             <button onClick={() => navigate('/app/recruits')} className="w-full text-center py-2 text-[10px] text-muted-foreground hover:text-primary transition-colors">
-              View all {filtered.length} recruits →
+              View all {filtered.length} leads →
             </button>
           )}
         </div>
       )}
     </div>
   );
-}
-
-function InlineEdit({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
-  const [editing, setEditing] = useState(false);
-  const [local, setLocal] = useState(value);
-  const ref = useRef<HTMLInputElement>(null);
-
-  useEffect(() => { setLocal(value); }, [value]);
-  useEffect(() => { if (editing) ref.current?.focus(); }, [editing]);
-
-  const commit = () => { setEditing(false); if (local.trim() !== value) onChange(local.trim()); };
-
-  if (editing) {
-    return <input ref={ref} value={local} onChange={e => setLocal(e.target.value)} onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setLocal(value); setEditing(false); } }} className="bg-transparent border-b border-primary/40 outline-none text-foreground text-[11px] w-full py-0" placeholder={placeholder} />;
-  }
-
-  return <span onClick={() => setEditing(true)} className={cn("cursor-text block truncate min-h-[16px]", value ? "text-foreground" : "text-muted-foreground/40")}>{value || placeholder}</span>;
 }
