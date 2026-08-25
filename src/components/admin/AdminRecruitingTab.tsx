@@ -88,15 +88,19 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
 
   useEffect(() => { load(); }, [load]);
 
+  const sourceOf = (l: Lead) =>
+    l.ref_code === 'pipeline-import' ? 'pipeline-import' : l.ref_code === 'manual' ? 'manual' : 'ticket';
+
   const filtered = useMemo(
     () =>
       leads.filter(
         (l) =>
           (statusFilter === 'all' || l.status === statusFilter) &&
           (refFilter === 'all' || (l.ref_code || 'none') === refFilter) &&
-          (repFilter === 'all' || (l.claimed_by || 'none') === repFilter)
+          (repFilter === 'all' || (l.claimed_by || 'none') === repFilter) &&
+          (sourceFilter === 'all' || sourceOf(l) === sourceFilter)
       ),
-    [leads, statusFilter, refFilter, repFilter]
+    [leads, statusFilter, refFilter, repFilter, sourceFilter]
   );
 
   const signedLeads = useMemo(() => leads.filter((l) => l.status === 'Signed'), [leads]);
