@@ -2014,6 +2014,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pairing_requests: {
+        Row: {
+          created_at: string
+          decline_reason: string | null
+          id: string
+          manager_id: string
+          rep_id: string
+          responded_at: string | null
+          status: string
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          created_at?: string
+          decline_reason?: string | null
+          id?: string
+          manager_id: string
+          rep_id: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+          vertical: string
+        }
+        Update: {
+          created_at?: string
+          decline_reason?: string | null
+          id?: string
+          manager_id?: string
+          rep_id?: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+          vertical?: string
+        }
+        Relationships: []
+      }
       phone_numbers: {
         Row: {
           created_at: string | null
@@ -2129,6 +2165,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accepting_new_reps: boolean
           alumni: boolean
           approved: boolean | null
           archived: boolean
@@ -2154,6 +2191,8 @@ export type Database = {
           last_day_worked: string | null
           last_seen_release: string | null
           legacy_points_snapshot: number | null
+          manager_intro: string | null
+          mentee_capacity: number | null
           next_year_notes: string | null
           next_year_status: string | null
           next_year_status_at: string | null
@@ -2190,6 +2229,7 @@ export type Database = {
           week_start: string | null
         }
         Insert: {
+          accepting_new_reps?: boolean
           alumni?: boolean
           approved?: boolean | null
           archived?: boolean
@@ -2215,6 +2255,8 @@ export type Database = {
           last_day_worked?: string | null
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
+          manager_intro?: string | null
+          mentee_capacity?: number | null
           next_year_notes?: string | null
           next_year_status?: string | null
           next_year_status_at?: string | null
@@ -2251,6 +2293,7 @@ export type Database = {
           week_start?: string | null
         }
         Update: {
+          accepting_new_reps?: boolean
           alumni?: boolean
           approved?: boolean | null
           archived?: boolean
@@ -2276,6 +2319,8 @@ export type Database = {
           last_day_worked?: string | null
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
+          manager_intro?: string | null
+          mentee_capacity?: number | null
           next_year_notes?: string | null
           next_year_status?: string | null
           next_year_status_at?: string | null
@@ -4475,12 +4520,17 @@ export type Database = {
         Args: { _lead_id: string; _user_id: string }
         Returns: Json
       }
+      admin_set_paired_manager: {
+        Args: { _manager_id: string; _user_id: string; _vertical: string }
+        Returns: Json
+      }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
       apply_winback_gold: { Args: { _rows: Json }; Returns: Json }
       approve_vertical_step: {
         Args: { _notes?: string; _step_id: string; _user_id: string }
         Returns: Json
       }
+      auto_pair: { Args: { _vertical: string }; Returns: Json }
       auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
         Args: { _content: string; _message_id?: string; _user_id: string }
@@ -4688,6 +4738,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_eligible_managers: { Args: { _vertical: string }; Returns: Json }
       get_event_checkin: {
         Args: { p_event_id: string }
         Returns: {
@@ -4824,11 +4875,18 @@ export type Database = {
           status: string
         }[]
       }
+      get_my_mentees: { Args: never; Returns: Json }
+      get_my_pairing_request: { Args: { _vertical: string }; Returns: Json }
+      get_my_pairing_requests: { Args: never; Returns: Json }
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
       get_my_ref_code: { Args: never; Returns: string }
       get_my_revenue: { Args: never; Returns: Json }
       get_my_vertical_path: { Args: { _vertical: string }; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
+      get_pairings: {
+        Args: { _manager?: string; _status?: string; _vertical?: string }
+        Returns: Json
+      }
       get_pending_vertical_approvals: { Args: never; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
@@ -4997,6 +5055,7 @@ export type Database = {
       mark_inactive_users: { Args: never; Returns: undefined }
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
+      mentee_count: { Args: { _manager_id: string }; Returns: number }
       my_signed_count: { Args: never; Returns: number }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
       notify_chat_mentions: {
@@ -5006,6 +5065,10 @@ export type Database = {
       notify_due_action_items: { Args: never; Returns: number }
       notify_event_reminders: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
+      nudge_mentee: {
+        Args: { _user_id: string; _vertical: string }
+        Returns: Json
+      }
       post_weekly_awards: { Args: never; Returns: Json }
       recalc_vertical_enrollment: {
         Args: { _user: string; _vertical: string }
@@ -5031,6 +5094,14 @@ export type Database = {
         Returns: undefined
       }
       release_stale_leads: { Args: never; Returns: number }
+      request_pairing: {
+        Args: { _manager_id: string; _vertical: string }
+        Returns: Json
+      }
+      respond_pairing: {
+        Args: { _accept: boolean; _reason?: string; _request_id: string }
+        Returns: Json
+      }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
       rsvp_event: {
         Args: { p_event_id: string; p_status: string }
@@ -5065,6 +5136,7 @@ export type Database = {
         }
         Returns: Json
       }
+      sweep_pairing_requests: { Args: never; Returns: Json }
       sweep_speed_to_lead: { Args: never; Returns: Json }
       sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }

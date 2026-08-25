@@ -22,6 +22,7 @@ import { RepScorecard } from '@/components/shared/RepScorecard';
 import { RankInsignia } from '@/components/badges/RankInsignia';
 import { TriageBoard } from '@/components/team/TriageBoard';
 import { CarGroupsTab } from '@/components/team/CarGroupsTab';
+import { MyMenteesPanel } from '@/components/team/MyMenteesPanel';
 import { TeamActionItems } from '@/components/team/TeamActionItems';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
@@ -68,9 +69,9 @@ export default function MyTeamPage() {
     { user_id: string; full_name: string | null; committed_last_day: string }[]
   >([]);
 
-  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
+  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars' | 'mentees'>(() => {
     const t = searchParams.get('tab');
-    if (t === 'members' || t === 'triage' || t === 'cars') return t;
+    if (t === 'members' || t === 'triage' || t === 'cars' || t === 'mentees') return t;
     return 'teams';
   });
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
@@ -93,7 +94,7 @@ export default function MyTeamPage() {
   // Manager-only tabs: reps landing on ?tab=triage fall back to Teams
   useEffect(() => {
     if (authLoading) return;
-    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars')) setViewMode('teams');
+    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars' || viewMode === 'mentees')) setViewMode('teams');
   }, [authLoading, isManagerRole, viewMode]);
 
   useManagerNotifications();
@@ -284,7 +285,7 @@ export default function MyTeamPage() {
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
             {(isManagerRole
-              ? (['teams', 'members', 'triage', 'cars'] as const)
+              ? (['teams', 'members', 'triage', 'cars', 'mentees'] as const)
               : (['teams', 'members'] as const)
             ).map(mode => (
               <button
@@ -501,6 +502,8 @@ export default function MyTeamPage() {
         )}
 
         {!loading && viewMode === 'cars' && isManagerRole && <CarGroupsTab />}
+
+        {!loading && viewMode === 'mentees' && isManagerRole && <MyMenteesPanel />}
 
 
         {/* Member detail sheet */}

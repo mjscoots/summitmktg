@@ -10,6 +10,7 @@ import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
+import PairingsPanel from "@/components/command/PairingsPanel";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
@@ -525,6 +526,12 @@ export default function CommandCenterPage() {
         <SectionHeader title="Session Prep" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <SessionPrep />
+        </div>
+
+        {/* PAIRINGS */}
+        <SectionHeader title="Pairings" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <PairingsPanel />
         </div>
 
 

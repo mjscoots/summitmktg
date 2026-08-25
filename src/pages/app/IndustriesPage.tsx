@@ -12,6 +12,7 @@ import {
   Bug, Wifi, HeartHandshake, Users, Check, Lock, CircleDot, Upload,
   GraduationCap, ShieldCheck, ListChecks, Loader2, ArrowLeft,
 } from 'lucide-react';
+import { ManagerPicker } from '@/components/industries/ManagerPicker';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
 
@@ -209,12 +210,34 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
   const [data, setData] = useState<PathData | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [pairedManager, setPairedManager] = useState<string | null>(null);
+  const [pairedName, setPairedName] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data: res } = await supabase.rpc('get_my_vertical_path' as never, { _vertical: vertical } as never);
     setData((res as unknown as PathData) || { steps: [] });
+    if (user?.id) {
+      const { data: enr } = await supabase
+        .from('rep_vertical_enrollments')
+        .select('paired_manager')
+        .eq('user_id', user.id)
+        .eq('vertical', vertical)
+        .maybeSingle();
+      const mid = (enr as { paired_manager: string | null } | null)?.paired_manager || null;
+      setPairedManager(mid);
+      if (mid) {
+        const { data: mp } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('user_id', mid)
+          .maybeSingle();
+        setPairedName((mp as { full_name: string | null } | null)?.full_name || null);
+      } else {
+        setPairedName(null);
+      }
+    }
     setLoading(false);
-  }, [vertical]);
+  }, [vertical, user?.id]);
 
   useEffect(() => {
     load();
@@ -272,6 +295,24 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
             </p>
           )}
         </header>
+
+        {!loading && (
+          pairedManager ? (
+            <div className={cn(CARD, 'flex items-center gap-2')}>
+              <Users className="h-4 w-4 text-primary" />
+              <p className="text-[13px] text-muted-foreground">
+                Working with <span className="font-medium text-foreground">{pairedName || 'your manager'}</span>
+              </p>
+            </div>
+          ) : (
+            <ManagerPicker
+              vertical={vertical}
+              label={data?.label || vertical}
+              onPaired={load}
+            />
+          )
+        )}
+
 
         {loading ? (
           <div className={CARD}>

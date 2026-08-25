@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezones';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { RepScorecard } from '@/components/shared/RepScorecard';
@@ -181,6 +182,9 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [committedLastDay, setCommittedLastDay] = useState<string | null>(null);
   const [commitmentTerms, setCommitmentTerms] = useState<string | null>(null);
+  const [acceptingNewReps, setAcceptingNewReps] = useState(false);
+  const [menteeCapacity, setMenteeCapacity] = useState<string>('');
+  const [managerIntro, setManagerIntro] = useState('');
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const canSelfDelete = role === 'rookie' || role === 'manager';
@@ -196,7 +200,7 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms')
+          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms, accepting_new_reps, mentee_capacity, manager_intro')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
@@ -207,6 +211,9 @@ export default function ProfilePage() {
         setShirtSize((data as any)?.shirt_size || '');
         setCommittedLastDay((data as any)?.committed_last_day || null);
         setCommitmentTerms((data as any)?.commitment_terms || null);
+        setAcceptingNewReps(Boolean((data as any)?.accepting_new_reps));
+        setMenteeCapacity((data as any)?.mentee_capacity != null ? String((data as any).mentee_capacity) : '');
+        setManagerIntro((data as any)?.manager_intro || '');
       };
       fetchExtra();
     }
@@ -228,6 +235,13 @@ export default function ProfilePage() {
           emergency_contact_name: emergencyContactName || null,
           emergency_contact_phone: emergencyContactPhone || null,
           shirt_size: shirtSize || null,
+          ...(isManager
+            ? {
+                accepting_new_reps: acceptingNewReps,
+                mentee_capacity: menteeCapacity === '' ? null : Math.max(0, Number(menteeCapacity)),
+                manager_intro: managerIntro.trim() || null,
+              }
+            : {}),
           updated_at: new Date().toISOString(),
         } as any)
         .eq('user_id', user.id);
@@ -622,6 +636,44 @@ export default function ProfilePage() {
                   : 'Manually set — calendar events will display in this timezone'}
               </p>
             </div>
+
+            {isManager && (
+              <div className="rounded-xl border border-white/[0.06] bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Accepting new reps</p>
+                    <p className="text-xs text-muted-foreground">
+                      When on, reps picking an industry manager can see and choose you.
+                    </p>
+                  </div>
+                  <Switch checked={acceptingNewReps} onCheckedChange={setAcceptingNewReps} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Mentee capacity <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={menteeCapacity}
+                    onChange={(e) => setMenteeCapacity(e.target.value)}
+                    placeholder="No limit"
+                    className="max-w-[160px] tabular-nums"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Your intro line <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                  </label>
+                  <Input
+                    value={managerIntro}
+                    onChange={(e) => setManagerIntro(e.target.value.slice(0, 160))}
+                    placeholder="One line reps will see on your card"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 tabular-nums">{managerIntro.length}/160</p>
+                </div>
+              </div>
+            )}
 
 
             <div>

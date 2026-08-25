@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PairingRequestsPanel } from '@/components/industries/PairingRequestsPanel';
 
 const AdminSubmittedVideosTab = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 
@@ -130,6 +131,11 @@ export default function PitchApprovalsPage() {
             Checklist Videos
           </button>
         </div>
+
+        <div className="mb-6">
+          <PairingRequestsPanel />
+        </div>
+
 
         {activeTab === 'checklist' ? (
           <Suspense fallback={<LoadingList rows={4} />}>
