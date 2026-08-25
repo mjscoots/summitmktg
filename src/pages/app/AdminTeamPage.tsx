@@ -35,7 +35,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 
+import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
+
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
+
 const LazyPitchApprovals = lazy(() => import('@/components/admin/AdminPitchApprovalsTab'));
 const LazyRecruiting = lazy(() => import('@/components/admin/AdminRecruitingTab'));
 
@@ -329,16 +332,17 @@ export default function AdminTeamPage() {
 
 
         <Tabs defaultValue={
-          // Auto-navigate to first tab with notifications
-          adminCounts.pendingApprovals > 0 ? 'approvals' :
-          adminCounts.syncIssues > 0 ? 'sync' :
-          adminCounts.pendingPitches > 0 ? 'pitches' :
-          adminCounts.newFeedback > 0 ? 'feedback' : 'users'
+          // Land on the triage queue whenever anything is pending
+          adminCounts.total > 0 ? 'queue' : 'users'
         } className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
             <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 min-w-max">
             <TabsList className="bg-transparent p-0 h-auto gap-0.5">
+              <TabsTrigger value="queue" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+                Queue {adminCounts.total > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.total}</span>}
+              </TabsTrigger>
               <TabsTrigger value="users" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
+
                 Users <span className="ml-1 text-[9px] opacity-70">{allUsers.filter(u => u.approved === true).length}</span>
               </TabsTrigger>
               <TabsTrigger value="teams" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
@@ -556,6 +560,12 @@ export default function AdminTeamPage() {
               <LazyFeedback />
             </Suspense>
           </TabsContent>
+
+          {/* ========== QUEUE TRIAGE TAB ========== */}
+          <TabsContent value="queue">
+            <AdminQueueTab />
+          </TabsContent>
+
 
           {/* ========== SYSTEM TAB ========== */}
           {isSuperAdmin && (

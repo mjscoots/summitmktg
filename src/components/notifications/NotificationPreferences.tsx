@@ -6,6 +6,9 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 interface Preferences {
+  new_leads: boolean;
+  lead_expiry: boolean;
+  announcements: boolean;
   training_quiz: boolean;
   calendar_events: boolean;
   leaderboard: boolean;
@@ -15,6 +18,9 @@ interface Preferences {
 }
 
 const PREF_LABELS: { key: keyof Preferences; label: string; description: string }[] = [
+  { key: 'new_leads', label: 'New leads', description: 'A new lead lands on the Lead Board unclaimed' },
+  { key: 'lead_expiry', label: 'Lead expiry warnings', description: 'Your claimed lead is within 8 hours of auto-release' },
+  { key: 'announcements', label: 'Announcements', description: 'A new announcement is published to the team' },
   { key: 'training_quiz', label: 'Training & Quiz', description: 'Quiz completions, training milestones, and rep progress alerts' },
   { key: 'calendar_events', label: 'Calendar Events', description: 'Upcoming event reminders and schedule notifications' },
   { key: 'leaderboard', label: 'Leaderboard', description: 'Weekly rank changes and #1 position alerts' },
@@ -24,6 +30,9 @@ const PREF_LABELS: { key: keyof Preferences; label: string; description: string 
 ];
 
 const DEFAULTS: Preferences = {
+  new_leads: true,
+  lead_expiry: true,
+  announcements: true,
   training_quiz: true,
   calendar_events: true,
   leaderboard: true,
@@ -31,6 +40,7 @@ const DEFAULTS: Preferences = {
   bootcamp_reminders: true,
   streak_milestones: true,
 };
+
 
 export function NotificationPreferences() {
   const { user } = useAuth();
@@ -50,8 +60,12 @@ export function NotificationPreferences() {
 
       if (data) {
         setPrefs({
+          new_leads: (data as any).new_leads ?? true,
+          lead_expiry: (data as any).lead_expiry ?? true,
+          announcements: (data as any).announcements ?? true,
           training_quiz: (data as any).training_quiz ?? true,
           calendar_events: (data as any).calendar_events ?? true,
+
           leaderboard: (data as any).leaderboard ?? true,
           chat_mentions: (data as any).chat_mentions ?? true,
           bootcamp_reminders: (data as any).bootcamp_reminders ?? true,
