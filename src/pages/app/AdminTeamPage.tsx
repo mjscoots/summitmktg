@@ -599,6 +599,26 @@ export default function AdminTeamPage() {
             <AdminQueueTab />
           </TabsContent>
 
+          {/* ========== MONEY TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="money">
+              <Suspense fallback={<LoadingList rows={5} />}>
+                <LazyMoney />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {/* ========== ASSISTANT TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="assistant">
+              <Suspense fallback={<LoadingList rows={5} />}>
+                <LazyAssistant />
+              </Suspense>
+            </TabsContent>
+          )}
+
+
+
 
           {/* ========== SYSTEM TAB ========== */}
           {isSuperAdmin && (
