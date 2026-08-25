@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { isAdminOrAbove } from "@/lib/roles";
 import { Loader2, Check, Pencil } from "lucide-react";
+import CommandFunnel from "@/components/command/CommandFunnel";
+import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
@@ -488,6 +490,14 @@ export default function CommandCenterPage() {
           <StatCard label="Recruits" value={live.recruits} />
           <StatCard label="Open Applications" value={live.openApps} />
         </div>
+
+        {/* RECRUITING ANALYTICS */}
+        <CommandFunnel />
+
+        {/* OWNER WEEKLY REPORT */}
+        <WeeklyReportSection />
+
+
 
         {/* ENGAGEMENT */}
         <SectionHeader title="Engagement" />
