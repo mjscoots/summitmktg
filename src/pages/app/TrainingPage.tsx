@@ -6,7 +6,7 @@ import { isManagerOrAbove } from '@/lib/roles';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 
-import { BookOpen, Users, ChevronLeft, Play, ChevronRight } from 'lucide-react';
+import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
