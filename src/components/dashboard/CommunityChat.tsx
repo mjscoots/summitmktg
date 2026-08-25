@@ -485,8 +485,8 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
       {/* Header */}
       <div className="relative z-[1]">
         <ChatHeader
-          channelName="Team Chat"
-          subtitle="Summit Crew"
+          channelName={`#${activeChannel}`}
+          subtitle={channels.find(c => c.slug === activeChannel)?.label || 'Summit Crew'}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
@@ -496,7 +496,7 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         <ChannelTabs
           tabs={channelTabs}
           activeSlug={activeChannel}
-          onSelect={(slug) => { setActiveChannel(slug); }}
+          onSelect={(slug) => { setActiveChannel(slug); void markChannelRead(slug); }}
         />
       </div>
 
