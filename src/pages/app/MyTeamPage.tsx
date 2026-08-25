@@ -59,9 +59,11 @@ export default function MyTeamPage() {
   const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
 
-  const [viewMode, setViewMode] = useState<'teams' | 'members'>(
-    searchParams.get('tab') === 'members' ? 'members' : 'teams'
-  );
+  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
+    const t = searchParams.get('tab');
+    if (t === 'members' || t === 'triage' || t === 'cars') return t;
+    return 'teams';
+  });
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [memberSearch, setMemberSearch] = useState('');
   const [teamFilter, setTeamFilter] = useState<string>(() => {
@@ -234,7 +236,10 @@ export default function MyTeamPage() {
 
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
-            {(['teams', 'members'] as const).map(mode => (
+            {(isManagerRole
+              ? (['teams', 'members', 'triage', 'cars'] as const)
+              : (['teams', 'members'] as const)
+            ).map(mode => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
@@ -398,6 +403,16 @@ export default function MyTeamPage() {
             </div>
           </div>
         )}
+
+        {!loading && viewMode === 'triage' && isManagerRole && (
+          <div className="space-y-4">
+            <TriageBoard />
+            <TeamActionItems />
+          </div>
+        )}
+
+        {!loading && viewMode === 'cars' && isManagerRole && <CarGroupsTab />}
+
 
         {/* Member detail sheet */}
         <Sheet open={!!sheetMember} onOpenChange={open => !open && setSheetMember(null)}>

@@ -41,6 +41,48 @@ export type Database = {
         }
         Relationships: []
       }
+      action_items: {
+        Row: {
+          assigned_to: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          due_date: string | null
+          id: string
+          notified_at: string | null
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          id?: string
+          notified_at?: string | null
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          id?: string
+          notified_at?: string | null
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_queue_dismissals: {
         Row: {
           created_at: string
@@ -670,6 +712,74 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      car_group_members: {
+        Row: {
+          car_group_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          car_group_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          car_group_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_group_members_car_group_id_fkey"
+            columns: ["car_group_id"]
+            isOneToOne: false
+            referencedRelation: "car_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      car_groups: {
+        Row: {
+          area: string | null
+          car_name: string
+          created_at: string
+          created_by: string | null
+          driver_name: string | null
+          driver_user_id: string | null
+          group_date: string
+          id: string
+          published: boolean
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          car_name: string
+          created_at?: string
+          created_by?: string | null
+          driver_name?: string | null
+          driver_user_id?: string | null
+          group_date: string
+          id?: string
+          published?: boolean
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          car_name?: string
+          created_at?: string
+          created_by?: string | null
+          driver_name?: string | null
+          driver_user_id?: string | null
+          group_date?: string
+          id?: string
+          published?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       celebration_log: {
         Row: {
@@ -2220,6 +2330,39 @@ export type Database = {
           },
         ]
       }
+      rep_triage: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+          moved_at: string
+          moved_by: string | null
+          note: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          moved_at?: string
+          moved_by?: string | null
+          note?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          moved_at?: string
+          moved_by?: string | null
+          note?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       schedule_items: {
         Row: {
           created_at: string | null
@@ -3730,6 +3873,7 @@ export type Database = {
       }
       mark_inactive_users: { Args: never; Returns: undefined }
       my_signed_count: { Args: never; Returns: number }
+      notify_due_action_items: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
       post_weekly_awards: { Args: never; Returns: Json }
       recalculate_all_time_points: { Args: never; Returns: undefined }
