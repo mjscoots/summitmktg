@@ -235,6 +235,13 @@ export default function DashboardPage() {
         {/* Action row — what to do right now */}
         <HomeActionRow />
 
+        {/* Today's car assignment (only when published for today) */}
+        <div className="mb-4 space-y-3">
+          <MyCarTodayCard />
+          <MyActionItemsCard />
+        </div>
+
+
         {/* Announcement Box */}
         <AnnouncementBox />
 
