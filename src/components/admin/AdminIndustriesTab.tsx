@@ -216,9 +216,8 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12px]">Description shown to reps</Label>
-            <div className="space-y-2">
               <Label className="text-[12px]">Description — public industry page and landing toggle</Label>
+
               <Textarea
                 rows={3}
                 value={draft.description ?? p.description ?? ''}
