@@ -4,6 +4,15 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Copy, Loader2, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
+import {
+  PAY_SCALE_LABELS,
+  PayScale,
+  formatCurrency,
+  formatRate,
+  formatTierRange,
+  getTiers,
+} from '@/lib/commission';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -36,6 +45,7 @@ export function LeaderScorecard({ userId }: { userId: string }) {
   const [seasonId, setSeasonId] = useState('');
   const [offices, setOffices] = useState<string[]>([]);
   const [seasons, setSeasons] = useState<{ id: string; name: string }[]>([]);
+  const [ladder, setLadder] = useState<{ scale: PayScale; revenue: number } | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -67,6 +77,36 @@ export function LeaderScorecard({ userId }: { userId: string }) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // The leader's own position on their pay ladder, from their commission record.
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      const { data: row } = await supabase
+        .from('rep_commission')
+        .select('pay_scale, active_revenue, signs, avg_account_value')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (!active) return;
+      const r = row as
+        | { pay_scale: string; active_revenue: number | null; signs: number | null; avg_account_value: number | null }
+        | null;
+      if (!r) {
+        setLadder(null);
+        return;
+      }
+      const scale = (['rookie', 'veteran', 'marketing'].includes(r.pay_scale)
+        ? r.pay_scale
+        : 'rookie') as PayScale;
+      const revenue =
+        r.active_revenue ??
+        (r.avg_account_value != null ? (r.signs ?? 0) * r.avg_account_value : null);
+      setLadder(revenue == null ? null : { scale, revenue });
+    })();
+    return () => {
+      active = false;
+    };
+  }, [userId]);
 
   const pra = (denom: number) =>
     data && data.tree_revenue && denom > 0 ? money(Number(data.tree_revenue) / denom) : null;
@@ -100,7 +140,7 @@ export function LeaderScorecard({ userId }: { userId: string }) {
       await navigator.clipboard.writeText(lines());
       toast.success('Scorecard copied');
     } catch {
-      toast.error('Could not copy');
+      toast.error('Could not copy the scorecard. Select the text and copy it manually.');
     }
   };
 
@@ -195,6 +235,22 @@ export function LeaderScorecard({ userId }: { userId: string }) {
               }
             />
           </div>
+
+          {ladder && (
+            <div className={cn(CARD, 'p-4')}>
+              <p className="micro-label mb-3">{PAY_SCALE_LABELS[ladder.scale]} pay ladder</p>
+              <PayLadderTrack
+                tiers={getTiers(ladder.scale).map((t) => ({
+                  label: formatTierRange(t),
+                  rateLabel: formatRate(t.rate),
+                  min: t.min,
+                  max: t.max === Infinity ? null : t.max,
+                }))}
+                value={ladder.revenue}
+                formatAmount={formatCurrency}
+              />
+            </div>
+          )}
 
           <div className={cn(CARD, 'p-4')}>
             <p className="micro-label">Next season</p>
