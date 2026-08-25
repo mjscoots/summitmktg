@@ -23,6 +23,7 @@ interface LadderData {
   rungs: Rung[];
   timeline_note: string | null;
   my_rung: number;
+  my_rank: string | null;
   seasons_completed: number;
   rep_year: number;
   min_seasons: number;
@@ -82,7 +83,14 @@ export function LadderStrip({ verticals }: { verticals: { vertical: string; labe
   return (
     <section className={CARD}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold text-foreground">The pathway</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-foreground">The pathway</h2>
+          {data.my_rank && (
+            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+              {data.my_rank}
+            </span>
+          )}
+        </div>
         {data.timeline_note && (
           <p className="text-[12px] text-muted-foreground">{data.timeline_note}</p>
         )}
