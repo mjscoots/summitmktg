@@ -286,6 +286,15 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Scripts library — openers, objections, closes */}
+              <Route path="/app/scripts" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <ScriptsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
               {/* Ask Summit — grounded AI assistant */}
               <Route path="/app/ask" element={
                 <ProtectedRoute>
@@ -294,6 +303,7 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+
 
 
               {/* Leaderboard */}
