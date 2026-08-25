@@ -527,6 +527,12 @@ export default function CommandCenterPage() {
           <SessionPrep />
         </div>
 
+        {/* PAIRINGS */}
+        <SectionHeader title="Pairings" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <PairingsPanel />
+        </div>
+
 
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />
