@@ -259,6 +259,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             <SelectItem value="ticket">Golden Ticket (ref)</SelectItem>
             <SelectItem value="pipeline-import">Pipeline import</SelectItem>
             <SelectItem value="manual">Manually added</SelectItem>
+            <SelectItem value="winback">Win-back</SelectItem>
           </SelectContent>
         </Select>
         <button
