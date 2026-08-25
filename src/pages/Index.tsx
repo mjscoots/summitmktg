@@ -105,8 +105,14 @@ const Index = () => {
               Summit Marketing
             </h1>
             <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
-              We recruit, train, and field door-to-door sales reps. You knock, you close, you get paid on what you close.
+              We recruit, train, and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
             </p>
+
+            <div className="mx-auto mt-8 max-w-xl space-y-1.5 text-sm md:text-base text-muted-foreground">
+              <p>Pest in the summer. Fiber in the winter. Life insurance year-round.</p>
+              <p>One rank that carries across all three.</p>
+              <p>Every rep sees their full ladder — what you're on and what it takes to move up.</p>
+            </div>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
               <button
@@ -129,29 +135,19 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Calculators */}
+        {/* Calculator */}
         <div id="earnings" className="relative z-10 max-w-4xl mx-auto w-full px-6 py-16 space-y-8 scroll-mt-8">
           <div className="text-center mb-4">
             <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
               Estimate Your Earnings
             </h2>
-            <p className="text-muted-foreground text-sm mb-6">See what you could make this summer.</p>
-            <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1 backdrop-blur-sm">
-              {(['rookie', 'vet'] as const).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setCalcMode(mode)}
-                  className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-all duration-180 ${calcMode === mode ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  {mode === 'rookie' ? 'Rookie' : 'Veteran'}
-                </button>
-              ))}
-            </div>
+            <p className="text-muted-foreground text-sm mb-6">See what you could make.</p>
           </div>
           <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
-            {calcMode === 'rookie' ? <RookieCalculator /> : <VetCalculator />}
+            <EarningsCalculator />
           </Suspense>
         </div>
+
 
         {/* Apply CTA */}
         <div className="relative z-10 text-center py-16 px-6">
