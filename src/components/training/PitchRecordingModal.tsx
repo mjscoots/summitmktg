@@ -10,10 +10,15 @@ import { cn } from '@/lib/utils';
 interface PitchRecordingModalProps {
   open: boolean;
   onClose: () => void;
-  lessonId: string;
+  /** null for a standalone practice pitch not tied to a lesson */
+  lessonId: string | null;
   lessonTitle: string;
   attemptNumber: number;
   onSubmitted: () => void;
+  /** recording cap in seconds (default 5 min) */
+  maxDurationSeconds?: number;
+  /** upload size cap in MB (default 500) */
+  maxFileSizeMb?: number;
 }
 
 type RecordingState = 'idle' | 'recording' | 'preview' | 'uploading' | 'done';
@@ -25,6 +30,8 @@ export function PitchRecordingModal({
   lessonTitle,
   attemptNumber,
   onSubmitted,
+  maxDurationSeconds = 300,
+  maxFileSizeMb = 500,
 }: PitchRecordingModalProps) {
   const { user, profile } = useAuth();
   const [mode, setMode] = useState<'choose' | 'record' | 'upload'>('choose');
@@ -41,8 +48,14 @@ export function PitchRecordingModal({
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordedMimeRef = useRef<string>('video/webm');
 
-  const MAX_DURATION = 300; // 5 minutes
+  const MAX_DURATION = maxDurationSeconds;
+  const canRecord =
+    typeof navigator !== 'undefined' &&
+    !!navigator.mediaDevices?.getUserMedia &&
+    typeof window !== 'undefined' &&
+    typeof window.MediaRecorder !== 'undefined';
 
   // Clean up on unmount/close
   useEffect(() => {
@@ -71,11 +84,10 @@ export function PitchRecordingModal({
         videoRef.current.play();
       }
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-          ? 'video/webm;codecs=vp9'
-          : 'video/webm',
-      });
+      const candidates = ['video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
+      const mimeType = candidates.find((t) => MediaRecorder.isTypeSupported?.(t));
+      const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      recordedMimeRef.current = mediaRecorder.mimeType || mimeType || 'video/webm';
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -84,7 +96,7 @@ export function PitchRecordingModal({
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const blob = new Blob(chunksRef.current, { type: recordedMimeRef.current });
         setRecordedBlob(blob);
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
@@ -127,8 +139,8 @@ export function PitchRecordingModal({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error('File too large. Max 500MB.');
+    if (file.size > maxFileSizeMb * 1024 * 1024) {
+      toast.error(`File too large. Max ${maxFileSizeMb}MB.`);
       return;
     }
     if (!file.type.startsWith('video/')) {
@@ -142,15 +154,24 @@ export function PitchRecordingModal({
 
   const handleSubmit = async () => {
     if (!user) return;
-    const fileToUpload = selectedFile || (recordedBlob ? new File([recordedBlob], 'pitch.webm', { type: 'video/webm' }) : null);
+    const recordedExt = recordedMimeRef.current.includes('mp4') ? 'mp4' : 'webm';
+    const fileToUpload =
+      selectedFile ||
+      (recordedBlob
+        ? new File([recordedBlob], `pitch.${recordedExt}`, { type: recordedMimeRef.current })
+        : null);
+    if (fileToUpload && fileToUpload.size > maxFileSizeMb * 1024 * 1024) {
+      toast.error(`Recording too large. Max ${maxFileSizeMb}MB.`);
+      return;
+    }
     if (!fileToUpload) return;
 
     setRecordingState('uploading');
     setUploadProgress(10);
 
     try {
-      const ext = selectedFile ? selectedFile.name.split('.').pop() : 'webm';
-      const fileName = `${user.id}/${lessonId}-attempt-${attemptNumber}-${Date.now()}.${ext}`;
+      const ext = selectedFile ? selectedFile.name.split('.').pop() : recordedExt;
+      const fileName = `${user.id}/${lessonId ?? 'practice-pitch'}-attempt-${attemptNumber}-${Date.now()}.${ext}`;
 
       setUploadProgress(30);
 
