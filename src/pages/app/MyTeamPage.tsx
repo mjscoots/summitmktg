@@ -284,7 +284,7 @@ export default function MyTeamPage() {
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
             {(isManagerRole
-              ? (['teams', 'members', 'triage', 'cars'] as const)
+              ? (['teams', 'members', 'triage', 'cars', 'mentees'] as const)
               : (['teams', 'members'] as const)
             ).map(mode => (
               <button
