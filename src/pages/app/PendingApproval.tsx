@@ -7,8 +7,9 @@ import { toast } from "sonner";
 
 const PendingApproval = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, profile, signOut, isLoading, role } = useAuth();
+  const { isAuthenticated, profile, signOut, isLoading, role, user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [liveApproved, setLiveApproved] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -19,6 +20,29 @@ const PendingApproval = () => {
       navigate("/app", { replace: true });
     }
   }, [isLoading, isAuthenticated, profile, role, navigate]);
+
+  // Live approval status — poll so the page reflects reality without a reload
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+
+    const check = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('approved')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!cancelled && data?.approved) setLiveApproved(true);
+    };
+
+    check();
+    const timer = setInterval(check, 20000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [user?.id]);
+
 
   const handleSignOut = async () => {
     await signOut();
