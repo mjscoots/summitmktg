@@ -8,6 +8,22 @@ import { isStickerMessage, getStickerFromMessage } from '@/components/dashboard/
 import { isGifMessage, getGifUrl } from '@/components/dashboard/GifPicker';
 import { isImageMessage, getImageUrl, ChatImage, isFileMessage, getFileInfo, ChatFile } from '@/components/dashboard/ChatImageUpload';
 import { ChatPoll } from '@/components/dashboard/ChatPoll';
+import { isVoiceMessage, getVoiceInfo, VoiceNoteBubble } from '@/components/chat/VoiceNote';
+
+function renderMentions(text: string, keyPrefix: string) {
+  // @First Last (up to two capitalised words) or @firstname
+  const mentionRegex = /(@[A-Za-z][\w'-]*(?: [A-Z][\w'-]*)?)/g;
+  return text.split(mentionRegex).map((part, i) => {
+    if (mentionRegex.test(part) && part.startsWith('@')) {
+      return (
+        <span key={`${keyPrefix}-m${i}`} className="rounded bg-primary/20 px-1 font-semibold text-primary">
+          {part}
+        </span>
+      );
+    }
+    return <span key={`${keyPrefix}-t${i}`}>{part}</span>;
+  });
+}
 
 function renderWithLinks(text: string) {
   const urlRegex = /(https?:\/\/[^\s<]+)/g;
@@ -20,7 +36,7 @@ function renderWithLinks(text: string) {
         </a>
       );
     }
-    return <span key={i}>{part}</span>;
+    return <span key={i}>{renderMentions(part, String(i))}</span>;
   });
 }
 
@@ -168,6 +184,10 @@ export function ChatBubble({
     if (isGifMessage(message.content)) {
       const gifUrl = getGifUrl(message.content);
       return gifUrl ? <img src={gifUrl} alt="GIF" className="max-w-[220px] rounded-lg" loading="lazy" /> : null;
+    }
+    if (isVoiceMessage(message.content)) {
+      const info = getVoiceInfo(message.content);
+      return info ? <VoiceNoteBubble url={info.url} seconds={info.seconds} isOwn={isOwn} /> : null;
     }
     if (isImageMessage(message.content)) return <ChatImage url={getImageUrl(message.content)} />;
     if (isFileMessage(message.content)) {
