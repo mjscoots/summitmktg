@@ -465,9 +465,27 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
       {/* Pool */}
       <section>
-        <p className="micro-label mb-2">
-          Pool — {feed.pool.length} former {feed.pool.length === 1 ? 'rep' : 'reps'}
-        </p>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <p className="micro-label">
+            Pool — {feed.pool.length} former {feed.pool.length === 1 ? 'rep' : 'reps'}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {SORTS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setSort(s.id)}
+                className={cn(
+                  'micro-label min-h-9 rounded-full border px-3 transition-colors',
+                  sort === s.id
+                    ? 'border-primary/25 bg-primary/10 !text-primary'
+                    : 'border-border/50 hover:border-border/80 hover:text-foreground'
+                )}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {feed.pool.length === 0 ? (
           <div className={cn(CARD, 'py-4')}>
             <EmptyState
