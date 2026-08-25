@@ -35,7 +35,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 
+import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
+
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
+
 const LazyPitchApprovals = lazy(() => import('@/components/admin/AdminPitchApprovalsTab'));
 const LazyRecruiting = lazy(() => import('@/components/admin/AdminRecruitingTab'));
 
@@ -556,6 +559,12 @@ export default function AdminTeamPage() {
               <LazyFeedback />
             </Suspense>
           </TabsContent>
+
+          {/* ========== QUEUE TRIAGE TAB ========== */}
+          <TabsContent value="queue">
+            <AdminQueueTab />
+          </TabsContent>
+
 
           {/* ========== SYSTEM TAB ========== */}
           {isSuperAdmin && (
