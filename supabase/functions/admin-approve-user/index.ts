@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Summit <noreply@summitmktgsales.com>",
+              from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
               to: [profile.email],
               subject: "Your Summit Account Has Been Approved",
               html: `
