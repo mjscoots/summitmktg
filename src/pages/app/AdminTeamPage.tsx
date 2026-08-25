@@ -1,6 +1,6 @@
 import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -69,6 +69,7 @@ const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || '';
 export default function AdminTeamPage() {
   const { role, profile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
   // Counts are always live — no "viewed" zeroing
@@ -342,8 +343,8 @@ export default function AdminTeamPage() {
 
 
         <Tabs defaultValue={
-          // Land on the triage queue whenever anything is pending
-          adminCounts.total > 0 ? 'queue' : 'users'
+          // Deep link wins, otherwise land on the triage queue whenever anything is pending
+          searchParams.get('tab') || (adminCounts.total > 0 ? 'queue' : 'users')
         } className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
             <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 min-w-max">

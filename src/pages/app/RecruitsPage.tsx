@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
-  Users, Loader2, Phone, MapPin, Clock, Sparkles, Lock, RefreshCw, Plus,
+  Users, Loader2, Phone, MapPin, Clock, Sparkles, Lock, RefreshCw, Plus, RotateCcw,
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
@@ -15,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { WinbackTab } from '@/components/recruiting/WinbackTab';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -73,8 +75,11 @@ function releaseCountdown(lead: MyLead) {
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
 export default function RecruitsPage() {
-  const { user } = useAuth();
-  const [tab, setTab] = useState<'board' | 'mine'>('board');
+  const { user, role } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<'board' | 'mine' | 'winback'>(
+    searchParams.get('tab') === 'winback' ? 'winback' : 'board'
+  );
   const [board, setBoard] = useState<BoardLead[]>([]);
   const [mine, setMine] = useState<MyLead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -185,12 +190,14 @@ export default function RecruitsPage() {
           <div className="mb-5 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h1 className="text-2xl font-black tracking-tight text-foreground">
-                {tab === 'board' ? 'GET ME LEADS' : 'My Leads'}
+                {tab === 'board' ? 'GET ME LEADS' : tab === 'mine' ? 'My Leads' : 'Win-back Board'}
               </h1>
               <p className="mt-1.5 text-[13px] text-muted-foreground">
                 {tab === 'board'
                   ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
-                  : `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`}
+                  : tab === 'mine'
+                    ? `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`
+                    : 'Former reps with a phone number — cold calls to bring them back'}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -210,31 +217,40 @@ export default function RecruitsPage() {
           </div>
 
           {/* Tabs */}
-          <div className="mb-5 grid grid-cols-2 gap-2">
+          <div className="mb-5 grid grid-cols-3 gap-2">
             {([
               { id: 'board' as const, label: 'Lead Board', icon: Sparkles, count: board.length },
               { id: 'mine' as const, label: 'My Leads', icon: Users, count: mine.length },
+              { id: 'winback' as const, label: 'Win-back', icon: RotateCcw, count: null as number | null },
             ]).map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-[13px] font-bold transition-all duration-180',
+                  'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold transition-all duration-180 sm:text-[13px] sm:px-3.5',
                   tab === t.id
                     ? 'border-primary/40 bg-primary text-primary-foreground shadow-md shadow-primary/25'
                     : 'border-border/50 bg-surface text-muted-foreground hover:border-border/80 hover:text-foreground'
                 )}
               >
-                <t.icon className="h-3.5 w-3.5" />
-                {t.label}
-                <span className={cn('text-[11px] font-black tabular-nums', tab === t.id ? 'opacity-80' : 'text-primary')}>
-                  {t.count}
-                </span>
+                <t.icon className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{t.label}</span>
+                {t.count !== null && (
+                  <span className={cn('text-[11px] font-black tabular-nums', tab === t.id ? 'opacity-80' : 'text-primary')}>
+                    {t.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
 
-          {loading ? (
+
+          {tab === 'winback' ? (
+            <WinbackTab
+              isAdmin={role === 'admin' || role === 'owner'}
+              focusId={searchParams.get('lead')}
+            />
+          ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-[132px] rounded-[var(--radius)]" />

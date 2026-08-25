@@ -1983,42 +1983,54 @@ export type Database = {
           city: string | null
           claimed_at: string | null
           claimed_by: string | null
+          contact_count: number
           created_at: string
           first_name: string
           id: string
           interest_reason: string | null
           last_activity_at: string | null
+          last_contact_at: string | null
           notes: string | null
           phone: string | null
           ref_code: string | null
+          source_profile_id: string | null
+          sourced_by: string | null
           status: string
         }
         Insert: {
           city?: string | null
           claimed_at?: string | null
           claimed_by?: string | null
+          contact_count?: number
           created_at?: string
           first_name: string
           id?: string
           interest_reason?: string | null
           last_activity_at?: string | null
+          last_contact_at?: string | null
           notes?: string | null
           phone?: string | null
           ref_code?: string | null
+          source_profile_id?: string | null
+          sourced_by?: string | null
           status?: string
         }
         Update: {
           city?: string | null
           claimed_at?: string | null
           claimed_by?: string | null
+          contact_count?: number
           created_at?: string
           first_name?: string
           id?: string
           interest_reason?: string | null
           last_activity_at?: string | null
+          last_contact_at?: string | null
           notes?: string | null
           phone?: string | null
           ref_code?: string | null
+          source_profile_id?: string | null
+          sourced_by?: string | null
           status?: string
         }
         Relationships: []
@@ -3239,6 +3251,41 @@ export type Database = {
         }
         Relationships: []
       }
+      winback_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          note: string | null
+          outcome: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          note?: string | null
+          outcome: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          note?: string | null
+          outcome?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "winback_contacts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "recruiting_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       quiz_questions_safe: {
@@ -3342,6 +3389,7 @@ export type Database = {
         Returns: boolean
       }
       claim_lead: { Args: { _lead_id: string }; Returns: Json }
+      claim_winback: { Args: { _lead_id: string }; Returns: Json }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3594,12 +3642,17 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_winback_feed: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      log_winback_contact: {
+        Args: { _lead_id: string; _note?: string; _outcome: string }
+        Returns: Json
       }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_inactive_users: { Args: never; Returns: undefined }

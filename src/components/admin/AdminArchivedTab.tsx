@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,9 +28,10 @@ const REASON_LABEL: Record<string, string> = {
 const PAGE = 50;
 
 export function AdminArchivedTab() {
+  const [searchParams] = useSearchParams();
   const [rows, setRows] = useState<ArchivedRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [visible, setVisible] = useState(PAGE);
   const [restoring, setRestoring] = useState<string | null>(null);
 
