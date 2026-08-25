@@ -338,6 +338,12 @@ export default function CommandCenterPage() {
         topStreak: (topStreakR.data?.[0] as any)?.current_streak || 0,
       });
       setLoading(false);
+
+      const { data: fs } = await (supabase as any).rpc("get_finishing_soon", { _days: 14 });
+      setCommitment({
+        noDate: fs?.no_date_count ?? 0,
+        soon: (fs?.soon as any[])?.length ?? 0,
+      });
     })();
   }, [authLoading, role]);
 
