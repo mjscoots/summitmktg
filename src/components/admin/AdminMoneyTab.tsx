@@ -53,6 +53,7 @@ const num = (v: string): number | null => {
 export function AdminMoneyTab() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'pay' | 'revenue'>('pay');
   const [reps, setReps] = useState<RepRow[]>([]);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [commissions, setCommissions] = useState<Map<string, any>>(new Map());
