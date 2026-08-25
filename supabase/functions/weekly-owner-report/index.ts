@@ -8,7 +8,11 @@ const allowedOrigins = [
 ];
 
 function getCorsHeaders(origin: string | null) {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith(".lovable.app"));
+  const isAllowed =
+    origin &&
+    (allowedOrigins.includes(origin) ||
+      origin.endsWith(".lovable.app") ||
+      origin.startsWith("http://localhost:"));
   return {
     "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
     "Access-Control-Allow-Headers":
