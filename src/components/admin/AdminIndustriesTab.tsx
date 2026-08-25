@@ -313,6 +313,7 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
         );
       })}
 
+      {!restrictToVertical && (<>
       {/* Pending approvals */}
       <div className={CARD}>
         <div className="mb-3 flex items-center gap-2">
@@ -382,6 +383,7 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
           </div>
         )}
       </div>
+      </>)}
     </div>
   );
 }
