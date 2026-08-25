@@ -408,6 +408,7 @@ export default function MyTeamPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <p className="text-sm font-medium text-foreground truncate">{getDisplayName(m.full_name)}</p>
+                      <RankInsignia role={managerIds.has(m.user_id) ? 'manager' : 'rookie'} size="sm" />
                       {isManagerRole && incompleteProfiles.has(m.user_id) && (
                         <span
                           title={`Missing: ${(incompleteProfiles.get(m.user_id) ?? []).join(', ')}`}
