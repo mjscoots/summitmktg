@@ -66,6 +66,20 @@ function SystemMessage({ content }: { content: string }) {
   );
 }
 
+const WIN_PREFIX = /^\[\[WIN\|[0-9a-f-]+\]\]/i;
+const isWinPost = (content: string) => WIN_PREFIX.test(content);
+const stripWinPrefix = (content: string) => content.replace(WIN_PREFIX, '');
+
+function WinSystemMessage({ content }: { content: string }) {
+  return (
+    <div className="flex items-center justify-center my-3 px-4">
+      <span className="rounded-full border border-amber-400/25 bg-amber-400/[0.07] px-4 py-1.5 text-center text-[12px] font-bold text-amber-200/90">
+        {stripWinPrefix(content)}
+      </span>
+    </div>
+  );
+}
+
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const [activeChannel, setActiveChannel] = useState('general');
