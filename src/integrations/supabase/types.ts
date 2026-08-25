@@ -4221,6 +4221,14 @@ export type Database = {
         }[]
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
+      get_attendance_flags: {
+        Args: never
+        Returns: {
+          missed_streak: number
+          pct: number
+          user_id: string
+        }[]
+      }
       get_attendance_summary: {
         Args: { p_user_id?: string }
         Returns: {

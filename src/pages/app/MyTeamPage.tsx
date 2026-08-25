@@ -63,6 +63,7 @@ export default function MyTeamPage() {
   const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
   const [incompleteProfiles, setIncompleteProfiles] = useState<Map<string, string[]>>(new Map());
+  const [missedMeetings, setMissedMeetings] = useState<Map<string, number>>(new Map());
 
   const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
     const t = searchParams.get('tab');
@@ -139,6 +140,18 @@ export default function MyTeamPage() {
           incMap.set(row.user_id, row.missing ?? []);
         }
         setIncompleteProfiles(incMap);
+      } catch {
+        // optional, only visible to managers+
+      }
+
+      // Missed-meeting flags — manager/admin/owner only
+      try {
+        const { data: flags } = await (supabase as any).rpc('get_attendance_flags');
+        const fMap = new Map<string, number>();
+        for (const row of (flags as any[]) ?? []) {
+          if ((row.missed_streak ?? 0) >= 2) fMap.set(row.user_id, row.missed_streak);
+        }
+        setMissedMeetings(fMap);
       } catch {
         // optional, only visible to managers+
       }
@@ -416,6 +429,14 @@ export default function MyTeamPage() {
                           className="flex-shrink-0 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-white/[0.06] text-muted-foreground/80"
                         >
                           Profile incomplete
+                        </span>
+                      )}
+                      {isManagerRole && missedMeetings.has(m.user_id) && (
+                        <span
+                          title={`Missed ${missedMeetings.get(m.user_id)} meetings in a row`}
+                          className="flex-shrink-0 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-white/[0.06] text-muted-foreground/80"
+                        >
+                          Missed {missedMeetings.get(m.user_id)} meetings
                         </span>
                       )}
                     </div>
