@@ -286,6 +286,7 @@ export default function CommandCenterPage() {
     topStreak: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [commitment, setCommitment] = useState({ noDate: 0, soon: 0 });
 
   // Load settings + live stats
   useEffect(() => {
