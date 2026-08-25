@@ -505,6 +505,19 @@ export default function CommandCenterPage() {
         {/* OWNER WEEKLY REPORT */}
         <WeeklyReportSection />
 
+        {/* NEXT SEASON */}
+        <SectionHeader title="Next Season" tag="Owner" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 40 }}>
+          <StatCard label="No Committed Date" value={commitment.noDate} />
+          <StatCard label="Finishing In 14 Days" value={commitment.soon} />
+        </div>
+
+        {/* REGION SHEET */}
+        <SectionHeader title="Region Sheet" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RegionSheet />
+        </div>
+
         {/* AUDIT LOG */}
         <SectionHeader title="Audit" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
