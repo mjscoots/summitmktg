@@ -513,6 +513,19 @@ export default function CommandCenterPage() {
           <StatCard label="Finishing In 14 Days" value={commitment.soon} />
         </div>
 
+        {/* SEASON REVENUE PACE */}
+        <SectionHeader title="Season Revenue" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RegionPace />
+        </div>
+
+        {/* SESSION PREP */}
+        <SectionHeader title="Session Prep" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <SessionPrep />
+        </div>
+
+
         {/* REGION SHEET */}
         <SectionHeader title="Region Sheet" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
