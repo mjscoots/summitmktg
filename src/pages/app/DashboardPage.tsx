@@ -6,6 +6,7 @@ import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
+import { MyCarTodayCard, MyActionItemsCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
