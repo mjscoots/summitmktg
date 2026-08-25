@@ -131,6 +131,11 @@ export default function PitchApprovalsPage() {
           </button>
         </div>
 
+        <div className="mb-6">
+          <PairingRequestsPanel />
+        </div>
+
+
         {activeTab === 'checklist' ? (
           <Suspense fallback={<LoadingList rows={4} />}>
             <AdminSubmittedVideosTab />
