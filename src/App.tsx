@@ -13,6 +13,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 
 // Public pages (keep eager – small & needed immediately)
 import Index from "./pages/Index";
+const IndustryPage = lazy(() => import("./pages/IndustryPage"));
+const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 import Recruiting from "./pages/Recruiting";
@@ -126,6 +128,8 @@ function LazyFallback() {
              {/* Public Golden Ticket lead capture (QR / no login) */}
              <Route path="/ticket" element={<TicketPage />} />
              <Route path="/parents" element={<Parents />} />
+             <Route path="/industries/:slug" element={<IndustryPage />} />
+             <Route path="/join" element={<JoinRedirect />} />
              {/* Redirect /apply to /recruiting#apply section */}
              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
              <Route path="/apply/rookie" element={<RookieApplication />} />

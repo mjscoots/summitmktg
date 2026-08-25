@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import { Loader2, Check, ArrowRight } from 'lucide-react';
 import { setPageMeta } from '@/lib/pageMeta';
+import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/source';
 
 const GOLD = '#D4AF37';
 
@@ -36,6 +37,8 @@ export default function TicketPage() {
   const [calendly, setCalendly] = useState('');
   const [claimed, setClaimed] = useState<number | null>(null);
   const [seriesTotal, setSeriesTotal] = useState(100);
+  const [source, setSource] = useState<SourceAttribution>(ORGANIC);
+
 
   const numericTicket = /^[0-9]{1,3}$/.test(refCode) && Number(refCode) >= 1 && Number(refCode) <= 100
     ? refCode.padStart(3, '0')
@@ -55,6 +58,7 @@ export default function TicketPage() {
         setClaimed(Number(series.claimed) || 0);
         setSeriesTotal(Number(series.series_total) || 100);
       }
+      setSource(await captureSourceFromUrl());
     })();
   }, []);
 
@@ -71,6 +75,10 @@ export default function TicketPage() {
       ...parsed.data,
       ref_code: refCode,
       status: 'New',
+      source_type: source.source_type,
+      source_code: source.source_code,
+      referrer_user_id: source.referrer_user_id,
+      partner_id: source.partner_id,
     });
     setSaving(false);
     if (insertError) {

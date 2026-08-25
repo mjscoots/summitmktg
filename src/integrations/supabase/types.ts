@@ -342,12 +342,17 @@ export type Database = {
           full_name: string
           id: string
           notes: string | null
+          partner_id: string | null
           phone: string
           previous_company: string | null
           referral_source: string
+          referrer_user_id: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          source_code: string | null
+          source_type: string
           status: string
+          vertical: string | null
           years_experience: number | null
         }
         Insert: {
@@ -358,12 +363,17 @@ export type Database = {
           full_name: string
           id?: string
           notes?: string | null
+          partner_id?: string | null
           phone: string
           previous_company?: string | null
           referral_source: string
+          referrer_user_id?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source_code?: string | null
+          source_type?: string
           status?: string
+          vertical?: string | null
           years_experience?: number | null
         }
         Update: {
@@ -374,15 +384,28 @@ export type Database = {
           full_name?: string
           id?: string
           notes?: string | null
+          partner_id?: string | null
           phone?: string
           previous_company?: string | null
           referral_source?: string
+          referrer_user_id?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source_code?: string | null
+          source_type?: string
           status?: string
+          vertical?: string | null
           years_experience?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "applications_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       assignment_conflicts: {
         Row: {
@@ -2151,6 +2174,42 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          active: boolean
+          code: string
+          contact: string | null
+          created_at: string
+          id: string
+          name: string
+          terms_note: string | null
+          updated_at: string
+          verticals: string[]
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          contact?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          terms_note?: string | null
+          updated_at?: string
+          verticals?: string[]
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          contact?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          terms_note?: string | null
+          updated_at?: string
+          verticals?: string[]
+        }
+        Relationships: []
+      }
       phone_numbers: {
         Row: {
           created_at: string | null
@@ -2799,11 +2858,15 @@ export type Database = {
           last_contact_at: string | null
           last_sale_date: string | null
           notes: string | null
+          partner_id: string | null
           phone: string | null
           priority: boolean
           ref_code: string | null
+          referrer_user_id: string | null
           revenue_total: number | null
+          source_code: string | null
           source_profile_id: string | null
+          source_type: string
           sourced_by: string | null
           status: string
           story: string | null
@@ -2822,11 +2885,15 @@ export type Database = {
           last_contact_at?: string | null
           last_sale_date?: string | null
           notes?: string | null
+          partner_id?: string | null
           phone?: string | null
           priority?: boolean
           ref_code?: string | null
+          referrer_user_id?: string | null
           revenue_total?: number | null
+          source_code?: string | null
           source_profile_id?: string | null
+          source_type?: string
           sourced_by?: string | null
           status?: string
           story?: string | null
@@ -2845,17 +2912,29 @@ export type Database = {
           last_contact_at?: string | null
           last_sale_date?: string | null
           notes?: string | null
+          partner_id?: string | null
           phone?: string | null
           priority?: boolean
           ref_code?: string | null
+          referrer_user_id?: string | null
           revenue_total?: number | null
+          source_code?: string | null
           source_profile_id?: string | null
+          source_type?: string
           sourced_by?: string | null
           status?: string
           story?: string | null
           weeks_active?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "recruiting_leads_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recruiting_ref_codes: {
         Row: {
@@ -3184,6 +3263,11 @@ export type Database = {
           current_step: number
           id: string
           paired_manager: string | null
+          partner_id: string | null
+          referrer_user_id: string | null
+          source_code: string | null
+          source_type: string
+          sourced_by: string
           stack_source: string
           status: string
           updated_at: string
@@ -3196,6 +3280,11 @@ export type Database = {
           current_step?: number
           id?: string
           paired_manager?: string | null
+          partner_id?: string | null
+          referrer_user_id?: string | null
+          source_code?: string | null
+          source_type?: string
+          sourced_by?: string
           stack_source?: string
           status?: string
           updated_at?: string
@@ -3208,6 +3297,11 @@ export type Database = {
           current_step?: number
           id?: string
           paired_manager?: string | null
+          partner_id?: string | null
+          referrer_user_id?: string | null
+          source_code?: string | null
+          source_type?: string
+          sourced_by?: string
           stack_source?: string
           status?: string
           updated_at?: string
@@ -3215,6 +3309,13 @@ export type Database = {
           vertical?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rep_vertical_enrollments_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rep_vertical_enrollments_vertical_fkey"
             columns: ["vertical"]
@@ -4812,6 +4913,10 @@ export type Database = {
         Args: { _rank_id: string; _user_id: string }
         Returns: Json
       }
+      admin_set_sourced_by: {
+        Args: { _sourced_by: string; _user_id: string; _vertical: string }
+        Returns: undefined
+      }
       admin_set_stack_source: {
         Args: { _source: string; _user_id: string; _vertical: string }
         Returns: Json
@@ -5197,6 +5302,7 @@ export type Database = {
         Args: { _manager?: string; _status?: string; _vertical?: string }
         Returns: Json
       }
+      get_partner_referrals: { Args: { p_partner_id: string }; Returns: Json }
       get_pending_vertical_approvals: { Args: never; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
@@ -5227,6 +5333,7 @@ export type Database = {
       }
       get_public_counters: { Args: never; Returns: Json }
       get_public_fiber_stacks: { Args: never; Returns: Json }
+      get_public_industry: { Args: { p_vertical: string }; Returns: Json }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -5284,6 +5391,7 @@ export type Database = {
         Args: { _default?: string; _key: string }
         Returns: string
       }
+      get_source_breakdown: { Args: never; Returns: Json }
       get_streak_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -5419,6 +5527,7 @@ export type Database = {
         Args: { _manager_id: string; _vertical: string }
         Returns: Json
       }
+      resolve_source_code: { Args: { p_code: string }; Returns: Json }
       respond_pairing: {
         Args: { _accept: boolean; _reason?: string; _request_id: string }
         Returns: Json
