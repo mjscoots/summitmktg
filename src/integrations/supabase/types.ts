@@ -933,6 +933,36 @@ export type Database = {
         }
         Relationships: []
       }
+      carriers: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          public: boolean
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          public?: boolean
+          updated_at?: string
+          vertical: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          public?: boolean
+          updated_at?: string
+          vertical?: string
+        }
+        Relationships: []
+      }
       celebration_log: {
         Row: {
           celebration_type: string
@@ -1507,6 +1537,50 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiber_installs: {
+        Row: {
+          cancels: number
+          carrier_id: string
+          created_at: string
+          entered_by: string | null
+          id: string
+          installs: number
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          cancels?: number
+          carrier_id: string
+          created_at?: string
+          entered_by?: string | null
+          id?: string
+          installs?: number
+          updated_at?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          cancels?: number
+          carrier_id?: string
+          created_at?: string
+          entered_by?: string | null
+          id?: string
+          installs?: number
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiber_installs_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
             referencedColumns: ["id"]
           },
         ]
@@ -2235,6 +2309,7 @@ export type Database = {
           phone: string | null
           pillar_slug: string | null
           pre_archive_status: Database["public"]["Enums"]["user_status"] | null
+          rank_id: string | null
           recruited_by_name: string | null
           recruited_by_user_id: string | null
           recruiter: string | null
@@ -2300,6 +2375,7 @@ export type Database = {
           phone?: string | null
           pillar_slug?: string | null
           pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
+          rank_id?: string | null
           recruited_by_name?: string | null
           recruited_by_user_id?: string | null
           recruiter?: string | null
@@ -2365,6 +2441,7 @@ export type Database = {
           phone?: string | null
           pillar_slug?: string | null
           pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
+          rank_id?: string | null
           recruited_by_name?: string | null
           recruited_by_user_id?: string | null
           recruiter?: string | null
@@ -2392,6 +2469,13 @@ export type Database = {
             columns: ["office_id"]
             isOneToOne: false
             referencedRelation: "offices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_rank_id_fkey"
+            columns: ["rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
             referencedColumns: ["id"]
           },
           {
@@ -2467,6 +2551,128 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rank_requirements: {
+        Row: {
+          confirmed: boolean
+          created_at: string
+          description: string | null
+          from_rank_id: string
+          id: string
+          rule_type: string
+          updated_at: string
+          value: number | null
+          vertical: string | null
+          window_weeks: number | null
+        }
+        Insert: {
+          confirmed?: boolean
+          created_at?: string
+          description?: string | null
+          from_rank_id: string
+          id?: string
+          rule_type: string
+          updated_at?: string
+          value?: number | null
+          vertical?: string | null
+          window_weeks?: number | null
+        }
+        Update: {
+          confirmed?: boolean
+          created_at?: string
+          description?: string | null
+          from_rank_id?: string
+          id?: string
+          rule_type?: string
+          updated_at?: string
+          value?: number | null
+          vertical?: string | null
+          window_weeks?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rank_requirements_from_rank_id_fkey"
+            columns: ["from_rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rank_stacks: {
+        Row: {
+          carrier_id: string | null
+          confirmed: boolean
+          created_at: string
+          id: string
+          rank_id: string
+          unit: string | null
+          updated_at: string
+          value: number | null
+          vertical: string
+        }
+        Insert: {
+          carrier_id?: string | null
+          confirmed?: boolean
+          created_at?: string
+          id?: string
+          rank_id: string
+          unit?: string | null
+          updated_at?: string
+          value?: number | null
+          vertical: string
+        }
+        Update: {
+          carrier_id?: string | null
+          confirmed?: boolean
+          created_at?: string
+          id?: string
+          rank_id?: string
+          unit?: string | null
+          updated_at?: string
+          value?: number | null
+          vertical?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rank_stacks_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rank_stacks_rank_id_fkey"
+            columns: ["rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ranks: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sort_order: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       rate_limits: {
         Row: {
@@ -4599,6 +4805,10 @@ export type Database = {
         Args: { _manager_id: string; _user_id: string; _vertical: string }
         Returns: Json
       }
+      admin_set_rank: {
+        Args: { _rank_id: string; _user_id: string }
+        Returns: Json
+      }
       apply_revenue_import: { Args: { _rows: Json }; Returns: Json }
       apply_run_team: {
         Args: {
@@ -5125,6 +5335,10 @@ export type Database = {
         Returns: boolean
       }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
+      is_paired_manager_of: {
+        Args: { _manager: string; _rep: string }
+        Returns: boolean
+      }
       join_vertical: { Args: { _vertical: string }; Returns: Json }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
