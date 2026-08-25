@@ -120,6 +120,7 @@ function LazyFallback() {
      <TooltipProvider>
        <Toaster />
        <Sonner />
+       <UpdatePrompt />
         <BrowserRouter>
           <ScrollToTop />
           <Suspense fallback={<LazyFallback />}>
