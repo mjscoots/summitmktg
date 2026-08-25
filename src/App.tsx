@@ -350,6 +350,15 @@ function LazyFallback() {
                {/* Calculators - redirect to Resources */}
                <Route path="/app/calculators" element={<Navigate to="/app/links" replace />} />
 
+               {/* Events */}
+               <Route path="/app/events" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <EventsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
                {/* Calendar */}
                <Route path="/app/calendar" element={
                 <ProtectedRoute>
@@ -358,6 +367,7 @@ function LazyFallback() {
                   </BootcampGate>
                 </ProtectedRoute>
               } />
+
 
              {/* Forms (unified - Manager Only) */}
              <Route path="/app/forms" element={
