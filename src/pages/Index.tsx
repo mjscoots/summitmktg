@@ -11,7 +11,7 @@ const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"))
 const Index = () => {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
-  const [calcMode, setCalcMode] = useState<'rookie' | 'vet'>('rookie');
+  
 
   // Preload logo then reveal — short timeout to avoid stuck loading screen
   useEffect(() => {
