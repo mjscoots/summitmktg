@@ -2374,6 +2374,7 @@ export type Database = {
           recruiter: string | null
           referred_by: string | null
           region: string | null
+          region_id: string | null
           rep_year: string | null
           revenue_goal: number | null
           revenue_to_date: number | null
@@ -2440,6 +2441,7 @@ export type Database = {
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
+          region_id?: string | null
           rep_year?: string | null
           revenue_goal?: number | null
           revenue_to_date?: number | null
@@ -2506,6 +2508,7 @@ export type Database = {
           recruiter?: string | null
           referred_by?: string | null
           region?: string | null
+          region_id?: string | null
           rep_year?: string | null
           revenue_goal?: number | null
           revenue_to_date?: number | null
@@ -2535,6 +2538,13 @@ export type Database = {
             columns: ["rank_id"]
             isOneToOne: false
             referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
             referencedColumns: ["id"]
           },
           {
@@ -3032,6 +3042,36 @@ export type Database = {
         }
         Relationships: []
       }
+      regions: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          lead_user_id: string | null
+          name: string
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          lead_user_id?: string | null
+          name: string
+          updated_at?: string
+          vertical: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          lead_user_id?: string | null
+          name?: string
+          updated_at?: string
+          vertical?: string
+        }
+        Relationships: []
+      }
       rep_commission: {
         Row: {
           active_revenue: number | null
@@ -3265,6 +3305,7 @@ export type Database = {
           paired_manager: string | null
           partner_id: string | null
           referrer_user_id: string | null
+          region_id: string | null
           source_code: string | null
           source_type: string
           sourced_by: string
@@ -3282,6 +3323,7 @@ export type Database = {
           paired_manager?: string | null
           partner_id?: string | null
           referrer_user_id?: string | null
+          region_id?: string | null
           source_code?: string | null
           source_type?: string
           sourced_by?: string
@@ -3299,6 +3341,7 @@ export type Database = {
           paired_manager?: string | null
           partner_id?: string | null
           referrer_user_id?: string | null
+          region_id?: string | null
           source_code?: string | null
           source_type?: string
           sourced_by?: string
@@ -3314,6 +3357,13 @@ export type Database = {
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rep_vertical_enrollments_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
             referencedColumns: ["id"]
           },
           {
@@ -4909,8 +4959,16 @@ export type Database = {
         Args: { _manager_id: string; _user_id: string; _vertical: string }
         Returns: Json
       }
+      admin_set_person_region: {
+        Args: { _region_id: string; _user_id: string }
+        Returns: Json
+      }
       admin_set_rank: {
         Args: { _rank_id: string; _user_id: string }
+        Returns: Json
+      }
+      admin_set_region_lead: {
+        Args: { _region_id: string; _user_id: string }
         Returns: Json
       }
       admin_set_sourced_by: {
@@ -5178,6 +5236,10 @@ export type Database = {
           team_name: string
           title: string
         }[]
+      }
+      get_fiber_report: {
+        Args: { _carrier_id?: string; _region_id?: string; _weeks?: number }
+        Returns: Json
       }
       get_fiber_stack_table: { Args: never; Returns: Json }
       get_finishing_soon: { Args: { _days?: number }; Returns: Json }
@@ -5467,6 +5529,10 @@ export type Database = {
         Args: { _manager: string; _rep: string }
         Returns: boolean
       }
+      is_vertical_lead: {
+        Args: { _uid: string; _vertical: string }
+        Returns: boolean
+      }
       join_vertical: { Args: { _vertical: string }; Returns: Json }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
@@ -5522,6 +5588,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
       request_pairing: {
         Args: { _manager_id: string; _vertical: string }

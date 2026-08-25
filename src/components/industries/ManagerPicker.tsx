@@ -20,6 +20,8 @@ interface EligibleManager {
   capacity: number | null;
   mentee_count: number;
   teams_led: string[] | null;
+  region_id: string | null;
+  region_name: string | null;
 }
 
 interface PendingRequest {
@@ -180,6 +182,11 @@ export function ManagerPicker({ vertical, label, onPaired }: Props) {
                 .filter(Boolean)
                 .join(' · ')}
             </p>
+            {card.region_name && (
+              <span className="mt-1 inline-flex rounded-md border border-white/[0.08] bg-surface px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                {card.region_name}
+              </span>
+            )}
           </div>
         </div>
 

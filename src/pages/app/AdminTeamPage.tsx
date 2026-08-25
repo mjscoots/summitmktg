@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
+import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
 const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
@@ -473,6 +474,9 @@ export default function AdminTeamPage() {
 
           {/* ========== TEAMS TAB ========== */}
           <TabsContent value="teams">
+            <div className="mb-4">
+              <AdminRegionsPanel />
+            </div>
             {isSuperAdmin && (
               <div className="flex gap-2 mb-4">
                 <Input value={newTeamName} onChange={e => setNewTeamName(e.target.value)} placeholder="New team name..." className="bg-card/50 border-border/30 max-w-xs" />

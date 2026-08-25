@@ -13,6 +13,7 @@ import SessionPrep from "@/components/command/SessionPrep";
 import PairingsPanel from "@/components/command/PairingsPanel";
 import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
 import StackView from "@/components/command/StackView";
+import FiberReport from "@/components/command/FiberReport";
 
 
 // ---------- Tokens (scoped to this page) ----------
@@ -541,6 +542,12 @@ export default function CommandCenterPage() {
         <SectionHeader title="Run a Team" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <TeamLeadApplicationsPanel />
+        </div>
+
+        {/* FIBER */}
+        <SectionHeader title="Fiber" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <FiberReport />
         </div>
 
         {/* THE STACK */}
