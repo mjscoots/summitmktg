@@ -5776,8 +5776,6 @@ export type Database = {
         Args: { _lead_id: string; _priority: boolean }
         Returns: Json
       }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       start_sweep_session: { Args: { _filter?: Json }; Returns: Json }
       submit_commitment_interview: {
         Args: {
