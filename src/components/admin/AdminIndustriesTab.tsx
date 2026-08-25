@@ -21,9 +21,12 @@ interface PathRow {
   vertical: string;
   label: string;
   description: string | null;
+  public_note: string | null;
+  public_how_it_works: string[] | null;
   is_configured: boolean;
   display_order: number;
 }
+
 
 interface StepRow {
   id: string;
