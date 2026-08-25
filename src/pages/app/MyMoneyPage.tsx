@@ -16,6 +16,7 @@ import {
 } from '@/lib/commission';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
+import { MyFiberWeeks } from '@/components/money/MyFiberWeeks';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -200,7 +201,10 @@ export default function MyMoneyPage() {
               )}
             </section>
 
+            <MyFiberWeeks />
+
             {/* ===== MONTHLY REVENUE ===== */}
+
             <section className={cn(CARD, 'p-5 sm:p-6')}>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
