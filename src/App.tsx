@@ -415,7 +415,15 @@ function LazyFallback() {
                  <ProtectedRoute requiredRole="manager">
                    <ManagerMeetingPage />
                  </ProtectedRoute>
-               } />
+                } />
+
+                <Route path="/app/roster/sweep" element={
+                  <ProtectedRoute requiredRole="manager">
+                    <RosterSweepPage />
+                  </ProtectedRoute>
+                } />
+
+
 
                {/* Weekly 1:1's - redirect to forms */}
                <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />
