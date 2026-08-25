@@ -362,8 +362,14 @@ export default function RegionSheet() {
               <th>Departure</th>
               <th>Reason</th>
               <th>Last day</th>
-              <th>Revenue</th>
+              <th>Committed last day</th>
+              <th>Next season</th>
+              <th>Revenue total</th>
+              <th>Months</th>
+              <th>Last revenue month</th>
+              <th>Revenue on file</th>
               {hasReSigned && <th>Re-signed</th>}
+
             </tr>
           </thead>
           <tbody>
