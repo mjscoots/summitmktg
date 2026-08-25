@@ -373,6 +373,69 @@ export type Database = {
         }
         Relationships: []
       }
+      assistant_faq: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          published: boolean
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          published?: boolean
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          published?: boolean
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      assistant_logs: {
+        Row: {
+          answer: string | null
+          created_at: string
+          id: string
+          question: string
+          role_at_ask: string | null
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          question: string
+          role_at_ask?: string | null
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          question?: string
+          role_at_ask?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       bootcamp_progress: {
         Row: {
           agreement_end_date: string | null
@@ -1984,6 +2047,81 @@ export type Database = {
           created_by?: string | null
           id?: string
           label?: string | null
+        }
+        Relationships: []
+      }
+      rep_commission: {
+        Row: {
+          active_revenue: number | null
+          avg_account_value: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          pay_scale: string
+          rate_override: number | null
+          signs: number
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          active_revenue?: number | null
+          avg_account_value?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pay_scale?: string
+          rate_override?: number | null
+          signs?: number
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          active_revenue?: number | null
+          avg_account_value?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pay_scale?: string
+          rate_override?: number | null
+          signs?: number
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rep_housing: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          monthly_cost: number | null
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          monthly_cost?: number | null
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          monthly_cost?: number | null
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
         }
         Relationships: []
       }

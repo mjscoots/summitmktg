@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import summitLogo from '@/assets/summit-logo-new.png';
-import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -30,9 +30,11 @@ const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
   { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'My Money', path: '/app/money', icon: DollarSign },
   { label: 'Resources', path: '/app/links', icon: BookOpen },
 ];
 

@@ -1,0 +1,298 @@
+import { useEffect, useMemo, useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { DollarSign, Home, TrendingUp, Info } from 'lucide-react';
+import { LoadingList } from '@/components/shared/LoadingList';
+import {
+  PayScale,
+  PAY_SCALE_LABELS,
+  formatCurrency,
+  formatRate,
+  formatTierRange,
+  getNextTier,
+  getTier,
+  getTiers,
+} from '@/lib/commission';
+import { cn } from '@/lib/utils';
+
+const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
+
+interface CommissionRow {
+  pay_scale: string;
+  signs: number;
+  avg_account_value: number | null;
+  active_revenue: number | null;
+  rate_override: number | null;
+  notes: string | null;
+}
+
+interface HousingRow {
+  monthly_cost: number | null;
+  location: string | null;
+  notes: string | null;
+}
+
+export default function MyMoneyPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [commission, setCommission] = useState<CommissionRow | null>(null);
+  const [housing, setHousing] = useState<HousingRow | null>(null);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+    let active = true;
+    (async () => {
+      const [c, h] = await Promise.all([
+        supabase
+          .from('rep_commission')
+          .select('pay_scale, signs, avg_account_value, active_revenue, rate_override, notes')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('rep_housing')
+          .select('monthly_cost, location, notes')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      ]);
+      if (!active) return;
+      setCommission((c.data as CommissionRow) ?? null);
+      setHousing((h.data as HousingRow) ?? null);
+      setLoading(false);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [user, authLoading]);
+
+  const money = useMemo(() => {
+    if (!commission) return null;
+    const scale = (['rookie', 'veteran', 'marketing'].includes(commission.pay_scale)
+      ? commission.pay_scale
+      : 'rookie') as PayScale;
+    const signs = commission.signs ?? 0;
+    const avg = commission.avg_account_value ?? null;
+    const revenue =
+      commission.active_revenue ?? (avg !== null ? signs * avg : null);
+    const tier = revenue !== null ? getTier(scale, revenue) : null;
+    const rate = commission.rate_override ?? tier?.rate ?? null;
+    const earnings = revenue !== null && rate !== null ? revenue * rate : null;
+    const next = revenue !== null ? getNextTier(scale, revenue) : null;
+    const revenueToNext = next && revenue !== null ? Math.max(next.min - revenue, 0) : null;
+    const signsToNext =
+      revenueToNext !== null && avg && avg > 0 ? Math.ceil(revenueToNext / avg) : null;
+    return { scale, signs, avg, revenue, tier, rate, earnings, next, revenueToNext, signsToNext };
+  }, [commission]);
+
+  return (
+    <AppLayout>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <header>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">My Money</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Your pay scale, season earnings, and housing. Set by your manager.
+          </p>
+        </header>
+
+        {loading ? (
+          <LoadingList rows={3} />
+        ) : (
+          <>
+            {/* ===== COMMISSION ===== */}
+            <section className={cn(CARD, 'p-5 sm:p-6')}>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Commission</h2>
+                  <p className="text-xs text-muted-foreground">Your rate and season earnings</p>
+                </div>
+              </div>
+
+              {!money || money.revenue === null ? (
+                <p className="text-sm text-muted-foreground">
+                  Your commission numbers haven't been set yet — ask your manager.
+                </p>
+              ) : (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Stat label="Pay scale" value={PAY_SCALE_LABELS[money.scale]} />
+                    <Stat label="Signs this season" value={String(money.signs)} />
+                    <Stat
+                      label="Your rate"
+                      value={money.rate !== null ? formatRate(money.rate) : '—'}
+                      accent
+                    />
+                    <Stat
+                      label="Season earnings"
+                      value={money.earnings !== null ? formatCurrency(money.earnings) : '—'}
+                      accent
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-white/[0.06] bg-background/40 p-4">
+                    <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">
+                      The math
+                    </p>
+                    <p className="text-sm text-foreground">
+                      {formatCurrency(money.revenue)} active revenue ×{' '}
+                      {money.rate !== null ? formatRate(money.rate) : '—'} rate ={' '}
+                      <span className="font-semibold">
+                        {money.earnings !== null ? formatCurrency(money.earnings) : '—'}
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      {money.avg && !commission?.active_revenue
+                        ? `Active revenue = ${money.signs} signs × ${formatCurrency(money.avg)} average account value.`
+                        : 'Active revenue is set from your serviced accounts.'}
+                      {commission?.rate_override !== null && commission?.rate_override !== undefined
+                        ? ' Your rate was set manually by an admin.'
+                        : money.tier
+                        ? ` Your rate comes from the ${PAY_SCALE_LABELS[money.scale]} pay scale bracket ${formatTierRange(money.tier)}.`
+                        : ''}
+                    </p>
+                  </div>
+
+                  {/* Full pay scale */}
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">
+                      {PAY_SCALE_LABELS[money.scale]} pay scale
+                    </p>
+                    <div className="rounded-xl border border-white/[0.06] overflow-hidden">
+                      {getTiers(money.scale).map((t, i) => {
+                        const isCurrent = money.tier === t;
+                        return (
+                          <div
+                            key={i}
+                            className={cn(
+                              'flex items-center justify-between px-4 py-2 text-sm',
+                              i > 0 && 'border-t border-white/[0.05]',
+                              isCurrent ? 'bg-primary/10 text-foreground' : 'text-muted-foreground'
+                            )}
+                          >
+                            <span>{formatTierRange(t)}</span>
+                            <span className={cn('tabular-nums font-semibold', isCurrent && 'text-primary')}>
+                              {formatRate(t.rate)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* ===== HOUSING ===== */}
+            <section className={cn(CARD, 'p-5 sm:p-6')}>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Home className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Housing</h2>
+                  <p className="text-xs text-muted-foreground">Set by your manager</p>
+                </div>
+              </div>
+
+              {!housing ? (
+                <p className="text-sm text-muted-foreground">
+                  Your housing hasn't been set yet — ask your manager.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Stat
+                      label="Monthly cost"
+                      value={
+                        housing.monthly_cost !== null && housing.monthly_cost !== undefined
+                          ? formatCurrency(Number(housing.monthly_cost))
+                          : 'Not set'
+                      }
+                      accent={housing.monthly_cost !== null}
+                    />
+                    <Stat label="Location" value={housing.location || 'Not set'} />
+                  </div>
+                  {housing.notes && (
+                    <div className="rounded-xl border border-white/[0.06] bg-background/40 p-4">
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
+                        Notes
+                      </p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{housing.notes}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* ===== PATH TO NEXT TIER ===== */}
+            <section className={cn(CARD, 'p-5 sm:p-6')}>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Path to next tier</h2>
+                  <p className="text-xs text-muted-foreground">What it takes to move up</p>
+                </div>
+              </div>
+
+              {!money || money.revenue === null ? (
+                <p className="text-sm text-muted-foreground">
+                  This shows up once your commission numbers are set.
+                </p>
+              ) : !money.next ? (
+                <p className="text-sm text-foreground">
+                  You're on the top bracket of the {PAY_SCALE_LABELS[money.scale]} pay scale at{' '}
+                  {money.tier ? formatRate(money.tier.rate) : '—'}. There's no higher tier.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-foreground">
+                    Next bracket starts at {formatCurrency(money.next.min)} active revenue and pays{' '}
+                    <span className="font-semibold text-primary">{formatRate(money.next.rate)}</span>.
+                  </p>
+                  <p className="text-sm text-foreground">
+                    You need {formatCurrency(money.revenueToNext ?? 0)} more active revenue
+                    {money.signsToNext !== null
+                      ? ` — about ${money.signsToNext} more ${money.signsToNext === 1 ? 'sign' : 'signs'} at your ${formatCurrency(money.avg!)} average account value.`
+                      : '.'}
+                  </p>
+                  {money.signsToNext === null && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                      <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      Sign count can't be calculated until your average account value is set.
+                    </p>
+                  )}
+                  {commission?.rate_override !== null && commission?.rate_override !== undefined && (
+                    <p className="text-xs text-muted-foreground">
+                      Your rate is currently set manually, so hitting the next bracket may not change your pay.
+                      Check with your manager.
+                    </p>
+                  )}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+      </main>
+    </AppLayout>
+  );
+}
+
+function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-background/40 px-3 py-2.5">
+      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</p>
+      <p
+        className={cn(
+          'text-base font-bold mt-0.5 truncate',
+          accent ? 'text-primary' : 'text-foreground'
+        )}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
