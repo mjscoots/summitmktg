@@ -1,195 +1,109 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import IndustrySwitcher from "@/components/IndustrySwitcher";
 
-
-
+/**
+ * Public landing page.
+ *
+ * Above the fold on a phone: the thesis line and the industry toggle. Nothing
+ * else. The calculator sits second, with the pay ladder track inside it. The
+ * proof strip below shows only live counters.
+ */
 const Index = () => {
   const navigate = useNavigate();
-  const [ready, setReady] = useState(false);
-  
-
-  // Preload logo then reveal — short timeout to avoid stuck loading screen
-  useEffect(() => {
-    const img = new Image();
-    img.src = summitLogo;
-    img.onload = () => setReady(true);
-    img.onerror = () => setReady(true);
-    if (img.complete) { setReady(true); return; }
-    const t = setTimeout(() => setReady(true), 1500);
-    return () => clearTimeout(t);
-  }, []);
-
-  const scrollToEarnings = () => {
-    document.getElementById('earnings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  if (!ready) {
-    return (
-      <div className="gold-world min-h-screen bg-background flex items-center justify-center">
-        <span className="micro-label animate-pulse text-muted-foreground">Loading</span>
-      </div>
-    );
-  }
 
   return (
-    <div className="gold-world min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Calm premium background — deep near-black with a soft gold halo and faint texture */}
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse at 50% -10%, hsl(46 65% 52% / 0.16), transparent 62%)' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              'radial-gradient(hsl(46 40% 80%) 0.5px, transparent 0.5px)',
-            backgroundSize: '3px 3px',
-          }}
-        />
-        <div
-          className="absolute inset-x-0 bottom-0 h-1/2"
-          style={{ background: 'linear-gradient(to top, hsl(0 0% 0% / 0.7), transparent)' }}
-        />
-      </div>
-
-      {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Navigation */}
-      <nav className="relative z-20 w-full px-6 py-5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <nav className="w-full border-b border-border px-4 sm:px-6 py-3">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
             aria-label="Summit Marketing home"
-            className="flex items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
+            className="flex min-h-11 items-center gap-2.5 text-foreground"
+          >
             <img src={summitLogo} alt="" className="h-6 w-auto" />
-            <span className="text-lg font-black tracking-tight uppercase">Summit</span>
+            <span className="text-base font-semibold tracking-tight">Summit Marketing</span>
           </button>
 
           <button
             onClick={() => navigate("/login")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary">
+            className="inline-flex min-h-11 items-center gap-2 rounded border border-border px-4 text-sm font-medium text-foreground hover:border-primary hover:text-primary"
+          >
             <LogIn className="w-4 h-4" />
             Log in
           </button>
         </div>
       </nav>
 
-      {/* Main content */}
-      <main className="flex-1 flex flex-col">
-        {/* Hero */}
-        <div className="flex-1 flex items-center justify-center px-6 py-16">
-          <div className="relative z-10 max-w-2xl mx-auto text-center">
-            <div className="mb-8 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-56 md:w-72 h-28 md:h-36 bg-primary/20 blur-3xl rounded-full" />
-              </div>
-              <img
-                src={summitLogo}
-                alt="Summit Marketing"
-                className="w-64 md:w-80 mx-auto relative z-10"
-                style={{ filter: 'drop-shadow(0 0 20px hsl(46 65% 52% / 0.28))' }}
-                loading="eager"
-                fetchPriority="high" />
-            </div>
+      <main className="flex-1">
+        {/* Hero — thesis line and the industry toggle */}
+        <section className="mx-auto max-w-3xl px-4 sm:px-6 pt-10 pb-6">
+          <h1 className="text-foreground">
+            We train and field sales reps in pest control, fiber internet, and life insurance
+          </h1>
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground">
+            You close, you get paid on what you close. Pest in the summer, fiber in the winter, life
+            insurance year-round, and one rank that carries across all three.
+          </p>
+        </section>
 
-            <h1
-              className="mb-4 text-4xl md:text-6xl font-black uppercase tracking-tight text-foreground"
-              style={{ letterSpacing: '-0.02em' }}>
-              Summit Marketing
-            </h1>
-            <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
-              We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
-            </p>
-
-            <div className="mx-auto mt-8 max-w-xl space-y-1.5 text-sm md:text-base text-muted-foreground">
-              <p>Pest in the summer. Fiber in the winter. Life insurance year-round.</p>
-              <p>One rank that carries across all three.</p>
-              <p>Every rep sees their full ladder — what you're on and what it takes to move up.</p>
-            </div>
-
-            <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-              <button
-                onClick={scrollToEarnings}
-                className="flex-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold uppercase tracking-wide whitespace-nowrap text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]">
-                See what you'd make
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => navigate("/recruiting")}
-                className="flex-1 inline-flex min-h-12 items-center justify-center rounded-xl border border-primary/60 px-6 text-sm font-bold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary">
-                Apply
-              </button>
-            </div>
-
-            <div className="mt-8">
-              <LiveCounters variant="inline" />
-            </div>
-
-          </div>
-        </div>
-
-        {/* Pick your industry — toggles content, calculator and Apply target in place */}
+        {/* Industry toggle, then the calculator with the pay ladder inside it */}
         <IndustrySwitcher />
 
+        {/* Proof strip — live counters only */}
+        <section className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
+          <LiveCounters variant="inline" />
+        </section>
 
-
-        {/* Apply CTA */}
-        <div className="relative z-10 text-center py-16 px-6">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-3">
-            Ready to Start?
-          </h2>
-          <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-            Applications take a few minutes. Rookie and veteran paths both open.
-          </p>
-          <button
-            onClick={() => navigate("/apply")}
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]"
-          >
-            Apply Now <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Apply */}
+        <section className="mx-auto max-w-3xl px-4 sm:px-6 pb-16">
+          <div className="rounded border border-border bg-card p-6">
+            <h2 className="text-foreground">Apply</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              An application takes a few minutes. Rookie and veteran paths are both open.
+            </p>
+            <button
+              onClick={() => navigate("/apply")}
+              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              Start an application <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </section>
       </main>
 
-      {/* Divider */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-border/30 py-6">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-xs text-muted-foreground">
-            © 2026 Summit Marketing
-          </span>
-          <div className="flex items-center gap-2">
+      <footer className="border-t border-border py-5">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="text-xs text-muted-foreground">© 2026 Summit Marketing</span>
+          <div className="flex items-center gap-1">
             <button
               onClick={() => navigate("/recruiting")}
-              className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
+              className="inline-flex min-h-11 items-center rounded px-3 text-sm text-muted-foreground hover:text-foreground"
+            >
               Recruiting
             </button>
             <button
               onClick={() => navigate("/apply")}
-              className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
+              className="inline-flex min-h-11 items-center rounded px-3 text-sm text-muted-foreground hover:text-foreground"
+            >
               Apply
             </button>
             <a
               href="https://www.instagram.com/summitmktgsales/"
               target="_blank"
               rel="noopener noreferrer"
-              className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
+              className="inline-flex min-h-11 items-center rounded px-3 text-sm text-muted-foreground hover:text-foreground"
+            >
               Instagram
             </a>
           </div>
         </div>
       </footer>
-
-      {/* Bottom accent line */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-    </div>);
+    </div>
+  );
 };
 
 export default Index;
