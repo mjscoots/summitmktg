@@ -1031,6 +1031,109 @@ export default function AdminUsersTab({
                       </Select>
                     </div>
 
+                    <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Roster Details</p>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Select
+                          value={detailUser.office_id || '__none__'}
+                          onValueChange={(v) =>
+                            saveRosterField(detailUser.user_id, { office_id: v === '__none__' ? null : v }, 'Office')
+                          }
+                        >
+                          <SelectTrigger className="h-8 bg-background/70 text-xs">
+                            <SelectValue placeholder="Office" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__" className="text-xs">No office</SelectItem>
+                            {offices.map((o) => (
+                              <SelectItem key={o.id} value={o.id} className="text-xs">{o.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select
+                          value={detailUser.vertical || 'Pest'}
+                          onValueChange={(v) => saveRosterField(detailUser.user_id, { vertical: v }, 'Vertical')}
+                        >
+                          <SelectTrigger className="h-8 bg-background/70 text-xs">
+                            <SelectValue placeholder="Vertical" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {VERTICALS.map((v) => (
+                              <SelectItem key={v} value={v} className="text-xs">{v}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select
+                          value={detailUser.rep_year || '__none__'}
+                          onValueChange={(v) =>
+                            saveRosterField(detailUser.user_id, { rep_year: v === '__none__' ? null : v }, 'Rep year')
+                          }
+                        >
+                          <SelectTrigger className="h-8 bg-background/70 text-xs">
+                            <SelectValue placeholder="Rep year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__" className="text-xs">Not set</SelectItem>
+                            {REP_YEARS.map((y) => (
+                              <SelectItem key={y} value={y} className="text-xs">{y} year</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() =>
+                            saveRosterField(
+                              detailUser.user_id,
+                              { runs_vertical: !detailUser.runs_vertical },
+                              'Runs vertical'
+                            )
+                          }
+                        >
+                          {detailUser.runs_vertical ? 'Runs vertical ✓' : 'Mark runs vertical'}
+                        </Button>
+                      </div>
+
+                      <Input
+                        defaultValue={detailUser.recruited_by_name || ''}
+                        placeholder="Recruited by (name)"
+                        className="h-8 bg-background/70 text-xs"
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v !== (detailUser.recruited_by_name || '')) {
+                            saveRosterField(detailUser.user_id, { recruited_by_name: v || null }, 'Recruited by');
+                          }
+                        }}
+                      />
+
+                      <Input
+                        defaultValue={detailUser.status_detail || ''}
+                        placeholder="Status note (optional)"
+                        className="h-8 bg-background/70 text-xs"
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v !== (detailUser.status_detail || '')) {
+                            saveRosterField(detailUser.user_id, { status_detail: v || null }, 'Status note');
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                      onClick={() => setDepartureTarget(detailUser)}
+                    >
+                      Record departure & archive
+                    </Button>
+
+
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
