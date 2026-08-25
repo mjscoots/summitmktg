@@ -1,10 +1,114 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useActionItems } from '@/hooks/useActionItems';
 import { getDisplayName } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
-import { Car, Check, ListChecks } from 'lucide-react';
+import { Car, Check, ListChecks, CalendarClock, MapPin, X } from 'lucide-react';
+
+interface TodayEvent {
+  id: string;
+  title: string;
+  event_date: string;
+  location: string | null;
+  event_kind: string;
+  my_rsvp: string | null;
+}
+
+/** Today's scoped events with inline RSVP. Renders nothing when there are none. */
+export function MyEventsTodayCard({ className }: { className?: string }) {
+  const navigate = useNavigate();
+  const [events, setEvents] = useState<TodayEvent[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1);
+      const { data } = await (supabase as any).rpc('get_events_feed', {
+        p_from: start.toISOString(),
+        p_to: end.toISOString(),
+      });
+      if (!cancelled) setEvents(((data as TodayEvent[]) || []).slice(0, 4));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const rsvp = async (id: string, status: 'attending' | 'not_attending') => {
+    setBusy(id);
+    const { error } = await (supabase as any).rpc('rsvp_event', { p_event_id: id, p_status: status });
+    setBusy(null);
+    if (error) return;
+    setEvents(prev => prev.map(e => (e.id === id ? { ...e, my_rsvp: status } : e)));
+  };
+
+  if (events.length === 0) return null;
+
+  return (
+    <div className={cn('rounded-2xl border border-white/[0.06] bg-card/60 p-4 backdrop-blur-sm', className)}>
+      <div className="mb-3 flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/5">
+          <CalendarClock className="h-4 w-4 text-primary" />
+        </div>
+        <h2 className="text-sm font-semibold text-foreground">Today</h2>
+        <button
+          onClick={() => navigate('/app/events')}
+          className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+        >
+          All events
+        </button>
+      </div>
+      <ul className="space-y-2.5">
+        {events.map(e => (
+          <li key={e.id} className="rounded-xl border border-border/50 bg-surface px-3 py-2.5">
+            <p className="truncate text-sm font-medium text-foreground">{e.title}</p>
+            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] tabular-nums text-muted-foreground">
+              {new Date(e.event_date).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+              {e.location && (
+                <>
+                  <MapPin className="h-3 w-3" /> {e.location}
+                </>
+              )}
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => rsvp(e.id, 'attending')}
+                disabled={busy === e.id}
+                className={cn(
+                  'inline-flex min-h-8 items-center gap-1 rounded-lg px-2 text-[11px] font-medium',
+                  e.my_rsvp === 'attending'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'border border-border/60 text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <Check className="h-3 w-3" /> Going
+              </button>
+              <button
+                onClick={() => rsvp(e.id, 'not_attending')}
+                disabled={busy === e.id}
+                className={cn(
+                  'inline-flex min-h-8 items-center gap-1 rounded-lg px-2 text-[11px] font-medium',
+                  e.my_rsvp === 'not_attending'
+                    ? 'bg-muted text-foreground'
+                    : 'border border-border/60 text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <X className="h-3 w-3" /> Can't make it
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
