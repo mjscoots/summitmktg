@@ -59,22 +59,34 @@ export function GlobalSearch() {
     setLoading(true);
     const like = `%${q}%`;
 
-    const [reps, leads, lessons, scripts] = await Promise.all([
+    const [reps, adminLeads, myLeads, lessons, scripts] = await Promise.all([
       supabase.from('profiles').select('user_id, full_name, status').eq('archived', false).ilike('full_name', like).limit(6),
-      (supabase as any).from('recruiting_leads').select('id, full_name, status').ilike('full_name', like).limit(6),
+      // Table read only returns rows for admins/owners; reps get their claimed leads from the RPC.
+      (supabase as any).from('recruiting_leads').select('id, first_name, status').ilike('first_name', like).limit(6),
+      (supabase.rpc as any)('get_my_leads'),
       (supabase as any).from('training_lessons').select('id, title, module_id').ilike('title', like).limit(6),
       (supabase as any).from('scripts').select('id, title, category').ilike('title', like).limit(6),
     ]);
 
     if (reqId !== reqRef.current) return;
 
+    // Merge both lead sources, de-duplicated by id.
+    const leadMap = new Map<string, any>();
+    [
+      ...(((adminLeads as any).data || []) as any[]),
+      ...(((myLeads as any).data || []) as any[]).filter(
+        l => (l.first_name || '').toLowerCase().includes(q.toLowerCase())
+      ),
+    ].forEach(l => { if (l?.id && !leadMap.has(l.id)) leadMap.set(l.id, l); });
+    const leadRows = Array.from(leadMap.values()).slice(0, 6);
+
     const next: SearchResult[] = [
       ...((reps.data || []) as any[]).filter(r => r.full_name).map(r => ({
         kind: 'rep' as const, id: r.user_id, title: r.full_name,
         subtitle: r.status || undefined, to: `/app/team?member=${r.user_id}`,
       })),
-      ...((leads.data || []) as any[]).map(l => ({
-        kind: 'lead' as const, id: l.id, title: l.full_name || 'Lead',
+      ...leadRows.map(l => ({
+        kind: 'lead' as const, id: l.id, title: l.first_name || 'Lead',
         subtitle: l.status || undefined, to: `/app/recruits?lead=${l.id}`,
       })),
       ...((lessons.data || []) as any[]).map(l => ({
