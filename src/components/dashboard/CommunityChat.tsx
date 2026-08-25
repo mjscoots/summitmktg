@@ -346,11 +346,23 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
         (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
           .then((res: any) => { if (res.error) console.error('[ChatPoints]', res.error); })
           .catch(() => {});
-        if (content.includes('@')) {
-          (supabase.rpc as any)('notify_chat_mentions', { _message_id: msg.id })
+        // Resolve @Name text to real user ids; the RPC re-checks archived/self/prefs.
+        const mentionedIds = content.includes('@')
+          ? mentionables
+              .filter(m => {
+                const name = m.full_name.toLowerCase();
+                const first = name.split(' ')[0];
+                const lower = content.toLowerCase();
+                return lower.includes(`@${name}`) || lower.includes(`@${first}`);
+              })
+              .map(m => m.user_id)
+          : [];
+        if (mentionedIds.length > 0) {
+          (supabase.rpc as any)('notify_chat_mentions', { _message_id: msg.id, _user_ids: mentionedIds })
             .then((res: any) => { if (res.error) console.error('[ChatMentions]', res.error); })
             .catch(() => {});
         }
+
       }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send'); } finally { setIsSending(false); }
   };
