@@ -305,17 +305,34 @@ export default function AdminUsersTab({
   const [progressFilter, setProgressFilter] = useState<string>('all');
   const [recruiterFilter, setRecruiterFilter] = useState<string>('all');
   const [teamFilter, setTeamFilter] = useState<string>('all');
+  const [officeFilter, setOfficeFilter] = useState<string>('all');
+  const [verticalFilter, setVerticalFilter] = useState<string>('all');
   const [appFilter, setAppFilter] = useState<AppFilter>('in_app');
   const [sortBy, setSortBy] = useState<SortOption>('progress');
   const [sortAsc, setSortAsc] = useState(true);
   const [detailUser, setDetailUser] = useState<UserRow | null>(null);
   const [editingPipeline, setEditingPipeline] = useState('');
   const [isEditingDetail, setIsEditingDetail] = useState(false);
+  const [offices, setOffices] = useState<{ id: string; name: string }[]>([]);
+  const [departureTarget, setDepartureTarget] = useState<UserRow | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any).from('offices').select('id, name').order('name');
+      if (!cancelled) setOffices((data as { id: string; name: string }[]) || []);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const officeName = (officeId: string | null | undefined) =>
+    officeId ? offices.find((o) => o.id === officeId)?.name || '' : '';
 
   const getTeamName = (teamId: string | null | undefined) => {
     if (!teamId) return '—';
     return teams.find((t) => t.id === teamId)?.name || '—';
   };
+
 
   const recruiterNames = useMemo(() => {
     const names = new Set<string>();
