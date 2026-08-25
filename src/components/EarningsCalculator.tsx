@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { DollarSign, TrendingUp, Home } from "lucide-react";
+import { TrendingUp, Home } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { formatCurrency } from "@/lib/commission";
 import {
@@ -10,6 +10,7 @@ import {
   type PublicCalc,
 } from "@/hooks/usePublicCalc";
 import VetBidForm from "@/components/VetBidForm";
+import { PayLadderTrack } from "@/components/shared/PayLadderTrack";
 
 /**
  * Public pest earnings calculator — rookie only.
@@ -82,7 +83,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-foreground">Earnings Calculator</h3>
+            <h3 className="text-xl font-semibold text-foreground">Earnings calculator</h3>
             <p className="text-sm text-muted-foreground">
               Accounts per week, weeks worked, and what the pay scale does with it
             </p>
@@ -92,7 +93,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         {/* Accounts per week */}
         <div className="mb-8">
           <div className="flex items-baseline justify-between mb-3">
-            <label className="text-sm font-bold uppercase tracking-wide text-foreground">
+            <label className="text-sm font-semibold text-foreground">
               Accounts per week
             </label>
             <span className="text-2xl font-extrabold tabular-nums text-foreground">
@@ -131,7 +132,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         {/* Weeks worked */}
         <div className="mb-8">
           <div className="flex items-baseline justify-between mb-3">
-            <label className="text-sm font-bold uppercase tracking-wide text-foreground">
+            <label className="text-sm font-semibold text-foreground">
               Weeks worked
             </label>
             <span className="text-2xl font-extrabold tabular-nums text-foreground">{weeks}</span>
@@ -156,27 +157,13 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           <Cell label={`Active revenue (−${d.reductionPct}%)`} value={formatCurrency(active)} />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 mb-4">
-          <div className="p-5 rounded-lg bg-primary/10 border border-primary/20">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-              Tier reached
-            </p>
-            <p className="text-2xl font-black tabular-nums text-primary">
-              {band ? `${bandLabel(band)} · ${(rate * 100).toFixed(0)}%` : "—"}
-            </p>
-          </div>
-          <div className="p-5 rounded-lg bg-success/20 border-2 border-success">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-5 h-5 text-success" />
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Season earnings
-              </p>
-            </div>
-            <p className="text-3xl font-black tabular-nums text-success">
-              {formatCurrency(seasonEarnings)}
-            </p>
-          </div>
+        <div className="mb-6 p-5 rounded-lg bg-secondary border border-border">
+          <p className="micro-label mb-2">Season earnings</p>
+          <p className="text-3xl font-bold stat-num text-foreground">
+            {formatCurrency(seasonEarnings)}
+          </p>
         </div>
+
 
         <p className="text-xs text-muted-foreground mb-2 text-center">
           {accountsPerWeek} accounts × {weeks} weeks = {accounts} accounts at{" "}
@@ -189,47 +176,34 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           This is math, not a promise.
         </p>
 
-        {/* Pay scale table */}
+        {/* Pay ladder track */}
         {bands.length > 0 && (
           <div className="mb-8">
-            <h4 className="text-lg font-bold text-foreground mb-1 uppercase tracking-wide">
-              Commission pay scale
-            </h4>
+            <h4 className="text-base font-semibold text-foreground mb-1">Pay ladder</h4>
             <p className="text-xs text-muted-foreground mb-4">
               {calc?.pay_scale?.label} — the tier you reach pays that rate on all season active
-              revenue.
+              revenue. Tap a tier to set the accounts it takes.
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {bands.map((b, i) => {
-                const isActive = band?.min === b.min;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => jumpToBand(b)}
-                    className={`p-3 rounded-lg text-center transition-colors ${
-                      isActive
-                        ? "bg-primary/20 border-2 border-primary"
-                        : "bg-secondary/30 border border-border hover:border-primary/40"
-                    }`}
-                  >
-                    <p className="text-xs text-muted-foreground mb-1">{bandLabel(b)}</p>
-                    <p
-                      className={`text-lg font-bold tabular-nums ${isActive ? "text-primary" : "text-foreground"}`}
-                    >
-                      {(b.rate * 100).toFixed(0)}%
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+            <PayLadderTrack
+              tiers={bands.map((b) => ({
+                label: bandLabel(b),
+                rateLabel: `${(b.rate * 100).toFixed(0)}%`,
+                min: b.min,
+                max: b.max,
+              }))}
+              value={active}
+              formatAmount={formatCurrency}
+              onTierSelect={(_t, i) => jumpToBand(bands[i])}
+            />
           </div>
         )}
+
 
         {/* Housing note */}
         <div className="p-4 rounded-lg bg-secondary/30 border border-border mb-6">
           <div className="flex items-center gap-2 mb-2">
             <Home className="w-5 h-5 text-primary" />
-            <p className="text-sm font-bold text-foreground uppercase tracking-wide">Housing note</p>
+            <p className="text-sm font-semibold text-foreground">Housing note</p>
           </div>
           <p className="text-sm text-muted-foreground">Rent is free at $125,000 active revenue.</p>
         </div>
@@ -237,9 +211,9 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
         {onApplyClick && (
           <button
             onClick={onApplyClick}
-            className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide"
+            className="w-full min-h-11 py-4 bg-primary text-primary-foreground font-semibold text-base rounded-lg hover:bg-primary/90 transition-colors"
           >
-            Apply Now
+            Apply now
           </button>
         )}
 

@@ -22,11 +22,10 @@ export function LiveCounters({ variant = 'section' }: LiveCountersProps) {
 
   if (variant === 'inline') {
     return (
-      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-white/50">
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
         {items.map((i) => (
           <span key={i.label} className="inline-flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#D4AF37' }} />
-            <span className="font-bold tabular-nums text-white/80">{i.value.toLocaleString()}</span>
+            <span className="font-semibold stat-num text-foreground">{i.value.toLocaleString()}</span>
             {i.label}
           </span>
         ))}
@@ -39,10 +38,10 @@ export function LiveCounters({ variant = 'section' }: LiveCountersProps) {
       {items.map((i) => (
         <div
           key={i.label}
-          className="rounded-xl border border-border bg-card/60 px-5 py-3 text-center"
+          className="rounded border border-border bg-card px-5 py-3 text-center"
         >
-          <span className="text-xl font-black tabular-nums text-primary">{i.value.toLocaleString()}</span>
-          <span className="ml-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xl font-semibold stat-num text-foreground">{i.value.toLocaleString()}</span>
+          <span className="ml-2 text-sm text-muted-foreground">
             {i.label}
           </span>
         </div>

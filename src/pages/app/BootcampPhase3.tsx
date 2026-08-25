@@ -148,7 +148,7 @@ export default function BootcampPhase3() {
       });
 
       if (success) {
-        toast({ title: 'Summer Checklist Complete!', description: 'Welcome to the Summit.' });
+        toast({ title: 'Summer checklist complete', description: 'Welcome to the Summit.' });
         navigate('/app', { replace: true });
       }
     } catch (err: any) {

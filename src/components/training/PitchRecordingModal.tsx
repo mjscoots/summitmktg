@@ -222,7 +222,7 @@ export function PitchRecordingModal({
 
       setUploadProgress(100);
       setRecordingState('done');
-      toast.success('Pitch submitted for approval!');
+      toast.success('Sent for approval');
 
       setTimeout(() => {
         onSubmitted();
@@ -359,7 +359,7 @@ export function PitchRecordingModal({
         {recordingState === 'done' && (
           <div className="text-center py-8 space-y-3">
             <CheckCircle2 className="w-12 h-12 mx-auto text-primary" />
-            <p className="text-lg font-semibold text-foreground">Pitch Submitted!</p>
+            <p className="text-lg font-semibold text-foreground">Sent for approval</p>
             <p className="text-sm text-muted-foreground">Your manager will review it shortly.</p>
           </div>
         )}

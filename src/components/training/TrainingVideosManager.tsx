@@ -134,13 +134,13 @@ export function TrainingVideosManager() {
           .update(videoData)
           .eq('id', editingVideo.id);
         if (error) throw error;
-        toast.success('Video updated!');
+        toast.success('Video updated');
       } else {
         const { error } = await supabase
           .from('training_videos')
           .insert(videoData);
         if (error) throw error;
-        toast.success('Video added!');
+        toast.success('Video added');
       }
 
       setIsDialogOpen(false);
@@ -344,7 +344,7 @@ export function TrainingVideosManager() {
                 <VideoUploader
                   onUploadComplete={(url) => {
                     setUploadedUrl(url);
-                    toast.success('Video uploaded!');
+                    toast.success('Video uploaded');
                   }}
                   onError={(error) => toast.error(error)}
                 />

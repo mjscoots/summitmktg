@@ -305,7 +305,7 @@ export default function CalendarPage() {
       setUserAttendance(prev => ({ ...prev, [eventId]: { status, updated_at: new Date().toISOString() } }));
       toast.success(status === 'attending' ? '✅ Marked as attending' : '❌ Marked as not attending');
       if (isManager) fetchEvents();
-    } catch { toast.error('Something went wrong'); }
+    } catch { toast.error('That change did not save. Try again.'); }
   };
 
   const handleRSVP = async (status: 'attending' | 'not_attending') => {
@@ -603,7 +603,7 @@ export default function CalendarPage() {
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                       <Check className="w-8 h-8 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground mb-1">You're all caught up!</h3>
+                    <h3 className="text-lg font-bold text-foreground mb-1">You are all caught up</h3>
                     <p className="text-sm text-muted-foreground">No events need your RSVP this week.</p>
                   </div>
                 ) : currentRSVPEvent ? (

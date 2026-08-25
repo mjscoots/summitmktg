@@ -232,3 +232,59 @@ Preview only. Nothing published.
 - Full role matrix, offline/timezone/concurrency stress tests, Lighthouse run, main chunk under 350 kB, and Ask Summit server-side gating review.
 - Auth OTP length is a project auth setting and still below the recommended length; it is not changeable from here.
 - Pass 43 design work has not started.
+
+## Pass 43 — dial it in (design and feel)
+
+Preview only. Nothing published. `bunx tsgo --noEmit` clean, production build clean
+(pre-existing 666 kB main chunk warning only, unchanged from Pass 42).
+
+### Token system
+- `src/index.css` reduced to one register: six named color roles, one radius (0.5rem),
+  one shadow, motion tokens (120 ms / 180 ms, ease-out), 8px spacing grid, type scale
+  12/14/16/20/24/32/48, tabular numerals on money, counts, percentages and totals.
+- Global enforcement layer flattens any leftover one-off gradient, glow shadow and
+  decorative blur in component markup, and disables ambient animation.
+- Skeleton shimmer gradient replaced with a flat opacity fade — no `linear-gradient`
+  or `radial-gradient` remains in the stylesheet.
+- Tokens written to `docs/DESIGN_TOKENS.md`.
+
+### Signature element
+- `src/components/shared/PayLadderTrack.tsx`: tiers on a horizontal rail, current
+  position marked, next tier plus exactly what is missing labelled, numbers move with a
+  single 180 ms ease. Three homes: public calculator (tier reached by the numbers
+  entered), My money (the rep's real position per industry), Command leader scorecards.
+
+### Public landing
+- Hero is the thesis line plus the industry toggle; calculator second with the ladder
+  inside it; live counters below, from `get_public_counters` only.
+- Removed: decorative radial/linear backgrounds, blur halo, drop shadows, accent
+  dividers, gold accents, uppercase display copy, hover lift on non-interactive cards.
+- Lead cards use real photos; no photo renders a plain initial block.
+
+### App
+- New `src/components/layout/PageHeader.tsx` — title, one line of context, primary
+  action right, current vertical badge. Applied to Forms and My money, replacing the
+  bespoke icon-badge heroes.
+- `ui/table.tsx`: sticky header, uppercase micro-label header row, tighter cells,
+  row hover, zebra off.
+- `EmptyState` flattened to the token set.
+
+### Copy sweep
+- "Oops" and "Something went wrong" removed everywhere. Errors now say what happened
+  and what to do ("That change did not save. Try again.", "That page does not exist",
+  "This screen failed to load").
+- Exclamation marks and emoji removed from toasts, headings and empty states across
+  training, pitch, bootcamp, 1:1, calendar, video and points surfaces. Toasts name the
+  action ("Sent for approval", "Video uploaded", "Password updated", "Copied").
+
+### Verify
+- Landing screenshotted and reviewed at 390 / 820 / 1280: no horizontal overflow
+  (`scrollWidth` equals viewport at all three), no gradients or glow visible, ladder
+  legible on a phone.
+- Console shows only the pre-existing React forwardRef warning.
+
+### Not done in this pass
+- Full role-matrix re-run and Lighthouse comparison (Pass 42 items still open).
+- `PageHeader` applied to two screens so far; remaining app pages keep their existing
+  headers until they are converted.
+- Main chunk size unchanged.

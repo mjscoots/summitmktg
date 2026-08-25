@@ -130,7 +130,7 @@ export default function Interview1Page() {
           <span className="flex-1 text-xs text-muted-foreground truncate">{interviewVideoLink}</span>
           <button onClick={handleCopyLink} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-background border border-border rounded-lg hover:bg-muted/50 transition-colors flex-shrink-0">
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Link'}
+            {copied ? 'Copied' : 'Copy Link'}
           </button>
         </div>
 

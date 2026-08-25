@@ -98,7 +98,7 @@ function LazyFallback() {
        // Don't show toast for auth refresh errors (expected on stale sessions)
        const msg = String(event.reason?.message || event.reason || "");
        if (!msg.includes("Refresh Token") && !msg.includes("JWT")) {
-         toast.error("Something went wrong. Please try refreshing.");
+         toast.error("That screen failed to load. Refresh the page to try again.");
        }
        event.preventDefault();
      };

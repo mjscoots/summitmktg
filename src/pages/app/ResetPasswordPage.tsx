@@ -37,7 +37,7 @@ const ResetPasswordPage = () => {
     if (error) {
       toast.error("Failed to reset password", { description: error.message });
     } else {
-      toast.success("Password updated successfully!");
+      toast.success("Password updated");
       navigate("/app/auth", { replace: true });
     }
   };

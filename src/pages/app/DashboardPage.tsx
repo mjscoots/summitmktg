@@ -373,7 +373,7 @@ export default function DashboardPage() {
                 {challengeData.all_complete && (
                   <div className="mt-2.5 flex items-center gap-1.5 text-success">
                     <Gift className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-semibold">+{challengeData.bonus_points} pts earned!</span>
+                    <span className="text-[10px] font-semibold">+{challengeData.bonus_points} pts earned</span>
                   </div>
                 )}
               </div>

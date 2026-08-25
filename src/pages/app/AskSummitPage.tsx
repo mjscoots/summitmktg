@@ -135,7 +135,7 @@ export default function AskSummitPage() {
       }
     } catch (err) {
       setMessages(m => (m[m.length - 1]?.role === 'assistant' && !m[m.length - 1].content ? m.slice(0, -1) : m));
-      toast.error(err instanceof Error ? err.message : 'Something went wrong.');
+      toast.error(err instanceof Error ? err.message : 'That request failed. Try asking again.');
     } finally {
       setStreaming(false);
       inputRef.current?.focus();
@@ -167,7 +167,7 @@ export default function AskSummitPage() {
       }
     } catch (err) {
       setMessages(m => (m[m.length - 1]?.role === 'assistant' && !m[m.length - 1].content ? m.slice(0, -1) : m));
-      toast.error(err instanceof Error ? err.message : 'Something went wrong.');
+      toast.error(err instanceof Error ? err.message : 'That request failed. Try asking again.');
     } finally {
       setStreaming(false);
     }

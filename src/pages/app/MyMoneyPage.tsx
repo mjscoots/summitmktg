@@ -21,8 +21,10 @@ import { MyRevenueMonths } from '@/components/money/MyRevenueMonths';
 import { MySpreadSection } from '@/components/money/MySpreadSection';
 import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
+import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
+import { PageHeader } from '@/components/layout/PageHeader';
 
-const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
+const CARD = 'rounded border border-border bg-card';
 
 interface CommissionRow {
   pay_scale: string;
@@ -103,12 +105,10 @@ export default function MyMoneyPage() {
   return (
     <AppLayout>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <header>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">My Money</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Your pay scale, season earnings, and housing. Set by your manager.
-          </p>
-        </header>
+        <PageHeader
+          title="My money"
+          context="Your pay scale, season earnings, and housing. Set by your manager."
+        />
 
         <VerticalMoneyCards
           renderExtra={(vertical) =>
@@ -188,32 +188,23 @@ export default function MyMoneyPage() {
                     </p>
                   </div>
 
-                  {/* Full pay scale */}
+                  {/* Pay ladder track */}
                   <div>
-                    <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">
-                      {PAY_SCALE_LABELS[money.scale]} pay scale
+                    <p className="micro-label mb-3">
+                      {PAY_SCALE_LABELS[money.scale]} pay ladder
                     </p>
-                    <div className="rounded-xl border border-white/[0.06] overflow-hidden">
-                      {getTiers(money.scale).map((t, i) => {
-                        const isCurrent = money.tier === t;
-                        return (
-                          <div
-                            key={i}
-                            className={cn(
-                              'flex items-center justify-between px-4 py-2 text-sm',
-                              i > 0 && 'border-t border-white/[0.05]',
-                              isCurrent ? 'bg-primary/10 text-foreground' : 'text-muted-foreground'
-                            )}
-                          >
-                            <span>{formatTierRange(t)}</span>
-                            <span className={cn('tabular-nums font-semibold', isCurrent && 'text-primary')}>
-                              {formatRate(t.rate)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <PayLadderTrack
+                      tiers={getTiers(money.scale).map((t) => ({
+                        label: formatTierRange(t),
+                        rateLabel: formatRate(t.rate),
+                        min: t.min,
+                        max: t.max === Infinity ? null : t.max,
+                      }))}
+                      value={money.revenue ?? 0}
+                      formatAmount={formatCurrency}
+                    />
                   </div>
+
                 </div>
               )}
             </section>
@@ -334,10 +325,6 @@ export default function MyMoneyPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-sm text-foreground">
-                    Next bracket starts at {formatCurrency(money.next.min)} active revenue and pays{' '}
-                    <span className="font-semibold text-primary">{formatRate(money.next.rate)}</span>.
-                  </p>
                   <p className="text-sm text-foreground">
                     You need {formatCurrency(money.revenueToNext ?? 0)} more active revenue
                     {money.signsToNext !== null

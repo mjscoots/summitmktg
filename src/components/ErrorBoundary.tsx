@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="w-14 h-14 rounded-full bg-[hsl(217,91%,60%)]/10 flex items-center justify-center mx-auto mb-5">
               <AlertTriangle className="w-7 h-7 text-[hsl(217,91%,60%)]" />
             </div>
-            <h1 className="text-lg font-bold text-white mb-2">Something went wrong</h1>
+            <h1 className="text-lg font-bold text-white mb-2">This screen failed to load</h1>
             <p className="text-[hsl(220,10%,50%)] text-sm mb-6">
               The app ran into an issue. Tap below to reload.
             </p>
