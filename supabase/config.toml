@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.monday-streak-shoutout]
 verify_jwt = false
+
+[functions.ask-summit]
+verify_jwt = false
