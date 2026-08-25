@@ -3392,6 +3392,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_recruiting_proof: { Args: never; Returns: Json }
       get_ref_code_leaderboard: {
         Args: never
         Returns: {
@@ -3400,6 +3401,7 @@ export type Database = {
           signed: number
         }[]
       }
+      get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
       get_streak_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -3467,6 +3469,7 @@ export type Database = {
         Args: { code_description?: string; new_code: string }
         Returns: string
       }
+      sweep_speed_to_lead: { Args: never; Returns: Json }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }
         Returns: Json

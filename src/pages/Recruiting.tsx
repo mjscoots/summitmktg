@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Mountain, Users, Target, Trophy, DollarSign, Calendar, Zap, CheckCircle } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
+import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 
 const Recruiting = () => {
   const navigate = useNavigate();
@@ -91,6 +92,8 @@ const Recruiting = () => {
           </div>
         </div>
       </section>
+
+      <RecruitingProof />
 
       {/* Benefits Grid */}
       <section className="py-20 bg-secondary/30">

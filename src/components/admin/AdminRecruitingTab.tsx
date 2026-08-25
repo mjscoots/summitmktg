@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Loader2, Trash2, Plus, RefreshCw, Ticket } from 'lucide-react';
+import { Loader2, Trash2, Plus, RefreshCw, Ticket, BadgeCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { PROOF_FIELDS } from '@/components/recruiting/RecruitingProof';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -63,6 +64,8 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   const [newCodeLabel, setNewCodeLabel] = useState('');
   const [newCodeUser, setNewCodeUser] = useState('none');
   const [calendly, setCalendly] = useState('');
+  const [proof, setProof] = useState<Record<string, string>>({});
+  const [savingProof, setSavingProof] = useState(false);
   const [savingCalendly, setSavingCalendly] = useState(false);
 
   const repName = useCallback(
@@ -71,18 +74,24 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   );
 
   const load = useCallback(async () => {
-    const [leadsRes, codesRes, funnelRes, boardRes, settingsRes] = await Promise.all([
+    const [leadsRes, codesRes, funnelRes, boardRes, settingsRes, proofRes] = await Promise.all([
       (supabase as any).from('recruiting_leads').select('*').order('created_at', { ascending: false }),
       (supabase as any).from('recruiting_ref_codes').select('*').order('code'),
       (supabase as any).rpc('get_recruiting_funnel'),
       (supabase as any).rpc('get_ref_code_leaderboard'),
       supabase.from('app_settings').select('key, value').eq('key', 'recruiting_calendly_url').maybeSingle(),
+      supabase.from('app_settings').select('key, value').like('key', 'recruiting_proof_%'),
     ]);
     setLeads((leadsRes.data as Lead[]) || []);
     setRefCodes((codesRes.data as RefCode[]) || []);
     setFunnel(funnelRes.data || null);
     setCodeBoard((boardRes.data as any[]) || []);
     setCalendly(settingsRes.data?.value || 'https://calendly.com/REPLACE-ME');
+    const proofMap: Record<string, string> = {};
+    ((proofRes.data as { key: string; value: string }[]) || []).forEach((row) => {
+      proofMap[row.key.replace('recruiting_proof_', '')] = row.value || '';
+    });
+    setProof(proofMap);
     setLoading(false);
   }, []);
 
@@ -168,6 +177,18 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
     setSavingCalendly(false);
     if (error) { toast.error('Could not save link'); return; }
     toast.success('Booking link saved');
+  };
+
+  const saveProof = async () => {
+    setSavingProof(true);
+    const rows = PROOF_FIELDS.map((f) => ({
+      key: `recruiting_proof_${f.key}`,
+      value: (proof[f.key] || '').trim(),
+    }));
+    const { error } = await supabase.from('app_settings').upsert(rows, { onConflict: 'key' });
+    setSavingProof(false);
+    if (error) { toast.error('Could not save proof numbers'); return; }
+    toast.success('Proof section saved');
   };
 
   if (loading) {
@@ -395,6 +416,37 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             </div>
           ))}
           {refCodes.length === 0 && <p className="text-xs text-muted-foreground">No ref codes yet.</p>}
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-white/[0.06]">
+          <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-2">
+            <BadgeCheck className="w-3.5 h-3.5 text-primary" /> Recruiting page proof numbers
+          </h4>
+          <p className="text-[11px] text-muted-foreground mb-3">
+            Shown on the public /recruiting page. Blank fields are hidden — nothing is ever made up. Clear all fields
+            to hide the strip entirely.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {PROOF_FIELDS.map((f) => (
+              <div key={f.key}>
+                <label className="micro-label mb-1 block" htmlFor={`proof-${f.key}`}>{f.label}</label>
+                <Input
+                  id={`proof-${f.key}`}
+                  value={proof[f.key] || ''}
+                  onChange={(e) => setProof({ ...proof, [f.key]: e.target.value })}
+                  placeholder={f.hint}
+                  className="h-9 text-xs"
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={saveProof}
+            disabled={savingProof}
+            className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+          >
+            {savingProof && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save proof numbers
+          </button>
         </div>
 
         <div className="mt-5 pt-4 border-t border-white/[0.06]">

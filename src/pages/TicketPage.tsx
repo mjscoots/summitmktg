@@ -192,6 +192,13 @@ export default function TicketPage() {
                 <ArrowRight className="w-4 h-4" />
               </a>
             )}
+
+            <a
+              href="/recruiting"
+              className="mt-5 inline-block text-[13px] font-medium text-white/45 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white/70"
+            >
+              See who we are
+            </a>
           </div>
         )}
       </div>
