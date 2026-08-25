@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { AdminTabSkeleton } from '@/components/admin/AdminTabSkeleton';
+import { LoadingList } from '@/components/shared/LoadingList';
 import { cn } from '@/lib/utils';
 import {
   useAdminQueue,
@@ -99,7 +99,7 @@ export function AdminQueueTab() {
     }
   };
 
-  if (isLoading) return <AdminTabSkeleton />;
+  if (isLoading) return <LoadingList rows={6} />;
 
   return (
     <div className="space-y-4">
