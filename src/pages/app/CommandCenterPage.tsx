@@ -489,6 +489,14 @@ export default function CommandCenterPage() {
           <StatCard label="Open Applications" value={live.openApps} />
         </div>
 
+        {/* RECRUITING ANALYTICS */}
+        <CommandFunnel />
+
+        {/* OWNER WEEKLY REPORT */}
+        <WeeklyReportSection />
+
+
+
         {/* ENGAGEMENT */}
         <SectionHeader title="Engagement" />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 16 }}>
