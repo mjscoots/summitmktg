@@ -2,7 +2,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import summitLogo from '@/assets/summit-logo-new.png';
-import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock } from 'lucide-react';
+import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
   SidebarContent,
@@ -54,6 +55,7 @@ export function AppSidebar() {
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
   const adminCounts = useAdminCounts();
   const { newCount: newLeads } = useNewLeads();
+  const { season } = useSeasonHub();
 
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
@@ -102,6 +104,10 @@ export function AppSidebar() {
     if (path === '/app/recruits') return newLeads;
     return 0;
   };
+
+  const visibleMainNavItems = season
+    ? [...mainNavItems, { label: 'Season', path: '/app/season', icon: CalendarClock }]
+    : mainNavItems;
 
   const NavButton = ({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) => (
     <button
@@ -190,7 +196,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {mainNavItems.map((item) => (
+              {visibleMainNavItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <NavButton item={item} active={isActive(item.path)} badge={getBadge(item.path)} />
                 </SidebarMenuItem>

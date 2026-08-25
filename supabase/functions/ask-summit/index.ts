@@ -268,8 +268,10 @@ serve(async (req) => {
       });
     }
 
-    const body = await req.json().catch(() => null) as { messages?: Message[] } | null;
+    const body = await req.json().catch(() => null) as { messages?: Message[]; mode?: string; finish?: boolean } | null;
     const messages = body?.messages;
+    const mode: "ask" | "practice" = body?.mode === "practice" ? "practice" : "ask";
+    const finish = body?.finish === true;
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
@@ -297,10 +299,26 @@ serve(async (req) => {
       "rookie"
     );
 
-    const context = await buildContext(admin, userId);
-
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    let systemContent: string;
+    let gatewayMessages: Message[];
+
+    if (mode === "practice") {
+      const practiceContext = await buildPracticeContext(admin);
+      if (finish) {
+        systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext + "\n\n" + PRACTICE_FEEDBACK_PROMPT;
+        gatewayMessages = [...messages, { role: "user", content: "[END PRACTICE — give feedback now]" }];
+      } else {
+        systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext;
+        gatewayMessages = messages;
+      }
+    } else {
+      const context = await buildContext(admin, userId);
+      systemContent = SYSTEM_PROMPT + context;
+      gatewayMessages = messages;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -310,7 +328,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
-        messages: [{ role: "system", content: SYSTEM_PROMPT + context }, ...messages],
+        messages: [{ role: "system", content: systemContent }, ...gatewayMessages],
         stream: true,
       }),
     });
@@ -332,7 +350,10 @@ serve(async (req) => {
       });
     }
 
-    const lastQuestion = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const rawLastQuestion = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const lastQuestion = mode === "practice"
+      ? (finish ? "[practice] session ended — feedback requested" : `[practice] ${rawLastQuestion}`)
+      : rawLastQuestion;
 
     // Tee the stream so we can log the full answer without delaying the client
     const [clientStream, logStream] = response.body!.tee();

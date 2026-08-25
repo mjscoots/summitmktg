@@ -65,6 +65,7 @@ const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
+const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
 
 
 function LazyFallback() {
@@ -295,6 +296,15 @@ function LazyFallback() {
                 <ProtectedRoute>
                   <BootcampGate>
                     <ScriptsPage />
+                  </BootcampGate>
+                </ProtectedRoute>
+              } />
+
+              {/* Season Countdown Hub */}
+              <Route path="/app/season" element={
+                <ProtectedRoute>
+                  <BootcampGate>
+                    <SeasonPage />
                   </BootcampGate>
                 </ProtectedRoute>
               } />
