@@ -47,6 +47,9 @@ function ActionCard({ label, value, detail, icon: Icon, onClick, warning }: Card
 export function HomeActionRow() {
   const navigate = useNavigate();
   const { data, isLoading } = useHomeSnapshot();
+  // Same source of truth as the sidebar Admin badge
+  const adminCounts = useAdminCounts();
+
 
   if (isLoading && !data) {
     return (
@@ -144,7 +147,8 @@ export function HomeActionRow() {
 
           {data.is_admin && (
             <button
-              onClick={() => navigate('/app/pitch-approvals')}
+              onClick={() => navigate('/admin/team')}
+
               className="flex min-h-11 flex-1 items-center gap-2 rounded-xl px-3 transition-colors hover:bg-foreground/[0.04]"
             >
               <Inbox className="h-3.5 w-3.5 shrink-0 text-primary" />
