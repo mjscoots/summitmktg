@@ -17,6 +17,7 @@ import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
+import { RepScorecard } from '@/components/shared/RepScorecard';
 
 function PointsCard() {
   const { data } = useMyPoints();
@@ -530,6 +531,12 @@ export default function ProfilePage() {
             </Button>
           </div>
         </div>
+
+        {user?.id && (
+          <div className="mb-6">
+            <RepScorecard userId={user.id} />
+          </div>
+        )}
 
         {/* Notification Preferences */}
         <div className="mb-6">
