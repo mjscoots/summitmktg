@@ -111,7 +111,20 @@ export default function MyMoneyPage() {
           </p>
         </header>
 
+        <VerticalMoneyCards
+          renderExtra={(vertical) =>
+            vertical === 'Fiber' ? (
+              <MyFiberWeeks />
+            ) : vertical === 'Pest' ? (
+              <MyRevenueMonths />
+            ) : null
+          }
+        />
+
+        {isManagerRole && <MySpreadSection />}
+
         {loading ? (
+
           <LoadingList rows={3} />
         ) : (
           <>
