@@ -1186,6 +1186,51 @@ export type Database = {
         }
         Relationships: []
       }
+      commitment_interviews: {
+        Row: {
+          better_next_year: string | null
+          committed_last_day: string | null
+          created_at: string
+          id: string
+          manager_id: string
+          next_year_intent: string
+          rep_id: string
+          season: string
+          terms_acknowledged: boolean
+          terms_text: string | null
+          updated_at: string
+          why_here: string | null
+        }
+        Insert: {
+          better_next_year?: string | null
+          committed_last_day?: string | null
+          created_at?: string
+          id?: string
+          manager_id: string
+          next_year_intent?: string
+          rep_id: string
+          season?: string
+          terms_acknowledged?: boolean
+          terms_text?: string | null
+          updated_at?: string
+          why_here?: string | null
+        }
+        Update: {
+          better_next_year?: string | null
+          committed_last_day?: string | null
+          created_at?: string
+          id?: string
+          manager_id?: string
+          next_year_intent?: string
+          rep_id?: string
+          season?: string
+          terms_acknowledged?: boolean
+          terms_text?: string | null
+          updated_at?: string
+          why_here?: string | null
+        }
+        Relationships: []
+      }
       daily_challenges: {
         Row: {
           bonus_awarded: boolean
@@ -2091,6 +2136,8 @@ export type Database = {
           archived_reason: string | null
           avatar_url: string | null
           calendly_url: string | null
+          commitment_terms: string | null
+          committed_last_day: string | null
           created_at: string | null
           cumulative_points: number | null
           departure_reason: string | null
@@ -2107,6 +2154,10 @@ export type Database = {
           last_day_worked: string | null
           last_seen_release: string | null
           legacy_points_snapshot: number | null
+          next_year_notes: string | null
+          next_year_status: string | null
+          next_year_status_at: string | null
+          next_year_updated_by: string | null
           nickname: string | null
           office_id: string | null
           office_name: string | null
@@ -2146,6 +2197,8 @@ export type Database = {
           archived_reason?: string | null
           avatar_url?: string | null
           calendly_url?: string | null
+          commitment_terms?: string | null
+          committed_last_day?: string | null
           created_at?: string | null
           cumulative_points?: number | null
           departure_reason?: string | null
@@ -2162,6 +2215,10 @@ export type Database = {
           last_day_worked?: string | null
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
+          next_year_notes?: string | null
+          next_year_status?: string | null
+          next_year_status_at?: string | null
+          next_year_updated_by?: string | null
           nickname?: string | null
           office_id?: string | null
           office_name?: string | null
@@ -2201,6 +2258,8 @@ export type Database = {
           archived_reason?: string | null
           avatar_url?: string | null
           calendly_url?: string | null
+          commitment_terms?: string | null
+          committed_last_day?: string | null
           created_at?: string | null
           cumulative_points?: number | null
           departure_reason?: string | null
@@ -2217,6 +2276,10 @@ export type Database = {
           last_day_worked?: string | null
           last_seen_release?: string | null
           legacy_points_snapshot?: number | null
+          next_year_notes?: string | null
+          next_year_status?: string | null
+          next_year_status_at?: string | null
+          next_year_updated_by?: string | null
           nickname?: string | null
           office_id?: string | null
           office_name?: string | null
@@ -2453,12 +2516,17 @@ export type Database = {
           interest_reason: string | null
           last_activity_at: string | null
           last_contact_at: string | null
+          last_sale_date: string | null
           notes: string | null
           phone: string | null
+          priority: boolean
           ref_code: string | null
+          revenue_total: number | null
           source_profile_id: string | null
           sourced_by: string | null
           status: string
+          story: string | null
+          weeks_active: number | null
         }
         Insert: {
           city?: string | null
@@ -2471,12 +2539,17 @@ export type Database = {
           interest_reason?: string | null
           last_activity_at?: string | null
           last_contact_at?: string | null
+          last_sale_date?: string | null
           notes?: string | null
           phone?: string | null
+          priority?: boolean
           ref_code?: string | null
+          revenue_total?: number | null
           source_profile_id?: string | null
           sourced_by?: string | null
           status?: string
+          story?: string | null
+          weeks_active?: number | null
         }
         Update: {
           city?: string | null
@@ -2489,12 +2562,17 @@ export type Database = {
           interest_reason?: string | null
           last_activity_at?: string | null
           last_contact_at?: string | null
+          last_sale_date?: string | null
           notes?: string | null
           phone?: string | null
+          priority?: boolean
           ref_code?: string | null
+          revenue_total?: number | null
           source_profile_id?: string | null
           sourced_by?: string | null
           status?: string
+          story?: string | null
+          weeks_active?: number | null
         }
         Relationships: []
       }
@@ -4192,6 +4270,7 @@ export type Database = {
         Args: { _lead_id: string; _user_id: string }
         Returns: Json
       }
+      apply_winback_gold: { Args: { _rows: Json }; Returns: Json }
       auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
         Args: { _content: string; _message_id?: string; _user_id: string }
@@ -4339,6 +4418,7 @@ export type Database = {
       }
       get_chat_channel_state: { Args: never; Returns: Json }
       get_command_analytics: { Args: never; Returns: Json }
+      get_commitment_overview: { Args: never; Returns: Json }
       get_current_leaderboard: {
         Args: never
         Returns: {
@@ -4423,6 +4503,7 @@ export type Database = {
           title: string
         }[]
       }
+      get_finishing_soon: { Args: { _days?: number }; Returns: Json }
       get_global_leaderboard:
         | {
             Args: { _limit?: number; _view_role?: string }
@@ -4607,6 +4688,7 @@ export type Database = {
       }
       get_region_sheet: { Args: never; Returns: Json }
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
+      get_resign_board: { Args: never; Returns: Json }
       get_season_hub: { Args: never; Returns: Json }
       get_streak_leaderboard: {
         Args: { _limit?: number }
@@ -4684,6 +4766,7 @@ export type Database = {
         Returns: undefined
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
       notify_chat_mentions: {
@@ -4724,9 +4807,29 @@ export type Database = {
         Args: { code_description?: string; new_code: string }
         Returns: string
       }
+      set_next_year_status: {
+        Args: { _notes?: string; _status: string; _user_id: string }
+        Returns: Json
+      }
       set_roster_state: {
         Args: { _state: string; _user_id: string }
         Returns: undefined
+      }
+      set_winback_priority: {
+        Args: { _lead_id: string; _priority: boolean }
+        Returns: Json
+      }
+      submit_commitment_interview: {
+        Args: {
+          _better_next_year: string
+          _committed_last_day: string
+          _next_year_intent: string
+          _rep_id: string
+          _terms_acknowledged: boolean
+          _terms_text: string
+          _why_here: string
+        }
+        Returns: Json
       }
       sweep_speed_to_lead: { Args: never; Returns: Json }
       sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
