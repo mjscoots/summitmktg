@@ -21,6 +21,7 @@ import { MyRevenueMonths } from '@/components/money/MyRevenueMonths';
 import { MySpreadSection } from '@/components/money/MySpreadSection';
 import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
+import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -188,32 +189,23 @@ export default function MyMoneyPage() {
                     </p>
                   </div>
 
-                  {/* Full pay scale */}
+                  {/* Pay ladder track */}
                   <div>
-                    <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">
-                      {PAY_SCALE_LABELS[money.scale]} pay scale
+                    <p className="micro-label mb-3">
+                      {PAY_SCALE_LABELS[money.scale]} pay ladder
                     </p>
-                    <div className="rounded-xl border border-white/[0.06] overflow-hidden">
-                      {getTiers(money.scale).map((t, i) => {
-                        const isCurrent = money.tier === t;
-                        return (
-                          <div
-                            key={i}
-                            className={cn(
-                              'flex items-center justify-between px-4 py-2 text-sm',
-                              i > 0 && 'border-t border-white/[0.05]',
-                              isCurrent ? 'bg-primary/10 text-foreground' : 'text-muted-foreground'
-                            )}
-                          >
-                            <span>{formatTierRange(t)}</span>
-                            <span className={cn('tabular-nums font-semibold', isCurrent && 'text-primary')}>
-                              {formatRate(t.rate)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <PayLadderTrack
+                      tiers={getTiers(money.scale).map((t) => ({
+                        label: formatTierRange(t),
+                        rateLabel: formatRate(t.rate),
+                        min: t.min,
+                        max: t.max ?? null,
+                      }))}
+                      value={money.revenue ?? 0}
+                      formatAmount={formatCurrency}
+                    />
                   </div>
+
                 </div>
               )}
             </section>
