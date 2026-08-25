@@ -172,6 +172,35 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
     load();
   };
 
+  const togglePriority = async (id: string, next: boolean) => {
+    setBusy(id + 'prio');
+    const { data, error } = await (supabase as any).rpc('set_winback_priority', {
+      _lead_id: id,
+      _priority: next,
+    });
+    setBusy(null);
+    if (error || !data?.success) {
+      toast.error(data?.error || 'Could not update that flag');
+      return;
+    }
+    load();
+  };
+
+  const sortPool = (list: PoolLead[]) => {
+    const arr = [...list];
+    if (sort === 'rev_per_week') {
+      arr.sort((a, b) => {
+        const ra = a.revenue_total && a.weeks_active ? a.revenue_total / a.weeks_active : -1;
+        const rb = b.revenue_total && b.weeks_active ? b.revenue_total / b.weeks_active : -1;
+        return rb - ra;
+      });
+    } else if (sort === 'recent_sale') {
+      arr.sort((a, b) => (b.last_sale_date || '').localeCompare(a.last_sale_date || ''));
+    }
+    arr.sort((a, b) => Number(!!b.priority) - Number(!!a.priority));
+    return arr;
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -184,23 +213,73 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
 
   if (!feed) return null;
 
-  const fresh = feed.pool.filter((l) => daysSince(l.last_contact_at) >= RECENT_DAYS);
-  const recent = feed.pool.filter((l) => daysSince(l.last_contact_at) < RECENT_DAYS);
+  const fresh = sortPool(feed.pool.filter((l) => daysSince(l.last_contact_at) >= RECENT_DAYS));
+  const recent = sortPool(feed.pool.filter((l) => daysSince(l.last_contact_at) < RECENT_DAYS));
   const atCap = feed.my_active >= feed.cap;
 
+  const GoldLine = ({ lead }: { lead: GoldFields }) => {
+    const bits: string[] = [];
+    const money = fmtMoney(lead.revenue_total);
+    if (money) bits.push(money);
+    if (lead.weeks_active != null) bits.push(`${lead.weeks_active} ${lead.weeks_active === 1 ? 'week' : 'weeks'} active`);
+    if (lead.revenue_total && lead.weeks_active) bits.push(`${fmtMoney(lead.revenue_total / lead.weeks_active)}/wk`);
+    if (lead.last_sale_date) bits.push(`last sale ${fmtDate(lead.last_sale_date)}`);
+    if (bits.length === 0 && !lead.story) return null;
+    return (
+      <div className="mt-2 space-y-1">
+        {bits.length > 0 && (
+          <p className="flex items-center gap-1 text-[12px] font-medium tabular-nums text-foreground/85">
+            <DollarSign className="h-3 w-3 text-primary" /> {bits.join(' · ')}
+          </p>
+        )}
+        {lead.story && <p className="text-[11px] leading-relaxed text-muted-foreground/80">{lead.story}</p>}
+      </div>
+    );
+  };
+
+  const PriorityButton = ({ lead }: { lead: GoldFields & { id: string } }) =>
+    canFlag ? (
+      <button
+        onClick={() => togglePriority(lead.id, !lead.priority)}
+        disabled={busy === lead.id + 'prio'}
+        aria-label={lead.priority ? 'Remove priority flag' : 'Flag as priority'}
+        className={cn(
+          'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors',
+          lead.priority
+            ? 'border-amber-500/30 bg-amber-500/15 text-amber-400'
+            : 'border-border/60 bg-surface text-muted-foreground hover:text-foreground'
+        )}
+      >
+        <Star className={cn('h-3.5 w-3.5', lead.priority && 'fill-current')} />
+      </button>
+    ) : lead.priority ? (
+      <Star className="h-3.5 w-3.5 shrink-0 fill-current text-amber-400" />
+    ) : null;
+
   const PoolCard = ({ lead, muted }: { lead: PoolLead; muted?: boolean }) => (
-    <div className={cn(CARD, 'flex flex-col p-4', muted && 'opacity-55')}>
+    <div
+      className={cn(
+        CARD,
+        'flex flex-col p-4',
+        muted && 'opacity-55',
+        lead.priority && 'border-amber-500/25'
+      )}
+    >
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-[15px] font-bold text-foreground">{lead.name}</h3>
-        <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-          {lead.contact_count} {lead.contact_count === 1 ? 'attempt' : 'attempts'}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-[11px] tabular-nums text-muted-foreground">
+            {lead.contact_count} {lead.contact_count === 1 ? 'attempt' : 'attempts'}
+          </span>
+          <PriorityButton lead={lead} />
+        </div>
       </div>
       {lead.city && (
         <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
           <MapPin className="h-3 w-3" /> {lead.city}
         </p>
       )}
+      <GoldLine lead={lead} />
       <p className="mt-2 text-[12px] text-muted-foreground">
         {lead.last_contact_at
           ? `Last contacted: ${fmtDate(lead.last_contact_at)}${lead.last_by ? ` by ${lead.last_by}` : ''}${
