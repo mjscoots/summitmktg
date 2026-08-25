@@ -63,23 +63,36 @@ export function AdminArchivedTab() {
 
   const restore = async (row: ArchivedRow) => {
     setRestoring(row.user_id);
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        archived: false,
-        archived_at: null,
-        archived_reason: null,
-        status: (row.pre_archive_status as never) ?? ('active' as never),
-      })
-      .eq('user_id', row.user_id);
+    const { error } = await (supabase as any).rpc('set_roster_state', {
+      _user_id: row.user_id,
+      _state: 'active',
+    });
     setRestoring(null);
     if (error) {
+      console.error(error);
       toast.error('Restore failed');
       return;
     }
     toast.success(`${row.full_name} restored`);
     setRows(prev => prev.filter(r => r.user_id !== row.user_id));
   };
+
+  const markAlumni = async (row: ArchivedRow) => {
+    setSettingAlumni(row.user_id);
+    const { error } = await (supabase as any).rpc('set_roster_state', {
+      _user_id: row.user_id,
+      _state: 'alumni',
+    });
+    setSettingAlumni(null);
+    if (error) {
+      console.error(error);
+      toast.error('Could not move to alumni');
+      return;
+    }
+    toast.success(`${row.full_name} moved to alumni`);
+    setRows(prev => prev.map(r => (r.user_id === row.user_id ? { ...r, alumni: true } : r)));
+  };
+
 
   if (loading) return <LoadingList rows={6} />;
 
