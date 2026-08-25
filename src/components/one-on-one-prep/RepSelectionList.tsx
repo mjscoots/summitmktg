@@ -307,7 +307,7 @@ export function RepSelectionList({
       ) : (
         <div className="text-center py-10 rounded-lg border border-primary/20 bg-primary/5">
           <span className="text-2xl">🎉</span>
-          <p className="text-sm font-medium text-foreground mt-2">All 1:1s completed for this week!</p>
+          <p className="text-sm font-medium text-foreground mt-2">All 1:1s completed for this week</p>
           <p className="text-xs text-muted-foreground mt-1">{completedCount} reps checked in</p>
         </div>
       )}

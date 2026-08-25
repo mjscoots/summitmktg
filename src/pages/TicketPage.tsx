@@ -82,7 +82,7 @@ export default function TicketPage() {
     });
     setSaving(false);
     if (insertError) {
-      setError('Something went wrong. Try again.');
+      setError('That ticket did not save. Check your details and submit again.');
       return;
     }
     setDone(true);

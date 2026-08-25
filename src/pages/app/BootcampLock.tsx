@@ -37,7 +37,7 @@ function CountdownTimer({ deadlineAt }: { deadlineAt: Date }) {
     return (
       <div className="flex items-center gap-2 text-primary bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
         <AlertTriangle className="w-5 h-5 shrink-0" />
-        <span className="text-sm font-semibold">Deadline passed — complete your Summer Checklist now!</span>
+        <span className="text-sm font-semibold">Deadline passed — complete your summer checklist</span>
       </div>
     );
   }

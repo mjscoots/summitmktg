@@ -158,7 +158,7 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
         <div className="flex justify-end mb-3">
           <button onClick={handleCopyInactive} className={cn("flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all", copied ? "bg-success/10 border-success/30 text-success" : "bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20")}>
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : `Copy Inactive (${inactiveRookies.length})`}
+            {copied ? 'Copied' : `Copy Inactive (${inactiveRookies.length})`}
           </button>
         </div>
       )}

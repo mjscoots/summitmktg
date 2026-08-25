@@ -140,7 +140,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
         .getPublicUrl(fileName);
 
       setAvatarUrl(publicUrl);
-      toast.success('Photo uploaded!');
+      toast.success('Photo uploaded');
     } catch {
       toast.error('Failed to upload photo');
     } finally {

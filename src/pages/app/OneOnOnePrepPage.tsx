@@ -309,7 +309,7 @@ export default function OneOnOnePrepPage() {
       handleSelectRep(nextRep.user_id);
     } else {
       handleBack();
-      toast.success('🎉 All 1:1s completed!');
+      toast.success('All 1:1s completed');
     }
   };
 

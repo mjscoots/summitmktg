@@ -196,7 +196,7 @@ export default function ManagerTrainingVideosPage() {
                 {searchTerm ? (
                   <><p>No videos found for "{searchTerm}"</p><p className="text-sm mt-1">Try a different search term</p></>
                 ) : (
-                  <><p>No videos in this category yet.</p><p className="text-sm mt-1">Check back soon!</p></>
+                  <><p>No videos in this category yet.</p><p className="text-sm mt-1">Videos appear here once a manager adds them.</p></>
                 )}
               </>
             )}

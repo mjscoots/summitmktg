@@ -128,7 +128,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
       });
       if (rpcError) console.error('Points award error:', rpcError);
 
-      toast.success('Pitch approved!');
+      toast.success('Pitch approved');
       onAction();
       onClose();
     } catch (err) {
