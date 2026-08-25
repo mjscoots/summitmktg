@@ -133,13 +133,13 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-background flex items-center justify-center px-5 py-10 sm:px-6 sm:py-12">
       <div className="absolute top-0 left-0 right-0 h-px bg-primary/30" />
 
       <div className="relative z-10 w-full max-w-md animate-fade-in">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center text-muted-foreground hover:text-foreground transition-colors mb-8"
+          className="flex min-h-11 items-center text-muted-foreground hover:text-foreground transition-colors mb-6 -ml-1 px-1"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
@@ -158,7 +158,7 @@ const AuthPage = () => {
         <div className="flex mb-6 border border-border/30 rounded-lg overflow-hidden">
           <button
             onClick={() => { setMode('signin'); setError(''); }}
-            className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 min-h-11 py-2.5 text-sm font-semibold transition-all ${
               mode === 'signin'
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-transparent text-muted-foreground hover:text-foreground'
@@ -168,7 +168,7 @@ const AuthPage = () => {
           </button>
           <button
             onClick={() => { setMode('signup'); setError(''); }}
-            className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 min-h-11 py-2.5 text-sm font-semibold transition-all ${
               mode === 'signup'
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-transparent text-muted-foreground hover:text-foreground'
@@ -201,18 +201,18 @@ const AuthPage = () => {
               <label className="block text-sm font-medium text-foreground mb-2">Password</label>
               <div className="relative">
                 <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="input-field pr-12" required disabled={isLoading} />
-                <button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" disabled={isLoading}>
+                <button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword(!showPassword)} className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground transition-colors" disabled={isLoading}>
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
+            <button type="submit" disabled={isLoading} className="btn-primary w-full min-h-12 mt-6">
               {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>) : "Sign In"}
             </button>
             <button
               type="button"
               onClick={() => setMode('forgot')}
-              className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors mt-2"
+              className="w-full min-h-11 text-center text-sm text-primary hover:text-primary/80 transition-colors mt-2"
             >
               Forgot your password?
             </button>
@@ -246,7 +246,7 @@ const AuthPage = () => {
               <label className="block text-sm font-medium text-foreground mb-1.5">Password *</label>
               <div className="relative">
                 <input type={showSignupPassword ? "text" : "password"} value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="••••••••" className="input-field pr-12" required minLength={6} disabled={isLoading} />
-                <button type="button" aria-label={showSignupPassword ? "Hide password" : "Show password"} onClick={() => setShowSignupPassword(!showSignupPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                <button type="button" aria-label={showSignupPassword ? "Hide password" : "Show password"} onClick={() => setShowSignupPassword(!showSignupPassword)} className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                   {showSignupPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
@@ -271,7 +271,7 @@ const AuthPage = () => {
               </select>
             </div>
 
-            <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
+            <button type="submit" disabled={isLoading} className="btn-primary w-full min-h-12 mt-6">
               {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Creating Account...</>) : "Create Account"}
             </button>
           </form>
@@ -318,10 +318,10 @@ const AuthPage = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
                   <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
                 </div>
-                <button type="submit" disabled={isLoading} className="btn-primary w-full">
+                <button type="submit" disabled={isLoading} className="btn-primary w-full min-h-12">
                   {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>) : "Send Reset Link"}
                 </button>
-                <button type="button" onClick={() => { setMode('signin'); setError(''); }} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <button type="button" onClick={() => { setMode('signin'); setError(''); }} className="w-full min-h-11 text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Back to Sign In
                 </button>
               </form>
