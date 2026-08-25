@@ -92,6 +92,10 @@ class TableErrorBoundary extends Component<{ children: ReactNode; onRetry: () =>
   }
 }
 
+const VERTICALS = ['Pest', 'Fiber', 'Virtual'] as const;
+const REP_YEARS = ['1st', '2nd', '3rd+'] as const;
+
+
 const PIPELINE_STATUSES = [
   { key: 'pending', label: 'Prospect Added' },
   { key: 'contract_signed', label: 'Contract Signed' },
