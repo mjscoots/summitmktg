@@ -37,10 +37,18 @@ const SETTING_KEYS = [
   { key: 'recruiting_content_hero_video_url', label: 'Hero video URL (YouTube / Vimeo)', hint: 'https://...' },
   { key: 'public_counter_min_reps', label: 'Hide "active reps" below', hint: '10' },
   { key: 'public_counter_min_signs', label: 'Hide "signed this season" below', hint: '5' },
-  { key: 'calc_avg_contract_value', label: 'Calculator: avg annual contract value ($)', hint: 'Not set' },
-  { key: 'calc_default_accounts_per_week', label: 'Calculator: default accounts per week', hint: '5' },
-  { key: 'calc_default_weeks', label: 'Calculator: default weeks worked', hint: '14' },
+  { key: 'calc_avg_contract_value', label: 'Pest: average account value ($)', hint: '1000' },
+  { key: 'calc_default_accounts_per_week', label: 'Pest: default accounts per week', hint: '10' },
+  { key: 'calc_default_weeks', label: 'Pest: default weeks worked', hint: '20' },
+  { key: 'calc_min_weeks', label: 'Pest: minimum weeks', hint: '18' },
+  { key: 'calc_max_weeks', label: 'Pest: maximum weeks', hint: '30' },
+  { key: 'calc_active_reduction_pct', label: 'Pest: cancellation reduction (%)', hint: '25' },
+  { key: 'public_fiber_starting_rate', label: 'Fiber: starting per-install rate ($)', hint: 'Blank = hidden' },
+  { key: 'fiber_calc_default_weeks', label: 'Fiber: default weeks worked', hint: '12' },
+  { key: 'fiber_calc_min_weeks', label: 'Fiber: minimum weeks', hint: '8' },
+  { key: 'fiber_calc_max_weeks', label: 'Fiber: maximum weeks', hint: '26' },
 ];
+
 
 export default function AdminRecruitingContent() {
   const [loading, setLoading] = useState(true);
