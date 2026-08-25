@@ -66,7 +66,7 @@ export function AnnouncementBox() {
   const [showArchive, setShowArchive] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<AnnouncementPost | null>(null);
-  const [seen, setSeen] = useState<{ total: number; counts: Record<string, number> }>({ total: 0, counts: {} });
+  const [seen, setSeen] = useState<{ total: number; counts: Record<string, { seen: number; total: number }> }>({ total: 0, counts: {} });
   const markedRef = useRef(false);
 
   const fetchPosts = useCallback(async () => {
@@ -222,8 +222,8 @@ export function AnnouncementBox() {
               post={pinnedPost}
               isAdmin={isAdmin}
               isStaff={isStaff}
-              seenCount={seen.counts[pinnedPost.id] || 0}
-              seenTotal={seen.total}
+              seenCount={seen.counts[pinnedPost.id]?.seen || 0}
+              seenTotal={seen.counts[pinnedPost.id]?.total ?? seen.total}
               isPinned
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -240,8 +240,8 @@ export function AnnouncementBox() {
               post={post}
               isAdmin={isAdmin}
               isStaff={isStaff}
-              seenCount={seen.counts[post.id] || 0}
-              seenTotal={seen.total}
+              seenCount={seen.counts[post.id]?.seen || 0}
+              seenTotal={seen.counts[post.id]?.total ?? seen.total}
               archived={showArchive}
               onEdit={handleEdit}
               onDelete={handleDelete}
