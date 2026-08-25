@@ -224,6 +224,15 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             {reps.map((r) => <SelectItem key={r.user_id} value={r.user_id}>{r.full_name}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue placeholder="Source" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All sources</SelectItem>
+            <SelectItem value="ticket">Golden Ticket (ref)</SelectItem>
+            <SelectItem value="pipeline-import">Pipeline import</SelectItem>
+            <SelectItem value="manual">Manually added</SelectItem>
+          </SelectContent>
+        </Select>
         <button
           onClick={load}
           className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground"
