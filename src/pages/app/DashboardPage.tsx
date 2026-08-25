@@ -235,7 +235,10 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {isManager && <RosterGapCounters />}
+
         {/* Action row — what to do right now */}
+
         <HomeActionRow />
 
         {/* Weekly team battle standing */}
