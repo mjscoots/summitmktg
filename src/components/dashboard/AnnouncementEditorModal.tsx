@@ -142,8 +142,31 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground mb-1.5 block">Expiration Date (optional)</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Auto-expire</Label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {[
+                { label: '7 days', days: 7 },
+                { label: '14 days', days: 14 },
+                { label: '30 days', days: 30 },
+                { label: 'No expiry', days: 0 },
+              ].map(preset => {
+                const target = preset.days
+                  ? new Date(Date.now() + preset.days * 86400000).toISOString().split('T')[0]
+                  : '';
+                const active = expiresAt === target;
+                return (
+                  <button
+                    key={preset.label}
+                    onClick={() => setExpiresAt(target)}
+                    className={`min-h-9 rounded-lg border px-2.5 text-[11px] font-bold transition-colors ${active ? 'border-primary/40 bg-primary/12 text-primary' : 'border-border/30 text-muted-foreground hover:text-foreground'}`}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
             <Input type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} className="bg-background/50 w-48" />
+            <p className="mt-1 text-[10px] text-muted-foreground">Defaults to 14 days. Expired announcements move to the Archive.</p>
           </div>
 
           <div className="flex items-center gap-6">
