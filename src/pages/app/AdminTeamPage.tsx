@@ -69,6 +69,7 @@ const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || '';
 export default function AdminTeamPage() {
   const { role, profile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
   // Counts are always live — no "viewed" zeroing
