@@ -179,6 +179,8 @@ export default function ProfilePage() {
   const [rawImageSrc, setRawImageSrc] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [committedLastDay, setCommittedLastDay] = useState<string | null>(null);
+  const [commitmentTerms, setCommitmentTerms] = useState<string | null>(null);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const canSelfDelete = role === 'rookie' || role === 'manager';
