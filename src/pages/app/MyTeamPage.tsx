@@ -19,6 +19,9 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { RepScorecard } from '@/components/shared/RepScorecard';
+import { TriageBoard } from '@/components/team/TriageBoard';
+import { CarGroupsTab } from '@/components/team/CarGroupsTab';
+import { TeamActionItems } from '@/components/team/TeamActionItems';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
 import { TeamMember, getDisplayName, getEffectiveManager } from '@/lib/hierarchyUtils';
@@ -59,9 +62,11 @@ export default function MyTeamPage() {
   const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
   const [weekPoints, setWeekPoints] = useState<Map<string, number>>(new Map());
 
-  const [viewMode, setViewMode] = useState<'teams' | 'members'>(
-    searchParams.get('tab') === 'members' ? 'members' : 'teams'
-  );
+  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars'>(() => {
+    const t = searchParams.get('tab');
+    if (t === 'members' || t === 'triage' || t === 'cars') return t;
+    return 'teams';
+  });
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [memberSearch, setMemberSearch] = useState('');
   const [teamFilter, setTeamFilter] = useState<string>(() => {
@@ -78,6 +83,12 @@ export default function MyTeamPage() {
 
   const isAdmin = role === 'admin' || role === 'owner';
   const isManagerRole = role === 'manager' || isAdmin;
+
+  // Manager-only tabs: reps landing on ?tab=triage fall back to Teams
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars')) setViewMode('teams');
+  }, [authLoading, isManagerRole, viewMode]);
 
   useManagerNotifications();
 
@@ -234,7 +245,10 @@ export default function MyTeamPage() {
 
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
-            {(['teams', 'members'] as const).map(mode => (
+            {(isManagerRole
+              ? (['teams', 'members', 'triage', 'cars'] as const)
+              : (['teams', 'members'] as const)
+            ).map(mode => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
@@ -398,6 +412,16 @@ export default function MyTeamPage() {
             </div>
           </div>
         )}
+
+        {!loading && viewMode === 'triage' && isManagerRole && (
+          <div className="space-y-4">
+            <TriageBoard />
+            <TeamActionItems />
+          </div>
+        )}
+
+        {!loading && viewMode === 'cars' && isManagerRole && <CarGroupsTab />}
+
 
         {/* Member detail sheet */}
         <Sheet open={!!sheetMember} onOpenChange={open => !open && setSheetMember(null)}>

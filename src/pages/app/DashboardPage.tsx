@@ -6,6 +6,7 @@ import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
+import { MyCarTodayCard, MyActionItemsCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
 import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
@@ -234,6 +235,13 @@ export default function DashboardPage() {
 
         {/* Action row — what to do right now */}
         <HomeActionRow />
+
+        {/* Today's car assignment (only when published for today) */}
+        <div className="mb-4 space-y-3">
+          <MyCarTodayCard />
+          <MyActionItemsCard />
+        </div>
+
 
         {/* Announcement Box */}
         <AnnouncementBox />

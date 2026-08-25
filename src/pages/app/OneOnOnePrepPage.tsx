@@ -9,6 +9,7 @@ import { format, startOfWeek } from 'date-fns';
 import { createTasksFromRookieForm, createTasksFromManagerForm } from '@/hooks/usePriorityTasks';
 import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList';
 import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
+import { ActionItemsField } from '@/components/shared/ActionItemsField';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
@@ -449,6 +450,19 @@ export default function OneOnOnePrepPage() {
                 nextRepName={nextRep?.full_name}
               />
             )}
+
+            {/* Tracked action items for this rep */}
+            <div className="px-4 pb-6">
+              <h3 className="text-sm font-semibold text-foreground mb-1">Action items</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Saved instantly — {selectedRep.full_name.split(' ')[0]} sees these on their Home page.
+              </p>
+              <ActionItemsField
+                source="one-on-one"
+                assignees={[{ user_id: selectedRep.user_id, full_name: selectedRep.full_name }]}
+                defaultAssignee={selectedRep.user_id}
+              />
+            </div>
           </div>
         </div>
 

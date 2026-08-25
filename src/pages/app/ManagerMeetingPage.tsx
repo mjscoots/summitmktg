@@ -14,6 +14,8 @@ import { Plus, Trash2, Calendar as CalendarIcon, CheckCircle2, AlertCircle, Clip
 import { cn } from '@/lib/utils';
 import { format, startOfWeek } from 'date-fns';
 import { toast } from 'sonner';
+import { ActionItemsField } from '@/components/shared/ActionItemsField';
+import { getDisplayName } from '@/lib/hierarchyUtils';
 
 // ───────────────────── Types ─────────────────────
 type RepStatus = 'cut' | 'watch' | 'help' | 'promote';
@@ -132,6 +134,67 @@ export default function ManagerMeetingPage() {
     })();
     return () => { cancelled = true; };
   }, [user, weekKey]);
+
+  // Roster for action-item assignment
+  const [roster, setRoster] = useState<{ user_id: string; full_name: string }[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: rows } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .eq('archived', false)
+        .order('full_name');
+      setRoster((rows ?? []) as { user_id: string; full_name: string }[]);
+    })();
+  }, [user]);
+
+  // Pre-fill the triage section from the live board so managers stop re-typing it
+  const prefillFromBoard = useCallback(async () => {
+    const { data: rows } = await supabase.from('rep_triage').select('user_id, bucket, note');
+    if (!rows?.length) {
+      toast.info('The live triage board is empty');
+      return;
+    }
+    const nameFor = (id: string) =>
+      getDisplayName(roster.find(r => r.user_id === id)?.full_name ?? '') || 'Unknown';
+    setData(d => ({
+      ...d,
+      reps: rows.map(r => ({
+        id: uid(),
+        name: nameFor(r.user_id),
+        status: r.bucket as RepStatus,
+        note: r.note ?? '',
+      })),
+    }));
+    toast.success(`Pulled ${rows.length} reps from the live board`);
+  }, [roster]);
+
+  // Auto-pull once when the section is empty and the board has data
+  const [autoPulled, setAutoPulled] = useState(false);
+  useEffect(() => {
+    if (autoPulled || loading || !roster.length || data.reps.length > 0) return;
+    setAutoPulled(true);
+    (async () => {
+      const { data: rows } = await supabase.from('rep_triage').select('user_id, bucket, note');
+      if (!rows?.length) return;
+      const nameFor = (id: string) =>
+        getDisplayName(roster.find(r => r.user_id === id)?.full_name ?? '') || 'Unknown';
+      setData(d =>
+        d.reps.length > 0
+          ? d
+          : {
+              ...d,
+              reps: rows.map(r => ({
+                id: uid(),
+                name: nameFor(r.user_id),
+                status: r.bucket as RepStatus,
+                note: r.note ?? '',
+              })),
+            }
+      );
+    })();
+  }, [autoPulled, loading, roster, data.reps.length]);
 
   const update = useCallback(<K extends keyof FormData>(k: K, v: FormData[K]) => setData(d => ({ ...d, [k]: v })), []);
 
@@ -273,7 +336,10 @@ export default function ManagerMeetingPage() {
                   </div>
                 );
               })}
-              <Button variant="outline" size="sm" onClick={() => update('reps', [...data.reps, { id: uid(), name: '', status: 'watch', note: '' }])}><Plus className="w-4 h-4 mr-1" /> Add rep</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={() => update('reps', [...data.reps, { id: uid(), name: '', status: 'watch', note: '' }])}><Plus className="w-4 h-4 mr-1" /> Add rep</Button>
+                <Button variant="ghost" size="sm" onClick={prefillFromBoard}>Pull from live board</Button>
+              </div>
             </div>
           </SectionCard>
 
@@ -363,6 +429,13 @@ export default function ManagerMeetingPage() {
           <SectionCard n={10} title="Team Goal + Action Items Recap" subtitle="The week's goal and who owns what.">
             <div><Label>Team goal for the week</Label><Input value={data.team_goal} onChange={(e) => update('team_goal', e.target.value)} placeholder="Goal for the week" /></div>
             <div><Label>Action items recap</Label><Textarea rows={5} value={data.action_items} onChange={(e) => update('action_items', e.target.value)} placeholder="Owner — task — due" /></div>
+            <div className="pt-2">
+              <Label>Tracked action items</Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                These become real items — the assignee sees them on their Home page.
+              </p>
+              <ActionItemsField source="manager-meeting" assignees={roster} />
+            </div>
           </SectionCard>
         </div>
 

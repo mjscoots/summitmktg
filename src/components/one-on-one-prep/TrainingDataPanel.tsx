@@ -2,6 +2,8 @@ import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown, Minus, Flame, AlertTriangle, Check, Trophy, Clock } from 'lucide-react';
+import { RepScorecard } from '@/components/shared/RepScorecard';
+import { RepOpenActionItems } from '@/components/shared/RepOpenActionItems';
 
 function formatMinutes(mins: number): string {
   const h = Math.floor(mins / 60);
@@ -203,6 +205,10 @@ export function TrainingDataPanel({
           vs Team Avg: <span className="text-foreground font-medium">{teamAvgPct}%</span> ({formatMinutes(Math.round(rep.teamAvgMinutes))} avg)
         </p>
       </div>
+
+      {/* Scorecard + open action items — manager walks in loaded */}
+      <RepScorecard userId={rep.user_id} compact />
+      <RepOpenActionItems userId={rep.user_id} />
 
       {/* Auto-Insights */}
       {insights.length > 0 && (
