@@ -532,6 +532,10 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        <div className="mb-6">
+          <InstallAppHint />
+        </div>
+
         {user?.id && (
           <div className="mb-6">
             <RepScorecard userId={user.id} />
