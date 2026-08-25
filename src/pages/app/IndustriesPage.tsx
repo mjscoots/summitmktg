@@ -12,6 +12,7 @@ import {
   Bug, Wifi, HeartHandshake, Users, Check, Lock, CircleDot, Upload,
   GraduationCap, ShieldCheck, ListChecks, Loader2, ArrowLeft,
 } from 'lucide-react';
+import { ManagerPicker } from '@/components/industries/ManagerPicker';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
 
