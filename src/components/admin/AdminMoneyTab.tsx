@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { PayScale, PAY_SCALE_LABELS, formatCurrency, formatRate, getRate, getTier, formatTierRange } from '@/lib/commission';
 import { cn } from '@/lib/utils';
+import { RevenueEntryPanel } from '@/components/admin/RevenueEntryPanel';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
