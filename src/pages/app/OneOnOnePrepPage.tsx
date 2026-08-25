@@ -9,6 +9,7 @@ import { format, startOfWeek } from 'date-fns';
 import { createTasksFromRookieForm, createTasksFromManagerForm } from '@/hooks/usePriorityTasks';
 import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList';
 import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
+import { ActionItemsField } from '@/components/shared/ActionItemsField';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
