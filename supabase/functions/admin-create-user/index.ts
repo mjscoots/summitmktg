@@ -37,12 +37,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if caller is admin ONLY
+    // Check if caller is admin or owner
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerUser.id)
-      .eq("role", "admin");
+      .in("role", ["admin", "owner"]);
 
     if (!roleData || roleData.length === 0) {
       return new Response(JSON.stringify({ error: "Admin access required" }), {
@@ -50,6 +50,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     // Rate limit: max 10 account creations per 5 minutes
     const { data: allowed } = await supabaseAdmin.rpc("check_rate_limit", {
@@ -100,12 +101,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check for orphaned auth user (profile deleted but auth record remains)
-    // List users by email to find orphans
-    const { data: authList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 50 });
-    const orphanedAuthUser = authList?.users?.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
-    );
+    // Check for orphaned auth user (profile deleted but auth record remains).
+    // Paginate — the project has hundreds of auth users, so a single page misses matches.
+    let orphanedAuthUser: { id: string; email?: string | null } | undefined;
+    for (let page = 1; page <= 40; page++) {
+      const { data: authList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage: 200,
+      });
+      if (listErr) {
+        console.error("listUsers failed:", listErr.message);
+        break;
+      }
+      const users = authList?.users ?? [];
+      orphanedAuthUser = users.find((u) => u.email?.toLowerCase() === normalizedEmail);
+      if (orphanedAuthUser || users.length < 200) break;
+    }
+
 
     if (orphanedAuthUser) {
       console.log(`Found orphaned auth user ${orphanedAuthUser.id} for ${normalizedEmail}, deleting...`);
