@@ -1,10 +1,24 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Mountain, Users, Target, Trophy, DollarSign, Calendar, Zap, CheckCircle } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
+import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
+import { LiveCounters } from "@/components/recruiting/LiveCounters";
+import RookieCalculator from "@/components/RookieCalculator";
+import { setPageMeta } from "@/lib/pageMeta";
 
 const Recruiting = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPageMeta({
+      title: "Summer Sales Jobs — Summit Marketing",
+      description:
+        "Summit Marketing hires college students for commission-based summer door-to-door sales. Training, housing and pay explained.",
+      path: "/recruiting",
+    });
+  }, []);
 
   const benefits = [
     { icon: DollarSign, title: "High Income Potential", description: "Earn based on your effort, not an hourly cap. Top performers make $30k+ in a single summer." },
@@ -90,10 +104,25 @@ const Recruiting = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
           </div>
+
+          <div className="mt-10">
+            <LiveCounters />
+          </div>
         </div>
       </section>
 
       <RecruitingProof />
+      <RecruitingContentPack />
+
+      {/* Earnings math */}
+      <section className="border-t border-border py-16">
+        <div className="mx-auto max-w-3xl px-6">
+          <h2 className="mb-8 text-center text-2xl font-black uppercase tracking-wide text-foreground md:text-3xl">
+            Run the numbers
+          </h2>
+          <RookieCalculator onApplyClick={() => handleApplyClick("/apply/rookie")} />
+        </div>
+      </section>
 
       {/* Benefits Grid */}
       <section className="py-20 bg-secondary/30">
@@ -304,6 +333,12 @@ const Recruiting = () => {
               >
                 Instagram
               </a>
+              <button
+                onClick={() => handleApplyClick("/parents")}
+                className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Information for parents
+              </button>
               <button
                 onClick={() => navigate("/login")}
                 className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"

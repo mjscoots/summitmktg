@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Loader2, Trash2, Plus, RefreshCw, Ticket, BadgeCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PROOF_FIELDS } from '@/components/recruiting/RecruitingProof';
+import AdminRecruitingContent from '@/components/admin/AdminRecruitingContent';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -495,6 +496,8 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
           </div>
         </div>
       </div>
+
+      <AdminRecruitingContent />
     </div>
   );
 }

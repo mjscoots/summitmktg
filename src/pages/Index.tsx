@@ -3,6 +3,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
+import { LiveCounters } from "@/components/recruiting/LiveCounters";
 
 const RookieCalculator = lazy(() => import("@/components/RookieCalculator"));
 const VetCalculator = lazy(() => import("@/components/VetCalculator"));
@@ -120,6 +121,11 @@ const Index = () => {
                 Apply
               </button>
             </div>
+
+            <div className="mt-8">
+              <LiveCounters variant="inline" />
+            </div>
+
           </div>
         </div>
 

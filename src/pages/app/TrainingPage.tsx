@@ -4,6 +4,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
 import { TrainingTiles } from '@/components/dashboard/TrainingTiles';
+import { DailyDrill } from '@/components/training/DailyDrill';
+import { PracticePitchCard } from '@/components/training/PracticePitchCard';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 
 import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
@@ -110,8 +112,10 @@ export default function TrainingPage() {
             />
           )}
 
+          <DailyDrill />
           <GlobalTrainingProgress filterRole="rookie" />
           <TrainingTiles filterRole="rookie" />
+          <PracticePitchCard />
 
           {/* Videos Banner */}
           <button
@@ -169,6 +173,8 @@ export default function TrainingPage() {
               <p className="text-xs text-muted-foreground mt-0.5">Sharpen your edge. Lead with excellence.</p>
             </div>
           </div>
+
+          <DailyDrill />
 
           {/* Two Selection Cards — bigger, cleaner */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -305,6 +311,7 @@ export default function TrainingPage() {
           filterRole={isRookieView ? 'rookie' : 'manager'} 
           managerManualComplete={isRookieView ? true : managerManualComplete}
         />
+        {isRookieView && <PracticePitchCard />}
       </div>
     </AppLayout>
   );

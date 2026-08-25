@@ -16,6 +16,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 import Recruiting from "./pages/Recruiting";
+import Parents from "./pages/Parents";
 import RookieApplication from "./pages/RookieApplication";
 import VetApplication from "./pages/VetApplication";
 import ApplySuccess from "./pages/ApplySuccess";
@@ -120,6 +121,7 @@ function LazyFallback() {
              <Route path="/recruiting" element={<Recruiting />} />
              {/* Public Golden Ticket lead capture (QR / no login) */}
              <Route path="/ticket" element={<TicketPage />} />
+             <Route path="/parents" element={<Parents />} />
              {/* Redirect /apply to /recruiting#apply section */}
              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
              <Route path="/apply/rookie" element={<RookieApplication />} />
