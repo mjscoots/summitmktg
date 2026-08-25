@@ -16,6 +16,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 import Recruiting from "./pages/Recruiting";
+import Parents from "./pages/Parents";
 import RookieApplication from "./pages/RookieApplication";
 import VetApplication from "./pages/VetApplication";
 import ApplySuccess from "./pages/ApplySuccess";

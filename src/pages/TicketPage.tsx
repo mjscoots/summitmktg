@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import { Loader2, Check, ArrowRight } from 'lucide-react';
+import { setPageMeta } from '@/lib/pageMeta';
 
 const GOLD = '#D4AF37';
 
@@ -33,12 +34,27 @@ export default function TicketPage() {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [calendly, setCalendly] = useState('');
+  const [claimed, setClaimed] = useState<number | null>(null);
+  const [seriesTotal, setSeriesTotal] = useState(100);
+
+  const numericTicket = /^[0-9]{1,3}$/.test(refCode) && Number(refCode) >= 1 && Number(refCode) <= 100
+    ? refCode.padStart(3, '0')
+    : null;
 
   useEffect(() => {
-    document.title = 'Golden Ticket — You’ve Been Scouted';
+    setPageMeta({
+      title: 'Golden Ticket — Summit Marketing',
+      description: 'You were handed a Summit Marketing ticket. Leave your details and a manager will reach out.',
+      path: '/ticket',
+    });
     (async () => {
       const { data } = await (supabase as any).rpc('get_ticket_config');
       if (data?.calendly_url) setCalendly(data.calendly_url as string);
+      const { data: series } = await (supabase as any).rpc('get_ticket_series_status');
+      if (series) {
+        setClaimed(Number(series.claimed) || 0);
+        setSeriesTotal(Number(series.series_total) || 100);
+      }
     })();
   }, []);
 
@@ -81,7 +97,7 @@ export default function TicketPage() {
             className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.28em]"
             style={{ color: GOLD, border: `1px solid ${GOLD}44`, background: 'rgba(212,175,55,0.06)' }}
           >
-            Golden Ticket
+            {numericTicket ? `Ticket Nº ${numericTicket}` : 'Golden Ticket'}
           </div>
         </div>
 
@@ -102,9 +118,15 @@ export default function TicketPage() {
                 scouted.
               </span>
             </h1>
-            <p className="text-center text-[14px] leading-relaxed text-white/55 mb-8">
-              You’re holding one of 100. Most people never get this far.
+            <p className="text-center text-[14px] leading-relaxed text-white/55 mb-3">
+              You’re holding one of {seriesTotal}. Leave your details and a manager will call you.
             </p>
+            {numericTicket && claimed !== null && claimed > 0 && (
+              <p className="text-center text-[12px] font-semibold uppercase tracking-[0.18em] mb-8" style={{ color: GOLD }}>
+                {claimed} of {seriesTotal} claimed
+              </p>
+            )}
+            {!(numericTicket && claimed !== null && claimed > 0) && <div className="mb-5" />}
 
             <form onSubmit={submit} className="space-y-3">
               <input
