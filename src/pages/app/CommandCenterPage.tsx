@@ -11,6 +11,9 @@ import RegionSheet from "@/components/command/RegionSheet";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
 import PairingsPanel from "@/components/command/PairingsPanel";
+import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
+import StackView from "@/components/command/StackView";
+
 
 // ---------- Tokens (scoped to this page) ----------
 const COLORS = {
