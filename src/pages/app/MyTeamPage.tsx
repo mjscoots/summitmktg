@@ -262,6 +262,18 @@ export default function MyTeamPage() {
 
   const canAddMembers = isAdmin || teams.some(t => t.leader_id === profile?.user_id);
 
+  // Fiber runs on regions and installs, not the pest downline structure.
+  if (activeVertical === 'Fiber') {
+    return (
+      <AppLayout>
+        <main className="mx-auto max-w-3xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
+          <PageHeader title="Team" context="Your region, by installs this week." />
+          <FiberTeam />
+        </main>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
