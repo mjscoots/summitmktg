@@ -5699,6 +5699,33 @@ export type Database = {
           },
         ]
       }
+      winter_plans: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          season_year: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          season_year?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          season_year?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       quiz_questions_safe: {
@@ -6083,6 +6110,15 @@ export type Database = {
         Returns: Json
       }
       get_fiber_stack_table: { Args: never; Returns: Json }
+      get_fiber_winter_interest: {
+        Args: never
+        Returns: {
+          answered_at: string
+          application_status: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_finishing_soon: { Args: { _days?: number }; Returns: Json }
       get_global_leaderboard:
         | {
@@ -6206,6 +6242,7 @@ export type Database = {
       get_my_revenue: { Args: never; Returns: Json }
       get_my_spread: { Args: never; Returns: Json }
       get_my_vertical_path: { Args: { _vertical: string }; Returns: Json }
+      get_my_winter_plan: { Args: never; Returns: Json }
       get_my_workspaces: { Args: never; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
       get_pairings: {
@@ -6373,6 +6410,7 @@ export type Database = {
       get_vertical_enrollments: { Args: never; Returns: Json }
       get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
+      get_winter_plan_summary: { Args: never; Returns: Json }
       get_workspace_mentionables: {
         Args: never
         Returns: {
@@ -6481,6 +6519,7 @@ export type Database = {
       }
       region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
+      reopen_winter_plan: { Args: { _user_id: string }; Returns: Json }
       request_pairing: {
         Args: { _manager_id: string; _vertical: string }
         Returns: Json
@@ -6509,6 +6548,7 @@ export type Database = {
         Returns: string
       }
       set_active_vertical: { Args: { _vertical: string }; Returns: Json }
+      set_my_winter_plan: { Args: { _answer: string }; Returns: Json }
       set_next_year_status: {
         Args: { _notes?: string; _status: string; _user_id: string }
         Returns: Json
