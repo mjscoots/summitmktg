@@ -986,3 +986,44 @@ body {
   .bubble-in { animation: none !important; }
   .rank-bar-fill { transition: none !important; }
 }
+
+/* ━━━ Pass 77 — public front door. Neutral near-black with a dotted grid only. ━━━ */
+@layer components {
+  .public-dots {
+    position: relative;
+  }
+  .public-dots::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 35%, #000 0%, transparent 78%);
+    mask-image: radial-gradient(ellipse at 50% 35%, #000 0%, transparent 78%);
+  }
+  .public-card {
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    background: transparent;
+  }
+  .public-surface {
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+    background: hsl(var(--surface));
+  }
+  .public-input {
+    min-height: 48px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid hsl(var(--border-strong));
+    background: hsl(var(--surface-elevated));
+    padding: 0 14px;
+    color: hsl(var(--foreground));
+    font-size: 15px;
+  }
+  .public-input:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 1px;
+  }
+}
