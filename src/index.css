@@ -736,6 +736,17 @@ button, a, [role="button"] {
 .light-workspace .text-white\/70 {
   color: hsl(var(--foreground));
 }
+.light-workspace .text-white\/60,
+.light-workspace .text-white\/50,
+.light-workspace .text-white\/40,
+.light-workspace .text-white\/35 {
+  color: hsl(var(--muted-foreground));
+}
+.light-workspace .hover\:text-white:hover,
+.light-workspace .hover\:text-white\/70:hover {
+  color: hsl(var(--foreground));
+}
+
 .light-workspace .bg-black,
 .light-workspace .bg-black\/20,
 .light-workspace .bg-black\/40,
