@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useHomeSnapshot } from '@/hooks/useHomeSnapshot';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
+import { useCallbacksDue } from '@/hooks/useLeads';
 
 
 function formatTime(iso: string) {
@@ -49,6 +50,7 @@ export function HomeActionRow() {
   const { data, isLoading } = useHomeSnapshot();
   // Same source of truth as the sidebar Admin badge
   const adminCounts = useAdminCounts();
+  const callbacksDue = useCallbacksDue();
 
 
   if (isLoading && !data) {
@@ -124,6 +126,17 @@ export function HomeActionRow() {
           onClick={() => navigate('/app/leaderboard')}
         />
       </div>
+
+      {callbacksDue > 0 && (
+        <button
+          onClick={() => navigate('/app/leads?tab=mine')}
+          className="flex min-h-11 w-full items-center gap-2 rounded-[var(--radius)] border border-warning/30 bg-warning/[0.06] px-3 text-left"
+        >
+          <Inbox className="h-3.5 w-3.5 shrink-0 text-warning" />
+          <span className="micro-label truncate">Callbacks due</span>
+          <span className="ml-auto text-[13px] font-bold tabular-nums text-warning">{callbacksDue}</span>
+        </button>
+      )}
 
       {data.is_staff && (
         <div className="flex flex-wrap items-stretch gap-2.5 rounded-[var(--radius)] border border-white/[0.06] bg-card/60 p-2 backdrop-blur-sm">
