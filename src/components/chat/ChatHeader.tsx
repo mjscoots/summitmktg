@@ -8,17 +8,20 @@ interface ChatHeaderProps {
   pinnedCount: number;
   onPinnedClick?: () => void;
   memberCount?: number;
+  /** Back to the conversation list. Falls back to the dashboard. */
+  onBack?: () => void;
 }
 
-export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, memberCount }: ChatHeaderProps) {
+export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, memberCount, onBack }: ChatHeaderProps) {
   const navigate = useNavigate();
 
   return (
     <div className="flex items-center gap-3 px-3 py-2 border-b border-border/10 bg-background/60 backdrop-blur-2xl flex-shrink-0 z-[2]">
       {/* Back arrow - mobile feel */}
       <button
-        onClick={() => navigate('/app')}
-        className="p-1 -ml-1 rounded-full text-primary hover:bg-primary/10 transition-colors lg:hidden"
+        onClick={() => (onBack ? onBack() : navigate('/app'))}
+        aria-label="Back"
+        className="-ml-1 flex h-11 w-11 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
