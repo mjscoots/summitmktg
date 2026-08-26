@@ -592,13 +592,26 @@ serve(async (req) => {
           answer: answer.slice(0, 4000),
           role_at_ask: verifiedRole,
         });
+        if (threadId && answer) {
+          await admin.from("assistant_messages").insert({
+            thread_id: threadId,
+            role: "assistant",
+            content: answer.slice(0, 4000),
+          });
+          await admin.from("assistant_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
+        }
       } catch (err) {
         console.error("assistant log error", err);
       }
     })();
 
     return new Response(clientStream, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/event-stream",
+        "X-Thread-Id": threadId ?? "",
+        "Access-Control-Expose-Headers": "X-Thread-Id",
+      },
     });
   } catch (e) {
     console.error("ask-summit error:", e);
