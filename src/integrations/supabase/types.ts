@@ -2722,6 +2722,7 @@ export type Database = {
       }
       people_leads: {
         Row: {
+          ai_summary: string | null
           bucket: string
           call_count: number
           claimed_at: string | null
@@ -2745,6 +2746,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           profile_id: string | null
+          profile_snapshot: Json | null
           recruiter_name: string | null
           rep_year: string | null
           rev_per_day: number | null
@@ -2762,6 +2764,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_summary?: string | null
           bucket?: string
           call_count?: number
           claimed_at?: string | null
@@ -2785,6 +2788,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           profile_id?: string | null
+          profile_snapshot?: Json | null
           recruiter_name?: string | null
           rep_year?: string | null
           rev_per_day?: number | null
@@ -2802,6 +2806,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_summary?: string | null
           bucket?: string
           call_count?: number
           claimed_at?: string | null
@@ -2825,6 +2830,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           profile_id?: string | null
+          profile_snapshot?: Json | null
           recruiter_name?: string | null
           rep_year?: string | null
           rev_per_day?: number | null
@@ -6330,6 +6336,7 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      build_lead_snapshot: { Args: { _profile_id: string }; Returns: Json }
       can_chat_dm: { Args: { _a: string; _b: string }; Returns: boolean }
       can_find_person: { Args: { _target: string }; Returns: boolean }
       can_read_channel: {
