@@ -21,18 +21,60 @@ interface ChatMessage {
   content: string;
 }
 
+interface ThreadRow {
+  id: string;
+  mode: string;
+  title: string | null;
+  last_at: string;
+  message_count: number;
+}
+
 export default function AskSummitPage() {
   const [mode, setMode] = useState<Mode>('ask');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [practiceEnded, setPracticeEnded] = useState(false);
+  const [threads, setThreads] = useState<ThreadRow[]>([]);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const threadRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [mode]);
+
+  const loadThreads = async () => {
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id;
+    if (!uid) return;
+    const { data } = await (supabase as any).rpc('get_person_threads', { _user_id: uid });
+    const list = ((data?.threads || []) as ThreadRow[]).filter(t => t.mode === 'ask');
+    setThreads(list);
+  };
+
+  useEffect(() => {
+    void loadThreads();
+  }, []);
+
+  const openThread = async (id: string) => {
+    const { data } = await (supabase as any).rpc('get_thread_messages', { _thread_id: id });
+    const msgs = ((data?.messages || []) as ChatMessage[]).map(m => ({ role: m.role, content: m.content }));
+    setMode('ask');
+    setPracticeEnded(false);
+    setMessages(msgs);
+    setThreadId(id);
+    threadRef.current = id;
+  };
+
+  const newThread = () => {
+    setMessages([]);
+    setInput('');
+    setThreadId(null);
+    threadRef.current = null;
+    setPracticeEnded(false);
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: 'end' });
@@ -45,6 +87,8 @@ export default function AskSummitPage() {
     setMessages([]);
     setInput('');
     setPracticeEnded(false);
+    setThreadId(null);
+    threadRef.current = null;
   };
 
   const startNewPractice = () => {
@@ -64,12 +108,18 @@ export default function AskSummitPage() {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, thread_id: threadRef.current }),
     });
 
     if (!res.ok || !res.body) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || 'The assistant is unavailable right now.');
+    }
+
+    const returnedThread = res.headers.get('X-Thread-Id');
+    if (returnedThread) {
+      threadRef.current = returnedThread;
+      setThreadId(returnedThread);
     }
 
     const reader = res.body.getReader();
@@ -139,6 +189,7 @@ export default function AskSummitPage() {
     } finally {
       setStreaming(false);
       inputRef.current?.focus();
+      void loadThreads();
     }
   };
 
@@ -215,6 +266,28 @@ export default function AskSummitPage() {
             </button>
           </div>
         </header>
+
+        {!isPractice && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Button onClick={newThread} variant="outline" size="sm" className="min-h-11 rounded-xl">
+              New thread
+            </Button>
+            {threads.map(t => (
+              <button
+                key={t.id}
+                onClick={() => openThread(t.id)}
+                className={cn(
+                  'max-w-[220px] truncate rounded-xl border px-3 py-2 text-left text-xs transition-colors min-h-11',
+                  t.id === threadId
+                    ? 'border-primary/50 bg-primary/10 text-foreground'
+                    : 'border-white/[0.08] bg-background/40 text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {t.title || 'Thread'}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className={cn(CARD, 'p-4 sm:p-5')}>
           {/* Messages */}
@@ -308,7 +381,7 @@ export default function AskSummitPage() {
                     send(input);
                   }
                 }}
-                placeholder={isPractice ? 'Say something to the homeowner...' : 'Ask a question...'}
+                placeholder={isPractice ? 'Say something to the homeowner...' : 'Your manager can read this to help you.'}
                 disabled={composerDisabled}
                 className="flex-1 resize-none max-h-32 rounded-xl bg-background/50 border border-white/[0.08] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
               />
