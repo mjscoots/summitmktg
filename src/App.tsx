@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 
 const Index = lazy(() => import("./pages/Index"));
 const IndustryPage = lazy(() => import("./pages/IndustryPage"));
+const InvitePage = lazy(() => import("./pages/InvitePage"));
 const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
 const Recruiting = lazy(() => import("./pages/Recruiting"));
 const Parents = lazy(() => import("./pages/Parents"));
@@ -162,6 +163,7 @@ function LazyFallback() {
              <Route path="/parents" element={<Parents />} />
              <Route path="/industries/:slug" element={<IndustryPage />} />
              <Route path="/join" element={<JoinRedirect />} />
+             <Route path="/invite/:token" element={<InvitePage />} />
              {/* Redirect /apply to /recruiting#apply section */}
              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
              <Route path="/apply/rookie" element={<RookieApplication />} />
