@@ -51,7 +51,6 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   reports: [
     { value: 'overview', label: 'Overview' },
     { value: 'offseason', label: 'Off-season' },
-    { value: 'targets', label: 'Targets', ownerOnly: true },
   ],
   settings: [
     { value: 'industries', label: 'Industries' },
