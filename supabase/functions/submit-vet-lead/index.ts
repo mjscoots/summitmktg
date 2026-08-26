@@ -125,9 +125,9 @@ serve(async (req: Request): Promise<Response> => {
     }
 
 
-    // Email the owner and admins
+    // Email the owner and admins — first submission only
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (RESEND_API_KEY && recipients.length) {
+    if (RESEND_API_KEY && recipients.length && !isDuplicate) {
       const { data: profiles } = await admin
         .from("profiles")
         .select("email")
@@ -142,12 +142,13 @@ serve(async (req: Request): Promise<Response> => {
           ["Name", fullName],
           ["Phone", phone],
           ["Email", email],
-          ["Current company", body.current_company ?? ""],
-          ["Years in D2D", body.years_d2d ?? ""],
-          ["Last season active revenue", body.last_season_active_revenue ?? ""],
-          ["Markets", body.markets ?? ""],
-          ["Best time to call", body.best_time_to_call ?? ""],
+          ["Current company", currentCompany],
+          ["Years in D2D", yearsD2d],
+          ["Last season active revenue", revenue ?? ""],
+          ["Markets", markets],
+          ["Best time to call", bestTime],
         ];
+
         const html = `
           <p><strong>${fullName}</strong> asked for a bid.</p>
           <p><a href="tel:${phone.replace(/[^0-9+]/g, "")}">Tap to call ${phone}</a></p>
