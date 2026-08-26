@@ -120,6 +120,13 @@ Each item says where to click and what happens if you leave it.
   Admin → Settings.
 - [ ] **Default phone visibility.** Currently **team only** for everyone. Each person can
   change their own in their profile.
+- [ ] **Seasonal insects pricing page.** Not loaded into the Field Playbook. Everything
+  else in your material is in, word for word. Send that page and it gets added.
+- [ ] **Life setup path.** Written as four draft steps and left unpublished on purpose.
+  Settings → Industries → Life when you want reps to start on it.
+- [ ] **Monday email digest.** Built and scheduled, but no email leaves the app until the
+  sender above is set. Managers can still open My Week any time.
+
 
 ### One test worth doing yourself
 
