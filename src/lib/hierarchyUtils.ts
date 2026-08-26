@@ -809,7 +809,7 @@ export function validateHierarchy(
 export function canEditMemberStatus(
   roster: TeamMember[],
   currentUserName: string,
-  currentUserRole: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | undefined,
+  currentUserRole: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | 'president' | undefined,
   targetMember: TeamMember
 ): { canEdit: boolean; reason?: string } {
   // Admins can edit anyone
