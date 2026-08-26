@@ -190,7 +190,7 @@ export default function VideoPlayerPage() {
       // 4. Log watch duration toward daily training time
       if (watchDuration > 0) {
         for (let i = 0; i < watchDuration; i++) {
-          try { await supabase.rpc('record_daily_time', { _user_id: user.id, _category: 'video' }); } catch {}
+          try { await (supabase.rpc as any)('record_daily_time', { _category: 'video' }); } catch {}
         }
       }
 

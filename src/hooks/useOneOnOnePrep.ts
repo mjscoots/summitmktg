@@ -137,7 +137,7 @@ export function useOneOnOnePrep(filterRole: 'rookie' | 'manager' = 'rookie') {
       // 3. Get daily training time for last 2 weeks
       const { data: dailyTime } = await supabase
         .from('daily_training_time')
-        .select('user_id, date, total_minutes')
+        .select('user_id, date, app_minutes, training_minutes')
         .in('user_id', userIds)
         .gte('date', weekBeforeMondayStr)
         .lte('date', lastSundayStr);
@@ -174,7 +174,7 @@ export function useOneOnOnePrep(filterRole: 'rookie' | 'manager' = 'rookie') {
           .forEach(d => {
             const dayDate = new Date(d.date + 'T00:00:00');
             const diff = Math.round((dayDate.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24));
-            if (diff >= 0 && diff < 7) arr[diff] = d.total_minutes;
+            if (diff >= 0 && diff < 7) arr[diff] = d.app_minutes;
           });
         return arr;
       };

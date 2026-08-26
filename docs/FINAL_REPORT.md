@@ -897,3 +897,34 @@ DM pairing (`can_chat_dm`): allowed when either side is staff (owner/admin/presi
 - Linter count after this pass: 322 issues (1 RLS-enabled-no-policy, 26 anon SECURITY DEFINER, 294 signed-in SECURITY DEFINER, 1 short OTP). The two new entries are `can_find_person` and `search_people`, both intentionally callable by signed-in users only.
 - The development-only React ref warning noted in earlier passes is still present.
 - Nothing was published.
+
+## Pass 61 — Manager back end (sections A and B)
+
+Stopped at a section boundary. Sections A (honest time) and B (RSVP responses) are wired end to end; C through F are not started.
+
+Housekeeping: the orphaned test admin auth record left by 60D was removed through the privileged path; a count confirmed zero `@summit.test` and zero `p60d` auth users remain.
+
+New and changed database objects
+- `daily_training_time.app_minutes` (added, backfilled). `training_minutes` recalculated as lesson + video + training categories. `total_minutes` kept for compatibility.
+- `company_timezone()` — reads `app_settings.company_timezone`, default `America/Los_Angeles`. Used to bucket days server side.
+- `record_daily_time(_category text)` — `_user_id` dropped; uses `auth.uid()` and company-timezone day buckets; writes app and training counters separately.
+- `record_activity_ping(_minutes int, _screen text)` — adds screen minutes (not ping counts) into `activity_days.screens` as `{screen: minutes}`, company-timezone buckets.
+- `get_training_recap(_user_id uuid) returns jsonb` — lessons, videos, drills, manual chapters completed in the last 30 days, by name.
+- `get_person_time_split(_user_id uuid) returns jsonb` — `app_7d`, `training_7d`, `app_30d`, `training_30d`, `screens_7d`.
+- `get_person_event_answers(_user_id uuid, _limit int default 10) returns jsonb` — last events with the person's answer and present/absent.
+- `get_event_answer_columns() returns jsonb` — upcoming trips and incentives for the team answers column (leaders and staff only).
+- Read policies on `daily_training_time` and `activity_days` extended to owner, president, and the manager chain. All new functions: `EXECUTE` revoked from `PUBLIC` and `anon`, granted to `authenticated` and `service_role`.
+
+Frontend
+- `src/lib/timeSplit.ts` — shared week range and per-user week map with app and training minutes.
+- `TeamActivityTable`, `DailyTimeBreakdown`, `PillarTreeView`, `ActivityTab`, `useOneOnOnePrep`, `TeamPage` now read `app_minutes` and `training_minutes` and label them "In the app" and "Training".
+- `useActivityTracking` sends a plain screen label (for example `Training › Objections`, `Chat`) and no longer passes a user id.
+- Person profile: app versus training minutes for 7 and 30 days, a "Where the time went (7 days)" block, a "What they trained on" block (7 and 30 day counts plus names), and an "Events" block with the last answers and present/absent.
+- New `src/components/team/EventAnswersPanel.tsx` on the team page: per upcoming trip or incentive, counts for Going, Can't, Maybe, and No answer; tapping opens the 60C rollup lists.
+
+Open, with reasons
+- Sections C (Ask Summit memory), D (`rep_ai_profiles` and `build-rep-profile`), E (profile to lead snapshot), and F (lead cycling) are not started — stopped at a section boundary.
+- Section G verification with throwaway accounts was not run, because it covers behaviour introduced in C through F as well as A and B; it should run once those sections land.
+- Manual chapters in `get_training_recap` display `chapter_id` because no chapter title table exists in the schema.
+- Database linter: 327 issues — 1 RLS-enabled-no-policy, 26 anonymous SECURITY DEFINER, 299 signed-in SECURITY DEFINER, 1 short OTP. New functions added to the signed-in count intentionally; the anonymous count is unchanged from the project baseline.
+- Typecheck clean, production build clean. Preview only; nothing published.

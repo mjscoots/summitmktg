@@ -6,7 +6,7 @@ import { formatTimeMinutes } from '@/hooks/useActivityTracking';
 
 interface DailyTimeRow {
   date: string;
-  total_minutes: number;
+  app_minutes: number;
   training_minutes: number;
   video_minutes: number;
   lesson_minutes: number;
@@ -44,7 +44,7 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
       try {
         const { data, error } = await (supabase
           .from('daily_training_time' as any)
-          .select('date, total_minutes, training_minutes, video_minutes, lesson_minutes')
+          .select('date, app_minutes, training_minutes, video_minutes, lesson_minutes')
           .eq('user_id', userId)
           .gte('date', start)
           .lte('date', end)
@@ -79,7 +79,7 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
       result.push({
         label: DAY_LABELS[i],
         date: dateStr,
-        total_minutes: match?.total_minutes ?? 0,
+        app_minutes: match?.app_minutes ?? 0,
         training_minutes: match?.training_minutes ?? 0,
         video_minutes: match?.video_minutes ?? 0,
         lesson_minutes: match?.lesson_minutes ?? 0,
@@ -88,15 +88,16 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
     return result;
   }, [rows]);
 
-  const weekTotal = dailyData.reduce((s, d) => s + d.total_minutes, 0);
-  const maxMinutes = Math.max(...dailyData.map(d => d.total_minutes), 1);
-  const activeDays = dailyData.filter(d => d.total_minutes > 0);
+  const weekTotal = dailyData.reduce((s, d) => s + d.app_minutes, 0);
+  const trainingTotal = dailyData.reduce((s, d) => s + d.training_minutes, 0);
+  const maxMinutes = Math.max(...dailyData.map(d => d.app_minutes), 1);
+  const activeDays = dailyData.filter(d => d.app_minutes > 0);
   const activeDayCount = activeDays.length;
 
   const mostActiveDay = useMemo(() => {
     if (activeDays.length === 0) return null;
     return activeDays.reduce((best, d) =>
-      d.total_minutes > best.total_minutes ? d : best
+      d.app_minutes > best.app_minutes ? d : best
     );
   }, [activeDays]);
 
@@ -123,16 +124,23 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
       {/* Header */}
       <div className="flex items-center gap-2">
         <BarChart3 className="w-4 h-4 text-muted-foreground" />
-        <p className="text-xs font-medium text-muted-foreground">Daily Training Time</p>
-        <span className="ml-auto text-xs font-medium text-foreground">
-          {formatTimeMinutes(weekTotal)} this week
+        <p className="text-xs font-medium text-muted-foreground">Time per day</p>
+        <span className="ml-auto text-xs font-medium text-foreground tabular-nums">
+          In the app {formatTimeMinutes(weekTotal)} &middot; Training {formatTimeMinutes(trainingTotal)}
         </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] w-7" />
+        <div className="flex-1" />
+        <span className="text-[10px] w-10 text-right text-muted-foreground">In app</span>
+        <span className="text-[10px] w-10 text-right text-muted-foreground">Training</span>
       </div>
 
       {/* Bar chart */}
       <div className="space-y-1.5">
         {dailyData.map(day => {
-          const pct = maxMinutes > 0 ? (day.total_minutes / maxMinutes) * 100 : 0;
+          const pct = maxMinutes > 0 ? (day.app_minutes / maxMinutes) * 100 : 0;
           const isToday = day.date === today;
           return (
             <div key={day.date} className="flex items-center gap-2">
@@ -143,7 +151,7 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
                 {day.label}
               </span>
               <div className="flex-1 h-5 bg-muted/50 rounded-sm overflow-hidden relative">
-                {day.total_minutes > 0 && (
+                {day.app_minutes > 0 && (
                   <div
                     className={cn(
                       "h-full rounded-sm transition-all",
@@ -155,9 +163,15 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
               </div>
               <span className={cn(
                 "text-[11px] w-10 text-right font-medium",
-                day.total_minutes === 0 ? "text-muted-foreground/50" : "text-foreground"
+                day.app_minutes === 0 ? "text-muted-foreground/50" : "text-foreground"
               )}>
-                {day.total_minutes > 0 ? formatTimeMinutes(day.total_minutes) : '--'}
+                {day.app_minutes > 0 ? formatTimeMinutes(day.app_minutes) : '--'}
+              </span>
+              <span className={cn(
+                "text-[11px] w-10 text-right font-medium tabular-nums",
+                day.training_minutes === 0 ? "text-muted-foreground/50" : "text-primary"
+              )}>
+                {day.training_minutes > 0 ? formatTimeMinutes(day.training_minutes) : '--'}
               </span>
             </div>
           );
@@ -176,7 +190,7 @@ export function DailyTimeBreakdown({ userId }: DailyTimeBreakdownProps) {
           </p>
           {mostActiveDay && (
             <p className="text-[11px] text-muted-foreground">
-              Most active day: <span className="text-foreground font-medium">{mostActiveDay.label}</span> ({formatTimeMinutes(mostActiveDay.total_minutes)})
+              Most active day: <span className="text-foreground font-medium">{mostActiveDay.label}</span> ({formatTimeMinutes(mostActiveDay.app_minutes)})
             </p>
           )}
           {activeDayCount > 1 && (

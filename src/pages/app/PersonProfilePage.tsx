@@ -46,7 +46,17 @@ function statusWord(header: Record<string, any> | null, lead: Record<string, any
   return s ? s.replace(/_/g, ' ') : '—';
 }
 
+function answerWord(status?: string | null) {
+  const s = String(status || 'no_answer').toLowerCase();
+  if (s === 'going' || s === 'yes' || s === 'attending') return 'Going';
+  if (s === 'not_attending' || s === 'not_going' || s === 'no' || s === 'cant' || s === 'declined') return "Can't";
+  if (s === 'maybe') return 'Maybe';
+
+  return 'No answer';
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+
   return (
     <section className="space-y-2">
       <h2 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>
@@ -71,6 +81,9 @@ export default function PersonProfilePage() {
   const [seasonOpen, setSeasonOpen] = useState(false);
 
   const [data, setData] = useState<PersonProfile | null>(null);
+  const [timeSplit, setTimeSplit] = useState<any | null>(null);
+  const [recap, setRecap] = useState<any | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
 
@@ -86,11 +99,33 @@ export default function PersonProfilePage() {
       if (err) setError(err);
       else setData(res as unknown as PersonProfile);
       setIsLoading(false);
+
+      const [split, rec, ev] = await Promise.all([
+        supabase.rpc('get_person_time_split' as never, { _user_id: userId } as never),
+        supabase.rpc('get_training_recap' as never, { _user_id: userId } as never),
+        supabase.rpc('get_person_event_answers' as never, { _user_id: userId, _limit: 10 } as never),
+      ]);
+      if (!alive) return;
+      const s = split.data as any;
+      if (s && !s.error) setTimeSplit(s);
+      const r = rec.data as any;
+      if (r && !r.error) setRecap(r);
+      const e = ev.data as any;
+      if (e && !e.error) setEvents((e.events || []) as any[]);
     })();
     return () => {
       alive = false;
     };
   }, [userId]);
+
+  const screenRows = useMemo(() => {
+    const screens = (timeSplit?.screens_7d || {}) as Record<string, number>;
+    return Object.entries(screens)
+      .map(([k, v]) => [k, Number(v)] as [string, number])
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1]);
+  }, [timeSplit]);
+
 
   const timeline = useMemo(() => {
     if (!data) return [];
@@ -228,6 +263,14 @@ export default function PersonProfilePage() {
           )}
           <Row label="Last login" value={fmtDateTime(e.last_login_at) || 'Not recorded yet'} />
           <Row label="Last active" value={fmtDateTime(e.last_active_at)} />
+          {timeSplit && (
+            <>
+              <Row label="In the app (7 days)" value={`${timeSplit.app_7d ?? 0} min`} />
+              <Row label="Training (7 days)" value={`${timeSplit.training_7d ?? 0} min`} />
+              <Row label="In the app (30 days)" value={`${timeSplit.app_30d ?? 0} min`} />
+              <Row label="Training (30 days)" value={`${timeSplit.training_30d ?? 0} min`} />
+            </>
+          )}
           <Row label="Time today" value={`${e.minutes_today ?? 0} min`} />
           <Row label="Daily average (14 days)" value={`${e.avg_minutes_14d ?? 0} min`} />
           <Row label="Days active (30 days)" value={e.days_active_30d ?? 0} />
@@ -239,6 +282,66 @@ export default function PersonProfilePage() {
           {trackingStarted && <Row label="Tracking started" value={fmtDate(trackingStarted)} />}
         </Card>
       </Section>
+
+      {/* Where the time went */}
+      {screenRows.length > 0 && (
+        <Section title="Where the time went (7 days)">
+          <Card className="p-4">
+            {screenRows.map(([label, minutes]) => (
+              <Row key={label} label={label} value={`${minutes} min`} />
+            ))}
+          </Card>
+        </Section>
+      )}
+
+      {/* What they trained on */}
+      {recap && (
+        <Section title="What they trained on">
+          <Card className="p-4 space-y-3">
+            {(['lessons', 'videos', 'drills', 'chapters'] as const).map((key) => {
+              const items = (recap[key] || []) as { name: string; at: string }[];
+              const label =
+                key === 'lessons' ? 'Lessons' : key === 'videos' ? 'Videos' : key === 'drills' ? 'Drills' : 'Manual chapters';
+              const last7 = items.filter((i) => new Date(i.at).getTime() >= Date.now() - 7 * 86400000);
+              return (
+                <div key={key}>
+                  <p className="text-[13px] font-medium">
+                    {label}
+                    <span className="text-muted-foreground">
+                      {' '}
+                      · {last7.length} in 7 days · {items.length} in 30 days
+                    </span>
+                  </p>
+                  {items.slice(0, 8).map((i, idx) => (
+                    <p key={`${key}-${idx}`} className="text-[13px] text-muted-foreground">
+                      {i.name} · {fmtDate(i.at)}
+                    </p>
+                  ))}
+                  {items.length === 0 && <p className="text-[13px] text-muted-foreground">None recorded</p>}
+                </div>
+              );
+            })}
+          </Card>
+        </Section>
+      )}
+
+      {/* Events */}
+      {events.length > 0 && (
+        <Section title="Events">
+          <Card className="p-4">
+            {events.map((ev) => (
+              <Row
+                key={ev.event_id}
+                label={`${ev.title} · ${fmtDate(ev.event_date)}`}
+                value={`${answerWord(ev.answer)}${
+                  ev.present === true ? ' · present' : ev.present === false ? ' · absent' : ''
+                }`}
+              />
+            ))}
+          </Card>
+        </Section>
+      )}
+
 
       {/* Production */}
       {(data.production?.revenue_months?.length || data.production?.installs_weeks?.length) ? (

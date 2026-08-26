@@ -54,13 +54,13 @@ export function ActivityTab({ managerName, userId }: { managerName: string; user
       const profileTeamMap = new Map((profiles || []).map(p => [p.user_id, p.team_id ? teamMap.get(p.team_id) || null : null]));
 
       const weekStart = getMondayWeekStart();
-      const { data: timeData } = await supabase.from('daily_training_time').select('user_id, total_minutes, date').in('user_id', repIds);
+      const { data: timeData } = await supabase.from('daily_training_time').select('user_id, app_minutes, date').in('user_id', repIds);
 
       const totalMap = new Map<string, number>();
       const weeklyMap = new Map<string, number>();
       (timeData || []).forEach(t => {
-        totalMap.set(t.user_id, (totalMap.get(t.user_id) || 0) + t.total_minutes);
-        if (new Date(t.date + 'T00:00:00') >= weekStart) weeklyMap.set(t.user_id, (weeklyMap.get(t.user_id) || 0) + t.total_minutes);
+        totalMap.set(t.user_id, (totalMap.get(t.user_id) || 0) + t.app_minutes);
+        if (new Date(t.date + 'T00:00:00') >= weekStart) weeklyMap.set(t.user_id, (weeklyMap.get(t.user_id) || 0) + t.app_minutes);
       });
 
       const rows: TimeEntry[] = repIds.map(uid => {
