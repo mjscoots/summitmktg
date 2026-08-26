@@ -183,10 +183,13 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
         </section>
       )}
 
+      <InstallAppHint />
+
       <section className={`${LIFE_CARD} p-4`}>
         <p className="text-sm font-medium text-foreground">Announcement</p>
         <p className="mt-1 text-sm text-muted-foreground">{pinned || 'No announcement yet.'}</p>
       </section>
+
 
       <ChatCard label={workspace.short_name} onOpen={() => navigate('/app/chat')} />
     </div>
