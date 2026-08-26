@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall } from 'lucide-react';
-import AppLayout from '@/components/layout/AppLayout';
-import PageBackButton from '@/components/layout/PageBackButton';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -25,7 +25,7 @@ import CallMode from '@/components/leads/CallMode';
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
 
 export default function LeadsPage() {
-  const { role, loading: authLoading } = useAuth();
+  const { role, isLoading: authLoading } = useAuth();
   const tier = tierOf(role);
   const staff = isStaffTier(tier);
   const [params, setParams] = useSearchParams();
