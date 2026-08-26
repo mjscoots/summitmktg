@@ -61,7 +61,18 @@ interface CommunityChatProps {
   channelSlug?: string;
   /** Back to the conversation list. */
   onBack?: () => void;
+  /** Room name shown in the header, e.g. the caller's own team name. */
+  roomLabel?: string;
+  /** Hide the back control when this room is the landing surface. */
+  hideBack?: boolean;
+  /** Header controls, e.g. people search. */
+  headerRight?: React.ReactNode;
+  /** Rendered between the header and the thread, e.g. room strip. */
+  topSlot?: React.ReactNode;
+  /** Placeholder for the composer input. */
+  composerPlaceholder?: string;
 }
+
 
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
