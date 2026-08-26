@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -48,6 +50,8 @@ interface WorkspaceContextValue {
   activeVertical: string;
   isLoading: boolean;
   isPresidentOfActive: boolean;
+  /** Increments on every workspace switch so screens remount and refetch. */
+  epoch: number;
   switchWorkspace: (vertical: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -58,6 +62,8 @@ const WorkspaceContext = createContext<WorkspaceContextValue | undefined>(undefi
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [epoch, setEpoch] = useState(0);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeVertical, setActiveVertical] = useState<string>(
     () => localStorage.getItem(STORAGE_KEY) || 'Pest'
@@ -146,6 +152,7 @@ export function useWorkspace(): WorkspaceContextValue {
       activeVertical: 'Pest',
       isLoading: false,
       isPresidentOfActive: false,
+      epoch: 0,
       switchWorkspace: async () => {},
       refresh: async () => {},
     };
