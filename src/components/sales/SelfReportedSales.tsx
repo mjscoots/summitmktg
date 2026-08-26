@@ -48,13 +48,13 @@ export function SelfReportedSales({ userId, canEdit }: { userId: string; canEdit
     }
     const row = rows.find((r) => r.id === id);
     const note = [row?.notes, `Correction: ${reason.trim()}`].filter(Boolean).join('\n');
-    const { error } = remove
-      ? await (supabase as any).from('sales_log').update({ notes: note }).eq('id', id).then(
-          async (res: { error: unknown }) =>
-            res.error ? res : await (supabase as any).from('sales_log').delete().eq('id', id)
-        )
-      : await (supabase as any).from('sales_log').update({ notes: note }).eq('id', id);
-    if (error) {
+    const upd = await (supabase as any).from('sales_log').update({ notes: note }).eq('id', id);
+    let failed = Boolean(upd.error);
+    if (!failed && remove) {
+      const del = await (supabase as any).from('sales_log').delete().eq('id', id);
+      failed = Boolean(del.error);
+    }
+    if (failed) {
       toast.error('That did not save.');
       return;
     }
