@@ -49,8 +49,9 @@ function statusWord(header: Record<string, any> | null, lead: Record<string, any
 function answerWord(status?: string | null) {
   const s = String(status || 'no_answer').toLowerCase();
   if (s === 'going' || s === 'yes' || s === 'attending') return 'Going';
-  if (s === 'not_going' || s === 'no' || s === "cant" || s === 'declined') return "Can't";
+  if (s === 'not_attending' || s === 'not_going' || s === 'no' || s === 'cant' || s === 'declined') return "Can't";
   if (s === 'maybe') return 'Maybe';
+
   return 'No answer';
 }
 
