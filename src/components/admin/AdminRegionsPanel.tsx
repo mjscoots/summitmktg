@@ -17,6 +17,9 @@ interface Region {
   name: string;
   lead_user_id: string | null;
   active: boolean;
+  accepting_new: boolean;
+  capacity: number | null;
+  intro: string | null;
 }
 
 interface Person {
@@ -25,8 +28,13 @@ interface Person {
   region_id: string | null;
 }
 
+interface Props {
+  /** When set, only this industry's regions are shown. */
+  restrictToVertical?: string;
+}
+
 /** Admin control for fiber region leads and per-person region assignment. Both are audit-logged. */
-export function AdminRegionsPanel() {
+export function AdminRegionsPanel({ restrictToVertical }: Props = {}) {
   const [regions, setRegions] = useState<Region[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [search, setSearch] = useState('');
@@ -35,15 +43,26 @@ export function AdminRegionsPanel() {
 
   const load = useCallback(async () => {
     const [{ data: rs }, { data: ps }] = await Promise.all([
-      supabase.from('regions').select('id, vertical, name, lead_user_id, active').order('vertical').order('name'),
+      supabase
+        .from('regions')
+        .select('id, vertical, name, lead_user_id, active, accepting_new, capacity, intro')
+        .order('vertical')
+        .order('name'),
       supabase.from('profiles').select('user_id, full_name, region_id').eq('archived', false).order('full_name'),
     ]);
-    setRegions((rs as Region[]) ?? []);
+    setRegions(((rs as unknown as Region[]) ?? []).filter((r) => !restrictToVertical || r.vertical === restrictToVertical));
     setPeople((ps as Person[]) ?? []);
     setLoading(false);
-  }, []);
+  }, [restrictToVertical]);
 
   useEffect(() => { load(); }, [load]);
+
+  const patchRegion = async (region: Region, patch: Partial<Region>) => {
+    setRegions((prev) => prev.map((r) => (r.id === region.id ? { ...r, ...patch } : r)));
+    const { error } = await supabase.from('regions').update(patch as never).eq('id', region.id);
+    if (error) toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
+  };
+
 
   const setLead = async (region: Region, userId: string) => {
     setBusy(region.id);
