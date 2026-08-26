@@ -6,7 +6,6 @@ import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
-const VetCalculator = lazy(() => import("@/components/VetCalculator"));
 
 /**
  * Public cover page — gold on black, single industry (pest) messaging.
@@ -15,8 +14,7 @@ const VetCalculator = lazy(() => import("@/components/VetCalculator"));
 const Index = () => {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
-  const [calcMode, setCalcMode] = useState<'rookie' | 'vet'>('rookie');
-
+  
   // Preload logo then reveal — short timeout to avoid stuck loading screen
   useEffect(() => {
     const img = new Image();
