@@ -123,34 +123,71 @@ export function AdminRegionsPanel({ restrictToVertical }: Props = {}) {
 
       <div className="mt-4 space-y-2">
         {regions.map((r) => (
-          <div key={r.id} className="flex flex-col gap-2 rounded-lg border border-border/50 bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[13px] font-semibold text-foreground">
-                {r.vertical} Lead — {r.name}
-              </p>
-              <p className="text-[12px] text-muted-foreground">
-                {people.find((p) => p.user_id === r.lead_user_id)?.full_name || 'No lead assigned'}
-              </p>
+          <div key={r.id} className="space-y-3 rounded-lg border border-border/50 bg-surface p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[13px] font-semibold text-foreground">
+                  {r.vertical} Lead — {r.name}
+                </p>
+                <p className="text-[12px] text-muted-foreground">
+                  {people.find((p) => p.user_id === r.lead_user_id)?.full_name || 'No lead assigned'} ·{' '}
+                  {people.filter((p) => p.region_id === r.id).length} members
+                </p>
+              </div>
+              <Select
+                value={r.lead_user_id ?? NONE}
+                onValueChange={(v) => setLead(r, v)}
+                disabled={busy === r.id}
+              >
+                <SelectTrigger className="h-9 w-full sm:w-64 bg-card/50">
+                  <SelectValue placeholder="Assign lead" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE}>No lead</SelectItem>
+                  {people.map((p) => (
+                    <SelectItem key={p.user_id} value={p.user_id}>{p.full_name || 'Unnamed'}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select
-              value={r.lead_user_id ?? NONE}
-              onValueChange={(v) => setLead(r, v)}
-              disabled={busy === r.id}
-            >
-              <SelectTrigger className="h-9 w-full sm:w-64 bg-card/50">
-                <SelectValue placeholder="Assign lead" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE}>No lead</SelectItem>
-                {people.map((p) => (
-                  <SelectItem key={p.user_id} value={p.user_id}>{p.full_name || 'Unnamed'}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={r.accepting_new}
+                  onChange={(e) => patchRegion(r, { accepting_new: e.target.checked })}
+                />
+                Accepting new reps
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-muted-foreground">Capacity</span>
+                <Input
+                  type="number"
+                  className="h-9 w-24 bg-card/50"
+                  value={r.capacity ?? ''}
+                  onChange={(e) =>
+                    setRegions((prev) =>
+                      prev.map((x) => (x.id === r.id ? { ...x, capacity: e.target.value ? Number(e.target.value) : null } : x))
+                    )
+                  }
+                  onBlur={(e) => patchRegion(r, { capacity: e.target.value ? Number(e.target.value) : null })}
+                />
+              </div>
+            </div>
+
+            <Input
+              className="h-9 bg-card/50"
+              placeholder="One-line intro for reps"
+              value={r.intro ?? ''}
+              onChange={(e) => setRegions((prev) => prev.map((x) => (x.id === r.id ? { ...x, intro: e.target.value } : x)))}
+              onBlur={(e) => patchRegion(r, { intro: e.target.value || null })}
+            />
           </div>
         ))}
         {regions.length === 0 && <p className="text-[13px] text-muted-foreground">No regions yet.</p>}
       </div>
+
 
       <div className="mt-5 border-t border-white/[0.06] pt-4">
         <p className="text-[13px] font-semibold text-foreground">Set a person's region</p>
