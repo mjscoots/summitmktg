@@ -2745,6 +2745,7 @@ export type Database = {
           last_sweep_at: string | null
           last_sweep_by: string | null
           legacy_points_snapshot: number | null
+          manager_id: string | null
           manager_intro: string | null
           mentee_capacity: number | null
           next_year_notes: string | null
@@ -2765,6 +2766,7 @@ export type Database = {
           recruited_by_name: string | null
           recruited_by_user_id: string | null
           recruiter: string | null
+          recruiter_id: string | null
           referred_by: string | null
           region: string | null
           region_id: string | null
@@ -2817,6 +2819,7 @@ export type Database = {
           last_sweep_at?: string | null
           last_sweep_by?: string | null
           legacy_points_snapshot?: number | null
+          manager_id?: string | null
           manager_intro?: string | null
           mentee_capacity?: number | null
           next_year_notes?: string | null
@@ -2837,6 +2840,7 @@ export type Database = {
           recruited_by_name?: string | null
           recruited_by_user_id?: string | null
           recruiter?: string | null
+          recruiter_id?: string | null
           referred_by?: string | null
           region?: string | null
           region_id?: string | null
@@ -2889,6 +2893,7 @@ export type Database = {
           last_sweep_at?: string | null
           last_sweep_by?: string | null
           legacy_points_snapshot?: number | null
+          manager_id?: string | null
           manager_intro?: string | null
           mentee_capacity?: number | null
           next_year_notes?: string | null
@@ -2909,6 +2914,7 @@ export type Database = {
           recruited_by_name?: string | null
           recruited_by_user_id?: string | null
           recruiter?: string | null
+          recruiter_id?: string | null
           referred_by?: string | null
           region?: string | null
           region_id?: string | null
@@ -2931,6 +2937,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "profiles_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "profiles_office_id_fkey"
             columns: ["office_id"]
             isOneToOne: false
@@ -2943,6 +2956,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ranks"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "profiles_region_id_fkey"
@@ -5878,6 +5898,10 @@ export type Database = {
         Args: { _user_id: string; _value: boolean }
         Returns: boolean
       }
+      admin_set_manager_link: {
+        Args: { _manager_id: string; _user_id: string }
+        Returns: undefined
+      }
       admin_set_paired_manager: {
         Args: { _manager_id: string; _user_id: string; _vertical: string }
         Returns: Json
@@ -5940,6 +5964,10 @@ export type Database = {
       approve_vertical_step: {
         Args: { _notes?: string; _step_id: string; _user_id: string }
         Returns: Json
+      }
+      archive_person: {
+        Args: { _reason: string; _user_id: string }
+        Returns: undefined
       }
       auto_pair: { Args: { _vertical: string }; Returns: Json }
       auto_sync_all_edges: { Args: never; Returns: Json }
@@ -6528,6 +6556,16 @@ export type Database = {
         Args: { _max_weeks?: number; _min_revenue?: number }
         Returns: Json
       }
+      get_unresolved_manager_links: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          legacy_manager: string
+          legacy_recruiter: string
+          user_id: string
+        }[]
+      }
       get_user_downline: {
         Args: { _manager_name: string }
         Returns: {
@@ -6717,6 +6755,10 @@ export type Database = {
         Args: { _user_id: string; _vertical: string }
         Returns: Json
       }
+      owner_hard_delete_person: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       post_weekly_awards: { Args: never; Returns: Json }
       recalc_vertical_enrollment: {
         Args: { _user: string; _vertical: string }
@@ -6749,6 +6791,7 @@ export type Database = {
         Args: { _manager_id: string; _vertical: string }
         Returns: Json
       }
+      resolve_person_by_name: { Args: { _name: string }; Returns: string }
       resolve_sheet_manager: {
         Args: { _m: string; _section: string }
         Returns: string
@@ -6786,6 +6829,15 @@ export type Database = {
       set_next_year_status: {
         Args: { _notes?: string; _status: string; _user_id: string }
         Returns: Json
+      }
+      set_person_lifecycle: {
+        Args: {
+          _new_status: string
+          _reason?: string
+          _user_id: string
+          _vertical: string
+        }
+        Returns: undefined
       }
       set_roster_state: {
         Args: { _state: string; _user_id: string }
@@ -6843,6 +6895,7 @@ export type Database = {
       sweep_restore: { Args: { _prev: Json }; Returns: Json }
       sweep_speed_to_lead: { Args: never; Returns: Json }
       sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
+      sync_staff_workspace_access: { Args: never; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }
