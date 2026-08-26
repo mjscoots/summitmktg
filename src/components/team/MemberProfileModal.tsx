@@ -334,6 +334,17 @@ export function MemberProfileModal({
               </span>
               {isSelf && <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">You</span>}
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2"
+              onClick={() => {
+                onClose();
+                window.location.assign(`/app/person/${member.user_id}`);
+              }}
+            >
+              Full profile
+            </Button>
             {editPermission.canEdit && !isEditMode && (
               <Button variant="outline" size="sm" onClick={() => setIsEditMode(true)} className="mt-2">
                 <Pencil className="w-3.5 h-3.5 mr-1.5" />Edit

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import RosterGapCounters from '@/components/roster/RosterGapCounters';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -305,31 +304,9 @@ export default function MyTeamPage() {
           </div>
         </header>
 
-        {isManagerRole && <RosterGapCounters />}
 
 
 
-        {isManagerRole && finishingSoon.length > 0 && (
-          <section className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 backdrop-blur-sm">
-            <p className="micro-label mb-2 !text-amber-400">Finishing soon — next 14 days</p>
-            <div className="flex flex-wrap gap-2">
-              {finishingSoon.map(r => (
-                <span
-                  key={r.user_id}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-background/40 px-2.5 py-1 text-xs text-foreground"
-                >
-                  <span className="font-semibold">{r.full_name || '—'}</span>
-                  <span className="tabular-nums text-muted-foreground">
-                    {new Date(r.committed_last_day + 'T00:00:00').toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </span>
-              ))}
-            </div>
-          </section>
-        )}
 
 
         {loading ? (

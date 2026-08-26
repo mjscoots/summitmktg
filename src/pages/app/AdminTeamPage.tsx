@@ -59,7 +59,11 @@ const LazyMoney = lazy(() =>
 const LazyDrills = lazy(() =>
   import('@/components/admin/AdminDrillsTab').then((m) => ({ default: m.AdminDrillsTab }))
 );
+const LazyQuestions = lazy(() =>
+  import('@/components/admin/AdminQuestionsTab').then((m) => ({ default: m.AdminQuestionsTab }))
+);
 const LazyAssistant = lazy(() =>
+
   import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
 );
 const LazyCulture = lazy(() =>
@@ -690,6 +694,29 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
               <Suspense fallback={<LoadingList rows={5} />}>
                 <LazyMoney />
               </Suspense>
+            </TabsContent>
+          )}
+
+          {/* ========== QUESTIONS TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="questions">
+              <Suspense fallback={<LoadingList rows={5} />}>
+                <LazyQuestions />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {/* ========== TOOLS TAB (roster sweep lives here) ========== */}
+          {isAdmin && (
+            <TabsContent value="tools">
+              <div className="space-y-3">
+                <p className="text-[13px] text-muted-foreground">
+                  Roster sweep — call through the roster and record who is still here.
+                </p>
+                <Button variant="outline" className="min-h-11" onClick={() => navigate('/app/roster/sweep')}>
+                  Open roster sweep
+                </Button>
+              </div>
             </TabsContent>
           )}
 

@@ -458,3 +458,31 @@ Nothing published.
 - `bunx tsgo --noEmit` clean; `bun run build` succeeds (pre-existing chunk-size warning only).
 - Supabase linter remains at its pre-existing 255 issues (security-definer execution warnings, one RLS-without-policy, one OTP expiry) — unchanged by this pass, not introduced by it.
 - Preview only; not published.
+
+## Pass 52 — Person profile, passive questions, simplification
+
+### Person profile
+- New route `/app/person/:userId` (`src/pages/app/PersonProfilePage.tsx`), phone-first, sections: header/identity, workspaces, what they've told us (every submitted form and answer), engagement (last login, last active, minutes today, 14-day average, days active in 30, streak, training, chat, events, tracking started), production (revenue months, fiber install weeks), leads/outreach with call history, staff-only private notes and collapsed season history, and a merged timeline.
+- Data comes from `get_person_profile(uuid)` (security definer, authenticated only). Access via `can_view_person`: self, owner/admin (staff scope), direct manager, downline manager. Public application answers are matched by email or phone because `applications` has no user column.
+- Entry points: names in Admin → People roster link to the profile; team member modal has a "Full profile" button.
+
+### Activity tracking
+- `activity_days` (per user, per day: minutes, sessions, screens) plus `profiles.last_login_at`.
+- `useActivityTracking` now calls `record_activity_ping` each active minute; `useAuth` calls `touch_last_login` once on sign-in.
+- Profiles with no history show "Tracking started <date>" rather than implying older data exists.
+
+### Questions engine
+- `home_questions` / `home_question_answers`, with answer types (choices, short text, number, date), audience (everyone, workspace, tier), cadence (ask once, ask weekly), active dates and ordering.
+- Admin → Content → Questions creates, activates/deactivates and shows per-question answer summaries.
+- `HomeQuestionCard` shows at most one open question on Home; "Skip for now" hides it for the session and it returns on the next login. The seeded winter question is linked to the winter plan so Pest members are not asked twice.
+
+### Simplification (fields removed from default views, still available)
+- Roster gap counters removed from Dashboard and Team; roster sweep now lives under Admin → Reports → Tools.
+- Region sheet default table and CSV no longer show departure type, departure reason, committed last day, next-season status or showed-up date. All remain in the person profile's collapsed season history for owner/admin.
+- "Finishing soon" committed-last-day banner removed from Team.
+
+### Verification
+- `bunx tsgo --noEmit` clean; `bun run build` succeeded (existing chunk-size warning only).
+- Checked at 390 px with a real owner session: profile renders real data; Admin → Content → Questions renders and lists the winter question.
+- Database linter remains at 262 pre-existing issues (1 RLS-without-policy, 260 security-definer execute warnings, 1 short OTP). Not introduced by this pass and not resolved here.
+- Preview only; nothing published.

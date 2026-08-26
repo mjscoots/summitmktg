@@ -43,6 +43,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'statements', label: 'Statements', adminOnly: true },
   ],
   content: [
+    { value: 'questions', label: 'Questions', adminOnly: true },
     { value: 'drills', label: 'Drills', adminOnly: true },
     { value: 'culture', label: 'Culture', adminOnly: true },
     { value: 'recruiting', label: 'Public site' },
@@ -51,6 +52,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   reports: [
     { value: 'overview', label: 'Overview' },
     { value: 'offseason', label: 'Off-season' },
+    { value: 'tools', label: 'Tools' },
   ],
   settings: [
     { value: 'industries', label: 'Industries' },

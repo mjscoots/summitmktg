@@ -149,6 +149,39 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_days: {
+        Row: {
+          created_at: string
+          day: string
+          id: string
+          minutes: number
+          screens: Json
+          sessions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          id?: string
+          minutes?: number
+          screens?: Json
+          sessions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          id?: string
+          minutes?: number
+          screens?: Json
+          sessions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_queue_dismissals: {
         Row: {
           created_at: string
@@ -1686,6 +1719,104 @@ export type Database = {
           },
         ]
       }
+      home_question_answers: {
+        Row: {
+          answer: string | null
+          created_at: string
+          id: string
+          period: string
+          question_id: string
+          skipped: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          period?: string
+          question_id: string
+          skipped?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          period?: string
+          question_id?: string
+          skipped?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_question_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "home_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_questions: {
+        Row: {
+          active_from: string
+          active_to: string | null
+          answer_type: string
+          audience_type: string
+          audience_value: string | null
+          cadence: string
+          choices: Json
+          created_at: string
+          created_by: string | null
+          display_order: number
+          helper: string | null
+          id: string
+          is_active: boolean
+          link_key: string | null
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          active_from?: string
+          active_to?: string | null
+          answer_type?: string
+          audience_type?: string
+          audience_value?: string | null
+          cadence?: string
+          choices?: Json
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          helper?: string | null
+          id?: string
+          is_active?: boolean
+          link_key?: string | null
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          active_from?: string
+          active_to?: string | null
+          answer_type?: string
+          audience_type?: string
+          audience_value?: string | null
+          cadence?: string
+          choices?: Json
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          helper?: string | null
+          id?: string
+          is_active?: boolean
+          link_key?: string | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inactive_users_log: {
         Row: {
           created_at: string
@@ -2741,6 +2872,7 @@ export type Database = {
           ladder_rung_override: number | null
           last_active_at: string | null
           last_day_worked: string | null
+          last_login_at: string | null
           last_seen_release: string | null
           last_sweep_at: string | null
           last_sweep_by: string | null
@@ -2815,6 +2947,7 @@ export type Database = {
           ladder_rung_override?: number | null
           last_active_at?: string | null
           last_day_worked?: string | null
+          last_login_at?: string | null
           last_seen_release?: string | null
           last_sweep_at?: string | null
           last_sweep_by?: string | null
@@ -2889,6 +3022,7 @@ export type Database = {
           ladder_rung_override?: number | null
           last_active_at?: string | null
           last_day_worked?: string | null
+          last_login_at?: string | null
           last_seen_release?: string | null
           last_sweep_at?: string | null
           last_sweep_by?: string | null
@@ -5948,6 +6082,15 @@ export type Database = {
         Args: { _is_lead: boolean; _user_id: string; _vertical: string }
         Returns: Json
       }
+      answer_home_question: {
+        Args: {
+          _answer: string
+          _period: string
+          _question_id: string
+          _skip?: boolean
+        }
+        Returns: undefined
+      }
       apply_leaderboard_import: {
         Args: { _batch_id: string; _rows: Json }
         Returns: Json
@@ -6019,6 +6162,7 @@ export type Database = {
         Args: { p_scope: string; p_team_id: string; p_user_id: string }
         Returns: boolean
       }
+      can_view_person: { Args: { _user_id: string }; Returns: string }
       check_rate_limit: {
         Args: {
           p_key: string
@@ -6403,12 +6547,14 @@ export type Database = {
       get_my_workspaces: { Args: never; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
       get_off_season_report: { Args: never; Returns: Json }
+      get_open_home_question: { Args: never; Returns: Json }
       get_pairings: {
         Args: { _manager?: string; _status?: string; _vertical?: string }
         Returns: Json
       }
       get_partner_referrals: { Args: { p_partner_id: string }; Returns: Json }
       get_pending_vertical_approvals: { Args: never; Returns: Json }
+      get_person_profile: { Args: { _user_id: string }; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
         Returns: {
@@ -6442,6 +6588,7 @@ export type Database = {
       get_public_fiber_stacks: { Args: never; Returns: Json }
       get_public_industry: { Args: { p_vertical: string }; Returns: Json }
       get_public_setting: { Args: { _key: string }; Returns: string }
+      get_question_summary: { Args: { _question_id: string }; Returns: Json }
       get_quiz_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -6773,6 +6920,10 @@ export type Database = {
       }
       recalculate_all_time_points: { Args: never; Returns: undefined }
       recompute_missing_ranks: { Args: never; Returns: Json }
+      record_activity_ping: {
+        Args: { _minutes?: number; _screen?: string }
+        Returns: undefined
+      }
       record_daily_login: {
         Args: { _timezone?: string; _user_id: string }
         Returns: Json
@@ -6906,6 +7057,7 @@ export type Database = {
         | { Args: never; Returns: undefined }
         | { Args: { _user_id?: string }; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }
+      touch_last_login: { Args: never; Returns: undefined }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }
         Returns: Json
