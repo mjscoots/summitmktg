@@ -45,6 +45,7 @@ export interface LeadFilters {
   rosterStatus?: string | null;
   stage?: string | null;
   designatedTo?: string | null;
+  designation?: 'designated' | 'free' | null;
   tag?: string | null;
   hasPhone?: boolean | null;
   signed?: boolean | null;
@@ -117,6 +118,7 @@ export function useLeadsList(scope: LeadScope, filters: LeadFilters, enabled = t
       _roster_status: filters.rosterStatus || null,
       _stage: filters.stage || null,
       _designated_to: filters.designatedTo || null,
+      _designation: filters.designation || null,
       _tag: filters.tag || null,
       _has_phone: filters.hasPhone ?? null,
       _signed: filters.signed ?? null,
