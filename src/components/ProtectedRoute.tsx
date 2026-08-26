@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAccessState } from '@/hooks/useAccessState';
+import { LockedOutScreen } from '@/components/auth/LockedOutScreen';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -10,7 +12,9 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, role, profile } = useAuth();
+  const { state: access, loading: accessLoading } = useAccessState(isAuthenticated);
   const location = useLocation();
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
