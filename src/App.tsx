@@ -315,6 +315,14 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Full mission board */}
+              <Route path="/app/missions" element={
+                <ProtectedRoute>
+                    <MissionsPage />
+                </ProtectedRoute>
+              } />
+
+
               {/* Life pipeline */}
               <Route path="/app/pipeline" element={
                 <ProtectedRoute>
