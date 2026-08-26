@@ -135,7 +135,7 @@ export default function MyMoneyPage() {
             {/* ===== COMMISSION ===== */}
             <section className={cn(CARD, 'p-5 sm:p-6')}>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius)] border border-primary/20 bg-primary/10">
                   <DollarSign className="w-4 h-4 text-primary" />
                 </div>
                 <div>
@@ -216,7 +216,7 @@ export default function MyMoneyPage() {
             {isManagerRole && (
               <section className={cn(CARD, 'p-5 sm:p-6')}>
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius)] border border-primary/20 bg-primary/10">
                     <TrendingUp className="w-4 h-4 text-primary" />
                   </div>
                   <div>
@@ -263,7 +263,7 @@ export default function MyMoneyPage() {
             {/* ===== HOUSING ===== */}
             <section className={cn(CARD, 'p-5 sm:p-6')}>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius)] border border-primary/20 bg-primary/10">
                   <Home className="w-4 h-4 text-primary" />
                 </div>
                 <div>
@@ -305,7 +305,7 @@ export default function MyMoneyPage() {
             {/* ===== PATH TO NEXT TIER ===== */}
             <section className={cn(CARD, 'p-5 sm:p-6')}>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius)] border border-primary/20 bg-primary/10">
                   <TrendingUp className="w-4 h-4 text-primary" />
                 </div>
                 <div>
