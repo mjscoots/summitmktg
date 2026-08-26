@@ -419,9 +419,9 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
-              {/* Admin — five sections. Old /admin/team links redirect to the owning section. */}
+              {/* Admin — six sections. Old /admin/team links redirect to the owning section. */}
               <Route path="/admin/team" element={<AdminTabRedirect />} />
-              {(['inbox', 'people', 'money', 'content', 'settings'] as const).map((s) => (
+              {(['inbox', 'people', 'money', 'content', 'reports', 'settings'] as const).map((s) => (
                 <Route key={s} path={`/admin/${s}`} element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminTeamPage section={s} />
@@ -429,6 +429,7 @@ function LazyFallback() {
                 } />
               ))}
               <Route path="/admin" element={<Navigate to="/admin/inbox" replace />} />
+
 
 
                {/* Redirect old Hub/Operations to Calendar */}
