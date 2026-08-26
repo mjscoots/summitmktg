@@ -31,6 +31,8 @@ import { TeamMember, getDisplayName, getEffectiveManager } from '@/lib/hierarchy
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberTeam } from '@/components/team/FiberTeam';
+import { ThisWeekStrip } from '@/components/team/ThisWeekStrip';
+
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
