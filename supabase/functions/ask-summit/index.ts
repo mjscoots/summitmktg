@@ -80,7 +80,7 @@ async function buildContext(admin: any, userId: string) {
   const { data: activeRow } = await admin
     .from("profiles")
     .select("active_vertical")
-    .eq("id", userId)
+    .eq("user_id", userId)
     .maybeSingle();
   const vert: string = activeRow?.active_vertical ?? "Pest";
   const scoped = (q: any) => q.or(`vertical.is.null,vertical.eq.${vert}`);
@@ -451,7 +451,7 @@ serve(async (req) => {
     let gatewayMessages: Message[];
 
     if (mode === "practice") {
-      const { data: pv } = await admin.from("profiles").select("active_vertical").eq("id", userId).maybeSingle();
+      const { data: pv } = await admin.from("profiles").select("active_vertical").eq("user_id", userId).maybeSingle();
       const practiceContext = await buildPracticeContext(admin, pv?.active_vertical ?? "Pest");
       if (finish) {
         systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext + "\n\n" + PRACTICE_FEEDBACK_PROMPT;

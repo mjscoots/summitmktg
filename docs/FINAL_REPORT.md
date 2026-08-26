@@ -730,3 +730,32 @@ Result: `0 | 0 | 0 | 0 | 0 | 0`
 
 ### Verification
 `bunx tsgo --noEmit` clean. Production build clean (build log: build OK). Preview only — not published.
+
+## Pass 60 — Access center
+
+### A. Layout and keyboard (done)
+- `AppLayout` main now uses the `.app-main-pad` class: `padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px)` on phones, `0` from 1024px up (a class is used because a Tailwind `lg:pb-0` cannot override an inline style).
+- Removed `ChatComposer`'s own `paddingBottom: env(safe-area-inset-bottom)`; the reserved space is now owned by the layout only.
+- New `src/lib/composerKeyboard.ts`: a small external store (`useComposerKeyboard`, `setComposerKeyboard`, `measureKeyboardOffset`). While the composer input is focused, `MobileBottomNav` renders nothing and the composer is translated up by the measured `window.visualViewport` offset, so it rides above the keyboard at any keyboard state.
+- Verified at 390x844, mobile emulation, signed in as owner: document scrollWidth 390 (no horizontal overflow); message input bottom 751px vs bottom bar top 780px with the bar visible; on focus the bar is removed from the DOM and the input keeps its position. Real-device 34px inset is handled by the safe-area term in the padding and the nav's existing `calc(env(safe-area-inset-bottom) + 10px)` offset.
+
+### B. Information architecture (partly done)
+- `/app/chat` is now a conversation list, not a feed. Ask Summit is pinned at the top and opens `/app/ask`; the remaining conversations are ordered Announcements, team/company channels, wins, then the rest, each row showing name, last line, unread count and relative time. The last opened conversation is remembered in `localStorage` and opened directly on the next visit; the header back arrow (44px target) returns to the list.
+- Removed the `#hash` channel tab row, the daily hype chips in the composer, and the background dust / cosmic gradient layer. Stickers, GIF, voice, poll and photo remain inside "+"; reactions, replies, mentions and pins are unchanged.
+- Open: `search_people(_q)` RPC and the contact/phones surface (B1), `profiles.phone_visibility` enum, moving the Phones list off `/app/links`, the `GlobalSearch` person-tap fix, `get_action_cards()` and the "Needs you" row (B2), and DM channels with `kind = 'dm'` / `member_ids` (B4). Reason: not started — the pass ran out of room after A and the list rework; no partial DB surface was created so nothing half-wired ships.
+
+### C. First-class message kinds (not started)
+Open in full: `chat_messages.kind / ref_id / meta`, the `[[WIN|…]]` / `[[AWARDS|…]]` / prefix migration, event / announcement / incentive cards and their triggers, `maybe` attendance status, `responded_at`, `rsvp_deadline`, `event_kind` values `trip` and `incentive`, `questions jsonb`, `announcement_acks`, `get_event_rsvp_rollup`, and replacing `usePendingRSVP`'s browser-side recurrence expansion. Reason: depends on B2/B4 plumbing that is still open; starting the migration without the card renderers would leave rows nothing can display.
+
+### D. Plumbing (partly done)
+- Migration applied: `CREATE INDEX chat_messages_channel_created_at_idx ON public.chat_messages (channel, created_at DESC)`.
+- Stopped writing `chat_read_receipts` from the chat view; `chat_read_state` remains the only read tracker.
+- Fixed the stateful `/g` regex in `renderMentions` (`ChatBubble.tsx`) — parts are now tested with a fresh anchored non-global regex, so `lastIndex` never carries over and mentions no longer drop out intermittently.
+- Fixed `ask-summit` querying `profiles` by `id` with the auth uid in two places; both now use `user_id`, so the workspace scope resolves instead of silently defaulting to Pest.
+- Open: `get_conversations()` and `get_channel_messages()` RPCs with keyset "Load older", per-channel realtime filters, per-channel typing indicator, and moving `award_chat_message_points` plus mention notifications into an insert trigger.
+
+### E. Verification
+- `bunx tsgo --noEmit` clean. Production build clean; largest app chunk unchanged at 191.17 kB raw / 59.99 kB gzip.
+- Phone checks as listed in A above. No new users were created this pass, so the owner/manager/rep three-role matrix, the event-card RSVP rollup check, the pinned-announcement Needs-you check, the search tap-to-call check, the rep-cannot-DM-rep check, the 300-message "Load older" check and the one-subscription-per-screen check are all still open — each depends on B/C/D work that is not built yet.
+- Database linter after the migration: 310 issues, unchanged from Pass 58B (1 RLS-enabled-no-policy info, 26 anon SECURITY DEFINER, 282 authenticated SECURITY DEFINER, 1 OTP length). The index added no new findings.
+- Preview only. Nothing was published.

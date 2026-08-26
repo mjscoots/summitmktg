@@ -1,20 +1,24 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PHONE_BAR } from '@/lib/appNav';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
+import { useComposerKeyboard } from '@/lib/composerKeyboard';
 import { cn } from '@/lib/utils';
 
 /**
  * Phone bottom bar: three destinations, nothing else. The bar sits above the
  * iOS home indicator (safe area plus a 10px gap) so it clears the swipe area.
- * Everything else is reached from the workspace control in the header.
+ * It hides while a chat composer is focused so the input is always tappable.
  */
 export function MobileBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount, markRead } = useUnreadChat();
+  const { focused } = useComposerKeyboard();
 
   const isActive = (path: string) =>
     path === '/app' ? location.pathname === '/app' : location.pathname.startsWith(path);
+
+  if (focused) return null;
 
   return (
     <nav
