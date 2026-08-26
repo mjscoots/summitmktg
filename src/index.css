@@ -709,13 +709,14 @@ button, a, [role="button"] {
   --workspace-texture-opacity: 0;
 }
 
-/* Optional low-opacity workspace texture, behind all content. */
-body::before {
+/* Optional low-opacity workspace texture. Opt-in per surface: the Home
+   header band and the workspace pill only — never behind body text. */
+.workspace-texture::after {
   content: '';
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  border-radius: inherit;
   background-image: var(--workspace-texture);
   background-size: 220px 220px;
   opacity: var(--workspace-texture-opacity);
@@ -723,23 +724,31 @@ body::before {
 
 /* A light workspace keeps the same tokens but needs readable inverted chrome. */
 .light-workspace .text-white,
-.light-workspace .text-white\/90 {
+.light-workspace .text-white\/90,
+.light-workspace .text-white\/80,
+.light-workspace .text-white\/70 {
   color: hsl(var(--foreground));
 }
+.light-workspace .bg-black,
 .light-workspace .bg-black\/20,
+.light-workspace .bg-black\/40,
+.light-workspace .bg-white\/5,
 .light-workspace .bg-white\/\[0\.03\],
 .light-workspace .bg-white\/\[0\.02\] {
   background-color: hsl(var(--card));
 }
 .light-workspace .border-white\/\[0\.06\],
+.light-workspace .border-white\/5,
 .light-workspace .border-white\/10 {
   border-color: hsl(var(--border));
 }
 
 /* Theme changes crossfade, unless the device asks for reduced motion. */
-html {
-  transition: background-color 220ms ease;
+html,
+body {
+  transition: background-color 180ms ease, color 180ms ease;
 }
 @media (prefers-reduced-motion: reduce) {
-  html { transition: none; }
+  html, body { transition: none; }
 }
+
