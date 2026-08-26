@@ -1318,3 +1318,17 @@ Nothing was published.
 - Verified with owner-session screenshots at 390 and 1280 for Home, Training, My money, Leaderboard, Chat and Missions: no horizontal overflow, `data-workspace` reads `pest` throughout.
 - `bunx tsgo --noEmit` clean; production build clean, largest chunk 194 kB.
 - Not published.
+
+## Pass 64 — Field Playbook
+
+- Table `playbook_entries` created with grants, RLS (vertical members read published; admin/owner/vertical president write), lookup index and a trigram index on title || body.
+- Seeded 50 entries verbatim from the owner's content: script 7, objection 9, close 6, talk_track 3, pricing 19 (Westchester), assumption 6.
+- New Pest route `/app/playbook`: pinned search, chips Script · Objections · Closes · Backyard · Pricing, expandable cards, objection follow-up toggle, pricing table with the note that the Seasonal insects sheet page is an image and is not loaded.
+- Every entry has "Practice this", which opens Ask Summit in practice mode seeded with that entry.
+- Reachable from Pest Home (Playbook button), Training (Field Playbook card at the top) and chat search (playbook results open the entry).
+- Training: "Field Playbook" module under Learn Your Pitch — 7 lessons (one per script section), 9 objection drills, 6 close drills, all on the existing lesson/drill progress tables. No new progress tables.
+- Ask Summit loads the published entries for the active vertical, capped at ~12k characters, ordering objections and closes first when the question sounds like a customer line; the answer quotes the owner's line and names the entry title.
+- Admin → Content → Playbook: list, edit body/followup/tags/order/kind, reorder, publish/unpublish, add, choose vertical, shows last edit and editor.
+- Verified with owner-session screenshots at 390 and 1280: each chip, an objection expanded with its follow-up, Training, chat search hit, Ask Summit answer, Admin Playbook tab. No horizontal overflow.
+- `bunx tsgo --noEmit` clean; production build clean, largest chunk 194.58 kB.
+- Not published.
