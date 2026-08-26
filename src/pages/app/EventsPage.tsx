@@ -15,10 +15,10 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import {
-import { useWorkspace } from '@/contexts/WorkspaceContext';
-import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
