@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { isStaffTier, type Tier } from '@/lib/tiers';
+import BeforeTheyLeft from '@/components/leads/BeforeTheyLeft';
 import {
   CALL_OUTCOMES,
   LEAD_STAGES,
@@ -16,7 +17,9 @@ import {
   smsHref,
   telHref,
   useLeadDetail,
+  type LeadSnapshot,
 } from '@/hooks/useLeads';
+
 
 interface Props {
   leadId: string | null;
