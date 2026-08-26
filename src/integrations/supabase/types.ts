@@ -3570,6 +3570,8 @@ export type Database = {
           first_summer_figure: string | null
           id: string
           is_active: boolean
+          office: string | null
+          photo_url: string | null
           quote: string | null
           rep_name: string
           school: string | null
@@ -3581,6 +3583,8 @@ export type Database = {
           first_summer_figure?: string | null
           id?: string
           is_active?: boolean
+          office?: string | null
+          photo_url?: string | null
           quote?: string | null
           rep_name: string
           school?: string | null
@@ -3592,6 +3596,8 @@ export type Database = {
           first_summer_figure?: string | null
           id?: string
           is_active?: boolean
+          office?: string | null
+          photo_url?: string | null
           quote?: string | null
           rep_name?: string
           school?: string | null
@@ -6432,6 +6438,7 @@ export type Database = {
       }
       get_public_calc: { Args: never; Returns: Json }
       get_public_counters: { Args: never; Returns: Json }
+      get_public_cover_content: { Args: never; Returns: Json }
       get_public_fiber_stacks: { Args: never; Returns: Json }
       get_public_industry: { Args: { p_vertical: string }; Returns: Json }
       get_public_setting: { Args: { _key: string }; Returns: string }
