@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useFirstWeek, type FirstWeekItem } from '@/hooks/useFirstWeek';
 import { cn } from '@/lib/utils';
+import { celebrate } from '@/lib/celebrate';
 
 /**
  * A rookie's first seven days: today's items, progress across the week,
@@ -19,6 +20,7 @@ export function FirstWeekCard() {
     if (week.complete && !recorded.current) {
       recorded.current = true;
       void (supabase as any).rpc('finish_first_week');
+      void celebrate('graduation');
     }
   }, [week.complete]);
 

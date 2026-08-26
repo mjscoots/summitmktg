@@ -16,7 +16,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   };
 }
 
-const SYSTEM_PROMPT = `You are "Ask Summit" — an internal assistant for the Summit Trinity sales team.
+const SYSTEM_PROMPT = `You are "Ask Summit" — an internal assistant for the Summit sales team.
 
 HOW YOU ANSWER:
 - Answer ONLY from the CONTEXT block below. It is the complete set of data you are allowed to use.

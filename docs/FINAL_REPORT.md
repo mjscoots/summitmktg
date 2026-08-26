@@ -1422,3 +1422,18 @@ Nothing was published.
 - Data fix: the profile named "Brendan Pillar" existed (plus a "Brendan Bruce Pillar" row for the same person); first name set to "Brandon" on both, nothing else changed.
 - Verified: owner-session screenshots at 390 and 1280 for Pest, Fiber and Life headers, signed-out login and public home; served /manifest.webmanifest correct; no horizontal overflow at either width; grep across src, public, supabase/functions, index.html and README shows zero legacy brand strings (domain summitmktgsales.com kept on purpose).
 - bunx tsgo --noEmit clean; production build clean, largest chunk 210.25 kB (index, up from 195 kB due to the inline wordmark geometry). Not published.
+
+## Pass 71A — Invite links
+
+- `invites` table with RLS: admins and owners manage all rows, managers only their own.
+  Tokens are 24 characters, generated server-side; each is single-use with a 7-day expiry.
+- `invite_preview` (signed-in only) and `redeem_invite` (deliberately public — the person
+  has no account yet) plus a service-role finalise path in the `redeem-invite` function.
+- Invite buttons on Admin → People and on the manager Team page, with a result screen that
+  copies the link or opens a text message, plus a list of open invites and one-tap revoke.
+- Signed-out `/invite/:token` shows who invited you, the team and the region, then creates
+  the account, assigns the manager, region and workspace, and links the invite to the profile.
+- Verified end to end: one invite created (Fiber / East / manager), opened signed-out at
+  390 and 1280 with no overflow and no console error, redeemed, profile and downline edge
+  written, workspace enrolment recorded.
+- Test data removed: test accounts 0, test invites 0.

@@ -1,3 +1,4 @@
+import { celebrate } from '@/lib/celebrate';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -270,6 +271,7 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
       toast({ title: 'Could not save', description: out?.error || error?.message, variant: 'destructive' });
       return;
     }
+    celebrate('setup');
     load();
   };
 

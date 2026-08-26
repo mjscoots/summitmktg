@@ -32,9 +32,9 @@ const RookieApplication = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Apply as a Rookie — Summit Trinity",
+      title: "Apply as a Rookie — Summit Marketing",
       description:
-        "Apply for a summer sales season with Summit Trinity. First-time reps start here.",
+        "Apply for a summer sales season with Summit. First-time reps start here.",
       path: "/apply/rookie",
     });
   }, []);

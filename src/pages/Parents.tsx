@@ -16,7 +16,7 @@ export const PARENT_SECTIONS: Section[] = [
     key: 'parents_what_it_is',
     heading: 'What the job actually is',
     fallback:
-      'Summit Trinity trains and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August. Summit also runs a smaller fiber internet line in the winter and is starting a life insurance line.',
+      'Summit trains and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August. Summit also runs a smaller fiber internet line in the winter and is starting a life insurance line.',
 
   },
   {
@@ -57,9 +57,9 @@ export default function Parents() {
 
   useEffect(() => {
     setPageMeta({
-      title: 'Information for Parents — Summit Trinity',
+      title: 'Information for Parents — Summit Marketing',
       description:
-        'A plain explanation of the summer sales job, housing, safety and how pay works at Summit Trinity.',
+        'A plain explanation of the summer sales job, housing, safety and how pay works at Summit.',
       path: '/parents',
     });
   }, []);

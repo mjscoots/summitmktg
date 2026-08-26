@@ -1,4 +1,4 @@
-# Summit Trinity
+# Summit Marketing
 
 ## Project info
 

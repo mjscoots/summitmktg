@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { celebrate } from '@/lib/celebrate';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -140,6 +141,7 @@ export function LogSaleSheet({
     onOpenChange(false);
     onSaved?.();
     toast.success('Sale logged');
+    celebrate('sale');
   }
 
   return (

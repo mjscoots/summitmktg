@@ -201,7 +201,7 @@ const InvitePage = () => {
 
   return shell(
     <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-5">
-      <h1 className="text-xl font-semibold text-foreground">You are invited to Summit Trinity</h1>
+      <h1 className="text-xl font-semibold text-foreground">You are invited to Summit</h1>
       <p className="mt-2 text-sm text-muted-foreground">{details.join(' · ')}</p>
       {preview.inviter && (
         <p className="mt-1 text-sm text-muted-foreground">Invited by {preview.inviter}</p>

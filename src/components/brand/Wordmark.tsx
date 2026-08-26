@@ -1,6 +1,10 @@
 import { memo } from "react";
+import heroV2 from "@/assets/brand/hero-v2.svg";
+import heroV2Fiber from "@/assets/brand/hero-v2-fiber.svg";
+import heroV2Life from "@/assets/brand/hero-v2-life.svg";
+import fullV2 from "@/assets/brand/full-v2.svg";
 
-// Path data copied verbatim from the Summit Trinity brand SVGs. Do not redraw.
+// Path data copied verbatim from the brand SVGs. Do not redraw.
 const SUMMIT_D =
   "M45.43 2.29Q32.86 2.29 21.14 -0.57Q9.43 -3.43 1.86 -8L12.71 -32.57Q19.86 -28.43 28.64 -25.93Q37.43 -23.43 45.71 -23.43Q50.57 -23.43 53.36 -24.07Q56.14 -24.71 57.43 -25.93Q58.71 -27.14 58.71 -28.86Q58.71 -31.57 55.71 -33.14Q52.71 -34.71 47.79 -35.79Q42.86 -36.86 37 -38.07Q31.14 -39.29 25.21 -41.29Q19.29 -43.29 14.36 -46.57Q9.43 -49.86 6.43 -55.21Q3.43 -60.57 3.43 -68.57Q3.43 -77.86 8.64 -85.5Q13.86 -93.14 24.21 -97.71Q34.57 -102.29 50 -102.29Q60.14 -102.29 70 -100.14Q79.86 -98 87.71 -93.57L77.57 -69.14Q70.14 -72.86 63.21 -74.71Q56.29 -76.57 49.71 -76.57Q44.86 -76.57 42 -75.71Q39.14 -74.86 37.93 -73.43Q36.71 -72 36.71 -70.29Q36.71 -67.71 39.71 -66.21Q42.71 -64.71 47.64 -63.71Q52.57 -62.71 58.5 -61.57Q64.43 -60.43 70.29 -58.43Q76.14 -56.43 81.07 -53.14Q86 -49.86 89 -44.57Q92 -39.29 92 -31.43Q92 -22.29 86.79 -14.64Q81.57 -7 71.29 -2.36Q61 2.29 45.43 2.29Z M146.29 2.29Q123.29 2.29 110.43 -10.14Q97.57 -22.57 97.57 -45V-100H131.29V-46Q131.29 -34.57 135.43 -29.79Q139.57 -25 146.57 -25Q153.71 -25 157.79 -29.79Q161.86 -34.57 161.86 -46V-100H195V-45Q195 -22.57 182.14 -10.14Q169.29 2.29 146.29 2.29Z M206.86 0V-100H234.57L274.57 -34.71H260L298.86 -100H326.57L326.86 0H296.14L295.86 -53.71H300.71L274.14 -9H259.29L231.57 -53.71H237.57V0Z M339.57 0V-100H367.29L407.29 -34.71H392.71L431.57 -100H459.29L459.57 0H428.86L428.57 -53.71H433.43L406.86 -9H392L364.29 -53.71H370.29V0Z M472.29 0V-100H506V0Z M540.43 0V-73.86H511.14V-100H603.43V-73.86H574.14V0Z";
 
@@ -30,7 +34,27 @@ const MARK_PEAKS: Peak[] = [
   { d: "M191.08 109.57 L240.64 204.8 L191.08 204.8 Z", accent: true },
 ];
 
-export type WordmarkVariant = "full" | "compact" | "stacked" | "hero" | "mark";
+export type WordmarkVariant =
+  | "full"
+  | "compact"
+  | "stacked"
+  | "hero"
+  | "heroFiber"
+  | "heroLife"
+  | "fullV2"
+  | "mark";
+
+/**
+ * Pass 72 logo art. The four V2 files carry their own peaks, ice gradient and
+ * glow, so they render as images and stay out of the JS bundle. Compact, mark
+ * and stacked keep the CSS-variable knockout for chrome that must re-theme.
+ */
+const V2_ART: Partial<Record<WordmarkVariant, { src: string; ratio: number }>> = {
+  hero: { src: heroV2, ratio: 698.07 / 303.84 },
+  heroFiber: { src: heroV2Fiber, ratio: 698.07 / 303.84 },
+  heroLife: { src: heroV2Life, ratio: 698.07 / 303.84 },
+  fullV2: { src: fullV2, ratio: 698.07 / 233.84 },
+};
 
 type Geometry = {
   viewBox: string;
@@ -41,10 +65,9 @@ type Geometry = {
   peaks?: Peak[];
 };
 
-const GEOMETRY: Record<WordmarkVariant, Geometry> = {
+const GEOMETRY: Partial<Record<WordmarkVariant, Geometry>> = {
   full: { viewBox: "-20.14 -124.29 662.07 187.84", width: 662.07, height: 187.84, trinity: TRINITY_D, strokeWidth: 13 },
   compact: { viewBox: "-4.14 -108.29 636.57 166.03", width: 636.57, height: 166.03, trinity: TRINITY_COMPACT_D, strokeWidth: 14 },
-  hero: { viewBox: "-48.14 -152.29 718.07 243.84", width: 718.07, height: 243.84, trinity: TRINITY_D, strokeWidth: 13 },
   stacked: { viewBox: "-33.14 -267.29 688.07 343.84", width: 688.07, height: 343.84, trinity: TRINITY_D, strokeWidth: 13, peaks: STACKED_PEAKS },
   mark: { viewBox: "0 0 256 256", width: 256, height: 256, trinity: "", strokeWidth: 0, peaks: MARK_PEAKS },
 };
@@ -57,44 +80,36 @@ interface WordmarkProps {
 }
 
 const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProps) => {
-  const geo = GEOMETRY[variant];
   const renderedHeight = Math.max(height, 12);
+  const art = V2_ART[variant];
+
+  if (art) {
+    return (
+      <img
+        src={art.src}
+        alt="Summit"
+        height={renderedHeight}
+        width={Math.round(art.ratio * renderedHeight)}
+        className={className}
+        style={{ display: "block", height: renderedHeight, width: "auto" }}
+      />
+    );
+  }
+
+  const geo = GEOMETRY[variant] ?? GEOMETRY.full!;
   const width = Math.round((geo.width / geo.height) * renderedHeight);
-  // The hero asset (hero-login.svg) carries the ice gradient and soft glow on SUMMIT.
-  const isHero = variant === "hero";
 
   return (
     <svg
       role="img"
-      aria-label="Summit Trinity"
+      aria-label="Summit"
       viewBox={geo.viewBox}
       width={width}
       height={renderedHeight}
       className={className}
       style={{ display: "block", color: "var(--wordmark-letters, currentColor)" }}
     >
-      <title>Summit Trinity</title>
-      {isHero && (
-        <defs>
-          <linearGradient id="wordmark-ice" x1="0" y1="-102.29" x2="0" y2="2.29" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#FFFFFF" />
-            <stop offset="0.55" stopColor="#DDF2FF" />
-            <stop offset="1" stopColor="#8FCBFF" />
-          </linearGradient>
-          <filter id="wordmark-glow" x="-20%" y="-40%" width="140%" height="180%">
-            <feGaussianBlur stdDeviation="6" result="b" />
-            <feColorMatrix
-              in="b"
-              type="matrix"
-              values="0 0 0 0 0.35  0 0 0 0 0.82  0 0 0 0 1  0 0 0 0.55 0"
-            />
-            <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-      )}
+      <title>Summit</title>
       {geo.peaks?.map((peak, index) => (
         <path
           key={`peak-${index}`}
@@ -104,15 +119,11 @@ const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProp
       ))}
       {variant !== "mark" && (
         <>
-          <path
-            d={SUMMIT_D}
-            fill={isHero ? "url(#wordmark-ice)" : "currentColor"}
-            filter={isHero ? "url(#wordmark-glow)" : undefined}
-          />
+          <path d={SUMMIT_D} fill="currentColor" />
           <path
             d={geo.trinity}
-            fill="var(--wordmark-bg, #0B1A33)"
-            stroke="var(--wordmark-bg, #0B1A33)"
+            fill="var(--wordmark-bg, #0A1630)"
+            stroke="var(--wordmark-bg, #0A1630)"
             strokeWidth={geo.strokeWidth}
             strokeLinejoin="round"
             strokeLinecap="round"
