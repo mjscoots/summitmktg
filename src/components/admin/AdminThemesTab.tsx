@@ -88,7 +88,6 @@ export function AdminThemesTab() {
   const [saving, setSaving] = useState<string | null>(null);
 
   useEffect(() => {
-    (supabase as never as { from: (t: string) => never });
     supabase
       .from('verticals')
       .select('vertical, name, theme')
