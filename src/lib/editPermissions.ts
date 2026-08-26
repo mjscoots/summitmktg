@@ -46,7 +46,7 @@ export const BASIC_EDITABLE_FIELDS = [
 export function canEditMemberProfile(
   roster: TeamMember[],
   currentUserName: string,
-  currentUserRole: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | undefined,
+  currentUserRole: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | 'president' | undefined,
   currentUserId: string,
   targetMember: TeamMember
 ): EditPermission {

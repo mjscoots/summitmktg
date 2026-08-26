@@ -32,6 +32,7 @@ import { toast } from 'sonner';
 import { ListTodo, GitBranch } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
+import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 
 function DashboardSkeleton() {
   return (
@@ -205,6 +206,7 @@ export default function DashboardPage() {
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 py-4 animate-fade-in relative z-10">
         <OnboardingAlert />
+        <WinterPlanCard />
 
         {isManager ? (
           <CommandCenterHeader />

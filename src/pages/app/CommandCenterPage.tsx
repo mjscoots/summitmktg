@@ -19,6 +19,7 @@ import PairingsPanel from "@/components/command/PairingsPanel";
 import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
 import StackView from "@/components/command/StackView";
 import FiberReport from "@/components/command/FiberReport";
+import { WinterPlanPanel } from "@/components/command/WinterPlanPanel";
 import { FiberInstallsPanel } from "@/components/admin/FiberInstallsPanel";
 import AdminIndustriesTab from "@/components/admin/AdminIndustriesTab";
 import { useVerticalLead } from "@/hooks/useVerticalLead";
@@ -411,6 +412,7 @@ export default function CommandCenterPage() {
             {leadVertical}
           </h1>
           <div style={{ display: "grid", gap: 20 }}>
+            {leadVertical === "Fiber" && <WinterPlanPanel fiberOnly />}
             {leadVertical === "Fiber" && <FiberReport />}
             {leadVertical === "Fiber" && <FiberInstallsPanel />}
             <AdminIndustriesTab restrictToVertical={leadVertical} />
@@ -585,6 +587,12 @@ export default function CommandCenterPage() {
         <SectionHeader title="Run a Team" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <TeamLeadApplicationsPanel />
+        </div>
+
+        {/* WINTER PLAN */}
+        <SectionHeader title="Winter Plan" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <WinterPlanPanel />
         </div>
 
         {/* FIBER */}

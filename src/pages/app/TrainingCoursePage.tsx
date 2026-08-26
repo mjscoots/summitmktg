@@ -36,7 +36,7 @@ interface Course {
   title: string;
   description: string | null;
   slug: string;
-  target_role: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | null;
+  target_role: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | 'president' | null;
 }
 
 // Rookie courses always show green

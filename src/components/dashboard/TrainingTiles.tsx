@@ -14,7 +14,7 @@ interface Course {
   title: string;
   description: string | null;
   slug: string;
-  target_role: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | null;
+  target_role: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | 'president' | null;
   audience?: string | null;
   display_order: number;
 }

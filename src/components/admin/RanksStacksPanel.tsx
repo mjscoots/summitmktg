@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp, Layers, Save } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm p-4';
 
@@ -51,6 +52,9 @@ function DraftBadge({ confirmed }: { confirmed: boolean }) {
 
 /** Admin -> Money -> Ranks & Stacks: one rank per person, stack values per industry/carrier. */
 export function RanksStacksPanel() {
+  const { role } = useAuth();
+  // Only the owner or an admin can confirm ladder rows; presidents edit values only.
+  const canConfirm = role === 'owner' || role === 'admin';
   const [loading, setLoading] = useState(true);
   const [ranks, setRanks] = useState<Rank[]>([]);
   const [carriers, setCarriers] = useState<Carrier[]>([]);
@@ -213,10 +217,11 @@ export function RanksStacksPanel() {
                 size="sm"
                 variant="outline"
                 className="ml-auto h-8 text-xs"
-                disabled={busy}
+                disabled={busy || !canConfirm}
+                title={canConfirm ? undefined : 'Owner confirms'}
                 onClick={() => setTableConfirmed(rows.map((r) => r.id), !allConfirmed)}
               >
-                {allConfirmed ? 'Mark as draft' : 'Confirm table'}
+                {!canConfirm ? 'Owner confirms' : allConfirmed ? 'Mark as draft' : 'Confirm table'}
               </Button>
             </div>
             <div className="mt-3 divide-y divide-white/[0.05]">
@@ -260,13 +265,18 @@ export function RanksStacksPanel() {
             size="sm"
             variant="outline"
             className="ml-auto h-8 text-xs"
-            disabled={busy}
+            disabled={busy || !canConfirm}
+            title={canConfirm ? undefined : 'Owner confirms'}
             onClick={() => {
               const allConfirmed = reqs.length > 0 && reqs.every((r) => r.confirmed);
               setReqConfirmed(reqs.map((r) => r.id), !allConfirmed);
             }}
           >
-            {reqs.length > 0 && reqs.every((r) => r.confirmed) ? 'Mark as draft' : 'Confirm requirements'}
+            {!canConfirm
+              ? 'Owner confirms'
+              : reqs.length > 0 && reqs.every((r) => r.confirmed)
+                ? 'Mark as draft'
+                : 'Confirm requirements'}
           </Button>
         </div>
         <div className="mt-3 space-y-3">
