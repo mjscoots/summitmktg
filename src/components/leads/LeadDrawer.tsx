@@ -49,6 +49,8 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
   const [privateBody, setPrivateBody] = useState('');
   const [tag, setTag] = useState('');
   const [managers, setManagers] = useState<{ user_id: string; full_name: string }[]>([]);
+  const [cycleDays, setCycleDays] = useState('14');
+
 
   const lead = detail?.lead;
 
