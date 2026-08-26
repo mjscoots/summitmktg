@@ -47,7 +47,8 @@ export function YourWeekLine() {
 
   return (
     <p className="text-[13px] text-muted-foreground">
-      Your week: <span className="tabular-nums text-foreground">{sales}</span> sales ·{' '}
+      Your week: <span className="tabular-nums text-foreground">{sales}</span>{' '}
+      {sales === 1 ? 'sale' : 'sales'} ·{' '}
       <span className="tabular-nums text-foreground">{minutes}</span> training minutes ·{' '}
       {pendingRSVP > 0 ? (
         <span className="text-foreground">
