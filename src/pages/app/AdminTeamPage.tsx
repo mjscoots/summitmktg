@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
+import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
+import LeadsImportPanel from '@/components/admin/LeadsImportPanel';
 import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
 import AdminVerticalLeadsPanel from '@/components/admin/AdminVerticalLeadsPanel';
 const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
@@ -415,6 +417,18 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
               <Suspense fallback={<LoadingList rows={3} />}>
                 <LazyReactivations />
               </Suspense>
+            </TabsContent>
+          )}
+
+          {section === 'people' && (
+            <TabsContent value="tiers">
+              <AccessTiersPanel />
+            </TabsContent>
+          )}
+
+          {section === 'people' && isAdmin && (
+            <TabsContent value="leadimport">
+              <LeadsImportPanel />
             </TabsContent>
           )}
 

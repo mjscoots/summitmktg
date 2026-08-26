@@ -32,6 +32,8 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'users', label: 'Roster' },
     { value: 'teams', label: 'Teams and regions' },
     { value: 'restore', label: 'Restore access' },
+    { value: 'tiers', label: 'Access tiers' },
+    { value: 'leadimport', label: 'Import leads', adminOnly: true },
     { value: 'archived', label: 'Archived' },
     { value: 'sync', label: 'Hierarchy sync' },
   ],
