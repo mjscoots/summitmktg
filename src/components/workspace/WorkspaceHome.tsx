@@ -118,6 +118,9 @@ export function WorkspaceHome({ workspace }: { workspace: Workspace }) {
         </p>
       </div>
 
+      <HomeQuickCards />
+
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="This week" value={String(weekInstalls)} />
         <Stat label="Season" value={String(seasonInstalls)} />
