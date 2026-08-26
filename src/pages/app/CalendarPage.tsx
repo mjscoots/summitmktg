@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
 import { SummitLoader } from '@/components/shared/SummitLoader';
-import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
+import { PageBackButton } from '@/components/shared/PageBackButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
