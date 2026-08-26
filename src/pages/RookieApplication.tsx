@@ -342,7 +342,6 @@ const RookieApplication = () => {
                   <p className="text-destructive text-sm mt-1">{errors.cityState}</p>
                 )}
               </div>
-            </div>
               </div>
             </section>
 
@@ -356,34 +355,37 @@ const RookieApplication = () => {
                 value={formData.referralName}
                 onChange={(e) => updateField("referralName", e.target.value)}
                 onBlur={() => handleBlur("referralName")}
-                placeholder="Enter the name of the person who referred you or the account you saw"
+                placeholder="The person who referred you, or the account you saw"
                 className={`input-field ${touched.referralName && errors.referralName ? 'border-destructive' : ''}`}
                 required
               />
               {touched.referralName && errors.referralName && (
                 <p className="text-destructive text-sm mt-1">{errors.referralName}</p>
               )}
-            </div>
-            <div className="flex justify-end">
-              <button 
-                type="submit" 
-                className="btn-primary tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+            </section>
+
+            {/* Pinned on the phone, inline from sm up. */}
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:flex sm:justify-end">
+              <button
+                type="submit"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 disabled={!isFormComplete() || isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting...
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Submitting
                   </>
                 ) : (
                   <>
-                    Apply as a Rookie
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    Submit application
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </div>
           </form>
+
         </div>
       </main>
     </div>
