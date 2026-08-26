@@ -29,6 +29,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
 import { TeamMember, getDisplayName, getEffectiveManager } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { FiberTeam } from '@/components/team/FiberTeam';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
