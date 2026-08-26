@@ -156,6 +156,24 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
               </div>
             )}
 
+            {lead.designated_to && (
+              <p className="mt-4 text-[12px] text-muted-foreground">
+                {lead.hold
+                  ? 'On hold — this lead will not cycle.'
+                  : lead.cycles_in_days != null
+                    ? `Cycles in ${lead.cycles_in_days} day${lead.cycles_in_days === 1 ? '' : 's'} without activity.`
+                    : 'No designation date on file yet.'}
+              </p>
+            )}
+
+            <BeforeTheyLeft
+              snapshot={snapshot}
+              aiSummary={(lead.ai_summary as string | null) || null}
+              profileUserId={staff ? detail?.profile?.user_id || null : null}
+            />
+
+
+
             {/* Log a call */}
             <div className="mt-6 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
               <p className="micro-label mb-2">Log a call</p>
