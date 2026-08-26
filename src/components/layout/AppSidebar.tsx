@@ -135,19 +135,20 @@ export function AppSidebar() {
         collapsed && "justify-center px-2"
       )}
     >
-      {/* Active indicator — blue left border */}
+      {/* Active indicator — accent left rule */}
       {active && (
         <div
           className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
-          style={{
-            background: 'hsl(216 89% 53%)',
-            boxShadow: '0 0 12px 1px hsl(216 89% 53% / 0.4)',
-          }}
+          style={{ background: 'hsl(var(--sidebar-primary))' }}
         />
       )}
       {active && (
-        <div className="absolute inset-0 rounded-lg pointer-events-none" style={{ background: 'hsl(216 89% 53% / 0.08)' }} />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'hsl(var(--sidebar-primary) / 0.1)', borderRadius: 'var(--radius)' }}
+        />
       )}
+
       <item.icon
         className={cn(
           "w-[18px] h-[18px] flex-shrink-0 transition-all duration-250 relative z-10",
