@@ -63,6 +63,9 @@ const LazyDrills = lazy(() =>
 const LazyPlaybook = lazy(() =>
   import('@/components/admin/AdminPlaybookTab').then((m) => ({ default: m.AdminPlaybookTab }))
 );
+const LazyFirstWeek = lazy(() =>
+  import('@/components/admin/AdminFirstWeekTab').then((m) => ({ default: m.AdminFirstWeekTab }))
+);
 const LazyThemes = lazy(() =>
   import('@/components/admin/AdminThemesTab').then((m) => ({ default: m.AdminThemesTab }))
 );
