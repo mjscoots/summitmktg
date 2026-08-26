@@ -314,6 +314,52 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                       Add tag
                     </button>
                   </div>
+                  <div className="flex items-end gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="micro-label mb-1">Cycle days</p>
+                      <Input
+                        value={cycleDays}
+                        onChange={(e) => setCycleDays(e.target.value.replace(/[^0-9]/g, ''))}
+                        inputMode="numeric"
+                        className="h-10 text-[13px]"
+                      />
+                    </div>
+                    <button
+                      disabled={busy}
+                      onClick={() =>
+                        run(
+                          () =>
+                            leadActions.setCycling(
+                              lead.id,
+                              Math.max(Number(cycleDays) || 14, 1),
+                              !!lead.hold
+                            ),
+                          'Cycle days saved'
+                        )
+                      }
+                      className="min-h-11 shrink-0 rounded-xl border border-border/60 bg-background/50 px-3 text-[13px] font-semibold disabled:opacity-60"
+                    >
+                      Save
+                    </button>
+                    <button
+                      disabled={busy}
+                      onClick={() =>
+                        run(
+                          () =>
+                            leadActions.setCycling(
+                              lead.id,
+                              Math.max(Number(cycleDays) || 14, 1),
+                              !lead.hold
+                            ),
+                          lead.hold ? 'Hold removed' : 'Lead on hold'
+                        )
+                      }
+                      className="min-h-11 shrink-0 rounded-xl border border-border/60 bg-background/50 px-3 text-[13px] font-semibold disabled:opacity-60"
+                    >
+                      {lead.hold ? 'Remove hold' : 'Hold'}
+                    </button>
+                  </div>
+
                 </div>
               </div>
             )}
