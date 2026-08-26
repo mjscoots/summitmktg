@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useManagerWeek, attentionReasons, type WeekRow } from '@/hooks/useManagerWeek';
+import { useFirstWeekRows, type FirstWeek } from '@/hooks/useFirstWeek';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
 import { cn } from '@/lib/utils';
@@ -168,6 +169,7 @@ function Row({
 export default function MyWeekPage() {
   const { role } = useAuth();
   const { rows, totals, scope, lastOpenedAt, loading, markOpened } = useManagerWeek();
+  const { rows: firstWeeks, mark: markFirstWeek } = useFirstWeekRows();
   const [team, setTeam] = useState('all');
 
   useEffect(() => {
@@ -251,7 +253,13 @@ export default function MyWeekPage() {
               <h2 className="text-sm font-semibold text-foreground">{name}</h2>
               <ul className="space-y-2">
                 {group.map((r) => (
-                  <Row key={r.user_id} row={r} lastOpened={lastOpenedAt} />
+                  <Row
+                    key={r.user_id}
+                    row={r}
+                    lastOpened={lastOpenedAt}
+                    firstWeek={firstWeeks[r.user_id]}
+                    onMark={markFirstWeek}
+                  />
                 ))}
               </ul>
             </section>
@@ -259,7 +267,13 @@ export default function MyWeekPage() {
         ) : (
           <ul className="space-y-2">
             {shown.map((r) => (
-              <Row key={r.user_id} row={r} lastOpened={lastOpenedAt} />
+              <Row
+                    key={r.user_id}
+                    row={r}
+                    lastOpened={lastOpenedAt}
+                    firstWeek={firstWeeks[r.user_id]}
+                    onMark={markFirstWeek}
+                  />
             ))}
           </ul>
         )}
