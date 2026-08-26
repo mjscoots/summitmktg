@@ -1344,3 +1344,15 @@ Nothing was published.
 - Verified with the owner session at 390 and 1280: sale logged, win card in team chat, Home count went to 1, leaderboard row showed 1 sale / $379, duplicate prompt appeared, exactly one points event. Test sale, win message and points event deleted afterwards.
 - Typecheck clean. Production build clean; largest chunk 194.64 kB. Linter unchanged at baseline (19 anon SECURITY DEFINER, 1 RLS-no-policy, 1 short OTP).
 - Not published.
+
+## Pass 66 — Setup paths, region leads, install on phone
+- Setup steps gained a link field, checklist, auto-complete rule and an overdue day count (default 7); admin can edit link, checklist and overdue days in Settings → Industries.
+- Fiber path is five published steps: carrier product training (link), knocking app and territory, ride-along with region lead, first install logged (auto from fiber_installs), stack confirmed with lead. Fiber is marked configured.
+- Life path is four draft steps, all unpublished: licensing started, licensing complete, appointment tools set up, first appointment booked (auto from Life calendar events). Life stays coming soon.
+- Removed the older duplicate Fiber and Life placeholder steps; the one existing completion was moved onto the new "First install logged" step, so no rep lost progress.
+- Overdue steps now appear in the Needs you row as a "Setup step" card that opens the setup screen.
+- Fiber and West/East regions exist. New Regions panel inside Settings → Industries → Fiber: lead picker, accepting-new-reps toggle, capacity, one-line intro, members count. Pest offices skipped — no office table in use.
+- Fiber Home now lists each setup step with a done mark and shows the region lead's intro line.
+- The app was already an installable PWA (manifest, per-workspace theme colour, network-first service worker). Added the one-time, dismissable install card to Pest, Fiber and Life Home, phone browsers only, with iOS Share instructions and the Android prompt.
+- Verified with owner-session screenshots at 390 and 1280: Pest Home install card, Fiber Home setup list, Regions panel. No horizontal overflow at either width.
+- Typecheck clean. Production build clean; largest chunk 194.65 kB. Nothing published.

@@ -13,6 +13,8 @@ import {
   Plus, Trash2, ArrowUp, ArrowDown, Save, Loader2, ShieldCheck, Users,
 } from 'lucide-react';
 import AdminLadderSettings from '@/components/admin/AdminLadderSettings';
+import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
+
 
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
@@ -37,7 +39,12 @@ interface StepRow {
   step_type: 'task' | 'upload' | 'training' | 'approval';
   course_id: string | null;
   is_active: boolean;
+  link_url: string | null;
+  checklist: string[] | null;
+  auto_rule: string | null;
+  overdue_days: number;
 }
+
 
 interface CourseRow {
   id: string;
@@ -334,6 +341,48 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
                     onChange={(e) => setSteps((prev) => prev.map((x) => (x.id === s.id ? { ...x, description: e.target.value } : x)))}
                     onBlur={(e) => patchStep(s.id, { description: e.target.value || null })}
                   />
+                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                    <Input
+                      className="h-8 flex-1 text-[12px]"
+                      placeholder="Link (optional) — for example the carrier training portal"
+                      value={s.link_url || ''}
+                      onChange={(e) => setSteps((prev) => prev.map((x) => (x.id === s.id ? { ...x, link_url: e.target.value } : x)))}
+                      onBlur={(e) => patchStep(s.id, { link_url: e.target.value || null })}
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-muted-foreground">Overdue after</span>
+                      <Input
+                        type="number"
+                        className="h-8 w-20 text-[12px]"
+                        value={s.overdue_days}
+                        onChange={(e) =>
+                          setSteps((prev) => prev.map((x) => (x.id === s.id ? { ...x, overdue_days: Number(e.target.value) } : x)))
+                        }
+                        onBlur={(e) => patchStep(s.id, { overdue_days: Number(e.target.value) || 7 })}
+                      />
+                      <span className="text-[11px] text-muted-foreground">days</span>
+                    </div>
+                  </div>
+                  <Input
+                    className="mt-2 h-8 text-[12px]"
+                    placeholder="Checklist items, separated by commas (optional)"
+                    value={(s.checklist || []).join(', ')}
+                    onChange={(e) =>
+                      setSteps((prev) =>
+                        prev.map((x) =>
+                          x.id === s.id ? { ...x, checklist: e.target.value.split(',').map((t) => t.trim()).filter(Boolean) } : x
+                        )
+                      )
+                    }
+                    onBlur={(e) =>
+                      patchStep(s.id, {
+                        checklist: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
+                      })
+                    }
+                  />
+                  {s.auto_rule && (
+                    <p className="mt-2 text-[11px] text-muted-foreground">Completes on its own from rep activity.</p>
+                  )}
                 </div>
               ))}
               {mine.length === 0 && <p className="text-[13px] text-muted-foreground">No steps yet.</p>}
@@ -341,7 +390,14 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
                 <Plus className="h-4 w-4" /> <span className="ml-1.5">Add step</span>
               </Button>
             </div>
+
+            {p.vertical === 'Fiber' && (
+              <div className="mt-4">
+                <AdminRegionsPanel restrictToVertical="Fiber" />
+              </div>
+            )}
           </div>
+
         );
       })}
 

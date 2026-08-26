@@ -17,7 +17,12 @@ export function InstallAppHint() {
   useEffect(() => {
     if (isStandalone) return;
     if (localStorage.getItem(DISMISS_KEY) === '1') return;
+    // Phone browsers only — installing on desktop is not what this card is for.
+    const isPhone =
+      window.matchMedia('(pointer: coarse)').matches && window.matchMedia('(max-width: 1023px)').matches;
+    if (!isPhone) return;
     setDismissed(false);
+
 
     const handler = (e: Event) => {
       e.preventDefault();

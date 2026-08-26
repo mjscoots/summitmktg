@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface ActionCard {
-  type: 'rsvp' | 'incentive' | 'announcement';
+  type: 'rsvp' | 'incentive' | 'announcement' | 'setup_step';
   id: string;
   title: string;
   when_at?: string | null;
@@ -16,6 +16,8 @@ export interface ActionCard {
   ends_on?: string | null;
   prize_note?: string | null;
   body?: string | null;
+  vertical?: string | null;
+
 }
 
 /** Server-computed list of things the caller still has to act on. */

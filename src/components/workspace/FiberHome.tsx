@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, MessageCircle, Plus } from 'lucide-react';
+import { Phone, MessageCircle, Plus, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Workspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
+import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
+
 
 export const FIBER_CARD = 'rounded-xl border border-border bg-card';
 
@@ -45,7 +47,10 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const [carrierName, setCarrierName] = useState<string | null>(null);
   const [lead, setLead] = useState<Lead | null>(null);
   const [steps, setSteps] = useState({ done: 0, total: 0 });
+  const [stepList, setStepList] = useState<{ id: string; title: string; done: boolean }[]>([]);
+  const [regionIntro, setRegionIntro] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -57,7 +62,13 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         .eq('user_id', user.id),
       (supabase as any).rpc('get_my_money'),
       (supabase as any).from('profiles').select('region_id, region').eq('id', user.id).maybeSingle(),
-      (supabase as any).from('vertical_steps').select('id').eq('vertical', 'Fiber').eq('is_active', true),
+      (supabase as any)
+        .from('vertical_steps')
+        .select('id, title, display_order')
+        .eq('vertical', 'Fiber')
+        .eq('is_active', true)
+        .order('display_order'),
+
       (supabase as any)
         .from('vertical_step_completions')
         .select('step_id')
@@ -76,11 +87,15 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
     setWeek(rows.filter((r) => r.week_start === w).reduce((a, r) => a + (r.installs || 0), 0));
     setSeason(rows.reduce((a, r) => a + (r.installs || 0), 0));
     setMoney((moneyRes.data as Money) || null);
+    const stepRows = (stepsRes.data as { id: string; title: string }[]) || [];
+    const doneIds = new Set(((doneRes.data as { step_id: string }[]) || []).map((r) => r.step_id));
+    setStepList(stepRows.map((s) => ({ id: s.id, title: s.title, done: doneIds.has(s.id) })));
     setSteps({
-      total: ((stepsRes.data as unknown[]) || []).length,
-      done: ((doneRes.data as unknown[]) || []).length,
+      total: stepRows.length,
+      done: stepRows.filter((s) => doneIds.has(s.id)).length,
     });
     setPinned(((pinnedRes.data as { title: string }[]) || [])[0]?.title || null);
+
 
     const carrierId = rows[0]?.carrier_id;
     if (carrierId) {
@@ -93,11 +108,13 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
     if (me?.region_id) {
       const { data: r } = await (supabase as any)
         .from('regions')
-        .select('name, lead_user_id')
+        .select('name, lead_user_id, intro')
         .eq('id', me.region_id)
         .maybeSingle();
-      const region = r as { name: string; lead_user_id: string | null } | null;
+      const region = r as { name: string; lead_user_id: string | null; intro: string | null } | null;
       if (region?.name) setRegionName(region.name);
+      setRegionIntro(region?.intro || null);
+
       if (region?.lead_user_id) {
         const { data: lp } = await (supabase as any)
           .from('profiles')
@@ -212,19 +229,33 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         ) : (
           <p className="text-sm text-muted-foreground">No region lead assigned yet.</p>
         )}
+        {regionIntro && <p className="mt-3 text-sm text-muted-foreground">{regionIntro}</p>}
       </div>
 
       {steps.total > 0 && steps.done < steps.total && (
-        <div className={`${FIBER_CARD} mb-4 space-y-2 p-4`}>
+        <div className={`${FIBER_CARD} mb-4 space-y-3 p-4`}>
           <p className="text-sm font-medium text-foreground">Setup path</p>
           <p className="text-sm tabular-nums text-muted-foreground">
             {steps.done} of {steps.total} steps complete
           </p>
+          <ul className="space-y-1.5">
+            {stepList.map((s) => (
+              <li key={s.id} className="flex items-center gap-2 text-sm">
+                <Check className={s.done ? 'h-4 w-4 text-primary' : 'h-4 w-4 text-muted-foreground/40'} />
+                <span className={s.done ? 'text-muted-foreground' : 'text-foreground'}>{s.title}</span>
+              </li>
+            ))}
+          </ul>
           <Button variant="outline" size="sm" onClick={() => navigate('/app/industries')}>
             Continue setup
           </Button>
         </div>
       )}
+
+      <div className="mb-4">
+        <InstallAppHint />
+      </div>
+
 
       <div className={`${FIBER_CARD} mb-4 p-4`}>
         <p className="text-sm font-medium text-foreground">Announcement</p>
