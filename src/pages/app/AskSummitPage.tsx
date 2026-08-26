@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, Send, Loader2, DoorOpen } from 'lucide-react';
@@ -31,6 +32,7 @@ interface ThreadRow {
 }
 
 export default function AskSummitPage() {
+  const [params, setParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>('ask');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -58,6 +60,21 @@ export default function AskSummitPage() {
   useEffect(() => {
     void loadThreads();
   }, []);
+
+  // Opened from the playbook or from search: start with that line.
+  const seedRef = useRef(false);
+  useEffect(() => {
+    if (seedRef.current) return;
+    const practice = params.get('practice');
+    const question = params.get('q');
+    if (!practice && !question) return;
+    seedRef.current = true;
+    if (practice) setMode('practice');
+    params.delete('practice');
+    params.delete('q');
+    setParams(params, { replace: true });
+    window.setTimeout(() => void send(practice || question || '', practice ? 'practice' : 'ask'), 0);
+  }, [params, setParams]);
 
   const openThread = async (id: string) => {
     const { data } = await (supabase as any).rpc('get_thread_messages', { _thread_id: id });
@@ -154,7 +171,8 @@ export default function AskSummitPage() {
     return answer;
   };
 
-  const send = async (question: string) => {
+  const send = async (question: string, modeOverride?: Mode) => {
+    const activeMode = modeOverride ?? mode;
     const text = question.trim();
     if (!text || streaming || practiceEnded) return;
 
@@ -166,7 +184,7 @@ export default function AskSummitPage() {
     try {
       setMessages(m => [...m, { role: 'assistant', content: '' }]);
 
-      const answer = await stream({ messages: next, mode }, answer =>
+      const answer = await stream({ messages: next, mode: activeMode }, answer =>
         setMessages(m => {
           const copy = [...m];
           copy[copy.length - 1] = { role: 'assistant', content: answer };
@@ -179,7 +197,7 @@ export default function AskSummitPage() {
           const copy = [...m];
           copy[copy.length - 1] = {
             role: 'assistant',
-            content: mode === 'ask' ? "I don't have that — ask your manager." : '...',
+            content: activeMode === 'ask' ? "I don't have that — ask your manager." : '...',
           };
           return copy;
         });

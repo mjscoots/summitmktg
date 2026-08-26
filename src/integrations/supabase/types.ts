@@ -2991,6 +2991,57 @@ export type Database = {
           },
         ]
       }
+      playbook_entries: {
+        Row: {
+          body: string
+          created_at: string
+          followup: string | null
+          id: string
+          kind: string
+          market: string | null
+          meta: Json
+          published: boolean
+          sort_order: number
+          tags: string[]
+          title: string
+          updated_at: string
+          updated_by: string | null
+          vertical: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          followup?: string | null
+          id?: string
+          kind: string
+          market?: string | null
+          meta?: Json
+          published?: boolean
+          sort_order?: number
+          tags?: string[]
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          vertical?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          followup?: string | null
+          id?: string
+          kind?: string
+          market?: string | null
+          meta?: Json
+          published?: boolean
+          sort_order?: number
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          vertical?: string
+        }
+        Relationships: []
+      }
       point_events: {
         Row: {
           category: string

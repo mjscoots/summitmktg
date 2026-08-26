@@ -78,6 +78,7 @@ const PipelinePage = lazy(() => import('@/pages/app/PipelinePage'));
 
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
+const PlaybookPage = lazy(() => import("./pages/app/PlaybookPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
 const PersonProfilePage = lazy(() => import("./pages/app/PersonProfilePage"));
 const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
@@ -360,6 +361,13 @@ function LazyFallback() {
               } />
 
 
+
+              {/* Field playbook — the owner's script, objections, closes, prices */}
+              <Route path="/app/playbook" element={
+                <ProtectedRoute>
+                    <PlaybookPage />
+                </ProtectedRoute>
+              } />
 
               {/* Ask Summit — grounded AI assistant */}
               <Route path="/app/ask" element={
