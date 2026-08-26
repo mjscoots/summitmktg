@@ -9,6 +9,7 @@ import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
 import RosterGapCounters from "@/components/roster/RosterGapCounters";
+import { WorkspaceApplicationsCount } from "@/components/workspace/WorkspaceApplicationsCount";
 import DataHealthPanel from "@/components/command/DataHealthPanel";
 
 import RegionPace from "@/components/command/RegionPace";
