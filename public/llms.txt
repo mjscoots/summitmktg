@@ -1,13 +1,10 @@
 # Summit Marketing
 
-> We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.
+> We recruit, train, and field door-to-door sales reps. You knock, you close, you get paid on what you close.
 
 ## Pages
 
-- [Home](/): Overview of Summit Marketing, the industry toggle, and the earnings calculator.
-- [Pest Control](/industries/pest): The summer product — how pest works and how you get paid.
-- [Fiber Internet](/industries/fiber): The winter product — paid per install.
-- [Life Insurance](/industries/life): In development.
+- [Home](/): Overview of Summit Marketing and the earnings calculator.
 - [Recruiting](/recruiting): What the role looks like, and how to apply.
 - [Rookie Application](/apply/rookie): Apply as a first-time sales rep.
 - [Veteran Application](/apply/veteran): Apply as an experienced sales professional.
