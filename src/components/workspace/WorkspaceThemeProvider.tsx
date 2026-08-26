@@ -11,6 +11,7 @@ export interface WorkspaceTheme {
   accent?: string;
   accent_foreground?: string;
   texture?: 'none' | 'camo';
+  headings?: 'serif';
   texture_opacity?: number;
 }
 
@@ -99,12 +100,18 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--workspace-texture', texture);
     set('--workspace-texture-opacity', String(theme.texture_opacity ?? 0));
 
+    // A workspace may ask for serif headings; body type never changes.
+    if (theme.headings === 'serif') root.dataset.workspaceHeadings = 'serif';
+    else delete root.dataset.workspaceHeadings;
+
+
     const meta = document.querySelector('meta[name="theme-color"]');
     const hex = theme.background ? hslToHex(theme.background) : null;
     if (meta && hex) meta.setAttribute('content', hex);
 
     return () => {
       root.classList.remove('light-workspace');
+      delete root.dataset.workspaceHeadings;
     };
   }, [
     theme.mode,
@@ -117,6 +124,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     theme.texture,
     theme.texture_opacity,
     theme.accent_foreground,
+    theme.headings,
   ]);
 
   return <>{children}</>;

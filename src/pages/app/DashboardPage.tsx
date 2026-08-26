@@ -34,6 +34,8 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 import { FiberHome } from '@/components/workspace/FiberHome';
+import { LifeHome } from '@/components/workspace/LifeHome';
+
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 import { HomeQuestionCard } from '@/components/home/HomeQuestionCard';
 
@@ -189,12 +191,15 @@ export default function DashboardPage() {
       <AppLayout>
         {active.vertical === 'Fiber' && active.status === 'active' ? (
           <FiberHome workspace={active} />
+        ) : active.vertical === 'Life' ? (
+          <LifeHome workspace={active} />
         ) : (
           <WorkspaceHome workspace={active} />
         )}
       </AppLayout>
     );
   }
+
 
   // The Summer Checklist gate applies to the Pest workspace home only.
   if (bootcampLocked) {

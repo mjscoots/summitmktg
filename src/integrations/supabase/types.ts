@@ -2345,6 +2345,45 @@ export type Database = {
           },
         ]
       }
+      life_pipeline: {
+        Row: {
+          contact_name: string
+          created_at: string
+          id: string
+          next_at: string | null
+          next_step: string | null
+          notes: string | null
+          phone: string | null
+          stage: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          id?: string
+          next_at?: string | null
+          next_step?: string | null
+          notes?: string | null
+          phone?: string | null
+          stage?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          id?: string
+          next_at?: string | null
+          next_step?: string | null
+          notes?: string | null
+          phone?: string | null
+          stage?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       managed_emails: {
         Row: {
           created_at: string | null

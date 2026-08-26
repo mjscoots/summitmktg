@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { AppLayout } from '@/components/layout/AppLayout';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { DollarSign, Home, TrendingUp, Info } from 'lucide-react';
@@ -54,6 +57,9 @@ export default function MyMoneyPage() {
   const isManagerRole = isManagerOrAbove(role);
   const { activeVertical } = useWorkspace();
   const isFiber = activeVertical === 'Fiber';
+  const isLife = activeVertical === 'Life';
+  const isStaff = role === 'admin' || role === 'owner';
+
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -117,6 +123,27 @@ export default function MyMoneyPage() {
       </AppLayout>
     );
   }
+
+  if (isLife) {
+    return (
+      <AppLayout>
+        <main className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6">
+          <PageHeader title="Money" context="Summit Life pay." />
+          <section className={cn(CARD, 'space-y-3 p-5 sm:p-6')}>
+            <p className="text-sm text-muted-foreground">
+              Life pay details will appear here once they are set.
+            </p>
+            {isStaff && (
+              <Button variant="outline" size="sm" className="min-h-11" asChild>
+                <Link to="/admin/money">Admin — Money</Link>
+              </Button>
+            )}
+          </section>
+        </main>
+      </AppLayout>
+    );
+  }
+
 
   return (
     <AppLayout>

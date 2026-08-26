@@ -29,7 +29,10 @@ export default function TrainingPage() {
   const [managerManualComplete, setManagerManualComplete] = useState(false);
   
   const isManager = isManagerOrAbove(role);
-  const { activeVertical } = useWorkspace();
+  const { activeVertical, isPresidentOfActive } = useWorkspace();
+  // Only staff or the workspace president can start a workspace's training.
+  const canBuildModules = role === 'admin' || role === 'owner' || isPresidentOfActive;
+
 
   useEffect(() => {
     const checkProgress = async () => {
@@ -99,7 +102,7 @@ export default function TrainingPage() {
           <PageHeader title="Training" context={`${activeVertical} training.`} className="mb-6" />
           <div className="rounded-xl border border-border bg-card p-5">
             <p className="text-sm text-foreground">{activeVertical} training is being written.</p>
-            {isManager && (
+            {canBuildModules && (
               <Button variant="outline" className="mt-3 min-h-11" onClick={() => navigate('/app/industries')}>
                 Add the first module
               </Button>
