@@ -178,7 +178,7 @@ serve(async (req: Request): Promise<Response> => {
     });
   } catch (e) {
     console.error("submit-vet-lead failed", e);
-    return new Response(JSON.stringify({ error: "Could not save that request" }), {
+    return new Response(JSON.stringify({ error: REJECTED }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
