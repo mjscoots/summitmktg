@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PairingRequestsPanel } from '@/components/industries/PairingRequestsPanel';
+import { useAuth } from '@/hooks/useAuth';
+import { WorkspaceApplicationsTab } from '@/components/workspace/WorkspaceApplicationsTab';
 
 const AdminSubmittedVideosTab = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 
