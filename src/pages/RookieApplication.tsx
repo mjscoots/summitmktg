@@ -177,7 +177,7 @@ const RookieApplication = () => {
       console.error("Application submission error:", error);
       toast({
         title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
+        description: "That did not go through. Check the phone and email and try again.",
         variant: "destructive",
       });
     } finally {
