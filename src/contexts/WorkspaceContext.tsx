@@ -96,11 +96,23 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
-  const switchWorkspace = useCallback(async (vertical: string) => {
-    setActiveVertical(vertical);
-    localStorage.setItem(STORAGE_KEY, vertical);
-    await supabase.rpc('set_active_vertical' as never, { _vertical: vertical } as never);
-  }, []);
+  const switchWorkspace = useCallback(
+    async (vertical: string) => {
+      if (vertical === activeVertical) return;
+      const name = workspaces.find((w) => w.vertical === vertical)?.name || vertical;
+      setActiveVertical(vertical);
+      localStorage.setItem(STORAGE_KEY, vertical);
+      // The app restarts in the new workspace: land on Home, top of page, and
+      // bump the epoch so every screen unmounts and refetches with the new scope.
+      setEpoch((n) => n + 1);
+      navigate('/app');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      toast(`Now in ${name}`);
+      await supabase.rpc('set_active_vertical' as never, { _vertical: vertical } as never);
+      await refresh();
+    },
+    [activeVertical, workspaces, navigate, refresh]
+  );
 
   const value = useMemo<WorkspaceContextValue>(() => {
     const myWorkspaces = workspaces.filter(isMember);
@@ -113,10 +125,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       activeVertical: active?.vertical || activeVertical,
       isLoading,
       isPresidentOfActive: Boolean(active?.is_president),
+      epoch,
       switchWorkspace,
       refresh,
     };
-  }, [workspaces, activeVertical, isLoading, switchWorkspace, refresh]);
+  }, [workspaces, activeVertical, isLoading, epoch, switchWorkspace, refresh]);
+
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }
