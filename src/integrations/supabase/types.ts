@@ -646,6 +646,65 @@ export type Database = {
         }
         Relationships: []
       }
+      assistant_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          thread_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          thread_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assistant_threads: {
+        Row: {
+          created_at: string
+          id: string
+          last_at: string
+          mode: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_at?: string
+          mode?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_at?: string
+          mode?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -3867,6 +3926,51 @@ export type Database = {
         }
         Relationships: []
       }
+      rep_ai_profiles: {
+        Row: {
+          concerns: Json
+          created_at: string
+          goals: string | null
+          last_built_at: string | null
+          source_count: number
+          sources: Json
+          strengths: Json
+          summary: string | null
+          tokens_used: number
+          topics: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          concerns?: Json
+          created_at?: string
+          goals?: string | null
+          last_built_at?: string | null
+          source_count?: number
+          sources?: Json
+          strengths?: Json
+          summary?: string | null
+          tokens_used?: number
+          topics?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          concerns?: Json
+          created_at?: string
+          goals?: string | null
+          last_built_at?: string | null
+          source_count?: number
+          sources?: Json
+          strengths?: Json
+          summary?: string | null
+          tokens_used?: number
+          topics?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rep_commission: {
         Row: {
           active_revenue: number | null
@@ -6657,6 +6761,7 @@ export type Database = {
         Returns: Json
       }
       get_person_profile: { Args: { _user_id: string }; Returns: Json }
+      get_person_threads: { Args: { _user_id: string }; Returns: Json }
       get_person_time_split: { Args: { _user_id: string }; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
@@ -6795,6 +6900,7 @@ export type Database = {
       get_team_lead_applications: { Args: { _status?: string }; Returns: Json }
       get_team_revenue: { Args: never; Returns: Json }
       get_the_stack: { Args: never; Returns: Json }
+      get_thread_messages: { Args: { _thread_id: string }; Returns: Json }
       get_ticket_config: { Args: never; Returns: Json }
       get_ticket_series_status: { Args: never; Returns: Json }
       get_training_leaderboard_panel: {
