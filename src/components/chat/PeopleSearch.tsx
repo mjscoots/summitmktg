@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Phone, MessageSquare, Mail, CalendarClock, Bot, X } from 'lucide-react';
+import { Search, Phone, MessageSquare, Mail, CalendarClock, Bot, BookOpen, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -42,14 +42,21 @@ interface EventResult {
   event_kind: string | null;
 }
 
+interface PlaybookResult {
+  id: string;
+  kind: string;
+  title: string;
+}
+
 interface Results {
   people: PersonResult[];
   directory: DirectoryResult[];
   emails: EmailResult[];
   events: EventResult[];
+  playbook: PlaybookResult[];
 }
 
-const EMPTY: Results = { people: [], directory: [], emails: [], events: [] };
+const EMPTY: Results = { people: [], directory: [], emails: [], events: [], playbook: [] };
 
 const ROW = 'flex w-full min-h-[56px] items-center gap-3 rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left transition-colors hover:border-primary/40';
 const TAP = 'flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-background px-3 text-[12px] text-muted-foreground transition-colors hover:border-primary/40';
@@ -147,7 +154,15 @@ export function PeopleSearch({
     if (t.length < 2) { setResults(EMPTY); setLoading(false); return; }
     const id = ++reqRef.current;
     setLoading(true);
-    const { data, error } = await (supabase as any).rpc('search_people', { _q: t });
+    const [{ data, error }, playbookRes] = await Promise.all([
+      (supabase as any).rpc('search_people', { _q: t }),
+      (supabase as any)
+        .from('playbook_entries')
+        .select('id, kind, title, tags')
+        .eq('published', true)
+        .or(`title.ilike.%${t}%,body.ilike.%${t}%,tags.cs.{${t}}`)
+        .limit(5),
+    ]);
     if (id !== reqRef.current) return;
     setLoading(false);
     if (error || !data || data.error) { setResults(EMPTY); return; }
@@ -156,6 +171,7 @@ export function PeopleSearch({
       directory: data.directory || [],
       emails: data.emails || [],
       events: data.events || [],
+      playbook: (playbookRes?.data as PlaybookResult[]) || [],
     });
   }, []);
 
@@ -189,7 +205,8 @@ export function PeopleSearch({
   const nothing =
     hasQuery && !loading &&
     results.people.length === 0 && results.directory.length === 0 &&
-    results.emails.length === 0 && results.events.length === 0;
+    results.emails.length === 0 && results.events.length === 0 &&
+    results.playbook.length === 0;
 
   return (
     <div>
@@ -288,6 +305,18 @@ export function PeopleSearch({
             </li>
           ))}
 
+          {results.playbook.map((pb) => (
+            <li key={pb.id}>
+              <button onClick={() => navigate(`/app/playbook?entry=${pb.id}`)} className={ROW}>
+                <BookOpen className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{pb.title}</span>
+                  <span className="block truncate text-[12px] text-muted-foreground">Playbook</span>
+                </span>
+              </button>
+            </li>
+          ))}
+
           <li>
             <button onClick={() => navigate(`/app/ask?q=${encodeURIComponent(q.trim())}`)} className={ROW}>
               <Bot className="h-4 w-4 flex-shrink-0 text-primary" />
@@ -298,7 +327,7 @@ export function PeopleSearch({
       )}
 
       {nothing && (
-        <p className="mt-3 text-[13px] text-muted-foreground">No people, numbers or events match that.</p>
+        <p className="mt-3 text-[13px] text-muted-foreground">No people, numbers, events or playbook entries match that.</p>
       )}
 
       <Sheet open={!!person} onOpenChange={(o) => { if (!o) setPerson(null); }}>
