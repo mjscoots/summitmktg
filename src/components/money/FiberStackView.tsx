@@ -18,15 +18,37 @@ interface CarrierTable {
 
 const CARD = 'rounded-xl border border-border bg-card';
 
-/** Fiber pay: what each install pays at each rank. No calculator. */
+const RULE_ORDER: { key: string; label: string }[] = [
+  { key: 'installs', label: 'Installs counted' },
+  { key: 'tiers', label: 'Tiers' },
+  { key: 'floor', label: 'Floor' },
+  { key: 'leaders', label: 'Leaders' },
+  { key: 'bring_a_buddy', label: 'Bring a buddy' },
+  { key: 'entry', label: 'Entry' },
+  { key: 'hold', label: 'Hold' },
+  { key: 'chargebacks', label: 'Chargebacks' },
+  { key: 'housing', label: 'Housing' },
+  { key: 'car', label: 'Car' },
+];
+
+/** Fiber pay: what each install pays at each tier, plus the pay rules. No calculator. */
 export function FiberStackView() {
   const [carriers, setCarriers] = useState<CarrierTable[]>([]);
+  const [source, setSource] = useState<string | null>(null);
+  const [rules, setRules] = useState<Record<string, string> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any).rpc('get_fiber_stack_table');
       setCarriers((data?.carriers as CarrierTable[]) || []);
+      setSource((data?.source as string) || null);
+      try {
+        const raw = data?.rules;
+        setRules(raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : null);
+      } catch {
+        setRules(null);
+      }
       setLoading(false);
     })();
   }, []);
@@ -41,6 +63,8 @@ export function FiberStackView() {
       </section>
     );
   }
+
+  const ruleRows = rules ? RULE_ORDER.filter((r) => rules[r.key]) : [];
 
   return (
     <div className="space-y-4">
