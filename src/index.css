@@ -376,6 +376,13 @@ html, body, #root {
 
 
 /* ━━━ PEST — blue base, orange numbers and actions, light-blue labels ━━━ */
+:root {
+  /* Brand wordmark defaults — public site and login. */
+  --wordmark-bg: #0B1A33;
+  --wordmark-accent: #5AD1FF;
+  --wordmark-letters: #FFFFFF;
+}
+
 :root[data-workspace='pest'] {
   --accent-number: 26 92% 56%;
   --secondary-label: 205 60% 72%;

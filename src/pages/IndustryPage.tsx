@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
-import summitLogo from '@/assets/summit-logo-new.png';
+import { Wordmark } from '@/components/brand/Wordmark';
 import { supabase } from '@/integrations/supabase/client';
 import { setPageMeta } from '@/lib/pageMeta';
 
@@ -39,7 +39,7 @@ export default function IndustryPage() {
       setData(res || null);
       setLoading(false);
       setPageMeta({
-        title: `${res?.label || vertical} — Summit Marketing`,
+        title: `${res?.label || vertical} — Summit Trinity`,
         description:
           res?.description ||
           'We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.',
@@ -67,7 +67,7 @@ export default function IndustryPage() {
       <nav className="relative z-20 w-full px-6 py-5">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
-            <img src={summitLogo} alt="" className="h-6 w-auto" />
+            <Wordmark variant="compact" height={28} />
             <span className="text-lg font-black tracking-tight uppercase">Summit</span>
           </Link>
           <button

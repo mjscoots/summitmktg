@@ -95,9 +95,9 @@ serve(async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit Marketing <onboarding@resend.dev>",
+        from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit Trinity <onboarding@resend.dev>",
         to: [email],
-        subject: `Welcome to Summit Marketing, ${firstName}! 🏔️`,
+        subject: `Welcome to Summit Trinity, ${firstName}! 🏔️`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -109,7 +109,7 @@ serve(async (req: Request): Promise<Response> => {
             <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
               <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; text-align: center;">
                 <h1 style="color: #3b82f6; font-size: 28px; font-weight: 800; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 2px;">
-                  🏔️ Summit Marketing
+                  🏔️ Summit Trinity
                 </h1>
                 <p style="color: #94a3b8; font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 1px;">
                   ${typeLabel} Application Received
@@ -122,7 +122,7 @@ serve(async (req: Request): Promise<Response> => {
                 </h2>
                 
                 <p style="color: #64748b; font-size: 16px; margin: 0 0 20px 0;">
-                  Thanks for applying to Summit Marketing as a <strong style="color: #3b82f6;">${typeLabel}</strong>. We're excited to learn more about you!
+                  Thanks for applying to Summit Trinity as a <strong style="color: #3b82f6;">${typeLabel}</strong>. We're excited to learn more about you!
                 </p>
                 
                 <p style="color: #64748b; font-size: 16px; margin: 0 0 20px 0;">
@@ -148,7 +148,7 @@ serve(async (req: Request): Promise<Response> => {
               
               <div style="text-align: center; padding: 30px 20px;">
                 <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-                  © ${new Date().getFullYear()} Summit Marketing. All rights reserved.
+                  © ${new Date().getFullYear()} Summit Trinity. All rights reserved.
                 </p>
                 <p style="color: #94a3b8; font-size: 12px; margin: 8px 0 0 0;">
                   Your Summer. Your Income.

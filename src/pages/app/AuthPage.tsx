@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import summitLogo from '@/assets/summit-logo-new.png';
+import { Wordmark } from '@/components/brand/Wordmark';
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,7 +147,7 @@ const AuthPage = () => {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <img src={summitLogo} alt="Summit Marketing" className="mx-auto mb-4 h-14 w-auto" />
+          <div className="mx-auto mb-4 w-full max-w-[320px]"><Wordmark variant="hero" height={110} className="mx-auto h-auto w-full max-w-[320px]" /></div>
           <h1 className="text-2xl font-semibold text-foreground mb-2">Welcome to Summit</h1>
           <p className="text-muted-foreground text-sm">
             Sign in to your account or create a new one

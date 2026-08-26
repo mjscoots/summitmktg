@@ -16,7 +16,7 @@ export const PARENT_SECTIONS: Section[] = [
     key: 'parents_what_it_is',
     heading: 'What the job actually is',
     fallback:
-      'Summit Marketing trains and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August. Summit also runs a smaller fiber internet line in the winter and is starting a life insurance line.',
+      'Summit Trinity trains and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August. Summit also runs a smaller fiber internet line in the winter and is starting a life insurance line.',
 
   },
   {
@@ -57,9 +57,9 @@ export default function Parents() {
 
   useEffect(() => {
     setPageMeta({
-      title: 'Information for Parents — Summit Marketing',
+      title: 'Information for Parents — Summit Trinity',
       description:
-        'A plain explanation of the summer sales job, housing, safety and how pay works at Summit Marketing.',
+        'A plain explanation of the summer sales job, housing, safety and how pay works at Summit Trinity.',
       path: '/parents',
     });
   }, []);
@@ -110,7 +110,7 @@ export default function Parents() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
-          <span className="text-sm text-muted-foreground">Summit Marketing © 2026</span>
+          <span className="text-sm text-muted-foreground">Summit Trinity © 2026</span>
           <button
             onClick={() => navigate('/recruiting')}
             className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"

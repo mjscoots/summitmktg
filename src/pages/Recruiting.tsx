@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Mountain, Users, Target, Trophy, DollarSign, Calendar, Zap, CheckCircle } from "lucide-react";
-import summitLogo from "@/assets/summit-logo-new.png";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
@@ -13,9 +13,9 @@ const Recruiting = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Summer Sales Jobs — Summit Marketing",
+      title: "Summer Sales Jobs — Summit Trinity",
       description:
-        "Summit Marketing trains and fields door-to-door sales reps. Training, housing and pay explained.",
+        "Summit Trinity trains and fields door-to-door sales reps. Training, housing and pay explained.",
       path: "/recruiting",
     });
   }, []);
@@ -76,14 +76,7 @@ const Recruiting = () => {
         
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <div className="mb-8">
-            <img 
-              src={summitLogo} 
-              alt="Summit Marketing" 
-              className="w-64 md:w-80 mx-auto"
-              style={{
-                filter: 'drop-shadow(0 0 20px hsl(46 65% 52% / 0.28))',
-              }}
-            />
+            <Wordmark variant="stacked" height={150} className="mx-auto h-auto w-64 md:w-80" />
           </div>
           
           <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 uppercase tracking-tight">
@@ -91,7 +84,7 @@ const Recruiting = () => {
           </h1>
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Summit Marketing is looking for driven individuals ready to work hard, 
+            Summit Trinity is looking for driven individuals ready to work hard, 
             compete, and earn more in 4 months than most make in a year.
           </p>
           
@@ -325,8 +318,8 @@ const Recruiting = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Mountain className="w-4 h-4 text-primary" />
-              <span className="text-sm text-muted-foreground">Summit Marketing © 2026</span>
+              <Wordmark variant="compact" height={32} />
+              <span className="text-sm text-muted-foreground">© 2026</span>
             </div>
             <div className="flex items-center gap-6">
               <a

@@ -1,10 +1,10 @@
-# Summit Marketing
+# Summit Trinity
 
 > We train and field door-to-door sales reps. You knock, you close, you get paid on what you close.
 
 ## Pages
 
-- [Home](/): Overview of Summit Marketing and the earnings calculator.
+- [Home](/): Overview of Summit Trinity and the earnings calculator.
 - [Recruiting](/recruiting): What the role looks like, and how to apply.
 - [Rookie Application](/apply/rookie): Apply as a first-time sales rep.
 - [Veteran Application](/apply/veteran): Apply as an experienced sales professional.

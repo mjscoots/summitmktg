@@ -1411,3 +1411,14 @@ Nothing was published.
   and Mathew Rubino's role; "What changed" now covers Passes 63–68; checklist adds the
   Seasonal insects pricing page, the deliberately unpublished Life path, and the Monday
   digest being off until the sender is set. Nothing published.
+
+## Pass 70 — Summit Trinity
+
+- Renamed every visible "Summit Marketing" / "Summit MKTG" string to "Summit Trinity": index.html title, JSON-LD, og/twitter tags (twitter:site removed, author updated), manifest, llms.txt, service worker, README, public pages, login, app chrome, calendar invites and edge-function emails. "Ask Summit", "Summit says" and "Add Summit to your home screen" left as-is. No URL, domain, table or identifier changed.
+- Added src/components/brand/Wordmark.tsx with the uploaded path data copied verbatim (no text elements, no fonts, no gradients or glow). Variants: full, compact, stacked, hero, mark. SUMMIT fills with currentColor; "trinity" is drawn as knockout (fill + stroke var(--wordmark-bg), stroke width 13 full/hero/stacked, 14 compact, round joins) then filled with var(--wordmark-accent). svg carries aria-label "Summit Trinity".
+- Wordmark colours set per workspace in the theme provider: Pest header blue with #5AD1FF, Fiber #0F1F17 with #F2A900, Life #F7F5F0 with #2A7F7B and #14213D letters; public and login default #0B1A33 with #5AD1FF.
+- Placement: desktop header compact 36px left aligned; phone header shows the mark alone at 28px because that slot is under 150px; sidebar compact 32px (mark when collapsed); login hero centred at 320px max; public nav and footer compact, hero stacked.
+- Icons replaced at public/icon-192.png, icon-512.png, icon-512-maskable.png, apple-touch-icon.png, favicon.png. Old src/assets/summit-logo-new.png deleted; nothing imports it. public/stickers untouched.
+- Data fix: the profile named "Brendan Pillar" existed (plus a "Brendan Bruce Pillar" row for the same person); first name set to "Brandon" on both, nothing else changed.
+- Verified: owner-session screenshots at 390 and 1280 for Pest, Fiber and Life headers, signed-out login and public home; served /manifest.webmanifest correct; no horizontal overflow at either width; grep across src, public, supabase/functions, index.html and README shows zero legacy brand strings (domain summitmktgsales.com kept on purpose).
+- bunx tsgo --noEmit clean; production build clean, largest chunk 210.25 kB (index, up from 195 kB due to the inline wordmark geometry). Not published.

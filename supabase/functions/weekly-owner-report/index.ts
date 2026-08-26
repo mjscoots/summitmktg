@@ -42,7 +42,7 @@ function buildHtml(weekEnding: string, p: any): string {
 
   return `<!doctype html><html><body style="background:#ffffff;font-family:Arial,sans-serif;color:#111">
   <div style="max-width:640px;margin:0 auto;padding:24px">
-    <p style="color:#8a7a3d;letter-spacing:2px;font-size:11px;margin:0 0 4px">SUMMIT MARKETING · OWNER REPORT</p>
+    <p style="color:#8a7a3d;letter-spacing:2px;font-size:11px;margin:0 0 4px">SUMMIT TRINITY · OWNER REPORT</p>
     <h1 style="font-size:22px;margin:0 0 16px">Week ending ${weekEnding}</h1>
 
     <p style="font-size:15px;margin:0 0 20px">
@@ -95,7 +95,7 @@ serve(async (req: Request): Promise<Response> => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     // Falls back to Resend's shared sender so an unverified custom domain cannot
     // turn a successful report generation into a failed request.
-    const FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "Summit Marketing <onboarding@resend.dev>";
+    const FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "Summit Trinity <onboarding@resend.dev>";
 
     // --- auth: cron secret OR an admin/owner JWT ---
     const cronHeader = req.headers.get("x-cron-secret");

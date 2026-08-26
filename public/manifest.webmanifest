@@ -1,16 +1,29 @@
 {
-  "name": "Summit Marketing",
+  "name": "Summit Trinity",
   "short_name": "Summit",
-  "description": "Training, leads and team tools for Summit Marketing reps.",
+  "description": "Training, chat and team tools for Summit Trinity reps.",
   "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080C14",
-  "theme_color": "#080C14",
+  "background_color": "#0B1A33",
+  "theme_color": "#0B1A33",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

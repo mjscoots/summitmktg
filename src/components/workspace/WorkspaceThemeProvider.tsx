@@ -99,6 +99,18 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--accent-foreground', theme.accent_foreground);
     set('--sidebar-primary-foreground', theme.accent_foreground);
 
+    // Brand wordmark colours per product. Letters, knockout and accent.
+    const vertical = (active?.vertical || 'Pest').toLowerCase();
+    const wordmark =
+      vertical === 'fiber'
+        ? { bg: '#0F1F17', accent: '#F2A900', letters: '#FFFFFF' }
+        : vertical === 'life'
+          ? { bg: '#F7F5F0', accent: '#2A7F7B', letters: '#14213D' }
+          : { bg: (theme.background ? hslToHex(theme.background) : null) || '#0B1A33', accent: '#5AD1FF', letters: '#FFFFFF' };
+    set('--wordmark-bg', wordmark.bg);
+    set('--wordmark-accent', wordmark.accent);
+    set('--wordmark-letters', wordmark.letters);
+
     const texture = theme.texture === 'camo' ? CAMO : 'none';
     set('--workspace-texture', texture);
     set('--workspace-texture-opacity', String(theme.texture_opacity ?? 0));
@@ -114,6 +126,9 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
 
     return () => {
       root.classList.remove('light-workspace');
+      root.style.removeProperty('--wordmark-bg');
+      root.style.removeProperty('--wordmark-accent');
+      root.style.removeProperty('--wordmark-letters');
       delete root.dataset.workspace;
       delete root.dataset.workspaceHeadings;
     };

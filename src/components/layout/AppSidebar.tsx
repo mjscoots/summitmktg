@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import summitLogo from '@/assets/summit-logo-new.png';
+import { Wordmark } from '@/components/brand/Wordmark';
 import { LogOut, User, Shield, CalendarClock } from 'lucide-react';
 import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
@@ -183,11 +183,10 @@ export function AppSidebar() {
           className="flex items-center gap-2.5 cursor-pointer rounded-lg px-1 py-1 transition-all duration-250 hover:bg-white/5 active:scale-95"
           onClick={() => navigate('/app')}
         >
-          <img src={summitLogo} alt="" className="h-5 w-5 flex-shrink-0 object-contain" />
-          {!collapsed && (
-            <span className="text-sm font-black tracking-tight uppercase text-white">
-              Summit
-            </span>
+          {collapsed ? (
+            <Wordmark variant="mark" height={28} />
+          ) : (
+            <Wordmark variant="compact" height={32} />
           )}
         </button>
         <WorkspaceMenu collapsed={collapsed} />
