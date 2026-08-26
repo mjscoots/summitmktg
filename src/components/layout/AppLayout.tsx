@@ -13,7 +13,7 @@ import { Mountain } from 'lucide-react';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
-import { WorkspaceProvider } from '@/contexts/WorkspaceContext';
+import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
 import { MobileBottomNav } from './MobileBottomNav';
 
 
