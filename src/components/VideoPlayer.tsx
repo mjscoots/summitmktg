@@ -330,7 +330,7 @@ export function VideoPlayer({ src, title, onEnded, onProgress, onTimeUpdate, sta
 
       {/* Controls overlay */}
       <div className={cn(
-        "absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent transition-opacity duration-300",
+        "absolute inset-0 bg-black/70 transition-opacity duration-300",
         showControls ? "opacity-100" : "opacity-0"
       )}>
         {/* Center play button */}

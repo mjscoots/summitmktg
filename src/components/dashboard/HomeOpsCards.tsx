@@ -53,7 +53,7 @@ export function MyEventsTodayCard({ className }: { className?: string }) {
   return (
     <div className={cn('rounded-2xl border border-white/[0.06] bg-card/60 p-4 backdrop-blur-sm', className)}>
       <div className="mb-3 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/25">
           <CalendarClock className="h-4 w-4 text-primary" />
         </div>
         <h2 className="text-sm font-semibold text-foreground">Today</h2>
@@ -158,7 +158,7 @@ export function MyCarTodayCard() {
 
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-card/60 px-4 py-3 backdrop-blur-sm">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/25">
         <Car className="h-4 w-4 text-primary" />
       </div>
       <div className="min-w-0">
@@ -184,7 +184,7 @@ export function MyActionItemsCard({ className }: { className?: string }) {
       )}
     >
       <div className="mb-3 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/25">
           <ListChecks className="h-4 w-4 text-primary" />
         </div>
         <h2 className="text-sm font-semibold text-foreground">My action items</h2>
@@ -279,7 +279,7 @@ export function ContinueVerticalSetupCard({ className }: { className?: string })
         className
       )}
     >
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/25">
         <ListChecks className="h-4 w-4 text-primary" />
       </div>
       <div className="min-w-0">

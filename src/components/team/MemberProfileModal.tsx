@@ -366,7 +366,7 @@ export function MemberProfileModal({
                   "mt-2 ml-2 gap-1.5",
                   propsSent 
                     ? "text-success" 
-                    : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-[0_0_15px_-5px_rgba(249,115,22,0.4)]"
+                    : "bg-orange-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-[0_0_15px_-5px_rgba(249,115,22,0.4)]"
                 )}
                 onClick={async () => {
                   if (!user || !member || propsSent) return;

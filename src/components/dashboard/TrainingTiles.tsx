@@ -339,10 +339,10 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
               <div className={cn(
                 "absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-400",
                 course.progress === 100
-                  ? "bg-gradient-to-br from-success/8 via-transparent to-success/3"
+                  ? "bg-success/8"
                   : isRookie
-                    ? "bg-gradient-to-br from-green-500/8 via-transparent to-green-500/3"
-                    : "bg-gradient-to-br from-blue-500/8 via-transparent to-blue-500/3",
+                    ? "bg-green-500/8"
+                    : "bg-blue-500/8",
                 !isComingSoon && "group-hover:opacity-150"
               )} />
 

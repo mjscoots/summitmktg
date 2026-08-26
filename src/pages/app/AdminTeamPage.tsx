@@ -347,7 +347,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
         {/* ═══ PREMIUM HERO HEADER ═══ */}
         <div className="relative mb-6 -mx-4 px-4 pt-4 pb-5 overflow-hidden rounded-xl">
           {/* Gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,60%,12%)] via-[hsl(225,50%,15%)] to-[hsl(230,40%,10%)] rounded-xl" />
+          <div className="absolute inset-0 bg-[hsl(220,60%,12%)] rounded-xl" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(217,80%,30%,0.15),transparent_60%)]" />
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0z\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3C/svg%3E")' }} />
 

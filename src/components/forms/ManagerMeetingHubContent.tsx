@@ -90,7 +90,7 @@ export default function ManagerMeetingHubContent() {
         onClick={() => navigate('/app/manager-meeting')}
         className="group relative rounded-2xl bg-card/60 backdrop-blur-sm border border-white/[0.06] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer p-6 flex items-center gap-5"
       >
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
           <ClipboardList className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1 min-w-0">

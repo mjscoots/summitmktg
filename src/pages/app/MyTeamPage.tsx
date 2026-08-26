@@ -323,7 +323,7 @@ export default function MyTeamPage() {
                     className="w-full text-left px-4 py-3.5 hover:bg-white/[0.03] transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-primary/30 border border-primary/20 flex items-center justify-center flex-shrink-0">
                         <Users className="w-4 h-4 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">

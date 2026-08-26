@@ -227,20 +227,20 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
         <div className="relative px-4 pt-10 pb-6 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-yellow-500/5" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/5 rounded-full blur-[60px]" />
           <div className="relative flex items-end justify-center gap-4">
             <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
               podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent" ringColor="ring-gray-400/60"
-              medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gradient-to-br from-gray-400 to-gray-500"
+              medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gray-400"
               onClick={() => setSelectedEntry(top3[1])} />
             <PodiumSlot entry={top3[0]} rank={1} animateIn={animateIn} delay="0ms" podiumH="h-28"
               podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent" ringColor="ring-yellow-500/70"
-              medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
+              medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-yellow-400"
               isChampion onClick={() => setSelectedEntry(top3[0])} />
             <PodiumSlot entry={top3[2]} rank={3} animateIn={animateIn} delay="400ms" podiumH="h-14"
               podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent" ringColor="ring-amber-600/60"
-              medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-gradient-to-br from-amber-500 to-amber-700"
+              medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-amber-500"
               onClick={() => setSelectedEntry(top3[2])} />
           </div>
         </div>
@@ -342,7 +342,7 @@ function PodiumSlot({
       style={{ transitionDelay: delay }}
     >
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
-        <div className={cn("rounded-full p-0.5", isChampion ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600" : "")}>
+        <div className={cn("rounded-full p-0.5", isChampion ? "bg-yellow-400" : "")}>
           <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg" rank={rank} totalEntries={20}
             className={cn("shadow-md", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
         </div>

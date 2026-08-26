@@ -100,7 +100,7 @@ export function BackupsPanel() {
     <div className={cn(CARD, 'p-4 sm:col-span-2')}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/30 to-primary/5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/30">
             <Database className="h-4 w-4 text-primary" />
           </div>
           <div>

@@ -70,7 +70,7 @@ export default function AdminLadderSettings() {
   return (
     <div className={CARD}>
       <div className="mb-3 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
           <GitBranch className="h-4 w-4 text-primary" />
         </div>
         <div>

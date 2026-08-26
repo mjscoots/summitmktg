@@ -56,7 +56,7 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes,
             />
           </>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-muted to-primary/10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
             <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
               <Play className="w-6 h-6 text-primary ml-0.5" fill="currentColor" />
             </div>

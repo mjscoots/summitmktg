@@ -63,7 +63,7 @@ const DEMO_SCREENS = [
             <span className="text-xs text-white/30">Momentum Builder</span>
           </div>
           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
-            <div className="h-full bg-gradient-to-r from-white/60 to-white rounded-full" style={{ width: `${(s.step / 10) * 100}%` }} />
+            <div className="h-full bg-white/60 rounded-full" style={{ width: `${(s.step / 10) * 100}%` }} />
           </div>
           <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-5">
@@ -104,7 +104,7 @@ const DEMO_SCREENS = [
     render: () => (
       <div className="bg-black rounded-xl p-6 max-h-[60vh] overflow-y-auto">
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
-          <div className="h-full bg-gradient-to-r from-white/60 to-white rounded-full" style={{ width: '80%' }} />
+          <div className="h-full bg-white/60 rounded-full" style={{ width: '80%' }} />
         </div>
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-5">
@@ -140,7 +140,7 @@ const DEMO_SCREENS = [
     render: () => (
       <div className="bg-black rounded-xl p-6 max-h-[60vh] overflow-y-auto">
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
-          <div className="h-full bg-gradient-to-r from-white/60 to-white rounded-full" style={{ width: '90%' }} />
+          <div className="h-full bg-white/60 rounded-full" style={{ width: '90%' }} />
         </div>
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-5">
@@ -176,7 +176,7 @@ const DEMO_SCREENS = [
     render: () => (
       <div className="bg-black rounded-xl p-6 max-h-[60vh] overflow-y-auto">
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
-          <div className="h-full bg-gradient-to-r from-white/60 to-white rounded-full" style={{ width: '100%' }} />
+          <div className="h-full bg-white/60 rounded-full" style={{ width: '100%' }} />
         </div>
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-5">

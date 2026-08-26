@@ -110,7 +110,7 @@ export function AdminVerticalLeadsPanel() {
   return (
     <section className={CARD}>
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
           <Building2 className="h-4 w-4 text-primary" />
         </div>
         <h2 className="text-sm font-semibold text-foreground">Industry leads</h2>

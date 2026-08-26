@@ -247,7 +247,7 @@ const VetApplication = () => {
           <h1 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wider">
             CALCULATE YOUR <span className="text-primary">EARNINGS</span>
           </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary/50 mx-auto mb-4 rounded-full" />
+          <div className="w-24 h-1 bg-primary mx-auto mb-4 rounded-full" />
           <p className="text-muted-foreground max-w-xl mx-auto">
             Put your goals in and see your estimated earnings based on Summit Marketing's veteran pay scale and marketing deal structure.
           </p>

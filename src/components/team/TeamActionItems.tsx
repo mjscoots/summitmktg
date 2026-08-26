@@ -67,7 +67,7 @@ export function TeamActionItems() {
   return (
     <div className="rounded-2xl border border-white/[0.06] bg-card/60 p-4 backdrop-blur-sm">
       <div className="mb-3 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/25">
           <ListChecks className="h-4 w-4 text-primary" />
         </div>
         <h2 className="text-sm font-semibold text-foreground">Open action items</h2>

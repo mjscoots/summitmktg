@@ -145,7 +145,7 @@ export default function BootcampLock() {
 
   return (
     <div className="min-h-screen bg-black relative flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent" />
+      <div className="absolute inset-0 bg-white/[0.02]" />
 
       <div className="relative z-10 w-full max-w-lg text-center">
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-12 backdrop-blur-sm">

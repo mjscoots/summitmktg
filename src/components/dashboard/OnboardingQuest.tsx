@@ -144,7 +144,7 @@ export function OnboardingQuest() {
             "w-10 h-10 rounded-xl flex items-center justify-center",
             allDone
               ? "bg-success/15"
-              : "bg-gradient-to-br from-primary/20 to-primary/5"
+              : "bg-primary/20"
           )}>
             {allDone ? (
               <CheckCircle2 className="w-5 h-5 text-success" />
@@ -181,7 +181,7 @@ export function OnboardingQuest() {
               "h-full rounded-full transition-all duration-700 ease-out",
               allDone
                 ? "bg-success"
-                : "bg-gradient-to-r from-primary to-primary/70"
+                : "bg-primary"
             )}
             style={{ width: `${progress}%` }}
           />

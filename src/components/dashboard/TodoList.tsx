@@ -575,7 +575,7 @@ function MissionTaskCard({
     >
       {/* Completion sweep effect */}
       {justCompleted && (
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/15 via-emerald-400/5 to-transparent rounded-xl animate-[sweep_0.6s_ease-out_forwards] pointer-events-none" />
+        <div className="absolute inset-0 bg-emerald-500/15 rounded-xl animate-[sweep_0.6s_ease-out_forwards] pointer-events-none" />
       )}
 
       {/* Drag handle */}

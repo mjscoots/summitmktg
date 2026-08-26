@@ -130,7 +130,7 @@ export default function AdminSourcePanel() {
   return (
     <div className="rounded-2xl border border-white/[0.06] bg-card/60 p-5 backdrop-blur-sm">
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/25">
           <Handshake className="h-4 w-4 text-primary" />
         </div>
         <div>
