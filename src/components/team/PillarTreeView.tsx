@@ -7,6 +7,7 @@ import { TeamTreeNode } from './TeamTreeNode';
 import { MemberProfileModal } from './MemberProfileModal';
  import { TeamResources } from './TeamResources';
 import { TeamActivityTable } from './TeamActivityTable';
+import { EventAnswersPanel } from './EventAnswersPanel';
  
 import { ManagerTrainingOverview } from '@/components/training/ManagerTrainingOverview';
 import type { Pillar, TeamMember } from '@/lib/hierarchyUtils';
