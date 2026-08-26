@@ -94,6 +94,7 @@ const Index = () => {
 
         {/* What the work is */}
         <section className="px-5 py-14 sm:px-6 md:py-24">
+          <h2 className="sr-only">What the work is</h2>
           <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-3">
             {WHAT_WE_DO.map((c) => (
               <article key={c.title} className="public-card p-6">
