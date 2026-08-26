@@ -21,6 +21,7 @@ import { SummitLoader } from '@/components/shared/SummitLoader';
 import { ChannelTabs } from '@/components/chat/ChannelTabs';
 import { useChatChannels } from '@/hooks/useChatChannels';
 import {
+import { useWorkspace } from '@/contexts/WorkspaceContext';
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -104,6 +105,7 @@ function AwardsSystemMessage({ content }: { content: string }) {
 
 export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState('general');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
