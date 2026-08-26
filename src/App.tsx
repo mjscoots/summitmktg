@@ -466,12 +466,9 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Owner-only Operator Command Center */}
-              <Route path="/command" element={
-                <ProtectedRoute requiredRole="admin">
-                  <CommandCenterPage />
-                </ProtectedRoute>
-              } />
+              {/* Command folded into Admin → Reports */}
+              <Route path="/command" element={<Navigate to="/admin/reports" replace />} />
+
 
              {/* Notepad - redirect to Resources */}
              <Route path="/app/notepad" element={<Navigate to="/app/links" replace />} />
