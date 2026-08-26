@@ -83,8 +83,10 @@ export default function RecruitsPage() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns'>(() => {
     const t = searchParams.get('tab');
-    return t === 'winback' || t === 'resigns' ? t : 'board';
+    if ((t === 'winback' || t === 'resigns') && isManagerRole) return t;
+    return t === 'mine' ? 'mine' : 'board';
   });
+
   const [board, setBoard] = useState<BoardLead[]>([]);
   const [mine, setMine] = useState<MyLead[]>([]);
   const [loading, setLoading] = useState(true);
