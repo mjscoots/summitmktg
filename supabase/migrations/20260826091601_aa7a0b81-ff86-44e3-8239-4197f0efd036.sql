@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS chat_messages_channel_created_at_idx ON public.chat_messages (channel, created_at DESC);
