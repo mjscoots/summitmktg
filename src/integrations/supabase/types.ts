@@ -6935,6 +6935,15 @@ export type Database = {
               team_name: string
             }[]
           }
+      leads_manager_options: {
+        Args: never
+        Returns: {
+          designated_count: number
+          full_name: string
+          has_access: boolean
+          user_id: string
+        }[]
+      }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
         Returns: Json
