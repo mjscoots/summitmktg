@@ -26,23 +26,14 @@ export default function WarRoomPage() {
     <AppLayout>
       <div className="h-full overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4 py-6">
-          <PageBackButton to="/app" label="Home" />
+          <PageBackButton to="/app/team" label="Team" />
 
-          {/* Hero */}
-          <div className="relative h-24 rounded-xl overflow-hidden mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-red-950 via-red-900/60 to-orange-900/40" />
-            <div className="absolute inset-0 flex items-center px-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-red-500/20 border border-red-500/30">
-                  <BarChart3 className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">STATS</h1>
-                  <p className="text-xs text-white/50">Your team's training, progress & accountability at a glance.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <header className="mb-6">
+            <h1 className="text-xl font-semibold text-foreground">Team stats</h1>
+            <p className="text-[13px] text-muted-foreground mt-1">
+              Training, progress and accountability across your teams.
+            </p>
+          </header>
 
           {/* Tab Bar */}
           <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">

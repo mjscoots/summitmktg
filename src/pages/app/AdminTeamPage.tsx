@@ -59,6 +59,9 @@ const LazyMoney = lazy(() =>
 const LazyDrills = lazy(() =>
   import('@/components/admin/AdminDrillsTab').then((m) => ({ default: m.AdminDrillsTab }))
 );
+const LazyThemes = lazy(() =>
+  import('@/components/admin/AdminThemesTab').then((m) => ({ default: m.AdminThemesTab }))
+);
 const LazyQuestions = lazy(() =>
   import('@/components/admin/AdminQuestionsTab').then((m) => ({ default: m.AdminQuestionsTab }))
 );
@@ -784,6 +787,13 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
           </TabsContent>
 
 
+
+          {/* ========== THEMES TAB ========== */}
+          <TabsContent value="themes">
+            <Suspense fallback={<LoadingList rows={3} />}>
+              <LazyThemes />
+            </Suspense>
+          </TabsContent>
 
           {/* ========== EXPORT TAB ========== */}
           {isAdmin && (

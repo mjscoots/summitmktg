@@ -56,6 +56,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   ],
   settings: [
     { value: 'industries', label: 'Industries' },
+    { value: 'themes', label: 'Themes' },
     { value: 'audit', label: 'Audit log' },
     { value: 'export', label: 'Exports', adminOnly: true },
     { value: 'system', label: 'System', ownerOnly: true },

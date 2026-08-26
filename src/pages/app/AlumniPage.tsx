@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { GraduationCap, Mail, BarChart3, GraduationCap as CapIcon, Flame } from 'lucide-react';
@@ -32,6 +33,11 @@ export default function AlumniPage() {
       alive = false;
     };
   }, [user?.id]);
+
+  // Only alumni accounts see this screen; everyone else goes home.
+  if (profile && (profile as { alumni?: boolean | null }).alumni !== true) {
+    return <Navigate to="/app" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">

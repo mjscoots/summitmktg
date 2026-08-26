@@ -109,14 +109,13 @@ export function CommandCenterHeader() {
         {pointsData && (
           <div className="grid grid-cols-3 gap-2.5 mt-4 relative z-10">
             {[
-              { icon: Zap, value: `${dailyPts}`, label: 'PTS TODAY', color: 'text-primary', glow: 'hsl(216 89% 53% / 0.12)' },
-              { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'ACTIVITY', color: 'text-primary', glow: 'hsl(217 91% 60% / 0.12)' },
-              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary', glow: 'hsl(216 89% 53% / 0.1)' },
-            ].map(({ icon: Icon, value, label, color, glow }) => (
+              { icon: Zap, value: `${dailyPts}`, label: 'PTS TODAY', color: 'text-primary' },
+              { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'ACTIVITY', color: 'text-primary' },
+              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary' },
+            ].map(({ icon: Icon, value, label, color }) => (
               <div
                 key={label}
-                className="rounded-xl p-2.5 text-center hover:-translate-y-0.5 transition-all duration-250 border border-border/20"
-                style={{ background: 'linear-gradient(180deg, hsl(230 20% 10%), hsl(230 20% 7%))', boxShadow: `0 0 16px -6px ${glow}` }}
+                className="rounded-xl p-2.5 text-center transition-transform duration-250 hover:-translate-y-0.5 border border-border/40 bg-[hsl(var(--surface))]"
               >
                 <Icon className={cn("w-3.5 h-3.5 mx-auto mb-1", color)} />
                 <p className="text-lg font-bold text-foreground tabular-nums leading-tight animate-count-up">{value}</p>
