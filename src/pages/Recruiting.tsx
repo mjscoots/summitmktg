@@ -15,7 +15,7 @@ const Recruiting = () => {
     setPageMeta({
       title: "Summer Sales Jobs — Summit Marketing",
       description:
-        "Summit Marketing recruits, trains, and fields sales reps in pest control, fiber internet, and life insurance. Training, housing and pay explained.",
+        "Summit Marketing recruits, trains, and fields door-to-door sales reps. Training, housing and pay explained.",
       path: "/recruiting",
     });
   }, []);
