@@ -30,6 +30,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberStackView } from '@/components/money/FiberStackView';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
+import { AllMoneyCard } from '@/components/money/AllMoneyCard';
 
 const CARD = 'rounded border border-border bg-card';
 
@@ -58,8 +59,7 @@ export default function MyMoneyPage() {
   );
   const isManagerRole = isManagerOrAbove(role);
   const { activeVertical } = useWorkspace();
-  const isFiber = activeVertical === 'Fiber';
-  const isLife = activeVertical === 'Life';
+  const [tab, setTab] = useState<'all' | 'Pest' | 'Fiber' | 'Life'>('all');
   const isStaff = role === 'admin' || role === 'owner';
 
 
