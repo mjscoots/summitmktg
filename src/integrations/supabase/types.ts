@@ -3243,6 +3243,62 @@ export type Database = {
         }
         Relationships: []
       }
+      reactivation_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          reset_row_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vertical: string | null
+          worked_under: string | null
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          reset_row_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vertical?: string | null
+          worked_under?: string | null
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          reset_row_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vertical?: string | null
+          worked_under?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactivation_requests_reset_row_id_fkey"
+            columns: ["reset_row_id"]
+            isOneToOne: false
+            referencedRelation: "access_reset_2027"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recruit_pipeline: {
         Row: {
           created_at: string
@@ -5916,6 +5972,7 @@ export type Database = {
         Args: { _application_id: string; _decision: string; _note?: string }
         Returns: Json
       }
+      dismiss_reactivation_request: { Args: { _id: string }; Returns: Json }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       expand_event_series: { Args: { p_weeks?: number }; Returns: number }
       fiber_installs_total: { Args: { _user: string }; Returns: number }
@@ -5925,6 +5982,28 @@ export type Database = {
       }
       finalize_season: { Args: { _season_id: string }; Returns: undefined }
       generate_weekly_report: { Args: never; Returns: Json }
+      get_access_reset_rows: {
+        Args: { _search?: string }
+        Returns: {
+          direct_manager: string
+          email: string
+          full_name: string
+          id: string
+          last_active_at: string
+          rank_name: string
+          reason: string
+          region_id: string
+          request_id: string
+          restored_at: string
+          revenue_to_date: number
+          roles: string[]
+          status: string
+          team_name: string
+          user_id: string
+          vertical: string
+          was_archived: boolean
+        }[]
+      }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -6217,6 +6296,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_my_access_state: { Args: never; Returns: Json }
       get_my_leads: {
         Args: never
         Returns: {
@@ -6304,6 +6384,21 @@ export type Database = {
           options: Json
           question_text: string
           question_type: string
+        }[]
+      }
+      get_reactivation_requests: {
+        Args: never
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          notes: string
+          phone: string
+          reset_row_id: string
+          status: string
+          user_id: string
+          vertical: string
+          worked_under: string
         }[]
       }
       get_recruiting_content: { Args: never; Returns: Json }
@@ -6533,6 +6628,15 @@ export type Database = {
         Args: { _accept: boolean; _reason?: string; _request_id: string }
         Returns: Json
       }
+      restore_access: {
+        Args: {
+          _manager?: string
+          _owner_override?: boolean
+          _role?: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: Json
+      }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
       review_team_lead_application: {
         Args: { _approve: boolean; _id: string; _note?: string }
@@ -6571,6 +6675,16 @@ export type Database = {
           _terms_acknowledged: boolean
           _terms_text: string
           _why_here: string
+        }
+        Returns: Json
+      }
+      submit_reactivation_request: {
+        Args: {
+          _full_name: string
+          _notes?: string
+          _phone: string
+          _vertical: string
+          _worked_under: string
         }
         Returns: Json
       }
