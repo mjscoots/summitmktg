@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, MessageCircle, Plus } from 'lucide-react';
+import { Phone, MessageCircle, Plus, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Workspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
+import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
+
 
 export const FIBER_CARD = 'rounded-xl border border-border bg-card';
 
