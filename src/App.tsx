@@ -273,6 +273,14 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* My week — one screen for a manager's Monday */}
+              <Route path="/app/week" element={
+                <ProtectedRoute requiredRole="manager">
+                  <MyWeekPage />
+                </ProtectedRoute>
+              } />
+
+
               {/* Members directory now lives as a tab inside Team */}
               <Route path="/app/members" element={<Navigate to="/app/team?tab=members" replace />} />
 
