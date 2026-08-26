@@ -13,6 +13,7 @@ import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
 import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
+import { WorkspaceThemeProvider } from '@/components/workspace/WorkspaceThemeProvider';
 import { MobileBottomNav } from './MobileBottomNav';
 import { WorkspaceSheet } from './WorkspaceSheet';
 
@@ -32,6 +33,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
   return (
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
       <WorkspaceProvider>
+        <WorkspaceThemeProvider>
         <SidebarProvider defaultOpen={true}>
           <ImpersonationBanner />
           <div className={cn("min-h-screen flex w-full summit-atmosphere app-topo-bg bg-background", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
@@ -77,6 +79,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             </div>
           </div>
         </SidebarProvider>
+        </WorkspaceThemeProvider>
       </WorkspaceProvider>
     </ThemeProvider>
   );
