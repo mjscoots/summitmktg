@@ -1,8 +1,8 @@
 /**
- * Admin is five sections, each its own route. Every old tab still exists —
+ * Admin is six sections, each its own route. Every old tab still exists —
  * it now lives inside one of these sections.
  */
-export type AdminSection = 'inbox' | 'people' | 'money' | 'content' | 'settings';
+export type AdminSection = 'inbox' | 'people' | 'money' | 'content' | 'reports' | 'settings';
 
 export interface AdminTabDef {
   value: string;
@@ -16,6 +16,7 @@ export const ADMIN_SECTIONS: { key: AdminSection; label: string; path: string }[
   { key: 'people', label: 'People', path: '/admin/people' },
   { key: 'money', label: 'Money', path: '/admin/money' },
   { key: 'content', label: 'Content', path: '/admin/content' },
+  { key: 'reports', label: 'Reports', path: '/admin/reports' },
   { key: 'settings', label: 'Settings', path: '/admin/settings' },
 ];
 
@@ -46,6 +47,11 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'culture', label: 'Culture', adminOnly: true },
     { value: 'recruiting', label: 'Public site' },
     { value: 'assistant', label: 'Ask Summit', adminOnly: true },
+  ],
+  reports: [
+    { value: 'overview', label: 'Overview' },
+    { value: 'offseason', label: 'Off-season' },
+    { value: 'targets', label: 'Targets', ownerOnly: true },
   ],
   settings: [
     { value: 'industries', label: 'Industries' },
