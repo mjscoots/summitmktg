@@ -152,6 +152,8 @@ export default function ProfilePage() {
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneVisibility, setPhoneVisibility] = useState<'everyone' | 'team' | 'staff'>('team');
+
   const [bio, setBio] = useState('');
   const [timezone, setTimezone] = useState<string>('auto');
   const [emergencyContactName, setEmergencyContactName] = useState('');
@@ -194,7 +196,7 @@ export default function ProfilePage() {
       const fetchExtra = async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms, accepting_new_reps, mentee_capacity, manager_intro')
+          .select('timezone, nickname, emergency_contact_name, emergency_contact_phone, shirt_size, committed_last_day, commitment_terms, accepting_new_reps, mentee_capacity, manager_intro, phone_visibility')
           .eq('user_id', profile.user_id)
           .single();
         const dbTz = (data as any)?.timezone;
@@ -203,7 +205,9 @@ export default function ProfilePage() {
         setEmergencyContactName((data as any)?.emergency_contact_name || '');
         setEmergencyContactPhone((data as any)?.emergency_contact_phone || '');
         setShirtSize((data as any)?.shirt_size || '');
+        setPhoneVisibility(((data as any)?.phone_visibility || 'team') as 'everyone' | 'team' | 'staff');
         setCommittedLastDay((data as any)?.committed_last_day || null);
+
         setCommitmentTerms((data as any)?.commitment_terms || null);
         setAcceptingNewReps(Boolean((data as any)?.accepting_new_reps));
         setMenteeCapacity((data as any)?.mentee_capacity != null ? String((data as any).mentee_capacity) : '');
@@ -225,6 +229,8 @@ export default function ProfilePage() {
           full_name: fullName,
           nickname: nickname || null,
           phone: phone,
+          phone_visibility: phoneVisibility,
+
           timezone: timezone === 'auto' ? null : timezone,
           emergency_contact_name: emergencyContactName || null,
           emergency_contact_phone: emergencyContactPhone || null,
@@ -565,7 +571,34 @@ export default function ProfilePage() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 123-4567"
               />
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-foreground mb-2">Who can see my number</label>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    ['everyone', 'Everyone'],
+                    ['team', 'My team and leaders'],
+                    ['staff', 'Staff only'],
+                  ] as const).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setPhoneVisibility(value)}
+                      className={`min-h-[44px] rounded-lg border px-3 text-[13px] transition-colors ${
+                        phoneVisibility === value
+                          ? 'border-primary/60 bg-primary/10 text-foreground'
+                          : 'border-border/60 bg-background text-muted-foreground hover:border-primary/40'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Search on Chat shows your number only to people this allows.
+                </p>
+              </div>
             </div>
+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

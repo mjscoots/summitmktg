@@ -1165,7 +1165,9 @@ export type Database = {
           icon: string
           id: string
           is_active: boolean
+          kind: string
           label: string
+          member_ids: string[]
           slug: string
           vertical: string | null
         }
@@ -1177,7 +1179,9 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
+          kind?: string
           label: string
+          member_ids?: string[]
           slug: string
           vertical?: string | null
         }
@@ -1189,7 +1193,9 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
+          kind?: string
           label?: string
+          member_ids?: string[]
           slug?: string
           vertical?: string | null
         }
@@ -2945,6 +2951,7 @@ export type Database = {
           otp_verified: boolean | null
           password_changed: boolean | null
           phone: string | null
+          phone_visibility: Database["public"]["Enums"]["phone_visibility"]
           pillar_slug: string | null
           pre_archive_status: Database["public"]["Enums"]["user_status"] | null
           rank_id: string | null
@@ -3020,6 +3027,7 @@ export type Database = {
           otp_verified?: boolean | null
           password_changed?: boolean | null
           phone?: string | null
+          phone_visibility?: Database["public"]["Enums"]["phone_visibility"]
           pillar_slug?: string | null
           pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
           rank_id?: string | null
@@ -3095,6 +3103,7 @@ export type Database = {
           otp_verified?: boolean | null
           password_changed?: boolean | null
           phone?: string | null
+          phone_visibility?: Database["public"]["Enums"]["phone_visibility"]
           pillar_slug?: string | null
           pre_archive_status?: Database["public"]["Enums"]["user_status"] | null
           rank_id?: string | null
@@ -6214,6 +6223,13 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      can_chat_dm: { Args: { _a: string; _b: string }; Returns: boolean }
+      can_find_person: { Args: { _target: string }; Returns: boolean }
+      can_read_channel: {
+        Args: { _channel: string; _uid: string }
+        Returns: boolean
+      }
+      can_see_phone: { Args: { _target: string }; Returns: boolean }
       can_sweep_person: { Args: { _target: string }; Returns: boolean }
       can_view_event: {
         Args: { p_scope: string; p_team_id: string; p_user_id: string }
@@ -6833,11 +6849,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_chat_staff: { Args: { _uid: string }; Returns: boolean }
       is_course_complete: {
         Args: { _course: string; _user: string }
         Returns: boolean
       }
+      is_dm_channel: { Args: { _slug: string }; Returns: boolean }
+      is_dm_member: { Args: { _slug: string; _uid: string }; Returns: boolean }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
+      is_leader_of: {
+        Args: { _leader: string; _person: string }
+        Returns: boolean
+      }
       is_manager_tier: { Args: { _uid: string }; Returns: boolean }
       is_owner: { Args: { _uid: string }; Returns: boolean }
       is_paired_manager_of: {
@@ -7125,6 +7148,7 @@ export type Database = {
             Returns: undefined
           }
       run_notification_digest: { Args: never; Returns: number }
+      search_people: { Args: { _q: string }; Returns: Json }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string
@@ -7156,6 +7180,7 @@ export type Database = {
         Args: { _lead_id: string; _priority: boolean }
         Returns: Json
       }
+      start_dm: { Args: { _other: string }; Returns: Json }
       start_sweep_session: { Args: { _filter?: Json }; Returns: Json }
       submission_client_key: { Args: never; Returns: string }
       submit_commitment_interview: {
@@ -7271,6 +7296,7 @@ export type Database = {
         | "recruiter"
         | "president"
       experience_level: "rookie" | "veteran"
+      phone_visibility: "everyone" | "team" | "staff"
       priority_task_type:
         | "pitch_work"
         | "weekly_mission"
@@ -7422,6 +7448,7 @@ export const Constants = {
         "president",
       ],
       experience_level: ["rookie", "veteran"],
+      phone_visibility: ["everyone", "team", "staff"],
       priority_task_type: [
         "pitch_work",
         "weekly_mission",

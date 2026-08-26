@@ -847,3 +847,53 @@ Preview only; nothing published.
 - Series expansion does not post per-instance cards: recurrence is still expanded at read time in `get_events_feed`, so one card is posted per stored `calendar_events` row.
 - The dev-only React warning "Function components cannot be given refs" with an `App` stack is still open, unchanged from Pass 58B.
 - Preview only; nothing published.
+
+## Pass 60D — Directory and DMs
+
+### What shipped
+- Search field at the top of the Chat home ("People, events, answers"). Results: people (name, role, team, tap-to-call, tap-to-text, Message), saved phone numbers, saved emails, upcoming events (opens the 60C event card), and an "Ask Summit: <query>" row last.
+- Contact cards open from search and from `?person=<user_id>` deep links. `GlobalSearch` now sends people to `/app/chat?person=<user_id>` instead of the manager-only team page.
+- The Phones list is no longer a rep-facing tab on `/app/links`; the tab remains for staff who maintain the list. Reps reach numbers through Chat search.
+- `profiles.phone_visibility` ('everyone' | 'team' | 'staff', default 'team') is editable by the person on their profile page and by staff.
+- Direct messages: `chat_channels.kind = 'dm'` with `member_ids uuid[]`, membership RLS on the channel and its messages, DM rows in `get_conversations` with the other person's name, avatar and unread count.
+
+### RPC signatures
+- `search_people(_q text) returns jsonb` — keys `people`, `directory`, `emails`, `events`. People rows carry `user_id`, `full_name`, `avatar_url`, `role`, `team_name`, `phone` (only when allowed), `can_dm`, `view_level`. Requires 2+ characters.
+- `start_dm(_other uuid) returns jsonb` — finds or creates the DM channel, returns `{ slug }`, or `{ error }` when the pair is not allowed.
+- `can_find_person(_target uuid) returns boolean` — directory visibility helper (see below).
+- `can_see_phone(_target uuid) returns boolean` — phone visibility helper.
+- `can_chat_dm(_a uuid, _b uuid) returns boolean` — DM pairing rule.
+
+### Visibility rules
+
+| Setting | Who sees the number |
+| --- | --- |
+| everyone | any signed-in member who can find the person |
+| team (default) | same team, either direction of the leader chain, staff, and the person themself |
+| staff | owner, admin, president, and the person themself |
+
+Directory findability (`can_find_person`): the person themself, anyone `can_view_person` already allows (downline), your own leaders, your teammates, and staff. `can_view_person` was left as-is because other screens depend on its exact levels; it only looks downward, so a rep could not otherwise find their own manager.
+
+DM pairing (`can_chat_dm`): allowed when either side is staff (owner/admin/president) or one is a leader of the other. Rep to rep is refused server-side with exactly: `Direct messages are between you and your leaders.`
+
+### Verification (throwaway manager, two reps, one admin; deleted afterwards)
+- Rep One searched the manager → number shown (visibility 'team'), call and text controls present.
+- Rep One searched Rep Two (visibility 'staff') → `phone: null`, no call or text control, `can_dm: false`.
+- Rep One `start_dm(Rep Two)` → `Direct messages are between you and your leaders.`
+- Manager `start_dm(Rep One)` → `dm-10665e7…`; the manager posted in it successfully; `get_conversations` showed the DM for the manager (unread 0), Rep One (unread 1) and the admin (unread 1); Rep Two saw no DM row.
+- Rep Two calling `get_channel_messages` on that DM → `{"error":"No access"}`; a direct `chat_messages` read filtered to the channel returned `[]`.
+- Searching an upcoming event title ("Mindset") returned the matching events, which open the 60C card.
+- 390 px chat home and search: `document.documentElement.scrollWidth` 390 = `window.innerWidth` 390, keyboard closed and with the search field focused. Action targets are 44 px.
+- Typecheck clean, production build clean.
+- Cleanup proof: `profiles` rows matching `p60d.%` = 0, DM channel rows = 0, DM messages = 0, downline edges = 0.
+
+### Fixes found during verification
+- `is_dm_channel` and `is_dm_member` are called from RLS policies, which run as the signed-in caller, so both had been over-revoked and every DM message insert failed with `permission denied for function is_dm_channel`. Execute is now granted to `authenticated` only (anon still revoked).
+- `search_people` had been written against column and argument names that do not exist (`phone_numbers.number`, `calendar_events.starts_at`, `can_see_phone(uuid, uuid)`, `can_view_event(uuid, uuid)`, and `can_view_person` treated as boolean). All corrected against the live schema.
+- Saved-number and saved-email results now show the entry name rather than the generic category label.
+
+### Open
+- The throwaway admin account's auth record could not be deleted: `self-delete-account` refuses privileged accounts ("Privileged accounts must be deleted by an owner") and there is no owner-facing delete path for another admin. All of its application rows (profile, role, edges) were deleted, so it is an orphaned auth record only, and `admin-create-user` reclaims orphans by email.
+- Linter count after this pass: 322 issues (1 RLS-enabled-no-policy, 26 anon SECURITY DEFINER, 294 signed-in SECURITY DEFINER, 1 short OTP). The two new entries are `can_find_person` and `search_people`, both intentionally callable by signed-in users only.
+- The development-only React ref warning noted in earlier passes is still present.
+- Nothing was published.

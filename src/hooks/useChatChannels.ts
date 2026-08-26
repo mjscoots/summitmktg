@@ -8,13 +8,18 @@ export interface ChatConversation {
   icon: string | null;
   color: string | null;
   display_order: number;
+  /** 'channel' | 'team' | 'dm' */
   kind: string;
   is_pinned: boolean;
   last_content: string | null;
   last_at: string | null;
   last_sender: string | null;
   unread: number;
+  /** Direct messages only. */
+  avatar_url?: string | null;
+  other_user_id?: string | null;
 }
+
 
 /**
  * The conversation list: channels, last line, sender, time and unread count,

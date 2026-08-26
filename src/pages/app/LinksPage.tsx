@@ -372,13 +372,16 @@ export default function LinksPage() {
     fetchEmails();
   };
 
+  // Reps find people and saved numbers through the search field on Chat.
+  // Resources keeps the Phones tab only for the people who maintain the list.
   const TABS: { id: PageTab; label: string; icon: typeof Link2 }[] = [
     { id: 'links', label: 'Links', icon: Link2 },
-    { id: 'phone-numbers', label: 'Phones', icon: Phone },
+    ...(isAdmin ? [{ id: 'phone-numbers' as PageTab, label: 'Phones', icon: Phone }] : []),
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
     { id: 'tools', label: 'Tools', icon: Wrench },
   ];
+
 
   return (
     <AppLayout>
