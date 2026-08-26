@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { UpdatePrompt } from "@/components/layout/UpdatePrompt";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from "react-router-dom";
+import { sectionForTab } from "@/lib/adminSections";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RookieViewProvider } from "@/contexts/RookieViewContext";
@@ -74,6 +75,14 @@ const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
 const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
 const IndustriesPage = lazy(() => import("./pages/app/IndustriesPage"));
 
+
+/** Old /admin/team?tab=... links land in the section that now owns that tab. */
+function AdminTabRedirect() {
+  const [params] = useSearchParams();
+  const tab = params.get('tab');
+  const section = sectionForTab(tab);
+  return <Navigate to={`/admin/${section}${tab ? `?tab=${tab}` : ''}`} replace />;
+}
 
 function LazyFallback() {
   return (
@@ -445,12 +454,17 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
-              {/* Admin Team Management */}
-              <Route path="/admin/team" element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminTeamPage />
-                </ProtectedRoute>
-              } />
+              {/* Admin — five sections. Old /admin/team links redirect to the owning section. */}
+              <Route path="/admin/team" element={<AdminTabRedirect />} />
+              {(['inbox', 'people', 'money', 'content', 'settings'] as const).map((s) => (
+                <Route key={s} path={`/admin/${s}`} element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminTeamPage section={s} />
+                  </ProtectedRoute>
+                } />
+              ))}
+              <Route path="/admin" element={<Navigate to="/admin/inbox" replace />} />
+
 
                {/* Redirect old Hub/Operations to Calendar */}
                <Route path="/app/operations" element={<Navigate to="/app/calendar" replace />} />

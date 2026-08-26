@@ -60,6 +60,10 @@ const LazyAssistant = lazy(() =>
 const LazyCulture = lazy(() =>
   import('@/components/admin/AdminCultureTab').then((m) => ({ default: m.AdminCultureTab }))
 );
+const LazyRestore = lazy(() => import('@/components/admin/RestoreAccessPanel'));
+const LazyReactivations = lazy(() => import('@/components/admin/ReactivationRequestsPanel'));
+import { ADMIN_SECTIONS, SECTION_TABS, type AdminSection } from '@/lib/adminSections';
+
 
 
 interface TeamRow {
@@ -76,16 +80,25 @@ interface TeamRow {
 
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || '';
 
-export default function AdminTeamPage() {
+export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSection }) {
   const { role, profile } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
   // Counts are always live — no "viewed" zeroing
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isSuperAdmin = isOwner || profile?.email === SUPER_ADMIN_EMAIL;
+
+  const sectionTabs = SECTION_TABS[section].filter(
+    (t) => (!t.adminOnly || isAdmin) && (!t.ownerOnly || isSuperAdmin),
+  );
+  const wanted = searchParams.get('tab');
+  const activeTab = sectionTabs.some((t) => t.value === wanted)
+    ? (wanted as string)
+    : sectionTabs[0]?.value ?? 'users';
+
 
   const [allUsers, setAllUsers] = useState<UserRow[]>([]);
   const [pendingUsers, setPendingUsers] = useState<UserRow[]>([]);
@@ -352,82 +365,73 @@ export default function AdminTeamPage() {
         </div>
 
 
-        <Tabs defaultValue={
-          // Deep link wins, otherwise land on the triage queue whenever anything is pending
-          searchParams.get('tab') || (adminCounts.total > 0 ? 'queue' : 'users')
-        } className="w-full">
-          <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
-            <div className="inline-flex items-center rounded-xl bg-card/40 backdrop-blur-sm p-1 border border-border/30 min-w-max">
-            <TabsList className="bg-transparent p-0 h-auto gap-0.5">
-              <TabsTrigger value="queue" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Queue {adminCounts.total > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.total}</span>}
-              </TabsTrigger>
-              <TabsTrigger value="users" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-
-                Users <span className="ml-1 text-[9px] opacity-70">{allUsers.filter(u => u.approved === true).length}</span>
-              </TabsTrigger>
-              <TabsTrigger value="teams" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Teams <span className="ml-1 text-[9px] opacity-70">{teams.length}</span>
-              </TabsTrigger>
-              <TabsTrigger value="approvals" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Approvals {pendingUsers.length > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{pendingUsers.length}</span>}
-              </TabsTrigger>
-              <TabsTrigger value="apps" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Apps
-              </TabsTrigger>
-              <TabsTrigger value="recruiting" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Recruiting
-              </TabsTrigger>
-              <TabsTrigger value="pitches" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Pitches {adminCounts.pendingPitches > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.pendingPitches}</span>}
-              </TabsTrigger>
-              <TabsTrigger value="feedback" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Feedback {adminCounts.newFeedback > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.newFeedback}</span>}
-              </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger value="drills" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                  Drills
-                </TabsTrigger>
-              )}
-              {isAdmin && (
-                <TabsTrigger value="culture" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                  Culture
-                </TabsTrigger>
-              )}
-
-              {isAdmin && (
-                <TabsTrigger value="money" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                  Money
-                </TabsTrigger>
-              )}
-              {isAdmin && (
-                <TabsTrigger value="assistant" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                  Assistant
-                </TabsTrigger>
-              )}
-              <TabsTrigger value="archived" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Archived
-              </TabsTrigger>
-              <TabsTrigger value="sync" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Sync {adminCounts.syncIssues > 0 && <span className="ml-1 bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">{adminCounts.syncIssues}</span>}
-              </TabsTrigger>
-              <TabsTrigger value="audit" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Audit
-              </TabsTrigger>
-              <TabsTrigger value="industries" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                Industries
-              </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger value="export" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">
-                  Export
-                </TabsTrigger>
-              )}
-              {isSuperAdmin && (
-                <TabsTrigger value="system" className="text-xs px-2.5 sm:px-3 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:shadow-primary/30 transition-all whitespace-nowrap">System</TabsTrigger>
-              )}
-            </TabsList>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setSearchParams({ tab: v }, { replace: true })}
+          className="w-full"
+        >
+          {/* Five sections */}
+          <div className="overflow-x-auto -mx-4 px-4 mb-3 scrollbar-hide">
+            <div className="inline-flex min-w-max items-center gap-1 rounded-xl border border-border/30 bg-card/40 p-1">
+              {ADMIN_SECTIONS.map((s) => (
+                <button
+                  key={s.key}
+                  onClick={() => navigate(s.path)}
+                  className={cn(
+                    'whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition-colors',
+                    s.key === section
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {s.label}
+                  {s.key === 'inbox' && adminCounts.total > 0 && (
+                    <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[9px] font-bold text-destructive-foreground">
+                      {adminCounts.total}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
+
+          {/* Sub-nav inside the section */}
+          <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
+            <TabsList className="inline-flex min-w-max gap-0.5 bg-transparent p-0 h-auto">
+              {sectionTabs.map((t) => (
+                <TabsTrigger
+                  key={t.value}
+                  value={t.value}
+                  className="whitespace-nowrap rounded-lg px-2.5 py-2 text-xs transition-colors data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                >
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          {section === 'inbox' && (
+            <TabsContent value="requests">
+              <Suspense fallback={<LoadingList rows={3} />}>
+                <LazyReactivations />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {section === 'people' && (
+            <TabsContent value="restore">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyRestore />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {section === 'money' && isAdmin && (
+            <TabsContent value="statements">
+              <p className="text-sm text-muted-foreground">Not built yet.</p>
+            </TabsContent>
+          )}
+
 
           {/* ========== DRILLS TAB ========== */}
           {isAdmin && (

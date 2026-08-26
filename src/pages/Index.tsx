@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
@@ -123,6 +123,19 @@ const Index = () => {
                 Apply
               </button>
             </div>
+
+            <p className="mt-4 text-xs text-muted-foreground">
+              Also running:{' '}
+              <Link to="/industries/fiber" className="underline hover:text-foreground">
+                Fiber Internet
+              </Link>{' '}
+              (winter) ·{' '}
+              <Link to="/industries/life" className="underline hover:text-foreground">
+                Life Insurance
+              </Link>{' '}
+              (coming)
+            </p>
+
 
             <div className="mt-8">
               <LiveCounters variant="inline" />
