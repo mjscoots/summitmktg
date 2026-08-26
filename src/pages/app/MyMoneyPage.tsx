@@ -28,6 +28,7 @@ import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberStackView } from '@/components/money/FiberStackView';
+import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 
 const CARD = 'rounded border border-border bg-card';
 
@@ -167,6 +168,7 @@ export default function MyMoneyPage() {
           <>
             <SentRepOverrideNote />
             <MySpreadSection />
+            {activeVertical === 'Pest' && <DashboardFunnelTracker />}
           </>
         )}
 

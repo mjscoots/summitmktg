@@ -56,6 +56,9 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
       else root.style.removeProperty(name);
     };
 
+    // Lets workspace-scoped CSS (Pest accents, densities) target the active product.
+    root.dataset.workspace = (active?.vertical || 'Pest').toLowerCase();
+
     const light = theme.mode === 'light';
     root.classList.toggle('light-workspace', light);
     // Tells the role theme to keep its hands off colours a workspace owns.
@@ -111,9 +114,11 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
 
     return () => {
       root.classList.remove('light-workspace');
+      delete root.dataset.workspace;
       delete root.dataset.workspaceHeadings;
     };
   }, [
+    active?.vertical,
     theme.mode,
     theme.background,
     theme.surface,

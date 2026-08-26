@@ -34,11 +34,13 @@ function allowed(dest: NavDest, tier: Tier): boolean {
   return TIER_ORDER.indexOf(tier) >= TIER_ORDER.indexOf(dest.minTier);
 }
 
-/** The three destinations on the phone bottom bar. Nothing else goes here. */
+/** Pest bottom bar: the five places a pest rep works from. */
 export const PHONE_BAR: NavDest[] = [
   { key: 'home', label: 'Home', path: '/app', icon: Home },
   { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { key: 'training', label: 'Training', path: '/app/training', icon: GraduationCap },
+  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
+  { key: 'leaderboard', label: 'Board', path: '/app/leaderboard', icon: Trophy },
 ];
 
 /** Fiber works on installs, not accounts, so its bar carries its own work. */

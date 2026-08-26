@@ -46,6 +46,8 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        "accent-number": "hsl(var(--accent-number, var(--primary)))",
+        "secondary-label": "hsl(var(--secondary-label, var(--muted-foreground)))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",

@@ -1306,3 +1306,15 @@ Nothing was published.
 - Verified with owner-session screenshots at 390 and 1280 for Home (coming-soon and open), Pipeline, Training, Money, and Chat — no sideways scrolling at either width.
 - Life was switched to open only long enough to capture the screenshots and set back to coming soon; the owner's workspace was restored to Pest.
 - Typecheck clean; production build clean, largest chunk 194 kB. Nothing published.
+
+## Pass 63C — Pest
+- Pest tokens: orange accent for numbers and primary actions, cool light-blue labels and progress tracks, 10px radius, 1px blue-grey card borders, no shadows, scoped to `data-workspace='pest'` on the root (no data or RPC changes).
+- Tailwind gains `accent-number` and `secondary-label` colours that fall back to the existing primary and muted tokens outside Pest.
+- New `PestHome`: greeting with today's date and streak, numbers strip (points today, rank, this week's points from the existing snapshot), Needs-you row, winter plan and question cards, a Today card with up to three missions and a See all link, top-three leaderboard plus the rep's own row, team chat preview with unread count, My points, and one pinned announcement line.
+- Removed from Home: the Missions / Funnel Tracker tab strip, announcements block, AI upload, quick-card duplicates of tabs, daily challenge, downline calculator, and the manager command header.
+- Funnel Tracker now lives under My money for managers in the Pest workspace.
+- New `/app/missions` page shows the full mission board using the existing `todo_items` list.
+- Pest phone bar is Home, Chat, Training, Money, Board.
+- Verified with owner-session screenshots at 390 and 1280 for Home, Training, My money, Leaderboard, Chat and Missions: no horizontal overflow, `data-workspace` reads `pest` throughout.
+- `bunx tsgo --noEmit` clean; production build clean, largest chunk 194 kB.
+- Not published.

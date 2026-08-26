@@ -375,6 +375,29 @@ html, body, #root {
 }
 
 
+/* ━━━ PEST — blue base, orange numbers and actions, light-blue labels ━━━ */
+:root[data-workspace='pest'] {
+  --accent-number: 26 92% 56%;
+  --secondary-label: 205 60% 72%;
+  --radius: 0.625rem;
+}
+
+:root[data-workspace='pest'] .glass-card,
+:root[data-workspace='pest'] .stat-card {
+  border-color: hsl(217 30% 26%);
+  box-shadow: none;
+}
+
+:root[data-workspace='pest'] h1,
+:root[data-workspace='pest'] h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+:root[data-workspace='pest'] .progress-track {
+  background: hsl(205 60% 72% / 0.18);
+}
+
 @layer components {
   /* ━━━ ELEVATED CARD ━━━ */
   .card-elevated {
