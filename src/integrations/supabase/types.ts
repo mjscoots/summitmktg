@@ -5512,6 +5512,7 @@ export type Database = {
           short_name: string
           slug: string
           status: string
+          theme: Json
           unit: string
           updated_at: string
           vertical: string
@@ -5528,6 +5529,7 @@ export type Database = {
           short_name: string
           slug: string
           status?: string
+          theme?: Json
           unit: string
           updated_at?: string
           vertical: string
@@ -5544,6 +5546,7 @@ export type Database = {
           short_name?: string
           slug?: string
           status?: string
+          theme?: Json
           unit?: string
           updated_at?: string
           vertical?: string
@@ -6999,6 +7002,10 @@ export type Database = {
       }
       set_roster_state: {
         Args: { _state: string; _user_id: string }
+        Returns: undefined
+      }
+      set_vertical_theme: {
+        Args: { _theme: Json; _vertical: string }
         Returns: undefined
       }
       set_winback_priority: {
