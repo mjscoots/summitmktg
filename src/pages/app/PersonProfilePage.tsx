@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -71,17 +70,27 @@ export default function PersonProfilePage() {
   const navigate = useNavigate();
   const [seasonOpen, setSeasonOpen] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['person-profile', userId],
-    enabled: !!userId,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_person_profile' as never, {
+  const [data, setData] = useState<PersonProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<unknown>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    let alive = true;
+    setIsLoading(true);
+    (async () => {
+      const { data: res, error: err } = await supabase.rpc('get_person_profile' as never, {
         _user_id: userId,
       } as never);
-      if (error) throw error;
-      return data as unknown as PersonProfile;
-    },
-  });
+      if (!alive) return;
+      if (err) setError(err);
+      else setData(res as unknown as PersonProfile);
+      setIsLoading(false);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
 
   const timeline = useMemo(() => {
     if (!data) return [];
