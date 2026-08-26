@@ -288,3 +288,9 @@ Preview only. Nothing published. `bunx tsgo --noEmit` clean, production build cl
 - `PageHeader` applied to two screens so far; remaining app pages keep their existing
   headers until they are converted.
 - Main chunk size unchanged.
+
+## Pass 44 — Cover: two owner fixes
+- Subhead now "We train and field door-to-door sales reps. You knock, you close, you get paid on what you close."; applied to index.html description/og/twitter, public/llms.txt, and the Recruiting page meta.
+- Public calculator is rookie-only: Rookie/Veteran switch and VetCalculator mount removed from the landing page; section heading and gold styling unchanged; /apply/veteran still routes.
+- "Ready to start?" copy now reads "Applications take a few minutes."
+- Verified no horizontal overflow at 390/820/1280; typecheck clean; nothing published.
