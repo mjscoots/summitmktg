@@ -4003,27 +4003,36 @@ export type Database = {
       }
       regions: {
         Row: {
+          accepting_new: boolean
           active: boolean
+          capacity: number | null
           created_at: string
           id: string
+          intro: string | null
           lead_user_id: string | null
           name: string
           updated_at: string
           vertical: string
         }
         Insert: {
+          accepting_new?: boolean
           active?: boolean
+          capacity?: number | null
           created_at?: string
           id?: string
+          intro?: string | null
           lead_user_id?: string | null
           name: string
           updated_at?: string
           vertical: string
         }
         Update: {
+          accepting_new?: boolean
           active?: boolean
+          capacity?: number | null
           created_at?: string
           id?: string
+          intro?: string | null
           lead_user_id?: string | null
           name?: string
           updated_at?: string
@@ -5772,36 +5781,48 @@ export type Database = {
       }
       vertical_steps: {
         Row: {
+          auto_rule: string | null
+          checklist: string[]
           course_id: string | null
           created_at: string
           description: string | null
           display_order: number
           id: string
           is_active: boolean
+          link_url: string | null
+          overdue_days: number
           step_type: string
           title: string
           updated_at: string
           vertical: string
         }
         Insert: {
+          auto_rule?: string | null
+          checklist?: string[]
           course_id?: string | null
           created_at?: string
           description?: string | null
           display_order?: number
           id?: string
           is_active?: boolean
+          link_url?: string | null
+          overdue_days?: number
           step_type?: string
           title: string
           updated_at?: string
           vertical: string
         }
         Update: {
+          auto_rule?: string | null
+          checklist?: string[]
           course_id?: string | null
           created_at?: string
           description?: string | null
           display_order?: number
           id?: string
           is_active?: boolean
+          link_url?: string | null
+          overdue_days?: number
           step_type?: string
           title?: string
           updated_at?: string
