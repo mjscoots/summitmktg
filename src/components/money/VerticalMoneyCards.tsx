@@ -90,6 +90,8 @@ export function VerticalMoneyCards({
 }) {
   const [data, setData] = useState<MoneyView | null>(null);
   const [loading, setLoading] = useState(true);
+  const { active: activeWorkspace } = useWorkspace();
+  const activeVertical = activeWorkspace?.vertical ?? null;
 
   useEffect(() => {
     let active = true;
