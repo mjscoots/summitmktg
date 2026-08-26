@@ -26,7 +26,6 @@ import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
 import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberStackView } from '@/components/money/FiberStackView';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
@@ -58,7 +57,6 @@ export default function MyMoneyPage() {
     []
   );
   const isManagerRole = isManagerOrAbove(role);
-  const { activeVertical } = useWorkspace();
   const [tab, setTab] = useState<'all' | 'Pest' | 'Fiber' | 'Life'>('all');
   const isStaff = role === 'admin' || role === 'owner';
 
