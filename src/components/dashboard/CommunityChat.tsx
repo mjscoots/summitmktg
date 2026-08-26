@@ -21,6 +21,7 @@ import { useChatChannels } from '@/hooks/useChatChannels';
 import { EventCard } from '@/components/chat/EventCard';
 import { AnnouncementCard } from '@/components/chat/AnnouncementCard';
 import { IncentiveCard } from '@/components/chat/IncentiveCard';
+import { PinnedBar } from '@/components/chat/PinnedBar';
 
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -725,6 +726,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           typingUsers={typingUsers}
           onSendVoice={handleSendVoice}
           mentionables={mentionables}
+          placeholder={composerPlaceholder}
         />
       </div>
 
