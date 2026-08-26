@@ -47,6 +47,8 @@ const LeaderboardPage = lazy(() => import("./pages/app/LeaderboardPage"));
 const CalendarPage = lazy(() => import("./pages/app/CalendarPage"));
 const EventsPage = lazy(() => import("./pages/app/EventsPage"));
 const MyTeamPage = lazy(() => import("./pages/app/MyTeamPage"));
+const MyWeekPage = lazy(() => import("./pages/app/MyWeekPage"));
+
 const ProfilePage = lazy(() => import("./pages/app/ProfilePage"));
 const InterviewsPage = lazy(() => import("./pages/app/InterviewsPage"));
 const Interview1Page = lazy(() => import("./pages/app/Interview1Page"));
