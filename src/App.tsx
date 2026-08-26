@@ -73,6 +73,7 @@ const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const InstallsPage = lazy(() => import('@/pages/app/InstallsPage'));
+const MissionsPage = lazy(() => import('@/pages/app/MissionsPage'));
 const PipelinePage = lazy(() => import('@/pages/app/PipelinePage'));
 
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
