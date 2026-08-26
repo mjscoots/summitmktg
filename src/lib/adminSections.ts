@@ -45,6 +45,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   content: [
     { value: 'questions', label: 'Questions', adminOnly: true },
     { value: 'drills', label: 'Drills', adminOnly: true },
+    { value: 'firstweek', label: 'First week', adminOnly: true },
     { value: 'playbook', label: 'Playbook', adminOnly: true },
     { value: 'culture', label: 'Culture', adminOnly: true },
     { value: 'recruiting', label: 'Public site' },
