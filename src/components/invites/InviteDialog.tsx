@@ -126,7 +126,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
       role: locked ? 'rep' : inviteRole,
       vertical: locked ? profile?.active_vertical || 'pest' : vertical,
       team_id: (locked ? profile?.team_id : teamId) || null,
-      region: vertical === 'fiber' && region ? region : locked ? profile?.region || null : null,
+      region: vertical.toLowerCase() === 'fiber' && region ? region : locked ? profile?.region || null : null,
       manager_id: locked ? user.id : managerId || null,
       note: note.trim() || null,
     });
@@ -231,7 +231,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
               </Select>
             </div>
 
-            {!locked && vertical === 'fiber' && (
+            {!locked && vertical.toLowerCase() === 'fiber' && (
               <div>
                 <Label>Region</Label>
                 <Select value={region} onValueChange={setRegion}>
