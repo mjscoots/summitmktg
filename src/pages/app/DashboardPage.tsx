@@ -188,6 +188,16 @@ export default function DashboardPage() {
     );
   }
 
+  // The Summer Checklist gate applies to the Pest workspace home only.
+  if (!active || active.vertical === 'Pest') {
+    return (
+      <PestChecklistGate>
+        <PestDashboard />
+      </PestChecklistGate>
+    );
+  }
+
+
   const hoursToday = pointsData ? pointsData.timeTodayMinutes / 60 : 0;
   const dailyGoalHours = 5;
   const dailyGoalPercent = Math.min((hoursToday / dailyGoalHours) * 100, 100);
