@@ -1594,6 +1594,7 @@ export type Database = {
       }
       daily_training_time: {
         Row: {
+          app_minutes: number
           created_at: string
           date: string
           id: string
@@ -1605,6 +1606,7 @@ export type Database = {
           video_minutes: number
         }
         Insert: {
+          app_minutes?: number
           created_at?: string
           date?: string
           id?: string
@@ -1616,6 +1618,7 @@ export type Database = {
           video_minutes?: number
         }
         Update: {
+          app_minutes?: number
           created_at?: string
           date?: string
           id?: string
@@ -6250,6 +6253,7 @@ export type Database = {
       }
       claim_lead: { Args: { _lead_id: string }; Returns: Json }
       claim_winback: { Args: { _lead_id: string }; Returns: Json }
+      company_timezone: { Args: never; Returns: string }
       complete_daily_drill: {
         Args: { _drill_id: string; _response: string; _timezone?: string }
         Returns: Json
@@ -6799,6 +6803,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_training_recap: { Args: { _user_id: string }; Returns: Json }
       get_under_led: {
         Args: { _max_weeks?: number; _min_revenue?: number }
         Returns: Json
@@ -7096,10 +7101,7 @@ export type Database = {
         Args: { _timezone?: string; _user_id: string }
         Returns: Json
       }
-      record_daily_time: {
-        Args: { _category: string; _user_id: string }
-        Returns: undefined
-      }
+      record_daily_time: { Args: { _category: string }; Returns: undefined }
       record_departure: {
         Args: {
           _departure_type?: string
