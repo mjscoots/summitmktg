@@ -57,6 +57,9 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
 
     const light = theme.mode === 'light';
     root.classList.toggle('light-workspace', light);
+    // Tells the role theme to keep its hands off colours a workspace owns.
+    if (theme.accent) root.dataset.workspaceTheme = '1';
+    else delete root.dataset.workspaceTheme;
 
     set('--background', theme.background);
     set('--card', theme.surface);
