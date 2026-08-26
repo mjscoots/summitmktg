@@ -26,12 +26,12 @@ import { SummitLoader } from '@/components/shared/SummitLoader';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
-import { verticalFilter } from '@/lib/workspaceScope';
-import { useWorkspace } from '@/contexts/WorkspaceContext';
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 // ─── Types ───
 interface CalendarEvent {
