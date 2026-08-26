@@ -1,8 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/contexts/ThemeContext';
 import summitLogo from '@/assets/summit-logo-new.png';
-import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock, Building2, PhoneCall } from 'lucide-react';
+import { LogOut, User, Shield, CalendarClock } from 'lucide-react';
 import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
@@ -22,35 +21,10 @@ import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { useNewLeads } from '@/hooks/useNewLeads';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceSwitcher } from '@/components/workspace/WorkspaceSwitcher';
+import { DESKTOP_MAIN, manageDestinations, canSeeAdmin, type NavDest } from '@/lib/appNav';
 
-interface NavItem {
-  label: string;
-  path: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
-}
+type NavItem = NavDest;
 
-const mainNavItems: NavItem[] = [
-  { label: 'Home', path: '/app', icon: Home },
-  { label: 'Training', path: '/app/training', icon: GraduationCap },
-  { label: 'Scripts', path: '/app/scripts', icon: BookOpen },
-  { label: 'Events', path: '/app/events', icon: CalendarClock },
-  { label: 'My Money', path: '/app/money', icon: DollarSign },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
-  { label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { label: 'Recruits', path: '/app/recruits', icon: Target },
-  { label: 'Industries', path: '/app/industries', icon: Building2 },
-  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
-  { label: 'Resources', path: '/app/links', icon: FileText },
-];
-
-const managementNavItems: NavItem[] = [
-  { label: 'Team', path: '/app/team', icon: Users },
-  { label: 'Leads', path: '/app/leads', icon: PhoneCall },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
-  { label: 'Forms', path: '/app/forms', icon: FileText },
-  { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
-  { label: 'War Room', path: '/app/war-room', icon: Swords },
-];
 
 
 export function AppSidebar() {
