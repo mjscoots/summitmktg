@@ -1437,3 +1437,26 @@ Nothing was published.
   390 and 1280 with no overflow and no console error, redeemed, profile and downline edge
   written, workspace enrolment recorded.
 - Test data removed: test accounts 0, test invites 0.
+
+## Pass 72 — The ice system
+
+- The name is settled: **Summit** in everyday copy, **Summit Marketing** for search engines
+  and email footers, **Summit Trinity** only in small print (never above 14px).
+- Logo v2: four supplied SVGs render as exact art (`hero`, `heroFiber`, `heroLife`, `fullV2`);
+  compact, stacked and mark keep the inline knockout geometry driven by CSS variables. The
+  hero art now scales down instead of clipping on a 390px phone.
+- One palette, built from the logo: ice blue accent on deep blue surfaces. Pest is ice, Fiber
+  is mint on deep green, Life is teal on warm white. Only five things carry the workspace
+  accent; all buttons, links and progress use the one primary. The public pages (cover,
+  recruiting, applications) moved off gold onto the same ice palette.
+- One type family: Montserrat 700/800/900 for display and numbers, Inter for body, both
+  self-hosted. Space Grotesk is gone. Scale 12/14/16/20/24/32/40/56, numbers tabular.
+- Shared chrome only: 16px card radius, ice primary button, floating phone bar (24px icons,
+  safe-area aware), avatar and focus rings. No individual page was rebuilt.
+- Motion: count-up numbers, page transition, list stagger, shimmer loading, single shine, and
+  lazy confetti on four real wins — sale logged, install logged, setup step done, first week
+  finished. All of it off under `prefers-reduced-motion`.
+- Streak: a chip showing consecutive days with a sale, hidden below two days. Fiber installs
+  are recorded per week, so there is no honest daily install streak to show yet.
+- Verified at 390 and 1280 on the cover, Home and Chat: no horizontal overflow, no new console
+  errors. Typecheck and production build clean; largest chunk 210.92 kB. Nothing published.

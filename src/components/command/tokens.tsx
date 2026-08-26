@@ -13,7 +13,7 @@ export const COLORS = {
   red: "#F87171",
 };
 
-export const fontDisplay = `'Space Grotesk', system-ui, sans-serif`;
+export const fontDisplay = `'Montserrat', system-ui, sans-serif`;
 export const fontBody = `'Inter', system-ui, sans-serif`;
 export const fontMono = `'JetBrains Mono', ui-monospace, monospace`;
 

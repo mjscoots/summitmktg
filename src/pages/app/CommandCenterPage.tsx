@@ -38,7 +38,7 @@ const COLORS = {
   green: "#4ADE80",
 };
 
-const fontDisplay = `'Space Grotesk', system-ui, sans-serif`;
+const fontDisplay = `'Montserrat', system-ui, sans-serif`;
 const fontBody = `'Inter', system-ui, sans-serif`;
 const fontMono = `'JetBrains Mono', ui-monospace, monospace`;
 
