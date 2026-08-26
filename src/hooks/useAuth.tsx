@@ -24,6 +24,7 @@ interface Profile {
   approved: boolean | null;
   referred_by: string | null;
   onboarding_status: string | null;
+  active_vertical?: string | null;
 }
 
 interface AuthContextType {
