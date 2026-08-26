@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, Send, Loader2, DoorOpen } from 'lucide-react';
@@ -31,6 +32,7 @@ interface ThreadRow {
 }
 
 export default function AskSummitPage() {
+  const [params, setParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>('ask');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -58,6 +60,21 @@ export default function AskSummitPage() {
   useEffect(() => {
     void loadThreads();
   }, []);
+
+  // Opened from the playbook or from search: start with that line.
+  const seedRef = useRef(false);
+  useEffect(() => {
+    if (seedRef.current) return;
+    const practice = params.get('practice');
+    const question = params.get('q');
+    if (!practice && !question) return;
+    seedRef.current = true;
+    if (practice) setMode('practice');
+    params.delete('practice');
+    params.delete('q');
+    setParams(params, { replace: true });
+    window.setTimeout(() => void send(practice || question || ''), 0);
+  }, [params, setParams]);
 
   const openThread = async (id: string) => {
     const { data } = await (supabase as any).rpc('get_thread_messages', { _thread_id: id });
