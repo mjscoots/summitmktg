@@ -37,7 +37,12 @@ interface StepRow {
   step_type: 'task' | 'upload' | 'training' | 'approval';
   course_id: string | null;
   is_active: boolean;
+  link_url: string | null;
+  checklist: string[] | null;
+  auto_rule: string | null;
+  overdue_days: number;
 }
+
 
 interface CourseRow {
   id: string;
