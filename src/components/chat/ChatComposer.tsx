@@ -3,7 +3,7 @@ import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2, M
 import { supabase } from '@/integrations/supabase/client';
 import { buildVoiceMessage, MAX_VOICE_SECONDS, pickAudioMime, voiceRecordingSupported } from '@/components/chat/VoiceNote';
 import { cn } from '@/lib/utils';
-import { StickerPicker, type Sticker } from '@/components/dashboard/StickerPicker';
+import { StickerPicker } from '@/components/dashboard/StickerPicker';
 import { GifPicker } from '@/components/dashboard/GifPicker';
 import { uploadChatFile } from '@/components/dashboard/ChatImageUpload';
 import { PollCreator } from '@/components/dashboard/ChatPoll';
