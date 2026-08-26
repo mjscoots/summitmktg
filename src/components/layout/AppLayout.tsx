@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { WhatsNewTour } from '@/components/onboarding/WhatsNewTour';
 import { useNavigate } from 'react-router-dom';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -9,12 +9,13 @@ import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { StatusBar } from './StatusBar';
 import { ImpersonationBanner } from './ImpersonationBanner';
-import { Mountain } from 'lucide-react';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
 import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
 import { MobileBottomNav } from './MobileBottomNav';
+import { WorkspaceSheet } from './WorkspaceSheet';
+
 
 
 interface AppLayoutProps {
