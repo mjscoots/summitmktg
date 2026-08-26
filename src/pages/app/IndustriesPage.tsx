@@ -160,10 +160,10 @@ export default function IndustriesPage() {
 
                   <div className="mt-auto pt-1">
                     {enr?.status === 'active' ? (
-                      <div className="flex items-center gap-2 text-[13px] font-medium text-emerald-400">
-                        <Check className="h-4 w-4" /> You're active here
+                      <div className="flex items-center gap-2 text-[13px] font-medium text-primary">
+                        <Check className="h-4 w-4" /> You are active here
                       </div>
-                    ) : enr?.status === 'onboarding' ? (
+                    ) : enr?.status === 'onboarding' || enr?.status === 'approved' ? (
                       <Button
                         size="sm"
                         className="w-full"
@@ -171,19 +171,32 @@ export default function IndustriesPage() {
                       >
                         Continue setup (step {enr.current_step} of {v.step_count})
                       </Button>
-                    ) : enr?.status === 'interested' ? (
+                    ) : enr?.status === 'applied' ? (
                       <p className="text-[12px] text-muted-foreground">
-                        Setup steps are being finalized — you'll be notified.
+                        Application in review.
                       </p>
+                    ) : enr?.status === 'rejected' ? (
+                      <p className="text-[12px] text-muted-foreground">
+                        Not approved. Talk to your manager.
+                      </p>
+                    ) : applyingTo === v.vertical ? (
+                      <VerticalApplicationForm
+                        vertical={v.vertical}
+                        name={v.label}
+                        onCancel={() => setApplyingTo(null)}
+                        onDone={() => {
+                          setApplyingTo(null);
+                          loadHub();
+                        }}
+                      />
                     ) : (
                       <Button
                         size="sm"
                         variant="secondary"
                         className="w-full"
-                        disabled={joining === v.vertical}
-                        onClick={() => join(v)}
+                        onClick={() => setApplyingTo(v.vertical)}
                       >
-                        {joining === v.vertical ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Join'}
+                        Apply for {v.label}
                       </Button>
                     )}
                   </div>
