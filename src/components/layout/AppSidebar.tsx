@@ -206,13 +206,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Management section (managers+) */}
-        {isManager && (
+        {/* Manage (Manager tier and up) */}
+        {managementNavItems.length > 0 && (
           <SidebarGroup className="mt-3">
             <Separator className="mb-2" style={{ background: 'hsl(217 44% 15% / 0.5)' }} />
             {!collapsed && (
               <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white/35">
-                Management
+                Manage
               </p>
             )}
             <SidebarGroupContent>
@@ -230,24 +230,24 @@ export function AppSidebar() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Bottom section: Admin */}
+        {/* Admin (Admin tier and up, plus presidents for their workspace) */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {(isAdmin || role === 'president') && (
+              {(canSeeAdmin(role) || role === 'president') && (
                 <SidebarMenuItem>
                   <button
                     onClick={() => { navigate('/admin/inbox'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
-                      isActive('/admin/inbox') ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-sidebar-accent",
+                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors duration-200 relative group",
+                      isActive('/admin') ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-sidebar-accent",
                       collapsed && "justify-center px-2"
                     )}
                   >
-                    {isActive('/admin/inbox') && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(216 89% 53%)', boxShadow: '0 0 8px hsl(216 89% 53% / 0.4)' }} />
+                    {isActive('/admin') && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(var(--sidebar-primary))' }} />
                     )}
-                    <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin/inbox') ? "text-white" : "text-white/40")} strokeWidth={2} />
+                    <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin') ? "text-white" : "text-white/40")} strokeWidth={2} />
                     {!collapsed && <span className="text-[12px] font-medium">Admin</span>}
                     {adminCounts.total > 0 && (
                       <span className={cn(
@@ -260,27 +260,10 @@ export function AppSidebar() {
                   </button>
                 </SidebarMenuItem>
               )}
-              {isOwner && (
-                <SidebarMenuItem>
-                  <button
-                    onClick={() => { navigate('/command'); if (isMobile) setOpenMobile(false); }}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
-                      isActive('/command') ? "text-amber-200" : "text-amber-300/50 hover:text-amber-200 hover:bg-sidebar-accent",
-                      collapsed && "justify-center px-2"
-                    )}
-                  >
-                    {isActive('/command') && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(43 96% 56%)', boxShadow: '0 0 8px hsl(43 96% 56% / 0.4)' }} />
-                    )}
-                    <Crown className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-                    {!collapsed && <span className="text-[12px] font-medium">Command</span>}
-                  </button>
-                </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
       </SidebarContent>
 
       {/* Footer — Profile */}
