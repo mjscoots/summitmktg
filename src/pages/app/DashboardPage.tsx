@@ -7,6 +7,7 @@ import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
+import { HomeQuickCards } from '@/components/dashboard/HomeQuickCards';
 import { MyCarTodayCard, MyActionItemsCard, MyEventsTodayCard, ContinueVerticalSetupCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
@@ -255,6 +256,8 @@ export default function DashboardPage() {
         {isManager && <RosterGapCounters />}
 
         {/* Action row — what to do right now */}
+
+        <HomeQuickCards />
 
         <HomeActionRow />
 

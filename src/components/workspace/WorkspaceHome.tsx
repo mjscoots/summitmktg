@@ -6,6 +6,7 @@ import { useWorkspace, type Workspace } from '@/contexts/WorkspaceContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { HomeQuickCards } from '@/components/dashboard/HomeQuickCards';
 
 function startOfWeek(): string {
   const d = new Date();
@@ -116,6 +117,9 @@ export function WorkspaceHome({ workspace }: { workspace: Workspace }) {
           {workspace.unit} this week and season, your rank, and what is next.
         </p>
       </div>
+
+      <HomeQuickCards />
+
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="This week" value={String(weekInstalls)} />

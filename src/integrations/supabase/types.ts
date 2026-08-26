@@ -6902,7 +6902,9 @@ export type Database = {
       sweep_restore: { Args: { _prev: Json }; Returns: Json }
       sweep_speed_to_lead: { Args: never; Returns: Json }
       sync_milestone_badges: { Args: { _user_id: string }; Returns: undefined }
-      sync_staff_workspace_access: { Args: never; Returns: undefined }
+      sync_staff_workspace_access:
+        | { Args: never; Returns: undefined }
+        | { Args: { _user_id?: string }; Returns: undefined }
       team_channel_slug: { Args: { _name: string }; Returns: string }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }
