@@ -60,7 +60,7 @@ function Row({ row, lastOpened }: { row: WeekRow; lastOpened: string | null }) {
             variant="outline"
             size="sm"
             className="min-h-11"
-            onClick={() => navigate(`/app/one-on-one-prep?rep=${row.user_id}`)}
+            onClick={() => navigate(`/app/one-on-ones/prep?rep=${row.user_id}`)}
           >
             1:1
           </Button>
