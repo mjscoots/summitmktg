@@ -167,6 +167,7 @@ export default function MyMoneyPage() {
           <>
             <SentRepOverrideNote />
             <MySpreadSection />
+            {activeVertical === 'Pest' && <DashboardFunnelTracker />}
           </>
         )}
 
