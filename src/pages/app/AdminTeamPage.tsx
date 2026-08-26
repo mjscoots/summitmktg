@@ -76,16 +76,25 @@ interface TeamRow {
 
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || '';
 
-export default function AdminTeamPage() {
+export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSection }) {
   const { role, profile } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
   // Counts are always live — no "viewed" zeroing
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isSuperAdmin = isOwner || profile?.email === SUPER_ADMIN_EMAIL;
+
+  const sectionTabs = SECTION_TABS[section].filter(
+    (t) => (!t.adminOnly || isAdmin) && (!t.ownerOnly || isSuperAdmin),
+  );
+  const wanted = searchParams.get('tab');
+  const activeTab = sectionTabs.some((t) => t.value === wanted)
+    ? (wanted as string)
+    : sectionTabs[0]?.value ?? 'users';
+
 
   const [allUsers, setAllUsers] = useState<UserRow[]>([]);
   const [pendingUsers, setPendingUsers] = useState<UserRow[]>([]);
