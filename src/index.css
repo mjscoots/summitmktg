@@ -11,73 +11,74 @@ html, body, #root {
 
 @layer base {
   :root {
-    /* ━━━ ICE SYSTEM — one palette, built from the logo ━━━ */
-    --background: 221 66% 11%;
-    --foreground: 217 100% 96%;
+    /* ━━━ MONO SYSTEM — near-black surfaces, bright white outlines ━━━ */
+    --background: 220 22% 6%;
+    --foreground: 213 20% 97%;
 
-    --card: 220 58% 15%;
-    --card-foreground: 217 100% 96%;
+    --card: 220 21% 9%;
+    --card-foreground: 213 20% 97%;
 
-    --popover: 220 58% 15%;
-    --popover-foreground: 217 100% 96%;
+    --popover: 220 21% 9%;
+    --popover-foreground: 213 20% 97%;
 
-    /* Ice accent — the logo blue */
-    --primary: 197 100% 68%;
-    --primary-foreground: 221 66% 11%;
+    /* Primary action is white on near-black */
+    --primary: 213 20% 97%;
+    --primary-foreground: 220 22% 6%;
 
-    --secondary: 220 55% 20%;
-    --secondary-foreground: 217 100% 96%;
+    --secondary: 221 21% 13%;
+    --secondary-foreground: 213 20% 97%;
 
-    --muted: 220 55% 20%;
-    --muted-foreground: 220 33% 62%;
+    --muted: 221 21% 13%;
+    --muted-foreground: 217 10% 54%;
 
-    --accent: 197 100% 68%;
-    --accent-foreground: 221 66% 11%;
+    --accent: 213 20% 97%;
+    --accent-foreground: 220 22% 6%;
 
     --destructive: 358 100% 68%;
-    --destructive-foreground: 221 66% 11%;
+    --destructive-foreground: 220 22% 6%;
 
-    --success: 154 69% 55%;
-    --success-foreground: 221 66% 11%;
+    --success: 158 70% 55%;
+    --success-foreground: 220 22% 6%;
 
-    --warning: 42 100% 47%;
-    --warning-foreground: 221 66% 11%;
+    --warning: 41 100% 48%;
+    --warning-foreground: 220 22% 6%;
 
-    --border: 219 47% 25%;
-    --input: 220 58% 15%;
+    --border: 220 18% 18%;
+    --input: 221 21% 13%;
     --ring: 197 100% 68%;
 
     /* Radius, elevation, motion */
-    --radius: 1rem;
+    --radius: 0.75rem;
     --radius-sm: 0.625rem;
-    --shadow: 0 1px 2px hsl(221 66% 4% / 0.5);
-    --shadow-lift: 0 12px 32px -12px hsl(221 66% 3% / 0.7);
+    --shadow: 0 0 0 0 transparent;
+    --shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.4);
     --motion-fast: 120ms;
     --motion-base: 200ms;
     --motion-slow: 320ms;
     --motion-ease: cubic-bezier(0.2, 0, 0, 1);
 
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 220 58% 15%;
-    --surface-elevated: 220 55% 20%;
-    --surface-sunken: 221 62% 9%;
+    --surface: 220 21% 9%;
+    --surface-elevated: 221 21% 13%;
+    --surface-sunken: 220 24% 5%;
 
     /* ━━━ BORDER LAYERS ━━━ */
-    --border-subtle: 219 47% 20%;
-    --border-strong: 218 45% 33%;
+    --border-subtle: 220 18% 18%;
+    --border-strong: 220 17% 24%;
 
     /* ━━━ TEXT HIERARCHY ━━━ */
-    --text-primary: 217 100% 96%;
-    --text-secondary: 221 48% 81%;
-    --text-muted: 220 33% 62%;
+    --text-primary: 213 20% 97%;
+    --text-secondary: 218 15% 75%;
+    --text-muted: 217 10% 54%;
 
-    /* ━━━ ICE ACCENT SCALE ━━━ */
+    /* ━━━ ICE ACCENT — links, focus, active tab, progress only ━━━ */
+    --ice: 197 100% 68%;
     --primary-soft: 197 100% 68% / 0.12;
     --primary-muted: 200 60% 76%;
-    --primary-glow: 197 100% 78%;
-    --primary-deep: 215 100% 56%;
+    --primary-glow: 197 100% 68%;
+    --primary-deep: 213 20% 97%;
 
-    /* Workspace identity accent — wordmark, active tab, hero, focus ring */
+    /* Workspace identity accent — wordmark, active tab, focus ring */
     --workspace-accent: 197 100% 68%;
 
     /* Role accents follow the one accent */
@@ -87,27 +88,28 @@ html, body, #root {
     --manager-glow: 197 100% 68%;
 
     /* Surfaces kept flat where glass tokens are still referenced */
-    --glass-bg: 220 58% 15%;
-    --glass-border: 219 47% 25%;
+    --glass-bg: 220 21% 9%;
+    --glass-border: 220 18% 18%;
     --glass-glow: 197 100% 68% / 0;
 
-    /* ━━━ GRADIENTS AND GLOW — used on hero cards and primary actions ━━━ */
-    --gradient-ice: linear-gradient(135deg, hsl(197 100% 68%), hsl(215 100% 56%));
-    --gradient-hero: linear-gradient(160deg, hsl(220 58% 15%) 0%, hsl(221 66% 11%) 60%, hsl(215 60% 14%) 100%);
-    --gradient-primary: var(--gradient-ice);
-    --gradient-gold: var(--gradient-ice);
+    /* No gradients and no glow in Mono: these resolve to flat surfaces. */
+    --gradient-ice: hsl(var(--ice));
+    --gradient-hero: hsl(var(--surface));
+    --gradient-primary: hsl(var(--primary));
+    --gradient-gold: hsl(var(--primary));
     --gradient-surface: hsl(var(--surface));
-    --glow-ice: 0 0 0 1px hsl(197 100% 68% / 0.28), 0 10px 30px -12px hsl(197 100% 68% / 0.4);
+    --glow-ice: none;
 
     /* Sidebar */
-    --sidebar-background: 221 66% 8%;
-    --sidebar-foreground: 221 48% 81%;
+    --sidebar-background: 220 24% 5%;
+    --sidebar-foreground: 218 15% 75%;
     --sidebar-primary: 197 100% 68%;
-    --sidebar-primary-foreground: 221 66% 11%;
-    --sidebar-accent: 220 55% 20%;
-    --sidebar-accent-foreground: 217 100% 96%;
-    --sidebar-border: 219 47% 20%;
+    --sidebar-primary-foreground: 220 22% 6%;
+    --sidebar-accent: 221 21% 13%;
+    --sidebar-accent-foreground: 213 20% 97%;
+    --sidebar-border: 220 18% 18%;
     --sidebar-ring: 197 100% 68%;
+
   }
 
   /* Rookie and manager themes share the one ice accent */
@@ -120,61 +122,62 @@ html, body, #root {
 
   .dark,
   .light {
-    --background: 221 66% 11%;
-    --foreground: 217 100% 96%;
+    --background: 220 22% 6%;
+    --foreground: 213 20% 97%;
   }
 
   /* ━━━ PUBLIC WORLD — outward-facing pages (cover, recruiting, applications).
-     Same ice palette as the app, one shade deeper so the logo art carries. ━━━ */
+     The same Mono palette; the public site stays dark. ━━━ */
   .gold-world {
-    --background: 221 70% 8%;
-    --foreground: 217 100% 96%;
+    --background: 220 24% 5%;
+    --foreground: 213 20% 97%;
 
-    --card: 220 60% 13%;
-    --card-foreground: 217 100% 96%;
-    --popover: 220 60% 13%;
-    --popover-foreground: 217 100% 96%;
+    --card: 220 21% 9%;
+    --card-foreground: 213 20% 97%;
+    --popover: 220 21% 9%;
+    --popover-foreground: 213 20% 97%;
 
-    --primary: 197 100% 68%;
-    --primary-foreground: 221 70% 8%;
-    --accent: 197 100% 68%;
-    --accent-foreground: 221 70% 8%;
+    --primary: 213 20% 97%;
+    --primary-foreground: 220 22% 6%;
+    --accent: 213 20% 97%;
+    --accent-foreground: 220 22% 6%;
     --ring: 197 100% 68%;
 
-    --secondary: 220 55% 18%;
-    --secondary-foreground: 217 100% 96%;
-    --muted: 220 55% 18%;
-    --muted-foreground: 220 33% 66%;
+    --secondary: 221 21% 13%;
+    --secondary-foreground: 213 20% 97%;
+    --muted: 221 21% 13%;
+    --muted-foreground: 217 10% 54%;
 
-    --success: 154 69% 55%;
-    --success-foreground: 221 70% 8%;
+    --success: 158 70% 55%;
+    --success-foreground: 220 22% 6%;
 
-    --border: 219 47% 22%;
-    --input: 220 60% 13%;
+    --border: 220 18% 18%;
+    --input: 221 21% 13%;
 
-    --surface: 220 60% 13%;
-    --surface-elevated: 220 55% 18%;
-    --surface-sunken: 221 66% 6%;
-    --border-subtle: 219 45% 17%;
-    --border-strong: 219 47% 30%;
+    --surface: 220 21% 9%;
+    --surface-elevated: 221 21% 13%;
+    --surface-sunken: 220 24% 4%;
+    --border-subtle: 220 18% 18%;
+    --border-strong: 220 17% 24%;
 
-    --text-primary: 217 100% 96%;
-    --text-secondary: 221 48% 81%;
-    --text-muted: 220 33% 66%;
+    --text-primary: 213 20% 97%;
+    --text-secondary: 218 15% 75%;
+    --text-muted: 217 10% 54%;
 
     --primary-soft: 197 100% 68% / 0.12;
-    --primary-muted: 197 60% 72%;
-    --primary-glow: 197 100% 78%;
-    --primary-deep: 215 100% 56%;
+    --primary-muted: 200 60% 76%;
+    --primary-glow: 197 100% 68%;
+    --primary-deep: 213 20% 97%;
 
-    --glass-bg: 220 60% 13% / 0.6;
-    --glass-border: 219 47% 22%;
-    --glass-glow: 197 100% 68% / 0.1;
+    --glass-bg: 220 21% 9%;
+    --glass-border: 220 18% 18%;
+    --glass-glow: 197 100% 68% / 0;
 
-    --gradient-primary: var(--gradient-ice);
-    --gradient-gold: var(--gradient-ice);
-    --gradient-surface: hsl(220 60% 13%);
+    --gradient-primary: hsl(var(--primary));
+    --gradient-gold: hsl(var(--primary));
+    --gradient-surface: hsl(var(--surface));
   }
+
 
 
 }
@@ -364,12 +367,14 @@ html, body, #root {
 }
 
 
-/* ━━━ WORDMARK KNOCKOUT DEFAULTS — public site and login ━━━ */
+/* ━━━ WORDMARK DEFAULTS — public site and login ━━━ */
 :root {
-  --wordmark-bg: #0A1630;
+  --wordmark-bg: #0B0D12;
   --wordmark-accent: #5AD1FF;
+  --wordmark-outline: #FFFFFF;
   --wordmark-letters: #FFFFFF;
 }
+
 
 :root[data-workspace='pest'] .progress-track,
 :root[data-workspace='fiber'] .progress-track {
@@ -382,17 +387,23 @@ html, body, #root {
     @apply glass-card;
   }
 
-  /* ━━━ PRIMARY BUTTON — solid accent, no glow ━━━ */
+  /* ━━━ PRIMARY BUTTON — white on near-black, 48px, radius 12 ━━━ */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold text-sm text-primary-foreground;
-    border-radius: var(--radius);
+    @apply inline-flex items-center justify-center gap-2 px-5 font-semibold text-sm text-primary-foreground;
+    min-height: 48px;
+    border-radius: 12px;
     background: hsl(var(--primary));
-    transition: background-color var(--motion-fast) var(--motion-ease);
+    transition: background-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
   }
 
   .btn-primary:hover {
-    background: hsl(var(--primary-deep));
+    background: hsl(var(--primary) / 0.9);
   }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
 
   /* ━━━ SECONDARY BUTTON ━━━ */
   .btn-secondary {
@@ -686,14 +697,34 @@ button, a, [role="button"] {
   animation: none !important;
 }
 
-/* ── Per-workspace theme ────────────────────────────────────────────── */
+/* ── Per-workspace signature texture ────────────────────────────────── */
 :root {
   --workspace-texture: none;
+  --workspace-texture-size: 22px 22px;
   --workspace-texture-opacity: 0;
 }
 
-/* Optional low-opacity workspace texture. Opt-in per surface: the Home
-   header band and the workspace pill only — never behind body text. */
+/* Pest: a dotted grid. Fiber: a fine line grid. Life: a soft paper grain.
+   Painted once behind the whole app and faded out under the header. */
+.app-texture::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: var(--workspace-texture);
+  background-size: var(--workspace-texture-size);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 1) 96px);
+  mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 1) 96px);
+  transition: opacity var(--motion-base) var(--motion-ease);
+}
+
+.app-texture > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Kept for the hero cards that opt in per surface. */
 .workspace-texture::after {
   content: '';
   position: absolute;
@@ -701,9 +732,9 @@ button, a, [role="button"] {
   pointer-events: none;
   border-radius: inherit;
   background-image: var(--workspace-texture);
-  background-size: 220px 220px;
-  opacity: var(--workspace-texture-opacity);
+  background-size: var(--workspace-texture-size);
 }
+
 
 /* A workspace may ask for serif headings. Body type is untouched. */
 [data-workspace-headings='serif'] h1,
@@ -764,56 +795,81 @@ body {
 
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 72 — THE ICE SYSTEM: shared surfaces, controls, motion
+   PASS 76 — MONO: shared surfaces and controls
    ───────────────────────────────────────────────────────────── */
 @layer components {
-  /* Standard card: 16px radius, one hairline border, soft lift */
+  /* Standard card: surface fill, 1px border, radius 12 */
   .card-ice {
     background: hsl(var(--surface));
-    border: 1px solid hsl(var(--border-subtle));
+    border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
   }
 
-  /* Hero card: the one place a gradient and a glow are allowed */
+  /* Hero card: same surface, a stronger hairline, its workspace texture */
   .card-hero {
     position: relative;
     overflow: hidden;
     border-radius: var(--radius);
-    border: 1px solid hsl(var(--border));
-    background: var(--gradient-hero);
-    box-shadow: var(--shadow-lift);
+    border: 1px solid hsl(var(--border-strong));
+    background: hsl(var(--surface));
+    background-image: var(--workspace-texture);
+    background-size: var(--workspace-texture-size, 22px 22px);
   }
 
-  /* Primary action: ice gradient, navy label */
+  /* Primary action: white fill, near-black label */
   .btn-ice {
     @apply inline-flex items-center justify-center gap-2 px-5 text-sm font-semibold;
-    min-height: 44px;
-    border-radius: var(--radius-sm);
+    min-height: 48px;
+    border-radius: 12px;
     color: hsl(var(--primary-foreground));
-    background: var(--gradient-ice);
-    transition: filter var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+    background: hsl(var(--primary));
+    transition: background-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
   }
   .btn-ice:hover {
-    filter: brightness(1.06);
-    box-shadow: var(--glow-ice);
+    background: hsl(var(--primary) / 0.9);
+  }
+  .btn-ice:active {
+    transform: scale(0.98);
+  }
+
+  /* Secondary action: transparent, 1px strong border, white label */
+  .btn-mono {
+    @apply inline-flex items-center justify-center gap-2 px-5 text-sm font-medium text-foreground;
+    min-height: 48px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid hsl(var(--border-strong));
+    transition: background-color var(--motion-fast) var(--motion-ease);
+  }
+  .btn-mono:hover {
+    background: hsl(var(--surface-elevated));
+  }
+
+  /* Eyebrow label — the only uppercase besides the wordmark */
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: hsl(var(--text-muted));
+    font-weight: 600;
   }
 
   /* Streak chip — shown from two consecutive days up */
   .streak-chip {
     @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold;
     border-radius: 9999px;
-    color: hsl(var(--primary));
-    background: hsl(var(--primary) / 0.12);
-    border: 1px solid hsl(var(--primary) / 0.28);
+    color: hsl(var(--ice));
+    background: hsl(var(--ice) / 0.12);
+    border: 1px solid hsl(var(--ice) / 0.3);
     font-variant-numeric: tabular-nums;
   }
 
   /* Avatar ring in the workspace accent */
   .avatar-ring {
-    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--workspace-accent) / 0.55);
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 3px hsl(var(--workspace-accent) / 0.6);
   }
 }
+
 
 @layer utilities {
   /* Cards and buttons inherit the ice radius */
@@ -836,23 +892,11 @@ body {
     font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
   }
 
-  /* One-pass shine across a surface after a person causes a change */
+  /* Mono removes the shine sweep: the class is kept as a no-op. */
   .shine {
     position: relative;
-    overflow: hidden;
   }
-  .shine::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(105deg, transparent 35%, hsl(var(--primary) / 0.18) 50%, transparent 65%);
-    transform: translateX(-100%);
-    animation: shine-sweep 700ms var(--motion-ease) 1;
-    pointer-events: none;
-  }
-  @keyframes shine-sweep {
-    to { transform: translateX(100%); }
-  }
+
 
   /* Page transition and list stagger */
   .page-transition {
@@ -874,8 +918,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shine::after,
   .page-transition,
+
   .stagger > * {
     animation: none !important;
     transform: none !important;
@@ -886,17 +930,17 @@ body {
    PASS 75 — chat bubbles, ranks, mission tiles
    ───────────────────────────────────────────────────────────── */
 @layer components {
-  /* Own message: ice tint with a 40% accent hairline */
+  /* Own message: a flat ice tint with an accent hairline */
   .bubble-own {
-    background: linear-gradient(135deg, hsl(197 100% 68% / 0.18), hsl(215 100% 56% / 0.14));
-    border: 1px solid hsl(var(--primary) / 0.4);
+    background: hsl(var(--ice) / 0.12);
+    border: 1px solid hsl(var(--ice) / 0.4);
     color: hsl(var(--foreground));
   }
 
   /* Reply quote strip above a bubble */
   .reply-quote {
     @apply flex items-center gap-1.5 text-[11px] text-muted-foreground;
-    border-left: 2px solid hsl(var(--primary) / 0.45);
+    border-left: 2px solid hsl(var(--ice) / 0.45);
     padding-left: 6px;
   }
 
@@ -906,9 +950,10 @@ body {
     width: 40px;
     height: 40px;
     border-radius: var(--radius-sm);
-    background: hsl(var(--primary) / 0.16);
-    color: hsl(var(--primary));
+    background: hsl(var(--workspace-accent) / 0.16);
+    color: hsl(var(--workspace-accent));
   }
+
 
   /* Thin proportional bar under a leaderboard row */
   .rank-bar {
@@ -921,9 +966,10 @@ body {
     display: block;
     height: 100%;
     border-radius: 9999px;
-    background: var(--gradient-ice);
+    background: hsl(var(--workspace-accent));
     transition: width var(--motion-slow) var(--motion-ease);
   }
+
 }
 
 @layer utilities {

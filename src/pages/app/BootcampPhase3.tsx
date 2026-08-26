@@ -231,7 +231,7 @@ export default function BootcampPhase3() {
 
           {/* Signature section */}
           <div className="border-t border-white/10 pt-6 mb-6">
-            <h2 className="text-lg font-black text-white mb-4">SIGNATURE</h2>
+            <h2 className="text-lg font-black text-white mb-4">Signature</h2>
             <div className="space-y-4">
               <div>
                 <Label className="text-white/60 text-xs">Typed Name *</Label>

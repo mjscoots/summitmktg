@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { WorkspaceMenu } from '@/components/workspace/WorkspaceMenu';
+import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { drawerDestinations } from '@/lib/appNav';
 
 /**
@@ -15,7 +16,8 @@ export function WorkspaceSheet() {
   const navigate = useNavigate();
   const { role, signOut } = useAuth();
   const [open, setOpen] = useState(false);
-  const destinations = drawerDestinations(role);
+  const { activeVertical } = useWorkspace();
+  const destinations = drawerDestinations(role, activeVertical);
 
   const go = (path: string) => {
     setOpen(false);
@@ -38,8 +40,8 @@ export function WorkspaceSheet() {
           <SheetTitle className="sr-only">Menu</SheetTitle>
         </SheetHeader>
 
-        <div className="-mx-1 mt-1 border-b border-border/60 pb-2">
-          <WorkspaceMenu />
+        <div className="mt-1 border-b border-border/60 pb-3">
+          <WorkspaceSegmented />
         </div>
 
         <div className="mt-3 pb-10">

@@ -98,16 +98,44 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
 
   if (comingSoon) {
     return (
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <div className="card-hero p-5">
-          <Wordmark variant="heroLife" className="mx-auto !h-auto w-full max-w-[280px]" />
-          <p className="mt-4 text-center text-sm text-foreground">
-            Life is being set up. You will hear from the owner when it opens.
+      <div className="mx-auto max-w-3xl space-y-5 px-4 py-8">
+        <div className={`${LIFE_CARD} p-6 text-center`}>
+          <Wordmark variant="heroLife" className="mx-auto !h-auto w-full max-w-[260px]" />
+          <h1 className="mt-5 font-display text-xl font-extrabold tracking-tight text-foreground">
+            Life is being set up
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            You will hear from the owner when it opens.
           </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <button
+            onClick={() => navigate('/app/pipeline')}
+            className={`${LIFE_CARD} min-h-11 p-4 text-left`}
+          >
+            <p className="text-sm font-medium text-foreground">Pipeline</p>
+            <p className="mt-1 text-sm text-muted-foreground">No clients yet.</p>
+          </button>
+          <button
+            onClick={() => navigate('/app/training')}
+            className={`${LIFE_CARD} min-h-11 p-4 text-left`}
+          >
+            <p className="text-sm font-medium text-foreground">Learn</p>
+            <p className="mt-1 text-sm text-muted-foreground">Licensing material opens with the workspace.</p>
+          </button>
+          <button
+            onClick={() => navigate('/app/events')}
+            className={`${LIFE_CARD} min-h-11 p-4 text-left`}
+          >
+            <p className="text-sm font-medium text-foreground">Schedule</p>
+            <p className="mt-1 text-sm text-muted-foreground">No appointments yet.</p>
+          </button>
         </div>
       </div>
     );
   }
+
 
   if (loading) {
     return (

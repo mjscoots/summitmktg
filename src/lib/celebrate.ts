@@ -6,18 +6,13 @@
  */
 export type CelebrationKind = 'sale' | 'install' | 'setup' | 'graduation';
 
+/** Mono confetti: white and the workspace accent only. */
 function accent(): string[] {
   const styles = getComputedStyle(document.documentElement);
-  const read = (name: string, fallback: string) => {
-    const raw = styles.getPropertyValue(name).trim();
-    return raw ? `hsl(${raw})` : fallback;
-  };
-  return [
-    read('--workspace-accent', '#5AD1FF'),
-    read('--primary', '#5AD1FF'),
-    '#FFFFFF',
-  ];
+  const raw = styles.getPropertyValue('--workspace-accent').trim();
+  return ['#FFFFFF', raw ? `hsl(${raw})` : '#5AD1FF'];
 }
+
 
 export async function celebrate(kind: CelebrationKind = 'sale') {
   if (typeof window === 'undefined') return;

@@ -31,8 +31,14 @@ export function MobileBottomNav() {
       data-phone-bar
     >
       <div
-        className="mx-auto flex max-w-lg items-stretch gap-1 rounded-[22px] border border-border/70 bg-background/90 p-1.5 backdrop-blur-xl"
-        style={{ boxShadow: 'var(--shadow-lift)' }}
+        className="mx-auto flex max-w-lg items-stretch gap-1 p-1.5"
+        style={{
+          background: 'hsl(var(--surface-elevated))',
+          border: '1px solid hsl(var(--border))',
+          borderRadius: 16,
+          boxShadow: 'var(--shadow-lift)',
+        }}
+
       >
         {items.map((item) => {
           const active = isActive(item.path);

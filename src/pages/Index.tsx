@@ -72,7 +72,7 @@ const Index = () => {
 
           <button
             onClick={() => navigate("/login")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary">
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary">
             <LogIn className="w-4 h-4" />
             Log in
           </button>
@@ -97,13 +97,13 @@ const Index = () => {
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
               <button
                 onClick={scrollToEarnings}
-                className="flex-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold uppercase tracking-wide whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90">
+                className="flex-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold tracking-wide whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary/90">
                 See what you'd make
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => navigate("/recruiting")}
-                className="flex-1 inline-flex min-h-12 items-center justify-center rounded-xl border border-primary/60 px-6 text-sm font-bold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary">
+                className="flex-1 inline-flex min-h-12 items-center justify-center rounded-xl border border-primary/60 px-6 text-sm font-bold tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary">
                 Apply
               </button>
             </div>
@@ -130,7 +130,7 @@ const Index = () => {
         {/* Calculators */}
         <div id="earnings" className="relative z-10 max-w-4xl mx-auto w-full px-6 py-16 space-y-8 scroll-mt-8">
           <div className="text-center mb-4">
-            <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
+            <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight mb-2">
               Estimate Your Earnings
             </h2>
             <p className="text-muted-foreground text-sm">See what you could make this summer.</p>
@@ -142,7 +142,7 @@ const Index = () => {
 
         {/* Apply CTA */}
         <div className="relative z-10 text-center py-16 px-6">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-3">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight mb-3">
             Ready to Start?
           </h2>
           <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
@@ -150,7 +150,7 @@ const Index = () => {
           </p>
           <button
             onClick={() => navigate("/apply")}
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold tracking-wider text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Apply Now <ArrowRight className="w-4 h-4" />
           </button>

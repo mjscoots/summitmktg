@@ -53,7 +53,7 @@ const Recruiting = () => {
             className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
           >
             <Mountain className="w-5 h-5 text-primary" />
-            <span className="text-lg font-black tracking-tight uppercase">Summit</span>
+            <span className="text-lg font-black tracking-tight">Summit</span>
           </button>
           <div className="flex items-center gap-4">
             <a
@@ -79,7 +79,7 @@ const Recruiting = () => {
             <Wordmark variant="stacked" height={150} className="mx-auto h-auto w-64 md:w-80" />
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 uppercase tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tight">
             Your Summer. <span className="text-primary">Your Income.</span>
           </h1>
           
@@ -110,7 +110,7 @@ const Recruiting = () => {
       {/* Earnings math */}
       <section className="border-t border-border py-16">
         <div className="mx-auto max-w-3xl px-6">
-          <h2 className="mb-8 text-center text-2xl font-black uppercase tracking-wide text-foreground md:text-3xl">
+          <h2 className="mb-8 text-center text-2xl font-black tracking-wide text-foreground md:text-3xl">
             Run the numbers
           </h2>
           <EarningsCalculator onApplyClick={() => handleApplyClick("/apply/rookie")} />
@@ -121,7 +121,7 @@ const Recruiting = () => {
       <section className="py-20 bg-secondary/30">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 uppercase tracking-wide">
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wide">
               Why Summit?
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
@@ -150,7 +150,7 @@ const Recruiting = () => {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 uppercase tracking-wide">
+            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wide">
               Who We're Looking For
             </h2>
             <p className="text-muted-foreground">
@@ -178,7 +178,7 @@ const Recruiting = () => {
             <div className="flex items-center justify-center gap-2 mb-4">
               <Mountain className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4 uppercase tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4 tracking-tight">
               Choose Your Path
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
@@ -201,7 +201,7 @@ const Recruiting = () => {
                 <Users className="w-8 h-8 text-accent" />
               </div>
               
-              <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-wide">
+              <h3 className="text-2xl font-black text-foreground mb-2 tracking-wide">
                 Rookie
               </h3>
               
@@ -242,7 +242,7 @@ const Recruiting = () => {
                 <Trophy className="w-8 h-8 text-primary" />
               </div>
               
-              <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-wide">
+              <h3 className="text-2xl font-black text-foreground mb-2 tracking-wide">
                 Veteran
               </h3>
               
@@ -297,7 +297,7 @@ const Recruiting = () => {
       <section className="py-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Mountain className="w-12 h-12 text-primary mx-auto mb-6" />
-          <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 uppercase tracking-wide">
+          <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wide">
             Ready to Find the Summit?
           </h2>
           <p className="text-muted-foreground mb-8">

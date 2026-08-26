@@ -255,7 +255,7 @@ const VetApplication = () => {
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wider">
-            CALCULATE YOUR <span className="text-primary">EARNINGS</span>
+            Calculate your <span className="text-primary">earnings</span>
           </h1>
           <div className="w-24 h-1 bg-primary mx-auto mb-4 rounded-full" />
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -270,7 +270,7 @@ const VetApplication = () => {
 
         {/* Summit Upside Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center uppercase tracking-wide">
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center tracking-wide">
             Summit Upside
           </h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -291,7 +291,7 @@ const VetApplication = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Mountain className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-wide">
+              <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-wide">
                 Hear From Vets Who've Done This Before
               </h2>
               <Mountain className="w-5 h-5 text-primary" />
@@ -315,7 +315,7 @@ const VetApplication = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Mountain className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl md:text-4xl font-black text-primary uppercase tracking-wide">
+              <h2 className="text-3xl md:text-4xl font-black text-primary tracking-wide">
                 Ready to Find the Summit?
               </h2>
               <Mountain className="w-6 h-6 text-primary" />
@@ -455,7 +455,7 @@ const VetApplication = () => {
             <div className="flex justify-end">
               <button 
                 type="submit" 
-                className="btn-primary uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isFormComplete() || isSubmitting}
               >
                 {isSubmitting ? (

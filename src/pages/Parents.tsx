@@ -75,7 +75,7 @@ export default function Parents() {
             className="flex items-center gap-2 text-foreground transition-colors hover:text-primary"
           >
             <Mountain className="h-5 w-5 text-primary" />
-            <span className="text-lg font-black uppercase tracking-tight">Summit</span>
+            <span className="text-lg font-black tracking-tight">Summit</span>
           </button>
         </div>
       </nav>
