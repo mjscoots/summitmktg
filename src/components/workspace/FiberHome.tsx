@@ -9,6 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
+import { HomeHero } from '@/components/home/HomeHero';
+import { QuickChips } from '@/components/home/QuickChips';
 
 
 export const FIBER_CARD = 'rounded-xl border border-border bg-card';
@@ -42,6 +44,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const [logOpen, setLogOpen] = useState(false);
   const [week, setWeek] = useState(0);
   const [season, setSeason] = useState(0);
+  const [recent, setRecent] = useState(0);
   const [money, setMoney] = useState<Money | null>(null);
   const [regionName, setRegionName] = useState<string | null>(null);
   const [carrierName, setCarrierName] = useState<string | null>(null);
@@ -86,6 +89,12 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
     const rows = (installsRes.data as { installs: number; week_start: string; carrier_id: string }[]) || [];
     setWeek(rows.filter((r) => r.week_start === w).reduce((a, r) => a + (r.installs || 0), 0));
     setSeason(rows.reduce((a, r) => a + (r.installs || 0), 0));
+    const prev = new Date(`${w}T00:00:00`);
+    prev.setDate(prev.getDate() - 7);
+    const prevW = prev.toISOString().slice(0, 10);
+    setRecent(
+      rows.filter((r) => r.week_start === w || r.week_start === prevW).reduce((a, r) => a + (r.installs || 0), 0)
+    );
     setMoney((moneyRes.data as Money) || null);
     const stepRows = (stepsRes.data as { id: string; title: string }[]) || [];
     const doneIds = new Set(((doneRes.data as { step_id: string }[]) || []).map((r) => r.step_id));
@@ -144,32 +153,36 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-8">
-      <div className="workspace-texture relative mb-4 overflow-hidden rounded-xl border border-border bg-card p-5">
-        <div className="relative z-10">
-          <h1 className="text-2xl font-medium tracking-tight text-foreground">
-            {user?.user_metadata?.full_name || 'Your Fiber'}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {[regionName ? `${regionName} region` : null, carrierName].filter(Boolean).join(' · ') ||
-              'Region and carrier not set'}
-          </p>
-        </div>
-      </div>
+      <HomeHero
+        className="mb-4"
+        label="Installs this week"
+        value={week}
+        subline={`Last two weeks ${recent} · Season ${season}`}
+        zeroLine="Nothing logged yet this week"
+        shineKey="fiber-hero"
+        action={
+          <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Log an install
+          </Button>
+        }
+      />
 
-      <div className="mb-4 grid grid-cols-3 gap-2.5">
-        <div className={`${FIBER_CARD} p-3`}>
-          <p className="text-xs text-muted-foreground">This week</p>
-          <p className="text-2xl font-medium tabular-nums text-primary">{week}</p>
-        </div>
-        <div className={`${FIBER_CARD} p-3`}>
-          <p className="text-xs text-muted-foreground">Season</p>
-          <p className="text-2xl font-medium tabular-nums text-primary">{season}</p>
-        </div>
-        <div className={`${FIBER_CARD} p-3`}>
-          <p className="text-xs text-muted-foreground">Rank</p>
-          <p className="truncate text-base font-medium text-foreground">{money?.rank_label || '—'}</p>
-        </div>
-      </div>
+      <p className="mb-3 text-[13px] text-muted-foreground">
+        {[regionName ? `${regionName} region` : null, carrierName, money?.rank_label]
+          .filter(Boolean)
+          .join(' · ') || 'Region and carrier not set'}
+      </p>
+
+      <QuickChips
+        className="mb-4"
+        chips={[
+          { label: 'Installs', to: '/app/installs' },
+          { label: 'Ask Summit', to: '/app/ask' },
+          { label: 'Chat', to: '/app/chat' },
+          { label: 'Missions', to: '/app/missions' },
+        ]}
+      />
 
       {money?.next_tier_label && (
         <div className={`${FIBER_CARD} mb-4 p-4`}>
@@ -190,10 +203,6 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         </div>
       )}
 
-      <Button className="mb-4 min-h-11 w-full" onClick={() => setLogOpen(true)}>
-        <Plus className="mr-2 h-4 w-4" />
-        Log an install
-      </Button>
 
       <NeedsYouRow />
 

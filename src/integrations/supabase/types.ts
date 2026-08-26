@@ -3259,6 +3259,7 @@ export type Database = {
           user_id: string
           vertical: string
           week_start: string | null
+          weekly_goal: number | null
         }
         Insert: {
           accepting_new_reps?: boolean
@@ -3335,6 +3336,7 @@ export type Database = {
           user_id: string
           vertical?: string
           week_start?: string | null
+          weekly_goal?: number | null
         }
         Update: {
           accepting_new_reps?: boolean
@@ -3411,6 +3413,7 @@ export type Database = {
           user_id?: string
           vertical?: string
           week_start?: string | null
+          weekly_goal?: number | null
         }
         Relationships: [
           {
