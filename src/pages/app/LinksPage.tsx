@@ -48,7 +48,7 @@ interface EmailEntry {
   display_order: number;
 }
 
-type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay-scales' | 'tools';
+type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'tools';
 
 /** Normalize a phone number for display */
 function normalizePhone(raw: string): string {
