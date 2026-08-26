@@ -72,21 +72,29 @@ export default function IndustriesPage() {
 
   const [verticals, setVerticals] = useState<HubVertical[]>([]);
   const [loading, setLoading] = useState(true);
-  const [joining, setJoining] = useState<string | null>(null);
+  const [applyingTo, setApplyingTo] = useState<string | null>(null);
+  const { switchWorkspace, refresh: refreshWorkspaces } = useWorkspace();
+  const switchTo = searchParams.get('switch');
 
   const loadHub = useCallback(async () => {
     const { data } = await supabase.rpc('get_industry_hub' as never);
     const rows = ((data as unknown as { verticals: HubVertical[] })?.verticals) || [];
     setVerticals(rows);
     setLoading(false);
-  }, []);
+    refreshWorkspaces();
+  }, [refreshWorkspaces]);
 
   useEffect(() => {
     if (!user?.id) return;
     loadHub();
   }, [user?.id, loadHub]);
 
-  const [applyingTo, setApplyingTo] = useState<string | null>(null);
+  useEffect(() => {
+    if (!switchTo) return;
+    switchWorkspace(switchTo);
+    setSearchParams({});
+  }, [switchTo, switchWorkspace, setSearchParams]);
+
 
 
   if (openVertical) {
