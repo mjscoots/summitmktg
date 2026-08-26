@@ -413,10 +413,16 @@ serve(async (req) => {
       });
     }
 
-    const body = await req.json().catch(() => null) as { messages?: Message[]; mode?: string; finish?: boolean } | null;
+    const body = await req.json().catch(() => null) as {
+      messages?: Message[];
+      mode?: string;
+      finish?: boolean;
+      thread_id?: string;
+    } | null;
     const messages = body?.messages;
     const mode: "ask" | "practice" = body?.mode === "practice" ? "practice" : "ask";
     const finish = body?.finish === true;
+    const threadIdIn = typeof body?.thread_id === "string" && body.thread_id.length > 0 ? body.thread_id : null;
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
@@ -447,6 +453,52 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Thread memory: find or create the thread, append this user turn, then use
+    // the server-side history (last 40 turns) as the conversation context.
+    const lastUserTurn = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+
+    let threadId: string | null = null;
+    if (threadIdIn) {
+      const { data: t } = await admin
+        .from("assistant_threads")
+        .select("id, user_id, mode")
+        .eq("id", threadIdIn)
+        .maybeSingle();
+      if (t && t.user_id === userId && t.mode === mode) threadId = t.id as string;
+    }
+    if (!threadId) {
+      const { data: created } = await admin
+        .from("assistant_threads")
+        .insert({
+          user_id: userId,
+          mode,
+          title: (mode === "practice" ? "Practice" : lastUserTurn.slice(0, 60)) || "New thread",
+        })
+        .select("id")
+        .single();
+      threadId = (created?.id as string) ?? null;
+    }
+
+    if (threadId && !finish && lastUserTurn) {
+      await admin.from("assistant_messages").insert({
+        thread_id: threadId,
+        role: "user",
+        content: lastUserTurn.slice(0, 4000),
+      });
+    }
+
+    let history: Message[] = messages;
+    if (threadId) {
+      const { data: stored } = await admin
+        .from("assistant_messages")
+        .select("role, content")
+        .eq("thread_id", threadId)
+        .order("created_at", { ascending: false })
+        .limit(40);
+      const rows = (stored ?? []).reverse().map((r: any) => ({ role: r.role, content: r.content })) as Message[];
+      if (rows.length > 0) history = rows;
+    }
+
     let systemContent: string;
     let gatewayMessages: Message[];
 
@@ -455,10 +507,10 @@ serve(async (req) => {
       const practiceContext = await buildPracticeContext(admin, pv?.active_vertical ?? "Pest");
       if (finish) {
         systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext + "\n\n" + PRACTICE_FEEDBACK_PROMPT;
-        gatewayMessages = [...messages, { role: "user", content: "[END PRACTICE — give feedback now]" }];
+        gatewayMessages = [...history, { role: "user", content: "[END PRACTICE — give feedback now]" }];
       } else {
         systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext;
-        gatewayMessages = messages;
+        gatewayMessages = history;
       }
     } else {
       const context = await buildContext(admin, userId);
@@ -471,7 +523,7 @@ serve(async (req) => {
           ? "\n\nDATA MODE: the asking user is the owner or an admin. You may answer from the LIVE DATA block below as well. Name the source table for any number you give. Answer plainly, never write or change anything, and still refuse anything not present in the data."
           : "") +
         dataContext;
-      gatewayMessages = messages;
+      gatewayMessages = history;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -540,13 +592,26 @@ serve(async (req) => {
           answer: answer.slice(0, 4000),
           role_at_ask: verifiedRole,
         });
+        if (threadId && answer) {
+          await admin.from("assistant_messages").insert({
+            thread_id: threadId,
+            role: "assistant",
+            content: answer.slice(0, 4000),
+          });
+          await admin.from("assistant_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
+        }
       } catch (err) {
         console.error("assistant log error", err);
       }
     })();
 
     return new Response(clientStream, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/event-stream",
+        "X-Thread-Id": threadId ?? "",
+        "Access-Control-Expose-Headers": "X-Thread-Id",
+      },
     });
   } catch (e) {
     console.error("ask-summit error:", e);

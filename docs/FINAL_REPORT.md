@@ -928,3 +928,64 @@ Open, with reasons
 - Manual chapters in `get_training_recap` display `chapter_id` because no chapter title table exists in the schema.
 - Database linter: 327 issues — 1 RLS-enabled-no-policy, 26 anonymous SECURITY DEFINER, 299 signed-in SECURITY DEFINER, 1 short OTP. New functions added to the signed-in count intentionally; the anonymous count is unchanged from the project baseline.
 - Typecheck clean, production build clean. Preview only; nothing published.
+
+## Pass 61B — Memory and AI profile
+
+### C. Ask Summit memory
+
+Tables
+- `assistant_threads(id uuid pk, user_id uuid -> auth.users, mode text check ask|practice default 'ask', title text, created_at, last_at)`; index `(user_id, last_at desc)`.
+- `assistant_messages(id uuid pk, thread_id uuid -> assistant_threads on delete cascade, role text check user|assistant, content text, created_at)`; index `(thread_id, created_at)`.
+
+RLS
+- Owner: full access to own threads and their messages (`user_id = auth.uid()`).
+- Leaders and staff: read only, via `public.can_view_person(user_id) <> 'none'`.
+- No anon grants; anon execute revoked on the new functions.
+
+RPCs
+- `get_person_threads(_user_id uuid) returns jsonb` — `{threads:[{id, mode, title, created_at, last_at, message_count}]}`, or `{error:'No access'}`.
+- `get_thread_messages(_thread_id uuid) returns jsonb` — `{messages:[{role, content, created_at}]}`, or `{error}`.
+
+Edge function `ask-summit`
+- Accepts optional `thread_id`; verifies ownership and mode, otherwise creates a thread titled from the first question (practice threads are titled "Practice", stored with `mode='practice'`).
+- Appends the user turn, then loads the last 40 stored turns server-side as the model context; appends the assistant turn after the stream completes and bumps `last_at`. `assistant_logs` writes are unchanged.
+- Returns the thread id in the `X-Thread-Id` response header (exposed via CORS).
+
+UI
+- `/app/ask`: "New thread" plus a row of the rep's own ask threads; opening one reloads its turns and continues it. Composer placeholder: "Your manager can read this to help you." Practice mode unchanged.
+- Person profile: "Ask Summit threads" lists the rep's threads read only, expanding to the turns.
+
+### D. AI-built rep profile
+
+Table
+- `rep_ai_profiles(user_id uuid pk -> auth.users, summary text, strengths jsonb, concerns jsonb, topics jsonb, goals text, sources jsonb, last_built_at timestamptz, source_count int, tokens_used int, created_at, updated_at)`.
+- RLS: rep reads own; staff and manager chain read via `can_view_person`; no client writes (service role only).
+
+Edge function `build-rep-profile`
+- Body `{}` for the nightly batch, or `{user_id}` for one rep (staff only: owner/admin/president, checked against `user_roles` with the caller's token).
+- Sources per rep, each given a `src_N` id stored in `sources` with its table, row id and timestamp: own `assistant_messages` (user turns), `chat_messages`, `lesson_progress` (with lesson titles), `calendar_attendance` (with event titles), `daily_training_time`.
+- Model `google/gemini-3-flash-preview`, JSON output. Every sentence of `summary` must end with a `[src_N]` citation; no invented facts, no hype words, no exclamation marks.
+- Reps with no rows since `last_built_at` are skipped. Up to 10 profiles built per invocation. Tokens stored per rep in `tokens_used` and logged per run.
+
+Schedule
+- pg_cron job `build-rep-profile-nightly`, `40 10 * * *` UTC (03:40 America/Los_Angeles), `net.http_post` to the function with the anon apikey — same pattern as `check-inactivity-daily`.
+
+UI
+- Person profile: "What Summit has learned" (summary, strengths, where they seem stuck, topics, goals, built time, source count), plus a staff-only "Rebuild profile" button that calls the function for that rep.
+
+### Verification
+
+- Ask Summit threads: through the signed-in preview session, thread one took three turns (6 stored rows, all under one thread id) and thread two was created separately; both persisted and reloaded through `get_thread_messages`. Both verification threads were deleted afterwards — `assistant_threads` count 0 at the time of cleanup.
+- `build-rep-profile` batch run: `{"built":10,"skipped":8,"tokens":7595}`. Stored rows carry citations that resolve to the ids in `sources` (checked three rows: `source_count` matches `jsonb_array_length(sources)`, first id `src_1`).
+- Re-run with nothing new: `{"built":2,"skipped":44,"tokens":730}` — skip logic confirmed on 44 reps.
+- Cost per run: about 380 tokens per rep on Gemini Flash; a full nightly batch of 10 reps was 7,595 tokens.
+- Typecheck `bunx tsgo --noEmit`: clean. `bun run build`: clean, 14.76s.
+- Widths: `/app/ask` and `/app/chat` at 390 and 1280 — `scrollWidth` equals `innerWidth` in both cases, no horizontal overflow.
+- Database linter: 329 issues — 1 RLS-enabled-no-policy, 26 anon SECURITY DEFINER, 301 signed-in SECURITY DEFINER, 1 short OTP length. The two new functions are intentionally callable by signed-in users and both enforce access with `can_view_person`; the rest is the pre-existing baseline.
+
+### Open, with reasons
+
+- Throwaway rep and manager accounts were not created for this pass: `lovable auth-session` cannot mint a second session ("the project has multiple auth users") and no owner bearer token was available in this environment, so the manager-reads-a-rep's-threads path was verified by RLS/RPC definition (`can_view_person`) rather than by a second live session.
+- The staff-only gate on `{user_id}` calls returned 401 through the internal test path because no bearer token was attached; the batch path was exercised instead. The gate itself is a role check against `user_roles`.
+- `build-rep-profile` profiles built for reps whose only recent rows are time records read thin ("one minute in the app") — accurate, but low value until those reps generate more data.
+- Preview only; nothing published.

@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.submit-vet-lead]
 verify_jwt = false
+
+[functions.build-rep-profile]
+verify_jwt = false
