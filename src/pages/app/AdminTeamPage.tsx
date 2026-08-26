@@ -60,6 +60,10 @@ const LazyAssistant = lazy(() =>
 const LazyCulture = lazy(() =>
   import('@/components/admin/AdminCultureTab').then((m) => ({ default: m.AdminCultureTab }))
 );
+const LazyRestore = lazy(() => import('@/components/admin/RestoreAccessPanel'));
+const LazyReactivations = lazy(() => import('@/components/admin/ReactivationRequestsPanel'));
+import { ADMIN_SECTIONS, SECTION_TABS, type AdminSection } from '@/lib/adminSections';
+
 
 
 interface TeamRow {
