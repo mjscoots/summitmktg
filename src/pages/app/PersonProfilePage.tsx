@@ -117,6 +117,14 @@ export default function PersonProfilePage() {
     };
   }, [userId]);
 
+  const screenRows = useMemo(() => {
+    const screens = (timeSplit?.screens_7d || {}) as Record<string, number>;
+    return Object.entries(screens)
+      .map(([k, v]) => [k, Number(v)] as [string, number])
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1]);
+  }, [timeSplit]);
+
 
   const timeline = useMemo(() => {
     if (!data) return [];
