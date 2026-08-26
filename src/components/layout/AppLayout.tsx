@@ -90,7 +90,9 @@ function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fu
   return (
     <main
       key={`${activeVertical}:${epoch}`}
-      className={cn('flex-1 overflow-x-hidden pb-[84px] lg:pb-0', fullHeight && 'min-h-0 overflow-hidden')}
+      className={cn('flex-1 overflow-x-hidden lg:pb-0', fullHeight && 'min-h-0 overflow-hidden')}
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 84px)' }}
+      data-app-main
     >
       {children}
     </main>
