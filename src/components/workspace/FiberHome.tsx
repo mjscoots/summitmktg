@@ -103,11 +103,13 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
     if (me?.region_id) {
       const { data: r } = await (supabase as any)
         .from('regions')
-        .select('name, lead_user_id')
+        .select('name, lead_user_id, intro')
         .eq('id', me.region_id)
         .maybeSingle();
-      const region = r as { name: string; lead_user_id: string | null } | null;
+      const region = r as { name: string; lead_user_id: string | null; intro: string | null } | null;
       if (region?.name) setRegionName(region.name);
+      setRegionIntro(region?.intro || null);
+
       if (region?.lead_user_id) {
         const { data: lp } = await (supabase as any)
           .from('profiles')
