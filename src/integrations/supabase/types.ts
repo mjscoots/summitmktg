@@ -6463,6 +6463,7 @@ export type Database = {
         }[]
       }
       get_eligible_managers: { Args: { _vertical: string }; Returns: Json }
+      get_event_answer_columns: { Args: never; Returns: Json }
       get_event_checkin: {
         Args: { p_event_id: string }
         Returns: {
@@ -6651,7 +6652,12 @@ export type Database = {
       }
       get_partner_referrals: { Args: { p_partner_id: string }; Returns: Json }
       get_pending_vertical_approvals: { Args: never; Returns: Json }
+      get_person_event_answers: {
+        Args: { _limit?: number; _user_id: string }
+        Returns: Json
+      }
       get_person_profile: { Args: { _user_id: string }; Returns: Json }
+      get_person_time_split: { Args: { _user_id: string }; Returns: Json }
       get_pillar_team_members: {
         Args: { _pillar_user_id: string }
         Returns: {
