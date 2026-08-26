@@ -71,6 +71,9 @@ export default function PersonProfilePage() {
   const [seasonOpen, setSeasonOpen] = useState(false);
 
   const [data, setData] = useState<PersonProfile | null>(null);
+  const [timeSplit, setTimeSplit] = useState<any | null>(null);
+  const [recap, setRecap] = useState<any | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
 
@@ -86,11 +89,25 @@ export default function PersonProfilePage() {
       if (err) setError(err);
       else setData(res as unknown as PersonProfile);
       setIsLoading(false);
+
+      const [split, rec, ev] = await Promise.all([
+        supabase.rpc('get_person_time_split' as never, { _user_id: userId } as never),
+        supabase.rpc('get_training_recap' as never, { _user_id: userId } as never),
+        supabase.rpc('get_person_event_answers' as never, { _user_id: userId, _limit: 10 } as never),
+      ]);
+      if (!alive) return;
+      const s = split.data as any;
+      if (s && !s.error) setTimeSplit(s);
+      const r = rec.data as any;
+      if (r && !r.error) setRecap(r);
+      const e = ev.data as any;
+      if (e && !e.error) setEvents((e.events || []) as any[]);
     })();
     return () => {
       alive = false;
     };
   }, [userId]);
+
 
   const timeline = useMemo(() => {
     if (!data) return [];
