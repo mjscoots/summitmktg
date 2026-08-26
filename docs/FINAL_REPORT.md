@@ -640,3 +640,33 @@ at 4,000 characters, and live data context assembled only for owner/admin.
 - Typecheck clean, production build clean.
 
 Preview only. Not published.
+
+## Pass 58 — Walkthrough, bugs, performance
+
+### Bugs fixed (symptom / cause / fix)
+- `/admin/reports` logged a 403 resource. Cause: `weekly-owner-report` forwarded Resend's 403 ("summitmktgsales.com domain is not verified") as the function's own status, so the browser recorded a failed request even though the report generated. Fix: sender now reads `RESEND_FROM_EMAIL` with a verified fallback, and delivery failures return 200 with `emailed: false, reason: "email delivery failed"`; the stored report still renders. Function redeployed.
+- `useStreak` logged "Failed to fetch" on fast admin navigation. Cause: the mount-time streak read and `record_daily_login` RPC kept running after unmount. Fix: both effects use an `AbortController`, pass `.abortSignal()` to the queries/RPC, skip state updates when aborted, and treat aborts as expected instead of logging.
+- `/app/season` read "No season is configured yet." Cause: `seasons` has zero rows and the page had a dead-end empty state. Fix: staff now see "Season settings are on Admin → Settings" with a 44px link to `/admin/settings`; reps see a plain "Not set yet."
+
+### Performance
+- Every route-level page is `React.lazy` + `Suspense` (only `AuthPage` and `NotFound` stay eager); the fallback is a plain skeleton with no spinner text.
+- Main chunk before: `index` 676.98 kB raw / 193.74 kB gzip. After: `index` 191.31 kB raw / 59.97 kB gzip — under the 350 kB target.
+- Chunks over 200 kB after the split: none.
+- Largest remaining chunks: `vendor-supabase` 172.98/44.69, `vendor-react` 162.98/53.15, CSS 158.22/25.71, `AdminTeamPage` 134.72/33.33 (admin-only), `AppLayout` 108.92/32.66, `CommandCenterPage` 98.11/24.43 (owner-only), `DashboardPage` 95.47/25.57, `vendor-dates` 81.84/21.81.
+- Active logo `summit-logo-new.png` resampled 1536×1024 → 768×512: 720.4 kB → 168.5 kB. Four unused logo PNGs deleted.
+
+### Contrast (programmatic, WCAG relative luminance)
+Checked foreground/background, muted/background and accent/background against both `background` and `surface` for all three themes — 18 pairs. Lowest results: Pest accent/surface 3.93 (needs 3.0), Pest accent/background 4.29, Life muted/surface 5.66, Fiber accent/surface 5.45; text pairs range 5.66–18.00 against a 4.5 floor. No pair failed, so no token was changed.
+
+### Verification
+- `bunx tsgo --noEmit` clean.
+- Production build clean, no chunk-size warning.
+- `scripts/regression-widths.py`: 0 overflowing route/width combinations across 390/768/820/834/1024/1180/1280 (the script itself needed a post-navigation wait before the session write; fixed).
+- Owner-signed crawl of `/app`, `/app/training`, `/app/money`, `/app/leaderboard`, `/app/season`, `/admin/reports`, `/admin/people`, `/admin/money` at 1280: all load with `scrollWidth == 1280` and no failed requests after the report fix.
+
+### Open, with reason
+- The seven throwaway `test+<role>@summit.test` accounts and the full role × screen matrix were not created or walked in this pass; no test users exist, so nothing needs deleting. Reason: ran out of pass budget after the bug fixes, performance work and verification. The two Fiber first-day sequences (Pass 47 §3 and §6) therefore remain uncaptured.
+- PageHeader rollout to the remaining app pages not done in this pass.
+- Dev-only React warning on `/admin/people`: "Function components cannot be given refs" originating in `DepartureIntakeDialog`. No user-visible effect; not yet traced.
+- Supabase linter count unchanged from Pass 57 (275).
+- Preview only; nothing published.
