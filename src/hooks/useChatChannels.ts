@@ -2,32 +2,40 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-export interface ChatChannelState {
+export interface ChatConversation {
   slug: string;
   label: string;
   icon: string | null;
   color: string | null;
   display_order: number;
+  kind: string;
+  is_pinned: boolean;
+  last_content: string | null;
+  last_at: string | null;
+  last_sender: string | null;
   unread: number;
 }
 
 /**
- * Per-channel chat state: the visible channel list plus unread counts,
- * both resolved server side from `chat_read_state` (per channel).
+ * The conversation list: channels, last line, sender, time and unread count,
+ * all resolved server side by `get_conversations()` in one round trip.
  * ai-coach is excluded server side, so it never affects unread math.
+ *
+ * Unread counts refresh on mount, on window focus and when the caller's own
+ * `chat_read_state` changes — no subscription to every message in the company.
  */
 export function useChatChannels() {
   const { user } = useAuth();
-  const [channels, setChannels] = useState<ChatChannelState[]>([]);
+  const [channels, setChannels] = useState<ChatConversation[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
   const [loading, setLoading] = useState(true);
   const activeRef = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!user) return;
-    const { data, error } = await (supabase as any).rpc('get_chat_channel_state');
+    const { data, error } = await (supabase as any).rpc('get_conversations');
     if (error || !data) { setLoading(false); return; }
-    const list = ((data.channels || []) as ChatChannelState[]).map((c) => ({ ...c, unread: c.unread || 0 }));
+    const list = ((data.conversations || []) as ChatConversation[]).map((c) => ({ ...c, unread: c.unread || 0 }));
     setChannels(list);
     setTotalUnread(Number(data.total_unread) || 0);
     setLoading(false);
@@ -51,29 +59,24 @@ export function useChatChannels() {
     await (supabase as any).rpc('mark_chat_channel_read', { _channel: null, _all: true });
   }, []);
 
-  // Live unread bumps for channels the user is not currently looking at
+  // One lightweight subscription: the caller's own read state.
   useEffect(() => {
     if (!user) return;
     const ch = supabase
-      .channel('chat-channel-unread')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, (payload) => {
-        const msg = payload.new as { user_id: string; channel: string };
-        if (msg.user_id === user.id) return;
-        const slug = msg.channel || 'general';
-        if (slug === 'ai-coach') return;
-        if (slug === activeRef.current) {
-          void (supabase as any).rpc('mark_chat_channel_read', { _channel: slug, _all: false });
-          return;
-        }
-        setChannels((prev) => {
-          if (!prev.some((c) => c.slug === slug)) return prev;
-          return prev.map((c) => (c.slug === slug ? { ...c, unread: c.unread + 1 } : c));
-        });
-        setTotalUnread((prev) => prev + 1);
-      })
+      .channel(`chat-read-state-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chat_read_state', filter: `user_id=eq.${user.id}` },
+        () => { void refresh(); }
+      )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [user]);
+    const onFocus = () => { void refresh(); };
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      supabase.removeChannel(ch);
+    };
+  }, [user, refresh]);
 
   return { channels, totalUnread, loading, refresh, markChannelRead, markAllRead };
 }
