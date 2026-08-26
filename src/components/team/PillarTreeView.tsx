@@ -26,7 +26,7 @@ interface PillarTreeViewProps {
 export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataChange }: PillarTreeViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number }[]; totalMinutes: number }>>(new Map());
+  const [dailyTimeMap, setDailyTimeMap] = useState<Map<string, { days: { minutes: number; training: number }[]; totalMinutes: number; trainingMinutes: number }>>(new Map());
 
   // Get all user IDs for training progress
   const userIds = useMemo(() => roster.map(m => m.user_id), [roster]);
@@ -53,7 +53,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
 
       const { data } = await supabase
         .from('daily_training_time')
-        .select('user_id, date, total_minutes')
+        .select('user_id, date, app_minutes, training_minutes')
         .gte('date', start)
         .lte('date', end)
         .in('user_id', memberIds);
@@ -65,20 +65,20 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
           byUser.get(r.user_id)!.push(r);
         });
 
-        const map = new Map<string, { days: { minutes: number }[]; totalMinutes: number }>();
+        const map = new Map<string, { days: { minutes: number; training: number }[]; totalMinutes: number; trainingMinutes: number }>();
         byUser.forEach((rows, userId) => {
-          const days: { minutes: number }[] = [];
+          const days: { minutes: number; training: number }[] = [];
           let total = 0;
           for (let i = 0; i < 7; i++) {
             const d = new Date(monday);
             d.setDate(monday.getDate() + i);
             const dateStr = fmt(d);
             const match = rows.find(r => r.date === dateStr);
-            const mins = match?.total_minutes ?? 0;
-            days.push({ minutes: mins });
+            const mins = match?.app_minutes ?? 0;
+            days.push({ minutes: mins, training: match?.training_minutes ?? 0 });
             total += mins;
           }
-          map.set(userId, { days, totalMinutes: total });
+          map.set(userId, { days, totalMinutes: total, trainingMinutes: days.reduce((a, b) => a + b.training, 0) });
         });
         setDailyTimeMap(map);
       }

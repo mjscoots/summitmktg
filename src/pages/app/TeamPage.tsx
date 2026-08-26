@@ -38,6 +38,7 @@ import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { MoveRepModal } from '@/components/team/MoveRepModal';
+import { companyWeekRange, buildWeekMap } from '@/lib/timeSplit';
 
 interface TeamPillar {
   name: string;
@@ -242,7 +243,7 @@ export default function TeamPage() {
       const { start, end } = getWeekRange();
       const { data } = await supabase
         .from('daily_training_time')
-        .select('user_id, date, total_minutes')
+        .select('user_id, date, app_minutes, training_minutes')
         .gte('date', start)
         .lte('date', end) as { data: DailyTimeRow[] | null };
       if (data) {
