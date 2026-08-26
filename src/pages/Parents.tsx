@@ -16,7 +16,8 @@ export const PARENT_SECTIONS: Section[] = [
     key: 'parents_what_it_is',
     heading: 'What the job actually is',
     fallback:
-      'Summit Marketing recruits, trains, and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August.',
+      'Summit Marketing trains and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August. Summit also runs a smaller fiber internet line in the winter and is starting a life insurance line.',
+
   },
   {
     key: 'parents_housing',
