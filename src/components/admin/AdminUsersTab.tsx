@@ -765,11 +765,21 @@ export default function AdminUsersTab({
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <UserAvatar avatarUrl={u.avatar_url} fullName={u.full_name || 'Unknown'} size="sm" />
-                        <p className={cn('text-xs font-medium truncate', isNlc ? 'text-destructive' : 'text-foreground')}>
+                        <button
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            navigate(`/app/person/${u.user_id}`);
+                          }}
+                          className={cn(
+                            'text-xs font-medium truncate text-left hover:underline',
+                            isNlc ? 'text-destructive' : 'text-foreground'
+                          )}
+                        >
                           {displayName(u.full_name || 'Unknown')}
-                        </p>
+                        </button>
                       </div>
                     </td>
+
 
                     <td className="px-3 py-2.5 text-xs text-muted-foreground truncate">
                       {managerName || <span className="text-primary/70 text-[10px]">No Manager</span>}
