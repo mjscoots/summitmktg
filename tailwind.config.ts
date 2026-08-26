@@ -47,6 +47,13 @@ export default {
           foreground: "hsl(var(--accent-foreground))",
         },
         "accent-number": "hsl(var(--accent-number, var(--primary)))",
+        "text-secondary": "hsl(var(--text-secondary))",
+        "text-muted": "hsl(var(--text-muted))",
+        "border-strong": "hsl(var(--border-strong))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          elevated: "hsl(var(--surface-elevated))",
+        },
         "secondary-label": "hsl(var(--secondary-label, var(--muted-foreground)))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
