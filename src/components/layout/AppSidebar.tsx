@@ -45,6 +45,7 @@ const mainNavItems: NavItem[] = [
 
 const managementNavItems: NavItem[] = [
   { label: 'Team', path: '/app/team', icon: Users },
+  { label: 'Leads', path: '/app/leads', icon: PhoneCall },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Forms', path: '/app/forms', icon: FileText },
   { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
@@ -76,10 +77,10 @@ export function AppSidebar() {
     : role === 'admin'
       ? 'ADMIN'
       : role === 'president'
-        ? `PRESIDENT${presidedName ? ` · ${presidedName.toUpperCase()}` : ''}`
+        ? `MANAGER${presidedName ? ` · ${presidedName.toUpperCase()}` : ''}`
         : isManager
           ? 'MANAGER'
-          : role === 'recruiter' ? 'RECRUITER' : 'ROOKIE';
+          : 'SALES';
 
   const handleSignOut = async () => {
     await signOut();

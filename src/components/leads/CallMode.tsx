@@ -60,7 +60,7 @@ export default function CallMode({ open, leads, onClose, onDone }: Props) {
         }
       }}
     >
-      <DialogContent className="max-w-[440px] p-0" hideClose>
+      <DialogContent className="max-w-[440px] p-0">
         {!lead ? (
           <div className="p-6">
             <p className="text-sm text-muted-foreground">No leads left to call.</p>
