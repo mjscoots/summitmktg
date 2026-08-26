@@ -527,28 +527,20 @@ export default function CalendarPage() {
   return (
     <AppLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        {/* ═══ HERO HEADER ═══ */}
-        <div className="relative mb-6 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-4 pb-5 overflow-hidden">
-          {/* Gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,60%,12%)] via-[hsl(225,50%,15%)] to-[hsl(230,40%,10%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(217,80%,30%,0.15),transparent_60%)]" />
-          {/* Grid texture */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0z\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3C/svg%3E")' }} />
-
+        <PageBackButton to="/app/events" label="Schedule" />
+        <div className="mb-6">
           <div className="relative z-10">
-            <Breadcrumbs items={[{ label: 'Operations', to: '/app/operations' }, { label: 'Calendar' }]} className="mb-3 text-white/50" />
-
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Calendar</h1>
-                <p className="text-sm text-white/50 mt-1 flex items-center gap-1.5">
+                <h1 className="text-xl font-semibold text-foreground">Month view</h1>
+                <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted-foreground">
                   <Globe className="w-3.5 h-3.5" />
                   All times shown in {getTimezoneShort(timezone)} (your local time)
                 </p>
               </div>
               <div className="flex items-center gap-2 pt-1">
                 {isManager && (
-                  <Button size="sm" onClick={() => setIsFormOpen(true)} className="h-11 gap-1.5 rounded-xl shadow-lg shadow-primary/20">
+                  <Button size="sm" onClick={() => setIsFormOpen(true)} className="h-11 gap-1.5 rounded-xl">
                     <Plus className="w-4 h-4" />Event
                   </Button>
                 )}

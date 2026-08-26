@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -319,10 +320,16 @@ export default function EventsPage() {
       <main className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-foreground">Events</h1>
+            <h1 className="text-foreground">Schedule</h1>
             <p className="mt-1.5 text-[13px] text-muted-foreground">
               Meetings, training, blitzes and dinners you're expected at.
             </p>
+            <Link
+              to="/app/calendar"
+              className="mt-2 inline-flex min-h-11 items-center text-[13px] font-medium text-primary hover:underline"
+            >
+              Month view
+            </Link>
           </div>
           {isManager && (
             <button
