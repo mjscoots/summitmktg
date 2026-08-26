@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
 import { YourWeekLine } from '@/components/home/YourWeekLine';
+import { FirstWeekCard } from '@/components/home/FirstWeekCard';
 
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { cn } from '@/lib/utils';
