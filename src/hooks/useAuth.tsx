@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasActiveSessionRef = useRef(false);
   const roleCacheRef = useRef<Map<string, UserRole>>(new Map());
 
-  const ROLE_PRIORITY: UserRole[] = ['rookie', 'recruiter', 'manager', 'admin', 'owner'];
+  const ROLE_PRIORITY: UserRole[] = ['rookie', 'recruiter', 'manager', 'president', 'admin', 'owner'];
   const ROLE_STORAGE_PREFIX = 'auth-role-cache:';
 
   useEffect(() => {
