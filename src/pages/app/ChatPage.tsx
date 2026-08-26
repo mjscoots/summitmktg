@@ -6,6 +6,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityChat } from '@/components/dashboard/CommunityChat';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useChatChannels } from '@/hooks/useChatChannels';
+import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
+
 
 const LAST_OPENED_KEY = 'summit.chat.lastConversation';
 
@@ -59,9 +61,11 @@ export default function ChatPage() {
 
   return (
     <AppLayout>
+      <NeedsYouRow className="mx-auto w-full max-w-2xl" />
       <div className="mx-auto w-full max-w-2xl px-3 py-4">
         <h1 className="text-lg font-semibold tracking-tight">Chat</h1>
         <p className="mt-0.5 text-[13px] text-muted-foreground">Conversations, updates and answers in one place.</p>
+
 
         <ul className="mt-4 space-y-2">
           <li>

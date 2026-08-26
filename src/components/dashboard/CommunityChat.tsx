@@ -18,6 +18,10 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { useChatChannels } from '@/hooks/useChatChannels';
+import { EventCard } from '@/components/chat/EventCard';
+import { AnnouncementCard } from '@/components/chat/AnnouncementCard';
+import { IncentiveCard } from '@/components/chat/IncentiveCard';
+
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -33,10 +37,16 @@ interface ChatMessage {
   reply_to: string | null;
   channel: string;
   is_pinned: boolean;
+  /** Card kind. 'text' for ordinary messages. */
+  kind?: string;
+  /** Source record for card kinds. */
+  ref_id?: string | null;
+  meta?: Record<string, unknown> | null;
   /** Present on rows read through get_channel_messages. */
   reply_sender?: string | null;
   reply_excerpt?: string | null;
 }
+
 
 interface ProfileInfo {
   full_name: string;
@@ -193,9 +203,13 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
         reply_to: r.reply_to ?? null,
         channel: r.channel || 'general',
         is_pinned: !!r.is_pinned,
+        kind: r.kind || 'text',
+        ref_id: r.ref_id ?? null,
+        meta: r.meta ?? null,
         reply_sender: r.reply_sender ?? null,
         reply_excerpt: r.reply_excerpt ?? null,
       };
+
     });
     setProfileMap((prev) => ({ ...prev, ...profiles }));
     setReactionsMap((prev) => ({ ...prev, ...reactions }));
@@ -587,19 +601,36 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
           const showTime = shouldShowTime(msg, prev);
           const own = msg.user_id === user?.id && !msg.is_ai;
 
+          if (msg.kind === 'event' || msg.kind === 'announcement' || msg.kind === 'incentive') {
+            const meta = (msg.meta || {}) as Record<string, any>;
+            return (
+              <div key={msg.id}>
+                {showDate && <DateSeparator date={new Date(msg.created_at)} />}
+                {msg.kind === 'event' && <EventCard eventId={msg.ref_id ?? null} meta={meta} title={msg.content} />}
+                {msg.kind === 'announcement' && (
+                  <AnnouncementCard postId={msg.ref_id ?? null} meta={meta} title={msg.content} />
+                )}
+                {msg.kind === 'incentive' && (
+                  <IncentiveCard incentiveId={msg.ref_id ?? null} meta={meta} title={msg.content} />
+                )}
+              </div>
+            );
+          }
+
           if (msg.is_ai && msg.channel !== 'ai-coach') {
             return (
               <div key={msg.id}>
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                {isAwardsPost(msg.content)
+                {msg.kind === 'award' || isAwardsPost(msg.content)
                   ? <AwardsSystemMessage content={msg.content} />
-                  : isWinPost(msg.content)
+                  : msg.kind === 'win' || isWinPost(msg.content)
                     ? <WinSystemMessage content={msg.content} />
                     : <SystemMessage content={msg.content} />}
 
               </div>
             );
           }
+
 
           return (
             <div key={msg.id}>

@@ -804,3 +804,46 @@ Measured with Playwright WebSocket frame capture: Home reported 0 `postgres_chan
 - `scripts/regression-widths.py` again produced no findings output, so the width evidence above is the direct Playwright measurement rather than that script.
 
 Preview only; nothing published.
+
+## Pass 60C — Cards
+
+### Schema
+- `chat_messages`: added `kind text not null default 'text'` (check: text, event, announcement, incentive, win, award, poll, system), `ref_id uuid`, `meta jsonb`.
+- One-time backfill: legacy `[[WIN|…]]` → `kind='win'`, `[[AWARDS|…]]` → `kind='award'`, `📊 Poll:` → `kind='poll'` (3 rows), and `gif:` / `sticker:` / `img:` / `voice:` / `file:` rows tagged in `meta.media`. No WIN/AWARDS rows existed at migration time (0 rows matched); the renderer keeps the prefix fallback so any older row still renders.
+- `calendar_events`: added `rsvp_deadline timestamptz`, `questions jsonb`, `is_cancelled boolean not null default false`. `event_kind` has no check constraint, so `trip` and `incentive` were already accepted values.
+- `calendar_attendance`: status check widened to `attending | not_attending | maybe`; added `responded_at timestamptz`, `answers jsonb`.
+- New table `announcement_acks(post_id, user_id, acked_at, pk(post_id,user_id))`, RLS on: a person can record and read their own ack; managers, admins and owners read all. Grants: authenticated read/insert, service_role all.
+- New chat channel `managers` (created only if missing).
+
+### Functions and triggers
+- `post_event_card()` / `sync_event_card()` / `mark_event_card_cancelled()` on `calendar_events` (insert / update / before delete) — post and keep the `kind='event'` card in sync; channel from `event_target_channel(scope, team_id)` → team channel via `team_channel_slug`, `managers`, else `general`. Deleting an event marks its card cancelled.
+- `sync_announcement_card()` on `announcement_posts` (insert/update) — publish posts a `kind='announcement'` card into `announcements`; anything other than published removes it.
+- `sync_incentive_card()` on `incentives` (insert/update) — active posts/updates a `kind='incentive'` card in `general`; inactive removes it.
+- `rsvp_event(uuid, text)` now accepts `maybe` and stamps `responded_at`; new overload `rsvp_event(uuid, text, jsonb)` stores per-event answers.
+- `get_event_rsvp_rollup(_event_id uuid) → jsonb` — going / not_going / maybe with answers, plus `no_answer` (names) and `is_staff` for the creator, managers, admins and owners.
+- `ack_announcement(_post_id uuid)`, `get_announcement_ack_status(_post_id uuid) → jsonb` (mine, ack_count, not_acked for staff).
+- `get_action_cards() → jsonb` — unanswered RSVPs (deadline still open, or starting within 14 days), incentives ending within 7 days, pinned published announcements not acknowledged.
+- `get_channel_messages` now also returns `kind`, `ref_id`, `meta`.
+- Grants: the callable RPCs are `authenticated` + `service_role` only; anon revoked. Trigger functions and the two card helpers are revoked from PUBLIC, anon and authenticated.
+
+### Client
+- New `src/components/chat/EventCard.tsx` (Going / Can't / Maybe, question sheet for shirt size and need-a-ride style questions, going count, Who's going sheet, staff-only "Hasn't answered" sheet), `AnnouncementCard.tsx` (Got it, ack count, has-not-acknowledged sheet), `IncentiveCard.tsx` (progress bar from `get_incentive_progress`, ends-on date).
+- `CommunityChat.tsx` renders by `kind` and keeps the legacy prefix fallback for win and award posts.
+- New `src/hooks/useActionCards.ts` and `src/components/chat/NeedsYouRow.tsx`; the row sits above the conversation list on the Chat home and renders nothing when there is nothing to do.
+- `usePendingRSVP` now counts `get_action_cards()` RSVP cards — the browser-side recurrence expansion is gone.
+
+### Verification (owner preview session, throwaway rows tagged `p60c-test`, all deleted)
+- Inserting an event, a pinned announcement and an active incentive produced exactly one card each, in `general`, `announcements`, `general`, all with `ref_id` and `meta` (event card carried `event_kind=trip` and both questions).
+- At 390 the Chat home showed the Needs-you row and the RSVP card; opening the Feed thread showed the event and incentive cards. Tapping Going opened the question sheet, saving stored `status=attending`, `answers={"shirt_size":"M"}`, `responded_at` set.
+- `get_event_rsvp_rollup`: `going_count=1`, `no_answer=45`, `is_staff=true`. `ack_announcement` + `get_announcement_ack_status`: `mine=true`, `ack_count=1`, `not_acked` listed. `get_action_cards` returned 10 cards (8 rsvp, 1 incentive, 1 announcement).
+- Renaming the event updated its card in place; unpublishing the announcement removed its card.
+- Anonymous `get_action_cards` over the Data API returned 401.
+- Cleanup proof: `ev 0 | ann 0 | inc 0 | msg 0 | acks 0 | att 0`.
+- Typecheck clean, production build clean (largest app chunk 191.17 kB raw / 60.01 kB gzip). Widths: `/app/chat` scrollWidth 390 at 390 and 1280 at 1280, no horizontal overflow.
+- Linter: 316 issues — 1 RLS-enabled-no-policy, 26 anonymous SECURITY DEFINER (unchanged from the Pass 60B baseline), 288 signed-in SECURITY DEFINER (baseline 283 plus the five new signed-in RPCs), 1 OTP length warning.
+
+### Open, with reason
+- Throwaway manager and rep accounts were not created: minting a second preview session requires an approval that is unavailable in this environment, so the manager-creates-event → rep-RSVPs → manager-rollup sequence was verified through the owner session and direct RPC calls rather than two separate signed-in browsers. Server-side scope checks (`can_view_event`, `visible_chat_channels`, `is_staff`) are exercised by those calls.
+- Series expansion does not post per-instance cards: recurrence is still expanded at read time in `get_events_feed`, so one card is posted per stored `calendar_events` row.
+- The dev-only React warning "Function components cannot be given refs" with an `App` stack is still open, unchanged from Pass 58B.
+- Preview only; nothing published.

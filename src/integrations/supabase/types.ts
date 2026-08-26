@@ -236,6 +236,32 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_acks: {
+        Row: {
+          acked_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          acked_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          acked_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_acks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "announcement_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcement_posts: {
         Row: {
           audience: string
@@ -826,34 +852,40 @@ export type Database = {
       }
       calendar_attendance: {
         Row: {
+          answers: Json | null
           created_at: string | null
           event_id: string
           id: string
           marked_at: string | null
           marked_by: string | null
           present: boolean | null
+          responded_at: string | null
           status: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          answers?: Json | null
           created_at?: string | null
           event_id: string
           id?: string
           marked_at?: string | null
           marked_by?: string | null
           present?: boolean | null
+          responded_at?: string | null
           status: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          answers?: Json | null
           created_at?: string | null
           event_id?: string
           id?: string
           marked_at?: string | null
           marked_by?: string | null
           present?: boolean | null
+          responded_at?: string | null
           status?: string
           updated_at?: string | null
           user_id?: string
@@ -907,16 +939,19 @@ export type Database = {
           event_kind: string
           event_type: string | null
           id: string
+          is_cancelled: boolean
           is_team_wide: boolean | null
           location: string | null
           manager_id: string | null
           parent_event_id: string | null
+          questions: Json | null
           recurrence_count: number | null
           recurrence_day_of_month: number | null
           recurrence_days_of_week: number[] | null
           recurrence_end_date: string | null
           recurrence_interval: number | null
           recurrence_type: string | null
+          rsvp_deadline: string | null
           scope: string
           target_role: Database["public"]["Enums"]["app_role"] | null
           team_id: string | null
@@ -934,16 +969,19 @@ export type Database = {
           event_kind?: string
           event_type?: string | null
           id?: string
+          is_cancelled?: boolean
           is_team_wide?: boolean | null
           location?: string | null
           manager_id?: string | null
           parent_event_id?: string | null
+          questions?: Json | null
           recurrence_count?: number | null
           recurrence_day_of_month?: number | null
           recurrence_days_of_week?: number[] | null
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
           recurrence_type?: string | null
+          rsvp_deadline?: string | null
           scope?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
@@ -961,16 +999,19 @@ export type Database = {
           event_kind?: string
           event_type?: string | null
           id?: string
+          is_cancelled?: boolean
           is_team_wide?: boolean | null
           location?: string | null
           manager_id?: string | null
           parent_event_id?: string | null
+          questions?: Json | null
           recurrence_count?: number | null
           recurrence_day_of_month?: number | null
           recurrence_days_of_week?: number[] | null
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
           recurrence_type?: string | null
+          rsvp_deadline?: string | null
           scope?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           team_id?: string | null
@@ -1162,6 +1203,9 @@ export type Database = {
           id: string
           is_ai: boolean
           is_pinned: boolean
+          kind: string
+          meta: Json | null
+          ref_id: string | null
           reply_to: string | null
           user_id: string
         }
@@ -1172,6 +1216,9 @@ export type Database = {
           id?: string
           is_ai?: boolean
           is_pinned?: boolean
+          kind?: string
+          meta?: Json | null
+          ref_id?: string | null
           reply_to?: string | null
           user_id: string
         }
@@ -1182,6 +1229,9 @@ export type Database = {
           id?: string
           is_ai?: boolean
           is_pinned?: boolean
+          kind?: string
+          meta?: Json | null
+          ref_id?: string | null
           reply_to?: string | null
           user_id?: string
         }
@@ -6025,6 +6075,7 @@ export type Database = {
       }
     }
     Functions: {
+      ack_announcement: { Args: { _post_id: string }; Returns: undefined }
       add_manual_lead: {
         Args: {
           _city?: string
@@ -6205,6 +6256,14 @@ export type Database = {
       }
       dismiss_reactivation_request: { Args: { _id: string }; Returns: Json }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
+      event_card_meta: {
+        Args: { _e: Database["public"]["Tables"]["calendar_events"]["Row"] }
+        Returns: Json
+      }
+      event_target_channel: {
+        Args: { _scope: string; _team_id: string }
+        Returns: string
+      }
       expand_event_series: { Args: { p_weeks?: number }; Returns: number }
       fiber_installs_total: { Args: { _user: string }; Returns: number }
       fiber_producing_reps: {
@@ -6235,6 +6294,7 @@ export type Database = {
           was_archived: boolean
         }[]
       }
+      get_action_cards: { Args: never; Returns: Json }
       get_all_time_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -6262,6 +6322,7 @@ export type Database = {
           videos_watched: number
         }[]
       }
+      get_announcement_ack_status: { Args: { _post_id: string }; Returns: Json }
       get_announcement_seen_counts: { Args: never; Returns: Json }
       get_applications_awaiting_me: { Args: never; Returns: number }
       get_attendance_flags: {
@@ -6392,6 +6453,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_event_rsvp_rollup: { Args: { _event_id: string }; Returns: Json }
       get_events_feed: {
         Args: { p_from?: string; p_to?: string }
         Returns: {
@@ -7056,10 +7118,12 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: Json
       }
-      rsvp_event: {
-        Args: { p_event_id: string; p_status: string }
-        Returns: undefined
-      }
+      rsvp_event:
+        | { Args: { p_event_id: string; p_status: string }; Returns: undefined }
+        | {
+            Args: { p_answers: Json; p_event_id: string; p_status: string }
+            Returns: undefined
+          }
       run_notification_digest: { Args: never; Returns: number }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
