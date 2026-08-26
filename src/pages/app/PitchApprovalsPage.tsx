@@ -26,7 +26,9 @@ export default function PitchApprovalsPage() {
   const [reviewingRequest, setReviewingRequest] = useState<PitchApprovalWithDetails | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [teamFilter, setTeamFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'pitches' | 'checklist'>('pitches');
+  const [activeTab, setActiveTab] = useState<'pitches' | 'checklist' | 'workspaces'>('pitches');
+  const { role } = useAuth();
+  const canSeeApplications = role === 'owner' || role === 'admin' || role === 'president';
 
   // Get unique teams from requests
   const teams = useMemo(() => {
