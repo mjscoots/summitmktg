@@ -100,7 +100,7 @@ export function EditableFeaturesBenefits({
         if (error) throw error;
       }
 
-      toast.success('Features & Benefits saved!');
+      toast.success('Features and benefits saved');
       setIsEditing(false);
       onUpdate?.(featuresData);
     } catch (err) {

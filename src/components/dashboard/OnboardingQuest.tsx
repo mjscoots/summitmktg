@@ -154,11 +154,11 @@ export function OnboardingQuest() {
           </div>
           <div>
             <h2 className="font-bold text-foreground text-sm">
-              {allDone ? '🎉 All Done!' : 'Finish Setting Up Your Account'}
+              {allDone ? 'All done' : 'Finish setting up your account'}
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {allDone
-                ? "You're all set!"
+                ? "You're all set"
                 : `${completedCount} of ${steps.length} completed`}
             </p>
           </div>

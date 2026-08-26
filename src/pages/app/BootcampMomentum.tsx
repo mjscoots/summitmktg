@@ -280,7 +280,7 @@ export default function BootcampMomentum() {
             size="lg"
             className="w-full mt-8 bg-white text-black hover:bg-white/90 font-black text-base h-12 disabled:opacity-30 gap-2"
           >
-            {currentStep === 7 ? "LET'S GO →" : 'NEXT'}
+            {currentStep === 7 ? "Continue →" : 'NEXT'}
             {currentStep < 7 && <ChevronRight className="w-4 h-4" />}
           </Button>
         </div>

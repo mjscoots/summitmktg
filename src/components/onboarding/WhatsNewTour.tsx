@@ -171,7 +171,7 @@ export function WhatsNewTour() {
               {isLast ? (
                 <>
                   <Rocket className="w-4 h-4" />
-                  Let's go!
+                  Done!
                 </>
               ) : (
                 <>

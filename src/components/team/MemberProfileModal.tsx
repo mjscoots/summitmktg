@@ -364,7 +364,7 @@ export function MemberProfileModal({
                     const senderName = profile?.full_name?.split(' ')[0] || 'Someone';
                     await supabase.from('user_notifications').insert({
                       user_id: member.user_id,
-                      title: '🔥 Props received!',
+                      title: 'Props received',
                       message: `${senderName} just sent you props — keep grinding!`,
                       link: '/app/leaderboard',
                     });
@@ -376,7 +376,7 @@ export function MemberProfileModal({
                 }}
               >
                 <Rocket className="w-3.5 h-3.5" />
-                {propsSent ? 'Props Sent!' : 'Send Props'}
+                {propsSent ? 'Props sent' : 'Send Props'}
               </Button>
             )}
           </div>

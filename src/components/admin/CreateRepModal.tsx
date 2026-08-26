@@ -131,7 +131,7 @@ export function CreateRepModal({ open, onOpenChange, managers, teams, onSuccess 
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-mono font-medium">{createdPassword}</p>
                     <button
-                      onClick={() => { navigator.clipboard.writeText(createdPassword); toast({ title: 'Copied!' }); }}
+                      onClick={() => { navigator.clipboard.writeText(createdPassword); toast({ title: 'Copied' }); }}
                       className="text-white/40 hover:text-white"
                     >
                       <Copy className="w-3.5 h-3.5" />

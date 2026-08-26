@@ -88,7 +88,7 @@ export function AdminEditWrapper({
         if (error) throw error;
       }
 
-      toast.success('Content saved successfully!');
+      toast.success('Content saved');
       setIsEditing(false);
       onUpdate?.(editedContent);
     } catch (err) {

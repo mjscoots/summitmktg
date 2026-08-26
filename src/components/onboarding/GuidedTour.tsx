@@ -214,7 +214,7 @@ export function GuidedTour() {
             onClick={next}
             className="text-xs gap-1 h-7 px-3 font-bold"
           >
-            {step === TOUR_STEPS.length - 1 ? "Let's Go!" : 'Next'}
+            {step === TOUR_STEPS.length - 1 ? "Done" : 'Next'}
             {step < TOUR_STEPS.length - 1 && <ChevronRight className="w-3 h-3" />}
           </Button>
         </div>
