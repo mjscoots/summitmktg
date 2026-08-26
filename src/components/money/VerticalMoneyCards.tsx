@@ -127,7 +127,7 @@ export function VerticalMoneyCards({
     <div className="space-y-4">
       <section className={cn(CARD, 'p-5 sm:p-6')}>
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-gradient-to-br from-primary/30 to-primary/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/30">
             <Layers className="h-4 w-4 text-primary" />
           </div>
           <div>
@@ -157,7 +157,7 @@ export function VerticalMoneyCards({
             )}
           >
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-gradient-to-br from-primary/30 to-primary/10">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/30">
                 <DollarSign className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0">

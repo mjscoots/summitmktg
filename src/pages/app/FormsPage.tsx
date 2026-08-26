@@ -15,20 +15,12 @@ import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting' | 'commitment';
 type InterviewSubTab = 'forms' | 'responses';
 
-const badgeGradients = [
-  'from-blue-500 to-blue-600',
-  'from-violet-500 to-purple-600',
-  'from-amber-500 to-orange-500',
-];
+const badgeGradients = ['bg-primary/20', 'bg-primary/15', 'bg-primary/10'];
 
-const badgeGlows = [
-  'shadow-[0_0_20px_-4px_rgba(59,130,246,0.5)]',
-  'shadow-[0_0_20px_-4px_rgba(139,92,246,0.5)]',
-  'shadow-[0_0_20px_-4px_rgba(245,158,11,0.5)]',
-];
+const badgeGlows = ['', '', ''];
 
 const cardBorderAccents = [
-  'hover:border-blue-500/20',
+  'hover:border-primary/20',
   'hover:border-violet-500/20',
   'hover:border-primary/20',
 ];
@@ -117,7 +109,7 @@ export default function FormsPage() {
               >
                 {tab.label}
                 {activeSection === tab.key && (
-                  <div className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-gradient-to-r from-primary to-primary/60" />
+                  <div className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary" />
                 )}
               </button>
             ))}
@@ -171,7 +163,6 @@ export default function FormsPage() {
                           <div
                             className={cn(
                               'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
-                              'bg-gradient-to-br',
                               badgeGradients[i],
                               badgeGlows[i],
                               'transition-all duration-300 group-hover:scale-105'
@@ -193,7 +184,6 @@ export default function FormsPage() {
                       {/* Bottom accent line */}
                       <div className={cn(
                         'h-px mx-6 mb-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
-                        'bg-gradient-to-r',
                         badgeGradients[i]
                       )} />
                       <div className="h-4" />
@@ -219,7 +209,6 @@ export default function FormsPage() {
                         <div
                           className={cn(
                             'w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0',
-                            'bg-gradient-to-br',
                             badgeGradients[i],
                             'opacity-85'
                           )}

@@ -142,7 +142,7 @@ export function EventDetailsModal({
   const getCategoryBadge = () => {
     const styles: Record<string, { label: string; class: string }> = {
       mandatory: { label: 'MANDATORY', class: 'bg-red-500/15 text-primary ring-1 ring-red-500/20' },
-      training: { label: 'TRAINING', class: 'bg-blue-500/15 text-blue-400' },
+      training: { label: 'TRAINING', class: 'bg-primary/15 text-primary' },
       revenue: { label: 'REVENUE / 1-ON-1', class: 'bg-purple-500/15 text-primary' },
       optional: { label: 'OPTIONAL', class: 'bg-primary/15 text-primary' },
     };

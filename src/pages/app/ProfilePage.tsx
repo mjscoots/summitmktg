@@ -72,7 +72,7 @@ function PointsCard() {
           <p className="text-[9px] text-muted-foreground">Streak</p>
         </div>
         <div className="p-2 rounded-lg bg-muted/30">
-          <Clock className="w-3.5 h-3.5 mx-auto mb-0.5 text-blue-400" />
+          <Clock className="w-3.5 h-3.5 mx-auto mb-0.5 text-primary" />
           <p className="text-xs font-bold">{hoursToday}h {minsToday}m</p>
           <p className="text-[9px] text-muted-foreground">Today</p>
         </div>
@@ -424,12 +424,12 @@ export default function ProfilePage() {
               ) : (
                 <div className={cn(
                   "w-20 h-20 rounded-full flex items-center justify-center",
-                  isManager ? "bg-blue-500/15" : "bg-primary/15",
+                  isManager ? "bg-primary/15" : "bg-primary/15",
                   getTierBorderClass(systemPct)
                 )}>
                   <User className={cn(
                     "w-8 h-8",
-                    isManager ? "text-blue-400" : "text-primary"
+                    isManager ? "text-primary" : "text-primary"
                   )} />
                 </div>
               )}
@@ -453,7 +453,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2 mt-1">
                 <span className={cn(
                   "text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                  isManager ? "bg-blue-500/15 text-blue-400" : "bg-primary/15 text-primary"
+                  isManager ? "bg-primary/15 text-primary" : "bg-primary/15 text-primary"
                 )}>
                   {isManager ? 'MANAGER' : 'ROOKIE'}
                 </span>

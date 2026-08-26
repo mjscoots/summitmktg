@@ -44,7 +44,7 @@ const SECTIONS = [
     ],
   },
   {
-    icon: Clock, color: 'text-blue-500', title: 'Hours Logged',
+    icon: Clock, color: 'text-primary', title: 'Hours Logged',
     subtitle: '600/day cap',
     items: [
       { label: 'Per hour trained', pts: '+120' },

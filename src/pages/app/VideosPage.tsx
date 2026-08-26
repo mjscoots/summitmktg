@@ -210,7 +210,7 @@ export default function VideosPage() {
               <div key={video.id} className="relative group/card">
                 {/* NEW badge for videos added within the last 7 days */}
                 {video.created_at && (Date.now() - new Date(video.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 && (
-                  <div className="absolute top-2 left-2 z-20 px-2 py-0.5 bg-gradient-to-r from-success to-emerald-500 text-white rounded-full text-[10px] font-bold tracking-wide shadow-sm">
+                  <div className="absolute top-2 left-2 z-20 px-2 py-0.5 bg-success text-white rounded-full text-[10px] font-bold tracking-wide shadow-sm">
                     NEW
                   </div>
                 )}

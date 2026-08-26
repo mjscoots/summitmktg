@@ -44,7 +44,7 @@ export function InstallAppHint() {
       </button>
 
       <div className="flex items-start gap-3 pr-8">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/25">
           <Smartphone className="h-5 w-5 text-primary" />
         </div>
         <div className="min-w-0">

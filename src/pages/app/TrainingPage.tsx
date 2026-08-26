@@ -210,7 +210,7 @@ export default function TrainingPage() {
           {/* Videos Banner */}
           <button
             onClick={() => navigate('/app/videos')}
-            className="group w-full mt-5 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
+            className="group w-full mt-5 p-5 rounded-xl border-2 border-rose-500/30 bg-rose-500/10 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
           >
             <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
               <Play className="w-7 h-7" fill="currentColor" />

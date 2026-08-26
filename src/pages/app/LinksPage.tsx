@@ -747,7 +747,7 @@ export default function LinksPage() {
                   )}
                 >
                   {calcTab === 'rookie' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 -z-10" />
+                    <div className="absolute inset-0 bg-green-500 -z-10" />
                   )}
                   Rookie
                 </button>
@@ -762,7 +762,7 @@ export default function LinksPage() {
                   )}
                 >
                   {calcTab === 'veteran' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 -z-10" />
+                    <div className="absolute inset-0 bg-primary -z-10" />
                   )}
                   Veteran
                 </button>

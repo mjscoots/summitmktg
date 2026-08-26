@@ -139,7 +139,7 @@ export default function IndustriesPage() {
               return (
                 <div key={v.vertical} className={cn(CARD, 'flex flex-col gap-3')}>
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary/25 to-primary/5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/25">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
                     <h2 className="text-sm font-semibold text-foreground">{v.label}</h2>

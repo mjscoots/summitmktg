@@ -90,7 +90,7 @@ export default function ManagerMeetingHubContent() {
         onClick={() => navigate('/app/manager-meeting')}
         className="group relative rounded-2xl bg-card/60 backdrop-blur-sm border border-white/[0.06] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer p-6 flex items-center gap-5"
       >
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
           <ClipboardList className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1 min-w-0">
@@ -205,7 +205,7 @@ function SubmissionView({ data }: { data: any }) {
       <section><h4 className="font-semibold mb-2">2. Wins</h4><Field label="" value={d.wins} /></section>
       {d.reps?.length > 0 && (
         <section><h4 className="font-semibold mb-2">3. Rep Triage</h4>
-          <ul className="space-y-1.5">{d.reps.map((r: any) => <li key={r.id} className={cn('text-sm rounded-md px-3 py-2 border', r.status === 'cut' && 'border-red-500/30 bg-red-500/5', r.status === 'watch' && 'border-amber-500/30 bg-amber-500/5', r.status === 'help' && 'border-blue-500/30 bg-blue-500/5', r.status === 'promote' && 'border-emerald-500/30 bg-emerald-500/5')}><b>{r.name}</b> — <span className="uppercase text-xs">{r.status}</span>{r.note && <> · {r.note}</>}</li>)}</ul>
+          <ul className="space-y-1.5">{d.reps.map((r: any) => <li key={r.id} className={cn('text-sm rounded-md px-3 py-2 border', r.status === 'cut' && 'border-red-500/30 bg-red-500/5', r.status === 'watch' && 'border-amber-500/30 bg-amber-500/5', r.status === 'help' && 'border-primary/30 bg-primary/5', r.status === 'promote' && 'border-emerald-500/30 bg-emerald-500/5')}><b>{r.name}</b> — <span className="uppercase text-xs">{r.status}</span>{r.note && <> · {r.note}</>}</li>)}</ul>
         </section>
       )}
       {d.rules?.length > 0 && (

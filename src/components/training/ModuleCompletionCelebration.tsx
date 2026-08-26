@@ -79,9 +79,9 @@ export function ModuleCompletionCelebration({
           "inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-sm font-semibold",
           isRookieCourse 
             ? "bg-primary/20 text-primary border border-primary/30"
-            : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+            : "bg-primary/20 text-primary border border-primary/30"
         )}>
-          <Star className={cn("w-4 h-4", isRookieCourse ? "text-primary" : "text-blue-400")} />
+          <Star className={cn("w-4 h-4", isRookieCourse ? "text-primary" : "text-primary")} />
           Module Complete
         </div>
 
@@ -93,7 +93,7 @@ export function ModuleCompletionCelebration({
         {/* Next module preview */}
         {nextModuleName && (
           <p className="text-sm text-muted-foreground mb-6">
-            Next up: <span className={cn("font-semibold", isRookieCourse ? "text-primary" : "text-blue-400")}>{nextModuleName}</span>
+            Next up: <span className={cn("font-semibold", isRookieCourse ? "text-primary" : "text-primary")}>{nextModuleName}</span>
           </p>
         )}
 
@@ -105,7 +105,7 @@ export function ModuleCompletionCelebration({
             "font-bold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
             isRookieCourse
               ? "bg-primary hover:bg-primary text-white shadow-[0_0_30px_-5px_rgba(34,197,94,0.6)]"
-              : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_30px_-5px_rgba(59,130,246,0.6)]"
+              : "bg-primary hover:bg-primary text-white"
           )}
         >
           Continue Training

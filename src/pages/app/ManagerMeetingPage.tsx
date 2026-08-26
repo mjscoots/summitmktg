@@ -70,10 +70,10 @@ const defaultData = (): FormData => ({
 });
 
 const statusMeta: Record<RepStatus, { label: string; ring: string; chip: string; bar: string }> = {
-  cut:     { label: 'Cut',              ring: 'border-red-500/40',    chip: 'bg-red-500/15 text-red-300 border-red-500/30',     bar: 'bg-gradient-to-b from-red-500 to-red-600' },
-  watch:   { label: 'Watch',            ring: 'border-amber-500/40',  chip: 'bg-amber-500/15 text-amber-300 border-amber-500/30', bar: 'bg-gradient-to-b from-amber-400 to-amber-600' },
-  help:    { label: 'Needs Help',       ring: 'border-blue-500/40',   chip: 'bg-blue-500/15 text-blue-300 border-blue-500/30',   bar: 'bg-gradient-to-b from-blue-400 to-blue-600' },
-  promote: { label: 'Promote/Spotlight',ring: 'border-emerald-500/40',chip: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', bar: 'bg-gradient-to-b from-emerald-400 to-emerald-600' },
+  cut:     { label: 'Cut',              ring: 'border-red-500/40',    chip: 'bg-red-500/15 text-red-300 border-red-500/30',     bar: 'bg-red-500' },
+  watch:   { label: 'Watch',            ring: 'border-amber-500/40',  chip: 'bg-amber-500/15 text-amber-300 border-amber-500/30', bar: 'bg-amber-400' },
+  help:    { label: 'Needs Help',       ring: 'border-primary/40',   chip: 'bg-primary/15 text-primary border-primary/30',   bar: 'bg-primary' },
+  promote: { label: 'Promote/Spotlight',ring: 'border-emerald-500/40',chip: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', bar: 'bg-emerald-400' },
 };
 
 // ───────────────────── Section Card ─────────────────────
@@ -81,7 +81,7 @@ function SectionCard({ n, title, subtitle, children }: { n: number; title: strin
   return (
     <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-white/[0.06] overflow-hidden">
       <div className="flex items-start gap-4 px-5 sm:px-6 py-5 border-b border-white/[0.04]">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold">{n}</span>
         </div>
         <div className="min-w-0">
@@ -245,8 +245,8 @@ export default function ManagerMeetingPage() {
         {/* Hero */}
         <div className="flex items-start gap-4 mb-8">
           <div className="relative mt-0.5">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/30 to-blue-400/20 blur-xl" />
-            <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/25 to-blue-500/15 border border-primary/20 flex items-center justify-center shadow-[0_0_24px_-6px_hsl(var(--primary)/0.4)]">
+            <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl" />
+            <div className="relative w-12 h-12 rounded-2xl bg-primary/25 border border-primary/20 flex items-center justify-center shadow-[0_0_24px_-6px_hsl(var(--primary)/0.4)]">
               <ClipboardList className="w-6 h-6 text-primary" />
             </div>
           </div>

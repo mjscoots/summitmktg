@@ -175,8 +175,8 @@ export default function SeasonPage() {
         {/* Hero */}
         <div className="flex items-start gap-4 mb-8">
           <div className="relative mt-0.5">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/30 to-blue-400/20 blur-xl" />
-            <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/25 to-blue-500/15 border border-primary/20 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl" />
+            <div className="relative w-12 h-12 rounded-2xl bg-primary/25 border border-primary/20 flex items-center justify-center">
               <CalendarClock className="w-5.5 h-5.5 text-primary" />
             </div>
           </div>

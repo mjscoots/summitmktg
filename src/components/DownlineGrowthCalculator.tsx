@@ -670,7 +670,7 @@ export default function DownlineGrowthCalculator() {
           <div className={cn("grid gap-2", result.personalResult.earnings > 0 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3")}>
             {[
               ...(result.personalResult.earnings > 0 ? [{ label: 'Personal', value: fmt(result.personalResult.earnings), color: 'text-primary' }] : []),
-              { label: 'From Rookies', value: fmt(result.totalRookieEarnings), color: 'text-blue-400' },
+              { label: 'From Rookies', value: fmt(result.totalRookieEarnings), color: 'text-primary' },
               { label: 'From Vets', value: fmt(result.totalVetEarnings), color: 'text-primary' },
               { label: 'From Teams', value: fmt(result.totalTeamEarnings), color: 'text-primary' },
             ].map(s => (
@@ -733,14 +733,14 @@ export default function DownlineGrowthCalculator() {
       </div>
 
       {/* ====== DIRECT RECRUIT ROOKIES ====== */}
-      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-blue-500/40" ref={rookieSectionRef}>
+      <div className="glass-card rounded-2xl p-4 mb-6 border-l-4 border-l-primary/40" ref={rookieSectionRef}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-400" />
+            <Users className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Recruit Rookies</h3>
             <InfoTip text="Rookies you personally manage. Each row can be an individual or a group of similar rookies." />
           </div>
-          <button type="button" onClick={addRookie} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-all border border-blue-500/20">
+          <button type="button" onClick={addRookie} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all border border-primary/20">
             <Plus className="w-3 h-3" /> Add Rookie
           </button>
         </div>
@@ -751,9 +751,9 @@ export default function DownlineGrowthCalculator() {
 
         {/* Subtotal */}
         {rookieRows.length > 0 && (
-          <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-blue-500/5 border border-blue-500/10 text-[10px]">
+          <div className="flex items-center justify-between mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-[10px]">
             <span className="text-muted-foreground uppercase font-semibold">Rookie Subtotal</span>
-            <span className="text-blue-400 font-bold">{fmt(result.totalRookieEarnings)}</span>
+            <span className="text-primary font-bold">{fmt(result.totalRookieEarnings)}</span>
           </div>
         )}
 
@@ -769,7 +769,7 @@ export default function DownlineGrowthCalculator() {
                     placeholder={`Rookie ${i + 1}`}
                     className="bg-transparent text-xs font-bold text-foreground border-none outline-none w-28 placeholder:text-muted-foreground/40" />
                   <span className="text-[10px] text-muted-foreground ml-auto">×{row.headcountStr || '1'}</span>
-                  {rr && <span className="text-[10px] text-blue-400 font-bold ml-2">{fmt(rr.earnings)}</span>}
+                  {rr && <span className="text-[10px] text-primary font-bold ml-2">{fmt(rr.earnings)}</span>}
                   <button type="button" onClick={e => { e.stopPropagation(); removeRookie(row.id); }} className="text-muted-foreground hover:text-destructive ml-1"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
                 {row.expanded && (
@@ -797,7 +797,7 @@ export default function DownlineGrowthCalculator() {
                         <div className="flex justify-between"><span className="text-muted-foreground">Rookie Commission</span><span>{pct(rr.rookieCommission)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Your Deal</span><span>{pct(result.topDeal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Net Spread</span><span>{pct(rr.netSpread)}</span></div>
-                        <div className="flex justify-between font-bold text-blue-400 border-t border-border/20 pt-1"><span>Contribution</span><span>{fmt(rr.earnings)}</span></div>
+                        <div className="flex justify-between font-bold text-primary border-t border-border/20 pt-1"><span>Contribution</span><span>{fmt(rr.earnings)}</span></div>
                       </div>
                     )}
                   </div>

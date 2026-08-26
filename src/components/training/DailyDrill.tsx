@@ -90,7 +90,7 @@ export function DailyDrill() {
     if (!isAdmin) return null;
     return (
       <div className="mb-6 rounded-xl border border-dashed border-white/[0.1] bg-card/40 p-5 flex items-start gap-3">
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 text-primary flex-shrink-0">
+        <div className="p-2.5 rounded-xl bg-primary/25 text-primary flex-shrink-0">
           <Target className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
@@ -110,7 +110,7 @@ export function DailyDrill() {
   return (
     <div className="mb-6 rounded-xl border border-white/[0.06] bg-card/60 backdrop-blur-sm p-5">
       <div className="flex items-start gap-3">
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 text-primary flex-shrink-0">
+        <div className="p-2.5 rounded-xl bg-primary/25 text-primary flex-shrink-0">
           <Target className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">

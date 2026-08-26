@@ -27,7 +27,7 @@ export function NextRankPush({ pointsToNext, rivalName, currentRank }: NextRankP
   }
   const msgsNeeded = Math.ceil(pointsToNext / 15);
   if (msgsNeeded <= 30) {
-    actions.push({ icon: <MessageSquare className="w-3.5 h-3.5 text-blue-400" />, label: `${msgsNeeded} chat messages`, points: msgsNeeded * 15 });
+    actions.push({ icon: <MessageSquare className="w-3.5 h-3.5 text-primary" />, label: `${msgsNeeded} chat messages`, points: msgsNeeded * 15 });
   }
   const lessonsNeeded = Math.ceil(pointsToNext / 60);
   if (lessonsNeeded <= 5) {
@@ -35,7 +35,7 @@ export function NextRankPush({ pointsToNext, rivalName, currentRank }: NextRankP
   }
 
   return (
-    <div className="mx-4 mt-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+    <div className="mx-4 mt-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
       <div className="flex items-center gap-2 mb-2">
         <ArrowUp className="w-4 h-4 text-primary" />
         <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Next Rank Push</h3>

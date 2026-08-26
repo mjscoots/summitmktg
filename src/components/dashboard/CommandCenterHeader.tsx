@@ -90,14 +90,11 @@ export function CommandCenterHeader() {
   return (
     <div className="mb-5">
       {/* Glass hero — control panel */}
-      <div className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: isOwner ? 'var(--gradient-gold)' : 'var(--gradient-primary)' }} />
-        <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full opacity-10 blur-2xl pointer-events-none" style={{ background: 'hsl(263 84% 58%)' }} />
-        
+      <div className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden workspace-texture">
         <div className="flex items-start justify-between relative z-10">
           <div>
             <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight">
-              Welcome back, <span className={isOwner ? "gradient-text-gold" : "gradient-text"}>{firstName}</span>
+              Welcome back, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               {isOwner ? "Owner view — all teams." : "Manager view — your team."}

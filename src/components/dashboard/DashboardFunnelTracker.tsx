@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 const STATUS_OPTIONS = [
   { value: 'Claimed', label: 'Claimed', color: 'bg-primary/15 text-primary border-primary/30' },
-  { value: 'Contacted', label: 'Contacted', color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+  { value: 'Contacted', label: 'Contacted', color: 'bg-primary/15 text-primary border-primary/30' },
   { value: 'Booked', label: 'Booked', color: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
   { value: 'Signed', label: 'Signed', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
   { value: 'Dead', label: 'Dead', color: 'bg-red-500/15 text-red-400 border-red-500/30' },

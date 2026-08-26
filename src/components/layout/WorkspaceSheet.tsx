@@ -27,7 +27,7 @@ export function WorkspaceSheet() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <button
-          className="flex min-h-11 items-center gap-1.5 rounded-xl border border-border/70 bg-secondary/60 px-3 text-left transition-colors hover:bg-secondary"
+          className="relative flex min-h-11 items-center gap-1.5 overflow-hidden rounded-xl border border-border/70 bg-secondary/60 px-3 text-left transition-colors hover:bg-secondary workspace-texture"
           aria-label="Workspaces and menu"
         >
           <span className="max-w-[140px] truncate text-[13px] font-semibold text-foreground">

@@ -181,7 +181,7 @@ export default function AskSummitPage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <header className="mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-primary/30 border border-primary/20 flex items-center justify-center">
               {isPractice ? <DoorOpen className="w-4 h-4 text-primary" /> : <Sparkles className="w-4 h-4 text-primary" />}
             </div>
             <div>

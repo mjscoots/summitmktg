@@ -15,7 +15,7 @@ type Status = (typeof STATUSES)[number];
 
 const STATUS_STYLE: Record<string, string> = {
   Signed: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400',
-  Verbal: 'border-blue-500/30 bg-blue-500/15 text-blue-400',
+  Verbal: 'border-primary/30 bg-primary/15 text-primary',
   Undecided: 'border-amber-500/30 bg-amber-500/15 text-amber-400',
   'Not returning': 'border-red-500/30 bg-red-500/15 text-red-400',
   'No answer': 'border-border/60 bg-surface text-muted-foreground',

@@ -52,7 +52,7 @@ export function SortableLinkCard({ link, isAdmin, isReordering, onEdit, onDelete
 
   const cardContent = (
     <Card className="p-4 h-full border-border/40 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 cursor-pointer relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary/60 to-primary/10 rounded-l-xl" />
+      <div className="absolute top-0 left-0 w-1 h-full bg-primary/60 rounded-l-xl" />
       
       <div className="flex items-start gap-3 pl-2">
         {isReordering && (

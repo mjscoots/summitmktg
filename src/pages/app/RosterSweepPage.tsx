@@ -265,7 +265,7 @@ export default function RosterSweepPage() {
         <PageBackButton />
 
         <div className="mb-4 flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-gradient-to-br from-primary/25 to-primary/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/25">
             <ClipboardCheck className="h-5 w-5 text-primary" />
           </div>
           <div className="min-w-0">

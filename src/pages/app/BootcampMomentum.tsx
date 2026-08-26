@@ -181,7 +181,7 @@ export default function BootcampMomentum() {
           </div>
           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-white/60 to-white rounded-full transition-all duration-500"
+              className="h-full bg-white/60 rounded-full transition-all duration-500"
               style={{ width: `${(currentStep / 10) * 100}%` }}
             />
           </div>

@@ -65,7 +65,7 @@ function displayName(entry: LeaderboardEntry) {
 
 const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: string; check: (e: LeaderboardEntry, rank: number) => boolean }[] = [
   { id: 'champion', icon: Crown, label: 'Weekly Champion', color: 'text-primary', check: (_, rank) => rank === 1 },
-  { id: 'grinder', icon: Clock, label: 'Grinder (5h+)', color: 'text-blue-500', check: (e) => e.hoursThisWeek >= 5 },
+  { id: 'grinder', icon: Clock, label: 'Grinder (5h+)', color: 'text-primary', check: (e) => e.hoursThisWeek >= 5 },
   { id: 'consistent', icon: Flame, label: 'Consistent (7d+)', color: 'text-primary', check: (e) => e.streakDays >= 7 },
   { id: 'social', icon: MessageSquare, label: 'Social', color: 'text-primary', check: (e) => (e.breakdown.chatPoints || 0) >= 200 },
 ];
@@ -227,20 +227,20 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
       {/* ===== PODIUM ===== */}
       {top3.length >= 3 && (
         <div className="relative px-4 pt-10 pb-6 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-yellow-500/5" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/5 rounded-full blur-[60px]" />
           <div className="relative flex items-end justify-center gap-4">
             <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
-              podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent" ringColor="ring-gray-400/60"
-              medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gradient-to-br from-gray-400 to-gray-500"
+              podiumGradient="bg-muted/40" ringColor="ring-gray-400/60"
+              medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gray-400"
               onClick={() => setSelectedEntry(top3[1])} />
             <PodiumSlot entry={top3[0]} rank={1} animateIn={animateIn} delay="0ms" podiumH="h-28"
-              podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent" ringColor="ring-yellow-500/70"
-              medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-gradient-to-br from-yellow-400 to-yellow-600"
+              podiumGradient="bg-primary/25" ringColor="ring-yellow-500/70"
+              medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-yellow-400"
               isChampion onClick={() => setSelectedEntry(top3[0])} />
             <PodiumSlot entry={top3[2]} rank={3} animateIn={animateIn} delay="400ms" podiumH="h-14"
-              podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent" ringColor="ring-amber-600/60"
-              medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-gradient-to-br from-amber-500 to-amber-700"
+              podiumGradient="bg-primary/15" ringColor="ring-amber-600/60"
+              medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-amber-500"
               onClick={() => setSelectedEntry(top3[2])} />
           </div>
         </div>
@@ -278,12 +278,12 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                   <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
                     {entry.streakDays > 0 && (
                       <span className="flex items-center gap-0.5">
-                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-primary" : entry.streakDays >= 7 ? "text-primary" : entry.streakDays >= 3 ? "text-blue-400" : "text-muted-foreground")} /> {entry.streakDays}d
+                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-primary" : entry.streakDays >= 7 ? "text-primary" : entry.streakDays >= 3 ? "text-primary" : "text-muted-foreground")} /> {entry.streakDays}d
                       </span>
                     )}
                     {entry.hoursThisWeek > 0 && (
                       <span className="flex items-center gap-0.5">
-                        <Clock className="w-3 h-3 text-blue-400/70" /> {entry.hoursThisWeek}h
+                        <Clock className="w-3 h-3 text-primary/70" /> {entry.hoursThisWeek}h
                       </span>
                     )}
                     {entry.lessonsCompleted > 0 && (
@@ -342,7 +342,7 @@ function PodiumSlot({
       style={{ transitionDelay: delay }}
     >
       <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
-        <div className={cn("rounded-full p-0.5", isChampion ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600" : "")}>
+        <div className={cn("rounded-full p-0.5", isChampion ? "bg-yellow-400" : "")}>
           <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg" rank={rank} totalEntries={20}
             className={cn("shadow-md", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
         </div>
@@ -355,7 +355,7 @@ function PodiumSlot({
       <p className={cn("font-bold text-foreground mt-2 truncate text-center", isChampion ? "text-base max-w-[110px]" : rank === 2 ? "text-sm max-w-[90px]" : "text-[13px] max-w-[85px]")}>{displayName(entry)}</p>
       <p className={cn("font-black text-primary tabular-nums", isChampion ? "text-xl" : "text-sm")}>{entry.totalPoints.toLocaleString()}</p>
       <span className="text-[9px] text-muted-foreground font-semibold -mt-0.5">PTS</span>
-      <div className={cn("rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2", podiumH, `bg-gradient-to-t ${podiumGradient}`, isChampion ? "w-28" : "w-22")}>
+      <div className={cn("rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2", podiumH, podiumGradient, isChampion ? "w-28" : "w-22")}>
         {medalIcon}
       </div>
     </div>

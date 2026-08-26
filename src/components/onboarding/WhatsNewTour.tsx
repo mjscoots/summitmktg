@@ -119,7 +119,7 @@ export function WhatsNewTour() {
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleDismiss(); }}>
       <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden border-border/60">
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-background px-6 pt-6 pb-4">
+        <div className="relative bg-primary/20 px-6 pt-6 pb-4">
           <button
             onClick={handleDismiss}
             className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"

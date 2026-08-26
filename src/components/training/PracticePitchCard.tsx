@@ -29,7 +29,7 @@ export function PracticePitchCard() {
   return (
     <>
       <div className="mt-4 rounded-xl border border-white/[0.06] bg-card/60 backdrop-blur-sm p-5 flex items-center gap-4">
-        <div className="p-3 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 text-primary flex-shrink-0">
+        <div className="p-3 rounded-xl bg-primary/25 text-primary flex-shrink-0">
           <Mic className="w-6 h-6" />
         </div>
         <div className="flex-1 min-w-0">

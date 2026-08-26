@@ -35,7 +35,7 @@ export function ContinueLearning({ data, isComplete }: ContinueLearningProps) {
     actions.push({ icon: <FileText className="w-4 h-4" />, label: 'Sales Manual', points: `+${Math.min(50, manualRemaining)}`, route: '/app/training', priority: 4, iconColor: 'text-primary' });
   }
   if (videoRemaining > 0) {
-    actions.push({ icon: <Play className="w-4 h-4" />, label: 'Watch Video', points: `+${Math.min(40, videoRemaining)}`, route: '/app/training/videos', priority: 5, iconColor: 'text-blue-400' });
+    actions.push({ icon: <Play className="w-4 h-4" />, label: 'Watch Video', points: `+${Math.min(40, videoRemaining)}`, route: '/app/training/videos', priority: 5, iconColor: 'text-primary' });
   }
 
   const sorted = actions.sort((a, b) => a.priority - b.priority).slice(0, 3);

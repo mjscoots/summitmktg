@@ -31,7 +31,7 @@ const CAR_STATUSES = [
 const TRAVEL_STATUSES = [
   { value: 'unknown', label: 'Unknown', icon: HelpCircle, color: 'text-muted-foreground' },
   { value: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'text-primary' },
-  { value: 'booked', label: 'Booked', icon: Plane, color: 'text-blue-400' },
+  { value: 'booked', label: 'Booked', icon: Plane, color: 'text-primary' },
   { value: 'pending', label: 'Pending', icon: AlertCircle, color: 'text-primary' },
   { value: 'not_needed', label: 'Local / N/A', icon: CheckCircle, color: 'text-muted-foreground' },
 ];

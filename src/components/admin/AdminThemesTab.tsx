@@ -81,6 +81,13 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+/** Seeded defaults, so each workspace can be put back the way it shipped. */
+const DEFAULTS: Record<string, WorkspaceTheme> = {
+  pest: { mode: 'dark', background: '216 60% 5%', surface: '218 46% 10%', foreground: '0 0% 98%', muted: '215 20% 65%', border: '217 44% 15%', accent: '217 90% 53%', texture: 'none', texture_opacity: 0 },
+  fiber: { mode: 'dark', background: '150 30% 5%', surface: '152 24% 10%', foreground: '80 12% 96%', muted: '110 12% 68%', border: '145 18% 18%', accent: '152 55% 42%', texture: 'camo', texture_opacity: 0.05 },
+  life: { mode: 'light', background: '0 0% 100%', surface: '40 12% 97%', foreground: '220 20% 12%', muted: '220 10% 40%', border: '40 10% 88%', accent: '220 65% 45%', texture: 'none', texture_opacity: 0 },
+};
+
 /** Workspace themes. Owners and admins edit any workspace; a president edits their own. */
 export function AdminThemesTab() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -115,6 +122,15 @@ export function AdminThemesTab() {
       return;
     }
     toast.success(`${row.name} theme saved`);
+  };
+
+  const reset = (vertical: string) => {
+    const base = DEFAULTS[vertical];
+    if (!base) {
+      toast.error('No default is defined for this workspace');
+      return;
+    }
+    setRows((prev) => prev.map((r) => (r.vertical === vertical ? { ...r, theme: { ...base } } : r)));
   };
 
   const checks = useMemo(
@@ -225,6 +241,9 @@ export function AdminThemesTab() {
             <div className="mt-3">
               <Button size="sm" disabled={fail || saving === row.vertical} onClick={() => save(row)}>
                 {saving === row.vertical ? 'Saving...' : 'Save theme'}
+              </Button>
+              <Button size="sm" variant="outline" className="ml-2" onClick={() => reset(row.vertical)}>
+                Reset to default
               </Button>
             </div>
           </section>

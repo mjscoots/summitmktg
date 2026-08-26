@@ -20,7 +20,7 @@ const MANAGER_ACTIONS: QuickAction[] = [
 
 const COLOR_MAP: Record<string, { text: string; border: string; bg: string; hoverBorder: string }> = {
   orange:  { text: 'text-primary',  border: 'border-primary/20',  bg: 'bg-primary/5',  hoverBorder: 'hover:border-primary/50' },
-  blue:    { text: 'text-blue-400',    border: 'border-blue-500/20',    bg: 'bg-blue-500/5',    hoverBorder: 'hover:border-blue-500/50' },
+  blue:    { text: 'text-primary',    border: 'border-primary/20',    bg: 'bg-primary/5',    hoverBorder: 'hover:border-primary/50' },
   emerald: { text: 'text-primary', border: 'border-primary/20', bg: 'bg-primary/5', hoverBorder: 'hover:border-primary/50' },
   cyan:    { text: 'text-cyan-400',    border: 'border-cyan-500/20',    bg: 'bg-cyan-500/5',    hoverBorder: 'hover:border-cyan-500/50' },
   amber:   { text: 'text-primary',   border: 'border-primary/20',   bg: 'bg-primary/5',   hoverBorder: 'hover:border-primary/50' },
