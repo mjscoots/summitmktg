@@ -93,15 +93,9 @@ export default function TrainingPage() {
       <AppLayout>
         <div className="max-w-5xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
-          <div className="relative h-24 rounded-xl overflow-hidden mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-success/30 via-success/20 to-success/10" />
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight drop-shadow-sm">
-                SALES TRAINING
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">Master your craft. Build your future.</p>
-            </div>
+          <div className="mb-6">
+            <h1 className="text-foreground">Training</h1>
+            <p className="mt-1 text-[13px] text-muted-foreground">Your lessons, drills and scripts.</p>
           </div>
 
           {showWelcome && lessonsCompleted < 15 && (
@@ -120,14 +114,14 @@ export default function TrainingPage() {
           {/* Videos Banner */}
           <button
             onClick={() => navigate('/app/videos')}
-            className="group w-full mt-6 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
+            className="glass-card glass-card-hover group mt-6 flex w-full items-center gap-4 p-5 text-left"
           >
-            <div className="p-3.5 rounded-xl bg-rose-500/15 text-primary group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
+            <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
               <Play className="w-7 h-7" fill="currentColor" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                Sales Training Videos
+                Training videos
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">Watch training videos, walkthroughs, and recorded sessions</p>
             </div>
@@ -136,9 +130,9 @@ export default function TrainingPage() {
 
           <button
             onClick={() => navigate('/app/scripts')}
-            className="group w-full mt-4 p-5 rounded-xl border-2 border-primary/25 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent cursor-pointer transition-all duration-300 hover:border-primary/50 flex items-center gap-4 text-left"
+            className="glass-card glass-card-hover group mt-4 flex w-full items-center gap-4 p-5 text-left"
           >
-            <div className="p-3.5 rounded-xl bg-primary/15 text-primary flex-shrink-0">
+            <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
               <FileText className="w-7 h-7" />
             </div>
             <div className="flex-1 min-w-0">
@@ -228,12 +222,12 @@ export default function TrainingPage() {
             onClick={() => navigate('/app/videos')}
             className="group w-full mt-5 p-5 rounded-xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-rose-500/5 cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/50 hover:shadow-[0_0_30px_-10px_rgba(244,63,94,0.35)] flex items-center gap-4 text-left"
           >
-            <div className="p-3.5 rounded-xl bg-rose-500/15 text-primary group-hover:bg-rose-500/25 transition-colors flex-shrink-0">
+            <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
               <Play className="w-7 h-7" fill="currentColor" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                Sales Training Videos
+                Training videos
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">Watch training videos, walkthroughs, and recorded sessions</p>
             </div>
@@ -242,9 +236,9 @@ export default function TrainingPage() {
 
           <button
             onClick={() => navigate('/app/scripts')}
-            className="group w-full mt-4 p-5 rounded-xl border-2 border-primary/25 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent cursor-pointer transition-all duration-300 hover:border-primary/50 flex items-center gap-4 text-left"
+            className="glass-card glass-card-hover group mt-4 flex w-full items-center gap-4 p-5 text-left"
           >
-            <div className="p-3.5 rounded-xl bg-primary/15 text-primary flex-shrink-0">
+            <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
               <FileText className="w-7 h-7" />
             </div>
             <div className="flex-1 min-w-0">
