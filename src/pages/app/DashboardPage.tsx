@@ -1,43 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
-import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
-import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
-import { HomeQuickCards } from '@/components/dashboard/HomeQuickCards';
-import { MyCarTodayCard, MyActionItemsCard, MyEventsTodayCard, ContinueVerticalSetupCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
-import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
-import { QuickActions } from '@/components/dashboard/QuickActions';
-import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
-import { ContinueLearning } from '@/components/dashboard/ContinueLearning';
-import { TodoList } from '@/components/dashboard/TodoList';
-import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
-import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
-import { CountUp } from '@/components/shared/CountUp';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, CheckCircle, Clock, Flame, MessageSquare, Target, BookOpen, Gift, Zap, TrendingUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { lazy, Suspense } from 'react';
-
-const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthCalculator"));
-import { toast } from 'sonner';
-import { ListTodo, GitBranch } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 import { FiberHome } from '@/components/workspace/FiberHome';
 import { LifeHome } from '@/components/workspace/LifeHome';
+import { PestHome } from '@/components/workspace/PestHome';
 
-import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
-import { HomeQuestionCard } from '@/components/home/HomeQuestionCard';
 
 function DashboardSkeleton() {
   return (
