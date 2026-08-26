@@ -12,7 +12,14 @@ interface Approver {
   name: string | null;
   decision: string | null;
   note: string | null;
+  /** 'required' | 'skipped_no_access' | 'unset' */
+  state: string | null;
 }
+
+const STATE_LABEL: Record<string, string> = {
+  skipped_no_access: 'skipped, no access',
+  unset: 'not set yet',
+};
 
 interface Application {
   id: string;
@@ -30,6 +37,7 @@ interface Application {
   approvers: Approver[];
   my_decision: string | null;
   i_am_approver: boolean;
+  owner_can_finish: boolean;
 }
 
 const ANSWER_LABELS: Record<string, string> = {
@@ -133,7 +141,11 @@ export function WorkspaceApplicationsTab() {
                 ) : (
                   <span className="h-3.5 w-3.5 rounded-full border border-border" />
                 )}
-                <span className="text-muted-foreground">{ap.name || 'Approver'}</span>
+                <span className="text-muted-foreground">
+                  {ap.name || 'Approver'}
+                  {ap.state && STATE_LABEL[ap.state] ? ` · ${STATE_LABEL[ap.state]}` : ''}
+                  {ap.state === 'required' && !ap.decision ? ' · waiting' : ''}
+                </span>
               </div>
             ))}
           </div>
@@ -141,7 +153,11 @@ export function WorkspaceApplicationsTab() {
           {a.i_am_approver && !a.my_decision && (
             <div className="mt-3 space-y-2">
               <Textarea
-                placeholder="Note (optional)"
+                placeholder={
+                  a.owner_can_finish
+                    ? 'Note or reason (required when you approve alone)'
+                    : 'Note (optional)'
+                }
                 value={notes[a.id] || ''}
                 onChange={(e) => setNotes((n) => ({ ...n, [a.id]: e.target.value }))}
                 rows={2}

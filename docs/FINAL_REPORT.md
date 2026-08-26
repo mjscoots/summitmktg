@@ -537,3 +537,31 @@ Token sets as seeded (H S% L%):
 | texture | none | camo @ 5% | none |
 
 Verified: Home, Learn, Chat, My money and Admin -> People captured in all three themes at 390 (`/tmp/browser/p54b/*_390.png`) and at 1280 (`*_1280.png`), plus a post-cleanup Pest Home at 1280 confirming the baseline is unchanged. Runtime tokens read back per theme, including the PWA `theme-color` meta: Pest `#050b14`, Fiber `#09110d`, Life `#ffffff`. Typecheck and build pass. Not verified: a per-pair AA audit of every screen in Life was done by eye on the captured screenshots, not programmatically; the person profile and workspace sheet were captured in earlier runs only. Preview only, not published. The database linter still reports its 263 pre-existing issues.
+
+## Pass 55 / 56 — leads meaning, workspace switcher, approvers who cannot approve
+
+**Leads (bucket = 'lead' only).** `leads_list`, `leads_callbacks_due`, `lead_claim`, `lead_detail` and
+`get_off_season_report` are bucket-scoped, so roster people never render as leads. Ordering puts
+out-for-good rows before `not-on-2026-roster` rows. Rows now show name, former manager, last outcome,
+next callback and (on All leads) the designated owner — revenue is on the lead profile only.
+Owner/admin All leads adds filter chips (All / Designated / Free / Not on 2026 roster / Josh's system /
+Out for good), row selection and bulk "Designate to…" backed by `leads_designate_bulk`, with a manager
+picker from the new `leads_manager_options` (shows designated counts and flags approvers with no access).
+Lead rows open only on departure: the old access-loss trigger was dropped and `open_lead_on_departure`
+is called from `set_person_lifecycle` for `departed` only.
+
+**Workspace switcher.** One compact component, `WorkspaceMenu` — a single 14px line ("Summit Pest ▾")
+at the top of the desktop sidebar and at the top of the phone drawer; no banner anywhere. The phone
+top-left control is now a 44px icon-only button that slides in the drawer (workspace line, then the
+navigation list, then Log out). The bottom bar is unchanged: Home · Chat · Training. Switching sets the
+workspace, records `set_active_vertical`, navigates to Home, scrolls to top, bumps a workspace epoch that
+remounts the whole screen so no list keeps data from the previous workspace, plays the Pass 54 theme swap
+and shows a one-line "Now in …" confirmation.
+
+**Approvers who cannot approve.** `vertical_effective_approvers` drops null and no-access approvers;
+`vertical_approver_state` reports each as `required`, `skipped_no_access` or `unset`;
+`decide_vertical_application` counts only effective approvals, lets the owner finish alone and logs the
+override reason. The applications list shows waiting / skipped, no access / not set yet per approver.
+
+Typecheck and build clean. Preview only. Security is not clean: the Supabase linter still reports 275
+issues, almost all pre-existing broad SECURITY DEFINER execute grants plus a short OTP length setting.
