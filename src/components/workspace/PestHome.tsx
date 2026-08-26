@@ -14,6 +14,7 @@ import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LogSaleButton } from '@/components/sales/LogSaleButton';
 import { cn } from '@/lib/utils';
 
 const CARD = 'rounded-[10px] border border-border bg-card p-3';
@@ -57,11 +58,15 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [board, setBoard] = useState<LbRow[]>([]);
   const [pinned, setPinned] = useState<string | null>(null);
+  const [salesWeek, setSalesWeek] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!user) return;
-    const [todoRes, lbRes, pinnedRes] = await Promise.all([
+    const monday = new Date();
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    const [todoRes, lbRes, pinnedRes, salesRes] = await Promise.all([
       supabase
         .from('todo_items')
         .select('id, title, is_completed')
@@ -76,10 +81,16 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         .eq('is_pinned', true)
         .eq('status', 'published')
         .limit(1),
+      (supabase as any)
+        .from('sales_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('sold_at', monday.toISOString()),
     ]);
     setMissions((todoRes.data as Mission[]) || []);
     setBoard(((lbRes.data as LbRow[]) || []).slice()); 
     setPinned(((pinnedRes.data as { title: string }[]) || [])[0]?.title || null);
+    setSalesWeek((salesRes as { count: number | null }).count || 0);
     setLoading(false);
   }, [user]);
 
@@ -132,11 +143,14 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         </p>
       </header>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <NumberCell label="Points today" value={String(pointsToday)} />
         <NumberCell label="Rank" value={myRow ? `#${myRow.rank}` : '—'} />
         <NumberCell label="This week" value={String(snapshot?.week_points ?? 0)} />
+        <NumberCell label="Sales this week" value={String(salesWeek)} />
       </div>
+
+      <LogSaleButton onSaved={() => void load()} />
 
       <Button variant="outline" className="min-h-11 w-full" onClick={() => navigate('/app/playbook')}>
         Playbook
