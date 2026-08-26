@@ -31,6 +31,7 @@ function applyModeTheme(mode: ThemeMode) {
   // Always dark — the brand is a dark premium dashboard
   root.classList.add('dark');
   root.classList.remove('light');
+  if (root.dataset.workspaceTheme === '1') return;
   root.style.setProperty('--background', '216 30% 5%');
   root.style.setProperty('--foreground', '223 100% 97%');
   root.style.setProperty('--card', '220 40% 10%');
