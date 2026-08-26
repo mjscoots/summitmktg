@@ -67,16 +67,16 @@ const Index = () => {
             />
             <p className="mx-auto mt-7 max-w-xl text-lg text-text-secondary sm:text-xl">{tagline}</p>
 
-            <div className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row">
+            <div className="mx-auto mt-9 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:justify-center">
               <button
                 onClick={scrollToEarnings}
-                className="flex-1 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+                className="inline-flex min-h-12 min-w-[15rem] flex-1 items-center justify-center whitespace-nowrap rounded-xl bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
               >
                 See what you would make
               </button>
               <Link
                 to="/apply/rookie"
-                className="flex-1 inline-flex min-h-12 items-center justify-center rounded-xl border border-border-strong px-6 text-sm font-bold text-foreground transition-colors hover:border-foreground"
+                className="inline-flex min-h-12 min-w-[9rem] flex-1 items-center justify-center whitespace-nowrap rounded-xl border border-border-strong px-6 text-sm font-bold text-foreground transition-colors hover:border-foreground"
               >
                 Apply
               </Link>
@@ -98,7 +98,9 @@ const Index = () => {
           <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-3">
             {WHAT_WE_DO.map((c) => (
               <article key={c.title} className="public-card p-6">
-                <c.icon className="mb-4 h-5 w-5 text-text-secondary" strokeWidth={1.5} aria-hidden="true" />
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-elevated">
+                  <c.icon className="h-5 w-5 text-text-secondary" strokeWidth={1.5} aria-hidden="true" />
+                </div>
                 <h3 className="text-lg font-extrabold text-foreground">{c.title}</h3>
                 <p className="mt-2 text-sm text-text-secondary">{c.line}</p>
               </article>
