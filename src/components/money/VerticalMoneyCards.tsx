@@ -103,10 +103,22 @@ export function VerticalMoneyCards({
     };
   }, []);
 
+  const orderedVerticals = useMemo(() => {
+    const rows = data?.verticals ?? [];
+    if (!activeVertical) return rows;
+    return [...rows].sort((a, b) => {
+      const av = a.vertical === activeVertical ? 0 : 1;
+      const bv = b.vertical === activeVertical ? 0 : 1;
+      return av - bv;
+    });
+  }, [data, activeVertical]);
+
   if (loading) return <LoadingList rows={3} />;
   if (!data) return null;
 
   const rankLabel = data.rank ?? (data.rank_is_summit ? 'Summit' : 'Not set');
+
+
 
   return (
     <div className="space-y-4">
