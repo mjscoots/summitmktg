@@ -192,7 +192,7 @@ export default function MyMoneyPage() {
           </section>
         )}
 
-        {activeVertical === 'Pest' && <LogSaleButton />}
+        <LogSaleButton />
 
 
         <VerticalMoneyCards
@@ -209,7 +209,7 @@ export default function MyMoneyPage() {
           <>
             <SentRepOverrideNote />
             <MySpreadSection />
-            {activeVertical === 'Pest' && <DashboardFunnelTracker />}
+            <DashboardFunnelTracker />
           </>
         )}
 
