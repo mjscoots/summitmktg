@@ -40,7 +40,7 @@ function greeting(): string {
 export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const navigate = useNavigate();
   const { user, profile, role } = useAuth();
-  const staff = isManagerOrAbove(role) && !new URLSearchParams(window.location.search).has("repview");
+  const staff = isManagerOrAbove(role);
 
   const { days: saleStreak } = useSaleStreak();
   const today = useHomeToday();
