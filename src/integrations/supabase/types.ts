@@ -1833,6 +1833,157 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_activities: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          lead_id: string
+          next_call_at: string | null
+          outcome: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          lead_id: string
+          next_call_at?: string | null
+          outcome?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id?: string
+          next_call_at?: string | null
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "people_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_private_notes: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          lead_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_private_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "people_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_sheet_import: {
+        Row: {
+          days: number | null
+          days_left: number | null
+          first_name: string | null
+          full_name: string | null
+          id: number
+          last_day: string | null
+          last_name: string | null
+          manager: string | null
+          match_how: string | null
+          matched_lead: string | null
+          notes: string | null
+          recruiter: string | null
+          rev_day: number | null
+          revenue: number | null
+          role_title: string | null
+          roster_status: string | null
+          section: string | null
+          signed: boolean | null
+          start_date: string | null
+          system: string | null
+          team: string | null
+          yr: string | null
+        }
+        Insert: {
+          days?: number | null
+          days_left?: number | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: number
+          last_day?: string | null
+          last_name?: string | null
+          manager?: string | null
+          match_how?: string | null
+          matched_lead?: string | null
+          notes?: string | null
+          recruiter?: string | null
+          rev_day?: number | null
+          revenue?: number | null
+          role_title?: string | null
+          roster_status?: string | null
+          section?: string | null
+          signed?: boolean | null
+          start_date?: string | null
+          system?: string | null
+          team?: string | null
+          yr?: string | null
+        }
+        Update: {
+          days?: number | null
+          days_left?: number | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: number
+          last_day?: string | null
+          last_name?: string | null
+          manager?: string | null
+          match_how?: string | null
+          matched_lead?: string | null
+          notes?: string | null
+          recruiter?: string | null
+          rev_day?: number | null
+          revenue?: number | null
+          role_title?: string | null
+          roster_status?: string | null
+          section?: string | null
+          signed?: boolean | null
+          start_date?: string | null
+          system?: string | null
+          team?: string | null
+          yr?: string | null
+        }
+        Relationships: []
+      }
       leaderboard_points: {
         Row: {
           call_attendance_points: number | null
@@ -2287,6 +2438,134 @@ export type Database = {
           verticals?: string[]
         }
         Relationships: []
+      }
+      people_leads: {
+        Row: {
+          call_count: number
+          claimed_at: string | null
+          claimed_by: string | null
+          committed_last_day: string | null
+          created_at: string
+          days_in_market: number | null
+          designated_to: string | null
+          designation_status: string
+          do_not_call: boolean
+          email: string | null
+          first_name: string | null
+          former_manager_name: string | null
+          freed_at: string | null
+          freed_by: string | null
+          full_name: string
+          id: string
+          last_contact_at: string | null
+          last_name: string | null
+          next_call_at: string | null
+          notes: string | null
+          phone: string | null
+          profile_id: string | null
+          recruiter_name: string | null
+          rep_year: string | null
+          rev_per_day: number | null
+          role_title: string | null
+          roster_status: string
+          season_revenue: number | null
+          sheet_row: Json | null
+          signed_2027: boolean | null
+          source: string
+          stage: string
+          start_date: string | null
+          system: string | null
+          tags: string[]
+          team_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          call_count?: number
+          claimed_at?: string | null
+          claimed_by?: string | null
+          committed_last_day?: string | null
+          created_at?: string
+          days_in_market?: number | null
+          designated_to?: string | null
+          designation_status?: string
+          do_not_call?: boolean
+          email?: string | null
+          first_name?: string | null
+          former_manager_name?: string | null
+          freed_at?: string | null
+          freed_by?: string | null
+          full_name: string
+          id?: string
+          last_contact_at?: string | null
+          last_name?: string | null
+          next_call_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          profile_id?: string | null
+          recruiter_name?: string | null
+          rep_year?: string | null
+          rev_per_day?: number | null
+          role_title?: string | null
+          roster_status?: string
+          season_revenue?: number | null
+          sheet_row?: Json | null
+          signed_2027?: boolean | null
+          source?: string
+          stage?: string
+          start_date?: string | null
+          system?: string | null
+          tags?: string[]
+          team_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          call_count?: number
+          claimed_at?: string | null
+          claimed_by?: string | null
+          committed_last_day?: string | null
+          created_at?: string
+          days_in_market?: number | null
+          designated_to?: string | null
+          designation_status?: string
+          do_not_call?: boolean
+          email?: string | null
+          first_name?: string | null
+          former_manager_name?: string | null
+          freed_at?: string | null
+          freed_by?: string | null
+          full_name?: string
+          id?: string
+          last_contact_at?: string | null
+          last_name?: string | null
+          next_call_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          profile_id?: string | null
+          recruiter_name?: string | null
+          rep_year?: string | null
+          rev_per_day?: number | null
+          role_title?: string | null
+          roster_status?: string
+          season_revenue?: number | null
+          sheet_row?: Json | null
+          signed_2027?: boolean | null
+          source?: string
+          stage?: string
+          start_date?: string | null
+          system?: string | null
+          tags?: string[]
+          team_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_leads_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       phone_numbers: {
         Row: {
@@ -6113,6 +6392,7 @@ export type Database = {
         Returns: boolean
       }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
+      is_manager_tier: { Args: { _uid: string }; Returns: boolean }
       is_paired_manager_of: {
         Args: { _manager: string; _rep: string }
         Returns: boolean
@@ -6129,6 +6409,7 @@ export type Database = {
         Args: { _vertical: string }
         Returns: boolean
       }
+      is_staff: { Args: { _uid: string }; Returns: boolean }
       is_staff_data_reader: { Args: never; Returns: boolean }
       is_vertical_lead: {
         Args: { _uid: string; _vertical: string }
@@ -6203,6 +6484,10 @@ export type Database = {
       request_pairing: {
         Args: { _manager_id: string; _vertical: string }
         Returns: Json
+      }
+      resolve_sheet_manager: {
+        Args: { _m: string; _section: string }
+        Returns: string
       }
       resolve_source_code: { Args: { p_code: string }; Returns: Json }
       respond_pairing: {
