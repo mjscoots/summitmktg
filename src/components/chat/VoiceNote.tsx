@@ -58,6 +58,9 @@ export function VoiceNoteBubble({ url, seconds, isOwn }: { url: string; seconds:
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const { url: signed } = useChatAttachmentUrl(url);
+
+
 
   useEffect(() => {
     const audio = audioRef.current;
