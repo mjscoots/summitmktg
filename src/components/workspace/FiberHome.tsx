@@ -82,11 +82,15 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
     setWeek(rows.filter((r) => r.week_start === w).reduce((a, r) => a + (r.installs || 0), 0));
     setSeason(rows.reduce((a, r) => a + (r.installs || 0), 0));
     setMoney((moneyRes.data as Money) || null);
+    const stepRows = (stepsRes.data as { id: string; title: string }[]) || [];
+    const doneIds = new Set(((doneRes.data as { step_id: string }[]) || []).map((r) => r.step_id));
+    setStepList(stepRows.map((s) => ({ id: s.id, title: s.title, done: doneIds.has(s.id) })));
     setSteps({
-      total: ((stepsRes.data as unknown[]) || []).length,
-      done: ((doneRes.data as unknown[]) || []).length,
+      total: stepRows.length,
+      done: stepRows.filter((s) => doneIds.has(s.id)).length,
     });
     setPinned(((pinnedRes.data as { title: string }[]) || [])[0]?.title || null);
+
 
     const carrierId = rows[0]?.carrier_id;
     if (carrierId) {
