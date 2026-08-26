@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
 import summitLogo from "@/assets/summit-logo-new.png";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
