@@ -200,6 +200,7 @@ export function AppSidebar() {
             </span>
           )}
         </button>
+        <WorkspaceSwitcher collapsed={collapsed} />
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-1 flex flex-col flex-1">
