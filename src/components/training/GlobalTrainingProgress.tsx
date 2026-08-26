@@ -18,6 +18,7 @@ interface GlobalProgressData {
 
 export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' | 'manager' }) {
   const { user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [data, setData] = useState<GlobalProgressData>({ totalItems: 0, completedItems: 0, percentage: 0, bonusTotal: 0, bonusCompleted: 0 });
   const [isLoading, setIsLoading] = useState(true);
 

@@ -76,6 +76,7 @@ const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
 
 export function TrainingTiles({ filterRole, managerManualComplete = true }: TrainingTilesProps) {
   const { role, user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -60,6 +60,7 @@ interface AnnouncementPost {
 
 export function AnnouncementBox() {
   const { role, user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const isAdmin = role === 'admin' || role === 'owner';
   const isStaff = isAdmin || role === 'manager';
   const [posts, setPosts] = useState<AnnouncementPost[]>([]);

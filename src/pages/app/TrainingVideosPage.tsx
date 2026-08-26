@@ -51,6 +51,7 @@ const CATEGORY_GROUPS = [
 
 export default function TrainingVideosPage() {
   const { user, role } = useAuth();
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [videos, setVideos] = useState<TrainingVideo[]>([]);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());

@@ -109,6 +109,7 @@ const truncateTitle = (title: string, maxWords = 3): string => {
 // ─── Component ───
 export default function CalendarPage() {
   const { role, user, profile } = useAuth();
+  const { activeVertical } = useWorkspace();
   const { timezone } = useUserTimezone();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [todoEvents, setTodoEvents] = useState<CalendarEvent[]>([]);

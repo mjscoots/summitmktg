@@ -20,6 +20,7 @@ type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
 export default function VideosPage() {
   const { user, role } = useAuth();
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [videos, setVideos] = useState<TrainingVideo[]>([]);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
