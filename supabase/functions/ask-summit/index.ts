@@ -79,46 +79,71 @@ function fmtDate(iso: string): string {
  * The vertical's field playbook, verbatim. Objections and closes come first
  * when the question sounds like a customer line. Capped so the prompt stays
  * a sane size.
+ *
+ * Compiling one block of text per entry is the expensive part and it does not
+ * depend on the question, so it is cached per vertical for a short window and
+ * reused across requests in the same worker. Only the ordering and the 12k
+ * trim happen per request.
  */
-async function loadPlaybook(admin: any, vert: string, question: string): Promise<string> {
+type PlaybookBlock = { kind: string; sort_order: number; text: string };
+const PLAYBOOK_TTL_MS = 60_000;
+const playbookCache = new Map<string, { at: number; blocks: PlaybookBlock[] }>();
+
+function compileBlock(r: any): PlaybookBlock {
+  let text: string;
+  if (r.kind === "pricing") {
+    const m = r.meta ?? {};
+    text = `- [pricing${r.market ? ` | ${r.market}` : ""}] ${m.plan ?? r.title}${m.notes ? ` (${m.notes})` : ""}: initial ${m.initial ?? "not listed"}, recurring ${m.recurring ?? "not listed"}${m.frequency ? `, ${m.frequency}` : ""}`;
+  } else {
+    const when = r.meta?.when_to_use ? `\n  WHEN TO USE: ${r.meta.when_to_use}` : "";
+    const follow = r.followup ? `\n  IF THEY SAY IT AGAIN: ${r.followup}` : "";
+    text = `- [${r.kind}] ENTRY TITLE: ${r.title}${when}\n  SAY: ${r.body}${follow}`;
+  }
+  return { kind: r.kind, sort_order: r.sort_order ?? 0, text };
+}
+
+async function getPlaybookBlocks(admin: any, vert: string): Promise<PlaybookBlock[]> {
+  const hit = playbookCache.get(vert);
+  if (hit && Date.now() - hit.at < PLAYBOOK_TTL_MS) return hit.blocks;
+
   const { data } = await admin
     .from("playbook_entries")
     .select("kind, title, body, followup, tags, market, meta, sort_order")
     .eq("vertical", vert)
     .eq("published", true)
     .order("sort_order");
-  const rows = data ?? [];
-  if (rows.length === 0) return "";
+  const blocks = (data ?? []).map(compileBlock);
+  playbookCache.set(vert, { at: Date.now(), blocks });
+  return blocks;
+}
+
+async function loadPlaybook(admin: any, vert: string, question: string): Promise<string> {
+  const blocks = await getPlaybookBlocks(admin, vert);
+  if (blocks.length === 0) return "";
 
   const q = (question || "").toLowerCase();
   const soundsLikeCustomer = /(they say|they said|says|objection|close|what do i say|customer|homeowner|i have a guy|too expensive|rent)/.test(q);
+  const order = soundsLikeCustomer
+    ? ["objection", "close", "script", "talk_track", "pricing", "assumption"]
+    : ["script", "objection", "close", "talk_track", "pricing", "assumption"];
   const weight = (kind: string) => {
-    const order = soundsLikeCustomer
-      ? ["objection", "close", "script", "talk_track", "pricing", "assumption"]
-      : ["script", "objection", "close", "talk_track", "pricing", "assumption"];
     const i = order.indexOf(kind);
     return i === -1 ? 99 : i;
   };
-  rows.sort((a: any, b: any) => weight(a.kind) - weight(b.kind) || a.sort_order - b.sort_order);
+  const sorted = [...blocks].sort(
+    (a, b) => weight(a.kind) - weight(b.kind) || a.sort_order - b.sort_order,
+  );
 
   const lines: string[] = [];
   let used = 0;
-  for (const r of rows) {
-    let block: string;
-    if (r.kind === "pricing") {
-      const m = r.meta ?? {};
-      block = `- [pricing${r.market ? ` | ${r.market}` : ""}] ${m.plan ?? r.title}${m.notes ? ` (${m.notes})` : ""}: initial ${m.initial ?? "not listed"}, recurring ${m.recurring ?? "not listed"}${m.frequency ? `, ${m.frequency}` : ""}`;
-    } else {
-      const when = r.meta?.when_to_use ? `\n  WHEN TO USE: ${r.meta.when_to_use}` : "";
-      const follow = r.followup ? `\n  IF THEY SAY IT AGAIN: ${r.followup}` : "";
-      block = `- [${r.kind}] ENTRY TITLE: ${r.title}${when}\n  SAY: ${r.body}${follow}`;
-    }
-    if (used + block.length > 12000) break;
-    used += block.length;
-    lines.push(block);
+  for (const b of sorted) {
+    if (used + b.text.length > 12000) break;
+    used += b.text.length;
+    lines.push(b.text);
   }
   return lines.join("\n");
 }
+
 
 async function buildContext(admin: any, userId: string, question = "") {
   // Grounding is limited to company-wide content plus the workspace the rep is in.
