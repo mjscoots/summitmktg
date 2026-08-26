@@ -124,6 +124,19 @@ const Index = () => {
               </button>
             </div>
 
+            <p className="mt-4 text-xs text-muted-foreground">
+              Also running:{' '}
+              <Link to="/industries/fiber" className="underline hover:text-foreground">
+                Fiber Internet
+              </Link>{' '}
+              (winter) ·{' '}
+              <Link to="/industries/life" className="underline hover:text-foreground">
+                Life Insurance
+              </Link>{' '}
+              (coming)
+            </p>
+
+
             <div className="mt-8">
               <LiveCounters variant="inline" />
             </div>
