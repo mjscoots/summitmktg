@@ -752,3 +752,11 @@ body {
   html, body { transition: none; }
 }
 
+
+/* Phone: reserve room for the bottom bar including the iOS safe-area inset. */
+.app-main-pad {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
+@media (min-width: 1024px) {
+  .app-main-pad { padding-bottom: 0; }
+}
