@@ -91,36 +91,39 @@ serve(async (req: Request): Promise<Response> => {
         full_name: fullName,
         phone,
         email,
-        current_company: body.current_company ?? null,
-        years_d2d: body.years_d2d ?? null,
+        current_company: currentCompany || null,
+        years_d2d: yearsD2d || null,
         last_season_active_revenue: Number.isFinite(revenue as number) ? revenue : null,
-        markets: body.markets ?? null,
-        best_time_to_call: body.best_time_to_call ?? null,
+        markets: markets || null,
+        best_time_to_call: bestTime || null,
         bid_requested: true,
         source_type: "public_calculator",
       })
       .select("id")
-      .single();
+      .maybeSingle();
 
-    if (error) throw error;
+    // A duplicate inside 24 hours is folded into the existing row by the
+    // database trigger, so no row comes back and that is not an error.
+    if (error && !isDuplicate) return reject();
 
-    // In-app notification for owner and admins
+    // In-app notification for owner and admins — first submission only
     const { data: staff } = await admin
       .from("user_roles")
       .select("user_id, role")
       .in("role", ["owner", "admin"]);
 
     const recipients = [...new Set((staff ?? []).map((r: { user_id: string }) => r.user_id))];
-    if (recipients.length) {
+    if (recipients.length && !isDuplicate) {
       await admin.from("user_notifications").insert(
         recipients.map((uid) => ({
           user_id: uid,
           title: "Veteran wants a bid",
-          message: `${fullName} · ${phone}${body.current_company ? ` · ${body.current_company}` : ""}`,
+          message: `${fullName} · ${phone}${currentCompany ? ` · ${currentCompany}` : ""}`,
           link: "/app/recruits",
         })),
       );
     }
+
 
     // Email the owner and admins
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
