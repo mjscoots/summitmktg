@@ -227,19 +227,33 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         ) : (
           <p className="text-sm text-muted-foreground">No region lead assigned yet.</p>
         )}
+        {regionIntro && <p className="mt-3 text-sm text-muted-foreground">{regionIntro}</p>}
       </div>
 
       {steps.total > 0 && steps.done < steps.total && (
-        <div className={`${FIBER_CARD} mb-4 space-y-2 p-4`}>
+        <div className={`${FIBER_CARD} mb-4 space-y-3 p-4`}>
           <p className="text-sm font-medium text-foreground">Setup path</p>
           <p className="text-sm tabular-nums text-muted-foreground">
             {steps.done} of {steps.total} steps complete
           </p>
+          <ul className="space-y-1.5">
+            {stepList.map((s) => (
+              <li key={s.id} className="flex items-center gap-2 text-sm">
+                <Check className={s.done ? 'h-4 w-4 text-primary' : 'h-4 w-4 text-muted-foreground/40'} />
+                <span className={s.done ? 'text-muted-foreground' : 'text-foreground'}>{s.title}</span>
+              </li>
+            ))}
+          </ul>
           <Button variant="outline" size="sm" onClick={() => navigate('/app/industries')}>
             Continue setup
           </Button>
         </div>
       )}
+
+      <div className="mb-4">
+        <InstallAppHint />
+      </div>
+
 
       <div className={`${FIBER_CARD} mb-4 p-4`}>
         <p className="text-sm font-medium text-foreground">Announcement</p>
