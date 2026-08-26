@@ -76,6 +76,14 @@ function fmtDate(iso: string): string {
 }
 
 async function buildContext(admin: any, userId: string) {
+  // Grounding is limited to company-wide content plus the workspace the rep is in.
+  const { data: activeRow } = await admin
+    .from("profiles")
+    .select("active_vertical")
+    .eq("id", userId)
+    .maybeSingle();
+  const vert: string = activeRow?.active_vertical ?? "Pest";
+  const scoped = (q: any) => q.or(`vertical.is.null,vertical.eq.${vert}`);
   const now = new Date();
   const in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -94,9 +102,9 @@ async function buildContext(admin: any, userId: string) {
     admin.from("profiles").select("full_name, email, team_id, direct_manager, status").eq("user_id", userId).maybeSingle(),
     admin.from("profiles").select("user_id, full_name, email, phone, team_id, direct_manager").eq("archived", false).neq("status", "nlc").order("full_name").limit(300),
     admin.from("teams").select("id, name"),
-    admin.from("calendar_events").select("title, description, event_date, location, event_type").gte("event_date", now.toISOString()).lte("event_date", in7.toISOString()).order("event_date").limit(40),
-    admin.from("announcement_posts").select("title, body, published_at, expires_at, status").eq("status", "published").order("published_at", { ascending: false }).limit(15),
-    admin.from("training_courses").select("id, title, slug").eq("is_active", true),
+    scoped(admin.from("calendar_events").select("title, description, event_date, location, event_type")).gte("event_date", now.toISOString()).lte("event_date", in7.toISOString()).order("event_date").limit(40),
+    scoped(admin.from("announcement_posts").select("title, body, published_at, expires_at, status")).eq("status", "published").order("published_at", { ascending: false }).limit(15),
+    scoped(admin.from("training_courses").select("id, title, slug")).eq("is_active", true),
     admin.from("training_modules").select("title, course_id, display_order").eq("is_active", true).order("display_order"),
     admin.from("assistant_faq").select("question, answer, category").eq("published", true).order("display_order").limit(200),
     admin.from("rep_housing").select("monthly_cost, location, notes").eq("user_id", userId).maybeSingle(),
@@ -173,7 +181,7 @@ async function buildContext(admin: any, userId: string) {
   parts.push(`TEAM FAQ (answers approved by leadership):\n${faqLines.join("\n") || "- none"}`);
 
   // Sales scripts (the company's actual method)
-  const scriptCards = await loadScriptCards(admin);
+  const scriptCards = await loadScriptCards(admin, vert);
   if (scriptCards.length > 0) {
     parts.push(`SALES SCRIPTS AND METHOD (the company's own material — quote it directly when asked what to say):\n${formatScriptCards(scriptCards)}`);
   }
@@ -294,10 +302,11 @@ async function buildOwnerDataContext(admin: any) {
   return `\n\n=== LIVE DATA (owner/admin only, read-only) ===\n${parts.join("\n\n")}\n=== LIVE DATA END ===`;
 }
 
-async function loadScriptCards(admin: any) {
+async function loadScriptCards(admin: any, vertical = "Pest") {
   const { data } = await admin
     .from("scripts")
     .select("category, title, body")
+    .or(`vertical.is.null,vertical.eq.${vertical}`)
     .eq("is_active", true)
     .order("display_order");
   return (data ?? []) as Array<{ category: string; title: string; body: string }>;
@@ -309,11 +318,12 @@ function formatScriptCards(scripts: Array<{ category: string; title: string; bod
     .join("\n\n");
 }
 
-async function buildPracticeContext(admin: any) {
-  const scripts = await loadScriptCards(admin);
+async function buildPracticeContext(admin: any, vertical = "Pest") {
+  const scripts = await loadScriptCards(admin, vertical);
   const { data: drills } = await admin
     .from("training_drills")
     .select("scenario, model_answer")
+    .or(`vertical.is.null,vertical.eq.${vertical}`)
     .eq("is_active", true)
     .order("display_order");
 
@@ -441,7 +451,8 @@ serve(async (req) => {
     let gatewayMessages: Message[];
 
     if (mode === "practice") {
-      const practiceContext = await buildPracticeContext(admin);
+      const { data: pv } = await admin.from("profiles").select("active_vertical").eq("id", userId).maybeSingle();
+      const practiceContext = await buildPracticeContext(admin, pv?.active_vertical ?? "Pest");
       if (finish) {
         systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext + "\n\n" + PRACTICE_FEEDBACK_PROMPT;
         gatewayMessages = [...messages, { role: "user", content: "[END PRACTICE — give feedback now]" }];

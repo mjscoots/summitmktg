@@ -30,6 +30,8 @@ import { lazy, Suspense } from 'react';
 const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthCalculator"));
 import { toast } from 'sonner';
 import { ListTodo, GitBranch } from 'lucide-react';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 
 function DashboardSkeleton() {
   return (
@@ -68,6 +70,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { role, profile, user, isLoading } = useAuth();
   const { isImpersonating, impersonatedUser } = useRookieView();
+  const { active } = useWorkspace();
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   const { data: pointsData, isLoading: pointsLoading } = useMyPoints();
   const [showPoints, setShowPoints] = useState(false);
@@ -171,6 +174,15 @@ export default function DashboardPage() {
     return (
       <AppLayout>
         <DashboardSkeleton />
+      </AppLayout>
+    );
+  }
+
+  // Non-pest workspaces get their own home; pest keeps this one.
+  if (active && active.vertical !== 'Pest') {
+    return (
+      <AppLayout>
+        <WorkspaceHome workspace={active} />
       </AppLayout>
     );
   }

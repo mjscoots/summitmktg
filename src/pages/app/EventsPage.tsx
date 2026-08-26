@@ -17,6 +17,8 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -60,6 +62,7 @@ interface CheckinRow {
 }
 
 interface DraftEvent {
+  vertical?: string | null;
   id?: string;
   title: string;
   event_kind: string;
@@ -97,6 +100,8 @@ function emptyDraft(): DraftEvent {
 
 export default function EventsPage() {
   const { user, role } = useAuth();
+  const { activeVertical, isPresidentOfActive } = useWorkspace();
+  const canEditScope = role === 'owner' || role === 'admin' || role === 'president';
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   const [rows, setRows] = useState<EventRow[]>([]);
@@ -198,6 +203,7 @@ export default function EventsPage() {
       scope: draft.scope,
       team_id: draft.scope === 'team' ? draft.team_id : null,
       recurrence_type: draft.weekly ? 'weekly' : null,
+      vertical: draft.vertical === undefined ? activeVertical : draft.vertical,
     };
     const { error } = draft.id
       ? await supabase.from('calendar_events').update(payload).eq('id', draft.id)
@@ -418,6 +424,13 @@ export default function EventsPage() {
                     {teams.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              )}
+              {canEditScope && (
+                <VerticalScopeSelect
+                  value={draft.vertical === undefined ? activeVertical : draft.vertical}
+                  onChange={(v) => setDraft({ ...draft, vertical: v })}
+                  lockedTo={isPresidentOfActive && role === 'president' ? activeVertical : null}
+                />
               )}
               <Textarea
                 value={draft.description}

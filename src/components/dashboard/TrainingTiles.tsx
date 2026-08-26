@@ -6,6 +6,8 @@ import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, Rota
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 interface Course {
   id: string;
@@ -74,6 +76,7 @@ const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
 
 export function TrainingTiles({ filterRole, managerManualComplete = true }: TrainingTilesProps) {
   const { role, user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,6 +91,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
           .from('training_courses')
           .select('*')
           .eq('is_active', true)
+          .or(verticalFilter(activeVertical))
           .order('display_order');
 
         if (coursesError) {

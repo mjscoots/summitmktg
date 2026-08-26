@@ -12,6 +12,8 @@ import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
 import { isBonusCategory } from '@/lib/trainingConstants';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import type { Database } from '@/integrations/supabase/types';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
@@ -49,6 +51,7 @@ const CATEGORY_GROUPS = [
 
 export default function TrainingVideosPage() {
   const { user, role } = useAuth();
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [videos, setVideos] = useState<TrainingVideo[]>([]);
   const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
@@ -65,7 +68,7 @@ export default function TrainingVideosPage() {
       setIsLoading(true);
       try {
         const [videosRes, progressRes, notesRes, bookmarksRes] = await Promise.all([
-          supabase.from('training_videos').select('*').eq('is_active', true).order('display_order').order('created_at', { ascending: false }),
+          supabase.from('training_videos').select('*').eq('is_active', true).or(verticalFilter(activeVertical)).order('display_order').order('created_at', { ascending: false }),
           supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
           supabase.from('video_notes').select('video_id').eq('user_id', user.id),
           supabase.from('video_bookmarks').select('video_id, bookmarked_at').eq('user_id', user.id),

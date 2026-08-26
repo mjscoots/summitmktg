@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { Trophy, Star } from 'lucide-react';
 import { MilestoneBadges } from './MilestoneBadges';
 import { CompletionCelebration } from './CompletionCelebration';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 interface GlobalProgressData {
   totalItems: number;
@@ -16,6 +18,7 @@ interface GlobalProgressData {
 
 export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' | 'manager' }) {
   const { user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [data, setData] = useState<GlobalProgressData>({ totalItems: 0, completedItems: 0, percentage: 0, bonusTotal: 0, bonusCompleted: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,16 +44,19 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
               )
             `)
             .eq('is_active', true)
+            .or(verticalFilter(activeVertical))
             .in('slug', targetSlugs),
           supabase
             .from('training_videos')
             .select('id')
             .eq('is_active', true)
+            .or(verticalFilter(activeVertical))
             .eq('is_required', true),
           supabase
             .from('training_videos')
             .select('id')
             .eq('is_active', true)
+            .or(verticalFilter(activeVertical))
             .eq('is_required', false),
           supabase
             .from('video_progress')

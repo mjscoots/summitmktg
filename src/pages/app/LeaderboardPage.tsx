@@ -15,6 +15,8 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { isManagerOrAbove } from '@/lib/roles';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { WorkspaceLeaderboard } from '@/components/leaderboard/WorkspaceLeaderboard';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting' | 'hof';
 
@@ -23,6 +25,8 @@ type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting' | 'hof';
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
   const { role } = useAuth();
+  const { active, activeVertical } = useWorkspace();
+  const isPest = activeVertical === 'Pest';
   const [showPointSystem, setShowPointSystem] = useState(false);
 
   const isManager = isManagerOrAbove(role);
@@ -93,12 +97,17 @@ export default function LeaderboardPage() {
             </button>
           </div>
 
-          <SeasonBanner />
-          <WeekPaceStrip />
+          {isPest && (
+            <>
+              <SeasonBanner />
+              <WeekPaceStrip />
+            </>
+          )}
 
 
           {/* Filter Tabs — pill style */}
 
+          {isPest && (
           <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
             {TABS.map((tab) => {
               const Icon = tab.icon;
@@ -121,10 +130,11 @@ export default function LeaderboardPage() {
               );
             })}
           </div>
+          )}
 
 
           {/* Inclusion Banner — only for managers */}
-          {isManager && (
+          {isPest && isManager && (
             <div className="flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-lg bg-muted/30 border border-border/20">
               {meta.icon}
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{meta.subtitle}</span>
@@ -133,17 +143,22 @@ export default function LeaderboardPage() {
 
           {/* Content */}
           <div className="glass-card overflow-hidden">
-            {activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
-            {activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
-            {activeTab === 'streak' && <StreakLeaderboard />}
-            {activeTab === 'recruiting' && <RecruitingLeaderboard />}
+            {!isPest && active && (
+              <WorkspaceLeaderboard vertical={active.vertical} unit={active.unit || 'installs'} />
+            )}
+            {isPest && activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
+            {isPest && activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
+            {isPest && activeTab === 'streak' && <StreakLeaderboard />}
+            {isPest && activeTab === 'recruiting' && <RecruitingLeaderboard />}
 
           </div>
 
-          <div className="mt-6 space-y-4">
-            <TeamBattles />
-            <IncentiveTracker />
-          </div>
+          {isPest && (
+            <div className="mt-6 space-y-4">
+              <TeamBattles />
+              <IncentiveTracker />
+            </div>
+          )}
 
         </main>
       </div>

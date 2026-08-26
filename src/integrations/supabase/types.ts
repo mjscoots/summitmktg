@@ -41,6 +41,72 @@ export type Database = {
         }
         Relationships: []
       }
+      access_reset_2027: {
+        Row: {
+          approved: boolean | null
+          direct_manager: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          profile_id: string
+          rank_id: string | null
+          reason: string
+          region_id: string | null
+          reset_at: string
+          restored_at: string | null
+          restored_by: string | null
+          roles: string[]
+          runs_vertical: boolean | null
+          status: string | null
+          team_id: string | null
+          user_id: string | null
+          vertical: string | null
+          was_archived: boolean | null
+        }
+        Insert: {
+          approved?: boolean | null
+          direct_manager?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          profile_id: string
+          rank_id?: string | null
+          reason: string
+          region_id?: string | null
+          reset_at?: string
+          restored_at?: string | null
+          restored_by?: string | null
+          roles?: string[]
+          runs_vertical?: boolean | null
+          status?: string | null
+          team_id?: string | null
+          user_id?: string | null
+          vertical?: string | null
+          was_archived?: boolean | null
+        }
+        Update: {
+          approved?: boolean | null
+          direct_manager?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          profile_id?: string
+          rank_id?: string | null
+          reason?: string
+          region_id?: string | null
+          reset_at?: string
+          restored_at?: string | null
+          restored_by?: string | null
+          roles?: string[]
+          runs_vertical?: boolean | null
+          status?: string | null
+          team_id?: string | null
+          user_id?: string | null
+          vertical?: string | null
+          was_archived?: boolean | null
+        }
+        Relationships: []
+      }
       action_items: {
         Row: {
           assigned_to: string
@@ -158,6 +224,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           audience?: string
@@ -179,6 +246,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           audience?: string
@@ -200,6 +268,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -251,6 +320,7 @@ export type Database = {
           team_ids: string[] | null
           title: string
           updated_at: string | null
+          vertical: string | null
         }
         Insert: {
           author_id?: string | null
@@ -262,6 +332,7 @@ export type Database = {
           team_ids?: string[] | null
           title: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Update: {
           author_id?: string | null
@@ -273,6 +344,7 @@ export type Database = {
           team_ids?: string[] | null
           title?: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -818,6 +890,7 @@ export type Database = {
           timezone: string | null
           title: string
           updated_at: string | null
+          vertical: string | null
         }
         Insert: {
           created_at?: string | null
@@ -844,6 +917,7 @@ export type Database = {
           timezone?: string | null
           title: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Update: {
           created_at?: string | null
@@ -870,6 +944,7 @@ export type Database = {
           timezone?: string | null
           title?: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -1018,6 +1093,7 @@ export type Database = {
           is_active: boolean
           label: string
           slug: string
+          vertical: string | null
         }
         Insert: {
           color?: string
@@ -1029,6 +1105,7 @@ export type Database = {
           is_active?: boolean
           label: string
           slug: string
+          vertical?: string | null
         }
         Update: {
           color?: string
@@ -1040,6 +1117,7 @@ export type Database = {
           is_active?: boolean
           label?: string
           slug?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -2997,6 +3075,7 @@ export type Database = {
           sourced_by: string | null
           status: string
           story: string | null
+          vertical: string | null
           weeks_active: number | null
         }
         Insert: {
@@ -3025,6 +3104,7 @@ export type Database = {
           sourced_by?: string | null
           status?: string
           story?: string | null
+          vertical?: string | null
           weeks_active?: number | null
         }
         Update: {
@@ -3053,6 +3133,7 @@ export type Database = {
           sourced_by?: string | null
           status?: string
           story?: string | null
+          vertical?: string | null
           weeks_active?: number | null
         }
         Relationships: [
@@ -3677,6 +3758,7 @@ export type Database = {
           is_active: boolean
           title: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           body?: string
@@ -3688,6 +3770,7 @@ export type Database = {
           is_active?: boolean
           title: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           body?: string
@@ -3699,6 +3782,7 @@ export type Database = {
           is_active?: boolean
           title?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -3711,6 +3795,7 @@ export type Database = {
           season_id: string | null
           sort_order: number
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           created_at?: string
@@ -3720,6 +3805,7 @@ export type Database = {
           season_id?: string | null
           sort_order?: number
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           created_at?: string
@@ -3729,6 +3815,7 @@ export type Database = {
           season_id?: string | null
           sort_order?: number
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -4033,6 +4120,7 @@ export type Database = {
           resource_url: string
           team_id: string
           updated_at: string | null
+          vertical: string | null
         }
         Insert: {
           added_by?: string | null
@@ -4044,6 +4132,7 @@ export type Database = {
           resource_url: string
           team_id: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Update: {
           added_by?: string | null
@@ -4055,6 +4144,7 @@ export type Database = {
           resource_url?: string
           team_id?: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -4075,6 +4165,7 @@ export type Database = {
           module: string
           script_content: string
           team_id: string
+          vertical: string | null
         }
         Insert: {
           created_at?: string
@@ -4084,6 +4175,7 @@ export type Database = {
           module: string
           script_content?: string
           team_id: string
+          vertical?: string | null
         }
         Update: {
           created_at?: string
@@ -4093,6 +4185,7 @@ export type Database = {
           module?: string
           script_content?: string
           team_id?: string
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -4282,6 +4375,7 @@ export type Database = {
           slug: string
           target_role: Database["public"]["Enums"]["app_role"] | null
           title: string
+          vertical: string | null
         }
         Insert: {
           audience?: string
@@ -4293,6 +4387,7 @@ export type Database = {
           slug: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           title: string
+          vertical?: string | null
         }
         Update: {
           audience?: string
@@ -4304,6 +4399,7 @@ export type Database = {
           slug?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           title?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -4318,6 +4414,7 @@ export type Database = {
           model_answer: string
           scenario: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           category?: string
@@ -4329,6 +4426,7 @@ export type Database = {
           model_answer: string
           scenario: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           category?: string
@@ -4340,6 +4438,7 @@ export type Database = {
           model_answer?: string
           scenario?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -4443,6 +4542,7 @@ export type Database = {
           team_specific: boolean | null
           thumbnail_url: string | null
           title: string
+          vertical: string | null
           video_url: string | null
           visible_to_teams: string[] | null
         }
@@ -4460,6 +4560,7 @@ export type Database = {
           team_specific?: boolean | null
           thumbnail_url?: string | null
           title: string
+          vertical?: string | null
           video_url?: string | null
           visible_to_teams?: string[] | null
         }
@@ -4477,6 +4578,7 @@ export type Database = {
           team_specific?: boolean | null
           thumbnail_url?: string | null
           title?: string
+          vertical?: string | null
           video_url?: string | null
           visible_to_teams?: string[] | null
         }
@@ -5688,6 +5790,15 @@ export type Database = {
           title: string
         }[]
       }
+      get_fiber_leaderboard: {
+        Args: { p_week_start?: string }
+        Returns: {
+          full_name: string
+          installs: number
+          rank: number
+          user_id: string
+        }[]
+      }
       get_fiber_report: {
         Args: { _carrier_id?: string; _region_id?: string; _weeks?: number }
         Returns: Json
@@ -5983,6 +6094,13 @@ export type Database = {
       get_vertical_enrollments: { Args: never; Returns: Json }
       get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
+      get_workspace_mentionables: {
+        Args: never
+        Returns: {
+          full_name: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -6005,6 +6123,10 @@ export type Database = {
       }
       is_president_of_rep: {
         Args: { _rep: string; _uid: string }
+        Returns: boolean
+      }
+      is_president_of_vertical: {
+        Args: { _vertical: string }
         Returns: boolean
       }
       is_staff_data_reader: { Args: never; Returns: boolean }
@@ -6034,6 +6156,7 @@ export type Database = {
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
+      my_active_vertical: { Args: never; Returns: string }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }

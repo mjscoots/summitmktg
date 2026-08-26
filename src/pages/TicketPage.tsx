@@ -29,6 +29,7 @@ const leadSchema = z.object({
 export default function TicketPage() {
   const [params] = useSearchParams();
   const refCode = (params.get('ref') || '').trim().slice(0, 40) || 'direct';
+  const industry = (params.get('industry') || '').trim().slice(0, 40) || null;
 
   const [form, setForm] = useState({ first_name: '', phone: '', city: '', interest_reason: '' });
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +75,7 @@ export default function TicketPage() {
     const { error: insertError } = await (supabase as any).from('recruiting_leads').insert({
       ...parsed.data,
       ref_code: refCode,
+      vertical: industry,
       status: 'New',
       source_type: source.source_type,
       source_code: source.source_code,

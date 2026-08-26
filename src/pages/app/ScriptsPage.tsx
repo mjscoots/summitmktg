@@ -15,6 +15,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections'] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -25,6 +28,7 @@ interface ScriptRow {
   category: string;
   body: string;
   display_order: number;
+  vertical?: string | null;
   is_active: boolean;
 }
 
@@ -40,16 +44,18 @@ export default function ScriptsPage() {
   const [editing, setEditing] = useState<Partial<ScriptRow> | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const { activeVertical } = useWorkspace();
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from('scripts')
-      .select('id, title, category, body, display_order, is_active')
+      .select('id, title, category, body, display_order, is_active, vertical')
+      .or(verticalFilter(activeVertical))
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true });
     if (error) toast.error('Could not load scripts');
     setRows((data as ScriptRow[]) || []);
     setLoading(false);
-  }, []);
+  }, [activeVertical]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -73,6 +79,7 @@ export default function ScriptsPage() {
       body: editing.body || '',
       display_order: editing.display_order ?? 0,
       is_active: editing.is_active ?? true,
+      vertical: editing.vertical === undefined ? activeVertical : editing.vertical,
     };
     const { error } = editing.id
       ? await supabase.from('scripts').update(payload).eq('id', editing.id)
@@ -244,6 +251,12 @@ export default function ScriptsPage() {
                 ))}
               </SelectContent>
             </Select>
+            {isAdmin && (
+              <VerticalScopeSelect
+                value={editing?.vertical === undefined ? activeVertical : editing.vertical}
+                onChange={(v) => setEditing((prev) => ({ ...(prev || {}), vertical: v }))}
+              />
+            )}
             <Textarea
               value={editing?.body || ''}
               onChange={(e) => setEditing((p) => ({ ...(p || {}), body: e.target.value }))}

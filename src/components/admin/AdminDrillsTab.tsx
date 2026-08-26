@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Save, Target, Loader2, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 interface Drill {
   id: string;
@@ -32,6 +34,7 @@ const AUDIENCES = [
 ];
 
 export function AdminDrillsTab() {
+  const { activeVertical } = useWorkspace();
   const [loading, setLoading] = useState(true);
   const [drills, setDrills] = useState<Drill[]>([]);
   const [courses, setCourses] = useState<CourseRow[]>([]);
@@ -42,7 +45,7 @@ export function AdminDrillsTab() {
 
   const load = useCallback(async () => {
     const [drillRes, courseRes] = await Promise.all([
-      supabase.from('training_drills').select('*').order('display_order').order('created_at'),
+      supabase.from('training_drills').select('*').or(verticalFilter(activeVertical)).order('display_order').order('created_at'),
       supabase.from('training_courses').select('id, title, slug, audience').eq('is_active', true).order('display_order'),
     ]);
     if (drillRes.error) toast.error('Could not load drills.');
@@ -56,6 +59,7 @@ export function AdminDrillsTab() {
   const addDrill = async () => {
     if (newScenario.trim().length < 5) { toast.error('Write the scenario first.'); return; }
     const { error } = await supabase.from('training_drills').insert({
+      vertical: activeVertical,
       scenario: newScenario.trim(),
       category: newCategory.trim() || null,
       model_answer: newModel.trim() || null,

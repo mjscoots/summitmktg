@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/command';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 type ResultKind = 'rep' | 'lead' | 'lesson' | 'script';
 
@@ -34,6 +36,7 @@ const KIND_META: Record<ResultKind, { label: string; icon: typeof User }> = {
  * decides what the searcher can see — no extra role logic needed here.
  */
 export function GlobalSearch() {
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -65,7 +68,7 @@ export function GlobalSearch() {
       (supabase as any).from('recruiting_leads').select('id, first_name, status').ilike('first_name', like).limit(6),
       (supabase.rpc as any)('get_my_leads'),
       (supabase as any).from('training_lessons').select('id, title, module_id').ilike('title', like).limit(6),
-      (supabase as any).from('scripts').select('id, title, category').ilike('title', like).limit(6),
+      (supabase as any).from('scripts').select('id, title, category').or(verticalFilter(activeVertical)).ilike('title', like).limit(6),
     ]);
 
     if (reqId !== reqRef.current) return;

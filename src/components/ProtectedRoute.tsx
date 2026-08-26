@@ -66,14 +66,17 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   // Owner has all permissions
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
-  const isManager = role === 'manager' || isAdmin;
+  // Presidents run their own industry workspace: they reach the admin surfaces,
+  // which are themselves filtered to their workspace by query scope and RLS.
+  const isPresident = role === 'president';
+  const isManager = role === 'manager' || isPresident || isAdmin;
 
   // Check required role (managers can access rookie content, but not vice versa)
   if (requiredRole === 'manager' && !isManager) {
     return <Navigate to="/app" replace />;
   }
 
-  if (requiredRole === 'admin' && !isAdmin) {
+  if (requiredRole === 'admin' && !isAdmin && !(isPresident && location.pathname.startsWith('/admin'))) {
     return <Navigate to="/app" replace />;
   }
 

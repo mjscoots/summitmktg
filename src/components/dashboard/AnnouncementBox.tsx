@@ -28,6 +28,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Sparkles }> = {
   new_feature: { label: 'New Feature', icon: Sparkles },
@@ -58,6 +60,7 @@ interface AnnouncementPost {
 
 export function AnnouncementBox() {
   const { role, user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const isAdmin = role === 'admin' || role === 'owner';
   const isStaff = isAdmin || role === 'manager';
   const [posts, setPosts] = useState<AnnouncementPost[]>([]);
@@ -73,6 +76,7 @@ export function AnnouncementBox() {
     const query = (supabase as any)
       .from('announcement_posts')
       .select('*')
+      .or(verticalFilter(activeVertical))
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(40);
@@ -82,7 +86,7 @@ export function AnnouncementBox() {
     const { data } = await query;
     setPosts((data || []) as AnnouncementPost[]);
     setLoading(false);
-  }, [isAdmin]);
+  }, [isAdmin, activeVertical]);
 
   useEffect(() => {
     fetchPosts();
