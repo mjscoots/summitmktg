@@ -46,7 +46,6 @@ function PointsCard() {
 
   const sorted = [...categories].sort((a, b) => b.value - a.value);
   const topCategory = sorted.length > 0 ? sorted[0] : null;
-  const lowestCategory = sorted.length > 1 ? sorted[sorted.length - 1] : null;
 
   return (
     <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
