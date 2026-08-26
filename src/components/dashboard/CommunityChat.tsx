@@ -565,15 +565,30 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
       {/* Header */}
       <div className="relative z-[1]">
         <ChatHeader
-          channelName={channels.find(c => c.slug === activeChannel)?.label || 'Chat'}
+          channelName={roomLabel || channels.find(c => c.slug === activeChannel)?.label || 'Chat'}
           onBack={onBack}
+          hideBack={hideBack}
+          rightSlot={headerRight}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
             if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }}
         />
+        {topSlot}
+        {pinnedCard && (
+          <PinnedBar
+            item={{
+              id: pinnedCard.id,
+              kind: pinnedCard.kind || 'text',
+              content: pinnedCard.content,
+              ref_id: pinnedCard.ref_id ?? null,
+              meta: (pinnedCard.meta as Record<string, unknown>) || null,
+            }}
+          />
+        )}
       </div>
+
 
       {/* Messages thread */}
       <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
