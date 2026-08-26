@@ -7269,6 +7269,7 @@ export type Database = {
       }
       is_dm_channel: { Args: { _slug: string }; Returns: boolean }
       is_dm_member: { Args: { _slug: string; _uid: string }; Returns: boolean }
+      is_first_week_eligible: { Args: { _target: string }; Returns: boolean }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
       is_leader_of: {
         Args: { _leader: string; _person: string }
