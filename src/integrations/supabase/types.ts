@@ -2326,6 +2326,7 @@ export type Database = {
       profiles: {
         Row: {
           accepting_new_reps: boolean
+          active_vertical: string | null
           alumni: boolean
           approved: boolean | null
           archived: boolean
@@ -2396,6 +2397,7 @@ export type Database = {
         }
         Insert: {
           accepting_new_reps?: boolean
+          active_vertical?: string | null
           alumni?: boolean
           approved?: boolean | null
           archived?: boolean
@@ -2466,6 +2468,7 @@ export type Database = {
         }
         Update: {
           accepting_new_reps?: boolean
+          active_vertical?: string | null
           alumni?: boolean
           approved?: boolean | null
           archived?: boolean
@@ -3415,6 +3418,8 @@ export type Database = {
       rep_vertical_enrollments: {
         Row: {
           activated_at: string | null
+          applied_at: string | null
+          approved_at: string | null
           created_at: string
           current_step: number
           id: string
@@ -3422,6 +3427,8 @@ export type Database = {
           partner_id: string | null
           referrer_user_id: string | null
           region_id: string | null
+          reject_reason: string | null
+          rejected_at: string | null
           source_code: string | null
           source_type: string
           sourced_by: string
@@ -3433,6 +3440,8 @@ export type Database = {
         }
         Insert: {
           activated_at?: string | null
+          applied_at?: string | null
+          approved_at?: string | null
           created_at?: string
           current_step?: number
           id?: string
@@ -3440,6 +3449,8 @@ export type Database = {
           partner_id?: string | null
           referrer_user_id?: string | null
           region_id?: string | null
+          reject_reason?: string | null
+          rejected_at?: string | null
           source_code?: string | null
           source_type?: string
           sourced_by?: string
@@ -3451,6 +3462,8 @@ export type Database = {
         }
         Update: {
           activated_at?: string | null
+          applied_at?: string | null
+          approved_at?: string | null
           created_at?: string
           current_step?: number
           id?: string
@@ -3458,6 +3471,8 @@ export type Database = {
           partner_id?: string | null
           referrer_user_id?: string | null
           region_id?: string | null
+          reject_reason?: string | null
+          rejected_at?: string | null
           source_code?: string | null
           source_type?: string
           sourced_by?: string
@@ -4648,6 +4663,79 @@ export type Database = {
         }
         Relationships: []
       }
+      vertical_application_approvals: {
+        Row: {
+          application_id: string
+          approver_user_id: string
+          decided_at: string
+          decision: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          application_id: string
+          approver_user_id: string
+          decided_at?: string
+          decision: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          application_id?: string
+          approver_user_id?: string
+          decided_at?: string
+          decision?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vertical_application_approvals_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "vertical_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vertical_applications: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+          vertical: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          vertical: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vertical?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vertical_applications_vertical_fkey"
+            columns: ["vertical"]
+            isOneToOne: false
+            referencedRelation: "verticals"
+            referencedColumns: ["vertical"]
+          },
+        ]
+      }
       vertical_paths: {
         Row: {
           created_at: string
@@ -4778,6 +4866,57 @@ export type Database = {
             referencedColumns: ["vertical"]
           },
         ]
+      }
+      verticals: {
+        Row: {
+          accent_token: string
+          created_at: string
+          display_order: number
+          name: string
+          president_user_id: string | null
+          public: boolean
+          public_title: string | null
+          required_approver_ids: string[]
+          short_name: string
+          slug: string
+          status: string
+          unit: string
+          updated_at: string
+          vertical: string
+        }
+        Insert: {
+          accent_token?: string
+          created_at?: string
+          display_order?: number
+          name: string
+          president_user_id?: string | null
+          public?: boolean
+          public_title?: string | null
+          required_approver_ids?: string[]
+          short_name: string
+          slug: string
+          status?: string
+          unit: string
+          updated_at?: string
+          vertical: string
+        }
+        Update: {
+          accent_token?: string
+          created_at?: string
+          display_order?: number
+          name?: string
+          president_user_id?: string | null
+          public?: boolean
+          public_title?: string | null
+          required_approver_ids?: string[]
+          short_name?: string
+          slug?: string
+          status?: string
+          unit?: string
+          updated_at?: string
+          vertical?: string
+        }
+        Relationships: []
       }
       vet_leads: {
         Row: {
@@ -5244,6 +5383,10 @@ export type Database = {
         Args: { _region_id: string; _user_id: string }
         Returns: Json
       }
+      admin_set_president: {
+        Args: { _user_id: string; _vertical: string }
+        Returns: Json
+      }
       admin_set_rank: {
         Args: { _rank_id: string; _user_id: string }
         Returns: Json
@@ -5280,6 +5423,10 @@ export type Database = {
           _vertical: string
           _why: string
         }
+        Returns: Json
+      }
+      apply_to_vertical: {
+        Args: { _answers?: Json; _vertical: string }
         Returns: Json
       }
       apply_winback_gold: { Args: { _rows: Json }; Returns: Json }
@@ -5357,6 +5504,10 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: Json
       }
+      decide_vertical_application: {
+        Args: { _application_id: string; _decision: string; _note?: string }
+        Returns: Json
+      }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       expand_event_series: { Args: { p_weeks?: number }; Returns: number }
       fiber_installs_total: { Args: { _user: string }; Returns: number }
@@ -5394,6 +5545,7 @@ export type Database = {
         }[]
       }
       get_announcement_seen_counts: { Args: never; Returns: Json }
+      get_applications_awaiting_me: { Args: never; Returns: number }
       get_attendance_flags: {
         Args: never
         Returns: {
@@ -5664,6 +5816,7 @@ export type Database = {
       get_my_revenue: { Args: never; Returns: Json }
       get_my_spread: { Args: never; Returns: Json }
       get_my_vertical_path: { Args: { _vertical: string }; Returns: Json }
+      get_my_workspaces: { Args: never; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
       get_pairings: {
         Args: { _manager?: string; _status?: string; _vertical?: string }
@@ -5826,6 +5979,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_vertical_applications: { Args: { _status?: string }; Returns: Json }
       get_vertical_enrollments: { Args: never; Returns: Json }
       get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
@@ -5845,6 +5999,14 @@ export type Database = {
         Args: { _manager: string; _rep: string }
         Returns: boolean
       }
+      is_president_of: {
+        Args: { _uid: string; _vertical: string }
+        Returns: boolean
+      }
+      is_president_of_rep: {
+        Args: { _rep: string; _uid: string }
+        Returns: boolean
+      }
       is_staff_data_reader: { Args: never; Returns: boolean }
       is_vertical_lead: {
         Args: { _uid: string; _vertical: string }
@@ -5854,7 +6016,6 @@ export type Database = {
         Args: { _rep: string; _uid: string }
         Returns: boolean
       }
-      join_vertical: { Args: { _vertical: string }; Returns: Json }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
         Returns: Json
@@ -5873,6 +6034,7 @@ export type Database = {
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
+      my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }
       norm_person_name: { Args: { _t: string }; Returns: string }
@@ -5938,6 +6100,7 @@ export type Database = {
         Args: { code_description?: string; new_code: string }
         Returns: string
       }
+      set_active_vertical: { Args: { _vertical: string }; Returns: Json }
       set_next_year_status: {
         Args: { _notes?: string; _status: string; _user_id: string }
         Returns: Json
