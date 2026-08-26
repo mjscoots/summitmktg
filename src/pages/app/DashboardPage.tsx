@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import RosterGapCounters from '@/components/roster/RosterGapCounters';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
@@ -35,6 +34,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
+import { HomeQuestionCard } from '@/components/home/HomeQuestionCard';
 
 function DashboardSkeleton() {
   return (
@@ -218,6 +218,7 @@ export default function DashboardPage() {
       <div className="max-w-5xl mx-auto px-4 py-4 animate-fade-in relative z-10">
         <OnboardingAlert />
         <WinterPlanCard />
+        <HomeQuestionCard />
 
         {isManager ? (
           <CommandCenterHeader />
@@ -253,7 +254,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {isManager && <RosterGapCounters />}
 
         {/* Action row — what to do right now */}
 

@@ -94,6 +94,8 @@ export function useActivityTracking() {
           _category: category,
         });
         await supabase.rpc('update_user_activity', { _user_id: user.id });
+        // Per-day minutes/screens for the person profile
+        await (supabase.rpc as any)('record_activity_ping', { _minutes: 1, _screen: category });
       } catch {
         // Silent — non-critical
       }

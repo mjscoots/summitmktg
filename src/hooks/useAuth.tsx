@@ -228,6 +228,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (event === 'INITIAL_SESSION' && initialLoadDone) return;
           // Defer to avoid Supabase internal deadlock
           setTimeout(() => { if (mounted) loadUserData(session.user.id); }, 0);
+          if (event === 'SIGNED_IN') {
+            // Records last login and today's session for the person profile
+            setTimeout(() => { (supabase.rpc as any)('touch_last_login').then(() => {}, () => {}); }, 0);
+          }
         } else {
           setProfile(null);
           setRole('rookie');

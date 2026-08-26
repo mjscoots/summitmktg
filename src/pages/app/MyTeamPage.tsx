@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import RosterGapCounters from '@/components/roster/RosterGapCounters';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -305,7 +304,6 @@ export default function MyTeamPage() {
           </div>
         </header>
 
-        {isManagerRole && <RosterGapCounters />}
 
 
 
