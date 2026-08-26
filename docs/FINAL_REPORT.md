@@ -1460,3 +1460,15 @@ Nothing was published.
   are recorded per week, so there is no honest daily install streak to show yet.
 - Verified at 390 and 1280 on the cover, Home and Chat: no horizontal overflow, no new console
   errors. Typecheck and production build clean; largest chunk 210.92 kB. Nothing published.
+
+## Pass 73 — Home
+- Rep Pest Home: greeting by local hour, date, sale streak chip, first-week card, hero card (sales today at 56px with CountUp, "This week n · Team today n", 64px goal ring with tap-to-edit stepper backed by profiles.weekly_goal default 10), Log a sale opening the existing sheet.
+- Quick chips (Playbook, Ask Summit, Chat with unread, Missions with needs-you count), Your week bars Mon–Sun from sales_log with training minutes, Team today with rank rings, Needs-you horizontal row, Next event with Going/Out and countdown.
+- Manager/owner Home: same skeleton with Team today in the hero, 14-day sparkline, "n need attention" pill to /app/week, quick row My week / Post / Incentives / Log a sale, top today list, Invite dialog.
+- Desktop 1024+ splits into two columns (hero and week left; team, needs-you, event right).
+- Fiber Home: hero uses installs for the current week plus a last-two-weeks line and season total. Honest note: fiber_installs is stored as weekly aggregates by week_start, so daily installs and a true blitz range are not derivable; no calendar event exposes a vertical or date range in the current schema, so no blitz window is claimed.
+- Life Home: coming-soon hero card with the Life V2 wordmark and one line only.
+- Schema: one nullable integer column profiles.weekly_goal. RLS untouched.
+- Verified as owner at 390 and 1280: rep view (temporary view flag, since removed) and manager view, scrollWidth equals innerWidth at both widths, no console errors. One test sale was inserted, the hero updated to 1 with a 1/10 ring, then the row was deleted (remaining count 0).
+- Fiber and Life homes could not be screenshotted from the owner session because the owner is not enrolled in those workspaces and the context falls back to Pest; no enrollment data was fabricated. Both render paths typecheck and build.
+- Typecheck clean, production build clean, largest chunk index-CBULJEw9.js 210.99 kB (gzip 68.09 kB). Not published.
