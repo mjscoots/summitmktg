@@ -28,7 +28,6 @@ import PendingApproval from "./pages/app/PendingApproval";
 import ResetPasswordPage from "./pages/app/ResetPasswordPage";
 
 // Core app pages (keep eager – most users hit these immediately)
-import { BootcampGate } from "@/components/BootcampGate";
 import DashboardPage from "./pages/app/DashboardPage";
 import TrainingPage from "./pages/app/TrainingPage";
 
@@ -193,9 +192,7 @@ function LazyFallback() {
               {/* Main Dashboard */}
               <Route path="/app" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <DashboardPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
@@ -210,67 +207,49 @@ function LazyFallback() {
               {/* Chat */}
               <Route path="/app/chat" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <ChatPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* Training */}
                <Route path="/app/training" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <TrainingPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/training/videos" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <TrainingVideosPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/training/manager-videos" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <ManagerTrainingVideosPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/training/videos/:videoId" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <VideoPlayerPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/videos" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <VideosPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/videos/:videoId" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <VideoPlayerPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/training/:courseSlug" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <TrainingCoursePage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
                <Route path="/app/training/:courseSlug/:lessonId" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <LessonPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
 
@@ -287,9 +266,7 @@ function LazyFallback() {
              {/* Profile */}
               <Route path="/app/profile" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <ProfilePage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
@@ -310,45 +287,35 @@ function LazyFallback() {
               {/* Recruits — lead funnel (all reps) */}
               <Route path="/app/recruits" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <RecruitsPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* My Money — rep pay, housing, next tier */}
               <Route path="/app/money" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <MyMoneyPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* Scripts library — openers, objections, closes */}
               <Route path="/app/scripts" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <ScriptsPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* Season Countdown Hub */}
               <Route path="/app/season" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <SeasonPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* Industry hub + onboarding paths */}
               <Route path="/app/industries" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <IndustriesPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
@@ -357,9 +324,7 @@ function LazyFallback() {
               {/* Ask Summit — grounded AI assistant */}
               <Route path="/app/ask" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <AskSummitPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
@@ -368,18 +333,14 @@ function LazyFallback() {
               {/* Leaderboard */}
               <Route path="/app/leaderboard" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <LeaderboardPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
                {/* Links */}
                <Route path="/app/links" element={
                  <ProtectedRoute>
-                   <BootcampGate>
                      <LinksPage />
-                   </BootcampGate>
                  </ProtectedRoute>
                } />
 
@@ -389,18 +350,14 @@ function LazyFallback() {
                {/* Events */}
                <Route path="/app/events" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <EventsPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
                {/* Calendar */}
                <Route path="/app/calendar" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <CalendarPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
@@ -490,27 +447,21 @@ function LazyFallback() {
               {/* Estimate My Earnings */}
               <Route path="/app/estimate-earnings" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <EstimateEarningsPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* War Room */}
               <Route path="/app/war-room" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <WarRoomPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
               {/* Rep Logistics */}
               <Route path="/app/logistics" element={
                 <ProtectedRoute>
-                  <BootcampGate>
                     <RepLogisticsPage />
-                  </BootcampGate>
                 </ProtectedRoute>
               } />
 
