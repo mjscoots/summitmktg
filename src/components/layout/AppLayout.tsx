@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { WhatsNewTour } from '@/components/onboarding/WhatsNewTour';
 import { useNavigate } from 'react-router-dom';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -9,12 +9,13 @@ import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { StatusBar } from './StatusBar';
 import { ImpersonationBanner } from './ImpersonationBanner';
-import { Mountain } from 'lucide-react';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
 import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
 import { MobileBottomNav } from './MobileBottomNav';
+import { WorkspaceSheet } from './WorkspaceSheet';
+
 
 
 interface AppLayoutProps {
@@ -46,20 +47,19 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                 </div>
               </header>
 
-              {/* Mobile header */}
+              {/* Mobile header — the workspace control replaces the sidebar */}
               <header className="lg:hidden sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-1">
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <SidebarTrigger className="h-11 w-11 rounded-xl border border-primary/20 bg-primary/15 text-primary shadow-sm transition-colors hover:bg-primary/25 hover:text-primary" />
-                    <button
-                      onClick={() => navigate('/app')}
-                      className="flex min-h-11 items-center gap-1.5 rounded-xl px-2 transition-colors duration-180 hover:bg-foreground/5 active:scale-95"
-                    >
-                      <Mountain className="h-4 w-4 text-foreground" />
-                      <WorkspaceLabel mobile />
-                    </button>
+                  <div className="flex min-w-0 items-center gap-1">
+                    <WorkspaceSheet />
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">
+                    <button
+                      onClick={() => navigate('/app/ask')}
+                      className="inline-flex min-h-11 items-center rounded-xl px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Ask
+                    </button>
                     <GlobalSearch />
                     <StatusBar />
                     <NotificationBell />
@@ -67,10 +67,11 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                 </div>
               </header>
 
-              <main className={cn("flex-1 overflow-x-hidden pb-[68px] lg:pb-0", fullHeight && "min-h-0 overflow-hidden")}>
+              <main className={cn("flex-1 overflow-x-hidden pb-[84px] lg:pb-0", fullHeight && "min-h-0 overflow-hidden")}>
                 {children}
               </main>
               <MobileBottomNav />
+
               <WhatsNewTour />
 
             </div>

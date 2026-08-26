@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import RosterGapCounters from '@/components/roster/RosterGapCounters';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRookieView } from '@/contexts/RookieViewContext';
 import { useMyPoints } from '@/hooks/useMyPoints';
@@ -31,6 +31,7 @@ const DownlineGrowthCalculator = lazy(() => import("@/components/DownlineGrowthC
 import { toast } from 'sonner';
 import { ListTodo, GitBranch } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useBootcamp } from '@/hooks/useBootcamp';
 import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 
@@ -72,6 +73,7 @@ export default function DashboardPage() {
   const { role, profile, user, isLoading } = useAuth();
   const { isImpersonating, impersonatedUser } = useRookieView();
   const { active } = useWorkspace();
+  const { isLocked: bootcampLocked } = useBootcamp();
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   const { data: pointsData, isLoading: pointsLoading } = useMyPoints();
   const [showPoints, setShowPoints] = useState(false);
@@ -187,6 +189,14 @@ export default function DashboardPage() {
       </AppLayout>
     );
   }
+
+  // The Summer Checklist gate applies to the Pest workspace home only.
+  if (bootcampLocked) {
+    return <Navigate to="/summer-checklist" replace />;
+  }
+
+
+
 
   const hoursToday = pointsData ? pointsData.timeTodayMinutes / 60 : 0;
   const dailyGoalHours = 5;

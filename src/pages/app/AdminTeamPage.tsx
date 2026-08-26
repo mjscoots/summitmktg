@@ -15,6 +15,9 @@ import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthro
 import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
 import LeadsImportPanel from '@/components/admin/LeadsImportPanel';
+const LazyCommandReports = lazy(() => import('@/pages/app/CommandCenterPage'));
+const LazyOffSeasonReport = lazy(() => import('@/components/command/OffSeasonReport'));
+
 import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
 import AdminVerticalLeadsPanel from '@/components/admin/AdminVerticalLeadsPanel';
 const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
@@ -436,6 +439,22 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             <TabsContent value="restore">
               <Suspense fallback={<LoadingList rows={4} />}>
                 <LazyRestore />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {section === 'reports' && (
+            <TabsContent value="overview">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyCommandReports />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {section === 'reports' && (
+            <TabsContent value="offseason">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyOffSeasonReport />
               </Suspense>
             </TabsContent>
           )}

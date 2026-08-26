@@ -1,8 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/contexts/ThemeContext';
 import summitLogo from '@/assets/summit-logo-new.png';
-import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock, Building2, PhoneCall } from 'lucide-react';
+import { LogOut, User, Shield, CalendarClock } from 'lucide-react';
 import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
@@ -22,35 +21,10 @@ import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { useNewLeads } from '@/hooks/useNewLeads';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceSwitcher } from '@/components/workspace/WorkspaceSwitcher';
+import { DESKTOP_MAIN, manageDestinations, canSeeAdmin, type NavDest } from '@/lib/appNav';
 
-interface NavItem {
-  label: string;
-  path: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
-}
+type NavItem = NavDest;
 
-const mainNavItems: NavItem[] = [
-  { label: 'Home', path: '/app', icon: Home },
-  { label: 'Training', path: '/app/training', icon: GraduationCap },
-  { label: 'Scripts', path: '/app/scripts', icon: BookOpen },
-  { label: 'Events', path: '/app/events', icon: CalendarClock },
-  { label: 'My Money', path: '/app/money', icon: DollarSign },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
-  { label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { label: 'Recruits', path: '/app/recruits', icon: Target },
-  { label: 'Industries', path: '/app/industries', icon: Building2 },
-  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
-  { label: 'Resources', path: '/app/links', icon: FileText },
-];
-
-const managementNavItems: NavItem[] = [
-  { label: 'Team', path: '/app/team', icon: Users },
-  { label: 'Leads', path: '/app/leads', icon: PhoneCall },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
-  { label: 'Forms', path: '/app/forms', icon: FileText },
-  { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
-  { label: 'War Room', path: '/app/war-room', icon: Swords },
-];
 
 
 export function AppSidebar() {
@@ -72,6 +46,7 @@ export function AppSidebar() {
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isManager = role === 'manager' || role === 'president' || isAdmin;
+
   const roleLabel = isOwner
     ? 'OWNER'
     : role === 'admin'
@@ -121,18 +96,17 @@ export function AppSidebar() {
 
   const getBadge = (path: string) => {
     if (path === '/app/chat') return unreadChat;
-    if (path === '/app/recruits') return newLeads;
+    if (path === '/app/leads') return newLeads;
     return 0;
   };
 
-  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/leaderboard', '/app/links'];
-  const baseNavItems = role === 'recruiter'
-    ? mainNavItems.filter((i) => recruiterPaths.includes(i.path))
-    : mainNavItems;
+  const visibleMainNavItems: NavItem[] =
+    season && activeVertical === 'Pest'
+      ? [...DESKTOP_MAIN, { key: 'season', label: 'Season', path: '/app/season', icon: CalendarClock }]
+      : DESKTOP_MAIN;
 
-  const visibleMainNavItems = season && role !== 'recruiter' && activeVertical === 'Pest'
-    ? [...baseNavItems, { label: 'Season', path: '/app/season', icon: CalendarClock }]
-    : baseNavItems;
+  const managementNavItems = manageDestinations(role);
+
 
 
   const NavButton = ({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) => (
@@ -233,13 +207,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Management section (managers+) */}
-        {isManager && (
+        {/* Manage (Manager tier and up) */}
+        {managementNavItems.length > 0 && (
           <SidebarGroup className="mt-3">
             <Separator className="mb-2" style={{ background: 'hsl(217 44% 15% / 0.5)' }} />
             {!collapsed && (
               <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white/35">
-                Management
+                Manage
               </p>
             )}
             <SidebarGroupContent>
@@ -257,24 +231,24 @@ export function AppSidebar() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Bottom section: Admin */}
+        {/* Admin (Admin tier and up, plus presidents for their workspace) */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {(isAdmin || role === 'president') && (
+              {(canSeeAdmin(role) || role === 'president') && (
                 <SidebarMenuItem>
                   <button
                     onClick={() => { navigate('/admin/inbox'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
-                      isActive('/admin/inbox') ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-sidebar-accent",
+                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors duration-200 relative group",
+                      isActive('/admin') ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-sidebar-accent",
                       collapsed && "justify-center px-2"
                     )}
                   >
-                    {isActive('/admin/inbox') && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(216 89% 53%)', boxShadow: '0 0 8px hsl(216 89% 53% / 0.4)' }} />
+                    {isActive('/admin') && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(var(--sidebar-primary))' }} />
                     )}
-                    <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin/inbox') ? "text-white" : "text-white/40")} strokeWidth={2} />
+                    <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin') ? "text-white" : "text-white/40")} strokeWidth={2} />
                     {!collapsed && <span className="text-[12px] font-medium">Admin</span>}
                     {adminCounts.total > 0 && (
                       <span className={cn(
@@ -287,27 +261,10 @@ export function AppSidebar() {
                   </button>
                 </SidebarMenuItem>
               )}
-              {isOwner && (
-                <SidebarMenuItem>
-                  <button
-                    onClick={() => { navigate('/command'); if (isMobile) setOpenMobile(false); }}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-250 relative group",
-                      isActive('/command') ? "text-amber-200" : "text-amber-300/50 hover:text-amber-200 hover:bg-sidebar-accent",
-                      collapsed && "justify-center px-2"
-                    )}
-                  >
-                    {isActive('/command') && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(43 96% 56%)', boxShadow: '0 0 8px hsl(43 96% 56% / 0.4)' }} />
-                    )}
-                    <Crown className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-                    {!collapsed && <span className="text-[12px] font-medium">Command</span>}
-                  </button>
-                </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
       </SidebarContent>
 
       {/* Footer — Profile */}

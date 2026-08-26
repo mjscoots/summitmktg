@@ -84,17 +84,28 @@ export function BootcampGate({ children }: BootcampGateProps) {
     );
   }
 
-  // Step 1: Must complete checklist first — the summer checklist is a Pest workspace gate only
-  const activeVertical = profile?.active_vertical || 'Pest';
-  if (isLocked && activeVertical === 'Pest') {
-    return <Navigate to="/summer-checklist" replace />;
-  }
-
-  // Step 2: After checklist, require admin approval (only for rookies)
+  // Require admin approval (only for rookies)
   if (role === 'rookie' && !isBypassed && profile && profile.approved === false) {
     return <Navigate to="/pending-approval" replace />;
   }
 
-  // Step 3: After approval, enforce profile completion
+  // After approval, enforce profile completion
   return <ProfileCompletionGate>{children}</ProfileCompletionGate>;
 }
+
+/**
+ * The Summer Checklist is a Pest workspace gate only. It lives on the Pest
+ * workspace home instead of wrapping every route.
+ */
+export function PestChecklistGate({ children }: BootcampGateProps) {
+  const { isLocked, isLoading } = useBootcamp();
+  const { profile } = useAuth();
+  const activeVertical = profile?.active_vertical || 'Pest';
+
+  if (!isLoading && isLocked && activeVertical === 'Pest') {
+    return <Navigate to="/summer-checklist" replace />;
+  }
+
+  return <>{children}</>;
+}
+
