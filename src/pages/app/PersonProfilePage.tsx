@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { SelfReportedSales } from '@/components/sales/SelfReportedSales';
 import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -529,6 +530,13 @@ export default function PersonProfilePage() {
             </Card>
           )}
         </section>
+      )}
+
+      {/* Self-reported sales */}
+      {userId && (
+        <Section title="Sales (self-reported)">
+          <SelfReportedSales userId={userId} canEdit={data.scope === 'manager' || staff} />
+        </Section>
       )}
 
       {/* Timeline */}
