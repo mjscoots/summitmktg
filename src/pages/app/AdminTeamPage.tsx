@@ -59,7 +59,11 @@ const LazyMoney = lazy(() =>
 const LazyDrills = lazy(() =>
   import('@/components/admin/AdminDrillsTab').then((m) => ({ default: m.AdminDrillsTab }))
 );
+const LazyQuestions = lazy(() =>
+  import('@/components/admin/AdminQuestionsTab').then((m) => ({ default: m.AdminQuestionsTab }))
+);
 const LazyAssistant = lazy(() =>
+
   import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
 );
 const LazyCulture = lazy(() =>
