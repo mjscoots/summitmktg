@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { isStaffTier, type Tier } from '@/lib/tiers';
+import BeforeTheyLeft from '@/components/leads/BeforeTheyLeft';
 import {
   CALL_OUTCOMES,
   LEAD_STAGES,
@@ -16,7 +17,9 @@ import {
   smsHref,
   telHref,
   useLeadDetail,
+  type LeadSnapshot,
 } from '@/hooks/useLeads';
+
 
 interface Props {
   leadId: string | null;
@@ -46,12 +49,32 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
   const [privateBody, setPrivateBody] = useState('');
   const [tag, setTag] = useState('');
   const [managers, setManagers] = useState<{ user_id: string; full_name: string }[]>([]);
+  const [cycleDays, setCycleDays] = useState('14');
+
 
   const lead = detail?.lead;
+  const snapshot = (lead?.profile_snapshot as LeadSnapshot | null) || null;
+
+  const designatedAt = (lead?.designated_at as string | null) || null;
+  const leadCycleDays = (lead?.cycle_days as number | null) ?? 14;
+  const cyclesInDays = designatedAt
+    ? Math.max(
+        Math.ceil(
+          (new Date(designatedAt).getTime() + Math.max(leadCycleDays, 1) * 86400000 - Date.now()) / 86400000
+        ),
+        0
+      )
+    : null;
+
 
   useEffect(() => {
     setNotes((lead?.notes as string) || '');
   }, [lead?.id, lead?.notes]);
+
+  useEffect(() => {
+    setCycleDays(String((lead?.cycle_days as number | null) ?? 14));
+  }, [lead?.id, lead?.cycle_days]);
+
 
   useEffect(() => {
     if (!staff || !leadId) return;
@@ -144,6 +167,25 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                 ))}
               </div>
             )}
+
+            {lead.designated_to && (
+              <p className="mt-4 text-[12px] text-muted-foreground">
+                {lead.hold
+                  ? 'On hold — this lead will not cycle.'
+                  : cyclesInDays != null
+                    ? `Cycles in ${cyclesInDays} day${cyclesInDays === 1 ? '' : 's'} without activity.`
+                    : 'No designation date on file yet.'}
+              </p>
+            )}
+
+
+            <BeforeTheyLeft
+              snapshot={snapshot}
+              aiSummary={(lead.ai_summary as string | null) || null}
+              profileUserId={staff ? detail?.profile?.user_id || null : null}
+            />
+
+
 
             {/* Log a call */}
             <div className="mt-6 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
@@ -272,6 +314,52 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                       Add tag
                     </button>
                   </div>
+                  <div className="flex items-end gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="micro-label mb-1">Cycle days</p>
+                      <Input
+                        value={cycleDays}
+                        onChange={(e) => setCycleDays(e.target.value.replace(/[^0-9]/g, ''))}
+                        inputMode="numeric"
+                        className="h-10 text-[13px]"
+                      />
+                    </div>
+                    <button
+                      disabled={busy}
+                      onClick={() =>
+                        run(
+                          () =>
+                            leadActions.setCycling(
+                              lead.id,
+                              Math.max(Number(cycleDays) || 14, 1),
+                              !!lead.hold
+                            ),
+                          'Cycle days saved'
+                        )
+                      }
+                      className="min-h-11 shrink-0 rounded-xl border border-border/60 bg-background/50 px-3 text-[13px] font-semibold disabled:opacity-60"
+                    >
+                      Save
+                    </button>
+                    <button
+                      disabled={busy}
+                      onClick={() =>
+                        run(
+                          () =>
+                            leadActions.setCycling(
+                              lead.id,
+                              Math.max(Number(cycleDays) || 14, 1),
+                              !lead.hold
+                            ),
+                          lead.hold ? 'Hold removed' : 'Lead on hold'
+                        )
+                      }
+                      className="min-h-11 shrink-0 rounded-xl border border-border/60 bg-background/50 px-3 text-[13px] font-semibold disabled:opacity-60"
+                    >
+                      {lead.hold ? 'Remove hold' : 'Hold'}
+                    </button>
+                  </div>
+
                 </div>
               </div>
             )}

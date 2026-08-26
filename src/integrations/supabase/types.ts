@@ -2722,13 +2722,16 @@ export type Database = {
       }
       people_leads: {
         Row: {
+          ai_summary: string | null
           bucket: string
           call_count: number
           claimed_at: string | null
           claimed_by: string | null
           committed_last_day: string | null
           created_at: string
+          cycle_days: number
           days_in_market: number | null
+          designated_at: string | null
           designated_to: string | null
           designation_status: string
           do_not_call: boolean
@@ -2738,6 +2741,7 @@ export type Database = {
           freed_at: string | null
           freed_by: string | null
           full_name: string
+          hold: boolean
           id: string
           last_contact_at: string | null
           last_name: string | null
@@ -2745,6 +2749,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           profile_id: string | null
+          profile_snapshot: Json | null
           recruiter_name: string | null
           rep_year: string | null
           rev_per_day: number | null
@@ -2762,13 +2767,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_summary?: string | null
           bucket?: string
           call_count?: number
           claimed_at?: string | null
           claimed_by?: string | null
           committed_last_day?: string | null
           created_at?: string
+          cycle_days?: number
           days_in_market?: number | null
+          designated_at?: string | null
           designated_to?: string | null
           designation_status?: string
           do_not_call?: boolean
@@ -2778,6 +2786,7 @@ export type Database = {
           freed_at?: string | null
           freed_by?: string | null
           full_name: string
+          hold?: boolean
           id?: string
           last_contact_at?: string | null
           last_name?: string | null
@@ -2785,6 +2794,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           profile_id?: string | null
+          profile_snapshot?: Json | null
           recruiter_name?: string | null
           rep_year?: string | null
           rev_per_day?: number | null
@@ -2802,13 +2812,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_summary?: string | null
           bucket?: string
           call_count?: number
           claimed_at?: string | null
           claimed_by?: string | null
           committed_last_day?: string | null
           created_at?: string
+          cycle_days?: number
           days_in_market?: number | null
+          designated_at?: string | null
           designated_to?: string | null
           designation_status?: string
           do_not_call?: boolean
@@ -2818,6 +2831,7 @@ export type Database = {
           freed_at?: string | null
           freed_by?: string | null
           full_name?: string
+          hold?: boolean
           id?: string
           last_contact_at?: string | null
           last_name?: string | null
@@ -2825,6 +2839,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           profile_id?: string | null
+          profile_snapshot?: Json | null
           recruiter_name?: string | null
           rep_year?: string | null
           rev_per_day?: number | null
@@ -6330,6 +6345,7 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      build_lead_snapshot: { Args: { _profile_id: string }; Returns: Json }
       can_chat_dm: { Args: { _a: string; _b: string }; Returns: boolean }
       can_find_person: { Args: { _target: string }; Returns: boolean }
       can_read_channel: {
@@ -6374,6 +6390,7 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: Json
       }
+      cycle_stale_people_leads: { Args: never; Returns: Json }
       decide_vertical_application: {
         Args: { _application_id: string; _decision: string; _note?: string }
         Returns: Json
@@ -7031,6 +7048,10 @@ export type Database = {
         Args: { _body: string; _kind: string; _lead: string }
         Returns: undefined
       }
+      lead_set_cycling: {
+        Args: { _cycle_days: number; _hold: boolean; _lead: string }
+        Returns: undefined
+      }
       lead_set_notes: {
         Args: { _lead: string; _notes: string }
         Returns: undefined
@@ -7115,7 +7136,10 @@ export type Database = {
             Returns: {
               call_count: number
               committed_last_day: string
+              cycle_days: number
+              cycles_in_days: number
               days_in_market: number
+              designated_at: string
               designated_has_access: boolean
               designated_to: string
               designated_to_name: string
@@ -7124,6 +7148,7 @@ export type Database = {
               email: string
               former_manager_name: string
               full_name: string
+              hold: boolean
               id: string
               last_contact_at: string
               last_outcome: string
@@ -7293,6 +7318,10 @@ export type Database = {
       set_winback_priority: {
         Args: { _lead_id: string; _priority: boolean }
         Returns: Json
+      }
+      setting_text: {
+        Args: { _default: string; _key: string }
+        Returns: string
       }
       start_dm: { Args: { _other: string }; Returns: Json }
       start_sweep_session: { Args: { _filter?: Json }; Returns: Json }

@@ -333,10 +333,19 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
   const handleToggleSetting = async (key: string) => {
     const newVal = settings[key] === 'true' ? 'false' : 'true';
     setSettingsLoading(true);
-    const { error } = await supabase.from('app_settings').update({ value: newVal }).eq('key', key);
+    const { error } = await supabase.from('app_settings').upsert({ key, value: newVal }, { onConflict: 'key' });
     if (!error) { setSettings(prev => ({ ...prev, [key]: newVal })); toast({ title: 'Setting Updated' }); }
     setSettingsLoading(false);
   };
+
+  const handleSaveNumberSetting = async (key: string) => {
+    const value = String(Math.max(parseInt(settings[key] || '0', 10) || 0, 1));
+    setSettingsLoading(true);
+    const { error } = await supabase.from('app_settings').upsert({ key, value }, { onConflict: 'key' });
+    if (!error) { setSettings(prev => ({ ...prev, [key]: value })); toast({ title: 'Setting Updated' }); }
+    setSettingsLoading(false);
+  };
+
 
   const getTeamName = (teamId: string | null) => teamsSimple.find(t => t.id === teamId)?.name || '—';
   const filteredTeams = teams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()));
@@ -749,6 +758,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
                       { key: 'public_signups', label: 'Public Sign-Ups', desc: 'Allow new users to sign up from login page' },
                       { key: 'maintenance_mode', label: 'Maintenance Mode', desc: 'Disable app for all non-admin users' },
                       { key: 'demo_mode', label: 'Demo Mode', desc: 'Mask sensitive data for presentations' },
+                      { key: 'leads_cycling_enabled', label: 'Lead Cycling', desc: 'Move designated leads to the next manager when they sit without activity' },
                     ].map(item => (
                       <div key={item.key} className="flex items-center justify-between px-4 py-4">
                         <div><p className="text-sm font-medium text-foreground">{item.label}</p><p className="text-xs text-muted-foreground">{item.desc}</p></div>
@@ -756,7 +766,27 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
                       </div>
                     ))}
                   </div>
+                  <div className="mt-4 border border-border/30 rounded-lg divide-y divide-border/10">
+                    {[
+                      { key: 'leads_cycle_days_default', label: 'Default Cycle Days', desc: 'Days a designated lead may sit without activity' },
+                      { key: 'leads_max_open_per_manager', label: 'Open Leads Per Manager', desc: 'A manager at this many open leads is skipped when cycling' },
+                    ].map(item => (
+                      <div key={item.key} className="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
+                        <div className="min-w-0"><p className="text-sm font-medium text-foreground">{item.label}</p><p className="text-xs text-muted-foreground">{item.desc}</p></div>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={settings[item.key] ?? ''}
+                            inputMode="numeric"
+                            onChange={e => setSettings(prev => ({ ...prev, [item.key]: e.target.value.replace(/[^0-9]/g, '') }))}
+                            className="h-10 w-20 text-sm"
+                          />
+                          <Button variant="outline" className="min-h-10" disabled={settingsLoading} onClick={() => handleSaveNumberSetting(item.key)}>Save</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
                 <div>
                   <h2 className="text-lg font-bold text-foreground mb-4">Admin Utilities</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

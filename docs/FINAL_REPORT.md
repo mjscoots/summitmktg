@@ -989,3 +989,49 @@ UI
 - The staff-only gate on `{user_id}` calls returned 401 through the internal test path because no bearer token was attached; the batch path was exercised instead. The gate itself is a role check against `user_roles`.
 - `build-rep-profile` profiles built for reps whose only recent rows are time records read thin ("one minute in the app") — accurate, but low value until those reps generate more data.
 - Preview only; nothing published.
+
+## Pass 61C — Profile to lead and cycling
+
+### Schema
+- `people_leads.profile_snapshot jsonb`, `people_leads.ai_summary text`.
+- `people_leads.designated_at timestamptz`, `cycle_days int default 14`, `hold boolean default false`, plus an index on the cycling lookup.
+- `app_settings` keys: `leads_cycling_enabled` (true), `leads_cycle_days_default` (14), `leads_max_open_per_manager` (25), and the internal round-robin cursor `leads_cycle_cursor`.
+
+### Functions
+- `build_lead_snapshot(uuid)` — collects the AI profile (summary, strengths, concerns, goals), 30-day app and training minutes, days active, streak and lessons completed, the last five non-empty event answers, and the departure fields. Missing data stays null; nothing is invented.
+- `open_lead_on_departure` — now writes `profile_snapshot` and `ai_summary` when a lead opens.
+- `set_person_lifecycle` — fixed. It previously wrote the industry enrollment state `paused`, which the enrollment check constraint no longer allows, so marking anyone departed or archived failed outright. Departing or archiving now removes the industry enrollment row; pausing leaves it unchanged.
+- `lead_detail` — returns the snapshot and cycling fields.
+- `lead_set_cycling(_lead, _cycle_days, _hold)` — owner and admin only.
+- `cycle_stale_people_leads()` — owner, admin, or service. Skips leads on hold, requires no `lead_activities` row since `designated_at + cycle_days`, round-robins to the next manager with access and fewer than `leads_max_open_per_manager` open designated leads, notifies both managers, and writes a "Cycled from X to Y after N days without activity" timeline entry.
+- `setting_text(key, default)` helper. Anonymous execute is revoked on all of the above.
+
+### Schedule
+- pg_cron job `cycle-stale-leads-nightly` at `50 10 * * *` UTC. It calls `SELECT public.cycle_stale_people_leads();` directly rather than through an HTTP edge function, because cron runs as postgres and satisfies the service guard without a key in the job body.
+
+### Frontend
+- `BeforeTheyLeft` panel in the lead drawer: departure type, reason, last day, AI summary with strengths, concerns and goals, 30-day engagement, recent event answers, capture date, and a staff-only link to the person's old profile.
+- Lead drawer shows "Cycles in N days" or "On hold" for designated leads, plus owner/admin cycle-days and hold controls.
+- Leads list shows the same cycle line; the manager's own list is sorted soonest-to-cycle first by `leads_list`.
+- Admin → System settings: lead cycling toggle, default cycle days, and open leads per manager.
+
+### Backfill
+- 532 of 546 existing leads have a linked profile and now carry a snapshot; 23 carry an AI summary. Leads without a profile were left untouched. 123 already-designated leads were stamped with `designated_at`.
+
+### Verification (temporary accounts, deleted afterwards)
+- Created a throwaway rep and two throwaway managers via `admin-create-user` with the owner preview session token.
+- Gave the rep a `rep_ai_profiles` row, two event answers, and two days of app/training time, then departed the rep through `record_departure` + `set_person_lifecycle`. The opened lead showed the AI summary, engagement (65 app minutes, 20 training minutes, 2 days active over 30 days), 2 event answers, and the departure type "quit" with reason and last day.
+- Designated the lead to manager A, backdated `designated_at` 15 days, ran `cycle_stale_people_leads()`: the lead moved to manager B, both managers received an in-app notification naming the lead, and the timeline entry read "Cycled from P61C ManagerA Test to P61C ManagerB Test after 15 days without activity".
+- A second backdated lead with `hold = true` stayed with manager A.
+- With `leads_cycling_enabled = false` the run returned `enabled: false` and nothing moved.
+- Real leads untouched: a before/after comparison of `designated_to` on non-test rows returned 0 changes.
+- Cleanup: 0 test leads, 0 test events, 0 test profiles remain, and password sign-in for all three test emails returns `invalid_credentials`, confirming the auth records are gone.
+
+### Checks
+- Typecheck clean, production build clean (16.66s).
+- No horizontal overflow at 390 or 1280 on `/app/leads` and `/app/team`.
+- Database linter: 333 issues — 1 RLS-enabled-no-policy, 26 anonymous SECURITY DEFINER, 305 signed-in SECURITY DEFINER, 1 short OTP length. This is the project's existing baseline; broad remediation is still open.
+
+### Open
+- Manager-side UI was verified by SQL and RPC rather than by signing in as each throwaway manager in a browser: only one preview session can be restored at a time in this environment.
+- Nothing was published.

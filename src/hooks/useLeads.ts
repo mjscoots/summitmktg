@@ -37,7 +37,46 @@ export interface LeadRow {
   do_not_call: boolean | null;
   last_outcome: string | null;
   on_roster: boolean | null;
+  designated_at: string | null;
+  cycle_days: number | null;
+  hold: boolean | null;
+  cycles_in_days: number | null;
 }
+
+export interface LeadSnapshot {
+  captured_at?: string | null;
+  full_name?: string | null;
+  user_id?: string | null;
+  ai_profile?: {
+    summary?: string | null;
+    strengths?: string[] | null;
+    concerns?: string[] | null;
+    goals?: string[] | null;
+    last_built_at?: string | null;
+  } | null;
+  engagement?: {
+    app_minutes_30d?: number | null;
+    training_minutes_30d?: number | null;
+    days_active_30d?: number | null;
+    current_streak?: number | null;
+    longest_streak?: number | null;
+    total_days_active?: number | null;
+    lessons_completed?: number | null;
+  } | null;
+  event_answers?: {
+    event_title?: string | null;
+    event_date?: string | null;
+    answers?: Record<string, unknown> | null;
+  }[] | null;
+  departure?: {
+    departure_type?: string | null;
+    departure_reason?: string | null;
+    last_day_worked?: string | null;
+    archived_at?: string | null;
+    revenue_to_date?: number | null;
+  } | null;
+}
+
 
 export interface LeadFilters {
   search?: string | null;
@@ -193,6 +232,9 @@ export const leadActions = {
   setStage: (leadId: string, stage: string) => rpc('lead_set_stage', { _lead: leadId, _stage: stage }),
   setNotes: (leadId: string, notes: string) => rpc('lead_set_notes', { _lead: leadId, _notes: notes }),
   addTag: (leadId: string, tag: string) => rpc('lead_add_tag', { _lead: leadId, _tag: tag }),
+  setCycling: (leadId: string, cycleDays: number, hold: boolean) =>
+    rpc('lead_set_cycling', { _lead: leadId, _cycle_days: cycleDays, _hold: hold }),
+
   privateNote: (leadId: string, kind: string, body: string) =>
     rpc('lead_private_note_add', { _lead: leadId, _kind: kind, _body: body }),
   log: (

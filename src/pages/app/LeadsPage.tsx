@@ -310,9 +310,17 @@ export default function LeadsPage() {
                   lead.last_outcome ? lead.last_outcome.replace(/_/g, ' ') : lead.stage?.replace('_', ' '),
                   callbackLabel(lead.next_call_at),
                   scope === 'all' ? lead.designated_to_name || 'Free' : null,
+                  lead.designated_to
+                    ? lead.hold
+                      ? 'On hold'
+                      : lead.cycles_in_days != null
+                        ? `Cycles in ${lead.cycles_in_days} day${lead.cycles_in_days === 1 ? '' : 's'}`
+                        : null
+                    : null,
                 ]
                   .filter(Boolean)
                   .join(' · ');
+
                 return (
                   <div key={lead.id} className={cn(CARD, 'flex items-center gap-3 p-3')}>
                     {staff && scope === 'all' && (
