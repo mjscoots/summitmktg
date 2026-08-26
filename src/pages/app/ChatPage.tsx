@@ -140,9 +140,11 @@ export default function ChatPage() {
                         </span>
                       )}
                     </span>
-                    <span className={cn('block truncate text-[12px] text-muted-foreground')}>
-                      {last ? last.content.slice(0, 90) : 'No messages yet'}
-                    </span>
+                    {last && (
+                      <span className={cn('block truncate text-[12px] text-muted-foreground')}>
+                        {last.content.slice(0, 90)}
+                      </span>
+                    )}
                   </span>
                   {last && (
                     <span className="flex-shrink-0 text-[11px] text-muted-foreground">
