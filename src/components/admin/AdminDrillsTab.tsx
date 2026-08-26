@@ -34,6 +34,7 @@ const AUDIENCES = [
 ];
 
 export function AdminDrillsTab() {
+  const { activeVertical } = useWorkspace();
   const [loading, setLoading] = useState(true);
   const [drills, setDrills] = useState<Drill[]>([]);
   const [courses, setCourses] = useState<CourseRow[]>([]);

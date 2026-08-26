@@ -36,6 +36,7 @@ const KIND_META: Record<ResultKind, { label: string; icon: typeof User }> = {
  * decides what the searcher can see — no extra role logic needed here.
  */
 export function GlobalSearch() {
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
