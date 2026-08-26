@@ -3682,7 +3682,10 @@ export type Database = {
           confirmed: boolean
           created_at: string
           id: string
-          rank_id: string
+          label: string | null
+          rank_id: string | null
+          sort_order: number | null
+          source: string | null
           unit: string | null
           updated_at: string
           value: number | null
@@ -3693,7 +3696,10 @@ export type Database = {
           confirmed?: boolean
           created_at?: string
           id?: string
-          rank_id: string
+          label?: string | null
+          rank_id?: string | null
+          sort_order?: number | null
+          source?: string | null
           unit?: string | null
           updated_at?: string
           value?: number | null
@@ -3704,7 +3710,10 @@ export type Database = {
           confirmed?: boolean
           created_at?: string
           id?: string
-          rank_id?: string
+          label?: string | null
+          rank_id?: string | null
+          sort_order?: number | null
+          source?: string | null
           unit?: string | null
           updated_at?: string
           value?: number | null
