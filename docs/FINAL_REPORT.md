@@ -1332,3 +1332,15 @@ Nothing was published.
 - Verified with owner-session screenshots at 390 and 1280: each chip, an objection expanded with its follow-up, Training, chat search hit, Ask Summit answer, Admin Playbook tab. No horizontal overflow.
 - `bunx tsgo --noEmit` clean; production build clean, largest chunk 194.58 kB.
 - Not published.
+
+## Pass 65 — Log a sale
+- New `sales_log` table (Pest default): plan, initial, recurring, frequency, customer first name, city, notes, source, reconciled. Index on (user_id, sold_at desc).
+- RLS: rep inserts own rows, edits or removes own rows for 48 hours; manager chain and staff read; admin/owner edit anything; anon has no access and cannot execute the new functions.
+- "Log a sale" is a full-width button on Pest Home (below the numbers) and at the top of Money. Plans come from the playbook pricing rows; initial, recurring and frequency prefill and stay editable. Same customer and city inside 10 minutes asks "Already logged — log again?".
+- On save a database trigger posts the win line to the rep's team channel (falls back to Wins), awards the sale points once, and notifies the manager only on the rep's first sale of the day.
+- Leaderboard gains a "Sales this week" view (reps and teams, ties broken by earliest sale) labelled "Self-reported, reconciled monthly".
+- Monthly import screen gains a "Self-reported vs imported" panel per rep with a one-click "Mark reconciled"; nothing is deleted or changed automatically.
+- Person profile gains "Sales (self-reported)" — last ten sales; a manager can correct or remove an entry with a reason stored in the notes.
+- Verified with the owner session at 390 and 1280: sale logged, win card in team chat, Home count went to 1, leaderboard row showed 1 sale / $379, duplicate prompt appeared, exactly one points event. Test sale, win message and points event deleted afterwards.
+- Typecheck clean. Production build clean; largest chunk 194.64 kB. Linter unchanged at baseline (19 anon SECURITY DEFINER, 1 RLS-no-policy, 1 short OTP).
+- Not published.
