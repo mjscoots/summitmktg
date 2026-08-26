@@ -97,16 +97,3 @@ function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fu
     </main>
   );
 }
-
-function WorkspaceLabel({ mobile }: { mobile?: boolean }) {
-  const { active } = useWorkspace();
-  const label = active?.name || 'Summit';
-  if (mobile) {
-    return (
-      <span className="text-[13px] font-black tracking-tight text-foreground transition-colors hover:text-primary">
-        {label.toUpperCase()}
-      </span>
-    );
-  }
-  return <span className="text-[13px] font-medium text-muted-foreground">{label}</span>;
-}
