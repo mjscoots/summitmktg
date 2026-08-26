@@ -533,6 +533,11 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const contextMsg = contextMenu ? messages.find(m => m.id === contextMenu.msgId) : null;
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
+  /** Latest pinned card surfaces in a collapsible bar so nobody has to scroll for it. */
+  const pinnedCard = [...channelMessages]
+    .reverse()
+    .find(m => m.is_pinned || ['event', 'announcement', 'incentive'].includes(m.kind || '')) || null;
+
 
   return (
     <div
