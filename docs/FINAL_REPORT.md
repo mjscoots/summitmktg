@@ -294,3 +294,54 @@ Preview only. Nothing published. `bunx tsgo --noEmit` clean, production build cl
 - Public calculator is rookie-only: Rookie/Veteran switch and VetCalculator mount removed from the landing page; section heading and gold styling unchanged; /apply/veteran still routes.
 - "Ready to start?" copy now reads "Applications take a few minutes."
 - Verified no horizontal overflow at 390/820/1280; typecheck clean; nothing published.
+
+## Pass 45 — Workspaces: one account, one workspace per industry, dual approval, presidents
+
+### Data model
+- `verticals` (keyed by existing capitalized `vertical`, plus lowercase `slug`): name, short_name, unit, accent token, status, public, `president_user_id`, `required_approver_ids`, display_order, public_title.
+  - Pest — president Mathew Rubino; approvers: owner + Rubino.
+  - Fiber — president Brendan Pillar; approvers: owner + Pillar.
+  - Life — coming_soon, no president; approvers: owner + Pillar.
+- `rep_vertical_enrollments` gained `applied_at`, `approved_at`, `rejected_at`, `reject_reason` and a status constraint.
+- New `vertical_applications` and `vertical_application_approvals` (unique per approver), both with RLS.
+- `profiles.active_vertical` added; every non-archived Pest profile backfilled as an active Pest member.
+- `join_vertical` removed. Applications only.
+
+### Membership state machine
+```text
+(none) --apply_to_vertical--> applied
+applied --any approver rejects--> rejected
+applied --all required approvers approve--> approved
+approved --setup path configured--> onboarding --steps complete--> active
+active --season off--> paused --> active
+```
+Approval is evaluated server-side in `decide_vertical_application`: the membership only becomes `approved` when every id in `verticals.required_approver_ids` has an `approved` row; any rejection rejects. Every decision is audit-logged and notifies the applicant; full approval sends a switch-workspace link.
+
+### President permission matrix (inside own workspace only)
+| Capability | President | Owner/Admin |
+| --- | --- | --- |
+| Read/edit workspace profiles | yes | yes |
+| Approve/reject applications (own row) | yes | yes |
+| Pair/re-pair managers, regions, region leads | yes | yes |
+| Edit and publish setup path | yes | yes |
+| Enter/correct production (installs, accounts) | yes | yes |
+| Edit pay ladder rows | yes | yes |
+| Set `confirmed` on ladders | no | yes |
+| Summit cut settings, holdback, expense allowance | no | yes |
+| Cross-workspace production, stacks, applications, roster | no | yes |
+| Owner/admin role assignment, publishing | no | owner |
+
+### Front end
+- `WorkspaceProvider` / `useWorkspace()` with membership list, active workspace, president flag, and `switchWorkspace()` writing `profiles.active_vertical` without a reload.
+- Desktop: workspace switcher in the sidebar header; the top bar shows the active workspace name. Sidebar role label reads `PRESIDENT · FIBER`.
+- Mobile: bottom navigation (Home, Training, Chat, Money, Industries) below 1024px with 44px targets, safe-area padding and a chat badge; Industries opens the workspace sheet with membership status, per-approver checklist, rejection reason and coming-soon state.
+- `/app/industries` keeps the long-form hub and now carries the application form and status per industry.
+- `BootcampGate` (summer checklist) only applies when the active workspace is Pest.
+- My Money orders the active workspace's card first.
+- Approvals page gained a "Workspace applications" tab for owner, admin and president (presidents scoped to their own workspace by RPC). Command shows the count of applications waiting on the signed-in approver.
+
+### Verification
+- `bunx tsgo --noEmit` clean; production build clean apart from the known ~661 kB main-chunk warning.
+- Regression widths 390 / 820 / 1280: 0 overflowing route/width combinations.
+- Nothing published.
+- Outstanding: the Supabase linter still reports the pre-existing "signed-in users can execute SECURITY DEFINER function" warnings across the function surface; the new workspace routines follow the same pattern as the existing ones and check authorization internally.
