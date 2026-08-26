@@ -1292,3 +1292,17 @@ Nothing was published.
 - Verified with owner-session screenshots at 390 and 1280 for Home, Installs, Money, Team, Training, Chat; no horizontal overflow at either width.
 - Typecheck clean; production build clean, largest chunk 193.97 kB.
 - Known: React dev-only ref warnings persist (development build only). Nothing published.
+
+## Pass 63B — Life
+- Life tokens: warm off-white background, white cards, deep navy text, muted teal accent, 1px warm-grey borders, 16px radius, no shadow; serif headings via Source Serif 4 applied only where a workspace asks for them.
+- New `life_pipeline` table with RLS: a rep reads and writes only their own rows; manager chain and staff read through `can_view_person`; anon has no execute or access.
+- New Life home replaces the generic workspace home: coming-soon card when Life is not open yet, otherwise date greeting, next three Life appointments, pipeline counts by stage, setup and licensing progress, pinned announcement, Needs you, and a quiet chat preview.
+- New Life route `/app/pipeline`: contacts grouped by stage, add contact with next step and date, one-tap stage move, tap to call and text, and a per-rep count list for managers.
+- Life phone tabs are Home, Chat, Pipeline, Training, Money. No points, streaks, missions, funnel, installs, or accounts anywhere in Life.
+- Training in Life reads "Life training is being written."; only admin, owner, or the workspace president sees "Add the first module".
+- Money in Life reads "Life pay details will appear here once they are set."; staff get a link to Admin — Money.
+- The streak and training percent pill in the top bar now shows only in Pest, so it no longer leaks into Life or Fiber.
+- Light workspaces now render sidebar labels in readable dark text; before this the Life sidebar was white text on white.
+- Verified with owner-session screenshots at 390 and 1280 for Home (coming-soon and open), Pipeline, Training, Money, and Chat — no sideways scrolling at either width.
+- Life was switched to open only long enough to capture the screenshots and set back to coming soon; the owner's workspace was restored to Pest.
+- Typecheck clean; production build clean, largest chunk 194 kB. Nothing published.

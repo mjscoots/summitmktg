@@ -1,6 +1,8 @@
 import { Flame, ChevronRight } from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
 import { usePersonalTrainingProgress } from '@/hooks/usePersonalTrainingProgress';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -11,7 +13,13 @@ import {
 export function StatusBar() {
   const { streakData } = useStreak();
   const { progress, isLoading } = usePersonalTrainingProgress();
+  const { activeVertical } = useWorkspace();
   const percentage = progress.overall;
+
+  // Streaks and training percent belong to Pest only.
+  if (activeVertical !== 'Pest') return null;
+
+
 
   return (
     <Tooltip>

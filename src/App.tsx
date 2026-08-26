@@ -73,6 +73,8 @@ const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const InstallsPage = lazy(() => import('@/pages/app/InstallsPage'));
+const PipelinePage = lazy(() => import('@/pages/app/PipelinePage'));
+
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
@@ -311,6 +313,14 @@ function LazyFallback() {
                     <InstallsPage />
                 </ProtectedRoute>
               } />
+
+              {/* Life pipeline */}
+              <Route path="/app/pipeline" element={
+                <ProtectedRoute>
+                    <PipelinePage />
+                </ProtectedRoute>
+              } />
+
 
               {/* My Money — rep pay, housing, next tier */}
               <Route path="/app/money" element={
