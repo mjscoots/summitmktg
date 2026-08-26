@@ -65,7 +65,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
-            aria-label="Summit Trinity home"
+            aria-label="Summit home"
             className="flex min-h-11 items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
             <Wordmark variant="compact" height={36} />
           </button>
@@ -86,7 +86,7 @@ const Index = () => {
           <div className="relative z-10 max-w-2xl mx-auto text-center">
             <div className="mb-6 relative">
               {/* The logo carries the name, so the heading stays for search only. */}
-              <Wordmark variant="hero" height={200} className="relative z-10 mx-auto w-full max-w-md" />
+              <Wordmark variant="hero" height={200} className="relative z-10 mx-auto !h-auto w-full max-w-full sm:max-w-md" />
             </div>
 
             <h1 className="sr-only">Summit Marketing</h1>
