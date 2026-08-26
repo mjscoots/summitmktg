@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Ticket } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 
 /**
@@ -8,6 +9,7 @@ import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
  * ticket form through this link is attributed to them.
  */
 export function MyRefCodeCard() {
+  const { activeVertical } = useWorkspace();
   const [code, setCode] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function MyRefCodeCard() {
 
   if (!code) return null;
 
-  const path = `/ticket?ref=${encodeURIComponent(code)}`;
+  const path = `/ticket?ref=${encodeURIComponent(code)}&industry=${encodeURIComponent(activeVertical)}`;
 
   return (
     <div className="bg-card rounded-xl border border-border/50 p-6">

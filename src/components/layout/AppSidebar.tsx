@@ -62,6 +62,7 @@ export function AppSidebar() {
   const adminCounts = useAdminCounts();
   const { newCount: newLeads } = useNewLeads();
   const { season } = useSeasonHub();
+  const { activeVertical } = useWorkspace();
   const { workspaces } = useWorkspace();
   const presidedName = workspaces.find((w) => w.is_president)?.short_name || null;
 
@@ -128,7 +129,7 @@ export function AppSidebar() {
     ? mainNavItems.filter((i) => recruiterPaths.includes(i.path))
     : mainNavItems;
 
-  const visibleMainNavItems = season && role !== 'recruiter'
+  const visibleMainNavItems = season && role !== 'recruiter' && activeVertical === 'Pest'
     ? [...baseNavItems, { label: 'Season', path: '/app/season', icon: CalendarClock }]
     : baseNavItems;
 
@@ -259,7 +260,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {isAdmin && (
+              {(isAdmin || role === 'president') && (
                 <SidebarMenuItem>
                   <button
                     onClick={() => { navigate('/admin/team'); if (isMobile) setOpenMobile(false); }}
