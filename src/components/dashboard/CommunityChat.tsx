@@ -16,9 +16,7 @@ import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
-import { BackgroundDust } from '@/components/chat/BackgroundDust';
 import { SummitLoader } from '@/components/shared/SummitLoader';
-import { ChannelTabs } from '@/components/chat/ChannelTabs';
 import { useChatChannels } from '@/hooks/useChatChannels';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -46,6 +44,10 @@ interface ProfileInfo {
 
 interface CommunityChatProps {
   onNewMessage?: () => void;
+  /** Conversation to open. When omitted the general channel is used. */
+  channelSlug?: string;
+  /** Back to the conversation list. */
+  onBack?: () => void;
 }
 
 function DateSeparator({ date }: { date: Date }) {
@@ -103,10 +105,10 @@ function AwardsSystemMessage({ content }: { content: string }) {
 }
 
 
-export function CommunityChat({ onNewMessage }: CommunityChatProps) {
+export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
-  const [activeChannel, setActiveChannel] = useState('general');
+  const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
@@ -132,8 +134,9 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const { channels, markChannelRead } = useChatChannels();
-  const channelTabs = channels.map(c => ({ slug: c.slug, label: c.label, icon: c.icon, unread: c.unread }));
+
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
+  useEffect(() => { if (channelSlug) setActiveChannel(channelSlug); }, [channelSlug]);
 
   // Mark the channel being viewed as read
   useEffect(() => {
@@ -299,14 +302,6 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   }, [user?.id, activeVertical]);
 
   useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
-
-  // Read receipts
-  useEffect(() => {
-    if (!user || channelMessages.length === 0) return;
-    const otherMessages = channelMessages.filter(m => m.user_id !== user.id && !m.is_ai).slice(-5);
-    if (otherMessages.length === 0) return;
-    supabase.from('chat_read_receipts').upsert(otherMessages.map(m => ({ message_id: m.id, user_id: user.id })), { onConflict: 'message_id,user_id' });
-  }, [channelMessages.length, user?.id]);
 
   const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
     if (!prev || curr.reply_to || curr.is_ai !== prev.is_ai || curr.user_id !== prev.user_id) return false;
@@ -532,33 +527,16 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
           </div>
         </div>
       )}
-      {/* Cosmic background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-background" />
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 30% 20%, hsl(var(--primary)) 0%, transparent 50%), radial-gradient(circle at 70% 80%, hsl(var(--accent)) 0%, transparent 50%)',
-          }}
-        />
-        <BackgroundDust />
-      </div>
-
       {/* Header */}
       <div className="relative z-[1]">
         <ChatHeader
-          channelName={`#${activeChannel}`}
-          subtitle={channels.find(c => c.slug === activeChannel)?.label || 'Summit Crew'}
+          channelName={channels.find(c => c.slug === activeChannel)?.label || 'Chat'}
+          onBack={onBack}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
             if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }}
-        />
-        <ChannelTabs
-          tabs={channelTabs}
-          activeSlug={activeChannel}
-          onSelect={(slug) => { setActiveChannel(slug); void markChannelRead(slug); }}
         />
       </div>
 
