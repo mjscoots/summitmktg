@@ -224,6 +224,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           audience?: string
@@ -245,6 +246,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           audience?: string
@@ -266,6 +268,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -317,6 +320,7 @@ export type Database = {
           team_ids: string[] | null
           title: string
           updated_at: string | null
+          vertical: string | null
         }
         Insert: {
           author_id?: string | null
@@ -328,6 +332,7 @@ export type Database = {
           team_ids?: string[] | null
           title: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Update: {
           author_id?: string | null
@@ -339,6 +344,7 @@ export type Database = {
           team_ids?: string[] | null
           title?: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -884,6 +890,7 @@ export type Database = {
           timezone: string | null
           title: string
           updated_at: string | null
+          vertical: string | null
         }
         Insert: {
           created_at?: string | null
@@ -910,6 +917,7 @@ export type Database = {
           timezone?: string | null
           title: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Update: {
           created_at?: string | null
@@ -936,6 +944,7 @@ export type Database = {
           timezone?: string | null
           title?: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -1084,6 +1093,7 @@ export type Database = {
           is_active: boolean
           label: string
           slug: string
+          vertical: string | null
         }
         Insert: {
           color?: string
@@ -1095,6 +1105,7 @@ export type Database = {
           is_active?: boolean
           label: string
           slug: string
+          vertical?: string | null
         }
         Update: {
           color?: string
@@ -1106,6 +1117,7 @@ export type Database = {
           is_active?: boolean
           label?: string
           slug?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -3743,6 +3755,7 @@ export type Database = {
           is_active: boolean
           title: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           body?: string
@@ -3754,6 +3767,7 @@ export type Database = {
           is_active?: boolean
           title: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           body?: string
@@ -3765,6 +3779,7 @@ export type Database = {
           is_active?: boolean
           title?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -3777,6 +3792,7 @@ export type Database = {
           season_id: string | null
           sort_order: number
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           created_at?: string
@@ -3786,6 +3802,7 @@ export type Database = {
           season_id?: string | null
           sort_order?: number
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           created_at?: string
@@ -3795,6 +3812,7 @@ export type Database = {
           season_id?: string | null
           sort_order?: number
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -4099,6 +4117,7 @@ export type Database = {
           resource_url: string
           team_id: string
           updated_at: string | null
+          vertical: string | null
         }
         Insert: {
           added_by?: string | null
@@ -4110,6 +4129,7 @@ export type Database = {
           resource_url: string
           team_id: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Update: {
           added_by?: string | null
@@ -4121,6 +4141,7 @@ export type Database = {
           resource_url?: string
           team_id?: string
           updated_at?: string | null
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -4141,6 +4162,7 @@ export type Database = {
           module: string
           script_content: string
           team_id: string
+          vertical: string | null
         }
         Insert: {
           created_at?: string
@@ -4150,6 +4172,7 @@ export type Database = {
           module: string
           script_content?: string
           team_id: string
+          vertical?: string | null
         }
         Update: {
           created_at?: string
@@ -4159,6 +4182,7 @@ export type Database = {
           module?: string
           script_content?: string
           team_id?: string
+          vertical?: string | null
         }
         Relationships: [
           {
@@ -4348,6 +4372,7 @@ export type Database = {
           slug: string
           target_role: Database["public"]["Enums"]["app_role"] | null
           title: string
+          vertical: string | null
         }
         Insert: {
           audience?: string
@@ -4359,6 +4384,7 @@ export type Database = {
           slug: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           title: string
+          vertical?: string | null
         }
         Update: {
           audience?: string
@@ -4370,6 +4396,7 @@ export type Database = {
           slug?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           title?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -4384,6 +4411,7 @@ export type Database = {
           model_answer: string
           scenario: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           category?: string
@@ -4395,6 +4423,7 @@ export type Database = {
           model_answer: string
           scenario: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           category?: string
@@ -4406,6 +4435,7 @@ export type Database = {
           model_answer?: string
           scenario?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: []
       }
@@ -4509,6 +4539,7 @@ export type Database = {
           team_specific: boolean | null
           thumbnail_url: string | null
           title: string
+          vertical: string | null
           video_url: string | null
           visible_to_teams: string[] | null
         }
@@ -4526,6 +4557,7 @@ export type Database = {
           team_specific?: boolean | null
           thumbnail_url?: string | null
           title: string
+          vertical?: string | null
           video_url?: string | null
           visible_to_teams?: string[] | null
         }
@@ -4543,6 +4575,7 @@ export type Database = {
           team_specific?: boolean | null
           thumbnail_url?: string | null
           title?: string
+          vertical?: string | null
           video_url?: string | null
           visible_to_teams?: string[] | null
         }
@@ -6071,6 +6104,10 @@ export type Database = {
       }
       is_president_of_rep: {
         Args: { _rep: string; _uid: string }
+        Returns: boolean
+      }
+      is_president_of_vertical: {
+        Args: { _vertical: string }
         Returns: boolean
       }
       is_staff_data_reader: { Args: never; Returns: boolean }
