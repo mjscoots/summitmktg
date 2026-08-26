@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SelfReportedSales } from '@/components/sales/SelfReportedSales';
+import { AllMoneyCard } from '@/components/money/AllMoneyCard';
 import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -313,6 +314,13 @@ export default function PersonProfilePage() {
           {trackingStarted && <Row label="Tracking started" value={fmtDate(trackingStarted)} />}
         </Card>
       </Section>
+
+      {/* Money across industries */}
+      {userId && (
+        <Section title="Money across industries">
+          <AllMoneyCard userId={userId} />
+        </Section>
+      )}
 
       {/* Where the time went */}
       {screenRows.length > 0 && (
