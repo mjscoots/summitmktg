@@ -31,7 +31,6 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
 
   return (
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
-      <WorkspaceProvider>
         <WorkspaceThemeProvider>
         <SidebarProvider defaultOpen={true}>
           <ImpersonationBanner />
