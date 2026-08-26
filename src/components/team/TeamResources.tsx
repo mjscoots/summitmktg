@@ -15,6 +15,8 @@
  import { toast } from 'sonner';
  import { cn } from '@/lib/utils';
  import { sanitizeUrl } from '@/lib/sanitizeUrl';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
  interface Resource {
    id: string;
@@ -40,6 +42,7 @@
  
  export function TeamResources({ teamId, teamSlug }: TeamResourcesProps) {
    const { user, role } = useAuth();
+   const { activeVertical } = useWorkspace();
    const { isPillar } = usePillarCheck();
    const [resources, setResources] = useState<Resource[]>([]);
    const [isLoading, setIsLoading] = useState(true);
@@ -66,6 +69,7 @@
        .from('team_resources')
        .select('*')
        .eq('team_id', teamId)
+       .or(verticalFilter(activeVertical))
        .order('created_at', { ascending: false });
  
      if (!error && data) {
@@ -125,6 +129,7 @@
            .from('team_resources')
            .insert({
              team_id: teamId,
+             vertical: activeVertical,
              resource_name: name.trim(),
              resource_type: type,
              resource_url: url.trim(),
