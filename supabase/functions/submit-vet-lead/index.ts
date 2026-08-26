@@ -17,33 +17,70 @@ function getCorsHeaders(origin: string | null) {
   };
 }
 
+const REJECTED = "That did not go through. Check the phone and email and try again.";
+
+const cap = (value: unknown, max: number) => {
+  const text = String(value ?? "").trim();
+  return text ? text.slice(0, max) : "";
+};
+
 serve(async (req: Request): Promise<Response> => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const reject = () =>
+    new Response(JSON.stringify({ error: REJECTED }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+
   try {
     const body = await req.json();
-    const fullName = String(body.full_name ?? "").trim();
-    const phone = String(body.phone ?? "").trim();
-    const email = String(body.email ?? "").trim();
+    const fullName = cap(body.full_name, 120);
+    const phone = cap(body.phone, 30);
+    const email = cap(body.email, 254).toLowerCase();
+    const currentCompany = cap(body.current_company, 120);
+    const yearsD2d = cap(body.years_d2d, 120);
+    const markets = cap(body.markets, 2000);
+    const bestTime = cap(body.best_time_to_call, 120);
 
-    if (!fullName || !phone || !email) {
-      return new Response(JSON.stringify({ error: "Name, phone and email are required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ error: "Invalid email" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const digits = phone.replace(/[^0-9]/g, "");
+    if (
+      !fullName ||
+      !/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email) ||
+      digits.length < 10 ||
+      digits.length > 15
+    ) {
+      return reject();
     }
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    // Max 5 submissions per IP per hour.
+    const ip =
+      (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() ||
+      req.headers.get("cf-connecting-ip") ||
+      "unknown";
+    const { data: allowed } = await admin.rpc("check_rate_limit", {
+      p_key: `vet-lead:${ip}`,
+      p_max_attempts: 5,
+      p_window_seconds: 3600,
+    });
+    if (allowed === false) return reject();
+
+    // A repeat submission inside 24 hours updates the existing row and does not
+    // notify the owner a second time (enforced by a database trigger too).
+    const { data: recent } = await admin
+      .from("vet_leads")
+      .select("id")
+      .or(`email.eq.${email},phone.eq.${phone}`)
+      .gte("created_at", new Date(Date.now() - 24 * 3600 * 1000).toISOString())
+      .limit(1);
+    const isDuplicate = (recent ?? []).length > 0;
+
 
     const revenueRaw = String(body.last_season_active_revenue ?? "").replace(/[^0-9.]/g, "");
     const revenue = revenueRaw ? Number(revenueRaw) : null;
