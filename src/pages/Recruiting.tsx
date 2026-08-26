@@ -189,9 +189,13 @@ const Recruiting = () => {
               Choose Your Path
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Select the application that best matches your experience level. 
+              Select the application that best matches your experience level.
               Each path is designed to set you up for success.
             </p>
+            <p className="text-xs text-muted-foreground max-w-xl mx-auto mt-3">
+              Pest is the main season. Summit also runs fiber internet in the winter and is starting life insurance.
+            </p>
+
           </div>
           
           <div className="grid md:grid-cols-2 gap-8">
