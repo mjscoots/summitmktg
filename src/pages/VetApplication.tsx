@@ -316,7 +316,7 @@ const VetApplication = () => {
               <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Full Name<RequiredAsterisk />
+                  Full name<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
@@ -333,7 +333,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number<RequiredAsterisk />
+                  Phone number<RequiredAsterisk />
                 </label>
                 <input
                   type="tel"
@@ -350,7 +350,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Email Address<RequiredAsterisk />
+                  Email address<RequiredAsterisk />
                 </label>
                 <input
                   type="email"
@@ -384,7 +384,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Last Season Revenue<RequiredAsterisk />
+                  Last season revenue<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
@@ -401,7 +401,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Previously Knocked Markets<RequiredAsterisk />
+                  Previously knocked markets<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
