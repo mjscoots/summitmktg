@@ -7,7 +7,6 @@ import { useMyPoints } from '@/hooks/useMyPoints';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnouncementBox } from '@/components/dashboard/AnnouncementBox';
 import { HomeActionRow } from '@/components/dashboard/HomeActionRow';
-import { TeamBattleStrip } from '@/components/leaderboard/TeamBattles';
 import { MyCarTodayCard, MyActionItemsCard, MyEventsTodayCard, ContinueVerticalSetupCard } from '@/components/dashboard/HomeOpsCards';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
@@ -15,13 +14,11 @@ import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader'
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { OnboardingQuest } from '@/components/dashboard/OnboardingQuest';
 import { ContinueLearning } from '@/components/dashboard/ContinueLearning';
-import { ContinueWatchingCard } from '@/components/dashboard/ContinueWatchingCard';
 import { TodoList } from '@/components/dashboard/TodoList';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
-import { EarningsWidget } from '@/components/dashboard/EarningsWidget';
 import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { CountUp } from '@/components/shared/CountUp';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -158,7 +155,7 @@ export default function DashboardPage() {
     try {
       const { data: raw } = await (supabase.rpc as any)('get_daily_challenge', { _user_id: user.id });
       if (raw?.all_complete && !challengeData?.all_complete) {
-        toast.success(`Daily Challenge complete! +${raw.bonus_points} pts bonus!`);
+        toast.success(`Daily challenge complete. +${raw.bonus_points} points.`);
       }
       setChallengeData(raw);
     } catch {}
@@ -181,7 +178,6 @@ export default function DashboardPage() {
   const hoursToday = pointsData ? pointsData.timeTodayMinutes / 60 : 0;
   const dailyGoalHours = 5;
   const dailyGoalPercent = Math.min((hoursToday / dailyGoalHours) * 100, 100);
-  const momentumLevel = hoursToday < 1 ? 'Cold' : hoursToday < 2 ? 'Warming Up' : hoursToday < 4 ? 'Locked In' : 'Peak';
 
   const dailyPointsEarned = pointsData
     ? pointsData.capsToday.hours.earned + pointsData.capsToday.chat.earned + pointsData.capsToday.lesson.earned + pointsData.capsToday.video.earned + pointsData.capsToday.manual.earned
@@ -203,12 +199,8 @@ export default function DashboardPage() {
         ) : (
           /* ── HERO CARD ── */
           <div className="glass-card relative mb-5 overflow-hidden rounded-[var(--radius)] p-5 sm:p-6">
-            {/* Gradient glow behind hero */}
-            <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: 'var(--gradient-primary)' }} />
-            <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-primary/10 opacity-40 blur-2xl" />
-
-            <h1 className="relative z-10 mb-1.5 text-[22px] font-black uppercase leading-[1.05] tracking-tight text-foreground sm:text-2xl">
-              Welcome back, <span className="gradient-text">{firstName}</span>
+            <h1 className="relative z-10 mb-1.5 text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl">
+              Welcome back, {firstName}
             </h1>
             <p className="relative z-10 mb-5 text-[13px] text-muted-foreground">
               Your points, activity and rank today.
@@ -242,12 +234,6 @@ export default function DashboardPage() {
 
         <HomeActionRow />
 
-        {/* Weekly team battle standing */}
-        <div className="mb-4">
-          <TeamBattleStrip teamId={(profile as any)?.team_id} />
-        </div>
-
-
         {/* Today's car assignment (only when published for today) */}
         <div className="mb-4 space-y-3">
           <MyEventsTodayCard />
@@ -259,10 +245,6 @@ export default function DashboardPage() {
 
         {/* Announcement Box */}
         <AnnouncementBox />
-
-        {/* Continue Watching */}
-        <ContinueWatchingCard />
-
 
         {/* Mission Board Toggle: To-Do / Funnel Tracker */}
         {isManager && (
@@ -294,8 +276,8 @@ export default function DashboardPage() {
           onClick={() => setShowPoints(true)}
           className="glass-card glass-card-hover group mb-5 flex min-h-14 w-full items-center gap-3 rounded-[var(--radius)] px-4 py-3"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'var(--gradient-gold)' }}>
-            <Trophy className="h-4 w-4 text-white" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius)] bg-primary/15">
+            <Trophy className="h-4 w-4 text-primary" />
           </div>
           <span className="text-[15px] font-bold text-foreground">My Points</span>
           <span className="micro-label ml-auto transition-colors group-hover:text-foreground">View →</span>
@@ -305,33 +287,20 @@ export default function DashboardPage() {
         {pointsData ? (
           <div className="glass-card mb-5 rounded-[var(--radius)] p-5 sm:p-6">
             <div className="mb-4 flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
-                <Zap className="h-3.5 w-3.5 text-white" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius)] bg-primary/15">
+                <Zap className="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 className="micro-label !text-[11px] !text-foreground">Today's Progress</h2>
-              <span className={cn("micro-label ml-auto rounded-full border px-2.5 py-1.5",
-                hoursToday < 1
-                  ? "border-border/40 bg-muted/30"
-                  : "border-primary/20 bg-primary/10 !text-primary"
-              )}>
-                {momentumLevel}
-              </span>
+              <h2 className="micro-label !text-[11px] !text-foreground">Today</h2>
             </div>
 
             {/* Daily goal progress bar */}
             <div className="mb-4">
               <div className="mb-2 flex items-center justify-between">
-                <span className="micro-label">Daily Goal</span>
+                <span className="micro-label">Daily goal</span>
                 <span className="text-[11px] tabular-nums text-muted-foreground">{hoursToday.toFixed(1)} / {dailyGoalHours}h</span>
               </div>
               <div className="progress-track">
-                <div
-                  className={cn("progress-fill", dailyGoalPercent === 100 && "!bg-none")}
-                  style={{
-                    width: `${dailyGoalPercent}%`,
-                    ...(dailyGoalPercent === 100 ? { background: 'var(--gradient-gold)' } : {}),
-                  }}
-                />
+                <div className="progress-fill" style={{ width: `${dailyGoalPercent}%` }} />
               </div>
             </div>
 
@@ -340,7 +309,7 @@ export default function DashboardPage() {
               <div className={cn("rounded-xl border p-4", challengeData.all_complete ? "border-success/20 bg-success/5" : "surface-sunken")}>
                 <div className="mb-3 flex items-center gap-2">
                   <Target className={cn("h-3.5 w-3.5", challengeData.all_complete ? "text-success" : "text-muted-foreground")} />
-                  <span className="micro-label !text-foreground">Daily Challenge</span>
+                  <span className="micro-label !text-foreground">Daily challenge</span>
                   <span className={cn("ml-auto text-[11px] font-bold tabular-nums",
                     challengeData.all_complete ? "text-success" : "text-muted-foreground"
                   )}>{challengeCompleted}/{challengeTotal}</span>
@@ -363,7 +332,7 @@ export default function DashboardPage() {
                             </span>
                           </div>
                           <div className="progress-track mt-1">
-                            <div className={cn("h-full rounded-full transition-all duration-700", obj.complete ? "bg-success" : "")} style={{ width: `${percent}%`, ...(!obj.complete ? { background: 'var(--gradient-primary)' } : {}) }} />
+                            <div className={cn("progress-fill", obj.complete && "bg-success")} style={{ width: `${percent}%` }} />
                           </div>
                         </div>
                       </div>
@@ -396,9 +365,6 @@ export default function DashboardPage() {
 
         {/* Continue Learning */}
         {pointsData && <ContinueLearning data={pointsData} isComplete={trainingComplete} />}
-
-        {/* Earnings Widget */}
-        <EarningsWidget />
 
         {/* Onboarding Quest (Rookie only) */}
         {!isManager && <OnboardingQuest />}
