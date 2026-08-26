@@ -125,9 +125,15 @@ export function useMoneySummary(targetUserId?: string | null) {
         lines,
         months: (raw.months ?? []).map((m) => ({
           month: m.month,
-          pest: Number(m.pest_revenue ?? 0),
-          fiber: Number(m.fiber_installs ?? 0),
+          // Estimated earnings per month, from the same rate and per-install pay.
+          pest: p.rate ? Number(m.pest_revenue ?? 0) * p.rate : 0,
+          fiber: f.rateMissing
+            ? 0
+            : Number(m.fiber_installs ?? 0) *
+              Number(raw.fiber.per_install) *
+              (1 - Number(raw.fiber.holdback_percent ?? 0) / 100),
         })),
+
       });
       setLoading(false);
     })();
