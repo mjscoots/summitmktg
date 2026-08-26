@@ -9,19 +9,7 @@ import { uploadChatFile } from '@/components/dashboard/ChatImageUpload';
 import { PollCreator } from '@/components/dashboard/ChatPoll';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-
-const DAILY_CHIPS = [
-  ['🔥 All gas', '✅ Locked in', '⛰️ To the top'],
-  ['💪 Grind time', '🚀 Send it', '👑 We run this'],
-  ['⚔️ Work mode', '💰 Money time', '🏆 Champions only'],
-  ['🔥 No days off', '✅ Let\'s eat', '⛰️ Peak energy'],
-  ['💪 Locked in', '🚀 Full send', '👑 Stay hungry'],
-];
-
-const getDailyChips = () => {
-  const dayIndex = Math.floor(Date.now() / 86400000) % DAILY_CHIPS.length;
-  return DAILY_CHIPS[dayIndex];
-};
+import { measureKeyboardOffset, setComposerKeyboard, useComposerKeyboard } from '@/lib/composerKeyboard';
 
 interface ChatComposerProps {
   input: string;
@@ -70,8 +58,24 @@ export function ChatComposer({
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const cancelledRef = useRef(false);
-  const chips = getDailyChips();
   const canRecord = !!onSendVoice && voiceRecordingSupported();
+
+  // Keyboard tracking: while the input is focused the bottom nav hides and the
+  // composer is pinned to the visual viewport so it sits above the keyboard.
+  const { focused, offset: keyboardOffset } = useComposerKeyboard();
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv || !focused) return;
+    const sync = () => setComposerKeyboard({ offset: measureKeyboardOffset() });
+    sync();
+    vv.addEventListener('resize', sync);
+    vv.addEventListener('scroll', sync);
+    return () => {
+      vv.removeEventListener('resize', sync);
+      vv.removeEventListener('scroll', sync);
+    };
+  }, [focused]);
+  useEffect(() => () => setComposerKeyboard({ focused: false, offset: 0 }), []);
 
   // --- @mention autocomplete ---
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -225,7 +229,10 @@ export function ChatComposer({
   };
 
   return (
-    <div className="flex-shrink-0 relative bg-background/80 backdrop-blur-2xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <div
+      className="relative flex-shrink-0 bg-background/80 backdrop-blur-2xl"
+      style={{ transform: keyboardOffset ? `translateY(-${keyboardOffset}px)` : undefined }}
+    >
       {/* Typing indicator */}
       {typingUsers.length > 0 && (
         <div className="px-4 py-1 flex items-center gap-2">
@@ -250,26 +257,6 @@ export function ChatComposer({
           <button onClick={() => stopRecording(true)} className="ml-auto text-[11px] font-semibold text-muted-foreground hover:text-foreground">
             Cancel
           </button>
-        </div>
-      )}
-
-      {/* Quick chips - small pills */}
-      {!input && !showDrawer && !recording && (
-        <div className="flex items-center gap-1 px-3 pt-1.5 pb-0.5 overflow-x-auto scrollbar-none">
-          {chips.map(chip => (
-            <button
-              key={chip}
-              onClick={() => { onInputChange(chip); onTyping(); inputRef.current?.focus(); }}
-              className={cn(
-                "rounded-full px-2.5 py-0.5 text-[10px] font-medium whitespace-nowrap",
-                "bg-muted/20 text-muted-foreground/40",
-                "hover:text-foreground/60 hover:bg-muted/30",
-                "transition-all active:scale-95"
-              )}
-            >
-              {chip}
-            </button>
-          ))}
         </div>
       )}
 
@@ -371,6 +358,8 @@ export function ChatComposer({
             onChange={(e) => { onInputChange(e.target.value); detectMention(e.target.value); onTyping(); }}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
+            onFocus={() => setComposerKeyboard({ focused: true, offset: measureKeyboardOffset() })}
+            onBlur={() => setComposerKeyboard({ focused: false, offset: 0 })}
             placeholder="Message..."
             className="flex-1 bg-transparent text-foreground text-[14px] px-4 py-2 focus:outline-none placeholder:text-muted-foreground/25"
             disabled={isSending}
