@@ -379,26 +379,40 @@ export default function MyTeamPage() {
                   </button>
 
                   {isOpen && (
-                    <div className="divide-y divide-white/[0.05] border-t border-white/[0.06]">
+                    <div className="border-t border-white/[0.06] p-3">
                       {team.members.length === 0 && (
-                        <p className="px-4 py-5 text-sm text-muted-foreground">No reps on this team yet.</p>
+                        <p className="px-1 py-4 text-sm text-muted-foreground">No reps on this team yet.</p>
                       )}
-                      {team.members.map(m => (
-                        <button
-                          key={m.user_id}
-                          onClick={() => setSheetMember(m)}
-                          className="w-full text-left px-4 py-2.5 flex items-center gap-3 hover:bg-white/[0.03] transition-colors"
-                        >
-                          <span className="text-sm text-foreground truncate flex-1">
-                            {getDisplayName(m.full_name)}
-                          </span>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary flex-shrink-0">
-                            {roleLabel(m.user_id)}
-                          </span>
-                        </button>
-                      ))}
+                      <div className="grid gap-2 stagger sm:grid-cols-2">
+                        {team.members.map(m => (
+                          <button
+                            key={m.user_id}
+                            onClick={() => setSheetMember(m)}
+                            className="card-ice flex items-center gap-3 px-3 py-3 text-left"
+                          >
+                            {m.avatar_url ? (
+                              <img src={m.avatar_url} alt="" className="avatar-ring h-14 w-14 shrink-0 rounded-full object-cover" />
+                            ) : (
+                              <span className="avatar-ring flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/15">
+                                <span className="text-base font-bold text-primary">
+                                  {m.full_name?.charAt(0)?.toUpperCase() ?? '?'}
+                                </span>
+                              </span>
+                            )}
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-[14px] font-semibold text-foreground">
+                                {getDisplayName(m.full_name)}
+                              </span>
+                              <span className="mt-1 inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                                {roleLabel(m.user_id)}
+                              </span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
+
                 </div>
               );
             })}

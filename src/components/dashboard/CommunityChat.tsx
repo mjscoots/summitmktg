@@ -54,7 +54,9 @@ interface ProfileInfo {
   avatar_url: string | null;
   role?: string;
   is_active_now?: boolean;
+  team_name?: string | null;
 }
+
 
 interface CommunityChatProps {
   onNewMessage?: () => void;
@@ -168,6 +170,18 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
   useEffect(() => { if (channelSlug) setActiveChannel(channelSlug); }, [channelSlug]);
 
+  // The unread count at the moment the room opens, so a "New" divider can be
+  // placed before the first message this person has not seen.
+  const [unreadOnOpen, setUnreadOnOpen] = useState(0);
+  const unreadCapturedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (unreadCapturedRef.current === activeChannel) return;
+    const count = channels.find((c) => c.slug === activeChannel)?.unread ?? 0;
+    if (!channels.length) return;
+    unreadCapturedRef.current = activeChannel;
+    setUnreadOnOpen(count);
+  }, [channels, activeChannel]);
+
   // Mark the channel being viewed as read — once per channel, per user
   useEffect(() => {
     if (!user) return;
@@ -183,11 +197,18 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     setTimeout(doScroll, 100);
   }, []);
 
+  const atBottomRef = useRef(true);
+  const [newBelow, setNewBelow] = useState(0);
+
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 120);
+    const away = scrollHeight - scrollTop - clientHeight > 120;
+    atBottomRef.current = !away;
+    setShowScrollDown(away);
+    if (!away) setNewBelow(0);
   }, []);
+
 
   /** Rows from get_channel_messages -> local message + profile + reaction state. */
   const absorbPage = useCallback((rows: any[]) => {
@@ -360,15 +381,56 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     })();
   }, [user?.id, activeVertical]);
 
+  // Team names for the people in view, for the name-row team chip.
+  const [teamNames, setTeamNames] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const ids = Object.keys(profileMap).filter((id) => teamNames[id] === undefined);
+    if (ids.length === 0) return;
+    (async () => {
+      const { data: people } = await supabase.from('profiles').select('user_id, team_id').in('user_id', ids);
+      const rows = (people || []) as { user_id: string; team_id: string | null }[];
+      const teamIds = Array.from(new Set(rows.map((r) => r.team_id).filter(Boolean))) as string[];
+      let labels: Record<string, string> = {};
+      if (teamIds.length > 0) {
+        const { data: teams } = await supabase.from('teams').select('id, name').in('id', teamIds);
+        labels = Object.fromEntries(((teams || []) as { id: string; name: string }[]).map((t) => [t.id, t.name]));
+      }
+      setTeamNames((prev) => {
+        const next = { ...prev };
+        ids.forEach((id) => { next[id] = ''; });
+        rows.forEach((r) => { next[r.user_id] = (r.team_id && labels[r.team_id]) || ''; });
+        return next;
+      });
+    })();
+  }, [profileMap, teamNames]);
+
+  const [justSentId, setJustSentId] = useState<string | null>(null);
+  const [dividerId, setDividerId] = useState<string | null>(null);
+  const dividerSetRef = useRef<string | null>(null);
+
+  // Place the "New" divider before the first message not yet seen, once per room.
+  useEffect(() => {
+    if (loading || dividerSetRef.current === activeChannel) return;
+    if (unreadCapturedRef.current !== activeChannel || channelMessages.length === 0) return;
+    dividerSetRef.current = activeChannel;
+    setDividerId(
+      unreadOnOpen > 0 && unreadOnOpen < channelMessages.length
+        ? channelMessages[channelMessages.length - unreadOnOpen].id
+        : null
+    );
+  }, [loading, activeChannel, unreadOnOpen, channelMessages]);
+
+
   useEffect(() => {
     if (loading) return;
     if (prependingRef.current) { prependingRef.current = false; return; }
+    if (!atBottomRef.current) { setNewBelow((n) => n + 1); return; }
     scrollToBottom(false);
   }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
 
   const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
     if (!prev || curr.reply_to || curr.is_ai !== prev.is_ai || curr.user_id !== prev.user_id) return false;
-    return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() < 5 * 60 * 1000;
+    return new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime() < 3 * 60 * 1000;
   };
 
   const shouldShowTime = (curr: ChatMessage, prev: ChatMessage | null) => {
@@ -378,7 +440,9 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) return { full_name: 'Summit AI', avatar_url: null, role: 'bot' };
-    return profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
+    const base = profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
+    return { ...base, team_name: teamNames[msg.user_id] || null };
+
   };
 
   const getReactionsForMessage = useCallback((msgId: string) => {
@@ -396,11 +460,18 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
     try {
       // Points and mention notifications are handled by an insert trigger.
-      const { error } = await supabase.from('chat_messages').insert({
+      const { data: inserted, error } = await supabase.from('chat_messages').insert({
         user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: activeChannel
-      });
+      }).select('id').single();
       if (error) throw error;
+      if (inserted?.id) {
+        setJustSentId(inserted.id);
+        setTimeout(() => setJustSentId((cur) => (cur === inserted.id ? null : cur)), 500);
+      }
+      atBottomRef.current = true;
+      setNewBelow(0);
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send'); } finally { setIsSending(false); }
+
   };
 
   const handleEdit = async (msgId: string) => {
@@ -631,11 +702,21 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           const isFirstInGroup = !grouped;
           const showTime = shouldShowTime(msg, prev);
           const own = msg.user_id === user?.id && !msg.is_ai;
+          const newDivider = dividerId === msg.id ? (
+            <div className="my-2 flex items-center gap-2 px-3">
+              <span className="h-px flex-1 bg-primary/30" />
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-primary">New</span>
+              <span className="h-px flex-1 bg-primary/30" />
+            </div>
+          ) : null;
+
+
 
           if (msg.kind === 'event' || msg.kind === 'announcement' || msg.kind === 'incentive') {
             const meta = (msg.meta || {}) as Record<string, any>;
             return (
               <div key={msg.id}>
+              {newDivider}
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
                 {msg.kind === 'event' && <EventCard eventId={msg.ref_id ?? null} meta={meta} title={msg.content} />}
                 {msg.kind === 'announcement' && (
@@ -651,6 +732,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           if (msg.is_ai && msg.channel !== 'ai-coach') {
             return (
               <div key={msg.id}>
+              {newDivider}
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
                 {msg.kind === 'award' || isAwardsPost(msg.content)
                   ? <AwardsSystemMessage content={msg.content} />
@@ -665,6 +747,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
           return (
             <div key={msg.id}>
+              {newDivider}
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
               {showTime && !showDate && isFirstInGroup && (
                 <div className="flex justify-center my-2">
@@ -693,6 +776,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
                 onEditSave={() => handleEdit(msg.id)}
                 onEditCancel={() => { setEditingId(null); setEditText(''); }}
                 reactions={getReactionsForMessage(msg.id)}
+                justSent={justSentId === msg.id}
               />
             </div>
           );
@@ -700,8 +784,21 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         <div ref={messagesEndRef} className="h-3" />
       </div>
 
+      {/* New messages while scrolled up */}
+      {showScrollDown && newBelow > 0 && (
+        <div className="absolute bottom-24 left-1/2 z-10 -translate-x-1/2">
+          <button
+            onClick={() => { setNewBelow(0); scrollToBottom(); }}
+            className="min-h-11 rounded-full border border-primary/40 bg-card/90 px-4 text-[12px] font-semibold text-primary shadow-xl backdrop-blur-xl"
+          >
+            {newBelow} new {newBelow === 1 ? 'message' : 'messages'}
+          </button>
+        </div>
+      )}
+
       {/* Scroll to bottom */}
-      {showScrollDown && (
+      {showScrollDown && newBelow === 0 && (
+
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
           <button onClick={() => scrollToBottom()} className="bg-card/80 backdrop-blur-xl border border-border/20 shadow-xl rounded-full p-2 text-muted-foreground/40 hover:text-foreground transition-all hover:shadow-2xl">
             <ChevronDown className="w-4 h-4" />

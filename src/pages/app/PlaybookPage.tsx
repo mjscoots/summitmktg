@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronDown, Search } from 'lucide-react';
+import { BookOpen, ChevronDown, Search } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -47,13 +47,13 @@ function PracticeButton({ entry }: { entry: PlaybookEntry }) {
   const navigate = useNavigate();
   return (
     <Button
-      variant="outline"
       size="sm"
-      className="min-h-11"
+      className="min-h-11 rounded-full px-5"
       onClick={() => navigate(`/app/ask?practice=${encodeURIComponent(practiceSeed(entry))}`)}
     >
       Practice this
     </Button>
+
   );
 }
 
@@ -71,13 +71,16 @@ function EntryCard({
   const notes = entry.meta?.notes || '';
 
   return (
-    <div className={cn(CARD, 'overflow-hidden')}>
+    <div className="card-ice overflow-hidden">
       <button
         onClick={onToggle}
-        className="flex min-h-11 w-full items-center gap-2 px-3 py-3 text-left"
+        className="flex min-h-11 w-full items-center gap-3 px-3 py-3 text-left"
         aria-expanded={open}
       >
-        <span className="min-w-0 flex-1 text-[14px] font-medium text-foreground">{entry.title}</span>
+        <span className="icon-tile shrink-0">
+          <BookOpen className="h-4 w-4 text-primary" />
+        </span>
+        <span className="min-w-0 flex-1 font-display text-[15px] font-extrabold text-foreground">{entry.title}</span>
         <ChevronDown
           className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}
         />
@@ -95,7 +98,7 @@ function EntryCard({
           )}
 
           {entry.body && (
-            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-foreground">{entry.body}</p>
+            <p className="whitespace-pre-wrap text-[17px] leading-[1.6] text-foreground sm:text-[15px]">{entry.body}</p>
           )}
 
           {notes && (
@@ -136,7 +139,7 @@ function PricingTable({ rows }: { rows: PlaybookEntry[] }) {
   return (
     <div className="space-y-2">
       {market && <p className="text-[13px] text-muted-foreground">Market: {market}</p>}
-      <div className={cn(CARD, 'overflow-x-auto')}>
+      <div className="card-ice overflow-x-auto">
         <table className="w-full text-left text-[12px]">
           <thead>
             <tr className="border-b border-border text-secondary-label">

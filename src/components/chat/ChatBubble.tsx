@@ -63,7 +63,7 @@ interface ChatBubbleProps {
   isFirstInGroup: boolean;
   isLastInGroup: boolean;
   showTimestamp: boolean;
-  profile: { full_name: string; avatar_url: string | null; role?: string; is_active_now?: boolean };
+  profile: { full_name: string; avatar_url: string | null; role?: string; is_active_now?: boolean; team_name?: string | null };
   profileMap: Record<string, { full_name: string }>;
   parentMessage?: { id: string; content: string } | null;
   onProfileClick: (userId: string) => void;
@@ -77,6 +77,9 @@ interface ChatBubbleProps {
   onEditSave: () => void;
   onEditCancel: () => void;
   reactions?: Reaction[];
+  /** True for the message this person just sent, so it scales in once. */
+  justSent?: boolean;
+
 }
 
 export function ChatBubble({
@@ -99,7 +102,9 @@ export function ChatBubble({
   onEditSave,
   onEditCancel,
   reactions: reactionsProp = [],
+  justSent = false,
 }: ChatBubbleProps) {
+
   const reactions = reactionsProp;
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
@@ -227,8 +232,8 @@ export function ChatBubble({
       onMouseLeave={() => setHovered(false)}
     >
       <div className={cn("flex items-end gap-2", isOwn ? "flex-row-reverse" : "flex-row")}>
-        {/* Avatar */}
-        <div className="w-7 flex-shrink-0">
+        {/* Avatar — 36px on other people's messages */}
+        <div className="w-9 flex-shrink-0">
           {!isOwn && isLastInGroup && !message.is_ai ? (
             <button onClick={() => onProfileClick(message.user_id)} className="focus:outline-none">
               <UserAvatar
@@ -237,14 +242,14 @@ export function ChatBubble({
                 size="sm"
                 showOnline
                 isOnline={profile.is_active_now}
-                className={getRoleBorderRing(profile.role)}
+                className={cn('!w-9 !h-9 text-[11px]', getRoleBorderRing(profile.role))}
               />
             </button>
-          ) : isOwn ? null : <div className="w-7" />}
+          ) : isOwn ? null : <div className="w-9" />}
         </div>
 
         <div className={cn("max-w-[75%] min-w-0 relative", isOwn && "ml-auto")}>
-          {/* Name */}
+          {/* Name and team */}
           {!isOwn && isFirstInGroup && !message.is_ai && (
             <span className="flex items-center gap-1 mb-0.5 ml-1 min-w-0">
               <button
@@ -253,35 +258,39 @@ export function ChatBubble({
               >
                 {profile.full_name}
               </button>
+              {profile.team_name && (
+                <span className="shrink-0 rounded-full border border-border/60 bg-muted/30 px-1.5 text-[10px] text-muted-foreground">
+                  {profile.team_name}
+                </span>
+              )}
               <RankInsignia role={profile.role} size="sm" className="shrink-0" />
               <BadgeStrip userId={message.user_id} max={2} className="shrink-0" />
             </span>
           )}
 
 
-          {/* Reply preview */}
+          {/* Reply quote strip */}
           {parentMsg && (
             <div
               className={cn(
-                "flex items-center gap-1.5 mb-0.5 text-[11px] cursor-pointer hover:opacity-70 transition-opacity ml-1",
-                isOwn && "justify-end mr-1 ml-0"
+                "reply-quote mb-1 cursor-pointer transition-opacity hover:opacity-70 ml-1",
+                isOwn && "mr-1 ml-0 justify-end"
               )}
               onClick={() => document.getElementById(`msg-${parentMsg.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
             >
-              <CornerDownRight className="w-3 h-3 text-muted-foreground/30 flex-shrink-0" />
-              <span className="text-muted-foreground/50 truncate max-w-[180px]">
-                {parentMsg.content.slice(0, 60)}
-              </span>
+              <CornerDownRight className="w-3 h-3 shrink-0 text-primary/50" />
+              <span className="truncate max-w-[200px]">{parentMsg.content.slice(0, 60)}</span>
             </div>
           )}
 
           {/* Bubble */}
           <div className={cn(
             "relative text-[14px] leading-relaxed whitespace-pre-wrap break-words select-text",
+            justSent && "bubble-in",
             hasMediaContent ? "rounded-2xl" : cn(
               "px-3 py-[7px]",
               isOwn
-                ? "bg-primary text-primary-foreground"
+                ? "bubble-own"
                 : message.is_ai
                   ? "bg-accent/30 border border-accent/20"
                   : "bg-[hsl(var(--muted)/0.35)]",
@@ -300,6 +309,7 @@ export function ChatBubble({
             ),
             message.is_pinned && "ring-1 ring-amber-500/20",
           )}>
+
             {message.is_ai && isFirstInGroup && (
               <span className="text-[10px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}

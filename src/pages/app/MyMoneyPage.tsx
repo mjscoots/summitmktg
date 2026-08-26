@@ -155,7 +155,22 @@ export default function MyMoneyPage() {
           context="Your pay scale, season earnings, and housing. Set by your manager."
         />
 
+        {!loading && money && money.earnings !== null && (
+          <section className="card-hero px-5 py-6">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Season earnings so far
+            </p>
+            <p className="mt-1 font-display text-[56px] font-extrabold leading-none tabular-nums text-foreground">
+              {formatCurrency(money.earnings)}
+            </p>
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              {money.rate !== null ? `${formatRate(money.rate)} on ${formatCurrency(money.revenue ?? 0)} active revenue.` : 'Rate not set yet.'}
+            </p>
+          </section>
+        )}
+
         {activeVertical === 'Pest' && <LogSaleButton />}
+
 
         <VerticalMoneyCards
           renderExtra={(vertical) =>
@@ -403,7 +418,7 @@ export default function MyMoneyPage() {
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-background/40 px-3 py-2.5">
+    <div className="card-ice px-3 py-2.5">
       <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</p>
       <p
         className={cn(

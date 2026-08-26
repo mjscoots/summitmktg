@@ -26,12 +26,14 @@ type LeaderboardTab = 'overall' | 'weekly' | 'sales' | 'streak' | 'recruiting' |
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
+  const [scope, setScope] = useState<'summit' | 'team'>('summit');
   const { role } = useAuth();
   const { active, activeVertical } = useWorkspace();
   const isPest = activeVertical === 'Pest';
   const [showPointSystem, setShowPointSystem] = useState(false);
 
   const isManager = isManagerOrAbove(role);
+
 
   const TAB_META: Record<LeaderboardTab, { subtitle: string; icon: React.ReactNode }> = {
     weekly: {
@@ -72,14 +74,15 @@ export default function LeaderboardPage() {
 
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
-    { id: 'weekly', label: 'This Week', icon: Calendar },
+    { id: 'weekly', label: 'Week', icon: Calendar },
+    { id: 'overall', label: 'Season', icon: Trophy },
     { id: 'sales', label: 'Sales this week', icon: Target },
-    { id: 'overall', label: 'All-Time', icon: Trophy },
     { id: 'streak', label: 'Streaks', icon: Flame },
     { id: 'recruiting', label: 'Recruiting', icon: Target },
     { id: 'hof', label: 'Hall of Fame', icon: Crown },
 
   ];
+
 
   const meta = TAB_META[activeTab];
 
@@ -140,6 +143,24 @@ export default function LeaderboardPage() {
           </div>
           )}
 
+          {/* Scope pill — ranks everyone or just your team */}
+          {isPest && (activeTab === 'weekly' || activeTab === 'overall') && (
+            <div className="mb-4 inline-flex rounded-[var(--radius)] border border-border/40 bg-card p-1">
+              {([['team', 'My team'], ['summit', 'Summit']] as const).map(([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => setScope(id)}
+                  className={cn(
+                    'min-h-11 rounded-[calc(var(--radius)-4px)] px-4 text-[13px] font-semibold transition-colors',
+                    scope === id ? 'bg-primary/10 text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
 
           {/* Inclusion Banner — only for managers */}
           {isPest && isManager && (
@@ -154,8 +175,9 @@ export default function LeaderboardPage() {
             {!isPest && active && (
               <WorkspaceLeaderboard vertical={active.vertical} unit={active.unit || 'installs'} />
             )}
-            {isPest && activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
-            {isPest && activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
+            {isPest && activeTab === 'overall' && <TrainingLeaderboard mode="overall" scope={scope} />}
+            {isPest && activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" scope={scope} />}
+
             {isPest && activeTab === 'sales' && <SelfReportedWeek />}
             {isPest && activeTab === 'streak' && <StreakLeaderboard />}
             {isPest && activeTab === 'recruiting' && <RecruitingLeaderboard />}
