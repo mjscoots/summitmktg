@@ -74,6 +74,14 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--text-primary', theme.foreground);
     set('--text-secondary', theme.muted);
     set('--text-muted', theme.muted);
+    // Sidebar chrome follows the workspace too.
+    set('--sidebar-background', light ? theme.surface : theme.background);
+    set('--sidebar-foreground', theme.foreground);
+    set('--sidebar-primary', theme.accent);
+    set('--sidebar-accent', light ? theme.background : theme.surface);
+    set('--sidebar-accent-foreground', theme.foreground);
+    set('--sidebar-border', theme.border);
+    set('--sidebar-ring', theme.accent);
     set('--border', theme.border);
     set('--border-subtle', theme.border);
     set('--primary', theme.accent);
