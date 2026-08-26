@@ -73,7 +73,7 @@ export default function AskSummitPage() {
     params.delete('practice');
     params.delete('q');
     setParams(params, { replace: true });
-    window.setTimeout(() => void send(practice || question || ''), 0);
+    window.setTimeout(() => void send(practice || question || '', practice ? 'practice' : 'ask'), 0);
   }, [params, setParams]);
 
   const openThread = async (id: string) => {
@@ -171,7 +171,8 @@ export default function AskSummitPage() {
     return answer;
   };
 
-  const send = async (question: string) => {
+  const send = async (question: string, modeOverride?: Mode) => {
+    const activeMode = modeOverride ?? mode;
     const text = question.trim();
     if (!text || streaming || practiceEnded) return;
 
@@ -183,7 +184,7 @@ export default function AskSummitPage() {
     try {
       setMessages(m => [...m, { role: 'assistant', content: '' }]);
 
-      const answer = await stream({ messages: next, mode }, answer =>
+      const answer = await stream({ messages: next, mode: activeMode }, answer =>
         setMessages(m => {
           const copy = [...m];
           copy[copy.length - 1] = { role: 'assistant', content: answer };
@@ -196,7 +197,7 @@ export default function AskSummitPage() {
           const copy = [...m];
           copy[copy.length - 1] = {
             role: 'assistant',
-            content: mode === 'ask' ? "I don't have that — ask your manager." : '...',
+            content: activeMode === 'ask' ? "I don't have that — ask your manager." : '...',
           };
           return copy;
         });
