@@ -7,6 +7,8 @@ import type { Workspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
+import { InstallAppHint } from '@/components/shared/InstallAppHint';
+
 import { LIFE_CARD, LIFE_STAGES } from '@/lib/lifePipeline';
 
 interface Appt {
