@@ -451,7 +451,8 @@ serve(async (req) => {
     let gatewayMessages: Message[];
 
     if (mode === "practice") {
-      const practiceContext = await buildPracticeContext(admin);
+      const { data: pv } = await admin.from("profiles").select("active_vertical").eq("id", userId).maybeSingle();
+      const practiceContext = await buildPracticeContext(admin, pv?.active_vertical ?? "Pest");
       if (finish) {
         systemContent = PRACTICE_SYSTEM_PROMPT + practiceContext + "\n\n" + PRACTICE_FEEDBACK_PROMPT;
         gatewayMessages = [...messages, { role: "user", content: "[END PRACTICE — give feedback now]" }];
