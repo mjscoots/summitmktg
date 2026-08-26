@@ -328,9 +328,11 @@ export default function MyTeamPage() {
           </div>
         </header>
 
-
-
-
+        {isManagerRole && (
+          <div className="mb-5">
+            <ThisWeekStrip />
+          </div>
+        )}
 
 
         {loading ? (
