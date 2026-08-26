@@ -107,7 +107,7 @@ export function ChatBubble({
   const lastTapRef = useRef<number>(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const QUICK_EMOJIS = ['⛰️', '🔥', '💰', '🧠', '🚀'];
+  const QUICK_EMOJIS = ['🔥', '💪', '😂', '👏', '❄️', '💯'];
 
   const handleDoubleTap = (msgId: string) => {
     setShowFireAnim(true);

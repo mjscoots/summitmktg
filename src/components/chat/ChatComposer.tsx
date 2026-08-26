@@ -26,6 +26,8 @@ interface ChatComposerProps {
   typingUsers: { fullName: string }[];
   onSendVoice?: (content: string) => Promise<void> | void;
   mentionables?: { user_id: string; full_name: string }[];
+  /** Composer prompt, e.g. "Message Legion Mafia". */
+  placeholder?: string;
 }
 
 export function ChatComposer({
@@ -43,6 +45,7 @@ export function ChatComposer({
   typingUsers,
   onSendVoice,
   mentionables = [],
+  placeholder,
 }: ChatComposerProps) {
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -360,7 +363,7 @@ export function ChatComposer({
             onPaste={handlePaste}
             onFocus={() => setComposerKeyboard({ focused: true, offset: measureKeyboardOffset() })}
             onBlur={() => setComposerKeyboard({ focused: false, offset: 0 })}
-            placeholder="Message..."
+            placeholder={placeholder || "Message..."}
             className="flex-1 bg-transparent text-foreground text-[14px] px-4 py-2 focus:outline-none placeholder:text-muted-foreground/25"
             disabled={isSending}
           />

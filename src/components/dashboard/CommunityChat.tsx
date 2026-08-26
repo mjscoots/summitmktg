@@ -21,6 +21,7 @@ import { useChatChannels } from '@/hooks/useChatChannels';
 import { EventCard } from '@/components/chat/EventCard';
 import { AnnouncementCard } from '@/components/chat/AnnouncementCard';
 import { IncentiveCard } from '@/components/chat/IncentiveCard';
+import { PinnedBar } from '@/components/chat/PinnedBar';
 
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -61,7 +62,18 @@ interface CommunityChatProps {
   channelSlug?: string;
   /** Back to the conversation list. */
   onBack?: () => void;
+  /** Room name shown in the header, e.g. the caller's own team name. */
+  roomLabel?: string;
+  /** Hide the back control when this room is the landing surface. */
+  hideBack?: boolean;
+  /** Header controls, e.g. people search. */
+  headerRight?: React.ReactNode;
+  /** Rendered between the header and the thread, e.g. room strip. */
+  topSlot?: React.ReactNode;
+  /** Placeholder for the composer input. */
+  composerPlaceholder?: string;
 }
+
 
 function DateSeparator({ date }: { date: Date }) {
   let label = format(date, 'MMMM d, yyyy');
@@ -118,7 +130,7 @@ function AwardsSystemMessage({ content }: { content: string }) {
 }
 
 
-export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityChatProps) {
+export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, topSlot, composerPlaceholder }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
@@ -522,6 +534,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
 
   const contextMsg = contextMenu ? messages.find(m => m.id === contextMenu.msgId) : null;
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
+  /** Latest pinned message surfaces in a collapsible bar so nobody has to scroll for it. */
+  const pinnedCard = [...channelMessages].reverse().find(m => m.is_pinned) || null;
+
+
 
   return (
     <div
@@ -554,15 +570,30 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
       {/* Header */}
       <div className="relative z-[1]">
         <ChatHeader
-          channelName={channels.find(c => c.slug === activeChannel)?.label || 'Chat'}
+          channelName={roomLabel || channels.find(c => c.slug === activeChannel)?.label || 'Chat'}
           onBack={onBack}
+          hideBack={hideBack}
+          rightSlot={headerRight}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
             if (pinned.length) document.getElementById(`msg-${pinned[pinned.length - 1].id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }}
         />
+        {topSlot}
+        {pinnedCard && (
+          <PinnedBar
+            item={{
+              id: pinnedCard.id,
+              kind: pinnedCard.kind || 'text',
+              content: pinnedCard.content,
+              ref_id: pinnedCard.ref_id ?? null,
+              meta: (pinnedCard.meta as Record<string, unknown>) || null,
+            }}
+          />
+        )}
       </div>
+
 
       {/* Messages thread */}
       <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
@@ -695,6 +726,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
           typingUsers={typingUsers}
           onSendVoice={handleSendVoice}
           mentionables={mentionables}
+          placeholder={composerPlaceholder}
         />
       </div>
 

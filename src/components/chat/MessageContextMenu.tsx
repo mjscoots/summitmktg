@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
-const QUICK_REACTIONS = ['🔥', '💰', '🧠', '👍', '❤️', '😂'];
+const QUICK_REACTIONS = ['🔥', '💪', '😂', '👏', '❄️', '💯'];
 
 interface MessageContextMenuProps {
   messageId: string;

@@ -218,3 +218,14 @@ minutes for it.
 
 The five marked "not yet run" are all recent additions whose first scheduled time has not
 come round yet. Check them on the day after publishing.
+
+## Pass 74 — Chat: one room, not a list
+- Chat now opens straight into a room: last room used, else the caller's own team room, else Summit (`general`). No list step.
+- New `useChatRooms` derives the room strip from existing `get_conversations()`; own team room first, then Summit, Managers, other visible rooms, team rooms, then a DMs chip with its own unread count.
+- New `RoomStrip` (44px chips, horizontal scroll, unread dots), `PinnedBar` (collapsible latest pinned message, renders event/announcement/incentive cards), `KnockingNow` (teammates with `is_active_now`, own team room only).
+- `CommunityChat` gained presentation props only: `roomLabel`, `hideBack`, `headerRight`, `topSlot`, `composerPlaceholder` ("Message <room>"). Data loading, realtime, RPCs and reactions untouched.
+- DMs: chip opens a DM list (Ask Summit, threads with unread and last line); a thread opens the same room view with back to DMs. People search moved into the room header (search icon), and `?person=` deep links open it.
+- Quick reactions standardised to 🔥 💪 😂 👏 ❄️ 💯 in both the long-press menu and the hover picker.
+- No schema change: `chat_reactions` and `chat_messages.is_pinned` already cover reactions and pins, so no `message_reactions`/`pinned_messages` tables were created. RLS untouched.
+- Verified as owner: sent "Pass 74 check", reacted 🔥, deleted it; remaining count 0. Screenshots at 390 and 1280 show no horizontal overflow (scrollWidth - innerWidth = 0).
+- Typecheck clean, production build OK (ChatPage chunk 87 kB). Preview only — not published.
