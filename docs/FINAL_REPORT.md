@@ -1384,3 +1384,30 @@ Nothing was published.
 - Monday digest counts rookies two or more days behind; owner-only run returned "45 reps need attention this week — open My week". No email, `RESEND_FROM_EMAIL` is unset.
 - People with no role row are treated as rookies, matching how the app already treats them (43 such people today).
 - Verified as owner at 390 and 1280 on Home, My week and the admin editor: no horizontal overflow. Typecheck clean, production build clean, largest chunk 195.08 kB. Test notification removed. Nothing published.
+
+## Pass 69 — Regression and go/no-go refresh
+
+- First-week gate: new `is_first_week_eligible(uuid)` requires an active, non-archived
+  profile with an explicit `rookie` role row, or a profile under 30 days old with no season
+  result. It checks `user_roles` directly, so owner/admin/manager inheritance no longer
+  qualifies. `first_week_json` returns `{found:false}` for anyone else and
+  `get_first_week_rows` filters on it. People who now see the card: **1**.
+- Five-action regression, all passed with no grant fixes: user created via
+  `admin-create-user` (200), owner chat message (201), signed-out public application (201),
+  Fiber install (201), Pest sale via the Log-a-sale sheet — win card posted, 25 `sale`
+  points recorded once, Home showed the sale in "Sales this week". All test rows, both test
+  auth accounts and the notification rows were deleted afterwards; counts back to zero.
+- Small fix found while verifying: the weekly line read "1 sales"; it now reads "1 sale".
+- Smoke at 390/768/820/1024/1280 over landing, Pest Home, Playbook, My Week, Missions,
+  Fiber Home, Installs, Life Home, Playbook and First-week editors, Fiber Regions:
+  no horizontal overflow, no console errors (dev-only React ref warning filtered out).
+- Checks: `bunx tsgo --noEmit` clean; production build clean, largest chunk 195.08 kB;
+  linter 313 items (1 RLS-no-policy info, 19 anonymous SECURITY DEFINER, 292 signed-in,
+  1 short OTP); no public table with RLS off; only `backup_job_tokens` has RLS and no
+  policy; 19 anon-executable SECURITY DEFINER functions, matching the public set.
+- Scheduled jobs could not be listed from this session (`permission denied for schema
+  cron`); job definitions are unchanged since Pass 68.
+- `docs/GO_NO_GO.md` refreshed: verdict still "Not yet", blocked only by the email sender
+  and Mathew Rubino's role; "What changed" now covers Passes 63–68; checklist adds the
+  Seasonal insects pricing page, the deliberately unpublished Life path, and the Monday
+  digest being off until the sender is set. Nothing published.
