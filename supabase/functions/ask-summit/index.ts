@@ -80,7 +80,7 @@ async function buildContext(admin: any, userId: string) {
   const { data: activeRow } = await admin
     .from("profiles")
     .select("active_vertical")
-    .eq("id", userId)
+    .eq("user_id", userId)
     .maybeSingle();
   const vert: string = activeRow?.active_vertical ?? "Pest";
   const scoped = (q: any) => q.or(`vertical.is.null,vertical.eq.${vert}`);

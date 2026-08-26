@@ -13,9 +13,12 @@ import { RankInsignia } from '@/components/badges/RankInsignia';
 
 function renderMentions(text: string, keyPrefix: string) {
   // @First Last (up to two capitalised words) or @firstname
+  // Split with a global regex, but test each part with a fresh, non-global one
+  // so lastIndex never carries over between parts.
   const mentionRegex = /(@[A-Za-z][\w'-]*(?: [A-Z][\w'-]*)?)/g;
+  const isMention = /^@[A-Za-z][\w'-]*(?: [A-Z][\w'-]*)?$/;
   return text.split(mentionRegex).map((part, i) => {
-    if (mentionRegex.test(part) && part.startsWith('@')) {
+    if (isMention.test(part)) {
       return (
         <span key={`${keyPrefix}-m${i}`} className="rounded bg-primary/20 px-1 font-semibold text-primary">
           {part}
