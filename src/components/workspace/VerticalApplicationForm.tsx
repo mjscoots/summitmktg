@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,15 +12,44 @@ interface Props {
   name: string;
   onDone: () => void;
   onCancel?: () => void;
+  /** Pull phone, experience and availability from the rep's profile. */
+  prefillFromProfile?: boolean;
 }
 
-export function VerticalApplicationForm({ vertical, name, onDone, onCancel }: Props) {
+export function VerticalApplicationForm({
+  vertical,
+  name,
+  onDone,
+  onCancel,
+  prefillFromProfile,
+}: Props) {
   const [why, setWhy] = useState('');
   const [experience, setExperience] = useState('');
   const [availability, setAvailability] = useState('');
   const [markets, setMarkets] = useState('');
   const [phone, setPhone] = useState('');
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!prefillFromProfile) return;
+    let cancelled = false;
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('phone, experience, rep_year, region')
+        .eq('user_id', auth.user.id)
+        .maybeSingle();
+      if (cancelled || !data) return;
+      if (data.phone) setPhone((v) => v || data.phone || '');
+      if (data.experience) setExperience((v) => v || data.experience || '');
+      if (data.region) setMarkets((v) => v || data.region || '');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [prefillFromProfile]);
 
   const submit = async () => {
     if (!why.trim() || !availability.trim() || !phone.trim()) {
