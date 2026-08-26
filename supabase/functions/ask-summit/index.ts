@@ -75,7 +75,52 @@ function fmtDate(iso: string): string {
   }
 }
 
-async function buildContext(admin: any, userId: string) {
+/**
+ * The vertical's field playbook, verbatim. Objections and closes come first
+ * when the question sounds like a customer line. Capped so the prompt stays
+ * a sane size.
+ */
+async function loadPlaybook(admin: any, vert: string, question: string): Promise<string> {
+  const { data } = await admin
+    .from("playbook_entries")
+    .select("kind, title, body, followup, tags, market, meta, sort_order")
+    .eq("vertical", vert)
+    .eq("published", true)
+    .order("sort_order");
+  const rows = data ?? [];
+  if (rows.length === 0) return "";
+
+  const q = (question || "").toLowerCase();
+  const soundsLikeCustomer = /(they say|they said|says|objection|close|what do i say|customer|homeowner|i have a guy|too expensive|rent)/.test(q);
+  const weight = (kind: string) => {
+    const order = soundsLikeCustomer
+      ? ["objection", "close", "script", "talk_track", "pricing", "assumption"]
+      : ["script", "objection", "close", "talk_track", "pricing", "assumption"];
+    const i = order.indexOf(kind);
+    return i === -1 ? 99 : i;
+  };
+  rows.sort((a: any, b: any) => weight(a.kind) - weight(b.kind) || a.sort_order - b.sort_order);
+
+  const lines: string[] = [];
+  let used = 0;
+  for (const r of rows) {
+    let block: string;
+    if (r.kind === "pricing") {
+      const m = r.meta ?? {};
+      block = `- [pricing${r.market ? ` | ${r.market}` : ""}] ${m.plan ?? r.title}${m.notes ? ` (${m.notes})` : ""}: initial ${m.initial ?? "not listed"}, recurring ${m.recurring ?? "not listed"}${m.frequency ? `, ${m.frequency}` : ""}`;
+    } else {
+      const when = r.meta?.when_to_use ? `\n  WHEN TO USE: ${r.meta.when_to_use}` : "";
+      const follow = r.followup ? `\n  IF THEY SAY IT AGAIN: ${r.followup}` : "";
+      block = `- [${r.kind}] ENTRY TITLE: ${r.title}${when}\n  SAY: ${r.body}${follow}`;
+    }
+    if (used + block.length > 12000) break;
+    used += block.length;
+    lines.push(block);
+  }
+  return lines.join("\n");
+}
+
+async function buildContext(admin: any, userId: string, question = "") {
   // Grounding is limited to company-wide content plus the workspace the rep is in.
   const { data: activeRow } = await admin
     .from("profiles")
@@ -179,6 +224,12 @@ async function buildContext(admin: any, userId: string) {
   // FAQ
   const faqLines = (faq.data ?? []).map((f: any) => `- Q: ${f.question}\n  A: ${f.answer}`);
   parts.push(`TEAM FAQ (answers approved by leadership):\n${faqLines.join("\n") || "- none"}`);
+
+  // Field playbook (the owner's own wording — quote it exactly)
+  const playbook = await loadPlaybook(admin, vert, question);
+  if (playbook) {
+    parts.push(`FIELD PLAYBOOK — ${vert} (the owner's own wording. When someone asks what to say, quote the SAY line word for word and name the entry title):\n${playbook}`);
+  }
 
   // Sales scripts (the company's actual method)
   const scriptCards = await loadScriptCards(admin, vert);
@@ -513,7 +564,8 @@ serve(async (req) => {
         gatewayMessages = history;
       }
     } else {
-      const context = await buildContext(admin, userId);
+      const lastUser = [...(messages as ChatMessage[])].reverse().find((m) => m.role === "user")?.content ?? "";
+      const context = await buildContext(admin, userId, lastUser);
       const isStaff = verifiedRole === "admin" || verifiedRole === "owner";
       const dataContext = isStaff ? await buildOwnerDataContext(admin) : "";
       systemContent =
