@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 
+import { Wordmark } from '@/components/brand/Wordmark';
 import { LIFE_CARD, LIFE_STAGES } from '@/lib/lifePipeline';
 
 interface Appt {
@@ -98,11 +99,12 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
   if (comingSoon) {
     return (
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <div className={`${LIFE_CARD} p-4`}>
-          <p className="text-sm text-foreground">Summit Life opens soon. You will hear from us here.</p>
+        <div className="card-hero p-5">
+          <Wordmark variant="heroLife" className="mx-auto !h-auto w-full max-w-[280px]" />
+          <p className="mt-4 text-center text-sm text-foreground">
+            Life is being set up. You will hear from the owner when it opens.
+          </p>
         </div>
-        <NeedsYouRow />
-        <ChatCard label={workspace.short_name} onOpen={() => navigate('/app/chat')} />
       </div>
     );
   }
