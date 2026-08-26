@@ -110,7 +110,7 @@ function FirstWeekBehindCard({ day, label }: { day: number; label: string }) {
   return (
     <button
       type="button"
-      onClick={() => navigate('/app/dashboard')}
+      onClick={() => navigate('/app')}
       className="w-[260px] shrink-0 rounded-xl border border-border/60 bg-card p-3 text-left"
     >
       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
