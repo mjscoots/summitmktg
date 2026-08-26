@@ -114,23 +114,54 @@ export default function MyMoneyPage() {
     return { scale, signs, avg, revenue, tier, rate, earnings, next, revenueToNext, signsToNext };
   }, [commission]);
 
-  if (isFiber) {
-    return (
-      <AppLayout>
-        <main className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6">
-          <PageHeader title="Money" context="What each install pays at each rank." />
-          <FiberStackView />
-          <MyFiberWeeks />
-        </main>
-      </AppLayout>
-    );
-  }
+  const TABS = [
+    { key: 'all', label: 'All' },
+    { key: 'Pest', label: 'Pest' },
+    { key: 'Fiber', label: 'Fiber' },
+    { key: 'Life', label: 'Life' },
+  ] as const;
 
-  if (isLife) {
-    return (
-      <AppLayout>
-        <main className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6">
-          <PageHeader title="Money" context="Summit Life pay." />
+  return (
+    <AppLayout>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <PageHeader
+          title="My money"
+          context="Every industry in one place. Set by your leader."
+        />
+
+        <div
+          role="tablist"
+          aria-label="Industry"
+          className="flex items-stretch gap-1 rounded border border-border bg-surface-elevated p-1"
+        >
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={tab === t.key}
+              onClick={() => setTab(t.key)}
+              className={cn(
+                'min-h-11 flex-1 rounded text-[13px] font-semibold transition-colors',
+                tab === t.key
+                  ? 'bg-primary/15 text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'all' && <AllMoneyCard />}
+
+        {tab === 'Fiber' && (
+          <>
+            <FiberStackView />
+            <MyFiberWeeks />
+          </>
+        )}
+
+        {tab === 'Life' && (
           <section className={cn(CARD, 'space-y-3 p-5 sm:p-6')}>
             <p className="text-sm text-muted-foreground">
               Life pay details will appear here once they are set.
@@ -141,19 +172,11 @@ export default function MyMoneyPage() {
               </Button>
             )}
           </section>
-        </main>
-      </AppLayout>
-    );
-  }
+        )}
 
+        {tab === 'Pest' && (
+          <>
 
-  return (
-    <AppLayout>
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <PageHeader
-          title="My money"
-          context="Your pay scale, season earnings, and housing. Set by your manager."
-        />
 
         {!loading && money && money.earnings !== null && (
           <section className="card-hero px-5 py-6">
