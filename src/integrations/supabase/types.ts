@@ -6094,6 +6094,13 @@ export type Database = {
       get_vertical_enrollments: { Args: never; Returns: Json }
       get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
+      get_workspace_mentionables: {
+        Args: never
+        Returns: {
+          full_name: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
