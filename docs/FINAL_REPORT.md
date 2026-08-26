@@ -427,3 +427,14 @@ Presidents reach the admin surfaces (sidebar entry and `/admin/*`), which are fi
 9. Check the Winter plan panel for who chose Fiber.
 
 Nothing published.
+
+## Pass 48 — Season reset support, admin reorganization, cover mention
+
+- Locked-out experience: `get_my_access_state()` RPC + `useAccessState` + `LockedOutScreen`, gated in `ProtectedRoute`. Signed-in people with `approved = false` and no role see one plain screen with a reactivation request button; no rep data loads.
+- Restore flow: Admin -> People -> Restore access reads `access_reset_2027` (532 rows) via `get_access_reset_rows()`; `restore_access()` restores approval, role, manager and team in one call and writes to the audit log. Bulk select supported.
+- Reactivation requests: `reactivation_requests` table with RLS (own insert/read, admin/owner review) surfaced in Admin -> Inbox.
+- New sign-ups: unchanged; the Pass 45 apply -> dual-approval flow remains the only front door.
+- Admin reorganization: five sections — Inbox, People, Money, Content, Settings — defined in `src/lib/adminSections.ts`, routed at `/admin/:section`. Legacy `/admin/team?tab=...` links redirect to the owning section. Labels use plain words; "hub", "manage", "queue" removed.
+- Cover: gold pest cover unchanged; one muted line under the hero buttons links to the fiber and life pages.
+- Public copy: parents and recruiting pages each carry one plain sentence noting fiber in winter and life insurance starting. No dollar figures, no invented claims.
+- Verification: typecheck clean, production build clean, admin sections walked at 390 / 820 / 1280 with no horizontal overflow and no runtime console errors (only React dev ref warnings).
