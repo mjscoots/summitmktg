@@ -3,6 +3,8 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAccessState } from '@/hooks/useAccessState';
 import { LockedOutScreen } from '@/components/auth/LockedOutScreen';
+import { BootcampGate } from '@/components/BootcampGate';
+
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
