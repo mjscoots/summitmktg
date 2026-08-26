@@ -116,6 +116,20 @@ export default function LeadsPage() {
     });
   };
 
+  const designateOne = async (leadId: string, to: string) => {
+    setBusy(true);
+    const { error } = await (supabase.rpc as any)('leads_designate_bulk', {
+      _leads: [leadId],
+      _to: to === 'free' ? null : to,
+    });
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(to === 'free' ? 'Moved to the free pool' : 'Designated');
+      reload();
+    }
+  };
+
   const designateSelected = async () => {
     if (selected.size === 0 || !assignTo) return;
     setBusy(true);
@@ -326,6 +340,28 @@ export default function LeadsPage() {
                       </p>
                       <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{line || 'No history yet'}</p>
                     </button>
+                    {staff && scope === 'all' && (
+                      <Select
+                        value={lead.designated_to || 'free'}
+                        onValueChange={(v) => designateOne(lead.id, v)}
+                        disabled={busy}
+                      >
+                        <SelectTrigger
+                          aria-label={`Designate ${lead.full_name}`}
+                          className="h-9 w-[150px] shrink-0 text-[12px]"
+                        >
+                          <SelectValue placeholder="Assign" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="free" className="text-[13px]">Free pool</SelectItem>
+                          {managers.map((m) => (
+                            <SelectItem key={m.user_id} value={m.user_id} className="text-[13px]">
+                              {m.full_name || 'Unnamed'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                     {telHref(lead.phone) && (
                       <a
                         href={telHref(lead.phone) as string}
