@@ -55,9 +55,10 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <button onClick={() => navigate('/app')} className="flex flex-shrink-0 items-center" aria-label="Summit Trinity home">
-                      <Wordmark variant="compact" height={32} className="hidden min-[380px]:block" />
-                      <Wordmark variant="mark" height={28} className="min-[380px]:hidden" />
+                      {/* The phone header slot is under 150px, so the mark shows alone. */}
+                      <Wordmark variant="mark" height={28} />
                     </button>
+
 
                     <WorkspaceSheet />
                   </div>
