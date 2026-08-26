@@ -22,6 +22,8 @@ import { cn } from '@/lib/utils';
 import { AnnouncementEditorModal } from './AnnouncementEditorModal';
 import { formatDistanceToNow } from 'date-fns';
 import {
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -73,6 +75,7 @@ export function AnnouncementBox() {
     const query = (supabase as any)
       .from('announcement_posts')
       .select('*')
+      .or(verticalFilter(activeVertical))
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(40);
@@ -82,7 +85,7 @@ export function AnnouncementBox() {
     const { data } = await query;
     setPosts((data || []) as AnnouncementPost[]);
     setLoading(false);
-  }, [isAdmin]);
+  }, [isAdmin, activeVertical]);
 
   useEffect(() => {
     fetchPosts();

@@ -26,6 +26,8 @@ import { SummitLoader } from '@/components/shared/SummitLoader';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
@@ -250,7 +252,7 @@ export default function CalendarPage() {
     try {
       const { data: userAssignments } = await supabase.from('calendar_event_assignees').select('event_id').eq('user_id', user.id);
       const assignedEventIds = (userAssignments || []).map(a => a.event_id);
-      const { data: eventsData, error } = await supabase.from('calendar_events').select('*').order('event_date', { ascending: true });
+      const { data: eventsData, error } = await supabase.from('calendar_events').select('*').or(verticalFilter(activeVertical)).order('event_date', { ascending: true });
       if (error) { console.error('Error fetching events:', error); return; }
       const filteredEvents = (eventsData || []).filter(event => {
         if (event.created_by === user.id || event.manager_id === user.id) return true;

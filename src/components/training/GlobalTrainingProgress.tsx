@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { Trophy, Star } from 'lucide-react';
 import { MilestoneBadges } from './MilestoneBadges';
 import { CompletionCelebration } from './CompletionCelebration';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 interface GlobalProgressData {
   totalItems: number;
@@ -41,16 +43,19 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
               )
             `)
             .eq('is_active', true)
+            .or(verticalFilter(activeVertical))
             .in('slug', targetSlugs),
           supabase
             .from('training_videos')
             .select('id')
             .eq('is_active', true)
+            .or(verticalFilter(activeVertical))
             .eq('is_required', true),
           supabase
             .from('training_videos')
             .select('id')
             .eq('is_active', true)
+            .or(verticalFilter(activeVertical))
             .eq('is_required', false),
           supabase
             .from('video_progress')

@@ -13,6 +13,8 @@ import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
 import { ALL_VIDEO_CATEGORIES } from '@/lib/trainingConstants';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
 
@@ -42,7 +44,7 @@ export default function VideosPage() {
     setIsLoading(true);
     try {
       const [videosRes, progressRes, notesRes, bookmarksRes] = await Promise.all([
-        supabase.from('training_videos').select('*').eq('is_active', true).order('display_order').order('created_at', { ascending: false }),
+        supabase.from('training_videos').select('*').eq('is_active', true).or(verticalFilter(activeVertical)).order('display_order').order('created_at', { ascending: false }),
         supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
         supabase.from('video_notes').select('video_id').eq('user_id', user.id),
         supabase.from('video_bookmarks').select('video_id, bookmarked_at').eq('user_id', user.id),

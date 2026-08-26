@@ -13,6 +13,8 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import {
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 
@@ -40,16 +42,18 @@ export default function ScriptsPage() {
   const [editing, setEditing] = useState<Partial<ScriptRow> | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const { activeVertical } = useWorkspace();
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from('scripts')
       .select('id, title, category, body, display_order, is_active')
+      .or(verticalFilter(activeVertical))
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true });
     if (error) toast.error('Could not load scripts');
     setRows((data as ScriptRow[]) || []);
     setLoading(false);
-  }, []);
+  }, [activeVertical]);
 
   useEffect(() => { load(); }, [load]);
 
