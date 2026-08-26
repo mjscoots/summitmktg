@@ -96,7 +96,8 @@ const WordmarkBase = ({ variant = "hero", height = 32, className }: WordmarkProp
   const geo = GEOMETRY[variant];
   const width = Math.round((geo.width / geo.height) * renderedHeight);
   const mono = variant === "heroMono";
-  const plain = variant === "compactPlain";
+  // The outlined trinity gets muddy small: below 44px the compact lockup renders plain.
+  const plain = variant === "compactPlain" || (variant === "compact" && renderedHeight < 44);
 
   return (
     <svg
