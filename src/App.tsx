@@ -72,6 +72,7 @@ const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
+const PersonProfilePage = lazy(() => import("./pages/app/PersonProfilePage"));
 const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
 const IndustriesPage = lazy(() => import("./pages/app/IndustriesPage"));
 
@@ -274,6 +275,13 @@ function LazyFallback() {
               <Route path="/app/alumni" element={
                 <ProtectedRoute>
                   <AlumniPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Person profile — everything the app knows about one person */}
+              <Route path="/app/person/:userId" element={
+                <ProtectedRoute>
+                  <PersonProfilePage />
                 </ProtectedRoute>
               } />
 
