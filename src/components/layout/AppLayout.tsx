@@ -15,6 +15,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceThemeProvider } from '@/components/workspace/WorkspaceThemeProvider';
 import { MobileBottomNav } from './MobileBottomNav';
 import { WorkspaceSheet } from './WorkspaceSheet';
+import { Wordmark } from '@/components/brand/Wordmark';
 
 
 
@@ -38,7 +39,10 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             <AppSidebar />
             <div className="flex-1 flex flex-col min-w-0">
               {/* Desktop top bar */}
-              <header className="hidden lg:flex sticky top-0 z-40 h-14 items-center justify-end border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl">
+              <header className="hidden lg:flex sticky top-0 z-40 h-14 items-center justify-between border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl">
+                <button onClick={() => navigate('/app')} className="flex items-center" aria-label="Summit Trinity home">
+                  <Wordmark variant="compact" height={36} />
+                </button>
                 <div className="flex items-center gap-3">
                   <GlobalSearch />
                   <StatusBar />
@@ -49,7 +53,10 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
               {/* Mobile header — the workspace control replaces the sidebar */}
               <header className="lg:hidden sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-1">
-                  <div className="flex min-w-0 items-center gap-1">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <button onClick={() => navigate('/app')} className="flex flex-shrink-0 items-center" aria-label="Summit Trinity home">
+                      <Wordmark variant="mark" height={28} />
+                    </button>
                     <WorkspaceSheet />
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">

@@ -164,7 +164,7 @@ serve(async (req: Request): Promise<Response> => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: `Summit Marketing <${from}>`,
+            from: `Summit Trinity <${from}>`,
             to,
             subject: `Veteran bid request — ${fullName}`,
             html,

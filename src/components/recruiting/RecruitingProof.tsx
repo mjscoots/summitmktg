@@ -90,7 +90,7 @@ export function RecruitingProof() {
               <div className="relative w-full overflow-hidden rounded-xl border border-border" style={{ aspectRatio: '16 / 9' }}>
                 <iframe
                   src={embed}
-                  title="Summit Marketing"
+                  title="Summit Trinity"
                   className="absolute inset-0 h-full w-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
                   allowFullScreen

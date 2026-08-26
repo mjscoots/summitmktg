@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { LogIn, ArrowRight } from "lucide-react";
-import summitLogo from "@/assets/summit-logo-new.png";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
@@ -14,16 +14,10 @@ const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"))
 const Index = () => {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
-  
-  // Preload logo then reveal — short timeout to avoid stuck loading screen
+
+  // The wordmark is inline SVG, so there is nothing to preload — reveal on mount.
   useEffect(() => {
-    const img = new Image();
-    img.src = summitLogo;
-    img.onload = () => setReady(true);
-    img.onerror = () => setReady(true);
-    if (img.complete) { setReady(true); return; }
-    const t = setTimeout(() => setReady(true), 1500);
-    return () => clearTimeout(t);
+    setReady(true);
   }, []);
 
   const scrollToEarnings = () => {
@@ -71,10 +65,9 @@ const Index = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
-            aria-label="Summit Marketing home"
+            aria-label="Summit Trinity home"
             className="flex min-h-11 items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
-            <img src={summitLogo} alt="" className="h-6 w-auto" />
-            <span className="text-lg font-black tracking-tight uppercase">Summit</span>
+            <Wordmark variant="compact" height={36} />
           </button>
 
           <button
@@ -92,19 +85,13 @@ const Index = () => {
         <div className="flex-1 flex items-center justify-center px-6 py-16">
           <div className="relative z-10 max-w-2xl mx-auto text-center">
             <div className="mb-8 relative">
-              <img
-                src={summitLogo}
-                alt="Summit Marketing"
-                className="w-64 md:w-80 mx-auto relative z-10"
-                style={{ filter: 'drop-shadow(0 0 20px hsl(46 65% 52% / 0.28))' }}
-                loading="eager"
-                fetchPriority="high" />
+              <Wordmark variant="stacked" height={160} className="relative z-10 mx-auto h-auto w-64 md:w-80" />
             </div>
 
             <h1
               className="mb-4 text-4xl md:text-6xl font-black uppercase tracking-tight text-foreground"
               style={{ letterSpacing: '-0.02em' }}>
-              Summit Marketing
+              Summit Trinity
             </h1>
             <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
               We train and field door-to-door sales reps. You knock, you close, you get paid on what you close.
@@ -176,9 +163,10 @@ const Index = () => {
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/30 py-6">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-xs text-muted-foreground">
-            © 2026 Summit Marketing
-          </span>
+          <div className="flex items-center gap-2">
+            <Wordmark variant="compact" height={32} />
+            <span className="text-xs text-muted-foreground">© 2026</span>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate("/recruiting")}

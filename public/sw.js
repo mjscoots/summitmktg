@@ -1,4 +1,4 @@
-/* Summit Marketing service worker — conservative caching.
+/* Summit Trinity service worker — conservative caching.
    - Navigations / HTML: network-first (never serve a stale app shell after a deploy)
    - Static build assets: cache-first
    - Everything else (API, auth, uploads): untouched, straight to network */
