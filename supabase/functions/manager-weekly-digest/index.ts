@@ -130,7 +130,7 @@ serve(async (req: Request): Promise<Response> => {
       }
       const all = ((data as any)?.rows || []) as WeekRow[];
       for (const r of all) {
-        const { data: fw } = await admin.rpc("first_week_json", { _user: r.user_id });
+        const { data: fw } = await admin.rpc("first_week_json", { _target: r.user_id });
         const w = fw as any;
         if (w?.found && !w.complete) {
           r.first_week_behind = Number(w.behind_days || 0);
