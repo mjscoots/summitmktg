@@ -59,6 +59,7 @@ interface TeamRow {
 
 export default function MyTeamPage() {
   const { role, profile, isLoading: authLoading } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(true);
