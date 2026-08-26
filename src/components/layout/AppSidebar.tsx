@@ -60,6 +60,10 @@ export function AppSidebar() {
   const adminCounts = useAdminCounts();
   const { newCount: newLeads } = useNewLeads();
   const { season } = useSeasonHub();
+  const { workspaces } = useWorkspace();
+  const presidedName = workspaces.find((w) => w.is_president)?.short_name || null;
+
+
 
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
