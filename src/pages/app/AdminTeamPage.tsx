@@ -333,10 +333,19 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
   const handleToggleSetting = async (key: string) => {
     const newVal = settings[key] === 'true' ? 'false' : 'true';
     setSettingsLoading(true);
-    const { error } = await supabase.from('app_settings').update({ value: newVal }).eq('key', key);
+    const { error } = await supabase.from('app_settings').upsert({ key, value: newVal }, { onConflict: 'key' });
     if (!error) { setSettings(prev => ({ ...prev, [key]: newVal })); toast({ title: 'Setting Updated' }); }
     setSettingsLoading(false);
   };
+
+  const handleSaveNumberSetting = async (key: string) => {
+    const value = String(Math.max(parseInt(settings[key] || '0', 10) || 0, 1));
+    setSettingsLoading(true);
+    const { error } = await supabase.from('app_settings').upsert({ key, value }, { onConflict: 'key' });
+    if (!error) { setSettings(prev => ({ ...prev, [key]: value })); toast({ title: 'Setting Updated' }); }
+    setSettingsLoading(false);
+  };
+
 
   const getTeamName = (teamId: string | null) => teamsSimple.find(t => t.id === teamId)?.name || '—';
   const filteredTeams = teams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()));
