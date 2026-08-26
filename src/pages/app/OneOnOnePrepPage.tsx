@@ -416,11 +416,15 @@ export default function OneOnOnePrepPage() {
               ? mobilePanel === 'data' ? 'w-full' : 'hidden'
               : 'w-[40%] min-w-[320px]'
           )}>
+            <div className="p-4 pb-0">
+              <WeekContextCard userId={selectedRep.user_id} />
+            </div>
             <TrainingDataPanel
               rep={selectedRep}
               lastMonday={lastMonday}
               lastSunday={lastSunday}
             />
+
           </div>
 
           <div className={cn(
