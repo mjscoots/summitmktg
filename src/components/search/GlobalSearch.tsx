@@ -84,10 +84,12 @@ export function GlobalSearch() {
     const leadRows = Array.from(leadMap.values()).slice(0, 6);
 
     const next: SearchResult[] = [
+      // People open the contact card on the chat home, which every role can see.
       ...((reps.data || []) as any[]).filter(r => r.full_name).map(r => ({
         kind: 'rep' as const, id: r.user_id, title: r.full_name,
-        subtitle: r.status || undefined, to: `/app/team?member=${r.user_id}`,
+        subtitle: r.status || undefined, to: `/app/chat?person=${r.user_id}`,
       })),
+
       ...leadRows.map(l => ({
         kind: 'lead' as const, id: l.id, title: l.first_name || 'Lead',
         subtitle: l.status || undefined, to: `/app/recruits?lead=${l.id}`,
