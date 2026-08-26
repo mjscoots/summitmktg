@@ -84,6 +84,10 @@ export default function PersonProfilePage() {
   const [timeSplit, setTimeSplit] = useState<any | null>(null);
   const [recap, setRecap] = useState<any | null>(null);
   const [events, setEvents] = useState<any[]>([]);
+  const [threads, setThreads] = useState<any[]>([]);
+  const [openThread, setOpenThread] = useState<{ id: string; messages: any[] } | null>(null);
+  const [aiProfile, setAiProfile] = useState<any | null>(null);
+  const [rebuilding, setRebuilding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
 
@@ -100,10 +104,12 @@ export default function PersonProfilePage() {
       else setData(res as unknown as PersonProfile);
       setIsLoading(false);
 
-      const [split, rec, ev] = await Promise.all([
+      const [split, rec, ev, th, ai] = await Promise.all([
         supabase.rpc('get_person_time_split' as never, { _user_id: userId } as never),
         supabase.rpc('get_training_recap' as never, { _user_id: userId } as never),
         supabase.rpc('get_person_event_answers' as never, { _user_id: userId, _limit: 10 } as never),
+        supabase.rpc('get_person_threads' as never, { _user_id: userId } as never),
+        (supabase as any).from('rep_ai_profiles').select('*').eq('user_id', userId).maybeSingle(),
       ]);
       if (!alive) return;
       const s = split.data as any;
@@ -112,6 +118,9 @@ export default function PersonProfilePage() {
       if (r && !r.error) setRecap(r);
       const e = ev.data as any;
       if (e && !e.error) setEvents((e.events || []) as any[]);
+      const t = th.data as any;
+      if (t && !t.error) setThreads((t.threads || []) as any[]);
+      if (ai.data) setAiProfile(ai.data);
     })();
     return () => {
       alive = false;
@@ -139,6 +148,27 @@ export default function PersonProfilePage() {
       .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
       .slice(0, 40);
   }, [data]);
+
+  const loadThread = async (id: string) => {
+    const { data } = await (supabase as any).rpc('get_thread_messages', { _thread_id: id });
+    setOpenThread({ id, messages: (data?.messages || []) as any[] });
+  };
+
+  const rebuildProfile = async () => {
+    if (!userId) return;
+    setRebuilding(true);
+    try {
+      await supabase.functions.invoke('build-rep-profile', { body: { user_id: userId } });
+      const { data } = await (supabase as any)
+        .from('rep_ai_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (data) setAiProfile(data);
+    } finally {
+      setRebuilding(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -342,6 +372,81 @@ export default function PersonProfilePage() {
         </Section>
       )}
 
+
+      {/* What Summit has learned */}
+      {aiProfile && (
+        <Section title="What Summit has learned">
+          <Card className="p-4 space-y-2">
+            {aiProfile.summary ? (
+              <p className="text-[13px] text-foreground whitespace-pre-wrap">{aiProfile.summary}</p>
+            ) : (
+              <p className="text-[13px] text-muted-foreground">No profile built yet.</p>
+            )}
+            {(aiProfile.strengths || []).length > 0 && (
+              <div>
+                <p className="text-[13px] font-medium">Strengths</p>
+                {(aiProfile.strengths as string[]).map((x, i) => (
+                  <p key={i} className="text-[13px] text-muted-foreground">{x}</p>
+                ))}
+              </div>
+            )}
+            {(aiProfile.concerns || []).length > 0 && (
+              <div>
+                <p className="text-[13px] font-medium">Where they seem stuck</p>
+                {(aiProfile.concerns as string[]).map((x, i) => (
+                  <p key={i} className="text-[13px] text-muted-foreground">{x}</p>
+                ))}
+              </div>
+            )}
+            {(aiProfile.topics || []).length > 0 && (
+              <Row label="Asks about most" value={(aiProfile.topics as string[]).join(', ')} />
+            )}
+            {aiProfile.goals && <Row label="Goals they stated" value={aiProfile.goals} />}
+            <Row label="Built" value={fmtDateTime(aiProfile.last_built_at) || 'Not built yet'} />
+            <Row label="Sources used" value={aiProfile.source_count ?? 0} />
+          </Card>
+        </Section>
+      )}
+
+      {staff && (
+        <Button variant="outline" className="min-h-11" disabled={rebuilding} onClick={rebuildProfile}>
+          {rebuilding ? 'Rebuilding' : aiProfile ? 'Rebuild profile' : 'Build profile'}
+        </Button>
+      )}
+
+      {/* Ask Summit threads */}
+      {threads.length > 0 && (
+        <Section title="Ask Summit threads">
+          <Card className="p-4 space-y-2">
+            {threads.map((t) => (
+              <div key={t.id}>
+                <button
+                  onClick={() => (openThread?.id === t.id ? setOpenThread(null) : loadThread(t.id))}
+                  className="flex min-h-11 w-full items-center justify-between gap-3 border-b border-border/40 py-2 text-left"
+                >
+                  <span className="text-[13px] text-foreground">{t.title || 'Thread'}</span>
+                  <span className="text-[13px] text-muted-foreground">
+                    {t.message_count} · {fmtDate(t.last_at)}
+                  </span>
+                </button>
+                {openThread?.id === t.id && (
+                  <div className="space-y-2 py-2">
+                    {openThread.messages.map((m: any, i: number) => (
+                      <p key={i} className="text-[13px] whitespace-pre-wrap">
+                        <span className="text-muted-foreground">{m.role === 'user' ? 'They asked: ' : 'Summit: '}</span>
+                        {m.content}
+                      </p>
+                    ))}
+                    {openThread.messages.length === 0 && (
+                      <p className="text-[13px] text-muted-foreground">No messages.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </Card>
+        </Section>
+      )}
 
       {/* Production */}
       {(data.production?.revenue_months?.length || data.production?.installs_weeks?.length) ? (
