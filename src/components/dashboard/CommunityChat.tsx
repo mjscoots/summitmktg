@@ -286,18 +286,15 @@ export function CommunityChat({ onNewMessage }: CommunityChatProps) {
   const [mentionables, setMentionables] = useState<{ user_id: string; full_name: string }[]>([]);
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, archived')
-        .eq('archived', false)
-        .order('full_name');
+      // Only members of the active workspace can be mentioned into its channels.
+      const { data } = await (supabase as any).rpc('get_workspace_mentionables');
       setMentionables(
-        (data || [])
+        ((data || []) as { user_id: string; full_name: string }[])
           .filter(p => p.full_name && p.user_id && p.user_id !== user?.id)
-          .map(p => ({ user_id: p.user_id as string, full_name: p.full_name as string }))
+          .map(p => ({ user_id: p.user_id, full_name: p.full_name }))
       );
     })();
-  }, [user?.id]);
+  }, [user?.id, activeVertical]);
 
   useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
 
