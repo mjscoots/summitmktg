@@ -152,6 +152,8 @@ export default function ProfilePage() {
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneVisibility, setPhoneVisibility] = useState<'everyone' | 'team' | 'staff'>('team');
+
   const [bio, setBio] = useState('');
   const [timezone, setTimezone] = useState<string>('auto');
   const [emergencyContactName, setEmergencyContactName] = useState('');
