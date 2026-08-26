@@ -11,6 +11,7 @@ import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderboardPanel';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -93,10 +94,7 @@ export default function TrainingPage() {
       <AppLayout>
         <div className="max-w-5xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
-          <div className="mb-6">
-            <h1 className="text-foreground">Training</h1>
-            <p className="mt-1 text-[13px] text-muted-foreground">Your lessons, drills and scripts.</p>
-          </div>
+          <PageHeader title="Training" context="Your lessons, drills and scripts." className="mb-6" />
 
           {showWelcome && lessonsCompleted < 15 && (
             <WelcomeBanner
@@ -157,10 +155,7 @@ export default function TrainingPage() {
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
-          <div className="mb-6">
-            <h1 className="text-foreground">Training</h1>
-            <p className="mt-1 text-[13px] text-muted-foreground">Pick a track.</p>
-          </div>
+          <PageHeader title="Training" context="Pick a track." className="mb-6" />
 
           <DailyDrill />
 
@@ -250,9 +245,7 @@ export default function TrainingPage() {
     <AppLayout>
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Single back button - goes to selection for managers, dashboard for rookies */}
-        <div className="mb-6">
-          <h1 className="text-foreground">{isRookieView ? 'Sales training' : 'Manager training'}</h1>
-        </div>
+        <PageHeader title={isRookieView ? 'Sales training' : 'Manager training'} className="mb-6" />
 
         {isManager ? (
           <Button

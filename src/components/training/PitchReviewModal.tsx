@@ -113,7 +113,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
       // Notify rookie (non-blocking)
       const { error: notifError } = await supabase.from('user_notifications').insert({
         user_id: request.user_id,
-        title: `✅ ${profile?.full_name || 'Manager'} approved your ${request.lesson_title} pitch!`,
+        title: `${profile?.full_name || 'Manager'} approved your ${request.lesson_title} pitch`,
         message: feedback
           ? `"${feedback}" — You can now continue to the next module.`
           : 'You can now continue to the next module.',
@@ -165,13 +165,13 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
       // Notify rookie (non-blocking)
       const { error: notifError2 } = await supabase.from('user_notifications').insert({
         user_id: request.user_id,
-        title: `❌ ${profile?.full_name || 'Manager'} requested a re-record of your ${request.lesson_title} pitch`,
+        title: `${profile?.full_name || 'Manager'} requested a re-record of your ${request.lesson_title} pitch`,
         message: `Feedback: "${feedback}"`,
         link: `/app/training`,
       });
       if (notifError2) console.error('Notification insert error:', notifError2);
 
-      toast.success('Feedback sent — rep notified');
+      toast.success('Feedback sent, rep notified');
       onAction();
       onClose();
     } catch (err) {
@@ -216,7 +216,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
             {/* Checklist */}
             <div className="space-y-1.5">
               <p className="text-xs font-bold text-foreground uppercase tracking-wide">
-                ✅ Outline Checklist
+                Outline Checklist
               </p>
               <p className="text-[10px] text-muted-foreground">Check off as you watch:</p>
               {checklist.map((item, i) => (

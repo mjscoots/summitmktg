@@ -14,6 +14,7 @@ import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -224,7 +225,7 @@ export default function OneOnOnePrepPage() {
 
       // Update local completed set immediately + refetch from DB
       setCompletedRepIds(prev => new Set([...prev, selectedRep.user_id]));
-      toast.success(`✅ 1:1 saved for ${selectedRep.full_name}`);
+      toast.success(`1:1 saved for ${selectedRep.full_name}`);
 
       // Refetch from DB to ensure consistency
       fetchCompletedReps();
@@ -293,7 +294,7 @@ export default function OneOnOnePrepPage() {
       } catch {}
 
       setCompletedRepIds(prev => new Set([...prev, selectedRep.user_id]));
-      toast.success(`✅ Manager 1:1 saved for ${selectedRep.full_name}`);
+      toast.success(`Manager 1:1 saved for ${selectedRep.full_name}`);
       fetchCompletedReps();
       advanceToNext();
     } catch (err) {
@@ -325,14 +326,11 @@ export default function OneOnOnePrepPage() {
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-6">
           <PageBackButton to="/app/forms" label="Forms" />
-          <div className="mb-6 mt-2">
-            <h1 className="text-xl font-bold text-foreground">
-              {modeLabel} 1:1 Prep — {teamName}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Week of {format(lastMonday, 'MMM d')} – {format(lastSunday, 'MMM d, yyyy')}
-            </p>
-          </div>
+          <PageHeader
+            title={`${modeLabel} 1:1 prep — ${teamName}`}
+            context={`Week of ${format(lastMonday, 'MMM d')} – ${format(lastSunday, 'MMM d, yyyy')}`}
+            className="mb-6 mt-2"
+          />
           <RepSelectionList
             orderedReps={orderedReps}
             completedRepIds={completedRepIds}
@@ -367,7 +365,7 @@ export default function OneOnOnePrepPage() {
           <div className="flex items-center gap-3">
             {meetingTime && (
               <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
-                🕐 {meetingTime}
+                {meetingTime}
               </span>
             )}
             <span className="text-xs text-muted-foreground">
@@ -396,7 +394,7 @@ export default function OneOnOnePrepPage() {
                 mobilePanel === 'data' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'
               )}
             >
-              📊 Training Data
+              Training Data
             </button>
             <button
               onClick={() => setMobilePanel('form')}
@@ -405,7 +403,7 @@ export default function OneOnOnePrepPage() {
                 mobilePanel === 'form' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'
               )}
             >
-              📝 1:1 Form
+              1:1 Form
             </button>
           </div>
         )}

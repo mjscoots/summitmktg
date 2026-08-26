@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { RepScorecard } from '@/components/shared/RepScorecard';
 import { RankInsignia } from '@/components/badges/RankInsignia';
@@ -266,21 +267,17 @@ export default function MyTeamPage() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header */}
         <header className="mb-5">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Team</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {profiles.length} active {profiles.length === 1 ? 'rep' : 'reps'} across {teams.length}{' '}
-                {teams.length === 1 ? 'team' : 'teams'}
-              </p>
-            </div>
-            {canAddMembers && (
+          <PageHeader
+            title="Team"
+            context={`${profiles.length} active ${profiles.length === 1 ? 'rep' : 'reps'} across ${teams.length} ${teams.length === 1 ? 'team' : 'teams'}`}
+            className="border-none pb-0"
+            action={canAddMembers ? (
               <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
                 <UserPlus className="w-3.5 h-3.5" />
                 Add
               </Button>
-            )}
-          </div>
+            ) : undefined}
+          />
 
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">

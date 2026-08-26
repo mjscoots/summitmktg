@@ -196,7 +196,6 @@ export function TeamNotificationBanners({ teamId, teamName, roster = [] }: TeamN
               >
                 {notification.new_rep_name}
               </button>
-              !
             </p>
             <button
               onClick={() => handleDismiss(notification.id)}
@@ -216,7 +215,7 @@ export function TeamNotificationBanners({ teamId, teamName, roster = [] }: TeamN
           >
             <HandMetal className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-sm text-foreground flex-1">
-              👋 Everybody welcome{' '}
+              Everybody welcome{' '}
               <button
                 onClick={() => handleNameClick(notification)}
                 className="font-bold text-primary hover:underline focus:outline-none"
@@ -224,7 +223,7 @@ export function TeamNotificationBanners({ teamId, teamName, roster = [] }: TeamN
                 {notification.new_rep_name}
               </button>
               {' to the '}
-              <span className="font-semibold">{teamName || 'team'}</span>!
+              <span className="font-semibold">{teamName || 'team'}</span>.
             </p>
             <button
               onClick={() => handleDismiss(notification.id)}

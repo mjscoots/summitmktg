@@ -109,7 +109,7 @@ export function PrepForm({
             Remember the compliment sandwich: praise, correction, praise.
           </p>
           <p className="text-[10px] text-primary font-medium">
-            📋 This will become a daily task in their Today's Priorities
+            This will become a daily task in their Today's Priorities
           </p>
           <Textarea
             value={formData.pitch_work_needed}
@@ -124,7 +124,7 @@ export function PrepForm({
             Give a mission to complete for the week? <span className="text-destructive">*</span>
           </Label>
           <p className="text-[10px] text-primary font-medium">
-            📋 This will become a daily task in their Today's Priorities
+            This will become a daily task in their Today's Priorities
           </p>
           <Textarea
             value={formData.weekly_mission}

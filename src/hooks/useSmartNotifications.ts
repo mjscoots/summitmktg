@@ -77,8 +77,8 @@ export function useSmartNotifications() {
         if (!recentNotif || recentNotif === 0) {
           await supabase.from('user_notifications').insert({
             user_id: user.id,
-            title: `💬 ${count}+ unread messages`,
-            message: `You have ${count} new messages in the team chat. Jump in and stay connected!`,
+            title: `${count}+ unread messages`,
+            message: `You have ${count} new messages in the team chat.`,
             link: '/app/chat',
           });
         }
@@ -115,7 +115,7 @@ export function useSmartNotifications() {
         if (!existing || existing === 0) {
           await supabase.from('user_notifications').insert({
             user_id: user.id,
-            title: '\u{1F3C6} You are #1 on the leaderboard!',
+            title: 'You are #1 on the leaderboard',
             message: 'You took the top spot on the training leaderboard this week.',
             link: '/app/leaderboard',
           });
@@ -153,7 +153,7 @@ export function useSmartNotifications() {
         if (!existing || existing === 0) {
           await supabase.from('user_notifications').insert({
             user_id: user.id,
-            title: `⏰ "${event.title}" starting soon`,
+            title: `"${event.title}" starting soon`,
             message: `Your event "${event.title}" starts in less than 15 minutes.`,
             link: '/app/calendar',
             event_id: event.id,
@@ -191,8 +191,8 @@ export function useSmartNotifications() {
       if (!existing || existing === 0) {
         await supabase.from('user_notifications').insert({
           user_id: user.id,
-          title: `🔥 ${hit}-day streak!`,
-          message: `You've logged in ${hit} days in a row. Keep it going.`,
+          title: `${hit}-day streak`,
+          message: `You've logged in ${hit} days in a row.`,
           link: '/app',
         });
       }
@@ -228,8 +228,8 @@ export function useSmartNotifications() {
       if (!existing || existing === 0) {
         await supabase.from('user_notifications').insert({
           user_id: user.id,
-          title: `📚 ${hit} lessons completed!`,
-          message: `You just finished your ${hit}th lesson. The grind is paying off!`,
+          title: `${hit} lessons completed`,
+          message: `You just finished your ${hit}th lesson.`,
           link: '/app/training',
         });
       }
@@ -273,7 +273,7 @@ export function useSmartNotifications() {
         if (!existing || existing === 0) {
           await supabase.from('user_notifications').insert({
             user_id: user.id,
-            title: `⚠️ ${name} broke their ${b.streak_count}-day streak`,
+            title: `${name} broke their ${b.streak_count}-day streak`,
             message: `${name} just lost their login streak. A quick check-in could help them get back on track.`,
             link: '/app/team',
           });
@@ -299,8 +299,8 @@ export function useSmartNotifications() {
 
           await supabase.from('user_notifications').insert({
             user_id: user.id,
-            title: `👋 New rep joined: ${newProfile.full_name}`,
-            message: `${newProfile.full_name} (${newProfile.email}) just signed up. Welcome them to the team!`,
+            title: `New rep joined: ${newProfile.full_name}`,
+            message: `${newProfile.full_name} (${newProfile.email}) just signed up.`,
             link: '/app/team',
           });
         }

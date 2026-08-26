@@ -19,6 +19,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
@@ -318,28 +319,27 @@ export default function EventsPage() {
   return (
     <AppLayout>
       <main className="mx-auto max-w-3xl px-4 py-6">
-        <div className="mb-5 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-foreground">Schedule</h1>
-            <p className="mt-1.5 text-[13px] text-muted-foreground">
-              Meetings, training, blitzes and dinners you're expected at.
-            </p>
-            <Link
-              to="/app/calendar"
-              className="mt-2 inline-flex min-h-11 items-center text-[13px] font-medium text-primary hover:underline"
-            >
-              Month view
-            </Link>
-          </div>
-          {isManager && (
-            <button
-              onClick={() => setDraft(emptyDraft())}
-              className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
-            >
-              <Plus className="h-4 w-4" /> New event
-            </button>
-          )}
-        </div>
+        <PageHeader
+          title="Schedule"
+          context="Meetings, training, blitzes and dinners you're expected at."
+          action={
+            isManager ? (
+              <button
+                onClick={() => setDraft(emptyDraft())}
+                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
+              >
+                <Plus className="h-4 w-4" /> New event
+              </button>
+            ) : undefined
+          }
+          className="mb-2 border-none pb-0"
+        />
+        <Link
+          to="/app/calendar"
+          className="mb-5 inline-flex min-h-11 items-center text-[13px] font-medium text-primary hover:underline"
+        >
+          Month view
+        </Link>
 
         {loading ? (
           <div className="space-y-3">

@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { WinbackTab } from '@/components/recruiting/WinbackTab';
 import { WinMoment } from '@/components/chat/WinMoment';
+import { PageHeader } from '@/components/layout/PageHeader';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -204,35 +205,34 @@ export default function RecruitsPage() {
           <PageBackButton to="/app" label="Home" />
 
           {/* Header */}
-          <div className="mb-5 flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                {tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : 'Win-back board'}
-              </h1>
-              <p className="mt-1.5 text-[13px] text-muted-foreground">
-                {tab === 'board'
-                  ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
-                  : tab === 'mine'
-                    ? `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`
-                    : tab === 'resigns'
-                      ? 'Where every rep stands for next season'
-                      : 'Former reps with a phone number — cold calls to bring them back'}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
+          <PageHeader
+            title={tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : 'Win-back board'}
+            context={
+              tab === 'board'
+                ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
+                : tab === 'mine'
+                  ? `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`
+                  : tab === 'resigns'
+                    ? 'Where every rep stands for next season'
+                    : 'Former reps with a phone number — cold calls to bring them back'
+            }
+            className="mb-5"
+            action={
               <button
                 onClick={() => setAddOpen(true)}
                 className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
               >
                 <Plus className="h-4 w-4" /> Add lead
               </button>
-              <button
-                onClick={load}
-                className="micro-label inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 transition-colors hover:border-primary/30 hover:text-foreground"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Refresh
-              </button>
-            </div>
+            }
+          />
+          <div className="mb-5 flex justify-end">
+            <button
+              onClick={load}
+              className="micro-label inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 transition-colors hover:border-primary/30 hover:text-foreground"
+            >
+              <RefreshCw className="h-3.5 w-3.5" /> Refresh
+            </button>
           </div>
 
           {/* Tabs */}

@@ -7,7 +7,8 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { DollarSign, TrendingUp, Users, Sparkles, ArrowRight } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, ArrowRight } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 // ============= COMMISSION TIERS =============
 const ROOKIE_BRACKETS = [
@@ -198,23 +199,13 @@ export default function EstimateEarningsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageBackButton to="/app/links" label="Resources" />
 
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl mb-8 p-8 text-center"
-          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(270 60% 20% / 0.3), hsl(var(--primary) / 0.1))' }}
-        >
-          <div className="absolute inset-0 opacity-30" style={{ background: 'radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.4) 0%, transparent 60%)' }} />
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
-              <Sparkles className="w-3 h-3" /> {modeLabel} Estimator
-            </div>
-            <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight mb-2">
-              Estimate My Earnings
-            </h1>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              See your projected income based on your role, team, and personal revenue goal.
-            </p>
-          </div>
-        </div>
+        {/* Header */}
+        <PageHeader
+          title="Estimate my earnings"
+          context="See your projected income based on your role, team, and personal revenue goal."
+          vertical={`${modeLabel} Estimator`}
+          className="mb-8"
+        />
 
         {/* Team context for managers */}
         {isManager && !loading && downline.totalReps > 0 && (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { usePriorityTasks, PriorityTask } from '@/hooks/usePriorityTasks';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MessageSquare, Mic, Target, Users, RefreshCw, Loader2 } from 'lucide-react';
+import { MessageSquare, Mic, Target, Users, RefreshCw, Loader2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -117,8 +117,8 @@ export function OneOnOneTasks() {
                 </div>
               </div>
               {task.is_completed && (
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-success/10 text-success whitespace-nowrap">
-                  ✓ Done
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-success/10 text-success whitespace-nowrap flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Done
                 </span>
               )}
             </div>

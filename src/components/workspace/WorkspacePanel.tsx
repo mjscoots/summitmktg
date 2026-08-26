@@ -58,7 +58,7 @@ export function WorkspacePanel({ onNavigate }: { onNavigate?: () => void }) {
                 <span className="block truncate text-[14px] font-medium text-foreground">{w.name}</span>
                 <span className="block text-[12px] text-muted-foreground">
                   {statusLine(w)}
-                  {w.is_president ? ` · President` : ''}
+                  {w.is_president ? ` · You lead this industry` : ''}
                 </span>
               </span>
               {active && <Check className="h-4 w-4 flex-shrink-0 text-primary" />}

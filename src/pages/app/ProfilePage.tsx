@@ -22,6 +22,7 @@ import { NotificationPreferences } from '@/components/notifications/Notification
 import { RepScorecard } from '@/components/shared/RepScorecard';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { MyRefCodeCard } from '@/components/recruiting/MyRefCodeCard';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 function PointsCard() {
   const { data } = useMyPoints();
@@ -403,12 +404,7 @@ export default function ProfilePage() {
         <PageBackButton to="/app" label="Dashboard" />
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-foreground">My Profile</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage your account settings
-          </p>
-        </div>
+        <PageHeader title="My profile" context="Manage your account settings" className="mb-8" />
 
         {/* Avatar Section */}
         <div className="bg-card rounded-xl border border-border/50 p-6 mb-6">
@@ -650,7 +646,7 @@ export default function ProfilePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="auto">
-                    🌐 Auto-detect ({detectBrowserTimezone().replace('America/', '').replace('Pacific/', '').replace('_', ' ')})
+                    Auto-detect ({detectBrowserTimezone().replace('America/', '').replace('Pacific/', '').replace('_', ' ')})
                   </SelectItem>
                   {TIMEZONES.map(tz => (
                     <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, RotateCcw, Lock } from 'lucide-react';
+import { BookOpen, Video, Users, FileText, GraduationCap, Play, ArrowRight, RotateCcw, Lock, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -397,7 +397,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                   {/* Completion check badge */}
                   {course.progress === 100 && !isLockedCourse && !isComingSoon && (
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center z-10">
-                      <span className="text-xs text-white">✓</span>
+                      <span className="text-xs text-white"><Check className="w-3.5 h-3.5" /></span>
                     </div>
                   )}
                 </div>

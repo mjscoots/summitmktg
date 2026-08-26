@@ -1,0 +1,208 @@
+# Go / No-Go — publish readiness
+
+Written for the owner. Read top to bottom. Nothing in this document has been published.
+
+---
+
+## 1. Verdict
+
+**Not yet — because of two things only you can do.** The app itself is ready: the code
+compiles clean, the production build succeeds with no oversized files, every screen holds
+its layout from a 390-pixel phone to a 1280-pixel desktop, no table in the database is
+readable without the right permission, and the public pages show no pay figures or carrier
+names while stack publishing is switched off. What is not ready is *email* and *one
+person's access*. Right now the app sends every email — welcome messages, application
+approvals, calendar notices, the weekly owner report — from a shared Resend test address,
+which Resend will only deliver to your own inbox. Everyone else silently gets nothing. And
+Mathew Rubino is listed as the lead of Summit Pest but currently has no role assigned in
+the app, so he cannot use the tools that job needs. Fix those two and the app is ready to
+publish. The rest of the checklist below is settings you can change any time after
+launch without breaking anything.
+
+---
+
+## 2. What changed since the last published version
+
+- **Security.** Every database table now refuses access unless the person asking has the
+  right role. Internal automation routines can no longer be called by hand from outside
+  the app.
+- **Chat is now the access centre.** One list of conversations, event and announcement
+  cards you can act on inside chat, direct messages limited to you and your leaders, and
+  a people search with tap-to-call that respects each person's phone setting.
+- **Honest time.** Time in the app and time actually spent training are now counted
+  separately, in company time, so a manager can tell "logged in" from "did the work".
+- **Ask Summit remembers.** Each rep's conversations are saved as threads they can come
+  back to, and their manager can read them to help.
+- **Rep profiles written by the AI.** Overnight, the app writes a short plain summary of
+  each rep from their own activity, citing where each point came from. No guessing.
+- **Leads.** When someone leaves, their profile becomes a lead carrying what we knew about
+  them. Designated leads that go untouched now move to the next manager automatically.
+- **Every screen has the same header.** Title, one line of context, one main action.
+- **Copy cleanup.** No emoji, no exclamation marks, no hype, no internal words like
+  "queue" or "president" showing on screen.
+
+---
+
+## 3. Things only you can do
+
+Each item says where to click and what happens if you leave it.
+
+### Blocking — do these before publishing
+
+- [ ] **Email sender.** Either verify `summitmktgsales.com` in Resend, or add a secret
+  named `RESEND_FROM_EMAIL` in Project Settings → Secrets set to an address on a domain
+  you have already verified.
+  *If you do nothing:* every email the app sends goes out from
+  `onboarding@resend.dev`, which Resend only delivers to your own Resend account email.
+  New reps get no welcome email, applicants get no approval email, nobody gets calendar
+  notices, and the weekly owner report never arrives.
+
+- [ ] **Mathew Rubino's access.** Admin → Team → Restore access, and give him the
+  **Industry lead** role for Pest (or replace him as the Pest lead).
+  *If you do nothing:* he is shown as the lead of Summit Pest but cannot open the admin
+  screens, approve anything, or see his industry's numbers.
+
+### Strongly recommended
+
+- [ ] **Login code length.** Set the one-time email code length to 8. This is a Lovable
+  Cloud auth setting; ask for it to be changed if you cannot reach it yourself.
+  *If you do nothing:* login codes stay shorter than recommended. Low risk, but it is the
+  one security warning in the report that is a genuine setting rather than by design.
+
+- [ ] **The two people with no manager.** Mathew Joyce (you — expected, you are the root)
+  and **Elijah Hughes**. Fix Elijah in Admin → Team → set his manager.
+  *If you do nothing:* he does not roll up into anyone's team numbers.
+
+- [ ] **Fiber West region lead.** Fiber East is Brendan Pillar; Fiber West has nobody.
+  Admin → Settings → Regions.
+  *If you do nothing:* Fiber West reps have no region lead and the region picker shows a
+  gap.
+
+- [ ] **Fiber per-install values.** Sonic has 9 pay rows and Surf has 9, but **none of
+  the 18 are confirmed**. Admin → Money → Fiber.
+  *If you do nothing:* Fiber pay figures show as unconfirmed everywhere and are excluded
+  from anything public.
+
+- [ ] **Fiber and Life setup steps.** Fiber's path has 4 steps and Life has 1, and
+  neither is marked configured. Admin → Industries → the industry → mark configured and
+  publish the Fiber path.
+  *If you do nothing:* Fiber and Life reps see an incomplete first-day sequence.
+
+- [ ] **Pest tier rules.** 16 rank requirements and 4 ladder rungs exist. Confirm they
+  match the Manager Manual. Admin → Money → Ranks.
+  *If you do nothing:* reps may see the wrong threshold for their next tier.
+
+- [ ] **Season goal.** Currently **$9,000,000**, noted as "Set from coaching notes — edit
+  anytime." Admin → Settings.
+  *If you do nothing:* that figure shows on the season screen as the company target.
+
+- [ ] **Custom domain.** The app publishes to `summitmktg.lovable.app`. To serve
+  `summitmktgsales.com`, connect it in Project Settings → Domains and add the DNS records
+  that screen gives you.
+  *If you do nothing:* the app is only reachable at the `lovable.app` address.
+  You must also add the custom domain to the list of allowed sign-in redirect addresses,
+  or password resets and email confirmations sent from that domain will be rejected.
+
+### Optional — leave blank and the app just hides that number
+
+- [ ] `fiber_expense_allowance_per_install`, `fiber_holdback_percent`,
+  `summit_stack_fiber_sonic`, `summit_stack_fiber_surf` — all currently blank.
+- [ ] `vertical_lead_margin` — currently **50**.
+- [ ] `public_fiber_starting_rate` — blank, so the public Fiber page shows no rate.
+- [ ] `under_led_min_revenue` — not set.
+- [ ] **Life industry lead** — currently nobody; Life is marked "coming soon".
+- [ ] **Who sees pay figures.** `stack_visibility` = *direct leader only*,
+  `show_stacks_to_rookies` = **off**, `publish_stacks_publicly` = **off**.
+  These three are why no dollar amounts appear on the public industry pages today.
+- [ ] **Lead cycling.** On, 14-day default, maximum 25 open designated leads per manager.
+  Admin → Settings.
+- [ ] **Default phone visibility.** Currently **team only** for everyone. Each person can
+  change their own in their profile.
+
+### One test worth doing yourself
+
+- [ ] **Two-phone smoke test with one rep.** On two phones: send a chat message with a
+  photo and confirm it appears on the other phone; RSVP to an event card; search for a
+  manager in chat and tap the phone number to call; open Ask Summit, ask something,
+  leave, come back and confirm the same thread is still there.
+
+---
+
+## 4. Known limitations that ship as-is
+
+- **299 database linter items, and that is expected.** 278 of them say "a signed-in user
+  can call this function", and 19 say "anyone can call this function". These functions
+  *are* the app's own interface to its data, and every one of them checks the caller's
+  role before returning anything. The 19 open ones are the public pages: the landing
+  calculator, industry pages, ticket page, application forms. One further item notes a
+  table with no policies (`backup_job_tokens`), which is correct — nobody but the backup
+  job should ever read it. The last is the login code length in section 3.
+- **A React warning in the browser console during development.** It does not appear in
+  the published build and has no effect on anything.
+- **Two first-day sequences were never walked through as a live signed-in user:** the
+  Fiber industry lead's first day, and a Fiber rep's day one. The screens exist and were
+  checked individually; the end-to-end run was not captured.
+- **Recurring events post one chat card per stored occurrence.** If a weekly meeting has
+  twelve stored dates, chat shows twelve cards rather than one repeating card.
+- **AI rep profiles are thin until reps generate activity.** 26 profiles exist now. A rep
+  with little chat, training, or event history gets a short profile, and that is correct
+  behaviour — the profile only states what the data shows.
+- **Multi-person flows were verified through the database rather than two live browsers.**
+  Only one signed-in preview session can be restored at a time in the build environment,
+  so manager-and-rep interactions were proven by running the same calls as each person
+  against the real rules, with throwaway accounts that were then deleted.
+- **Performance on the preview address scores low; the published address will not.** The
+  preview serves unminified files with the editing toolbar attached. The published build
+  is 192 kB for the main file with no file over 200 kB.
+
+---
+
+## 5. How to publish, how to roll back, what to watch
+
+### Publishing
+
+Press **Publish** in the top right. It takes about a minute. The app appears at
+`summitmktg.lovable.app`. If you have connected the custom domain, allow a few extra
+minutes for it.
+
+### Rolling back
+
+- **Code:** open version history and revert to the previous version, then publish again.
+  This is instant and safe.
+- **Database:** database changes are not undone by reverting code. If a database change
+  needs reversing, ask for it explicitly and describe what to put back — do not revert
+  code and assume the data followed.
+- **A bad setting:** every item in section 3 is a setting you can change back in the app
+  without publishing again.
+
+### First 24 hours — where to look
+
+| What to check | Where |
+| --- | --- |
+| Applications arriving | Admin → Applications, and your notification bell |
+| Chat photos loading | Open a chat with an image on a phone, not just desktop |
+| Event card RSVPs | Events → an upcoming event → attendance count |
+| Weekly owner report email | Your inbox on Sunday evening; if nothing arrives, section 3's email item is why |
+| Nightly jobs ran | Admin → Reports; the rep profiles and lead cycling both run overnight and have not yet had a first run |
+
+### Scheduled jobs and their state
+
+| Job | Runs | Last run |
+| --- | --- | --- |
+| Event reminders | every 15 min | succeeded |
+| Notification digest | every 30 min | succeeded |
+| Bootcamp reminders | hourly | succeeded |
+| Bootcamp overdue check | hourly | succeeded |
+| Pairing request sweep | hourly | succeeded |
+| Action item due | daily 13:05 UTC | succeeded |
+| Inactivity check | daily 17:00 UTC | succeeded |
+| Event series expansion | daily 03:17 UTC | succeeded |
+| **Rep AI profiles** | daily 10:40 UTC | **not yet run** |
+| **Stale lead cycling** | daily 10:50 UTC | **not yet run** |
+| Weekly champion notice | Mondays 08:05 UTC | succeeded |
+| **Weekly owner report** | Sundays 22:05 UTC | **not yet run** |
+| **Weekly awards** | Sundays 22:05 UTC | **not yet run** |
+| **Weekly backup** | Sundays 09:20 UTC | **not yet run** |
+
+The five marked "not yet run" are all recent additions whose first scheduled time has not
+come round yet. Check them on the day after publishing.

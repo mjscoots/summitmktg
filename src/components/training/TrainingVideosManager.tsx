@@ -243,7 +243,7 @@ export function TrainingVideosManager() {
                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                   <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px]">{video.category}</span>
                   <span className="px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground">
-                    {video.video_url?.includes('vimeo.com') ? '🎬 Vimeo' : video.video_url?.includes('youtube.com') || video.video_url?.includes('youtu.be') ? '▶ YouTube' : '📁 Uploaded'}
+                    {video.video_url?.includes('vimeo.com') ? 'Vimeo' : video.video_url?.includes('youtube.com') || video.video_url?.includes('youtu.be') ? 'YouTube' : 'Uploaded'}
                   </span>
                   {video.target_role && (
                     <span className="px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground capitalize">{video.target_role} only</span>
@@ -350,7 +350,7 @@ export function TrainingVideosManager() {
                 />
                 {uploadedUrl && videoSource === 'upload' && (
                   <div className="mt-2 p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success">
-                    ✓ Video uploaded successfully
+                    Video uploaded successfully
                   </div>
                 )}
               </div>

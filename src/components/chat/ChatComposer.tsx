@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2, Mic, Square } from 'lucide-react';
+import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2, Mic, Square, Sticker } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { buildVoiceMessage, MAX_VOICE_SECONDS, pickAudioMime, voiceRecordingSupported } from '@/components/chat/VoiceNote';
 import { cn } from '@/lib/utils';
@@ -268,7 +268,7 @@ export function ChatComposer({
               { icon: <Image className="w-5 h-5" />, label: 'Photo', action: () => { fileRef.current?.click(); } },
               { icon: <Paperclip className="w-5 h-5" />, label: 'File', action: () => { fileRef.current?.click(); } },
               { icon: <Smile className="w-5 h-5" />, label: 'GIF', action: () => { setShowGifs(true); setShowDrawer(false); } },
-              { icon: <span className="text-lg">🏔️</span>, label: 'Sticker', action: () => { setShowStickers(true); setShowDrawer(false); } },
+              { icon: <Sticker className="w-5 h-5" />, label: 'Sticker', action: () => { setShowStickers(true); setShowDrawer(false); } },
               { icon: <BarChart3 className="w-5 h-5" />, label: 'Poll', action: () => { setShowPoll(true); setShowDrawer(false); } },
             ].map(item => (
               <button

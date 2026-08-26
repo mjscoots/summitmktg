@@ -141,7 +141,7 @@ export function CreateRepModal({ open, onOpenChange, managers, teams, onSuccess 
               </div>
             </div>
             {sendEmail && (
-              <p className="text-xs text-white/40">✉️ Login credentials have been emailed to the rep.</p>
+              <p className="text-xs text-white/40">Login credentials have been emailed to the rep.</p>
             )}
             <Button onClick={handleClose} className="w-full bg-white text-black hover:bg-white/90 font-bold">
               Done

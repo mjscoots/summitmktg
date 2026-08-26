@@ -16,6 +16,7 @@ import { ManagerPicker } from '@/components/industries/ManagerPicker';
 import { LadderStrip } from '@/components/industries/LadderStrip';
 import { VerticalApplicationForm } from '@/components/workspace/VerticalApplicationForm';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
@@ -115,12 +116,10 @@ export default function IndustriesPage() {
     <AppLayout>
       <div className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-5">
         <PageBackButton />
-        <header>
-          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Industries</h1>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            The lines of business you can run with Summit. Join one to see its setup checklist.
-          </p>
-        </header>
+        <PageHeader
+          title="Industries"
+          context="The lines of business you can run with Summit. Join one to see its setup checklist."
+        />
 
         {!loading && verticals.length > 0 && (
           <LadderStrip verticals={verticals.map((v) => ({ vertical: v.vertical, label: v.label }))} />
@@ -301,16 +300,10 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
           <ArrowLeft className="h-4 w-4" /> Industries
         </button>
 
-        <header>
-          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">
-            {data?.label || vertical} setup
-          </h1>
-          {steps.length > 0 && (
-            <p className="mt-1 text-[13px] tabular-nums text-muted-foreground">
-              {done} of {steps.length} steps complete
-            </p>
-          )}
-        </header>
+        <PageHeader
+          title={`${data?.label || vertical} setup`}
+          context={steps.length > 0 ? `${done} of ${steps.length} steps complete` : undefined}
+        />
 
         {!loading && (
           pairedManager ? (

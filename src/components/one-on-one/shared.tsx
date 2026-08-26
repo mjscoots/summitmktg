@@ -181,7 +181,7 @@ export function RookieManagerForm({
         formData.pitch_work_needed,
         formData.weekly_mission
       );
-      toast.success(`Rookie 1:1 submitted! ${tasksCreated} tasks created for ${formData.rookie_name}`);
+      toast.success(`Rookie 1:1 submitted. ${tasksCreated} tasks created for ${formData.rookie_name}`);
       setFormData({ ...initialRookieForm, manager_name: profile?.full_name || '' });
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -325,7 +325,7 @@ export function RookieManagerForm({
             Remember the compliment sandwich: praise, correction, praise.
           </p>
           <p className="text-xs text-primary font-medium">
-            📋 This will become a daily task in their Today's Priorities
+            This will become a daily task in their Today's Priorities
           </p>
           <Textarea
             id="pitch_work_needed"
@@ -342,7 +342,7 @@ export function RookieManagerForm({
             Give a mission to complete for the week? <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-primary font-medium">
-            📋 This will become a daily task in their Today's Priorities
+            This will become a daily task in their Today's Priorities
           </p>
           <Textarea
             id="weekly_mission"
@@ -434,7 +434,7 @@ export function ManagerForm({
         formData.weekly_mission,
         formData.recruit_goal
       );
-      toast.success(`Manager 1:1 submitted! ${tasksCreated} tasks created for ${formData.manager_name}`);
+      toast.success(`Manager 1:1 submitted. ${tasksCreated} tasks created for ${formData.manager_name}`);
       setFormData({ ...initialManagerForm, interviewer_name: profile?.full_name || '' });
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -584,7 +584,7 @@ export function ManagerForm({
             This week's mission: <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-primary font-medium">
-            📋 This will become a daily task in their Today's Priorities
+            This will become a daily task in their Today's Priorities
           </p>
           <Textarea
             id="weekly_mission_mgr"
@@ -600,7 +600,7 @@ export function ManagerForm({
             What is your goal for new recruits this week? <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-primary font-medium">
-            📋 This will become a daily task in their Today's Priorities
+            This will become a daily task in their Today's Priorities
           </p>
           <Input
             id="recruit_goal"

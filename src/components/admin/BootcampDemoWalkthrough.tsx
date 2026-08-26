@@ -15,10 +15,10 @@ const DEMO_SCREENS = [
         <Lock className="w-10 h-10 text-white/60 mx-auto" />
         <h2 className="text-xl font-black text-white tracking-tight">SUMMER CHECKLIST REQUIRED</h2>
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
-          <p className="text-primary text-sm font-semibold">🔒 You must complete the Summer Checklist before you can access the app.</p>
+          <p className="text-primary text-sm font-semibold">You must complete the Summer Checklist before you can access the app.</p>
         </div>
         <p className="text-primary text-sm font-black bg-primary/10 border border-primary/20 rounded-lg px-4 py-2.5 inline-block">
-          ⚡ Most reps finish in under 15 minutes
+          Most reps finish in under 15 minutes
         </p>
         <div className="space-y-1.5 text-left">
           {['Get Started', 'Revenue Goals', 'Your Why', 'Excitement', 'Commitment', '90-Day Vision', "You're Ready"].map((s, i) => (
@@ -240,11 +240,11 @@ const DEMO_SCREENS = [
         <h2 className="text-lg font-bold text-foreground mb-1">What's up, Demo Rep</h2>
         <p className="text-sm text-muted-foreground mb-4">Complete training. Build momentum.</p>
         <div className="bg-primary/10 rounded-lg px-4 py-3 mb-4">
-          <span className="text-primary font-bold text-sm">🔥 Open Training</span>
+          <span className="text-primary font-bold text-sm">Open Training</span>
         </div>
         <div className="space-y-3">
           <div className="bg-muted/30 rounded-lg p-3">
-            <h3 className="text-xs font-semibold text-foreground mb-1">📋 Daily Checklist</h3>
+            <h3 className="text-xs font-semibold text-foreground mb-1">Daily Checklist</h3>
             <div className="space-y-1">
               {['Complete 1 training lesson', 'Review your schedule', 'Check announcements'].map((t, i) => (
                 <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -255,8 +255,8 @@ const DEMO_SCREENS = [
             </div>
           </div>
           <div className="bg-muted/30 rounded-lg p-3">
-            <h3 className="text-xs font-semibold text-foreground">📢 Announcements</h3>
-            <p className="text-xs text-muted-foreground mt-1">Welcome to Summit! Check your training...</p>
+            <h3 className="text-xs font-semibold text-foreground">Announcements</h3>
+            <p className="text-xs text-muted-foreground mt-1">Welcome to Summit. Check your training...</p>
           </div>
         </div>
       </div>

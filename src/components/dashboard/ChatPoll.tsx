@@ -213,7 +213,7 @@ export function PollCreator({ onSubmit, onClose }: { onSubmit: (question: string
               className="flex-1 bg-muted/40 border border-border/50 rounded-md px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-primary/50"
             />
             {options.length > 2 && (
-              <button onClick={() => removeOption(idx)} className="text-xs text-muted-foreground hover:text-destructive">✕</button>
+              <button onClick={() => removeOption(idx)} className="text-xs text-muted-foreground hover:text-destructive">Remove</button>
             )}
           </div>
         ))}

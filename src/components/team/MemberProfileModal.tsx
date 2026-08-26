@@ -376,10 +376,10 @@ export function MemberProfileModal({
                     await supabase.from('user_notifications').insert({
                       user_id: member.user_id,
                       title: 'Props received',
-                      message: `${senderName} just sent you props — keep grinding!`,
+                      message: `${senderName} just sent you props.`,
                       link: '/app/leaderboard',
                     });
-                    toast.success(`Props sent to ${getDisplayName(member.full_name)}!`);
+                    toast.success(`Props sent to ${getDisplayName(member.full_name)}`);
                   } catch {
                     toast.error('Failed to send props');
                     setPropsSent(false);
@@ -569,7 +569,7 @@ export function MemberProfileModal({
                       onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready' ? "text-primary" :
                       "text-destructive"
                     )}>
-                      {progress.percentage >= 100 ? '☀️ Summer Ready' 
+                      {progress.percentage >= 100 ? 'Summer Ready' 
                         : onboardingStatus === 'onboarded' || onboardingStatus === 'summer_ready' ? 'Onboarded'
                         : 'Not Onboarded'}
                     </p>

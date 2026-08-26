@@ -34,7 +34,7 @@ export function StatusBar() {
         </div>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="text-xs">
-        <p>🔥 {streakData.currentStreak} day streak · 📈 {percentage}% training</p>
+        <p>{streakData.currentStreak} day streak · {percentage}% training</p>
       </TooltipContent>
     </Tooltip>
   );

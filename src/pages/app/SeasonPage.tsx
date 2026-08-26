@@ -14,6 +14,7 @@ import {
   Plus, Trash2, ArrowUp, ArrowDown, Pencil, Check, X, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
 
@@ -185,22 +186,11 @@ export default function SeasonPage() {
         <PageBackButton to="/app" label="Home" />
 
         {/* Hero */}
-        <div className="flex items-start gap-4 mb-8">
-          <div className="relative mt-0.5">
-            <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl" />
-            <div className="relative w-12 h-12 rounded-2xl bg-primary/25 border border-primary/20 flex items-center justify-center">
-              <CalendarClock className="w-5.5 h-5.5 text-primary" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">
-              {season.name}
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1.5">
-              {season.starts_on} → {season.ends_on}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title={season.name}
+          context={`${season.starts_on} → ${season.ends_on}`}
+          className="mb-8"
+        />
 
         {/* Countdown */}
         <div className={cn(CARD, 'mb-6')}>

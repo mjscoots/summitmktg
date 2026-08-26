@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { BarChart3, Activity, Users, Clock, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DownlineTab } from '@/components/warroom/DownlineTab';
@@ -28,12 +29,11 @@ export default function WarRoomPage() {
         <div className="max-w-6xl mx-auto px-4 py-6">
           <PageBackButton to="/app/team" label="Team" />
 
-          <header className="mb-6">
-            <h1 className="text-xl font-semibold text-foreground">Team stats</h1>
-            <p className="text-[13px] text-muted-foreground mt-1">
-              Training, progress and accountability across your teams.
-            </p>
-          </header>
+          <PageHeader
+            title="Team stats"
+            context="Training, progress and accountability across your teams."
+            className="mb-6"
+          />
 
           {/* Tab Bar */}
           <div className="p-1 bg-muted/50 rounded-xl mb-6 border border-border/30">

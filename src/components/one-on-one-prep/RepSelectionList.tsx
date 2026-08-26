@@ -111,19 +111,19 @@ function SortableRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void 
         <div className="flex-shrink-0">
           {rep.lastWeekMinutes === 0 ? (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
-              ⚠️ No activity
+              No activity
             </span>
           ) : rep.lastWeekMinutes / 7 < 20 ? (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-              ⚠️ Low avg
+              Low avg
             </span>
           ) : rep.peerRank === 1 ? (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-              ✅ #1
+              #1
             </span>
           ) : (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-              ✅ On pace
+              On pace
             </span>
           )}
         </div>
@@ -229,7 +229,7 @@ export function RepSelectionList({
       }
       return;
     }
-    toast.success(`${repName} added to your 1:1 list!`);
+    toast.success(`${repName} added to your 1:1 list`);
     setShowAddRep(false);
     setSearchQuery('');
     setSearchResults([]);
@@ -306,7 +306,6 @@ export function RepSelectionList({
         </>
       ) : (
         <div className="text-center py-10 rounded-lg border border-primary/20 bg-primary/5">
-          <span className="text-2xl">🎉</span>
           <p className="text-sm font-medium text-foreground mt-2">All 1:1s completed for this week</p>
           <p className="text-xs text-muted-foreground mt-1">{completedCount} reps checked in</p>
         </div>

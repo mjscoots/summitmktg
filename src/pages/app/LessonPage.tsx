@@ -399,7 +399,7 @@ export default function LessonPage() {
         if (managerProfile) {
           await supabase.from('user_notifications').insert({
             user_id: managerProfile.user_id,
-            title: `🏆 ${userProfile.full_name} completed 100% training!`,
+            title: `${userProfile.full_name} completed 100% training`,
             message: `${userProfile.full_name} has finished every training module. They are fully trained.`,
             link: '/app/team',
           });
@@ -415,7 +415,7 @@ export default function LessonPage() {
           if (team?.leader_id && team.leader_id !== managerProfile?.user_id) {
             await supabase.from('user_notifications').insert({
               user_id: team.leader_id,
-              title: `🏆 ${userProfile.full_name} completed 100% training!`,
+              title: `${userProfile.full_name} completed 100% training`,
               message: `${userProfile.full_name} has finished every training module. They are fully trained.`,
               link: '/app/team',
             });
@@ -725,11 +725,11 @@ export default function LessonPage() {
               )}
             >
               {pitchBlocking && !pitchRequest
-                ? '🔒 Submit Pitch'
+                ? 'Submit Pitch'
                 : pitchBlocking && pitchRequest?.status === 'pending'
-                  ? '⏳ Awaiting Approval'
+                  ? 'Awaiting Approval'
                   : pitchBlocking && pitchRequest?.status === 'rejected'
-                    ? '❌ Re-record Pitch'
+                    ? 'Re-record Pitch'
                     : buttonLabel}
               {!pitchBlocking && <ArrowRight className="w-3.5 h-3.5" />}
             </Button>

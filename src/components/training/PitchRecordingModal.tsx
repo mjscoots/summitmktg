@@ -209,7 +209,7 @@ export function PitchRecordingModal({
         if (managerProfile) {
           const { error: notificationError } = await supabase.from('user_notifications').insert({
             user_id: managerProfile.user_id,
-            title: `🎤 ${profile.full_name} submitted their ${lessonTitle} pitch`,
+            title: `${profile.full_name} submitted their ${lessonTitle} pitch`,
             message: `Review and approve/reject the pitch recording.`,
             link: '/app/pitch-approvals',
           });

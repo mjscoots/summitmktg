@@ -21,6 +21,7 @@ import {
 } from '@/hooks/useLeads';
 import LeadDrawer from '@/components/leads/LeadDrawer';
 import CallMode from '@/components/leads/CallMode';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
 const NOT_ON_ROSTER = 'not-on-2026-roster';
@@ -156,30 +157,29 @@ export default function LeadsPage() {
         <main className="mx-auto max-w-5xl px-4 py-6">
           <PageBackButton to="/app" label="Home" />
 
-          <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">Leads</h1>
-              <p className="mt-1.5 text-[13px] text-muted-foreground">
-                People who are out and not coming back. {visible.length} shown.
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                onClick={() => setCallMode(true)}
-                disabled={callable.length === 0}
-                className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground disabled:opacity-50"
-              >
-                <PhoneCall className="h-4 w-4" /> Call mode
-                <span className="tabular-nums opacity-80">{callable.length}</span>
-              </button>
-              <button
-                onClick={reload}
-                className="micro-label inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 hover:text-foreground"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Refresh
-              </button>
-            </div>
-          </div>
+          <PageHeader
+            title="Leads"
+            context={`People who are out and not coming back. ${visible.length} shown.`}
+            action={
+              <>
+                <button
+                  onClick={() => setCallMode(true)}
+                  disabled={callable.length === 0}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground disabled:opacity-50"
+                >
+                  <PhoneCall className="h-4 w-4" /> Call mode
+                  <span className="tabular-nums opacity-80">{callable.length}</span>
+                </button>
+                <button
+                  onClick={reload}
+                  className="micro-label inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-border/60 bg-surface px-3 hover:text-foreground"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                </button>
+              </>
+            }
+            className="mb-5"
+          />
 
           <div className={cn('mb-4 grid gap-2', staff ? 'grid-cols-3' : 'grid-cols-2')}>
             {tabs.map((t) => (

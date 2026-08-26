@@ -434,7 +434,7 @@ export default function AdminAuditPanel() {
                 <span className="text-primary font-medium">{p.nlc}</span>
                 {p.noEdge > 0 && (
                   <>
-                    <span className="text-primary">⚠ Unsynced:</span>
+                    <span className="text-primary">Unsynced:</span>
                     <span className="text-primary font-medium">{p.noEdge}</span>
                   </>
                 )}

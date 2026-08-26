@@ -73,9 +73,9 @@ export default function AdminFeedbackTab() {
   };
 
   const typeEmoji: Record<string, string> = {
-    feedback: '💡',
-    bug: '🐛',
-    complaint: '⚠️',
+    feedback: 'Feedback',
+    bug: 'Bug',
+    complaint: 'Complaint',
   };
 
   const statusColor: Record<string, string> = {

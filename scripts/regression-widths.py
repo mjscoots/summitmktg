@@ -28,16 +28,16 @@ PUBLIC_ROUTES = [
     ("industries-pest", "/industries/pest"),
     ("industries-fiber", "/industries/fiber"),
     ("industries-life", "/industries/life"),
-    ("apply-rookie", "/apply"),
-    ("apply-vet", "/apply/vet"),
+    ("apply-rookie", "/apply/rookie"),
+    ("apply-vet", "/apply/veteran"),
     ("parents", "/parents"),
     ("ticket", "/ticket"),
-    ("login", "/auth"),
+    ("login", "/login"),
 ]
 
 APP_ROUTES = [
     ("home", "/app"),
-    ("industries-hub", "/app/industries"),
+    ("industries", "/app/industries"),
     ("money", "/app/money"),
     ("team", "/app/team"),
     ("roster-sweep", "/app/roster/sweep"),
@@ -45,6 +45,10 @@ APP_ROUTES = [
     ("ask", "/app/ask"),
     ("profile", "/app/profile"),
     ("admin-money", "/app/admin?tab=money"),
+    ("chat", "/app/chat"),
+    ("leads", "/app/leads"),
+    ("events", "/app/events"),
+    ("training", "/app/training"),
     ("command", "/command"),
 ]
 

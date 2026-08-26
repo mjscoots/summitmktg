@@ -24,6 +24,7 @@ const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
 import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import { AdminArchivedTab } from '@/components/admin/AdminArchivedTab';
@@ -353,38 +354,26 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto px-4 py-4">
-        {/* ═══ PREMIUM HERO HEADER ═══ */}
-        <div className="relative mb-6 -mx-4 px-4 pt-4 pb-5 overflow-hidden rounded-xl">
-          {/* Gradient background */}
-          <div className="absolute inset-0 bg-[hsl(220,60%,12%)] rounded-xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(217,80%,30%,0.15),transparent_60%)]" />
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0z\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3C/svg%3E")' }} />
+        <PageBackButton to="/app" label="Dashboard" />
 
-          <div className="relative z-10">
-            <PageBackButton to="/app" label="Dashboard" />
+        <PageHeader
+          title="Admin"
+          context="People management, teams and system controls"
+          className="mb-4"
+          action={isAdmin ? (
+            <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 h-9 rounded-xl">
+              <UserPlus className="w-3.5 h-3.5" /> Create rep
+            </Button>
+          ) : undefined}
+        />
 
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mt-2">
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <Shield className="w-6 h-6 text-primary" />
-                  <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Admin</h1>
-                </div>
-                <p className="text-sm text-white/50 mt-1">People management, teams & system controls</p>
-              </div>
-              {isAdmin && (
-                <div className="flex items-center gap-2">
-                  <Button size="sm" onClick={() => setDemoOpen(true)} className="gap-1.5 bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/[0.12] hover:text-white font-semibold text-xs h-9 rounded-xl backdrop-blur-sm">
-                    <Play className="w-3.5 h-3.5" /> DEMO
-                  </Button>
-                  <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 h-9 rounded-xl shadow-lg shadow-primary/20">
-                    <UserPlus className="w-3.5 h-3.5" /> CREATE REP
-                  </Button>
-                </div>
-              )}
-            </div>
+        {isAdmin && (
+          <div className="mb-4">
+            <Button size="sm" variant="outline" onClick={() => setDemoOpen(true)} className="gap-1.5 h-9 rounded-xl">
+              <Play className="w-3.5 h-3.5" /> Demo
+            </Button>
           </div>
-        </div>
-
+        )}
 
         <Tabs
           value={activeTab}

@@ -130,7 +130,7 @@ export function ManagerPrepForm({
           <Label className="text-sm">
             This week's mission: <span className="text-destructive">*</span>
           </Label>
-          <p className="text-[10px] text-primary font-medium">📋 This will become a daily task in their Today's Priorities</p>
+          <p className="text-[10px] text-primary font-medium">This will become a daily task in their Today's Priorities</p>
           <Textarea value={formData.weekly_mission} onChange={e => update('weekly_mission', e.target.value)} rows={2} />
         </div>
 
@@ -138,7 +138,7 @@ export function ManagerPrepForm({
           <Label className="text-sm">
             What is your goal for new recruits this week? <span className="text-destructive">*</span>
           </Label>
-          <p className="text-[10px] text-primary font-medium">📋 This will become a daily task in their Today's Priorities</p>
+          <p className="text-[10px] text-primary font-medium">This will become a daily task in their Today's Priorities</p>
           <Input value={formData.recruit_goal} onChange={e => update('recruit_goal', e.target.value)} placeholder="Number of recruits or specific goal" />
         </div>
 

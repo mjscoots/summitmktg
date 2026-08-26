@@ -1,8 +1,18 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+import { setPageMeta } from "@/lib/pageMeta";
 
 const ApplySuccess = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPageMeta({
+      title: "Application Submitted — Summit Marketing",
+      description: "Your application has been received. Summit Marketing will be in touch.",
+      path: "/apply/success",
+    });
+  }, []);
 
   return (
     <div className="gold-world min-h-screen bg-background flex items-center justify-center px-6">

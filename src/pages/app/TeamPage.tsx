@@ -38,6 +38,7 @@ import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { MoveRepModal } from '@/components/team/MoveRepModal';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { companyWeekRange, buildWeekMap } from '@/lib/timeSplit';
 
 interface TeamPillar {
@@ -475,26 +476,16 @@ export default function TeamPage() {
         <TeamNotificationBanners teamName="the team" roster={rosterForBanners} />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-primary/15">
-                <Users className="w-5 h-5 text-primary" />
-              </div>
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-                {viewMode === 'teams' ? 'Team Structure' : 'All Members'}
-              </h1>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              {viewMode === 'teams' ? 'Organizational hierarchy overview' : `${filteredMembers.length} active members`}
-            </p>
-          </div>
-          {(isAdmin || teamPillars.some(p => p.leader === profile?.full_name)) && (
+        <PageHeader
+          title={viewMode === 'teams' ? 'Team structure' : 'All members'}
+          context={viewMode === 'teams' ? 'Organizational hierarchy overview' : `${filteredMembers.length} active members`}
+          className="mb-6"
+          action={(isAdmin || teamPillars.some(p => p.leader === profile?.full_name)) ? (
             <Button onClick={() => setAddModalOpen(true)} size="sm" className="gap-1.5 bg-transparent border border-border text-foreground hover:bg-white/5 font-semibold text-xs">
-              <UserPlus className="w-3.5 h-3.5" /> Add Member
+              <UserPlus className="w-3.5 h-3.5" /> Add member
             </Button>
-          )}
-        </div>
+          ) : undefined}
+        />
 
         {/* View Toggle */}
         <div className="flex items-center gap-1 mb-6 p-1 bg-muted/30 rounded-lg w-fit border border-border/30">

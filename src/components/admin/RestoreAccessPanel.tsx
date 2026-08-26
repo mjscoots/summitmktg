@@ -254,7 +254,7 @@ export default function RestoreAccessPanel() {
             <option value="rookie">Rookie</option>
             <option value="manager">Manager</option>
             {isOwner && <option value="admin">Admin</option>}
-            {isOwner && <option value="president">President</option>}
+            {isOwner && <option value="president">Industry lead</option>}
           </select>
           <select
             className="input-field w-full"

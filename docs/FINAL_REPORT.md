@@ -1035,3 +1035,244 @@ UI
 ### Open
 - Manager-side UI was verified by SQL and RPC rather than by signing in as each throwaway manager in a browser: only one preview session can be restored at a time in this environment.
 - Nothing was published.
+
+## Pass 62 — Publish readiness: go / no-go
+
+Owner-facing document: `docs/GO_NO_GO.md`. This section holds the technical evidence.
+
+### 1. PageHeader rollout
+
+`PageHeader` (Pass 43) now covers every standard app/admin page. Converted this pass (29
+pages, across three parallel batches): AskSummit, Calendar, Events, Industries (both
+views), Leaderboard, Leads, Links, Scripts, Season, Training (3 headers), TrainingCourse,
+TrainingVideos, ManagerTrainingVideos, Videos, PitchApprovals, Profile, EstimateEarnings,
+Interviews, AdminTeam, MyTeam, Team, WarRoom, Recruits, RepLogistics, ManagerMeeting,
+OneOnOnePrep (roster list), RosterSweep. Previously converted: Forms, MyMoney.
+
+Deliberately exempt, with reason:
+
+| Page | Reason |
+| --- | --- |
+| AuthPage, ResetPasswordPage, PendingApproval | unauthenticated screens, no app chrome |
+| BootcampLock / Phase1 / Phase2 / Phase3 / Momentum | immersive single-purpose flow |
+| Interview1/2/3Page | immersive form flow with its own step chrome |
+| LessonPage, VideoPlayerPage | immersive player, header would compete with the content |
+| ChatPage | full-height conversation layout, own header row |
+| DashboardPage | home screen, not a titled page |
+| CommandCenterPage | standalone `/command` report surface with its own type system |
+| AlumniPage, PersonProfilePage | identity banner, not a page title |
+| WeeklyOneOnOnesContent | embedded inside FormsPage tabs, which already has a header |
+
+Copy unchanged beyond what the component implies. Two type errors introduced by the
+parallel batches (duplicate `PageHeader` import in EventsPage; lucide components passed
+where `ReactNode` was expected in TrainingVideosPage) were fixed.
+
+### 2a. Copy sweep
+
+Fixed this pass:
+
+| File | Was | Now |
+| --- | --- | --- |
+| `WorkspacePanel.tsx` | `· President` | `· You lead this industry` |
+| `RestoreAccessPanel.tsx` | `<option>President</option>` | `Industry lead` |
+| `HomeActionRow.tsx` | label `Queue` | `Needs review` |
+| `Index.tsx` | footer `Recruiting` | `Summer Jobs` |
+| `Parents.tsx` | `Back to recruiting` | `Back to summer jobs` |
+| `Recruiting.tsx` | `Uncapped recruiting overrides` | `Uncapped overrides on your team` |
+| `VetApplication.tsx` | `Uncapped Recruiting`, `recruiting record holder`, `recruiting software` | `Uncapped team building`, `hiring record holder`, `hiring software` |
+| `WelcomeBanner.tsx` | `The grind is earning your future.` | `The work you put in now compounds later.` |
+
+Emoji and exclamation marks removed from UI chrome across 36 files in two batches
+(training, notifications, pitch review, calendar, bootcamp, status bar, prep forms,
+admin tabs, chat chrome). Status glyphs (`✓`, `✗`, `✅`, `❌`, `⚠️`) replaced with
+lucide icons, not deleted.
+
+Deliberately kept: arrow glyphs (`→`, `⇥`) as typography; `QUICK_REACTIONS` in
+`MessageContextMenu.tsx`, `GifPicker`, and `StickerPicker` because those emoji and sticker
+names are user-selectable content, not chrome — the sticker label `Crushed It!` matches
+the artwork filename and is left as-is. No `Oops`, no `doors per day`, no `close rate`
+anywhere in `src/`.
+
+### 2b. Public surface (signed-out, 390px)
+
+Real public routes from `src/App.tsx`: `/`, `/recruiting`, `/parents`,
+`/industries/:slug`, `/join`, `/apply` (redirect to `/recruiting#apply`), `/apply/rookie`,
+`/apply/veteran`, `/apply/success`, `/ticket`.
+
+- `publish_stacks_publicly=false`: `/industries/pest`, `/industries/fiber`,
+  `/industries/life` show no dollar values and no carrier names. Confirmed.
+- `/recruiting` and `/apply` show public calculator figures by design (they come from
+  `public_pay_scales`, not from `rank_stacks`).
+- `/apply/rookie` submitted empty renders exactly `* All fields are required` (Pass 57
+  validation). `/apply/veteran` and `/apply/success` render clean.
+- Added `setPageMeta` to `RookieApplication`, `VetApplication`, and `ApplySuccess`; they
+  were the only public routes without a title and description.
+
+### 2c. Security
+
+Linter after this pass: **299 issues, down from 333**, four types:
+
+```
+INFO 1: RLS Enabled No Policy                                      1
+WARN 2: Public Can Execute SECURITY DEFINER Function              19
+WARN 3: Signed-In Users Can Execute SECURITY DEFINER Function     278
+WARN 4: Auth OTP short length                                      1
+```
+
+Two migrations closed the 34-issue gap. All 37 `returns trigger` functions in `public`
+had `EXECUTE` granted to `anon` and/or `authenticated`; PostgreSQL does not check
+`EXECUTE` when firing a trigger, so those grants were pure surface area. Revoked from
+`anon`, `authenticated`, and `PUBLIC` on all 37.
+
+- Tables in `public` with RLS off: **0**.
+- Tables with RLS on and zero policies: **`backup_job_tokens` only**, intentional.
+- SECURITY DEFINER functions `anon` can execute: **19**, exactly the Pass 57 list —
+  `get_public_calc`, `get_public_counters`, `get_public_cover_content`,
+  `get_public_fiber_stacks`, `get_public_industry`, `get_public_setting`,
+  `get_recruiting_content`, `get_recruiting_proof`, `get_ticket_config`,
+  `get_ticket_series_status`, `has_role`, `is_manager_tier`, `is_paired_manager_of`,
+  `is_president_of_vertical`, `is_staff`, `is_vertical_lead`, `region_lead_of`,
+  `resolve_source_code`, `validate_access_code`. No deliberate additions.
+- Trigger-function grant audit (58B) re-run: `trigger_fns_anon_can_call = 0`,
+  `trigger_fns_authenticated_can_call = 0`, `trigger_fns_total = 37`.
+- Storage: only `avatars` is public. `chat-uploads`, `backups`, `bootcamp-videos`,
+  `pitch-approval-videos`, `revenue-imports`, `training-videos`, `vertical-proof` are all
+  private.
+
+Trigger firing was proven still to work after the revoke: a `set local role authenticated`
+update against `public.announcements` fired `update_updated_at_column`. **Disclosure:** the
+restore step of that check re-fired the trigger, so one announcement row
+(`b7b4bb56…`, "REPORT GLITCHES TO #FEEDBACK CHAT") now carries `updated_at` of the test
+moment instead of its original value. `announcements.updated_at` is present in the
+`AnnouncementBox` type but never rendered or sorted on, so nothing user-visible changed;
+the original value was not captured and has not been invented.
+
+### 2d. Data health
+
+| Check | Count |
+| --- | --- |
+| Active people with no manager | 2 — Mathew Joyce (root, expected) and Elijah Hughes |
+| Manager-picker gaps | 0 |
+| Unresolved roster-sweep rows | 0 (`sweep_sessions` is empty; no sweep has been started) |
+| Revenue rows with no month | 0 |
+| Designated leads with no `designated_at` | 0 |
+| Leads total / with `profile_snapshot` | 546 / 532 |
+| Active people with no phone | 1 |
+| Pending applications | 5 |
+| Pending reactivations / team-lead applications | 0 / 0 |
+| `rep_ai_profiles` rows | 26 |
+| Designated leads eligible to cycle | 123 |
+
+Settings state at time of writing: `stack_visibility=direct_leader`,
+`show_stacks_to_rookies=false`, `publish_stacks_publicly=false`,
+`season_revenue_goal=9000000`, `vertical_lead_margin=50`, `leads_cycling_enabled=true`,
+`leads_cycle_days_default=14`, `leads_max_open_per_manager=25`. Blank:
+`fiber_expense_allowance_per_install`, `fiber_holdback_percent`,
+`summit_stack_fiber_sonic`, `summit_stack_fiber_surf`, `public_fiber_starting_rate`.
+`under_led_min_revenue` is absent. `profiles.phone_visibility` default is `'team'`.
+
+Industry state: Pest active/configured (lead Mathew Rubino — **who holds no `user_roles`
+row at all**); Fiber active but `is_configured=false`, 4 path steps, lead Brendan Pillar,
+region East led, region West **no lead**, Sonic 9 stacks / 0 confirmed, Surf 9 / 0
+confirmed; Life `coming_soon`, `is_configured=false`, 1 step, no lead.
+
+### 2e. Build
+
+- `bunx tsgo --noEmit` — clean.
+- `bun run build` — succeeded in 14.88s. **No chunk over 200 kB.** Largest:
+  `index` 191.92 kB (gzip 60.31), `vendor-supabase` 172.98, `vendor-react` 162.98,
+  `AdminTeamPage` 131.96, `AppLayout` 104.76, `CommandCenterPage` 98.11,
+  `DashboardPage` 95.65.
+- `scripts/regression-widths.py` at 390 / 768 / 820 / 1024 / 1280 across 24 routes:
+  **0 overflowing route/width combinations** (120 combinations). Stale routes in the
+  script were corrected (`/apply/vet` → `/apply/veteran`, `/apply` → `/apply/rookie`,
+  `/auth` → `/login`) and `chat`, `leads`, `events`, `training` were added.
+- Lighthouse, mobile, signed-out preview landing page: **performance 26, accessibility 94,
+  best practices 100, SEO 63.** Both low scores are preview-environment artefacts:
+  SEO is docked entirely by `is-crawlable` because the preview host sends a noindex
+  header, and performance reflects unminified preview assets plus the editor toolbar.
+  The one accessibility miss is `meta-viewport` reporting `user-scalable=no` — `index.html`
+  contains `width=device-width, initial-scale=1.0, viewport-fit=cover` and no `src/` code
+  touches the viewport tag, so that too is injected by the preview wrapper. Not re-run
+  against the published build, since nothing is published.
+
+### 2f. Edge functions and secrets
+
+29 deployed functions: `admin-approve-user`, `admin-create-user`, `admin-reset-password`,
+`ai-coach`, `ask-summit`, `bootcamp-reminders`, `bootstrap-admin`, `build-rep-profile`,
+`bulk-create-users`, `check-bootcamp-overdue`, `check-inactivity`,
+`check-pitch-approvals-overdue`, `daily-accountability-post`, `db-backup`,
+`extract-leaderboard`, `monday-streak-shoutout`, `parse-calendar`, `parse-tasks`,
+`purge-users`, `reset-admin-password`, `reset-user-passwords`, `seed-users`,
+`self-delete-account`, `send-calendar-notification`, `send-welcome-email`,
+`submit-vet-lead`, `validate-signup`, `weekly-champion-notify`, `weekly-owner-report`.
+
+| Secret | Set | Needed by |
+| --- | --- | --- |
+| `RESEND_API_KEY` | yes | the 7 email senders below |
+| `RESEND_FROM_EMAIL` | **no** | `admin-approve-user`, `admin-create-user`, `bootcamp-reminders`, `send-calendar-notification`, `send-welcome-email`, `submit-vet-lead`, `weekly-owner-report` |
+| `LOVABLE_API_KEY` | yes | `ai-coach`, `ask-summit`, `build-rep-profile`, `parse-tasks`, `parse-calendar`, `extract-leaderboard` |
+| `BACKUP_CRON_SECRET` | yes | `db-backup` |
+| `WEEKLY_REPORT_CRON_SECRET` | yes | `weekly-owner-report` |
+| `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `SUPABASE_URL` | platform-provided | most functions |
+
+`summitmktgsales.com` is **not verified in Resend** (Pass 58; not re-checkable this pass
+because the configured Resend key is send-only and returns
+`restricted_api_key` on the domains endpoint). All seven senders fall back to
+`onboarding@resend.dev`, which Resend delivers only to the Resend account owner's own
+address. Until the domain is verified or `RESEND_FROM_EMAIL` is set to an already-verified
+sender, every outbound email to anyone else is dropped by Resend. Nothing in the app
+retries or surfaces this; `weekly-owner-report` logs the Resend failure and still returns
+200 so the stored report renders.
+
+### 2g. Domain
+
+- Publishes to `summitmktg.lovable.app`. Published URL of record: the same.
+- To serve `summitmktgsales.com`: connect it in Project Settings → Domains and add the DNS
+  records that screen provides. Not doable from here.
+- Edge-function CORS: 12 functions name `summitmktgsales.com` in an allow-list; the other
+  17 send `Access-Control-Allow-Origin: *`. Either way the custom domain is not blocked.
+- Auth redirects: the app only ever uses `window.location.origin` (`useAuth.tsx:287`) and
+  `${window.location.origin}/reset-password` (`AuthPage.tsx:305`), so it works from any
+  origin — **provided the custom domain is added to the auth redirect allow-list**. That
+  list is not readable from the tooling available here, so it is an owner checklist item
+  rather than a verified fact.
+
+### 2h. Scheduled jobs
+
+| Job | Schedule (UTC) | Last run |
+| --- | --- | --- |
+| `event-reminders` | `*/15 * * * *` | succeeded |
+| `notification-digest` | `*/30 * * * *` | succeeded |
+| `bootcamp-reminders-hourly` | `0 * * * *` | succeeded |
+| `check-bootcamp-overdue-hourly` | `0 * * * *` | succeeded |
+| `sweep-pairing-requests` | `17 * * * *` | succeeded |
+| `expand-event-series` | `17 3 * * *` | succeeded |
+| `summit-action-item-due` | `5 13 * * *` | succeeded |
+| `check-inactivity-daily` | `0 17 * * *` | succeeded |
+| `build-rep-profile-nightly` | `40 10 * * *` | no run recorded |
+| `cycle-stale-leads-nightly` | `50 10 * * *` | no run recorded |
+| `weekly-champion-notify` | `5 8 * * 1` | succeeded |
+| `summit-weekly-backup` | `20 9 * * 0` | no run recorded |
+| `generate-weekly-owner-report` | `5 22 * * 0` | no run recorded |
+| `summit-weekly-awards` | `5 22 * * 0` | no run recorded |
+
+There is **no separate `release_stale_leads` job**; that behaviour lives in
+`cycle_stale_people_leads()`, run by `cycle-stale-leads-nightly`. The five with no
+recorded run are all recent additions whose first scheduled time has not arrived.
+
+### Open, with the exact reason
+
+- **Resend domain status could not be re-verified**, only inherited from Pass 58: the
+  configured `RESEND_API_KEY` is a send-only restricted key and the domains endpoint
+  returns 401 `restricted_api_key`.
+- **Auth redirect allow-list could not be read**: no tool in this environment exposes it.
+- **Lighthouse figures are preview-environment figures**, not published-build figures,
+  because publishing is out of scope for this pass.
+- **One announcement row's `updated_at` was changed** by the trigger check and cannot be
+  restored (see 2c). Not user-visible.
+- **Two signed-in walkthroughs remain uncaptured** (Fiber industry lead first day, Fiber
+  rep day one) and multi-user flows remain RPC-verified rather than two-live-browser
+  verified, because only one preview session can be restored at a time.
+
+Nothing was published.
