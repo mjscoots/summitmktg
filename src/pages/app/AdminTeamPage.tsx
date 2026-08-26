@@ -495,6 +495,15 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
+          {/* ========== FIRST WEEK TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="firstweek">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyFirstWeek />
+              </Suspense>
+            </TabsContent>
+          )}
+
           {/* ========== CULTURE TAB ========== */}
           {isAdmin && (
             <TabsContent value="culture">
