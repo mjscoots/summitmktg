@@ -374,3 +374,56 @@ Presidents reach the admin surfaces (sidebar entry and `/admin/*`), which are fi
 
 ### Verification
 `bunx tsgo --noEmit` clean; production build clean apart from the known >500 kB chunk warning; width regression at 390/768/820/1280 showed no horizontal overflow. Not published.
+
+## Pass 47 — Fiber opening day + proof
+
+### 1. Winter plan prompt (built)
+- New table `winter_plans` (user_id, season_year, answer) with RLS: own read/write, admin/owner read all, Fiber president reads only `answer = 'Fiber'` rows.
+- RPCs: `get_my_winter_plan`, `set_my_winter_plan` (four allowed answers only), `get_winter_plan_summary` (owner/admin, counts plus names), `get_fiber_winter_interest` (owner/admin/Fiber president, names plus fiber application status), `reopen_winter_plan` (owner/admin clears the answer so the prompt shows again). Anon execute revoked on all five.
+- `WinterPlanCard` shows once on the Pest home for active pest members: four plain buttons (Fiber / Life / Off this winter / Not sure yet), no pressure copy.
+  - Fiber: records the answer, then opens the fiber application inline with phone, experience and markets pre-filled from the profile; the rep adds why and markets.
+  - Life: records the answer, creates an `interested` Life enrollment, shows "Summit Life is opening soon".
+  - Off this winter / Not sure yet: record only.
+- `WinterPlanPanel` on Command (owner section "Winter Plan"): counts by answer, expandable names, per-person Re-open, plus fiber application status list. The fiber lead Command view renders the same panel in `fiberOnly` mode (fiber choosers and their application status only).
+- Verified at 390px on the owner session: card renders above the hero on Pest home, no horizontal overflow, panel present on /command.
+
+### 2. President day one (partly verified)
+- Fixed in this pass: presidents can now edit their industry's pay ladder values and tier-up rules (RLS policies scoped by `is_president_of_vertical`), while a `guard_confirm_flag()` trigger blocks any non-owner/admin from changing `confirmed`. In the UI the confirm buttons render greyed with the label "Owner confirms".
+- Admin, Command (fiber view), stack view, region sheet, roster sweep, leader scorecards, production entry/CSV and setup path were already president-accessible from Pass 46 and are filtered by workspace scope.
+- Open item: a president session could not be minted in this environment (minting for a specific user requires interactive approval), so the step-by-step 390px walkthrough of Pillar's first day was not captured. It needs one run on the preview with Pillar signed in.
+
+### 3. Rep day one in Fiber (open item)
+- Same limitation: no fiber-only member session could be minted here. Code paths were reviewed — `WorkspaceHome` handles the fiber home (installs this week and season, rank and next tier, setup path, pinned announcement, next event, unread chat), training/scripts/chat/events/leaderboard reads are filtered to company-wide plus the active vertical, and the Pest bootcamp and season hub are Pest-only, so no pest artifacts should render. Needs one signed-in fiber pass on the preview to confirm visually.
+
+### 4. Role matrix (from policies and predicates)
+
+| Surface | Owner | Admin | Fiber president | Two-workspace rep | Pest-only rep |
+| --- | --- | --- | --- | --- | --- |
+| Pest production / imports | yes | yes | no | own only | own only |
+| Fiber production / installs | yes | yes | yes (fiber) | own fiber | no |
+| Pest applications | yes | yes | no | own | own |
+| Fiber applications | yes | yes | yes | own | no |
+| Pest stacks | yes | yes | no | confirmed only | confirmed only |
+| Fiber stacks | yes | yes | yes (edit, no confirm) | confirmed only | no |
+| Summit cut settings | yes | yes | no | no | no |
+| Confirm ladder rows | yes | yes | no (trigger blocks, button greyed) | no | no |
+| Winter plan answers | all | all | Fiber answers only | own | own |
+| Fiber training/scripts/chat/events | yes | yes | yes (edit) | read when in Fiber | no |
+
+### 5. Performance
+- `WorkspaceProvider` issues exactly one `get_my_workspaces` call per session (measured: 1 per full page load, 0 during in-app navigation) and updates only on switch or explicit refresh.
+- Page load (390px, dev server, owner session): /app 3.2s, /app/training 3.0s, /app/money 3.0s, /app/industries 3.1s, /app/leaderboard 3.1s.
+- Open item: Lighthouse mobile scores were not captured — the runs require an authenticated session that Lighthouse cannot restore here. Production build is clean with the known 668 kB main-chunk warning.
+
+### 6. What Pillar should do first on the preview
+1. Sign in and confirm he lands in Summit Fiber.
+2. Open Admin → Fiber and approve the pending fiber application (then reverse it).
+3. Add the first fiber training course and one script.
+4. Create a fiber chat channel and post the pinned announcement.
+5. Create the first fiber event.
+6. Enter this week's installs for one rep.
+7. Edit one ladder value; confirm the confirm button reads "Owner confirms".
+8. Open the fiber stack view, run the roster sweep, open a leader scorecard, export the production CSV.
+9. Check the Winter plan panel for who chose Fiber.
+
+Nothing published.
