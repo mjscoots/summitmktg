@@ -575,3 +575,68 @@ The parked bucket is empty and has no tab. All leads adds single-row assign next
 Approvers: Pest = owner required, Mathew Rubino `skipped_no_access` → effective approvers is the owner
 alone, so the owner can approve a Pest application today. Life = owner + Brendan Pillar required, the
 unset Life president shows `unset` and is skipped. Fiber = owner + Pillar, both required.
+
+## Pass 57 — Security hardening
+
+### Storage: chat attachments
+- `chat-uploads` is now private (100 MB limit). No public URLs are issued.
+- Upload policy still requires the first path segment to equal `auth.uid()`, so a
+  rep can only write under their own folder. Delete stays uploader or admin.
+- New read policy calls `public.chat_attachment_readable(name)`: the uploader,
+  staff, and signed-in members of chat can read an object only when a
+  `chat_messages` row actually references it. Orphaned objects are unreadable.
+- Reads go through `src/lib/chatAttachments.ts`: one-hour signed URLs, cached in
+  memory for the session (refreshed a minute early), with in-flight de-duping.
+- Old messages that stored a full public URL still render — `toObjectPath()`
+  strips the `/chat-uploads/` prefix and signs the same object. New messages
+  store the object path only. Applies to images, files, and voice notes.
+
+### SECURITY DEFINER functions
+- Anonymous EXECUTE dropped from 33 to 19. The 19 that remain are deliberate:
+  `get_public_calc`, `get_public_counters`, `get_public_cover_content`,
+  `get_public_fiber_stacks`, `get_public_industry`, `get_public_setting`,
+  `get_recruiting_content`, `get_recruiting_proof`, `get_ticket_config`,
+  `get_ticket_series_status`, `resolve_source_code`, `validate_access_code`
+  (public pages and forms), plus the policy helpers `has_role`, `is_staff`,
+  `is_manager_tier`, `is_paired_manager_of`, `is_president_of_vertical`,
+  `is_vertical_lead`, `region_lead_of`, which RLS evaluates as the caller.
+- The three new submission-validation triggers were revoked from
+  `PUBLIC`/`anon`/`authenticated`; they run as triggers, not as API calls.
+- All 283 definer functions set `search_path`.
+- The remaining 254 "signed-in users can execute" warnings are the app's own RPC
+  surface. Every one carries its own role check; each is called from `src/` or an
+  edge function, so revoking `authenticated` would break the product. Left as is
+  by design rather than reported as fixed.
+
+### RLS-enabled table with no policy
+- `backup_job_tokens` is service-role only (weekly backup job). No policy is
+  correct: RLS on with zero policies means no client role can read or write it.
+  Documented rather than widened.
+
+### Unauthenticated submissions
+Server-side triggers now guard `applications`, `vet_leads`, and public
+`recruiting_leads`: text caps per column, email shape and 10–15 digit phone
+checks, and five submissions per IP per hour. A repeat inside 24 hours updates
+the existing row instead of creating a second one.
+- `submit-vet-lead` mirrors this in the function: caps, email/phone format, a
+  5/hour IP limit via `check_rate_limit`, and owner notification plus email are
+  skipped for a 24-hour duplicate.
+- Every rejection path returns the exact message
+  "That did not go through. Check the phone and email and try again." — used by
+  the ticket page, both application pages, and the veteran bid form.
+
+### Ask Summit
+Verified, unchanged: JWT required and validated with `auth.getUser`, archived
+accounts refused, 20 calls per minute per user, 1–40 messages with each capped
+at 4,000 characters, and live data context assembled only for owner/admin.
+
+### Linter and checks
+- Before: 275 issues. After: 275 (1 RLS-no-policy, 19 anon definer, 254
+  authenticated definer, 1 OTP). The count is flat because the anon reductions
+  are offset by warnings the linter raises for intentional design, above.
+- OTP length is a project auth setting, not code: it needs Authentication →
+  Email → OTP length raised to 8. The app signs in with passwords and does not
+  use OTP.
+- Typecheck clean, production build clean.
+
+Preview only. Not published.

@@ -48,7 +48,7 @@ export default function VetBidForm() {
 
   const submit = async () => {
     if (!values.full_name.trim() || !values.phone.trim() || !values.email.trim()) {
-      toast.error("Name, phone and email are required");
+      toast.error("That did not go through. Check the phone and email and try again.");
       return;
     }
     setSending(true);
@@ -66,7 +66,7 @@ export default function VetBidForm() {
     });
     setSending(false);
     if (error) {
-      toast.error("Could not send that. Try again.");
+      toast.error("That did not go through. Check the phone and email and try again.");
       return;
     }
     setDone(true);

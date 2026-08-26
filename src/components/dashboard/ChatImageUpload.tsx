@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useChatAttachmentUrl } from '@/lib/chatAttachments';
 import { Paperclip, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
+
 
 const IMAGE_PREFIX = 'img:';
 const FILE_PREFIX = 'file:';
@@ -61,16 +63,14 @@ export async function uploadChatFile(file: File, userId: string, onSend: (conten
 
   if (uploadError) throw uploadError;
 
-  const { data: { publicUrl } } = supabase.storage
-    .from('chat-uploads')
-    .getPublicUrl(path);
-
+  // Private bucket: store the object path and sign it at read time.
   if (isImageFile(file.name)) {
-    await onSend(`${IMAGE_PREFIX}${publicUrl}`);
+    await onSend(`${IMAGE_PREFIX}${path}`);
   } else {
-    const fileInfo = { url: publicUrl, name: file.name, size: file.size };
+    const fileInfo = { url: path, name: file.name, size: file.size };
     await onSend(`${FILE_PREFIX}${JSON.stringify(fileInfo)}`);
   }
+
 }
 
 interface ChatImageUploadProps {
@@ -122,11 +122,19 @@ export function ChatImageUpload({ onSend }: ChatImageUploadProps) {
 // Render component for image messages
 export function ChatImage({ url }: { url: string }) {
   const [expanded, setExpanded] = useState(false);
+  const { url: signed, failed } = useChatAttachmentUrl(url);
+
+  if (failed) {
+    return <p className="text-xs text-muted-foreground">Image unavailable</p>;
+  }
+  if (!signed) {
+    return <div className="h-[160px] w-[220px] animate-pulse rounded-lg bg-muted/40" />;
+  }
 
   return (
     <>
       <img
-        src={url}
+        src={signed}
         alt="Shared image"
         className="max-w-[300px] max-h-[250px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity object-cover"
         onClick={() => setExpanded(true)}
@@ -137,7 +145,7 @@ export function ChatImage({ url }: { url: string }) {
           <button className="absolute top-4 right-4 text-white/80 hover:text-white" onClick={() => setExpanded(false)}>
             <X className="w-6 h-6" />
           </button>
-          <img src={url} alt="Shared image" className="max-w-full max-h-full rounded-lg" />
+          <img src={signed} alt="Shared image" className="max-w-full max-h-full rounded-lg" />
         </div>
       )}
     </>
@@ -146,11 +154,14 @@ export function ChatImage({ url }: { url: string }) {
 
 // Render component for file messages
 export function ChatFile({ info }: { info: { url: string; name: string; size: number } }) {
+  const { url: signed } = useChatAttachmentUrl(info.url);
+
   return (
     <a
-      href={info.url}
+      href={signed ?? undefined}
       target="_blank"
       rel="noopener noreferrer"
+      aria-disabled={!signed}
       className="inline-flex items-center gap-2 p-2.5 bg-muted/60 border border-border/50 rounded-lg hover:bg-muted transition-colors max-w-[280px]"
     >
       <Paperclip className="w-4 h-4 text-primary flex-shrink-0" />
@@ -161,3 +172,4 @@ export function ChatFile({ info }: { info: { url: string; name: string; size: nu
     </a>
   );
 }
+

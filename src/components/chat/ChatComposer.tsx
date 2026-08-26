@@ -145,8 +145,9 @@ export function ChatComposer({
             contentType: recorder.mimeType || 'audio/webm',
           });
           if (error) throw error;
-          const { data } = supabase.storage.from('chat-uploads').getPublicUrl(path);
-          await onSendVoice?.(buildVoiceMessage(data.publicUrl, seconds));
+          // Private bucket: store the object path, signed at read time.
+          await onSendVoice?.(buildVoiceMessage(path, seconds));
+
         } catch {
           toast.error('Failed to send voice note');
         } finally {
