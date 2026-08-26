@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { PHONE_BAR } from '@/lib/appNav';
+import { phoneBar } from '@/lib/appNav';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useComposerKeyboard } from '@/lib/composerKeyboard';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,8 @@ export function MobileBottomNav() {
   const location = useLocation();
   const { unreadCount, markRead } = useUnreadChat();
   const { focused } = useComposerKeyboard();
+  const { activeVertical } = useWorkspace();
+  const items = phoneBar(activeVertical);
 
   const isActive = (path: string) =>
     path === '/app' ? location.pathname === '/app' : location.pathname.startsWith(path);
@@ -29,7 +32,7 @@ export function MobileBottomNav() {
     >
       <div className="mx-auto flex max-w-lg items-stretch rounded-2xl border border-border/60 bg-background/95 shadow-lg backdrop-blur-xl">
 
-        {PHONE_BAR.map((item) => {
+        {items.map((item) => {
           const active = isActive(item.path);
           return (
             <button

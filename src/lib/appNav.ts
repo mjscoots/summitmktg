@@ -11,6 +11,7 @@ import {
   Video,
   Shield,
   User,
+  Wifi,
   type LucideIcon,
 } from 'lucide-react';
 import { tierOf, type Tier } from '@/lib/tiers';
@@ -37,6 +38,20 @@ export const PHONE_BAR: NavDest[] = [
   { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { key: 'training', label: 'Training', path: '/app/training', icon: GraduationCap },
 ];
+
+/** Fiber works on installs, not accounts, so its bar carries its own work. */
+export const FIBER_PHONE_BAR: NavDest[] = [
+  { key: 'home', label: 'Home', path: '/app', icon: Home },
+  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { key: 'installs', label: 'Installs', path: '/app/installs', icon: Wifi },
+  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
+  { key: 'team', label: 'Team', path: '/app/team', icon: Users },
+];
+
+/** The phone bottom bar for the active workspace. */
+export function phoneBar(vertical: string | null | undefined): NavDest[] {
+  return vertical === 'Fiber' ? FIBER_PHONE_BAR : PHONE_BAR;
+}
 
 /** Everything else a rep can reach. One definition, used by the phone sheet and the sidebar. */
 export const DESTINATIONS: NavDest[] = [

@@ -11,7 +11,7 @@ import { ImpersonationBanner } from './ImpersonationBanner';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
-import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceThemeProvider } from '@/components/workspace/WorkspaceThemeProvider';
 import { MobileBottomNav } from './MobileBottomNav';
 import { WorkspaceSheet } from './WorkspaceSheet';
@@ -31,7 +31,6 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
 
   return (
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
-      <WorkspaceProvider>
         <WorkspaceThemeProvider>
         <SidebarProvider defaultOpen={true}>
           <ImpersonationBanner />
@@ -76,7 +75,6 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
           </div>
         </SidebarProvider>
         </WorkspaceThemeProvider>
-      </WorkspaceProvider>
     </ThemeProvider>
   );
 }

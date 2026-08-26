@@ -29,6 +29,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
 import { TeamMember, getDisplayName, getEffectiveManager } from '@/lib/hierarchyUtils';
 import { cn } from '@/lib/utils';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { FiberTeam } from '@/components/team/FiberTeam';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -57,6 +59,7 @@ interface TeamRow {
 
 export default function MyTeamPage() {
   const { role, profile, isLoading: authLoading } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(true);
@@ -261,6 +264,18 @@ export default function MyTeamPage() {
   };
 
   const canAddMembers = isAdmin || teams.some(t => t.leader_id === profile?.user_id);
+
+  // Fiber runs on regions and installs, not the pest downline structure.
+  if (activeVertical === 'Fiber') {
+    return (
+      <AppLayout>
+        <main className="mx-auto max-w-3xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
+          <PageHeader title="Team" context="Your region, by installs this week." />
+          <FiberTeam />
+        </main>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

@@ -8,6 +8,7 @@ import { sectionForTab } from "@/lib/adminSections";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RookieViewProvider } from "@/contexts/RookieViewContext";
+import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
@@ -71,6 +72,7 @@ const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
+const InstallsPage = lazy(() => import('@/pages/app/InstallsPage'));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
@@ -144,6 +146,7 @@ function LazyFallback() {
         <BrowserRouter>
           <ScrollToTop />
           <Suspense fallback={<LazyFallback />}>
+           <WorkspaceProvider>
            <Routes>
              {/* ========== PUBLIC ROUTES ========== */}
              <Route path="/" element={<Index />} />
@@ -299,6 +302,13 @@ function LazyFallback() {
               <Route path="/app/recruits" element={
                 <ProtectedRoute>
                     <RecruitsPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Fiber installs */}
+              <Route path="/app/installs" element={
+                <ProtectedRoute>
+                    <InstallsPage />
                 </ProtectedRoute>
               } />
 
@@ -487,6 +497,7 @@ function LazyFallback() {
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />
            </Routes>
+           </WorkspaceProvider>
          </Suspense>
        </BrowserRouter>
      </TooltipProvider>

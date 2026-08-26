@@ -14,6 +14,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 function applyRoleTheme(role: ThemeRole) {
   const root = document.documentElement;
+  // A workspace theme owns its own accent colours; do not overwrite them.
+  if (root.dataset.workspaceTheme === '1') return;
   // All roles use the same deep blue palette now
   root.style.setProperty('--primary', '216 89% 53%');
   root.style.setProperty('--primary-foreground', '0 0% 100%');
@@ -29,6 +31,7 @@ function applyModeTheme(mode: ThemeMode) {
   // Always dark — the brand is a dark premium dashboard
   root.classList.add('dark');
   root.classList.remove('light');
+  if (root.dataset.workspaceTheme === '1') return;
   root.style.setProperty('--background', '216 30% 5%');
   root.style.setProperty('--foreground', '223 100% 97%');
   root.style.setProperty('--card', '220 40% 10%');

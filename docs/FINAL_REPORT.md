@@ -1276,3 +1276,19 @@ recorded run are all recent additions whose first scheduled time has not arrived
   verified, because only one preview session can be restored at a time.
 
 Nothing was published.
+
+## Pass 63A — Fiber becomes its own product
+
+- Step 0 regression check passed: user create, owner chat message, signed-out application, fiber install, attendance mark, all deleted after. No trigger EXECUTE grants needed fixing.
+- Fiber workspace tokens: deep green surfaces, amber accent, sage borders, no shadows or gradients, 12px cards, camo texture only in the Home header.
+- WorkspaceProvider moved above the route tree so pages can branch on the active workspace; role/mode theming now defers to a workspace theme.
+- get_my_workspaces() updated so owners and admins get access to every workspace without an enrollment row.
+- Phone tabs in Fiber are Home, Chat, Installs, Money, Team. Pest points, streaks, missions, funnel and accounts are not shown.
+- Fiber Home: rep, region, carrier, week and season installs, next tier progress, install logging, Needs You, region lead, setup progress, announcement, chat preview.
+- New /app/installs (Fiber only) reads fiber_installs: personal weeks plus season total, and a lead view of the region.
+- Fiber Money shows per-install stack rows only; unconfirmed rows read "Rate shared when confirmed". No calculator.
+- Fiber Team shows the region roster by installs with call and DM actions; empty regions read "No Fiber reps assigned yet."
+- Fiber and Life training stay blank: "Fiber training is being written." with an add-module action for admins and the workspace president.
+- Verified with owner-session screenshots at 390 and 1280 for Home, Installs, Money, Team, Training, Chat; no horizontal overflow at either width.
+- Typecheck clean; production build clean, largest chunk 193.97 kB.
+- Known: React dev-only ref warnings persist (development build only). Nothing published.

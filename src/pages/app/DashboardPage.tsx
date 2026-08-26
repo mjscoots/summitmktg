@@ -33,6 +33,7 @@ import { ListTodo, GitBranch } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useBootcamp } from '@/hooks/useBootcamp';
 import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
+import { FiberHome } from '@/components/workspace/FiberHome';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 import { HomeQuestionCard } from '@/components/home/HomeQuestionCard';
 
@@ -186,7 +187,11 @@ export default function DashboardPage() {
   if (active && active.vertical !== 'Pest') {
     return (
       <AppLayout>
-        <WorkspaceHome workspace={active} />
+        {active.vertical === 'Fiber' && active.status === 'active' ? (
+          <FiberHome workspace={active} />
+        ) : (
+          <WorkspaceHome workspace={active} />
+        )}
       </AppLayout>
     );
   }
