@@ -1775,6 +1775,7 @@ export type Database = {
           helper: string | null
           id: string
           is_active: boolean
+          link_key: string | null
           question: string
           updated_at: string
         }
@@ -1792,6 +1793,7 @@ export type Database = {
           helper?: string | null
           id?: string
           is_active?: boolean
+          link_key?: string | null
           question: string
           updated_at?: string
         }
@@ -1809,6 +1811,7 @@ export type Database = {
           helper?: string | null
           id?: string
           is_active?: boolean
+          link_key?: string | null
           question?: string
           updated_at?: string
         }
