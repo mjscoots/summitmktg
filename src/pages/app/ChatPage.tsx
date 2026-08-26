@@ -6,8 +6,6 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityChat } from '@/components/dashboard/CommunityChat';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useChatChannels } from '@/hooks/useChatChannels';
-import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
 
 const LAST_OPENED_KEY = 'summit.chat.lastConversation';
 
@@ -18,11 +16,6 @@ const rank = (slug: string) => {
   const i = ORDER.indexOf(slug);
   return i === -1 ? ORDER.length : i;
 };
-
-interface LastLine {
-  content: string;
-  created_at: string;
-}
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -35,40 +28,6 @@ export default function ChatPage() {
       return null;
     }
   });
-  const [lastLines, setLastLines] = useState<Record<string, LastLine>>({});
-
-  useEffect(() => {
-    setViewing(true);
-    window.scrollTo({ top: 0, behavior: 'auto' });
-    return () => {
-      markRead();
-      setViewing(false);
-    };
-  }, [markRead, setViewing]);
-
-  // One read for the list: the most recent lines, reduced per conversation.
-  useEffect(() => {
-    if (openSlug) return;
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from('chat_messages')
-        .select('channel, content, created_at')
-        .order('created_at', { ascending: false })
-        .limit(300);
-      if (cancelled || !data) return;
-      const map: Record<string, LastLine> = {};
-      for (const row of data as { channel: string | null; content: string; created_at: string }[]) {
-        const slug = row.channel || 'general';
-        if (!map[slug]) map[slug] = { content: row.content, created_at: row.created_at };
-      }
-      setLastLines(map);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [openSlug]);
-
   const open = useCallback((slug: string) => {
     setOpenSlug(slug);
     try {
@@ -124,7 +83,6 @@ export default function ChatPage() {
           </li>
 
           {ordered.map((c) => {
-            const last = lastLines[c.slug];
             return (
               <li key={c.slug}>
                 <button
@@ -140,15 +98,15 @@ export default function ChatPage() {
                         </span>
                       )}
                     </span>
-                    {last && (
-                      <span className={cn('block truncate text-[12px] text-muted-foreground')}>
-                        {last.content.slice(0, 90)}
+                    {c.last_content && (
+                      <span className="block truncate text-[12px] text-muted-foreground">
+                        {c.last_sender ? `${c.last_sender}: ` : ''}{c.last_content.slice(0, 90)}
                       </span>
                     )}
                   </span>
-                  {last && (
+                  {c.last_at && (
                     <span className="flex-shrink-0 text-[11px] text-muted-foreground">
-                      {formatDistanceToNowStrict(new Date(last.created_at))}
+                      {formatDistanceToNowStrict(new Date(c.last_at))}
                     </span>
                   )}
                 </button>

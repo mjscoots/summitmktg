@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { BadgeStrip } from '@/components/badges/BadgeStrip';
-import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { CornerDownRight, SmilePlus, Reply } from 'lucide-react';
 import { isStickerMessage, getStickerFromMessage } from '@/components/dashboard/StickerPicker';
@@ -47,7 +46,7 @@ function renderWithLinks(text: string) {
 interface Reaction {
   emoji: string;
   count: number;
-  users: string[];
+  mine: boolean;
 }
 
 interface ChatBubbleProps {
@@ -66,7 +65,7 @@ interface ChatBubbleProps {
   showTimestamp: boolean;
   profile: { full_name: string; avatar_url: string | null; role?: string; is_active_now?: boolean };
   profileMap: Record<string, { full_name: string }>;
-  allMessages: Array<{ id: string; user_id: string; content: string; is_ai: boolean; created_at: string }>;
+  parentMessage?: { id: string; content: string } | null;
   onProfileClick: (userId: string) => void;
   onContextMenu: (e: React.MouseEvent | React.TouchEvent, msgId: string) => void;
   onDoubleTap: (msgId: string) => void;
@@ -88,7 +87,7 @@ export function ChatBubble({
   showTimestamp,
   profile,
   profileMap,
-  allMessages,
+  parentMessage,
   onProfileClick,
   onContextMenu,
   onDoubleTap,
@@ -101,7 +100,6 @@ export function ChatBubble({
   onEditCancel,
   reactions: reactionsProp = [],
 }: ChatBubbleProps) {
-  const { user } = useAuth();
   const reactions = reactionsProp;
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
@@ -163,7 +161,7 @@ export function ChatBubble({
     return '';
   };
 
-  const parentMsg = message.reply_to ? allMessages.find(m => m.id === message.reply_to) : null;
+  const parentMsg = message.reply_to ? parentMessage ?? null : null;
 
   const renderContent = () => {
     if (isEditing) {
@@ -373,7 +371,7 @@ export function ChatBubble({
                     onClick={() => onToggleReaction(message.id, r.emoji)}
                     className={cn(
                       "text-xs hover:scale-110 transition-transform",
-                      r.users.includes(user?.id || '') && "drop-shadow-[0_0_3px_hsl(var(--primary)/0.5)]"
+                      r.mine && "drop-shadow-[0_0_3px_hsl(var(--primary)/0.5)]"
                     )}
                   >
                     {r.emoji}

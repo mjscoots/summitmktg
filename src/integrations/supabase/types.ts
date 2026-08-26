@@ -6313,9 +6313,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_channel_messages: {
+        Args: { _before?: string; _channel: string; _limit?: number }
+        Returns: Json
+      }
       get_chat_channel_state: { Args: never; Returns: Json }
       get_command_analytics: { Args: never; Returns: Json }
       get_commitment_overview: { Args: never; Returns: Json }
+      get_conversations: { Args: never; Returns: Json }
       get_current_leaderboard: {
         Args: never
         Returns: {

@@ -7,6 +7,7 @@ interface TypingUser {
   fullName: string;
 }
 
+/** Presence is keyed per channel, so typing shows only where it happens. */
 export function useTypingIndicator(channelName: string = 'chat-typing') {
   const { user, profile } = useAuth();
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);

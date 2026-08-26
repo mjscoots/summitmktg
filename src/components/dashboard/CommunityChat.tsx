@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, DragEvent } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, DragEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { withArchivedSuffix } from '@/lib/archived';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,6 +33,9 @@ interface ChatMessage {
   reply_to: string | null;
   channel: string;
   is_pinned: boolean;
+  /** Present on rows read through get_channel_messages. */
+  reply_sender?: string | null;
+  reply_excerpt?: string | null;
 }
 
 interface ProfileInfo {
@@ -111,6 +114,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -122,28 +127,30 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
   const [contextMenu, setContextMenu] = useState<{ position: { x: number; y: number }; msgId: string } | null>(null);
-  // Centralized reactions state: { messageId -> { emoji -> user_id[] } }
-  const [reactionsMap, setReactionsMap] = useState<Record<string, Record<string, string[]>>>({});
+  // Centralized reactions state: { messageId -> { emoji -> { count, mine } } }
+  const [reactionsMap, setReactionsMap] = useState<Record<string, Record<string, { count: number; mine: boolean }>>>({});
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prependingRef = useRef(false);
 
-  const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator();
+  const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator(`chat-typing-${activeChannel}`);
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
   const { channels, markChannelRead } = useChatChannels();
+  const markReadRef = useRef(markChannelRead);
+  useEffect(() => { markReadRef.current = markChannelRead; }, [markChannelRead]);
 
   useEffect(() => { profileMapRef.current = profileMap; }, [profileMap]);
   useEffect(() => { if (channelSlug) setActiveChannel(channelSlug); }, [channelSlug]);
 
-  // Mark the channel being viewed as read
+  // Mark the channel being viewed as read — once per channel, per user
   useEffect(() => {
-    if (!user || channels.length === 0) return;
-    void markChannelRead(activeChannel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeChannel, user?.id, channels.length]);
+    if (!user) return;
+    void markReadRef.current(activeChannel);
+  }, [activeChannel, user?.id]);
 
   const scrollToBottom = useCallback((smooth = true) => {
     const container = containerRef.current;
@@ -160,132 +167,158 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
     setShowScrollDown(scrollHeight - scrollTop - clientHeight > 120);
   }, []);
 
-  // Fetch messages + profiles for the active channel
+  /** Rows from get_channel_messages -> local message + profile + reaction state. */
+  const absorbPage = useCallback((rows: any[]) => {
+    const profiles: Record<string, ProfileInfo> = {};
+    const reactions: Record<string, Record<string, { count: number; mine: boolean }>> = {};
+    const parsed: ChatMessage[] = rows.map((r) => {
+      if (!r.is_ai && r.user_id) {
+        profiles[r.user_id] = {
+          full_name: withArchivedSuffix(r.sender_name || 'Team Member', r.sender_archived),
+          avatar_url: r.sender_avatar ?? null,
+          is_active_now: r.sender_active ?? false,
+          role: r.sender_role ?? undefined,
+        };
+      }
+      const list = (r.reactions || []) as { emoji: string; count: number; mine: boolean }[];
+      if (list.length) {
+        reactions[r.id] = Object.fromEntries(list.map((x) => [x.emoji, { count: x.count, mine: !!x.mine }]));
+      }
+      return {
+        id: r.id,
+        user_id: r.user_id,
+        content: r.content,
+        is_ai: !!r.is_ai,
+        created_at: r.created_at,
+        reply_to: r.reply_to ?? null,
+        channel: r.channel || 'general',
+        is_pinned: !!r.is_pinned,
+        reply_sender: r.reply_sender ?? null,
+        reply_excerpt: r.reply_excerpt ?? null,
+      };
+    });
+    setProfileMap((prev) => ({ ...prev, ...profiles }));
+    setReactionsMap((prev) => ({ ...prev, ...reactions }));
+    return parsed;
+  }, []);
+
+  // First page for the active channel
   useEffect(() => {
     let cancelled = false;
-    const fetchMessages = async () => {
+    (async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('channel', activeChannel)
-        .order('created_at', { ascending: false })
-        .limit(200);
+      setMessages([]);
+      const { data, error } = await (supabase as any).rpc('get_channel_messages', {
+        _channel: activeChannel,
+        _limit: 50,
+      });
       if (cancelled) return;
-      if (error) { console.error('Error:', error); setLoading(false); return; }
-
-      const userIds = [...new Set((data || []).filter(m => !m.is_ai).map(m => m.user_id))];
-      if (userIds.length > 0) {
-        const [profilesRes, rolesRes] = await Promise.all([
-          supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now, archived').in('user_id', userIds),
-          supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
-        ]);
-        if (cancelled) return;
-        const rolePriority: Record<string, number> = { rookie: 0, manager: 1, admin: 2, owner: 3 };
-        const roleMap: Record<string, string> = {};
-        (rolesRes.data || []).forEach(r => {
-          const prev = roleMap[r.user_id];
-          if (!prev || (rolePriority[r.role] ?? 0) > (rolePriority[prev] ?? 0)) roleMap[r.user_id] = r.role;
-        });
-        const map: Record<string, ProfileInfo> = {};
-        (profilesRes.data || []).forEach(p => {
-          map[p.user_id] = { full_name: withArchivedSuffix(p.full_name, (p as any).archived), avatar_url: p.avatar_url, is_active_now: p.is_active_now, role: roleMap[p.user_id] };
-        });
-        setProfileMap(prev => ({ ...prev, ...map }));
-      }
-      setMessages(([...(data || [])].reverse()).map(m => ({ ...m, channel: m.channel || 'general', is_pinned: m.is_pinned ?? false })));
+      if (error || !data || data.error) { setLoading(false); return; }
+      setMessages(absorbPage(data.messages || []));
+      setHasMore(!!data.has_more);
       setLoading(false);
-    };
-    fetchMessages();
+    })();
     return () => { cancelled = true; };
-  }, [activeChannel]);
+  }, [activeChannel, absorbPage]);
 
+  const loadOlder = useCallback(async () => {
+    const container = containerRef.current;
+    const oldest = messages[0];
+    if (!oldest || loadingOlder) return;
+    setLoadingOlder(true);
+    const prevHeight = container?.scrollHeight ?? 0;
+    const { data, error } = await (supabase as any).rpc('get_channel_messages', {
+      _channel: activeChannel,
+      _before: oldest.created_at,
+      _limit: 50,
+    });
+    if (!error && data && !data.error) {
+      const older = absorbPage(data.messages || []);
+      prependingRef.current = true;
+      setMessages((prev) => {
+        const seen = new Set(prev.map((m) => m.id));
+        return [...older.filter((m) => !seen.has(m.id)), ...prev];
+      });
+      setHasMore(!!data.has_more);
+      requestAnimationFrame(() => {
+        const c = containerRef.current;
+        if (c) c.scrollTop = c.scrollHeight - prevHeight;
+      });
+    }
+    setLoadingOlder(false);
+  }, [messages, activeChannel, loadingOlder, absorbPage]);
 
-  // Batch-fetch all reactions once messages are loaded, single realtime channel
   const messagesRef = useRef<ChatMessage[]>([]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
+  // One subscription per open channel: messages (filtered) + reactions
   useEffect(() => {
-    if (messages.length === 0) return;
-    const msgIds = messages.map(m => m.id);
-    const fetchAllReactions = async () => {
-      const { data } = await supabase
-        .from('chat_reactions')
-        .select('message_id, emoji, user_id')
-        .in('message_id', msgIds);
-      if (!data) return;
-      const map: Record<string, Record<string, string[]>> = {};
-      data.forEach(r => {
-        if (!map[r.message_id]) map[r.message_id] = {};
-        if (!map[r.message_id][r.emoji]) map[r.message_id][r.emoji] = [];
-        map[r.message_id][r.emoji].push(r.user_id);
-      });
-      setReactionsMap(map);
-    };
-    fetchAllReactions();
-  }, [messages.length]); // re-fetch when message count changes
-
-  useEffect(() => {
+    if (!activeChannel) return;
     const channel = supabase
-      .channel('all-chat-reactions')
+      .channel(`chat-${activeChannel}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, async (payload) => {
+        const row = payload.new as any;
+        const newMsg: ChatMessage = { ...row, channel: row.channel || 'general', is_pinned: row.is_pinned ?? false };
+        if (!newMsg.is_ai && !profileMapRef.current[newMsg.user_id]) {
+          const { data: p } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, avatar_url, is_active_now, archived')
+            .eq('user_id', newMsg.user_id)
+            .maybeSingle();
+          if (p) {
+            setProfileMap((prev) => ({
+              ...prev,
+              [p.user_id]: {
+                full_name: withArchivedSuffix(p.full_name, (p as any).archived),
+                avatar_url: p.avatar_url,
+                is_active_now: p.is_active_now,
+              },
+            }));
+          }
+        }
+        setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]));
+        if (newMsg.user_id !== user?.id) onNewMessage?.();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, (payload) => {
+        const updated = payload.new as any;
+        setMessages((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated, channel: updated.channel || 'general' } : m)));
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
         const row = payload.new as any;
         const old = payload.old as any;
-        // Skip own user's reactions — already handled optimistically
-        const currentUserId = user?.id;
+        const target = row?.message_id || old?.message_id;
+        // Only reactions on messages loaded in this channel, and never our own
+        // (those are already applied optimistically).
+        if (!target || !messagesRef.current.some((m) => m.id === target)) return;
+        if ((row?.user_id || old?.user_id) === user?.id) return;
         if (payload.eventType === 'INSERT' && row) {
-          if (row.user_id === currentUserId) return;
-          setReactionsMap(prev => {
-            const msgReactions = { ...(prev[row.message_id] || {}) };
-            const existing = msgReactions[row.emoji] || [];
-            if (existing.includes(row.user_id)) return prev; // dedupe
-            msgReactions[row.emoji] = [...existing, row.user_id];
-            return { ...prev, [row.message_id]: msgReactions };
+          setReactionsMap((prev) => {
+            const msg = { ...(prev[row.message_id] || {}) };
+            const cur = msg[row.emoji];
+            msg[row.emoji] = { count: (cur?.count || 0) + 1, mine: cur?.mine || false };
+            return { ...prev, [row.message_id]: msg };
           });
         } else if (payload.eventType === 'DELETE' && old) {
-          if (old.user_id === currentUserId) return;
-          setReactionsMap(prev => {
-            const msgReactions = { ...(prev[old.message_id] || {}) };
-            if (msgReactions[old.emoji]) {
-              msgReactions[old.emoji] = msgReactions[old.emoji].filter((u: string) => u !== old.user_id);
-              if (msgReactions[old.emoji].length === 0) delete msgReactions[old.emoji];
-            }
-            return { ...prev, [old.message_id]: msgReactions };
+          setReactionsMap((prev) => {
+            const msg = { ...(prev[old.message_id] || {}) };
+            const cur = msg[old.emoji];
+            if (!cur) return prev;
+            if (cur.count <= 1) delete msg[old.emoji];
+            else msg[old.emoji] = { count: cur.count - 1, mine: cur.mine };
+            return { ...prev, [old.message_id]: msg };
           });
         }
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
-
-  // Realtime
-  useEffect(() => {
-    const channel = supabase
-      .channel('community-chat')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, async (payload) => {
-        const newMsg = payload.new as ChatMessage;
-        if (!newMsg.channel) newMsg.channel = 'general';
-        if (!newMsg.is_ai && !profileMapRef.current[newMsg.user_id]) {
-          const [pRes, rRes] = await Promise.all([
-            supabase.from('profiles').select('user_id, full_name, avatar_url, is_active_now, archived').eq('user_id', newMsg.user_id).maybeSingle(),
-            supabase.from('user_roles').select('role').eq('user_id', newMsg.user_id).maybeSingle(),
-          ]);
-          if (pRes.data) {
-            setProfileMap(prev => ({ ...prev, [pRes.data!.user_id]: { full_name: withArchivedSuffix(pRes.data!.full_name, (pRes.data as any).archived), avatar_url: pRes.data!.avatar_url, is_active_now: pRes.data!.is_active_now, role: rRes.data?.role } }));
-          }
-        }
-        setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
-        if (newMsg.user_id !== user?.id) onNewMessage?.();
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages' }, (payload) => {
-        const updated = payload.new as ChatMessage;
-        setMessages(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated, channel: updated.channel || 'general' } : m));
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id, onNewMessage]);
+  }, [activeChannel, user?.id, onNewMessage]);
 
   const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
+  const messageById = useMemo(() => {
+    const map: Record<string, ChatMessage> = {};
+    channelMessages.forEach((m) => { map[m.id] = m; });
+    return map;
+  }, [channelMessages]);
 
   // Active, non-archived members the composer can @mention
   const [mentionables, setMentionables] = useState<{ user_id: string; full_name: string }[]>([]);
@@ -301,7 +334,11 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
     })();
   }, [user?.id, activeVertical]);
 
-  useEffect(() => { if (!loading) scrollToBottom(false); }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
+  useEffect(() => {
+    if (loading) return;
+    if (prependingRef.current) { prependingRef.current = false; return; }
+    scrollToBottom(false);
+  }, [channelMessages.length, scrollToBottom, loading, activeChannel]);
 
   const isSameSender = (curr: ChatMessage, prev: ChatMessage | null) => {
     if (!prev || curr.reply_to || curr.is_ai !== prev.is_ai || curr.user_id !== prev.user_id) return false;
@@ -321,7 +358,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
   const getReactionsForMessage = useCallback((msgId: string) => {
     const msgReactions = reactionsMap[msgId];
     if (!msgReactions) return [];
-    return Object.entries(msgReactions).map(([emoji, users]) => ({ emoji, users, count: users.length }));
+    return Object.entries(msgReactions).map(([emoji, v]) => ({ emoji, count: v.count, mine: v.mine }));
   }, [reactionsMap]);
 
   const handleSend = async () => {
@@ -332,32 +369,11 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
     setReplyingTo(null);
 
     try {
-      const { data: msg, error } = await supabase.from('chat_messages').insert({
+      // Points and mention notifications are handled by an insert trigger.
+      const { error } = await supabase.from('chat_messages').insert({
         user_id: user.id, content, is_ai: false, reply_to: currentReplyTo, channel: activeChannel
-      }).select('id').single();
+      });
       if (error) throw error;
-      if (msg) {
-        (supabase.rpc as any)('award_chat_message_points', { _user_id: user.id, _content: content, _message_id: msg.id })
-          .then((res: any) => { if (res.error) console.error('[ChatPoints]', res.error); })
-          .catch(() => {});
-        // Resolve @Name text to real user ids; the RPC re-checks archived/self/prefs.
-        const mentionedIds = content.includes('@')
-          ? mentionables
-              .filter(m => {
-                const name = m.full_name.toLowerCase();
-                const first = name.split(' ')[0];
-                const lower = content.toLowerCase();
-                return lower.includes(`@${name}`) || lower.includes(`@${first}`);
-              })
-              .map(m => m.user_id)
-          : [];
-        if (mentionedIds.length > 0) {
-          (supabase.rpc as any)('notify_chat_mentions', { _message_id: msg.id, _user_ids: mentionedIds })
-            .then((res: any) => { if (res.error) console.error('[ChatMentions]', res.error); })
-            .catch(() => {});
-        }
-
-      }
     } catch (error) { console.error('Send error:', error); toast.error('Failed to send'); } finally { setIsSending(false); }
   };
 
@@ -395,19 +411,22 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
     toggleGuard.current = true;
 
     const msgReactions = reactionsMap[msgId] || {};
-    const hasReacted = (msgReactions[emoji] || []).includes(user.id);
+    const hasReacted = !!msgReactions[emoji]?.mine;
 
-    // Optimistic update
-    setReactionsMap(prev => {
+    const apply = (add: boolean) => setReactionsMap(prev => {
       const current = { ...(prev[msgId] || {}) };
-      if (hasReacted) {
-        current[emoji] = (current[emoji] || []).filter(u => u !== user.id);
-        if (current[emoji].length === 0) delete current[emoji];
-      } else {
-        current[emoji] = [...(current[emoji] || []), user.id];
+      const cur = current[emoji];
+      if (add) {
+        current[emoji] = { count: (cur?.count || 0) + 1, mine: true };
+      } else if (cur) {
+        if (cur.count <= 1) delete current[emoji];
+        else current[emoji] = { count: cur.count - 1, mine: false };
       }
       return { ...prev, [msgId]: current };
     });
+
+    // Optimistic update
+    apply(!hasReacted);
 
     try {
       if (hasReacted) {
@@ -418,16 +437,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
       }
     } catch {
       // Rollback on error
-      setReactionsMap(prev => {
-        const current = { ...(prev[msgId] || {}) };
-        if (hasReacted) {
-          current[emoji] = [...(current[emoji] || []), user.id];
-        } else {
-          current[emoji] = (current[emoji] || []).filter(u => u !== user.id);
-          if (current[emoji].length === 0) delete current[emoji];
-        }
-        return { ...prev, [msgId]: current };
-      });
+      apply(hasReacted);
     } finally {
       toggleGuard.current = false;
     }
@@ -553,6 +563,20 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
           </div>
         )}
 
+        {!loading && hasMore && (
+          <div className="flex justify-center py-3">
+            <button
+              onClick={loadOlder}
+              disabled={loadingOlder}
+              className="min-h-[44px] rounded-full border border-border/60 bg-card px-4 text-[12px] text-muted-foreground transition-colors hover:border-primary/40 disabled:opacity-50"
+            >
+              {loadingOlder ? 'Loading' : 'Load older'}
+            </button>
+          </div>
+        )}
+
+
+
         {!loading && channelMessages.map((msg, idx) => {
           const prev = idx > 0 ? channelMessages[idx - 1] : null;
           const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
@@ -595,7 +619,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack }: CommunityCh
                 showTimestamp={isLastInGroup && !showTime}
                 profile={getProfile(msg)}
                 profileMap={profileMap}
-                allMessages={channelMessages}
+                parentMessage={msg.reply_to ? (messageById[msg.reply_to] ?? (msg.reply_excerpt ? { id: msg.reply_to, content: msg.reply_excerpt } : null)) : null}
                 onProfileClick={handleProfileClick}
                 onContextMenu={handleContextMenu}
                 onDoubleTap={handleDoubleTapReact}
