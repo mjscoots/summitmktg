@@ -211,7 +211,7 @@ export function VideoUploader({ onUploadComplete, onError, className }: VideoUpl
         {uploadState === 'success' && (
           <div className="space-y-3">
             <CheckCircle className="w-12 h-12 mx-auto text-primary" />
-            <p className="text-lg font-medium text-foreground">Upload Complete!</p>
+            <p className="text-lg font-medium text-foreground">Upload complete</p>
             <Button variant="outline" onClick={resetUploader}>
               Upload Another
             </Button>

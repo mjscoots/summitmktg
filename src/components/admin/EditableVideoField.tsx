@@ -69,7 +69,7 @@ export function EditableVideoField({
         if (error) throw error;
       }
 
-      toast.success('Video URL saved!');
+      toast.success('Video URL saved');
       setIsEditing(false);
       onUpdate?.(editedUrl);
     } catch (err) {

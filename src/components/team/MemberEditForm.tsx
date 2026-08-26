@@ -322,7 +322,7 @@ export function MemberEditForm({
 
       // Profile update notification removed — only key events trigger notifications
 
-      toast.success('Profile updated successfully!');
+      toast.success('Profile updated');
       onSave();
     } catch (error: any) {
       console.error('Error updating profile:', error);

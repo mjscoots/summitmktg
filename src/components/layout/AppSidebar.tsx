@@ -29,24 +29,26 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
-  { label: 'Recruits', path: '/app/recruits', icon: Target },
-  { label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
+  { label: 'Scripts', path: '/app/scripts', icon: BookOpen },
   { label: 'Events', path: '/app/events', icon: CalendarClock },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'My Money', path: '/app/money', icon: DollarSign },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Industries', path: '/app/industries', icon: Building2 },
-  { label: 'Resources', path: '/app/links', icon: BookOpen },
+  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+  { label: 'Resources', path: '/app/links', icon: FileText },
 ];
 
 const managementNavItems: NavItem[] = [
   { label: 'Team', path: '/app/team', icon: Users },
+  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Forms', path: '/app/forms', icon: FileText },
   { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
   { label: 'War Room', path: '/app/war-room', icon: Swords },
 ];
+
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -107,7 +109,7 @@ export function AppSidebar() {
     return 0;
   };
 
-  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/calendar', '/app/leaderboard', '/app/links'];
+  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/leaderboard', '/app/links'];
   const baseNavItems = role === 'recruiter'
     ? mainNavItems.filter((i) => recruiterPaths.includes(i.path))
     : mainNavItems;
@@ -133,19 +135,20 @@ export function AppSidebar() {
         collapsed && "justify-center px-2"
       )}
     >
-      {/* Active indicator — blue left border */}
+      {/* Active indicator — accent left rule */}
       {active && (
         <div
           className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
-          style={{
-            background: 'hsl(216 89% 53%)',
-            boxShadow: '0 0 12px 1px hsl(216 89% 53% / 0.4)',
-          }}
+          style={{ background: 'hsl(var(--sidebar-primary))' }}
         />
       )}
       {active && (
-        <div className="absolute inset-0 rounded-lg pointer-events-none" style={{ background: 'hsl(216 89% 53% / 0.08)' }} />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'hsl(var(--sidebar-primary) / 0.1)', borderRadius: 'var(--radius)' }}
+        />
       )}
+
       <item.icon
         className={cn(
           "w-[18px] h-[18px] flex-shrink-0 transition-all duration-250 relative z-10",

@@ -323,7 +323,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
         }
       }
 
-      toast.success(event?.id ? 'Event updated!' : 'Event created!');
+      toast.success(event?.id ? 'Event updated' : 'Event created');
       onSave();
       onClose();
       resetForm();

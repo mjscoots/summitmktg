@@ -42,7 +42,7 @@ export function OneOnOneTasks() {
     }
     const success = await toggleTaskCompletion(taskId, isCompleted);
     if (success) {
-      toast.success(isCompleted ? 'Task unmarked' : 'Task completed!');
+      toast.success(isCompleted ? 'Task unmarked' : 'Task completed');
     } else {
       toast.error('Failed to update task');
     }

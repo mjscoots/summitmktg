@@ -32,36 +32,35 @@ function PointsCard() {
 
   // All point-earning categories
   const categories = [
-    { label: 'Hours', value: data.weeklyHoursPoints, icon: '⏱' },
-    { label: 'Streak', value: (data.weeklyEvents.daily_login || 0) + (data.weeklyEvents.streak || 0), icon: '🔥' },
-    { label: 'Chat', value: data.weeklyEvents.chat || 0, icon: '💬' },
-    { label: 'Lessons', value: data.weeklyEvents.lesson || 0, icon: '📖' },
-    { label: 'Videos', value: data.weeklyEvents.video || 0, icon: '🎥' },
-    { label: 'Chapters', value: data.weeklyEvents.manual || 0, icon: '📋' },
-    { label: 'Reactions', value: (data.weeklyEvents.reaction_given || 0) + (data.weeklyEvents.reaction_received || 0), icon: '👍' },
-    { label: '1:1s', value: data.weeklyEvents.one_on_one || 0, icon: '🤝' },
-    { label: 'Attendance', value: data.weeklyEvents.attendance || 0, icon: '✅' },
-    { label: 'Bonus', value: data.weeklyThresholdBonus || 0, icon: '🏆' },
+    { label: 'Hours', value: data.weeklyHoursPoints },
+    { label: 'Streak', value: (data.weeklyEvents.daily_login || 0) + (data.weeklyEvents.streak || 0) },
+    { label: 'Chat', value: data.weeklyEvents.chat || 0 },
+    { label: 'Lessons', value: data.weeklyEvents.lesson || 0 },
+    { label: 'Videos', value: data.weeklyEvents.video || 0 },
+    { label: 'Chapters', value: data.weeklyEvents.manual || 0 },
+    { label: 'Reactions', value: (data.weeklyEvents.reaction_given || 0) + (data.weeklyEvents.reaction_received || 0) },
+    { label: '1:1s', value: data.weeklyEvents.one_on_one || 0 },
+    { label: 'Attendance', value: data.weeklyEvents.attendance || 0 },
+    { label: 'Bonus', value: data.weeklyThresholdBonus || 0 },
   ].filter(c => c.value > 0);
 
   const sorted = [...categories].sort((a, b) => b.value - a.value);
   const topCategory = sorted.length > 0 ? sorted[0] : null;
-  const lowestCategory = sorted.length > 1 ? sorted[sorted.length - 1] : null;
 
   return (
     <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
       <div className="flex items-center gap-2 mb-3">
         <Trophy className="w-4 h-4 text-primary" />
-        <h3 className="font-semibold text-foreground text-sm">Points Card</h3>
+        <h3 className="font-semibold text-foreground text-sm">Points</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
-          <p className="text-[9px] text-muted-foreground font-bold uppercase">This Week</p>
+          <p className="text-[9px] text-muted-foreground font-bold uppercase">This week</p>
           <p className="text-xl font-black text-primary tabular-nums">{data.weeklyTotal.toLocaleString()}</p>
         </div>
         <div className="p-3 rounded-lg bg-muted/50 border border-border/30 text-center">
-          <p className="text-[9px] text-muted-foreground font-bold uppercase">All-Time</p>
+          <p className="text-[9px] text-muted-foreground font-bold uppercase">All time</p>
           <p className="text-xl font-black text-foreground tabular-nums">{data.allTimeTotal.toLocaleString()}</p>
         </div>
       </div>
@@ -80,28 +79,23 @@ function PointsCard() {
         <div className="p-2 rounded-lg bg-muted/30">
           <TrendingUp className="w-3.5 h-3.5 mx-auto mb-0.5 text-primary" />
           <p className="text-xs font-bold">{topCategory?.label || '—'}</p>
-          <p className="text-[9px] text-muted-foreground">Top Source</p>
+          <p className="text-[9px] text-muted-foreground">Top source</p>
         </div>
       </div>
 
       {/* Category breakdown */}
       {sorted.length > 0 && (
         <div className="mt-3 space-y-1.5">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">This Week Breakdown</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">This week</p>
           {sorted.map(c => (
             <div key={c.label} className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{c.icon} {c.label}</span>
+              <span className="text-muted-foreground">{c.label}</span>
               <span className="font-semibold text-foreground tabular-nums">{c.value.toLocaleString()} pts</span>
             </div>
           ))}
         </div>
       )}
 
-      {lowestCategory && (
-        <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          💡 Opportunity: Boost your <strong>{lowestCategory.label}</strong> points
-        </p>
-      )}
     </div>
   );
 }

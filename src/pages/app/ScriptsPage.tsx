@@ -104,7 +104,7 @@ export default function ScriptsPage() {
 
           <div className="mb-5 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="text-2xl font-black tracking-tight text-foreground">SCRIPTS</h1>
+              <h1 className="text-foreground">Scripts</h1>
               <p className="mt-1.5 text-[13px] text-muted-foreground">
                 Openers, objections and closes — searchable, straight from the field.
               </p>

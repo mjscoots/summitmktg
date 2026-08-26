@@ -83,8 +83,10 @@ export default function RecruitsPage() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns'>(() => {
     const t = searchParams.get('tab');
-    return t === 'winback' || t === 'resigns' ? t : 'board';
+    if ((t === 'winback' || t === 'resigns') && isManagerRole) return t;
+    return t === 'mine' ? 'mine' : 'board';
   });
+
   const [board, setBoard] = useState<BoardLead[]>([]);
   const [mine, setMine] = useState<MyLead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -204,8 +206,8 @@ export default function RecruitsPage() {
           {/* Header */}
           <div className="mb-5 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="text-2xl font-black tracking-tight text-foreground">
-                {tab === 'board' ? 'GET ME LEADS' : tab === 'mine' ? 'My Leads' : tab === 'resigns' ? 'Re-Signs' : 'Win-back Board'}
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                {tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : 'Win-back board'}
               </h1>
               <p className="mt-1.5 text-[13px] text-muted-foreground">
                 {tab === 'board'
@@ -234,13 +236,15 @@ export default function RecruitsPage() {
           </div>
 
           {/* Tabs */}
-          <div className={cn('mb-5 grid gap-2', isManagerRole ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3')}>
+          <div className={cn('mb-5 grid gap-2', isManagerRole ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2')}>
             {([
-              { id: 'board' as const, label: 'Lead Board', icon: Sparkles, count: board.length },
-              { id: 'mine' as const, label: 'My Leads', icon: Users, count: mine.length },
-              { id: 'winback' as const, label: 'Win-back', icon: RotateCcw, count: null as number | null },
+              { id: 'board' as const, label: 'Lead board', icon: Sparkles, count: board.length },
+              { id: 'mine' as const, label: 'My leads', icon: Users, count: mine.length },
               ...(isManagerRole
-                ? [{ id: 'resigns' as const, label: 'Re-Signs', icon: Handshake, count: null as number | null }]
+                ? [
+                    { id: 'winback' as const, label: 'Win-back', icon: RotateCcw, count: null as number | null },
+                    { id: 'resigns' as const, label: 'Re-signs', icon: Handshake, count: null as number | null },
+                  ]
                 : []),
             ]).map((t) => (
               <button
@@ -267,7 +271,7 @@ export default function RecruitsPage() {
 
           {tab === 'resigns' && isManagerRole ? (
             <ResignBoard isAdmin={role === 'admin' || role === 'owner'} />
-          ) : tab === 'winback' ? (
+          ) : tab === 'winback' && isManagerRole ? (
             <WinbackTab
               isAdmin={role === 'admin' || role === 'owner'}
               focusId={searchParams.get('lead')}

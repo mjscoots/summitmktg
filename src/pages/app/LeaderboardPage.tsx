@@ -19,8 +19,6 @@ import { isManagerOrAbove } from '@/lib/roles';
 type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting' | 'hof';
 
 
-const GRID_PATTERN =
-  "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]";
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('weekly');
@@ -80,46 +78,28 @@ export default function LeaderboardPage() {
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Dashboard" />
 
-          {/* Hero Banner — Training page style */}
-          <div className="relative rounded-[var(--radius)] overflow-hidden mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-600/30 via-yellow-500/15 to-orange-500/25" />
-            <div className={cn('absolute inset-0 opacity-50', GRID_PATTERN)} />
-            {/* Golden spotlight glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(234,179,8,0.12),transparent_60%)]" />
-            <div className="relative flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6">
-              <div className="flex flex-col items-start justify-center">
-                <h1 className="text-foreground drop-shadow-sm">LEADERBOARD</h1>
-                <p className="text-[13px] text-muted-foreground mt-1.5">
-                  Outwork everyone. No excuses.
-                </p>
-              </div>
-              {/* Points Guide — glowing pill */}
-              <button
-                onClick={() => setShowPointSystem(true)}
-                className={cn(
-                  'shrink-0 self-start inline-flex min-h-11 items-center gap-2 px-4 rounded-full',
-                  'bg-warning/15 border border-warning/30',
-                  'text-warning text-[11px] font-bold uppercase tracking-micro',
-                  'transition-all duration-200',
-                  'hover:bg-warning/25 hover:border-warning/50',
-                  'hover:-translate-y-0.5 hover:shadow-[0_0_20px_-4px_rgba(234,179,8,0.4)]'
-                )}
-              >
-                <Info className="w-4 h-4" />
-                Points Guide
-              </button>
+          {/* Page header */}
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-foreground">Leaderboard</h1>
+              <p className="mt-1 text-[13px] text-muted-foreground">Where you stand this week and all time.</p>
             </div>
+            <button
+              onClick={() => setShowPointSystem(true)}
+              className="btn-secondary shrink-0 self-start"
+            >
+              <Info className="w-4 h-4" />
+              How points work
+            </button>
           </div>
 
           <SeasonBanner />
           <WeekPaceStrip />
-          <TeamBattles />
-          <IncentiveTracker />
 
 
           {/* Filter Tabs — pill style */}
 
-          <div className="grid grid-cols-2 gap-2 mb-4 sm:flex">
+          <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -128,11 +108,11 @@ export default function LeaderboardPage() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'flex items-center justify-center gap-1.5 min-h-[44px] px-3 text-[13px] font-bold rounded-xl sm:flex-1',
-                    'transition-all duration-200 border',
+                    'flex shrink-0 items-center justify-center gap-1.5 min-h-[44px] px-4 text-[13px] font-semibold rounded-[var(--radius)] sm:flex-1',
+                    'border transition-colors duration-150',
                     isActive
-                      ? 'bg-card border-primary/40 text-foreground shadow-[0_0_16px_-4px_hsl(var(--primary)/0.3)]'
-                      : 'bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/70'
+                      ? 'bg-primary/10 border-primary/40 text-foreground'
+                      : 'bg-card border-border/40 text-muted-foreground hover:text-foreground hover:border-border/70'
                   )}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
@@ -152,14 +132,19 @@ export default function LeaderboardPage() {
           )}
 
           {/* Content */}
-          <div className="bg-card rounded-xl border border-border/50 overflow-hidden shadow-xl shadow-black/5">
+          <div className="glass-card overflow-hidden">
             {activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
             {activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
             {activeTab === 'streak' && <StreakLeaderboard />}
             {activeTab === 'recruiting' && <RecruitingLeaderboard />}
-            {activeTab === 'hof' && <HallOfFame />}
 
           </div>
+
+          <div className="mt-6 space-y-4">
+            <TeamBattles />
+            <IncentiveTracker />
+          </div>
+
         </main>
       </div>
 

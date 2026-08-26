@@ -22,7 +22,7 @@ const STATUS_CONFIG: Record<string, { label: string; message: string; severity: 
   },
   onboarded: {
     label: 'Onboarded',
-    message: 'You\'re almost there — just a few more steps to become Summer Ready!',
+    message: 'A few more steps to become Summer Ready.',
     severity: 'info',
   },
 };
