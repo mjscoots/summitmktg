@@ -1,11 +1,16 @@
 // Centralized role helper utilities
 // Replaces all inline `role === 'manager' || role === 'admin' || role === 'owner'` checks
 
-type UserRole = 'rookie' | 'manager' | 'admin' | 'owner' | 'spectator';
+type UserRole = 'rookie' | 'manager' | 'president' | 'admin' | 'owner' | 'spectator';
 
-/** Manager, Admin, or Owner */
+/** Manager, President, Admin, or Owner */
 export function isManagerOrAbove(role: string | undefined | null): boolean {
-  return role === 'manager' || role === 'admin' || role === 'owner';
+  return role === 'manager' || role === 'president' || role === 'admin' || role === 'owner';
+}
+
+/** President of an industry workspace */
+export function isPresident(role: string | undefined | null): boolean {
+  return role === 'president';
 }
 
 /** Admin or Owner only */
