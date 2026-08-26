@@ -2604,6 +2604,7 @@ export type Database = {
       }
       people_leads: {
         Row: {
+          bucket: string
           call_count: number
           claimed_at: string | null
           claimed_by: string | null
@@ -2643,6 +2644,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          bucket?: string
           call_count?: number
           claimed_at?: string | null
           claimed_by?: string | null
@@ -2682,6 +2684,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          bucket?: string
           call_count?: number
           claimed_at?: string | null
           claimed_by?: string | null
