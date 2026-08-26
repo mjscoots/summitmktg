@@ -189,13 +189,11 @@ export default function DashboardPage() {
   }
 
   // The Summer Checklist gate applies to the Pest workspace home only.
-  if (!active || active.vertical === 'Pest') {
-    return (
-      <PestChecklistGate>
-        <PestDashboard />
-      </PestChecklistGate>
-    );
+  if (bootcampLocked) {
+    return <Navigate to="/summer-checklist" replace />;
   }
+
+
 
 
   const hoursToday = pointsData ? pointsData.timeTodayMinutes / 60 : 0;
