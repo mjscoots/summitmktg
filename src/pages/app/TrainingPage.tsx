@@ -16,6 +16,7 @@ import { TrainingLeaderboardPanel } from '@/components/training/TrainingLeaderbo
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 type TrainingView = 'selection' | 'rookie' | 'manager';
 
@@ -28,6 +29,7 @@ export default function TrainingPage() {
   const [managerManualComplete, setManagerManualComplete] = useState(false);
   
   const isManager = isManagerOrAbove(role);
+  const { activeVertical } = useWorkspace();
 
   useEffect(() => {
     const checkProgress = async () => {
@@ -83,6 +85,26 @@ export default function TrainingPage() {
       <AppLayout>
         <div className="min-h-[50vh] flex items-center justify-center">
           <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Fiber and Life training stay blank until someone writes them.
+  if (activeVertical !== 'Pest') {
+    return (
+      <AppLayout>
+        <div className="mx-auto max-w-3xl px-4 py-6">
+          <PageBackButton to="/app" label="Back" />
+          <PageHeader title="Training" context={`${activeVertical} training.`} className="mb-6" />
+          <div className="rounded-xl border border-border bg-card p-5">
+            <p className="text-sm text-foreground">{activeVertical} training is being written.</p>
+            {isManager && (
+              <Button variant="outline" className="mt-3 min-h-11" onClick={() => navigate('/app/industries')}>
+                Add the first module
+              </Button>
+            )}
+          </div>
         </div>
       </AppLayout>
     );

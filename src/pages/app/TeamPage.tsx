@@ -40,6 +40,8 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { MoveRepModal } from '@/components/team/MoveRepModal';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { companyWeekRange, buildWeekMap } from '@/lib/timeSplit';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { FiberTeam } from '@/components/team/FiberTeam';
 
 interface TeamPillar {
   name: string;
@@ -116,6 +118,8 @@ export default function TeamPage() {
   });
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+
+  const { activeVertical } = useWorkspace();
   const isAdmin = role === 'admin' || role === 'owner';
 
   // Training progress for all members
@@ -462,6 +466,18 @@ export default function TeamPage() {
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-muted-foreground">You don't have access to this page.</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Fiber runs on regions and installs, not the pest downline structure.
+  if (activeVertical === 'Fiber') {
+    return (
+      <AppLayout>
+        <div className="mx-auto max-w-3xl space-y-4 px-4 py-8">
+          <PageHeader title="Team" context="Your region, by installs this week." />
+          <FiberTeam />
         </div>
       </AppLayout>
     );

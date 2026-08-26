@@ -23,6 +23,8 @@ import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
 import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { FiberStackView } from '@/components/money/FiberStackView';
 
 const CARD = 'rounded border border-border bg-card';
 
@@ -50,6 +52,8 @@ export default function MyMoneyPage() {
     []
   );
   const isManagerRole = isManagerOrAbove(role);
+  const { activeVertical } = useWorkspace();
+  const isFiber = activeVertical === 'Fiber';
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -101,6 +105,18 @@ export default function MyMoneyPage() {
       revenueToNext !== null && avg && avg > 0 ? Math.ceil(revenueToNext / avg) : null;
     return { scale, signs, avg, revenue, tier, rate, earnings, next, revenueToNext, signsToNext };
   }, [commission]);
+
+  if (isFiber) {
+    return (
+      <AppLayout>
+        <main className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6">
+          <PageHeader title="Money" context="What each install pays at each rank." />
+          <FiberStackView />
+          <MyFiberWeeks />
+        </main>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

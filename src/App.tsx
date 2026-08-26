@@ -71,6 +71,7 @@ const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
 const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
+const InstallsPage = lazy(() => import('@/pages/app/InstallsPage'));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
@@ -299,6 +300,13 @@ function LazyFallback() {
               <Route path="/app/recruits" element={
                 <ProtectedRoute>
                     <RecruitsPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Fiber installs */}
+              <Route path="/app/installs" element={
+                <ProtectedRoute>
+                    <InstallsPage />
                 </ProtectedRoute>
               } />
 

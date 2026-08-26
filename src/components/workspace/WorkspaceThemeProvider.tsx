@@ -9,6 +9,7 @@ export interface WorkspaceTheme {
   muted?: string;
   border?: string;
   accent?: string;
+  accent_foreground?: string;
   texture?: 'none' | 'camo';
   texture_opacity?: number;
 }
@@ -87,6 +88,9 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--primary', theme.accent);
     set('--accent', theme.accent);
     set('--ring', theme.accent);
+    set('--primary-foreground', theme.accent_foreground);
+    set('--accent-foreground', theme.accent_foreground);
+    set('--sidebar-primary-foreground', theme.accent_foreground);
 
     const texture = theme.texture === 'camo' ? CAMO : 'none';
     set('--workspace-texture', texture);
@@ -109,6 +113,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     theme.accent,
     theme.texture,
     theme.texture_opacity,
+    theme.accent_foreground,
   ]);
 
   return <>{children}</>;
