@@ -87,6 +87,22 @@ function IncentiveActionCard({ card }: { card: ActionCard }) {
   );
 }
 
+/** Setup step a rep has not finished within its allowed days. */
+function SetupStepCard({ card }: { card: ActionCard }) {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => navigate('/app/industries')}
+      className="w-[260px] shrink-0 rounded-xl border border-border/60 bg-card p-3 text-left"
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Setup step</p>
+      <p className="mt-1 truncate text-[14px] font-semibold text-foreground">{card.title}</p>
+      <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{card.body || 'Open your setup steps'}</p>
+    </button>
+  );
+}
+
 /** Row of unresolved items. Renders nothing when there is nothing to do. */
 export function NeedsYouRow({ className }: { className?: string }) {
   const { cards, dismiss } = useActionCards();
@@ -102,9 +118,11 @@ export function NeedsYouRow({ className }: { className?: string }) {
           if (card.type === 'announcement') {
             return <AnnouncementActionCard key={key} card={card} onDone={() => dismiss('announcement', card.id)} />;
           }
+          if (card.type === 'setup_step') return <SetupStepCard key={key} card={card} />;
           return <IncentiveActionCard key={key} card={card} />;
         })}
       </div>
     </div>
   );
 }
+
