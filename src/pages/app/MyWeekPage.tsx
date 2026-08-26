@@ -32,10 +32,26 @@ function lastOpen(at: string | null): string {
   return `${days} days ago`;
 }
 
-function Row({ row, lastOpened }: { row: WeekRow; lastOpened: string | null }) {
+function Row({
+  row,
+  lastOpened,
+  firstWeek,
+  onMark,
+}: {
+  row: WeekRow;
+  lastOpened: string | null;
+  firstWeek?: FirstWeek;
+  onMark?: (userId: string, day: number, key: string, on: boolean) => void;
+}) {
   const navigate = useNavigate();
   const reasons = attentionReasons(row, lastOpened);
   const delta = row.training_week - row.training_prev;
+  const fw = firstWeek && firstWeek.found && !firstWeek.complete ? firstWeek : null;
+  const managerItems = fw
+    ? fw.days
+        .flatMap((d) => d.items.map((i) => ({ day: d.day, item: i })))
+        .filter((x) => x.item.mark === 'manager')
+    : [];
 
   return (
     <li className={cn('rounded-[10px] border border-border bg-card p-3', row.needs_attention && 'border-primary/60')}>
