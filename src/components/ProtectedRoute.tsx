@@ -35,19 +35,28 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <>{children}</>;
   }
 
+  // Season reset: no role and not approved means one plain screen, no navigation, no data.
+  if (!accessLoading && access && !access.has_role && !access.approved) {
+    return (
+      <LockedOutScreen
+        archived={access.archived}
+        defaultName={profile?.full_name || ''}
+        requestStatus={access.request_status}
+      />
+    );
+  }
+
   // Archived (non-alumni) accounts have no app access
   if ((profile as any)?.archived === true) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Account inactive</h1>
-          <p className="text-muted-foreground">
-            Your account is inactive — contact your manager.
-          </p>
+          <p className="text-foreground">This account is no longer active.</p>
         </div>
       </div>
     );
   }
+
 
   // Check if user is NLC (no access)
   if (profile?.status === 'nlc') {
