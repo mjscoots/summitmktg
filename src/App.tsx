@@ -13,23 +13,26 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
-// Public pages (keep eager – small & needed immediately)
-import Index from "./pages/Index";
-const IndustryPage = lazy(() => import("./pages/IndustryPage"));
-const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
+// Every route-level page is loaded on demand so the first paint ships only the
+// shell. AuthPage and NotFound stay eager: they are tiny and must render without
+// a second request when a session is missing or a URL is wrong.
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
-import Recruiting from "./pages/Recruiting";
-import Parents from "./pages/Parents";
-import RookieApplication from "./pages/RookieApplication";
-import VetApplication from "./pages/VetApplication";
-import ApplySuccess from "./pages/ApplySuccess";
-import PendingApproval from "./pages/app/PendingApproval";
-import ResetPasswordPage from "./pages/app/ResetPasswordPage";
 
-// Core app pages (keep eager – most users hit these immediately)
-import DashboardPage from "./pages/app/DashboardPage";
-import TrainingPage from "./pages/app/TrainingPage";
+const Index = lazy(() => import("./pages/Index"));
+const IndustryPage = lazy(() => import("./pages/IndustryPage"));
+const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
+const Recruiting = lazy(() => import("./pages/Recruiting"));
+const Parents = lazy(() => import("./pages/Parents"));
+const RookieApplication = lazy(() => import("./pages/RookieApplication"));
+const VetApplication = lazy(() => import("./pages/VetApplication"));
+const ApplySuccess = lazy(() => import("./pages/ApplySuccess"));
+const PendingApproval = lazy(() => import("./pages/app/PendingApproval"));
+const ResetPasswordPage = lazy(() => import("./pages/app/ResetPasswordPage"));
+
+const DashboardPage = lazy(() => import("./pages/app/DashboardPage"));
+const TrainingPage = lazy(() => import("./pages/app/TrainingPage"));
+
 
 // Lazy-loaded pages (loaded on demand to reduce initial bundle)
 const BootcampLock = lazy(() => import("./pages/app/BootcampLock"));
@@ -92,14 +95,16 @@ function VideoDeepLinkRedirect() {
 
 function LazyFallback() {
   return (
-    <div className="flex items-center justify-center min-h-[50vh] bg-background">
-      <div className="flex flex-col items-center gap-3 animate-fade-in">
-        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-        <p className="text-sm text-muted-foreground font-medium">Loading...</p>
+    <div className="min-h-[50vh] bg-background px-4 py-6" aria-busy="true">
+      <div className="mx-auto w-full max-w-5xl space-y-3">
+        <div className="h-6 w-40 rounded bg-muted/40" />
+        <div className="h-24 rounded-lg bg-muted/25" />
+        <div className="h-24 rounded-lg bg-muted/20" />
       </div>
     </div>
   );
 }
+
 
  // Inner app component to use hooks
  function AppContent() {
