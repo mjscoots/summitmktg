@@ -29,24 +29,26 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home },
-  { label: 'Recruits', path: '/app/recruits', icon: Target },
-  { label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
   { label: 'Training', path: '/app/training', icon: GraduationCap },
+  { label: 'Scripts', path: '/app/scripts', icon: BookOpen },
   { label: 'Events', path: '/app/events', icon: CalendarClock },
-  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
-  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { label: 'My Money', path: '/app/money', icon: DollarSign },
+  { label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  { label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { label: 'Recruits', path: '/app/recruits', icon: Target },
   { label: 'Industries', path: '/app/industries', icon: Building2 },
-  { label: 'Resources', path: '/app/links', icon: BookOpen },
+  { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+  { label: 'Resources', path: '/app/links', icon: FileText },
 ];
 
 const managementNavItems: NavItem[] = [
   { label: 'Team', path: '/app/team', icon: Users },
+  { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Forms', path: '/app/forms', icon: FileText },
   { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
   { label: 'War Room', path: '/app/war-room', icon: Swords },
 ];
+
 
 export function AppSidebar() {
   const navigate = useNavigate();
