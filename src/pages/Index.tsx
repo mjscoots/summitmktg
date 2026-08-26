@@ -8,7 +8,7 @@ import { LiveCounters } from "@/components/recruiting/LiveCounters";
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
 /**
- * Public cover page — gold on black, single industry (pest) messaging.
+ * Public cover page — ice palette, single industry (pest) messaging.
  * Multi-industry content lives only inside the authenticated app.
  */
 const Index = () => {
@@ -34,7 +34,7 @@ const Index = () => {
 
   return (
     <div className="gold-world min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Calm premium background — deep near-black with a soft gold halo and faint texture */}
+      {/* Calm background — deep ice with a soft halo and faint texture */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0"
