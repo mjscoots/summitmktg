@@ -91,7 +91,7 @@ const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProp
         height={renderedHeight}
         width={Math.round(art.ratio * renderedHeight)}
         className={className}
-        style={{ display: "block", height: renderedHeight, width: "auto" }}
+        style={{ display: "block", maxHeight: renderedHeight, height: "auto", width: "auto", maxWidth: "100%" }}
       />
     );
   }
