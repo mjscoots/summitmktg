@@ -75,7 +75,6 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
           </div>
         </SidebarProvider>
         </WorkspaceThemeProvider>
-      </WorkspaceProvider>
     </ThemeProvider>
   );
 }
