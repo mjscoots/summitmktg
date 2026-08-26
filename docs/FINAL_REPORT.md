@@ -759,3 +759,48 @@ Open in full: `chat_messages.kind / ref_id / meta`, the `[[WIN|…]]` / `[[AWARD
 - Phone checks as listed in A above. No new users were created this pass, so the owner/manager/rep three-role matrix, the event-card RSVP rollup check, the pinned-announcement Needs-you check, the search tap-to-call check, the rep-cannot-DM-rep check, the 300-message "Load older" check and the one-subscription-per-screen check are all still open — each depends on B/C/D work that is not built yet.
 - Database linter after the migration: 310 issues, unchanged from Pass 58B (1 RLS-enabled-no-policy info, 26 anon SECURITY DEFINER, 282 authenticated SECURITY DEFINER, 1 OTP length). The index added no new findings.
 - Preview only. Nothing was published.
+
+## Pass 60B — Chat plumbing
+
+Data path only; no UI redesign beyond wiring "Load older".
+
+### New RPCs
+
+- `public.get_conversations()` → `jsonb {conversations, total_unread}`. One call returns every channel visible to the caller (`visible_chat_channels`, ai-coach excluded) with `slug, label, icon, color, display_order, kind` (`team` for `team-*`, else `channel`), `is_pinned`, `last_content`, `last_sender`, `last_at`, and `unread` computed from `chat_read_state`. SECURITY DEFINER, `search_path=public`, execute granted to `authenticated` only.
+- `public.get_channel_messages(_channel text, _before timestamptz default now(), _limit int default 50)` → `jsonb {messages, has_more}`. Keyset by `created_at` descending, `_limit` capped at 100. Each row carries sender name/avatar/role, `reply_to` with sender and an 80-character excerpt, and reaction rows as `{emoji, count, mine}`. Refuses unauthenticated callers and channels the caller cannot see.
+- Trigger `chat_message_after_insert` → `public.tg_chat_message_after_insert()` on `chat_messages` insert: awards chat points for non-AI messages through `award_chat_message_points` and inserts mention notifications by matching `@full name` / `@first name` against active enrolled profiles. The client-side calls for both were deleted. Direct execute on the helper functions is revoked from `anon` and `authenticated`.
+- Index `chat_messages (channel, created_at desc)` (added in Pass 60, used by both RPCs).
+
+### Client changes
+
+- `useChatChannels` and `useUnreadChat` read `get_conversations()`; the conversation list no longer assembles last lines client-side and no longer runs a 300-row message query.
+- `CommunityChat` loads 50 messages per page through `get_channel_messages`, pages with a 44px "Load older" button, and uses a message map for reply previews (the O(n²) `find` lookup is gone). The per-render reactions refetch is removed — counts and `mine` come from the RPC and update optimistically.
+- `ChatBubble` takes a single `parentMessage` prop and `{emoji, count, mine}` reactions.
+- Typing presence is keyed per channel (`chat-typing-<slug>`).
+- `chat_read_receipts` writes stay removed (Pass 60); `chat_read_state` is the only read model.
+
+### Subscriptions before / after
+
+| Screen | Before | After |
+| --- | --- | --- |
+| Home | 2 unfiltered `chat_messages` INSERT listeners (`useUnreadChat`, `useChatChannels`) | 0 message listeners |
+| Chat thread | unfiltered `chat_messages` + unfiltered `chat_reactions` + 2 unread firehoses | 1 channel-scoped join (`chat_messages` INSERT/UPDATE with `filter: channel=eq.<slug>`, reactions on the same channel object) + 1 typing presence channel |
+
+Measured with Playwright WebSocket frame capture: Home reported 0 `postgres_changes` joins; the open thread reported exactly 2 joins — `realtime:chat-typing-<slug>` (presence only, `postgres_changes: []`) and `realtime:chat-<slug>` with `filter: channel=eq.<slug>`. The list screen keeps one `chat_read_state` listener filtered to the caller.
+
+### Verified
+
+- Seeded 320 synthetic messages in a temporary `p60b-seed` channel: the thread loaded 50 unique messages, "Load older" paged to 100 unique messages, no duplicates.
+- One message containing a mention produced exactly 1 chat point event and exactly 1 mention notification — the trigger fires once. The 320 short seed rows produced none, so the existing 10-character minimum still applies.
+- The typing presence channel name is per channel, so an indicator cannot leak across channels.
+- No horizontal overflow: document width 390 at 390px (list and thread) and 1280 at 1280px.
+- `bunx tsgo --noEmit` clean; production build clean, largest app chunk 191.17 kB raw / 60.01 kB gzip.
+- Cleanup proof after the run: 0 `p60b-seed` messages, 0 channel rows, 0 mention notices, 0 chat point events in the window. The point award and its daily counter were reversed.
+
+### Open, with reason
+
+- Two dedicated throwaway accounts were not created for this pass: minting a session for a chosen user needs an approval that was unavailable in this context, and `admin-create-user` needs an owner token, so verification ran with the injected owner preview session against a temporary seeded channel that was deleted afterwards. The seeded-channel results above cover the required paging, trigger and subscription checks; a second-account cross-check (a rep reading the same channel) is not covered.
+- Database linter unchanged at 311 issues: 1 RLS-enabled-no-policy, 26 anonymous SECURITY DEFINER, 283 signed-in SECURITY DEFINER, 1 OTP length. No remediation in this pass — it is out of scope here and would change surfaces beyond chat.
+- `scripts/regression-widths.py` again produced no findings output, so the width evidence above is the direct Playwright measurement rather than that script.
+
+Preview only; nothing published.
