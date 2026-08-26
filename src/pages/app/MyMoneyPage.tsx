@@ -434,6 +434,9 @@ export default function MyMoneyPage() {
             </section>
           </>
         )}
+          </>
+        )}
+
       </main>
     </AppLayout>
   );
