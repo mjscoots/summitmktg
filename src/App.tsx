@@ -75,6 +75,14 @@ const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
 const IndustriesPage = lazy(() => import("./pages/app/IndustriesPage"));
 
 
+/** Old /admin/team?tab=... links land in the section that now owns that tab. */
+function AdminTabRedirect() {
+  const [params] = useSearchParams();
+  const tab = params.get('tab');
+  const section = sectionForTab(tab);
+  return <Navigate to={`/admin/${section}${tab ? `?tab=${tab}` : ''}`} replace />;
+}
+
 function LazyFallback() {
   return (
     <div className="flex items-center justify-center min-h-[50vh] bg-background">
