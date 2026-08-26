@@ -139,9 +139,14 @@ export default function LeaderboardPage() {
             {activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
             {activeTab === 'streak' && <StreakLeaderboard />}
             {activeTab === 'recruiting' && <RecruitingLeaderboard />}
-            {activeTab === 'hof' && <HallOfFame />}
 
           </div>
+
+          <div className="mt-6 space-y-4">
+            <TeamBattles />
+            <IncentiveTracker />
+          </div>
+
         </main>
       </div>
 
