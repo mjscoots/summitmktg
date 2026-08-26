@@ -6169,6 +6169,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_person: { Args: { _user_id: string }; Returns: string }
+      chat_attachment_readable: {
+        Args: { _object_name: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           p_key: string
@@ -7084,6 +7088,7 @@ export type Database = {
         Returns: Json
       }
       start_sweep_session: { Args: { _filter?: Json }; Returns: Json }
+      submission_client_key: { Args: never; Returns: string }
       submit_commitment_interview: {
         Args: {
           _better_next_year: string
@@ -7152,6 +7157,8 @@ export type Database = {
         Returns: Json
       }
       user_tier: { Args: { _uid: string }; Returns: string }
+      valid_public_email: { Args: { _email: string }; Returns: boolean }
+      valid_public_phone: { Args: { _phone: string }; Returns: boolean }
       validate_access_code: { Args: { input_code: string }; Returns: boolean }
       validate_and_record_quiz: {
         Args: { _answers: Json; _lesson_id: string }
