@@ -55,6 +55,18 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
   const lead = detail?.lead;
   const snapshot = (lead?.profile_snapshot as LeadSnapshot | null) || null;
 
+  const designatedAt = (lead?.designated_at as string | null) || null;
+  const leadCycleDays = (lead?.cycle_days as number | null) ?? 14;
+  const cyclesInDays = designatedAt
+    ? Math.max(
+        Math.ceil(
+          (new Date(designatedAt).getTime() + Math.max(leadCycleDays, 1) * 86400000 - Date.now()) / 86400000
+        ),
+        0
+      )
+    : null;
+
+
   useEffect(() => {
     setNotes((lead?.notes as string) || '');
   }, [lead?.id, lead?.notes]);
