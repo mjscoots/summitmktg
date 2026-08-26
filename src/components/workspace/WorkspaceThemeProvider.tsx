@@ -68,6 +68,12 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--popover-foreground', theme.foreground);
     set('--secondary-foreground', theme.foreground);
     set('--muted-foreground', theme.muted);
+    set('--surface', theme.surface);
+    set('--surface-elevated', theme.surface);
+    set('--surface-sunken', theme.background);
+    set('--text-primary', theme.foreground);
+    set('--text-secondary', theme.muted);
+    set('--text-muted', theme.muted);
     set('--border', theme.border);
     set('--border-subtle', theme.border);
     set('--primary', theme.accent);
