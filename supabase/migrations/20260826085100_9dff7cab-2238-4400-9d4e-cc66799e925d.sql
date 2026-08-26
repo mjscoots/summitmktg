@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.chat_attachment_readable(text) TO authenticated, service_role;
