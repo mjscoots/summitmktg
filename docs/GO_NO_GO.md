@@ -139,7 +139,7 @@ Each item says where to click and what happens if you leave it.
 
 ## 4. Known limitations that ship as-is
 
-- **299 database linter items, and that is expected.** 278 of them say "a signed-in user
+- **313 database linter items, and that is expected.** 292 of them say "a signed-in user
   can call this function", and 19 say "anyone can call this function". These functions
   *are* the app's own interface to its data, and every one of them checks the caller's
   role before returning anything. The 19 open ones are the public pages: the landing
