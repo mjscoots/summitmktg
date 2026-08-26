@@ -71,10 +71,11 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                   <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">
                     <button
                       onClick={() => navigate('/app/ask')}
-                      className="inline-flex min-h-11 items-center rounded-xl px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      className="hidden min-[400px]:inline-flex min-h-11 items-center rounded-xl px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                       Ask
                     </button>
+
                     <GlobalSearch />
                     <StatusBar />
                     <NotificationBell />
