@@ -93,5 +93,6 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/app" replace />;
   }
 
-  return <>{children}</>;
+  return <BootcampGate>{children}</BootcampGate>;
+
 }
