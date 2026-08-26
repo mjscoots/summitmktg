@@ -565,3 +565,13 @@ override reason. The applications list shows waiting / skipped, no access / not 
 
 Typecheck and build clean. Preview only. Security is not clean: the Supabase linter still reports 275
 issues, almost all pre-existing broad SECURITY DEFINER execute grants plus a short OTP length setting.
+
+### Pass 56 verification
+
+Leads (bucket = 'lead'): 504 rows — 416 tagged `not-on-2026-roster` (all free), 88 out for good
+(82 designated to former managers, 6 free). Roster rows (42) are excluded from every leads surface.
+The parked bucket is empty and has no tab. All leads adds single-row assign next to bulk designate.
+
+Approvers: Pest = owner required, Mathew Rubino `skipped_no_access` → effective approvers is the owner
+alone, so the owner can approve a Pest application today. Life = owner + Brendan Pillar required, the
+unset Life president shows `unset` and is skipped. Fiber = owner + Pillar, both required.
