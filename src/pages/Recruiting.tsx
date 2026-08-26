@@ -15,7 +15,7 @@ const Recruiting = () => {
     setPageMeta({
       title: "Summer Sales Jobs — Summit Marketing",
       description:
-        "Summit Marketing recruits, trains, and fields door-to-door sales reps. Training, housing and pay explained.",
+        "Summit Marketing trains and fields door-to-door sales reps. Training, housing and pay explained.",
       path: "/recruiting",
     });
   }, []);
