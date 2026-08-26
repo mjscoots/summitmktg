@@ -86,22 +86,8 @@ export default function IndustriesPage() {
     loadHub();
   }, [user?.id, loadHub]);
 
-  const join = async (v: HubVertical) => {
-    setJoining(v.vertical);
-    const { data, error } = await supabase.rpc('join_vertical' as never, { _vertical: v.vertical } as never);
-    setJoining(null);
-    const res = data as unknown as { success: boolean; configured: boolean; error?: string } | null;
-    if (error || !res?.success) {
-      toast({ title: 'Could not join', description: res?.error || error?.message, variant: 'destructive' });
-      return;
-    }
-    if (!res.configured) {
-      toast({ title: 'Request received', description: "Setup steps are being finalized — you'll be notified." });
-    } else {
-      setSearchParams({ v: v.vertical });
-    }
-    loadHub();
-  };
+  const [applyingTo, setApplyingTo] = useState<string | null>(null);
+
 
   if (openVertical) {
     return (
