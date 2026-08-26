@@ -109,7 +109,7 @@ export function AppSidebar() {
     return 0;
   };
 
-  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/calendar', '/app/leaderboard', '/app/links'];
+  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/leaderboard', '/app/links'];
   const baseNavItems = role === 'recruiter'
     ? mainNavItems.filter((i) => recruiterPaths.includes(i.path))
     : mainNavItems;
