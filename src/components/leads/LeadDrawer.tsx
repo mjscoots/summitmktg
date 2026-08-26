@@ -53,10 +53,16 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
 
 
   const lead = detail?.lead;
+  const snapshot = (lead?.profile_snapshot as LeadSnapshot | null) || null;
 
   useEffect(() => {
     setNotes((lead?.notes as string) || '');
   }, [lead?.id, lead?.notes]);
+
+  useEffect(() => {
+    setCycleDays(String((lead?.cycle_days as number | null) ?? 14));
+  }, [lead?.id, lead?.cycle_days]);
+
 
   useEffect(() => {
     if (!staff || !leadId) return;
