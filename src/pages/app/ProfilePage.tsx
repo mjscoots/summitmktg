@@ -229,6 +229,8 @@ export default function ProfilePage() {
           full_name: fullName,
           nickname: nickname || null,
           phone: phone,
+          phone_visibility: phoneVisibility,
+
           timezone: timezone === 'auto' ? null : timezone,
           emergency_contact_name: emergencyContactName || null,
           emergency_contact_phone: emergencyContactPhone || null,
