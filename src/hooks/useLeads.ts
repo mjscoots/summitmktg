@@ -37,7 +37,46 @@ export interface LeadRow {
   do_not_call: boolean | null;
   last_outcome: string | null;
   on_roster: boolean | null;
+  designated_at: string | null;
+  cycle_days: number | null;
+  hold: boolean | null;
+  cycles_in_days: number | null;
 }
+
+export interface LeadSnapshot {
+  captured_at?: string | null;
+  full_name?: string | null;
+  user_id?: string | null;
+  ai_profile?: {
+    summary?: string | null;
+    strengths?: string[] | null;
+    concerns?: string[] | null;
+    goals?: string[] | null;
+    last_built_at?: string | null;
+  } | null;
+  engagement?: {
+    app_minutes_30d?: number | null;
+    training_minutes_30d?: number | null;
+    days_active_30d?: number | null;
+    current_streak?: number | null;
+    longest_streak?: number | null;
+    total_days_active?: number | null;
+    lessons_completed?: number | null;
+  } | null;
+  event_answers?: {
+    event_title?: string | null;
+    event_date?: string | null;
+    answers?: Record<string, unknown> | null;
+  }[] | null;
+  departure?: {
+    departure_type?: string | null;
+    departure_reason?: string | null;
+    last_day_worked?: string | null;
+    archived_at?: string | null;
+    revenue_to_date?: number | null;
+  } | null;
+}
+
 
 export interface LeadFilters {
   search?: string | null;
