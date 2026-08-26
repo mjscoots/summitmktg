@@ -145,6 +145,7 @@ function LazyFallback() {
         <BrowserRouter>
           <ScrollToTop />
           <Suspense fallback={<LazyFallback />}>
+           <WorkspaceProvider>
            <Routes>
              {/* ========== PUBLIC ROUTES ========== */}
              <Route path="/" element={<Index />} />
