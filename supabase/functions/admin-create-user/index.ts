@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // The handle_new_user trigger creates the profile and role automatically.
+    // The handle_new_user trigger creates the profile and a default rookie role.
     // Now update the profile with additional fields.
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
@@ -179,6 +179,24 @@ Deno.serve(async (req) => {
     if (updateError) {
       console.error("Profile update error:", updateError);
     }
+
+    // Apply the requested role. The signup trigger only ever writes 'rookie',
+    // so without this a new manager or admin would land as a rookie.
+    if (role && role !== "rookie") {
+      const { error: roleInsertError } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: newUser.user.id, role });
+      if (roleInsertError) {
+        console.error("Role insert error:", roleInsertError);
+      } else {
+        await supabaseAdmin
+          .from("user_roles")
+          .delete()
+          .eq("user_id", newUser.user.id)
+          .eq("role", "rookie");
+      }
+    }
+
 
     // Initialize bootcamp progress (locked by default)
     const { error: bootcampError } = await supabaseAdmin

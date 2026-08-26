@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { WhatsNewTour } from '@/components/onboarding/WhatsNewTour';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -71,7 +70,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
               <WorkspaceScopedMain fullHeight={fullHeight}>{children}</WorkspaceScopedMain>
               <MobileBottomNav />
 
-              <WhatsNewTour />
+
 
             </div>
           </div>

@@ -670,3 +670,63 @@ Checked foreground/background, muted/background and accent/background against bo
 - Dev-only React warning on `/admin/people`: "Function components cannot be given refs" originating in `DepartureIntakeDialog`. No user-visible effect; not yet traced.
 - Supabase linter count unchanged from Pass 57 (275).
 - Preview only; nothing published.
+
+## Pass 58B — Role walkthrough
+
+### Grant regression
+- `public.handle_new_user()` had lost EXECUTE after Pass 57. Granted to `supabase_auth_admin, postgres` (serves the `auth.users` insert trigger). All other public trigger functions were audited against `pg_trigger.tgfoid` and granted to `authenticated`/`service_role` (app-written public tables) or `service_role` (backup/edge paths).
+- Account creation still failed with `function public.sync_staff_workspace_access() is not unique`: the database held both a no-argument and a `(uuid DEFAULT NULL)` overload. Dropped the no-argument overload and the redundant `staff_access_on_role_change` trigger; granted `sync_staff_workspace_access(uuid)` to `authenticated, service_role`. Account creation then succeeded.
+- `public.chat_attachment_readable(text)` had lost EXECUTE for `authenticated` in Pass 57, so **no chat attachment could be opened by anyone** (signed-URL requests returned `permission denied for function chat_attachment_readable`). Granted to `authenticated, service_role`. This was a launch blocker.
+- Anon submission validation re-verified: bad phone on `applications`, `vet_leads`, `recruiting_leads` all rejected with exactly "That did not go through. Check the phone and email and try again."; good submissions accepted (HTTP 201); test rows deleted. Note: an anonymous insert with `Prefer: return=representation` returns 42501 because anon has no SELECT policy — the app does not request representation, so this is expected, not a bug.
+
+### Signup proof
+`test+manager@summit.test` created through `admin-create-user`, signed in with a password grant, and later deleted. Seven throwaway accounts plus one role-verification account were created, configured (manager chain, Pest/Fiber memberships, president roles, enrollments) and all signed in successfully.
+
+### Bugs found and fixed
+- **Roles ignored on account creation.** Symptom: every account created from Admin → Add member was a rookie regardless of the selected role (all seven test accounts came back `{rookie}`). Cause: `admin-create-user` never wrote the requested role; only the `handle_new_user` trigger's default `rookie` row existed. Fix: the function now inserts the requested role and removes the default rookie row; re-verified by creating a manager (came back `{manager}`).
+- **Chat attachments unreadable for everyone.** Symptom: signed-URL creation failed for uploader, staff and non-member alike. Cause: Pass 57 revoked EXECUTE on `chat_attachment_readable`. Fix: grant restored (see above).
+- **"What's New" modal blocked the phone chat.** Symptom: at 390px the chat opened behind a full-width modal, so the composer could not be tapped — this is what the owner saw as "the nav bar covers the input". Cause: `WhatsNewTour` auto-opened over every app screen, and its content described a removed chat redesign in exclamation-mark/emoji copy. Fix: removed `WhatsNewTour` from `AppLayout`. This also cleared the `DialogContent requires a DialogTitle` accessibility warning.
+- **Bottom-nav overlap: does not reproduce.** Measured at 390px signed in: composer bottom 751px, bottom nav top 780px — a 29px gap above the bar, which itself sits above the safe-area inset. Sending a message through the UI worked (message rendered immediately).
+
+### Attachment refusal check (Pass 57 verification)
+Uploaded `chat-uploads/<rookie>/p58b-test.png` as the uploader, then requested a signed URL as three identities:
+- uploader → 200 (signed URL issued)
+- staff/admin → 200
+- signed-in non-member → 400 `Object not found` (refused)
+- anonymous public URL → 400 `Bucket not found` (bucket is private)
+
+### Role × screen matrix (390 and 1280, signed in)
+Rows below reflect the completed crawl (266 route loads, zero horizontal overflow at either width).
+
+| Role | Home | Chat | Training | Calendar | Leaderboard | Money | Industries | Leads | Team | Admin tabs | /command | Ask | Season | Profile |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Rookie | OK | gated to checklist | gated | gated | gated | gated | gated | n/a | n/a | blocked (correct) | blocked | gated | gated | OK |
+| Rep | OK | gated to checklist | gated | gated | gated | gated | gated | n/a | n/a | blocked (correct) | blocked | gated | gated | OK |
+| Manager | OK | OK | OK | OK | OK | OK | OK | OK | OK | fixed (role bug) | redirects to reports | OK | OK ("Not set yet") | OK |
+| Pest president | OK | OK | OK | OK | OK | OK | OK | OK | OK | OK | reports | OK | OK | OK |
+| Fiber president | OK | OK | OK (Fiber tracks) | OK | OK | OK | OK | OK (leads list) | OK (5 active reps / 7 teams) | OK | reports | OK | OK | OK |
+| Fiber rep | OK | OK | OK | OK | OK | OK | OK | n/a | redirects to Home (correct) | blocked | blocked | OK | OK | OK |
+| Admin | OK | OK | OK | OK | OK | OK | OK | OK | OK | OK after role fix | reports | OK | OK | OK |
+
+Rookie/rep rows read "gated" because an incomplete Summer Checklist correctly redirects them; that is the designed rookie path, not a defect.
+
+### Open items
+- Dev-only React warning "Function components cannot be given refs" still fires on every app screen. The captured component stack resolves only to `App`, with no offending child identified after auditing every `asChild` trigger, the badge components in the reported stack, and the root providers. No functional effect (no failed interaction observed); left open rather than guessing at a refactor.
+- `scripts/regression-widths.py` completed without reporting any overflow; the crawl independently confirmed zero horizontal overflow at 390 and 1280 for all seven roles.
+- Supabase linter: 310 issues (1 RLS-enabled-no-policy, 26 anon SECURITY DEFINER, 282 signed-in SECURITY DEFINER, 1 OTP length). Up by one from Pass 57's 275→309 baseline because of the `chat_attachment_readable` grant, which is required for chat to work at all.
+
+### Cleanup proof
+All eight throwaway accounts deleted through `self-delete-account`, attachments removed, temporary submissions deleted.
+
+```sql
+select (select count(*) from profiles where email like '%@summit.test') profiles_left,
+       (select count(*) from chat_messages where content like 'Pass 58B%') msgs_left,
+       (select count(*) from applications where id='effe3cac-5644-4321-b730-6471dcb45ef2') apps_left,
+       (select count(*) from vet_leads where id='18fb9f40-902a-49cb-a030-4a9067869a58') vets_left,
+       (select count(*) from recruiting_leads where first_name like 'TestGood58B%') recs_left,
+       (select count(*) from user_roles ur left join profiles p on p.user_id=ur.user_id where p.user_id is null) orphan_roles;
+```
+Result: `0 | 0 | 0 | 0 | 0 | 0`
+
+### Verification
+`bunx tsgo --noEmit` clean. Production build clean (build log: build OK). Preview only — not published.
