@@ -3075,6 +3075,7 @@ export type Database = {
           sourced_by: string | null
           status: string
           story: string | null
+          vertical: string | null
           weeks_active: number | null
         }
         Insert: {
@@ -3103,6 +3104,7 @@ export type Database = {
           sourced_by?: string | null
           status?: string
           story?: string | null
+          vertical?: string | null
           weeks_active?: number | null
         }
         Update: {
@@ -3131,6 +3133,7 @@ export type Database = {
           sourced_by?: string | null
           status?: string
           story?: string | null
+          vertical?: string | null
           weeks_active?: number | null
         }
         Relationships: [
