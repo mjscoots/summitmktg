@@ -57,7 +57,13 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         .eq('user_id', user.id),
       (supabase as any).rpc('get_my_money'),
       (supabase as any).from('profiles').select('region_id, region').eq('id', user.id).maybeSingle(),
-      (supabase as any).from('vertical_steps').select('id').eq('vertical', 'Fiber').eq('is_active', true),
+      (supabase as any)
+        .from('vertical_steps')
+        .select('id, title, display_order')
+        .eq('vertical', 'Fiber')
+        .eq('is_active', true)
+        .order('display_order'),
+
       (supabase as any)
         .from('vertical_step_completions')
         .select('step_id')
