@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Mic } from 'lucide-react';
+import { useChatAttachmentUrl } from '@/lib/chatAttachments';
 import { cn } from '@/lib/utils';
+
 
 const VOICE_PREFIX = 'voice:';
 
