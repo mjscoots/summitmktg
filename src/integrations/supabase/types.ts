@@ -6137,6 +6137,7 @@ export type Database = {
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
+      my_active_vertical: { Args: never; Returns: string }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }
