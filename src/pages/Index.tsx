@@ -138,21 +138,10 @@ const Index = () => {
             <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
               Estimate Your Earnings
             </h2>
-            <p className="text-muted-foreground text-sm mb-6">See what you could make this summer.</p>
-            <div className="inline-flex items-center rounded-[var(--radius)] border border-border/50 bg-card/50 p-1">
-              {(['rookie', 'vet'] as const).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setCalcMode(mode)}
-                  className={`min-h-11 rounded-xl px-5 text-sm font-bold uppercase tracking-wider transition-colors ${calcMode === mode ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  {mode === 'rookie' ? 'Rookie' : 'Veteran'}
-                </button>
-              ))}
-            </div>
+            <p className="text-muted-foreground text-sm">See what you could make this summer.</p>
           </div>
           <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
-            {calcMode === 'rookie' ? <EarningsCalculator /> : <VetCalculator />}
+            <EarningsCalculator />
           </Suspense>
         </div>
 
@@ -162,7 +151,7 @@ const Index = () => {
             Ready to Start?
           </h2>
           <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-            Applications take a few minutes. Rookie and veteran paths both open.
+            Applications take a few minutes.
           </p>
           <button
             onClick={() => navigate("/apply")}
