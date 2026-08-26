@@ -1510,3 +1510,14 @@ Nothing was published.
 - Life Home setup state: light hero, "Life is being set up", and Pipeline / Learn / Schedule cards with plain empty states — no invented data.
 - `docs/DESIGN_TOKENS.md` rewritten for the Mono system.
 - Verified: typecheck clean, production build clean (12.1s). Only chunk over 200 kB: `index` 209.85 kB (gzip 67.9 kB). No horizontal overflow at 390 or 1280 on Home, Leaderboard or login. RLS and auth untouched. Not published.
+
+## Pass 77 — The front door in Mono
+- Fixed the warm hero wash: every public surface is neutral #0B0D12 with the dotted grid only (`.public-dots`); no colour overlays remain on the home or industry pages.
+- Compact wordmark now renders plain below 44px automatically (nav, app header, sidebar); the outlined trinity is used only at 44px and above.
+- Public home rebuilt in Mono: sticky nav, hero wordmark, tagline from `public_tagline` or the plain fallback, Knock/Close/Get paid cards, settings-backed calculator, four season steps, closing application band, footer with the Summit Marketing / Summit Trinity naming rule. No testimonials — no real ones exist in data, so none are shown.
+- Industry pages restyled in Mono; `/industries/life` now redirects home because Life is not open publicly.
+- Rookie and veteran applications regrouped into three cards (industry, about you, how you heard), 48px inputs, submit pinned to the bottom on phones and inline from `sm` up; the vertical choice offers Pest and Fiber only. Application logic untouched.
+- Application-received and `/invite/:token` screens are Mono centre cards on the dotted grid; invite logic untouched.
+- PWA background and theme colours set to #0B0D12; added `public/splash-1170x2532.png` iOS launch image.
+- Slider labels now reach the thumb (`aria-label`), and the work section has a heading — public home Lighthouse accessibility 100, best practices 96 (the only failure is React's dev-mode ref warning, absent from the production build).
+- Signed-out screenshots at 390 and 1280 for home, Pest, Fiber, rookie form and invite: overflow 0 on every route. Typecheck and production build clean. Nothing published.

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, Navigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { supabase } from '@/integrations/supabase/client';
 import { setPageMeta } from '@/lib/pageMeta';
 
-const SLUGS: Record<string, string> = { pest: 'Pest', fiber: 'Fiber', life: 'Life' };
+// Life is not open publicly yet, so /industries/life sends people home.
+const SLUGS: Record<string, string> = { pest: 'Pest', fiber: 'Fiber' };
 
 interface IndustryData {
   vertical: string;
@@ -19,11 +20,12 @@ interface IndustryData {
 
 const STEPS = ['Apply', 'Setup steps', 'Pick your manager', 'Start'];
 
-const CARD = 'rounded-2xl border border-primary/20 bg-white/[0.02] p-5 sm:p-6';
+const CARD = 'public-card p-5 sm:p-6';
 
 export default function IndustryPage() {
   const { slug = '' } = useParams();
   const navigate = useNavigate();
+  const isLife = slug.toLowerCase() === 'life';
   const vertical = SLUGS[slug.toLowerCase()];
   const [data, setData] = useState<IndustryData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +50,8 @@ export default function IndustryPage() {
     })();
   }, [vertical, slug]);
 
+  if (isLife) return <Navigate to="/" replace />;
+
   if (!vertical) {
     return (
       <div className="gold-world min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6">
@@ -58,30 +62,24 @@ export default function IndustryPage() {
   }
 
   return (
-    <div className="gold-world min-h-screen bg-background flex flex-col relative">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[40vh]"
-        style={{ background: 'radial-gradient(ellipse at 50% -10%, hsl(46 65% 52% / 0.14), transparent 65%)' }}
-      />
-
-      <nav className="relative z-20 w-full px-6 py-5">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
-            <Wordmark variant="compact" height={28} />
-            <span className="text-lg font-black tracking-tight">Summit</span>
+    <div className="gold-world public-dots min-h-screen bg-background flex flex-col relative">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/[0.88] backdrop-blur">
+        <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
+          <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
+            <Wordmark variant="compact" height={34} />
           </Link>
           <button
             onClick={() => navigate('/login')}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-strong px-4 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
           >
-            <LogIn className="w-4 h-4" /> Log in
+            <LogIn className="w-4 h-4" /> Sign in
           </button>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      <main className="relative z-10 flex-1 w-full max-w-4xl mx-auto px-6 pb-20">
-        <Link to="/" className="micro-label inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary mb-6">
-          <ArrowLeft className="w-3.5 h-3.5" /> All industries
+      <main className="relative z-10 mx-auto w-full max-w-4xl flex-1 px-5 pb-20 pt-8 sm:px-6">
+        <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
+          <ArrowLeft className="w-4 h-4" /> Back home
         </Link>
 
         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground mb-4">
@@ -103,11 +101,11 @@ export default function IndustryPage() {
             )}
 
             <section>
-              <h2 className="micro-label text-muted-foreground mb-3">How it works</h2>
+              <h2 className="mb-3 text-sm font-semibold text-text-muted">How it works</h2>
               <ol className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                 {steps.map((s, i) => (
                   <li key={s} className="flex items-center gap-2 sm:gap-3">
-                    <span className="rounded-xl border border-primary/25 bg-white/[0.02] px-3 py-2 text-sm text-foreground">
+                    <span className="inline-flex min-h-11 items-center rounded-xl border border-border px-3 text-sm text-foreground">
                       {s}
                     </span>
                     {i < steps.length - 1 && <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground" />}
@@ -118,7 +116,7 @@ export default function IndustryPage() {
 
             {data?.ranks?.length ? (
               <section>
-                <h2 className="micro-label text-muted-foreground mb-3">The ladder</h2>
+                <h2 className="mb-3 text-sm font-semibold text-text-muted">The ladder</h2>
                 <div className={CARD}>
                   <div className="flex flex-wrap gap-x-3 gap-y-2">
                     {data.ranks.map((r, i) => (
@@ -139,7 +137,7 @@ export default function IndustryPage() {
 
             {data?.leads?.length ? (
               <section>
-                <h2 className="micro-label text-muted-foreground mb-3">
+                <h2 className="mb-3 text-sm font-semibold text-text-muted">
                   {data.leads.length > 1 ? 'Leads' : 'Lead'}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -149,7 +147,7 @@ export default function IndustryPage() {
                         {l.avatar_url ? (
                           <img src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                         ) : (
-                          <div className="h-11 w-11 rounded-full border border-primary/25" />
+                          <div className="h-11 w-11 rounded-full border border-border-strong" />
                         )}
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-foreground truncate">{l.full_name || ''}</p>
@@ -165,7 +163,7 @@ export default function IndustryPage() {
             <section className="pt-2">
               <Link
                 to={`/apply/rookie?vertical=${vertical}`}
-                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold tracking-wider text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]"
+                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
               >
                 Apply <ArrowRight className="w-4 h-4" />
               </Link>

@@ -106,6 +106,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
             min={1}
             max={40}
             step={1}
+            aria-label="Accounts per week"
           />
           {chips.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
@@ -143,6 +144,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
             min={d.minWeeks}
             max={d.maxWeeks}
             step={1}
+            aria-label="Weeks worked"
           />
           <div className="mt-2 flex justify-between text-xs text-muted-foreground">
             <span>{d.minWeeks}</span>

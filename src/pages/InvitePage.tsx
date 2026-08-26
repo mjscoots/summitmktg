@@ -123,12 +123,10 @@ const InvitePage = () => {
   };
 
   const shell = (children: React.ReactNode) => (
-    <div className="min-h-screen bg-background px-5 py-10">
-      <div className="mx-auto w-full max-w-md">
-        <div className="mx-auto mb-6 w-full max-w-[320px]">
-          <Wordmark variant="hero" height={110} className="mx-auto h-auto w-full max-w-[320px]" />
-        </div>
-        {children}
+    <div className="gold-world public-dots relative flex min-h-screen items-center justify-center bg-background px-5 py-12">
+      <div className="relative z-10 mx-auto w-full max-w-md text-center">
+        <Wordmark variant="hero" height={100} className="mx-auto !h-auto w-full max-w-[280px]" />
+        <div className="mt-8 text-left">{children}</div>
       </div>
     </div>
   );
@@ -149,7 +147,7 @@ const InvitePage = () => {
             ? 'This invite has expired.'
             : 'This invite link is not valid.';
     return shell(
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="public-surface p-6">
         <p className="text-foreground">{line}</p>
         <p className="mt-2 text-sm text-muted-foreground">Ask the person who invited you for a new link.</p>
       </div>,
@@ -158,9 +156,9 @@ const InvitePage = () => {
 
   if (accountExists) {
     return shell(
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="public-surface p-6">
         <p className="text-foreground">You already have an account — sign in</p>
-        <Button className="mt-4 min-h-11 w-full" onClick={() => navigate('/login')}>
+        <Button className="mt-4 min-h-12 w-full" onClick={() => navigate('/login')}>
           Go to sign in
         </Button>
       </div>,
@@ -169,8 +167,8 @@ const InvitePage = () => {
 
   if (codeStep) {
     return shell(
-      <form onSubmit={verify} className="rounded-2xl border border-border bg-card p-5">
-        <h1 className="text-lg font-semibold text-foreground">Check your email for your code</h1>
+      <form onSubmit={verify} className="public-surface p-6">
+        <h1 className="text-lg font-extrabold text-foreground">Check your email for your code</h1>
         <p className="mt-1 text-sm text-muted-foreground">We sent a sign-in code to {email}.</p>
         <div className="mt-4">
           <Label htmlFor="code">Code</Label>
@@ -180,11 +178,11 @@ const InvitePage = () => {
             onChange={(e) => setCode(e.target.value)}
             inputMode="numeric"
             autoComplete="one-time-code"
-            className="min-h-11"
+            className="min-h-12"
           />
         </div>
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={submitting} className="mt-4 min-h-11 w-full">
+        <Button type="submit" disabled={submitting} className="mt-4 min-h-12 w-full">
           {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Sign in
         </Button>
@@ -200,8 +198,8 @@ const InvitePage = () => {
   ].filter(Boolean) as string[];
 
   return shell(
-    <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-5">
-      <h1 className="text-xl font-semibold text-foreground">You are invited to Summit</h1>
+    <form onSubmit={submit} className="public-surface p-6">
+      <h1 className="text-xl font-extrabold text-foreground">You are invited to Summit</h1>
       <p className="mt-2 text-sm text-muted-foreground">{details.join(' · ')}</p>
       {preview.inviter && (
         <p className="mt-1 text-sm text-muted-foreground">Invited by {preview.inviter}</p>
@@ -211,26 +209,26 @@ const InvitePage = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="first">First name</Label>
-            <Input id="first" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="min-h-11" />
+            <Input id="first" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="min-h-12" />
           </div>
           <div>
             <Label htmlFor="last">Last name</Label>
-            <Input id="last" value={lastName} onChange={(e) => setLastName(e.target.value)} className="min-h-11" />
+            <Input id="last" value={lastName} onChange={(e) => setLastName(e.target.value)} className="min-h-12" />
           </div>
         </div>
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="min-h-11" />
+          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="min-h-12" />
         </div>
         <div>
           <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="min-h-11" />
+          <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="min-h-12" />
         </div>
       </div>
 
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
-      <Button type="submit" disabled={submitting} className="mt-5 min-h-11 w-full">
+      <Button type="submit" disabled={submitting} className="mt-5 min-h-12 w-full">
         {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Create my account
       </Button>

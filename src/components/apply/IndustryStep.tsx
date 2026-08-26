@@ -4,7 +4,6 @@ import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/sou
 export const INDUSTRY_OPTIONS = [
   { value: 'Pest', label: 'Pest Control' },
   { value: 'Fiber', label: 'Fiber Internet' },
-  { value: 'Life', label: 'Life Insurance' },
   { value: 'unsure', label: 'Not sure' },
 ] as const;
 
@@ -41,7 +40,7 @@ export default function IndustryStep({ value, onChange, error }: Props) {
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`min-h-11 rounded-xl border px-3 text-sm font-medium transition-colors ${
+            className={`min-h-12 rounded-xl border px-3 text-sm font-medium transition-colors ${
               value === o.value
                 ? 'border-primary bg-primary/10 text-foreground'
                 : 'border-border/60 text-muted-foreground hover:border-primary/50'

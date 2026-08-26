@@ -247,19 +247,13 @@ const VetApplication = () => {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero */}
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Mountain className="w-5 h-5 text-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-widest">
-              Veteran Path
-            </span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wider">
-            Calculate your <span className="text-primary">earnings</span>
+        <div className="mb-12 text-center">
+          <p className="text-sm text-text-muted">Sold before</p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+            Veteran application
           </h1>
-          <div className="w-24 h-1 bg-primary mx-auto mb-4 rounded-full" />
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Put your goals in and see your estimated earnings based on Summit's veteran pay scale and marketing deal structure.
+          <p className="mx-auto mt-3 max-w-xl text-text-secondary">
+            Set your numbers, then send the form. We talk terms on the call.
           </p>
         </div>
 
@@ -270,8 +264,8 @@ const VetApplication = () => {
 
         {/* Summit Upside Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center tracking-wide">
-            Summit Upside
+          <h2 className="mb-6 text-center text-2xl font-extrabold tracking-tight text-foreground">
+            What you get here
           </h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {summitUpside.map((item, index) => (
@@ -288,17 +282,10 @@ const VetApplication = () => {
 
         {/* Veteran Results - Video Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <Mountain className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-wide">
-                Hear From Vets Who've Done This Before
-              </h2>
-              <Mountain className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Experienced reps explaining why they switched and scaled at Summit.
-            </p>
+          <div className="mb-6">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+              From the founders
+            </h2>
           </div>
           
           <div className="card-elevated p-6 md:p-8">
@@ -312,29 +299,24 @@ const VetApplication = () => {
         {/* Application Form */}
         <div ref={formRef} className="mb-16 animate-fade-in" style={{ animationDelay: "0.3s" }}>
           {/* Electric Header - matching Rookie styling */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <Mountain className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl md:text-4xl font-black text-primary tracking-wide">
-                Ready to Find the Summit?
-              </h2>
-              <Mountain className="w-6 h-6 text-primary" />
-            </div>
-            <div className="w-24 h-1 bg-primary mx-auto mb-3 rounded-full" />
-            <p className="text-muted-foreground text-sm uppercase tracking-wide">
-              Submit info below to meet the guys.
-            </p>
+          <div className="mb-8">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+              Your application
+            </h2>
+            <p className="mt-2 text-sm text-text-secondary">All fields are required.</p>
           </div>
           
-          <form onSubmit={handleSubmit} className="card-elevated p-6 md:p-8">
-            <p className="text-sm text-muted-foreground mb-6">
-              <span className="text-destructive">*</span> All fields are required
-            </p>
-            <IndustryStep value={vertical} onChange={setVertical} error={verticalError} />
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <form onSubmit={handleSubmit} className="space-y-4 pb-24 sm:pb-0">
+            <section className="public-surface p-5 sm:p-6">
+              <IndustryStep value={vertical} onChange={setVertical} error={verticalError} />
+            </section>
+
+            <section className="public-surface p-5 sm:p-6">
+              <h2 className="mb-4 text-base font-extrabold text-foreground">About you and your history</h2>
+              <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Full Name<RequiredAsterisk />
+                  Full name<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
@@ -351,7 +333,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number<RequiredAsterisk />
+                  Phone number<RequiredAsterisk />
                 </label>
                 <input
                   type="tel"
@@ -368,7 +350,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Email Address<RequiredAsterisk />
+                  Email address<RequiredAsterisk />
                 </label>
                 <input
                   type="email"
@@ -402,7 +384,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Last Season Revenue<RequiredAsterisk />
+                  Last season revenue<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
@@ -419,7 +401,7 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Previously Knocked Markets<RequiredAsterisk />
+                  Previously knocked markets<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
@@ -434,8 +416,11 @@ const VetApplication = () => {
                   <p className="text-destructive text-sm mt-1">{errors.intendedMarket}</p>
                 )}
               </div>
-            </div>
-            <div className="mb-6">
+              </div>
+            </section>
+
+            <section className="public-surface p-5 sm:p-6">
+              <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Who did you hear about us from?<RequiredAsterisk />
               </label>
@@ -444,29 +429,31 @@ const VetApplication = () => {
                 value={formData.referralName}
                 onChange={(e) => updateField("referralName", e.target.value)}
                 onBlur={() => handleBlur("referralName")}
-                placeholder="Enter the name of the person who referred you or the account you saw"
+                placeholder="The person who referred you, or the account you saw"
                 className={`input-field ${touched.referralName && errors.referralName ? 'border-destructive' : ''}`}
                 required
               />
               {touched.referralName && errors.referralName && (
                 <p className="text-destructive text-sm mt-1">{errors.referralName}</p>
               )}
-            </div>
-            <div className="flex justify-end">
-              <button 
-                type="submit" 
-                className="btn-primary tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+            </section>
+
+            {/* Pinned on the phone, inline from sm up. */}
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:flex sm:justify-end">
+              <button
+                type="submit"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 disabled={!isFormComplete() || isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting...
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Submitting
                   </>
                 ) : (
                   <>
-                    Apply Now
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    Submit application
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>

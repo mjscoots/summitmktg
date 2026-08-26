@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { setPageMeta } from "@/lib/pageMeta";
 
 const ApplySuccess = () => {
@@ -8,34 +9,39 @@ const ApplySuccess = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Application Submitted — Summit Marketing",
+      title: "Application received — Summit Marketing",
       description: "Your application has been received. Summit will be in touch.",
       path: "/apply/success",
     });
   }, []);
 
   return (
-    <div className="gold-world min-h-screen bg-background flex items-center justify-center px-6">
-      <div className="max-w-md mx-auto text-center animate-fade-in">
-        <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
-          <Check className="w-8 h-8 text-success" />
+    <div className="gold-world public-dots relative flex min-h-screen items-center justify-center bg-background px-5">
+      <div className="relative z-10 mx-auto max-w-md text-center">
+        <Wordmark variant="hero" height={100} className="mx-auto !h-auto w-full max-w-[280px]" />
+        <div className="mx-auto mt-8 flex h-12 w-12 items-center justify-center rounded-full border border-border-strong">
+          <Check className="h-5 w-5 text-foreground" />
         </div>
-        
-        <h1 className="text-3xl font-bold text-foreground mb-8">
-          Application Submitted
+        <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-foreground">
+          Application received
         </h1>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button onClick={() => navigate("/")} className="btn-secondary">
-            Back to Home
-          </button>
-          <a 
-            href="https://www.instagram.com/summitmktgsales/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="btn-primary"
+        <p className="mt-3 text-text-secondary">
+          A manager reviews it and calls you. Keep an eye on your phone and your email.
+        </p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <button
+            onClick={() => navigate("/")}
+            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border-strong px-6 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
           >
-            Follow us on Instagram
+            Back home
+          </button>
+          <a
+            href="https://www.instagram.com/summitmktgsales/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Instagram
           </a>
         </div>
       </div>
