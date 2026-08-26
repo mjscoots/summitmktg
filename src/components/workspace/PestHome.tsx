@@ -144,8 +144,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
       <FirstWeekCard />
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-        <div className="space-y-4">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start">
+        <div className="min-w-0 space-y-4">
           {hero}
           <QuickChips chips={staff ? managerChips : repChips} />
           <WeekBars
@@ -155,7 +155,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           />
         </div>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <TeamTodayCard
             rows={today.topToday}
             limit={staff ? 5 : 3}
