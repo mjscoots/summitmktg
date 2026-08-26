@@ -77,7 +77,7 @@ export function VoiceNoteBubble({ url, seconds, isOwn }: { url: string; seconds:
 
   const toggle = () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !signed) return;
     if (playing) { audio.pause(); setPlaying(false); return; }
     audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
   };
@@ -86,7 +86,8 @@ export function VoiceNoteBubble({ url, seconds, isOwn }: { url: string; seconds:
 
   return (
     <div className="flex items-center gap-2.5 min-w-[150px] max-w-[220px]">
-      <audio ref={audioRef} src={url} preload="metadata" className="hidden" />
+      <audio ref={audioRef} src={signed ?? undefined} preload="metadata" className="hidden" />
+
       <button
         onClick={toggle}
         aria-label={playing ? 'Pause voice note' : 'Play voice note'}
