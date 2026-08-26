@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { celebrate } from '@/lib/celebrate';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -110,6 +111,7 @@ export function LogInstallDialog({
     onOpenChange(false);
     onSaved?.();
     toast.success('Install recorded');
+    celebrate('install');
   };
 
   return (

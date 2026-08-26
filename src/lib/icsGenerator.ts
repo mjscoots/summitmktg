@@ -36,7 +36,7 @@ export function generateICSFile(event: ICSEvent): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Summit Trinity//Calendar//EN',
+    'PRODID:-//Summit Marketing//Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',

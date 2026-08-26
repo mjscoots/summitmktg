@@ -31,9 +31,9 @@ interface FormErrors {
 const VetApplication = () => {
   useEffect(() => {
     setPageMeta({
-      title: "Apply as a Veteran — Summit Trinity",
+      title: "Apply as a Veteran — Summit Marketing",
       description:
-        "Apply to run a summer season with Summit Trinity as an experienced sales rep.",
+        "Apply to run a summer season with Summit as an experienced sales rep.",
       path: "/apply/veteran",
     });
   }, []);
@@ -259,7 +259,7 @@ const VetApplication = () => {
           </h1>
           <div className="w-24 h-1 bg-primary mx-auto mb-4 rounded-full" />
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Put your goals in and see your estimated earnings based on Summit Trinity's veteran pay scale and marketing deal structure.
+            Put your goals in and see your estimated earnings based on Summit's veteran pay scale and marketing deal structure.
           </p>
         </div>
 

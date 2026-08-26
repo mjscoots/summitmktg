@@ -13,9 +13,9 @@ const Recruiting = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Summer Sales Jobs — Summit Trinity",
+      title: "Summer Sales Jobs — Summit Marketing",
       description:
-        "Summit Trinity trains and fields door-to-door sales reps. Training, housing and pay explained.",
+        "Summit trains and fields door-to-door sales reps. Training, housing and pay explained.",
       path: "/recruiting",
     });
   }, []);
@@ -84,7 +84,7 @@ const Recruiting = () => {
           </h1>
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Summit Trinity is looking for driven individuals ready to work hard, 
+            Summit is looking for driven individuals ready to work hard, 
             compete, and earn more in 4 months than most make in a year.
           </p>
           

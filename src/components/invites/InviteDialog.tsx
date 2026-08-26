@@ -150,7 +150,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
   };
 
   const smsHref = link
-    ? `sms:?&body=${encodeURIComponent(`Here is your Summit Trinity invite: ${link}. It works for 7 days.`)}`
+    ? `sms:?&body=${encodeURIComponent(`Here is your Summit invite: ${link}. It works for 7 days.`)}`
     : '#';
 
   return (

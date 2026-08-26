@@ -8,7 +8,7 @@ import { LiveCounters } from "@/components/recruiting/LiveCounters";
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
 /**
- * Public cover page — gold on black, single industry (pest) messaging.
+ * Public cover page — ice palette, single industry (pest) messaging.
  * Multi-industry content lives only inside the authenticated app.
  */
 const Index = () => {
@@ -34,7 +34,7 @@ const Index = () => {
 
   return (
     <div className="gold-world min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Calm premium background — deep near-black with a soft gold halo and faint texture */}
+      {/* Calm background — deep ice with a soft halo and faint texture */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0"
@@ -65,7 +65,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
-            aria-label="Summit Trinity home"
+            aria-label="Summit home"
             className="flex min-h-11 items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
             <Wordmark variant="compact" height={36} />
           </button>
@@ -84,15 +84,12 @@ const Index = () => {
         {/* Hero */}
         <div className="flex-1 flex items-center justify-center px-6 py-16">
           <div className="relative z-10 max-w-2xl mx-auto text-center">
-            <div className="mb-8 relative">
-              <Wordmark variant="stacked" height={160} className="relative z-10 mx-auto h-auto w-64 md:w-80" />
+            <div className="mb-6 relative">
+              {/* The logo carries the name, so the heading stays for search only. */}
+              <Wordmark variant="hero" height={200} className="relative z-10 mx-auto !h-auto w-full max-w-full sm:max-w-md" />
             </div>
 
-            <h1
-              className="mb-4 text-4xl md:text-6xl font-black uppercase tracking-tight text-foreground"
-              style={{ letterSpacing: '-0.02em' }}>
-              Summit Trinity
-            </h1>
+            <h1 className="sr-only">Summit Marketing</h1>
             <p className="mx-auto max-w-xl text-base md:text-lg text-muted-foreground">
               We train and field door-to-door sales reps. You knock, you close, you get paid on what you close.
             </p>

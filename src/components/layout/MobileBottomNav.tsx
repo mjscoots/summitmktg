@@ -6,9 +6,9 @@ import { useComposerKeyboard } from '@/lib/composerKeyboard';
 import { cn } from '@/lib/utils';
 
 /**
- * Phone bottom bar: three destinations, nothing else. The bar sits above the
- * iOS home indicator (safe area plus a 10px gap) so it clears the swipe area.
- * It hides while a chat composer is focused so the input is always tappable.
+ * Phone bottom bar: a floating pill inset from the screen edges, sitting above
+ * the iOS home indicator. It hides while a chat composer is focused so the
+ * input is always tappable. The active destination carries the workspace accent.
  */
 export function MobileBottomNav() {
   const navigate = useNavigate();
@@ -25,13 +25,15 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed left-0 right-0 z-40 px-3 lg:hidden"
-      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)' }}
+      className="fixed left-0 right-0 z-40 px-4 lg:hidden"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
       aria-label="Primary"
       data-phone-bar
     >
-      <div className="mx-auto flex max-w-lg items-stretch rounded-2xl border border-border/60 bg-background/95 shadow-lg backdrop-blur-xl">
-
+      <div
+        className="mx-auto flex max-w-lg items-stretch gap-1 rounded-[22px] border border-border/70 bg-background/90 p-1.5 backdrop-blur-xl"
+        style={{ boxShadow: 'var(--shadow-lift)' }}
+      >
         {items.map((item) => {
           const active = isActive(item.path);
           return (
@@ -41,15 +43,18 @@ export function MobileBottomNav() {
                 if (item.path === '/app/chat') markRead();
                 navigate(item.path);
               }}
+              aria-current={active ? 'page' : undefined}
               className={cn(
-                'relative flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors',
-                active ? 'text-primary' : 'text-muted-foreground'
+                'relative flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 transition-colors',
+                active
+                  ? 'bg-[hsl(var(--workspace-accent)/0.14)] text-[hsl(var(--workspace-accent))]'
+                  : 'text-muted-foreground'
               )}
             >
-              <item.icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon className="h-6 w-6" strokeWidth={active ? 2 : 1.75} />
+              <span className="text-[11px] font-semibold leading-none">{item.label}</span>
               {item.path === '/app/chat' && unreadCount > 0 && (
-                <span className="absolute right-[24%] top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                <span className="absolute right-[22%] top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}

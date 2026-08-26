@@ -4,6 +4,8 @@ import { Flame } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyPoints } from '@/hooks/useMyPoints';
+import { StreakChip } from '@/components/shared/StreakChip';
+import { useSaleStreak } from '@/hooks/useSaleStreak';
 import { useStreak } from '@/hooks/useStreak';
 import { useHomeSnapshot } from '@/hooks/useHomeSnapshot';
 import { useChatChannels } from '@/hooks/useChatChannels';
@@ -56,6 +58,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const { user, profile } = useAuth();
   const { data: points } = useMyPoints();
   const { streakData } = useStreak();
+  const { days: saleStreak } = useSaleStreak();
   const { data: snapshot } = useHomeSnapshot();
   const { channels, totalUnread } = useChatChannels();
 
@@ -140,13 +143,14 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           Welcome back, {firstName}
         </h1>
-        <p className="mt-1 flex items-center gap-2 text-[13px] text-muted-foreground">
+        <p className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
           <span>{today}</span>
           <span aria-hidden>·</span>
           <span className="flex items-center gap-1">
-            <Flame className="h-3.5 w-3.5 text-accent-number" />
+            <Flame className="h-3.5 w-3.5 text-primary" />
             <span className="tabular-nums">{streakData.currentStreak}d streak</span>
           </span>
+          <StreakChip days={saleStreak} label="days with a sale" />
         </p>
       </header>
 

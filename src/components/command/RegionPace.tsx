@@ -10,7 +10,7 @@ const COLORS = {
   textMuted: '#8A8A92',
 };
 
-const fontDisplay = `'Space Grotesk', system-ui, sans-serif`;
+const fontDisplay = `'Montserrat', system-ui, sans-serif`;
 const fontMono = `'JetBrains Mono', ui-monospace, monospace`;
 
 interface Split {

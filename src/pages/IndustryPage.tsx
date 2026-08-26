@@ -39,7 +39,7 @@ export default function IndustryPage() {
       setData(res || null);
       setLoading(false);
       setPageMeta({
-        title: `${res?.label || vertical} — Summit Trinity`,
+        title: `${res?.label || vertical} — Summit Marketing`,
         description:
           res?.description ||
           'We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.',

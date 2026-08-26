@@ -95,7 +95,7 @@ serve(async (req: Request): Promise<Response> => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     // Falls back to Resend's shared sender so an unverified custom domain cannot
     // turn a successful report generation into a failed request.
-    const FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "Summit Trinity <onboarding@resend.dev>";
+    const FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>";
 
     // --- auth: cron secret OR an admin/owner JWT ---
     const cronHeader = req.headers.get("x-cron-secret");

@@ -143,7 +143,10 @@ Each item says where to click and what happens if you leave it.
   can call this function", and 19 say "anyone can call this function". These functions
   *are* the app's own interface to its data, and every one of them checks the caller's
   role before returning anything. The 19 open ones are the public pages: the landing
-  calculator, industry pages, ticket page, application forms. One further item notes a
+  calculator, industry pages, ticket page, application forms. Since Pass 71A one more is
+  deliberately open — `redeem_invite`, which lets a person open an invite link and claim
+  their spot before they have an account; it checks the token, its expiry and its use
+  count before doing anything. One further item notes a
   table with no policies (`backup_job_tokens`), which is correct — nobody but the backup
   job should ever read it. The last is the login code length in section 3.
 - **A React warning in the browser console during development.** It does not appear in

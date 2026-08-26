@@ -27,7 +27,7 @@ function HeroVideo({ url }: { url: string }) {
           >
             <iframe
               src={embed}
-              title="Summit Trinity"
+              title="Summit"
               className="absolute inset-0 h-full w-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
               allowFullScreen

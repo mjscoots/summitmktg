@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:wght@500;600&display=swap');
+/* Type faces are self-hosted (@fontsource) and imported in src/main.tsx. */
 
 html, body, #root {
   overflow-x: hidden;
@@ -11,182 +11,171 @@ html, body, #root {
 
 @layer base {
   :root {
-    /* ━━━ BRAND COLOR SYSTEM ━━━ */
-    /* --color-bg-primary: #080C14 */
-    --background: 216 30% 5%;
-    --foreground: 223 100% 97%;
+    /* ━━━ ICE SYSTEM — one palette, built from the logo ━━━ */
+    --background: 221 66% 11%;
+    --foreground: 217 100% 96%;
 
-    /* --color-bg-secondary: #0D1526 */
-    --card: 220 40% 10%;
-    --card-foreground: 223 100% 97%;
+    --card: 220 58% 15%;
+    --card-foreground: 217 100% 96%;
 
-    /* Popover matches card */
-    --popover: 220 40% 10%;
-    --popover-foreground: 223 100% 97%;
+    --popover: 220 58% 15%;
+    --popover-foreground: 217 100% 96%;
 
-    /* --color-accent-blue: #1B6CF2 */
-    --primary: 216 89% 53%;
-    --primary-foreground: 0 0% 100%;
+    /* Ice accent — the logo blue */
+    --primary: 197 100% 68%;
+    --primary-foreground: 221 66% 11%;
 
-    /* Secondary — --color-bg-tertiary: #111D35 */
-    --secondary: 218 46% 14%;
-    --secondary-foreground: 223 100% 97%;
+    --secondary: 220 55% 20%;
+    --secondary-foreground: 217 100% 96%;
 
-    /* Muted */
-    --muted: 218 46% 14%;
-    --muted-foreground: 217 25% 50%;
+    --muted: 220 55% 20%;
+    --muted-foreground: 220 33% 62%;
 
-    /* Accent — same as primary (no purple) */
-    --accent: 216 89% 53%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 197 100% 68%;
+    --accent-foreground: 221 66% 11%;
 
-    /* Destructive — mandatory red only */
-    --destructive: 4 72% 46%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 358 100% 68%;
+    --destructive-foreground: 221 66% 11%;
 
-    /* Success — blue-based, NOT green */
-    --success: 210 55% 50%;
-    --success-foreground: 0 0% 100%;
+    --success: 154 69% 55%;
+    --success-foreground: 221 66% 11%;
 
-    /* Warning — kept subtle */
-    --warning: 210 55% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 42 100% 47%;
+    --warning-foreground: 221 66% 11%;
 
-    /* --color-border: #1E2D4A */
-    --border: 217 44% 20%;
-    --input: 220 40% 10%;
-    --ring: 216 89% 53%;
+    --border: 219 47% 25%;
+    --input: 220 58% 15%;
+    --ring: 197 100% 68%;
 
-    /* One radius, one shadow, one motion curve */
-    --radius: 0.5rem;
-    --shadow: 0 1px 2px hsl(0 0% 0% / 0.4);
+    /* Radius, elevation, motion */
+    --radius: 1rem;
+    --radius-sm: 0.625rem;
+    --shadow: 0 1px 2px hsl(221 66% 4% / 0.5);
+    --shadow-lift: 0 12px 32px -12px hsl(221 66% 3% / 0.7);
     --motion-fast: 120ms;
-    --motion-base: 180ms;
+    --motion-base: 200ms;
+    --motion-slow: 320ms;
     --motion-ease: cubic-bezier(0.2, 0, 0, 1);
 
-
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 220 40% 10%;          /* standard card */
-    --surface-elevated: 218 46% 14%; /* raised card / hover */
-    --surface-sunken: 216 34% 7%;    /* inset wells, inputs */
+    --surface: 220 58% 15%;
+    --surface-elevated: 220 55% 20%;
+    --surface-sunken: 221 62% 9%;
 
     /* ━━━ BORDER LAYERS ━━━ */
-    --border-subtle: 217 44% 16%;
-    --border-strong: 217 44% 26%;
+    --border-subtle: 219 47% 20%;
+    --border-strong: 218 45% 33%;
 
     /* ━━━ TEXT HIERARCHY ━━━ */
-    --text-primary: 223 100% 97%;
-    --text-secondary: 217 25% 72%;
-    --text-muted: 217 25% 50%;
+    --text-primary: 217 100% 96%;
+    --text-secondary: 221 48% 81%;
+    --text-muted: 220 33% 62%;
 
-    /* ━━━ REFINED BLUE ACCENT SCALE ━━━ */
-    --primary-soft: 216 89% 53% / 0.12;
-    --primary-muted: 216 60% 62%;
-    --primary-glow: 216 80% 64%;
-    --primary-deep: 216 89% 42%;
+    /* ━━━ ICE ACCENT SCALE ━━━ */
+    --primary-soft: 197 100% 68% / 0.12;
+    --primary-muted: 200 60% 76%;
+    --primary-glow: 197 100% 78%;
+    --primary-deep: 215 100% 56%;
 
-    /* Role accent colors — all blue now */
-    --rookie-accent: 216 89% 53%;
-    --rookie-glow: 216 89% 53%;
-    --manager-accent: 216 89% 53%;
-    --manager-glow: 216 89% 53%;
+    /* Workspace identity accent — wordmark, active tab, hero, focus ring */
+    --workspace-accent: 197 100% 68%;
 
-    /* Glass design tokens (kept as flat surfaces) */
-    --glass-bg: 220 40% 10%;
-    --glass-border: 217 44% 20%;
-    --glass-glow: 216 89% 53% / 0;
+    /* Role accents follow the one accent */
+    --rookie-accent: 197 100% 68%;
+    --rookie-glow: 197 100% 68%;
+    --manager-accent: 197 100% 68%;
+    --manager-glow: 197 100% 68%;
 
-    /* Gradients retired — these resolve to a single flat accent */
-    --gradient-primary: hsl(216 89% 53%);
-    --gradient-gold: hsl(216 89% 53%);
-    --gradient-surface: hsl(220 40% 10%);
+    /* Surfaces kept flat where glass tokens are still referenced */
+    --glass-bg: 220 58% 15%;
+    --glass-border: 219 47% 25%;
+    --glass-glow: 197 100% 68% / 0;
 
+    /* ━━━ GRADIENTS AND GLOW — used on hero cards and primary actions ━━━ */
+    --gradient-ice: linear-gradient(135deg, hsl(197 100% 68%), hsl(215 100% 56%));
+    --gradient-hero: linear-gradient(160deg, hsl(220 58% 15%) 0%, hsl(221 66% 11%) 60%, hsl(215 60% 14%) 100%);
+    --gradient-primary: var(--gradient-ice);
+    --gradient-gold: var(--gradient-ice);
+    --gradient-surface: hsl(var(--surface));
+    --glow-ice: 0 0 0 1px hsl(197 100% 68% / 0.28), 0 10px 30px -12px hsl(197 100% 68% / 0.4);
 
-    /* Sidebar — deepest black #060A10 */
-    --sidebar-background: 216 40% 3%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 216 89% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 218 46% 14%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 217 44% 15%;
-    --sidebar-ring: 216 89% 53%;
+    /* Sidebar */
+    --sidebar-background: 221 66% 8%;
+    --sidebar-foreground: 221 48% 81%;
+    --sidebar-primary: 197 100% 68%;
+    --sidebar-primary-foreground: 221 66% 11%;
+    --sidebar-accent: 220 55% 20%;
+    --sidebar-accent-foreground: 217 100% 96%;
+    --sidebar-border: 219 47% 20%;
+    --sidebar-ring: 197 100% 68%;
   }
 
-  /* Rookie theme — same blue */
-  .theme-rookie {
-    --primary: 216 89% 53%;
-    --accent: 216 89% 53%;
-    --ring: 216 89% 53%;
-  }
-
-  /* Manager theme — same blue */
+  /* Rookie and manager themes share the one ice accent */
+  .theme-rookie,
   .theme-manager {
-    --primary: 216 89% 53%;
-    --accent: 216 89% 53%;
-    --ring: 216 89% 53%;
+    --primary: 197 100% 68%;
+    --accent: 197 100% 68%;
+    --ring: 197 100% 68%;
   }
 
-  .dark {
-    --background: 216 30% 5%;
-    --foreground: 223 100% 97%;
-  }
-
+  .dark,
   .light {
-    --background: 216 30% 5%;
-    --foreground: 223 100% 97%;
+    --background: 221 66% 11%;
+    --foreground: 217 100% 96%;
   }
 
-  /* ━━━ GOLD WORLD — outward-facing pages only (cover, recruiting, applications) ━━━ */
+  /* ━━━ PUBLIC WORLD — outward-facing pages (cover, recruiting, applications).
+     Same ice palette as the app, one shade deeper so the logo art carries. ━━━ */
   .gold-world {
-    --background: 0 0% 2%;
-    --foreground: 40 20% 96%;
+    --background: 221 70% 8%;
+    --foreground: 217 100% 96%;
 
-    --card: 0 0% 5%;
-    --card-foreground: 40 20% 96%;
-    --popover: 0 0% 5%;
-    --popover-foreground: 40 20% 96%;
+    --card: 220 60% 13%;
+    --card-foreground: 217 100% 96%;
+    --popover: 220 60% 13%;
+    --popover-foreground: 217 100% 96%;
 
-    --primary: 46 65% 52%;
-    --primary-foreground: 0 0% 6%;
-    --accent: 46 65% 52%;
-    --accent-foreground: 0 0% 6%;
-    --ring: 46 65% 52%;
+    --primary: 197 100% 68%;
+    --primary-foreground: 221 70% 8%;
+    --accent: 197 100% 68%;
+    --accent-foreground: 221 70% 8%;
+    --ring: 197 100% 68%;
 
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 40 20% 96%;
-    --muted: 0 0% 9%;
-    --muted-foreground: 42 8% 62%;
+    --secondary: 220 55% 18%;
+    --secondary-foreground: 217 100% 96%;
+    --muted: 220 55% 18%;
+    --muted-foreground: 220 33% 66%;
 
-    --success: 46 65% 52%;
-    --success-foreground: 0 0% 6%;
+    --success: 154 69% 55%;
+    --success-foreground: 221 70% 8%;
 
-    --border: 45 18% 14%;
-    --input: 0 0% 6%;
+    --border: 219 47% 22%;
+    --input: 220 60% 13%;
 
-    --surface: 0 0% 5%;
-    --surface-elevated: 0 0% 8%;
-    --surface-sunken: 0 0% 3%;
-    --border-subtle: 45 14% 11%;
-    --border-strong: 45 20% 22%;
+    --surface: 220 60% 13%;
+    --surface-elevated: 220 55% 18%;
+    --surface-sunken: 221 66% 6%;
+    --border-subtle: 219 45% 17%;
+    --border-strong: 219 47% 30%;
 
-    --text-primary: 40 20% 96%;
-    --text-secondary: 42 10% 76%;
-    --text-muted: 42 8% 60%;
+    --text-primary: 217 100% 96%;
+    --text-secondary: 221 48% 81%;
+    --text-muted: 220 33% 66%;
 
-    --primary-soft: 46 65% 52% / 0.12;
-    --primary-muted: 46 45% 62%;
-    --primary-glow: 46 72% 72%;
-    --primary-deep: 42 60% 42%;
+    --primary-soft: 197 100% 68% / 0.12;
+    --primary-muted: 197 60% 72%;
+    --primary-glow: 197 100% 78%;
+    --primary-deep: 215 100% 56%;
 
-    --glass-bg: 0 0% 5% / 0.6;
-    --glass-border: 45 18% 14%;
-    --glass-glow: 46 65% 52% / 0.08;
+    --glass-bg: 220 60% 13% / 0.6;
+    --glass-border: 219 47% 22%;
+    --glass-glow: 197 100% 68% / 0.1;
 
-    --gradient-primary: hsl(46 65% 52%);
-    --gradient-gold: hsl(46 65% 52%);
-    --gradient-surface: hsl(0 0% 5%);
+    --gradient-primary: var(--gradient-ice);
+    --gradient-gold: var(--gradient-ice);
+    --gradient-surface: hsl(220 60% 13%);
   }
+
 
 }
 
@@ -225,12 +214,12 @@ html, body, #root {
     color: hsl(var(--text-primary));
   }
 
-  h1 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-size: 2rem; line-height: 1.15; }
-  h2 { font-size: 1.5rem; line-height: 1.2; }
+  h1 { font-family: 'Montserrat', 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 2rem; line-height: 1.12; }
+  h2 { font-family: 'Montserrat', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.2; }
   h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
   h4 { font-size: 1rem; line-height: 1.35; font-weight: 600; }
   @media (min-width: 768px) {
-    h1 { font-size: 3rem; }
+    h1 { font-size: 2.5rem; }
   }
   p, li { line-height: 1.6; }
 
@@ -280,12 +269,12 @@ html, body, #root {
   }
 
   .font-chat-display {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
     letter-spacing: -0.01em;
   }
 
   .font-chat-input {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
   /* ━━━ CARD — one border, one shadow ━━━ */
@@ -375,34 +364,16 @@ html, body, #root {
 }
 
 
-/* ━━━ PEST — blue base, orange numbers and actions, light-blue labels ━━━ */
+/* ━━━ WORDMARK KNOCKOUT DEFAULTS — public site and login ━━━ */
 :root {
-  /* Brand wordmark defaults — public site and login. */
-  --wordmark-bg: #0B1A33;
+  --wordmark-bg: #0A1630;
   --wordmark-accent: #5AD1FF;
   --wordmark-letters: #FFFFFF;
 }
 
-:root[data-workspace='pest'] {
-  --accent-number: 26 92% 56%;
-  --secondary-label: 205 60% 72%;
-  --radius: 0.625rem;
-}
-
-:root[data-workspace='pest'] .glass-card,
-:root[data-workspace='pest'] .stat-card {
-  border-color: hsl(217 30% 26%);
-  box-shadow: none;
-}
-
-:root[data-workspace='pest'] h1,
-:root[data-workspace='pest'] h2 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-:root[data-workspace='pest'] .progress-track {
-  background: hsl(205 60% 72% / 0.18);
+:root[data-workspace='pest'] .progress-track,
+:root[data-workspace='fiber'] .progress-track {
+  background: hsl(var(--surface-elevated));
 }
 
 @layer components {
@@ -706,28 +677,10 @@ button, a, [role="button"] {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 43 — token enforcement sweep.
-   One-off gradients, glow shadows and decorative blur blobs left in
-   component markup resolve to flat surfaces here so the token system
-   stays the single source of truth.
+   PASS 72 — the ice system keeps a small set of gradient and glow
+   tokens, so gradients are no longer flattened. Only ambient,
+   non user-caused animation stays off.
    ───────────────────────────────────────────────────────────── */
-[class*="bg-gradient-to"] {
-  background-image: none !important;
-}
-
-[class*="bg-gradient-to"].bg-clip-text {
-  -webkit-text-fill-color: hsl(var(--primary));
-  color: hsl(var(--primary));
-}
-
-/* Decorative blurred blobs */
-.blur-2xl,
-.blur-3xl {
-  display: none !important;
-}
-
-/* Ambient, non user-caused animation */
-.animate-pulse,
 .animate-bounce,
 .animate-ping {
   animation: none !important;
@@ -807,4 +760,124 @@ body {
 }
 @media (min-width: 1024px) {
   .app-main-pad { padding-bottom: 0; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 72 — THE ICE SYSTEM: shared surfaces, controls, motion
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  /* Standard card: 16px radius, one hairline border, soft lift */
+  .card-ice {
+    background: hsl(var(--surface));
+    border: 1px solid hsl(var(--border-subtle));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  /* Hero card: the one place a gradient and a glow are allowed */
+  .card-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    background: var(--gradient-hero);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Primary action: ice gradient, navy label */
+  .btn-ice {
+    @apply inline-flex items-center justify-center gap-2 px-5 text-sm font-semibold;
+    min-height: 44px;
+    border-radius: var(--radius-sm);
+    color: hsl(var(--primary-foreground));
+    background: var(--gradient-ice);
+    transition: filter var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+  }
+  .btn-ice:hover {
+    filter: brightness(1.06);
+    box-shadow: var(--glow-ice);
+  }
+
+  /* Streak chip — shown from two consecutive days up */
+  .streak-chip {
+    @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold;
+    border-radius: 9999px;
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.12);
+    border: 1px solid hsl(var(--primary) / 0.28);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Avatar ring in the workspace accent */
+  .avatar-ring {
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--workspace-accent) / 0.55);
+  }
+}
+
+@layer utilities {
+  /* Cards and buttons inherit the ice radius */
+  .glass-card,
+  .stat-card,
+  .surface,
+  .surface-elevated,
+  .surface-sunken {
+    border-radius: var(--radius);
+  }
+
+  /* Numbers use Montserrat, tabular */
+  .stat-num,
+  .stat-value {
+    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-display {
+    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+  }
+
+  /* One-pass shine across a surface after a person causes a change */
+  .shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, hsl(var(--primary) / 0.18) 50%, transparent 65%);
+    transform: translateX(-100%);
+    animation: shine-sweep 700ms var(--motion-ease) 1;
+    pointer-events: none;
+  }
+  @keyframes shine-sweep {
+    to { transform: translateX(100%); }
+  }
+
+  /* Page transition and list stagger */
+  .page-transition {
+    animation: page-lift var(--motion-base) var(--motion-ease) both;
+  }
+  @keyframes page-lift {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .stagger > * {
+    animation: page-lift var(--motion-base) var(--motion-ease) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(n+6) { animation-delay: 200ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shine::after,
+  .page-transition,
+  .stagger > * {
+    animation: none !important;
+    transform: none !important;
+  }
 }

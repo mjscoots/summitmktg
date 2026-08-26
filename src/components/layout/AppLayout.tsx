@@ -40,7 +40,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             <div className="flex-1 flex flex-col min-w-0">
               {/* Desktop top bar */}
               <header className="hidden lg:flex sticky top-0 z-40 h-14 items-center justify-between border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl">
-                <button onClick={() => navigate('/app')} className="flex items-center" aria-label="Summit Trinity home">
+                <button onClick={() => navigate('/app')} className="flex items-center" aria-label="Summit home">
                   <Wordmark variant="compact" height={36} />
                 </button>
                 <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
               <header className="lg:hidden sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex min-w-0 items-center gap-2">
-                    <button onClick={() => navigate('/app')} className="flex flex-shrink-0 items-center" aria-label="Summit Trinity home">
+                    <button onClick={() => navigate('/app')} className="flex flex-shrink-0 items-center" aria-label="Summit home">
                       {/* The wordmark is the brand: compact from 360px up, mark only on the narrowest phones. */}
                       <span className="hidden min-[360px]:flex">
                         <Wordmark variant="compact" height={30} />
@@ -105,7 +105,7 @@ function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fu
   return (
     <main
       key={`${activeVertical}:${epoch}`}
-      className={cn('app-main-pad flex-1 overflow-x-hidden', fullHeight && 'min-h-0 overflow-hidden')}
+      className={cn('app-main-pad page-transition flex-1 overflow-x-hidden', fullHeight && 'min-h-0 overflow-hidden')}
       data-app-main
     >
       {children}
