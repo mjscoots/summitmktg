@@ -14,6 +14,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 function applyRoleTheme(role: ThemeRole) {
   const root = document.documentElement;
+  // A workspace theme owns its own accent colours; do not overwrite them.
+  if (root.dataset.workspaceTheme === '1') return;
   // All roles use the same deep blue palette now
   root.style.setProperty('--primary', '216 89% 53%');
   root.style.setProperty('--primary-foreground', '0 0% 100%');
