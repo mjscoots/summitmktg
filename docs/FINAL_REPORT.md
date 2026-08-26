@@ -1483,3 +1483,16 @@ Nothing was published.
 - No schema change: `chat_reactions` and `chat_messages.is_pinned` already cover reactions and pins, so no `message_reactions`/`pinned_messages` tables were created. RLS untouched.
 - Verified as owner: sent "Pass 74 check", reacted 🔥, deleted it; remaining count 0. Screenshots at 390 and 1280 show no horizontal overflow (scrollWidth - innerWidth = 0).
 - Typecheck clean, production build OK (ChatPage chunk 87 kB). Preview only — not published.
+
+## Pass 75 — The other tabs
+
+- Chat leftovers finished: own bubbles use the ice tint with a 40% accent border, others show a 36px avatar with name and team chip, same-sender grouping tightened to 3 minutes, reply quote strip above the bubble, "New" divider on open, "<n> new messages" pill when scrolled up, sent-bubble scale-in. Typing indicator already ran over presence with a 3-second timeout. The Pass 74 section moved from `docs/GO_NO_GO.md` to this file.
+- Leaderboard: segmented Week / Season / Sales this week plus a My team / Summit scope pill, podium for the top three (120/96/84, 56px avatars in rank rings, CountUp counts, streak chips), ranks 4+ as rows with staggered accent bars, ties share a rank, the signed-in row is highlighted and pinned as a sticky footer when off-screen. No daily leaderboard data exists, so no "Today" view was invented. Rookie multiplier and Rev/Day labels unchanged.
+- Missions: cards in a two-column grid (one column at 390), icon tile, points and state chips, completed items collapse to the bottom, completion fires the confetti helper. Needs-you strip unchanged at the top.
+- Team (manager): "This week" restyled as four CountUp stat tiles that all open `/app/week`; roster rows became person cards with 56px ringed avatars, role chips and week points. Members tab keeps tap-to-call.
+- Money: pay-period hero, rank and next-tier cards, ledger rows as cards. Fiber keeps installs x per-install pay with the holdback line. No calculation changed.
+- Playbook: section cards with icon tiles, reader at 17px / 1.6 on the phone, Montserrat 800 headings, pricing in a card with tabular numbers, "Practice this" as a primary pill, search unchanged.
+- Profile: `card-hero` header with a 96px tap-to-change avatar, display-face name, role and tier chips, streak and season tiles, settings below as grouped cards.
+- Empty states now share one pattern: the three-peak mark at 40px in the muted colour, one plain sentence, one action.
+- Verified as owner at 390 and 1280: Leaderboard (week and season podium), Missions, Team, Money, Playbook, Profile, Chat — `scrollWidth - innerWidth = 0` on all. Typecheck clean, production build OK (largest chunk 211 kB).
+- One data fix: the owner profile's active workspace was left on Life by an earlier test and was set back to Pest. Preview only — not published.
