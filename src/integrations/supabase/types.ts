@@ -7058,6 +7058,7 @@ export type Database = {
       }
       get_my_mentees: { Args: never; Returns: Json }
       get_my_money: { Args: never; Returns: Json }
+      get_my_money_summary: { Args: { _target?: string }; Returns: Json }
       get_my_pairing_request: { Args: { _vertical: string }; Returns: Json }
       get_my_pairing_requests: { Args: never; Returns: Json }
       get_my_points_breakdown: { Args: { _user_id: string }; Returns: Json }
