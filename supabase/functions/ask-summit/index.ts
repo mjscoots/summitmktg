@@ -318,11 +318,12 @@ function formatScriptCards(scripts: Array<{ category: string; title: string; bod
     .join("\n\n");
 }
 
-async function buildPracticeContext(admin: any) {
-  const scripts = await loadScriptCards(admin);
+async function buildPracticeContext(admin: any, vertical = "Pest") {
+  const scripts = await loadScriptCards(admin, vertical);
   const { data: drills } = await admin
     .from("training_drills")
     .select("scenario, model_answer")
+    .or(`vertical.is.null,vertical.eq.${vertical}`)
     .eq("is_active", true)
     .order("display_order");
 
