@@ -33,6 +33,9 @@ export function useStreak() {
   // Always load existing streak data on mount
   useEffect(() => {
     if (!user?.id) return;
+    // Fast navigation unmounts this hook mid-request; abort so the fetch does not
+    // reject with "Failed to fetch" after the screen is gone.
+    const controller = new AbortController();
 
     const loadStreak = async () => {
       try {
@@ -40,39 +43,46 @@ export function useStreak() {
           .from('daily_login_streaks')
           .select('current_streak, longest_streak, total_days_active, last_login_date, previous_streak, streak_restores_remaining')
           .eq('user_id', user.id)
+          .abortSignal(controller.signal)
           .single();
 
-        if (streakRow) {
-          setStreakData({
-            currentStreak: streakRow.current_streak,
-            longestStreak: streakRow.longest_streak,
-            lastLoginDate: streakRow.last_login_date,
-            totalDaysActive: streakRow.total_days_active,
-            previousStreak: (streakRow as any).previous_streak ?? 0,
-            restoresRemaining: (streakRow as any).streak_restores_remaining ?? 3,
-          });
-        }
-      } catch { /* no streak row yet */ }
+        if (controller.signal.aborted || !streakRow) return;
+        setStreakData({
+          currentStreak: streakRow.current_streak,
+          longestStreak: streakRow.longest_streak,
+          lastLoginDate: streakRow.last_login_date,
+          totalDaysActive: streakRow.total_days_active,
+          previousStreak: (streakRow as any).previous_streak ?? 0,
+          restoresRemaining: (streakRow as any).streak_restores_remaining ?? 3,
+        });
+      } catch { /* aborted, or no streak row yet */ }
     };
 
     loadStreak();
+    return () => controller.abort();
   }, [user?.id]);
+
 
   // Record daily login via DB function
   useEffect(() => {
     if (!user?.id || hasRecordedRef.current) return;
     hasRecordedRef.current = true;
+    const controller = new AbortController();
 
     const recordLogin = async () => {
       try {
         const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-        const { data, error } = await supabase.rpc('record_daily_login', {
-          _user_id: user.id,
-          _timezone: userTz,
-        });
+        const { data, error } = await supabase
+          .rpc('record_daily_login', {
+            _user_id: user.id,
+            _timezone: userTz,
+          })
+          .abortSignal(controller.signal);
 
+        if (controller.signal.aborted) return;
         if (error) {
           console.error('[Streak] Recording error:', error);
+
           return;
         }
 
@@ -93,6 +103,7 @@ export function useStreak() {
             .from('daily_login_streaks')
             .select('total_days_active, previous_streak, streak_restores_remaining')
             .eq('user_id', user.id)
+            .abortSignal(controller.signal)
             .single();
           if (streakRow) {
             totalDaysActive = streakRow.total_days_active;
@@ -101,6 +112,7 @@ export function useStreak() {
           }
         } catch { /* use fallback */ }
 
+        if (controller.signal.aborted) return;
         setStreakData({
           currentStreak: result.current_streak,
           longestStreak: result.longest_streak,
@@ -145,11 +157,14 @@ export function useStreak() {
           }
         }
       } catch (err) {
+        // An abort during fast navigation is expected, not a failure.
+        if (controller.signal.aborted) return;
         console.error('Streak recording failed:', err);
       }
     };
 
     recordLogin();
+    return () => controller.abort();
   }, [user?.id]);
 
   const restoreStreak = useCallback(async () => {

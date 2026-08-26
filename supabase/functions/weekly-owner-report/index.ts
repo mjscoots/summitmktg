@@ -93,6 +93,9 @@ serve(async (req: Request): Promise<Response> => {
     const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
     const CRON_SECRET = Deno.env.get("WEEKLY_REPORT_CRON_SECRET");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    // Falls back to Resend's shared sender so an unverified custom domain cannot
+    // turn a successful report generation into a failed request.
+    const FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") || "Summit Marketing <onboarding@resend.dev>";
 
     // --- auth: cron secret OR an admin/owner JWT ---
     const cronHeader = req.headers.get("x-cron-secret");
@@ -148,7 +151,7 @@ serve(async (req: Request): Promise<Response> => {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Summit Marketing <noreply@summitmktgsales.com>",
+        from: FROM_EMAIL,
         to: emails,
         subject: `Weekly report — week ending ${latest.week_ending}`,
         html: buildHtml(latest.week_ending, payload),
@@ -157,7 +160,9 @@ serve(async (req: Request): Promise<Response> => {
     if (!res.ok) {
       const body = await res.text();
       console.error(`Resend failed [${res.status}]: ${body}`);
-      return json({ generated: gen, emailed: false, status: res.status, details: body }, res.status);
+      // The report itself generated fine; email delivery is a separate concern, so
+      // this stays a 200 and the admin screen renders the stored report.
+      return json({ generated: gen, emailed: false, reason: "email delivery failed", status: res.status });
     }
 
     await admin

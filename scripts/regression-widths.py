@@ -84,6 +84,7 @@ async def restore_session(context, page):
             c["url"] = "http://localhost:8080"
         await context.add_cookies(cookies)
     await page.goto("http://localhost:8080", wait_until="domcontentloaded")
+    await page.wait_for_timeout(1500)
     key = os.environ.get("LOVABLE_BROWSER_SUPABASE_STORAGE_KEY")
     session = os.environ.get("LOVABLE_BROWSER_SUPABASE_SESSION_JSON")
     if key and session:
