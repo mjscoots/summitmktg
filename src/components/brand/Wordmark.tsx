@@ -60,6 +60,8 @@ const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProp
   const geo = GEOMETRY[variant];
   const renderedHeight = Math.max(height, 12);
   const width = Math.round((geo.width / geo.height) * renderedHeight);
+  // The hero asset (hero-login.svg) carries the ice gradient and soft glow on SUMMIT.
+  const isHero = variant === "hero";
 
   return (
     <svg
@@ -72,6 +74,27 @@ const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProp
       style={{ display: "block", color: "var(--wordmark-letters, currentColor)" }}
     >
       <title>Summit Trinity</title>
+      {isHero && (
+        <defs>
+          <linearGradient id="wordmark-ice" x1="0" y1="-102.29" x2="0" y2="2.29" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#FFFFFF" />
+            <stop offset="0.55" stopColor="#DDF2FF" />
+            <stop offset="1" stopColor="#8FCBFF" />
+          </linearGradient>
+          <filter id="wordmark-glow" x="-20%" y="-40%" width="140%" height="180%">
+            <feGaussianBlur stdDeviation="6" result="b" />
+            <feColorMatrix
+              in="b"
+              type="matrix"
+              values="0 0 0 0 0.35  0 0 0 0 0.82  0 0 0 0 1  0 0 0 0.55 0"
+            />
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      )}
       {geo.peaks?.map((peak, index) => (
         <path
           key={`peak-${index}`}
@@ -81,7 +104,11 @@ const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProp
       ))}
       {variant !== "mark" && (
         <>
-          <path d={SUMMIT_D} fill="currentColor" />
+          <path
+            d={SUMMIT_D}
+            fill={isHero ? "url(#wordmark-ice)" : "currentColor"}
+            filter={isHero ? "url(#wordmark-glow)" : undefined}
+          />
           <path
             d={geo.trinity}
             fill="var(--wordmark-bg, #0B1A33)"
@@ -96,6 +123,7 @@ const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProp
     </svg>
   );
 };
+
 
 export const Wordmark = memo(WordmarkBase);
 export default Wordmark;

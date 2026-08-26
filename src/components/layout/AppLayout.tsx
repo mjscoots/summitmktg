@@ -55,9 +55,15 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <button onClick={() => navigate('/app')} className="flex flex-shrink-0 items-center" aria-label="Summit Trinity home">
-                      {/* The phone header slot is under 150px, so the mark shows alone. */}
-                      <Wordmark variant="mark" height={28} />
+                      {/* The wordmark is the brand: compact from 360px up, mark only on the narrowest phones. */}
+                      <span className="hidden min-[360px]:flex">
+                        <Wordmark variant="compact" height={30} />
+                      </span>
+                      <span className="flex min-[360px]:hidden">
+                        <Wordmark variant="mark" height={28} />
+                      </span>
                     </button>
+
 
 
                     <WorkspaceSheet />
@@ -65,10 +71,11 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                   <div className="flex items-center gap-1.5 flex-shrink-0 overflow-visible">
                     <button
                       onClick={() => navigate('/app/ask')}
-                      className="inline-flex min-h-11 items-center rounded-xl px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      className="hidden min-[400px]:inline-flex min-h-11 items-center rounded-xl px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                       Ask
                     </button>
+
                     <GlobalSearch />
                     <StatusBar />
                     <NotificationBell />

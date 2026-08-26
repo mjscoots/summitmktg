@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { InviteDialog } from '@/components/invites/InviteDialog';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { RepScorecard } from '@/components/shared/RepScorecard';
 import { RankInsignia } from '@/components/badges/RankInsignia';
@@ -297,6 +298,7 @@ export default function MyTeamPage() {
                     My week
                   </Button>
                 )}
+                {isManagerRole && <InviteDialog managerLocked={!isAdmin} />}
                 {canAddMembers ? (
                   <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
                     <UserPlus className="w-3.5 h-3.5" />

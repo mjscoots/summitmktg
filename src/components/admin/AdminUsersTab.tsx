@@ -2,6 +2,7 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, useMemo, lazy, Suspense, Component, ReactNode } from 'react';
 import { DepartureIntakeDialog } from '@/components/admin/DepartureIntakeDialog';
 import { RankOverrideSelect } from '@/components/admin/RankOverrideSelect';
+import { InviteDialog } from '@/components/invites/InviteDialog';
 
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronDown as ChevronDownIcon, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
@@ -563,6 +564,8 @@ export default function AdminUsersTab({
       {/* Section header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <SummaryBar users={users} />
+        <div className="flex flex-shrink-0 items-center gap-2">
+        <InviteDialog />
         <Button
           size="sm"
           variant="outline"
@@ -573,6 +576,7 @@ export default function AdminUsersTab({
           <span className="hidden sm:inline">Mass Import</span>
           <span className="sm:hidden">Import</span>
         </Button>
+        </div>
       </div>
 
       {/* Search bar — own row */}

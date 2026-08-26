@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.invite_preview(text) FROM anon;
