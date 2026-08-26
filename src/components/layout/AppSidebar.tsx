@@ -46,6 +46,7 @@ export function AppSidebar() {
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isManager = role === 'manager' || role === 'president' || isAdmin;
+
   const roleLabel = isOwner
     ? 'OWNER'
     : role === 'admin'
