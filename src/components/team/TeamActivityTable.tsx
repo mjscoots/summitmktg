@@ -7,7 +7,7 @@ import { getDisplayName } from '@/lib/hierarchyUtils';
 
 interface TeamActivityTableProps {
   roster: TeamMember[];
-  dailyTimeMap: Map<string, { days: { minutes: number }[]; totalMinutes: number }>;
+  dailyTimeMap: Map<string, { days: { minutes: number; training: number }[]; totalMinutes: number; trainingMinutes: number }>;
   onMemberClick?: (member: TeamMember) => void;
 }
 
@@ -31,7 +31,7 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
   return (
     <div className="bg-card rounded-xl border border-border/50 p-4">
       <h3 className="text-sm font-medium text-muted-foreground mb-4">
-        Team Activity — Training This Week
+        Team activity — time this week
       </h3>
 
       <div className="overflow-x-auto">
@@ -39,7 +39,8 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
           <thead>
             <tr className="border-b border-border/50">
               <th className="text-left py-2 pr-4 text-xs font-medium text-muted-foreground">Name</th>
-              <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground whitespace-nowrap">Total</th>
+              <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground whitespace-nowrap">In the app</th>
+              <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground whitespace-nowrap">Training</th>
               {DAY_LABELS.map(d => (
                 <th key={d} className="text-center py-2 px-1 text-xs font-medium text-muted-foreground w-8">{d}</th>
               ))}
@@ -49,8 +50,9 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
           <tbody>
             {sortedMembers.map(member => {
               const data = dailyTimeMap.get(member.user_id);
-              const days = data?.days ?? Array(7).fill({ minutes: 0 });
+              const days = data?.days ?? Array(7).fill({ minutes: 0, training: 0 });
               const total = data?.totalMinutes ?? 0;
+              const training = data?.trainingMinutes ?? 0;
               const activeDays = days.filter(d => d.minutes > 0).length;
               const maxMin = Math.max(...days.map(d => d.minutes), 1);
 
@@ -86,6 +88,14 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
                       total > 0 ? "text-foreground" : "text-muted-foreground/50"
                     )}>
                       {total > 0 ? formatTimeMinutes(total) : '0h 0m'}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right whitespace-nowrap tabular-nums">
+                    <span className={cn(
+                      "font-medium",
+                      training > 0 ? "text-primary" : "text-muted-foreground/50"
+                    )}>
+                      {training > 0 ? formatTimeMinutes(training) : '0h 0m'}
                     </span>
                   </td>
                   {days.map((day, i) => {
