@@ -6,6 +6,7 @@ import { AlertTriangle, Check, ImagePlus, Loader2, Trash2, Upload, X } from 'luc
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { SalesReconcilePanel } from '@/components/admin/SalesReconcilePanel';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -511,6 +512,8 @@ export function LeaderboardImportPanel() {
           </div>
         )}
       </div>
+
+      <SalesReconcilePanel />
     </div>
   );
 }

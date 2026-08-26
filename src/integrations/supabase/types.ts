@@ -4459,6 +4459,57 @@ export type Database = {
           },
         ]
       }
+      sales_log: {
+        Row: {
+          city: string | null
+          created_at: string
+          customer_first: string | null
+          frequency: string | null
+          id: string
+          initial: number | null
+          notes: string | null
+          plan: string | null
+          reconciled: boolean
+          recurring: number | null
+          sold_at: string
+          source: string
+          user_id: string
+          vertical: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          customer_first?: string | null
+          frequency?: string | null
+          id?: string
+          initial?: number | null
+          notes?: string | null
+          plan?: string | null
+          reconciled?: boolean
+          recurring?: number | null
+          sold_at?: string
+          source?: string
+          user_id: string
+          vertical?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          customer_first?: string | null
+          frequency?: string | null
+          id?: string
+          initial?: number | null
+          notes?: string | null
+          plan?: string | null
+          reconciled?: boolean
+          recurring?: number | null
+          sold_at?: string
+          source?: string
+          user_id?: string
+          vertical?: string
+        }
+        Relationships: []
+      }
       schedule_items: {
         Row: {
           created_at: string | null
@@ -6971,7 +7022,41 @@ export type Database = {
       get_resign_board: { Args: never; Returns: Json }
       get_revenue_month: { Args: { _month: string }; Returns: Json }
       get_roster_gaps: { Args: never; Returns: Json }
+      get_sales_reconciliation: {
+        Args: { p_month: string }
+        Returns: {
+          full_name: string
+          imported_revenue: number
+          logged_revenue: number
+          logged_sales: number
+          reconciled: boolean
+          user_id: string
+        }[]
+      }
       get_season_hub: { Args: never; Returns: Json }
+      get_self_reported_week: {
+        Args: { p_week_start?: string }
+        Returns: {
+          first_sale: string
+          full_name: string
+          rank: number
+          revenue: number
+          sales: number
+          team_name: string
+          user_id: string
+        }[]
+      }
+      get_self_reported_week_teams: {
+        Args: { p_week_start?: string }
+        Returns: {
+          first_sale: string
+          rank: number
+          revenue: number
+          sales: number
+          team_id: string
+          team_name: string
+        }[]
+      }
       get_session_prep: { Args: { _since?: string }; Returns: Json }
       get_setting: {
         Args: { _default?: string; _key: string }
@@ -7284,6 +7369,10 @@ export type Database = {
         Returns: undefined
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      mark_sales_reconciled: {
+        Args: { p_month: string; p_user_id: string }
+        Returns: number
+      }
       match_leaderboard_rows: { Args: { _rows: Json }; Returns: Json }
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
