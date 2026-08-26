@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value === 'rookie' ||
       value === 'recruiter' ||
       value === 'manager' ||
+      value === 'president' ||
       value === 'admin' ||
       value === 'owner'
     ) {
