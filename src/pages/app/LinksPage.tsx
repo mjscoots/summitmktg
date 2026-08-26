@@ -762,7 +762,7 @@ export default function LinksPage() {
                   )}
                 >
                   {calcTab === 'veteran' && (
-                    <div className="absolute inset-0 bg-blue-500 -z-10" />
+                    <div className="absolute inset-0 bg-primary -z-10" />
                   )}
                   Veteran
                 </button>

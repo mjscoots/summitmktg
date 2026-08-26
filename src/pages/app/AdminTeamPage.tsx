@@ -561,7 +561,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
                       </td>
                       <td className="px-3 py-3 text-center text-foreground font-medium">{team.member_count}</td>
                       <td className="px-3 py-3 text-center text-primary font-medium">{team.active_count}</td>
-                      <td className="px-3 py-3 text-center text-blue-400 font-medium">{team.summer_ready_count}</td>
+                      <td className="px-3 py-3 text-center text-primary font-medium">{team.summer_ready_count}</td>
                       <td className="px-3 py-3 text-center text-primary font-medium">{team.nlc_count}</td>
                       {isSuperAdmin && (
                         <td className="px-4 py-3 text-right">

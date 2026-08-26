@@ -32,7 +32,7 @@ interface UserAvatarProps {
      'bg-primary',
      'bg-cyan-500',
      'bg-sky-500',
-     'bg-blue-500',
+     'bg-primary',
      'bg-indigo-500',
      'bg-violet-500',
      'bg-purple-500',

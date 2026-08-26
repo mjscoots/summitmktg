@@ -333,7 +333,7 @@ export default function TrainingCoursePage() {
             onClick={() => navigate('/app/training')}
             className={cn(
               "hover:underline",
-              isRookieCourse ? "text-primary" : "text-blue-400"
+              isRookieCourse ? "text-primary" : "text-primary"
             )}
           >
             Back to Training
@@ -359,7 +359,7 @@ export default function TrainingCoursePage() {
               "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border",
               isRookieCourse 
                 ? "bg-primary/15 text-primary border-primary/30"
-                : "bg-blue-500/15 text-blue-400 border-blue-500/30"
+                : "bg-primary/15 text-primary border-primary/30"
             )}>
               {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
             </span>
@@ -381,14 +381,14 @@ export default function TrainingCoursePage() {
               <span className="text-sm text-muted-foreground">Overall Progress</span>
               <span className={cn(
                 "text-sm font-medium",
-                isRookieCourse ? "text-primary" : "text-blue-400"
+                isRookieCourse ? "text-primary" : "text-primary"
               )}>{overallProgress}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div 
                 className={cn(
                   "h-full rounded-full transition-all",
-                  isRookieCourse ? "bg-primary" : "bg-blue-500"
+                  isRookieCourse ? "bg-primary" : "bg-primary"
                 )}
                 style={{ width: `${overallProgress}%` }}
               />
@@ -431,10 +431,10 @@ export default function TrainingCoursePage() {
                       : isCurrentModule
                         ? isRookieCourse
                           ? 'border-primary/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
-                          : 'border-blue-500/50 ring-1 ring-blue-500/20 shadow-[0_0_15px_-5px_rgba(59,130,246,0.15)]'
+                          : 'border-primary/50 ring-1 ring-primary/20'
                         : isRookieCourse
                           ? 'border-border hover:border-primary/30'
-                          : 'border-border hover:border-blue-500/30'
+                          : 'border-border hover:border-primary/30'
                 )}
               >
                 {/* Module Header - Clickable */}
@@ -455,7 +455,7 @@ export default function TrainingCoursePage() {
                           ? "text-muted-foreground bg-muted/50"
                           : isRookieCourse 
                             ? "text-primary bg-primary/10"
-                            : "text-blue-400 bg-blue-500/10"
+                            : "text-primary bg-primary/10"
                       )}>
                         {isModuleComplete ? '✓' : `Chapter ${moduleIndex + 1}`}
                       </span>
@@ -468,7 +468,7 @@ export default function TrainingCoursePage() {
                           "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse",
                           isRookieCourse 
                             ? "bg-primary/15 text-primary"
-                            : "bg-blue-500/15 text-blue-400"
+                            : "bg-primary/15 text-primary"
                         )}>
                           CONTINUE
                         </span>
@@ -484,7 +484,7 @@ export default function TrainingCoursePage() {
                           "w-4 h-4 transition-transform duration-200",
                           isExpanded && "rotate-90",
                           isCurrentModule 
-                            ? isRookieCourse ? "text-primary" : "text-blue-400"
+                            ? isRookieCourse ? "text-primary" : "text-primary"
                             : "text-muted-foreground"
                         )} />
                       )}
@@ -523,7 +523,7 @@ export default function TrainingCoursePage() {
                                     'cursor-pointer',
                                     isRookieCourse 
                                       ? 'bg-primary/5 hover:bg-primary/10' 
-                                      : 'bg-blue-500/5 hover:bg-blue-500/10'
+                                      : 'bg-primary/5 hover:bg-primary/10'
                                   )
                                 : 'hover:bg-muted/50 cursor-pointer'
                         )}
@@ -536,12 +536,12 @@ export default function TrainingCoursePage() {
                           ) : isCurrentLesson ? (
                             <PlayCircle className={cn(
                               "w-5 h-5 flex-shrink-0 animate-pulse",
-                              isRookieCourse ? "text-primary" : "text-blue-400"
+                              isRookieCourse ? "text-primary" : "text-primary"
                             )} />
                           ) : (
                             <PlayCircle className={cn(
                               "w-5 h-5 flex-shrink-0",
-                              isRookieCourse ? "text-primary/60" : "text-blue-400/60"
+                              isRookieCourse ? "text-primary/60" : "text-primary/60"
                             )} />
                           )}
                           <span className={cn(
@@ -589,7 +589,7 @@ export default function TrainingCoursePage() {
                             <ChevronRight className={cn(
                               "w-4 h-4",
                               isCurrentLesson 
-                                ? isRookieCourse ? "text-primary" : "text-blue-400"
+                                ? isRookieCourse ? "text-primary" : "text-primary"
                                 : "text-muted-foreground"
                             )} />
                           )}

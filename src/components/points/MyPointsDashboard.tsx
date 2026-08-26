@@ -44,7 +44,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
 
   const we = data.weeklyEvents;
   const weeklyBreakdown = [
-    { icon: Clock, color: 'text-blue-500', label: 'Hours Logged', value: data.weeklyHoursPoints },
+    { icon: Clock, color: 'text-primary', label: 'Hours Logged', value: data.weeklyHoursPoints },
     { icon: Zap, color: 'text-primary', label: 'Threshold Bonus', value: data.weeklyThresholdBonus },
     { icon: Flame, color: 'text-primary', label: 'Login + Streak', value: (we.daily_login || 0) + (we.streak || 0) },
     { icon: MessageSquare, color: 'text-primary', label: 'Chat', value: we.chat || 0 },
@@ -93,7 +93,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
           <div className="flex gap-3">
             <div className="flex-1 p-2.5 rounded-lg bg-muted/30 border border-border/20">
               <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-blue-400" />
+                <Clock className="w-3.5 h-3.5 text-primary" />
                 <span className="text-xs font-bold">{hoursToday}h {minsToday}m today</span>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">{hoursWeek}h this week</p>
@@ -129,7 +129,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
           <div>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Today's Cap Status</p>
             <div className="space-y-2">
-              <CapBar icon={Clock} color="text-blue-500" label="Hours" cap={data.capsToday.hours} />
+              <CapBar icon={Clock} color="text-primary" label="Hours" cap={data.capsToday.hours} />
               <CapBar icon={MessageSquare} color="text-primary" label="Chat" cap={data.capsToday.chat} />
               <CapBar icon={BookOpen} color="text-primary" label="Lessons" cap={data.capsToday.lesson} />
               <CapBar icon={Video} color="text-purple-500" label="Videos" cap={data.capsToday.video} />

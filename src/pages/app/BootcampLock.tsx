@@ -149,7 +149,7 @@ export default function BootcampLock() {
 
       <div className="relative z-10 w-full max-w-lg text-center">
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
-          <p className="text-blue-400 text-base font-black mb-4 bg-blue-500/15 border border-blue-500/30 rounded-xl px-5 py-3 inline-block shadow-lg shadow-blue-500/10">
+          <p className="text-primary text-base font-black mb-4 bg-primary/15 border border-primary/30 rounded-xl px-5 py-3 inline-block shadow-lg shadow-primary/10">
             ⚡ Most reps finish in under 15 minutes
           </p>
 

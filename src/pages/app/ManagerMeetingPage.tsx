@@ -72,7 +72,7 @@ const defaultData = (): FormData => ({
 const statusMeta: Record<RepStatus, { label: string; ring: string; chip: string; bar: string }> = {
   cut:     { label: 'Cut',              ring: 'border-red-500/40',    chip: 'bg-red-500/15 text-red-300 border-red-500/30',     bar: 'bg-red-500' },
   watch:   { label: 'Watch',            ring: 'border-amber-500/40',  chip: 'bg-amber-500/15 text-amber-300 border-amber-500/30', bar: 'bg-amber-400' },
-  help:    { label: 'Needs Help',       ring: 'border-blue-500/40',   chip: 'bg-blue-500/15 text-blue-300 border-blue-500/30',   bar: 'bg-blue-400' },
+  help:    { label: 'Needs Help',       ring: 'border-primary/40',   chip: 'bg-primary/15 text-primary border-primary/30',   bar: 'bg-primary' },
   promote: { label: 'Promote/Spotlight',ring: 'border-emerald-500/40',chip: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', bar: 'bg-emerald-400' },
 };
 

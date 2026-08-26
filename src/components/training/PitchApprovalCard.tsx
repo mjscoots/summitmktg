@@ -116,7 +116,7 @@ export function PitchApprovalCard({
                     onClick={() => setShowRecording(true)}
                     className={cn(
                       "gap-2 font-semibold w-full",
-                      isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
+                      isRookieCourse ? "bg-primary hover:bg-primary" : "bg-primary hover:bg-primary"
                     )}
                     size="sm"
                   >
@@ -233,7 +233,7 @@ export function PitchApprovalCard({
               onClick={() => setShowRecording(true)}
               className={cn(
                 "gap-2 font-semibold flex-1",
-                isRookieCourse ? "bg-primary hover:bg-primary" : "bg-blue-500 hover:bg-blue-600"
+                isRookieCourse ? "bg-primary hover:bg-primary" : "bg-primary hover:bg-primary"
               )}
             >
               <Mic className="w-4 h-4" />

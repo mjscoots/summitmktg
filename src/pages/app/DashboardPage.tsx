@@ -211,7 +211,7 @@ export default function DashboardPage() {
   const challengeTotal = challengeData?.objectives?.length || 3;
 
   const OBJECTIVE_ICONS: Record<string, typeof Clock> = { training: Clock, chat: MessageSquare, lessons: BookOpen };
-  const OBJECTIVE_COLORS: Record<string, string> = { training: 'text-primary', chat: 'text-blue-400', lessons: 'text-primary' };
+  const OBJECTIVE_COLORS: Record<string, string> = { training: 'text-primary', chat: 'text-primary', lessons: 'text-primary' };
 
   return (
     <AppLayout>

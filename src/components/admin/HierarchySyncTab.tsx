@@ -343,7 +343,7 @@ export default function HierarchySyncTab({
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Already Correct</p>
         </div>
         <div className="p-4 bg-card/50 rounded-xl border border-border/30 text-center">
-          <GitBranch className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+          <GitBranch className="w-5 h-5 text-primary mx-auto mb-1" />
           <p className="text-2xl font-bold text-foreground stat-num">{stats.autoResolvable}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Auto-Resolvable</p>
         </div>
@@ -356,7 +356,7 @@ export default function HierarchySyncTab({
 
       {/* Auto-Resolve Action */}
       {stats.autoResolvable > 0 && (
-        <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl">
+        <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-foreground">

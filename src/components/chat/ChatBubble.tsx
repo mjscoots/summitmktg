@@ -149,14 +149,14 @@ export function ChatBubble({
   const getRoleColor = (r?: string) => {
     if (r === 'owner') return 'text-primary';
     if (r === 'admin') return 'text-slate-300';
-    if (r === 'manager') return 'text-blue-400';
+    if (r === 'manager') return 'text-primary';
     return 'text-foreground/60';
   };
 
   const getRoleBorderRing = (r?: string) => {
     if (r === 'owner') return 'ring-2 ring-amber-500/50';
     if (r === 'admin') return 'ring-2 ring-slate-400/40';
-    if (r === 'manager') return 'ring-2 ring-blue-500/40';
+    if (r === 'manager') return 'ring-2 ring-primary/40';
     return '';
   };
 

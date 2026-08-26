@@ -315,7 +315,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 !isLockedCourse && !isComingSoon && isPrimary && (
                   isRookie
                     ? "border-2 border-primary/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-primary/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
-                    : "border-2 border-blue-500/50 shadow-[0_0_25px_-8px_rgba(59,130,246,0.25)] hover:border-blue-500/70 hover:shadow-[0_0_35px_-8px_rgba(59,130,246,0.35)]"
+                    : "border-2 border-primary/50 hover:border-primary/70 hover:"
                 ),
                 // Non-primary cards
                 !isLockedCourse && !isComingSoon && !isPrimary && (
@@ -323,13 +323,13 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                     ? 'border border-success/40 hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.25)]' 
                     : isRookie
                       ? 'border border-border hover:border-primary/40 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.2)]'
-                      : 'border border-border hover:border-blue-500/40 hover:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]'
+                      : 'border border-border hover:border-primary/40 hover:'
                 ),
                 // In-progress glow
                 !isLockedCourse && !isComingSoon && !isPrimary && course.progress > 0 && course.progress < 100 && (
                   isRookie 
                     ? 'shadow-[0_0_15px_-8px_rgba(34,197,94,0.15)]' 
-                    : 'shadow-[0_0_15px_-8px_rgba(59,130,246,0.15)]'
+                    : ''
                 )
               )}
             >
@@ -342,7 +342,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                   ? "bg-success/8"
                   : isRookie
                     ? "bg-green-500/8"
-                    : "bg-blue-500/8",
+                    : "bg-primary/8",
                 !isComingSoon && "group-hover:opacity-150"
               )} />
 
@@ -360,7 +360,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                         ? 'bg-success/20 text-success group-hover:bg-success/30' 
                         : isRookie
                           ? 'bg-primary/15 text-primary group-hover:bg-primary/25'
-                          : 'bg-blue-500/15 text-blue-400 group-hover:bg-blue-500/25'
+                          : 'bg-primary/15 text-primary group-hover:bg-primary/25'
                   )}>
                     <div className={cn(
                       "transition-transform duration-300",
@@ -388,7 +388,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                         SALES
                       </span>
                     ) : (
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/15 text-blue-400 border border-blue-500/30 transition-all duration-300 group-hover:bg-blue-500/25">
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30 transition-all duration-300 group-hover:bg-primary/25">
                         MANAGER
                       </span>
                     )}
@@ -407,7 +407,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className={cn(
                       "font-bold text-base text-foreground transition-colors duration-300",
-                      !isComingSoon && (isRookie ? "group-hover:text-primary" : "group-hover:text-blue-400")
+                      !isComingSoon && (isRookie ? "group-hover:text-primary" : "group-hover:text-primary")
                     )}>
                       {displayTitle}
                     </h3>
@@ -433,7 +433,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                         "h-full rounded-full transition-all duration-500",
                         course.progress === 100 
                           ? 'bg-success' 
-                          : isRookie ? 'bg-primary' : 'bg-blue-500'
+                          : isRookie ? 'bg-primary' : 'bg-primary'
                       )}
                       style={{ width: `${course.progress}%` }}
                     />
@@ -463,7 +463,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                           ? "bg-muted text-foreground hover:bg-muted/80"
                           : isRookie
                             ? "bg-primary hover:bg-primary text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.6)]"
-                            : "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.6)]"
+                            : "bg-primary hover:bg-primary text-white hover:"
                     )}
                     onClick={(e) => {
                       e.stopPropagation();

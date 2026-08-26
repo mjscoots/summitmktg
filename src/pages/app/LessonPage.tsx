@@ -434,7 +434,7 @@ export default function LessonPage() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className={cn(
             "w-8 h-8 animate-spin",
-            isRookieCourse ? "text-primary" : "text-blue-400"
+            isRookieCourse ? "text-primary" : "text-primary"
           )} />
         </div>
       </AppLayout>
@@ -452,7 +452,7 @@ export default function LessonPage() {
           </p>
           <button 
             onClick={() => navigate(`/app/training/${courseSlug}`)}
-            className={cn("hover:underline", isRookieCourse ? "text-primary" : "text-blue-400")}
+            className={cn("hover:underline", isRookieCourse ? "text-primary" : "text-primary")}
           >
             Back to Course
           </button>
@@ -499,7 +499,7 @@ export default function LessonPage() {
             "fixed top-4 right-4 z-50 p-4 rounded-lg border shadow-lg animate-fade-in",
             isRookieCourse 
               ? "bg-primary/10 border-primary/30 text-primary"
-              : "bg-blue-500/10 border-blue-500/30 text-blue-400"
+              : "bg-primary/10 border-primary/30 text-primary"
           )}>
             <p className="font-semibold">{getStreakMessage()}</p>
             <button onClick={() => { clearStreakCelebration(); clearMilestone(); }} className="text-xs mt-1 opacity-60">
@@ -523,7 +523,7 @@ export default function LessonPage() {
             ) : (
               <BookOpen className={cn(
                 "w-5 h-5 mt-0.5 flex-shrink-0",
-                isRookieCourse ? "text-primary" : "text-blue-400"
+                isRookieCourse ? "text-primary" : "text-primary"
               )} />
             )}
             <div className="flex-1 min-w-0">
@@ -535,7 +535,7 @@ export default function LessonPage() {
                   "text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider border",
                   isRookieCourse 
                     ? "bg-primary/15 text-primary border-primary/30"
-                    : "bg-blue-500/15 text-blue-400 border-blue-500/30"
+                    : "bg-primary/15 text-primary border-primary/30"
                 )}>
                   {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
                 </span>
@@ -618,19 +618,19 @@ export default function LessonPage() {
             "border rounded-lg p-4 mb-4",
             isRookieCourse 
               ? "bg-primary/5 border-primary/20"
-              : "bg-blue-500/5 border-blue-500/20"
+              : "bg-primary/5 border-primary/20"
           )}>
             <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5 uppercase tracking-wide">
               <CheckCircle2 className={cn(
                 "w-3.5 h-3.5",
-                isRookieCourse ? "text-primary" : "text-blue-400"
+                isRookieCourse ? "text-primary" : "text-primary"
               )} />
               Key Takeaways
             </h3>
             <ul className="space-y-1">
               {lesson.key_takeaways.map((takeaway, index) => (
                 <li key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                  <span className={cn("mt-0.5", isRookieCourse ? "text-primary" : "text-blue-400")}>•</span>
+                  <span className={cn("mt-0.5", isRookieCourse ? "text-primary" : "text-primary")}>•</span>
                   {takeaway}
                 </li>
               ))}
@@ -697,9 +697,9 @@ export default function LessonPage() {
                     className={cn(
                       "w-1.5 h-1.5 rounded-full transition-all",
                       i < currentLessonIndex
-                        ? isRookieCourse ? "bg-primary" : "bg-blue-500"
+                        ? isRookieCourse ? "bg-primary" : "bg-primary"
                         : i === currentLessonIndex
-                          ? isRookieCourse ? "bg-primary ring-1 ring-green-400/30" : "bg-blue-400 ring-1 ring-blue-400/30"
+                          ? isRookieCourse ? "bg-primary ring-1 ring-green-400/30" : "bg-primary ring-1 ring-primary/30"
                           : "bg-muted"
                     )}
                   />
@@ -720,7 +720,7 @@ export default function LessonPage() {
                 buttonState !== 'locked' && (
                   isRookieCourse
                     ? "bg-primary hover:bg-primary"
-                    : "bg-blue-500 hover:bg-blue-600"
+                    : "bg-primary hover:bg-primary"
                 )
               )}
             >

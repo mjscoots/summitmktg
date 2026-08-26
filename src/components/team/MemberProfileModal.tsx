@@ -284,7 +284,7 @@ export function MemberProfileModal({
   // Point breakdown items helper (no "Legacy Points" label)
   const makeBreakdownItems = (bd: any, isAllTime = false) => {
     const items = [
-      { label: 'Hours Logged', value: bd.hours, icon: Clock, color: 'text-blue-400' },
+      { label: 'Hours Logged', value: bd.hours, icon: Clock, color: 'text-primary' },
       { label: 'Time Bonuses', value: bd.threshold, icon: Target, color: 'text-primary' },
       { label: 'Daily Login', value: bd.login, icon: Zap, color: 'text-primary' },
       { label: 'Streak', value: bd.streak, icon: Flame, color: 'text-primary' },

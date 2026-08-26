@@ -17,7 +17,7 @@ const DEMO_SCREENS = [
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
           <p className="text-primary text-sm font-semibold">🔒 You must complete the Summer Checklist before you can access the app.</p>
         </div>
-        <p className="text-blue-400 text-sm font-black bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2.5 inline-block">
+        <p className="text-primary text-sm font-black bg-primary/10 border border-primary/20 rounded-lg px-4 py-2.5 inline-block">
           ⚡ Most reps finish in under 15 minutes
         </p>
         <div className="space-y-1.5 text-left">
@@ -144,8 +144,8 @@ const DEMO_SCREENS = [
         </div>
         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
-              <Video className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <Video className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-black text-white">MOTIVATION</h2>

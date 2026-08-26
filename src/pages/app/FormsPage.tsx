@@ -20,7 +20,7 @@ const badgeGradients = ['bg-primary/20', 'bg-primary/15', 'bg-primary/10'];
 const badgeGlows = ['', '', ''];
 
 const cardBorderAccents = [
-  'hover:border-blue-500/20',
+  'hover:border-primary/20',
   'hover:border-violet-500/20',
   'hover:border-primary/20',
 ];

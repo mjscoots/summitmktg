@@ -65,7 +65,7 @@ function displayName(entry: LeaderboardEntry) {
 
 const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: string; check: (e: LeaderboardEntry, rank: number) => boolean }[] = [
   { id: 'champion', icon: Crown, label: 'Weekly Champion', color: 'text-primary', check: (_, rank) => rank === 1 },
-  { id: 'grinder', icon: Clock, label: 'Grinder (5h+)', color: 'text-blue-500', check: (e) => e.hoursThisWeek >= 5 },
+  { id: 'grinder', icon: Clock, label: 'Grinder (5h+)', color: 'text-primary', check: (e) => e.hoursThisWeek >= 5 },
   { id: 'consistent', icon: Flame, label: 'Consistent (7d+)', color: 'text-primary', check: (e) => e.streakDays >= 7 },
   { id: 'social', icon: MessageSquare, label: 'Social', color: 'text-primary', check: (e) => (e.breakdown.chatPoints || 0) >= 200 },
 ];
@@ -278,12 +278,12 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
                   <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
                     {entry.streakDays > 0 && (
                       <span className="flex items-center gap-0.5">
-                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-primary" : entry.streakDays >= 7 ? "text-primary" : entry.streakDays >= 3 ? "text-blue-400" : "text-muted-foreground")} /> {entry.streakDays}d
+                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-primary" : entry.streakDays >= 7 ? "text-primary" : entry.streakDays >= 3 ? "text-primary" : "text-muted-foreground")} /> {entry.streakDays}d
                       </span>
                     )}
                     {entry.hoursThisWeek > 0 && (
                       <span className="flex items-center gap-0.5">
-                        <Clock className="w-3 h-3 text-blue-400/70" /> {entry.hoursThisWeek}h
+                        <Clock className="w-3 h-3 text-primary/70" /> {entry.hoursThisWeek}h
                       </span>
                     )}
                     {entry.lessonsCompleted > 0 && (

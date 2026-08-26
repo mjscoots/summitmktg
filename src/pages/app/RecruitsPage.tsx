@@ -32,7 +32,7 @@ const MY_STATUSES = ['Claimed', 'Contacted', 'Booked', 'Signed', 'Dead'] as cons
 const STATUS_STYLE: Record<string, string> = {
   New: 'bg-muted/40 text-muted-foreground border-border/50',
   Claimed: 'bg-primary/15 text-primary border-primary/30',
-  Contacted: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+  Contacted: 'bg-primary/15 text-primary border-primary/30',
   Booked: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
   Signed: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
   Dead: 'bg-red-500/15 text-red-400 border-red-500/30',

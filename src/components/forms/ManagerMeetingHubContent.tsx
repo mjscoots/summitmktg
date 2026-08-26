@@ -205,7 +205,7 @@ function SubmissionView({ data }: { data: any }) {
       <section><h4 className="font-semibold mb-2">2. Wins</h4><Field label="" value={d.wins} /></section>
       {d.reps?.length > 0 && (
         <section><h4 className="font-semibold mb-2">3. Rep Triage</h4>
-          <ul className="space-y-1.5">{d.reps.map((r: any) => <li key={r.id} className={cn('text-sm rounded-md px-3 py-2 border', r.status === 'cut' && 'border-red-500/30 bg-red-500/5', r.status === 'watch' && 'border-amber-500/30 bg-amber-500/5', r.status === 'help' && 'border-blue-500/30 bg-blue-500/5', r.status === 'promote' && 'border-emerald-500/30 bg-emerald-500/5')}><b>{r.name}</b> — <span className="uppercase text-xs">{r.status}</span>{r.note && <> · {r.note}</>}</li>)}</ul>
+          <ul className="space-y-1.5">{d.reps.map((r: any) => <li key={r.id} className={cn('text-sm rounded-md px-3 py-2 border', r.status === 'cut' && 'border-red-500/30 bg-red-500/5', r.status === 'watch' && 'border-amber-500/30 bg-amber-500/5', r.status === 'help' && 'border-primary/30 bg-primary/5', r.status === 'promote' && 'border-emerald-500/30 bg-emerald-500/5')}><b>{r.name}</b> — <span className="uppercase text-xs">{r.status}</span>{r.note && <> · {r.note}</>}</li>)}</ul>
         </section>
       )}
       {d.rules?.length > 0 && (

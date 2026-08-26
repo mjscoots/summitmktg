@@ -131,7 +131,7 @@ function PipelineBadge({ status }: { status: string }) {
     key === 'summer_ready'
       ? 'bg-primary/15 text-primary border-primary/30'
       : key === 'onboarded'
-        ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+        ? 'bg-primary/15 text-primary border-primary/30'
         : key === 'info_added'
           ? 'bg-primary/15 text-primary border-primary/30'
           : key === 'contract_signed'
@@ -271,7 +271,7 @@ function SummaryBar({ users }: { users: UserRow[] }) {
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-500/10 text-primary">Prospect {pending}</span>
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Signed {contractSigned}</span>
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Info Added {infoAdded}</span>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400">Onboarded {onboarded}</span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Onboarded {onboarded}</span>
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Summer Ready {summerReady}</span>
         </>
       )}
