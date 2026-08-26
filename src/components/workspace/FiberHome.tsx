@@ -45,7 +45,10 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const [carrierName, setCarrierName] = useState<string | null>(null);
   const [lead, setLead] = useState<Lead | null>(null);
   const [steps, setSteps] = useState({ done: 0, total: 0 });
+  const [stepList, setStepList] = useState<{ id: string; title: string; done: boolean }[]>([]);
+  const [regionIntro, setRegionIntro] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+
 
   const load = useCallback(async () => {
     if (!user) return;
