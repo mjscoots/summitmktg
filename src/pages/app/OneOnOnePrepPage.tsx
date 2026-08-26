@@ -13,6 +13,8 @@ import { ActionItemsField } from '@/components/shared/ActionItemsField';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
+import { WeekContextCard } from '@/components/one-on-one-prep/WeekContextCard';
+
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react';
