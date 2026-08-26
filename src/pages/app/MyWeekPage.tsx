@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useManagerWeek, attentionReasons, type WeekRow } from '@/hooks/useManagerWeek';
+import { useFirstWeekRows, type FirstWeek } from '@/hooks/useFirstWeek';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
 import { cn } from '@/lib/utils';
@@ -32,10 +33,26 @@ function lastOpen(at: string | null): string {
   return `${days} days ago`;
 }
 
-function Row({ row, lastOpened }: { row: WeekRow; lastOpened: string | null }) {
+function Row({
+  row,
+  lastOpened,
+  firstWeek,
+  onMark,
+}: {
+  row: WeekRow;
+  lastOpened: string | null;
+  firstWeek?: FirstWeek;
+  onMark?: (userId: string, day: number, key: string, on: boolean) => void;
+}) {
   const navigate = useNavigate();
   const reasons = attentionReasons(row, lastOpened);
   const delta = row.training_week - row.training_prev;
+  const fw = firstWeek && firstWeek.found && !firstWeek.complete ? firstWeek : null;
+  const managerItems = fw
+    ? fw.days
+        .flatMap((d) => d.items.map((i) => ({ day: d.day, item: i })))
+        .filter((x) => x.item.mark === 'manager')
+    : [];
 
   return (
     <li className={cn('rounded-[10px] border border-border bg-card p-3', row.needs_attention && 'border-primary/60')}>
@@ -111,6 +128,30 @@ function Row({ row, lastOpened }: { row: WeekRow; lastOpened: string | null }) {
         </div>
       </dl>
 
+      {fw ? (
+        <div className="mt-2 space-y-2">
+          <p className="text-[13px] text-foreground">
+            First week: day {fw.day_number}, {fw.done} of {fw.total} done
+          </p>
+          {managerItems.length > 0 && onMark ? (
+            <div className="flex flex-wrap gap-2">
+              {managerItems.map(({ day, item }) => (
+                <Button
+                  key={`${day}-${item.key}`}
+                  variant={item.done ? 'ghost' : 'outline'}
+                  size="sm"
+                  className="min-h-11"
+                  onClick={() => onMark(row.user_id, day, item.key, !item.done)}
+                >
+                  {item.done ? `Day ${day} marked` : `Mark day ${day}`}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+
       {row.summary_line ? (
         <p className="mt-2 text-[13px] text-muted-foreground">
           Summit says: <span className="text-foreground">{row.summary_line}</span>
@@ -128,6 +169,7 @@ function Row({ row, lastOpened }: { row: WeekRow; lastOpened: string | null }) {
 export default function MyWeekPage() {
   const { role } = useAuth();
   const { rows, totals, scope, lastOpenedAt, loading, markOpened } = useManagerWeek();
+  const { rows: firstWeeks, mark: markFirstWeek } = useFirstWeekRows();
   const [team, setTeam] = useState('all');
 
   useEffect(() => {
@@ -211,7 +253,13 @@ export default function MyWeekPage() {
               <h2 className="text-sm font-semibold text-foreground">{name}</h2>
               <ul className="space-y-2">
                 {group.map((r) => (
-                  <Row key={r.user_id} row={r} lastOpened={lastOpenedAt} />
+                  <Row
+                    key={r.user_id}
+                    row={r}
+                    lastOpened={lastOpenedAt}
+                    firstWeek={firstWeeks[r.user_id]}
+                    onMark={markFirstWeek}
+                  />
                 ))}
               </ul>
             </section>
@@ -219,7 +267,13 @@ export default function MyWeekPage() {
         ) : (
           <ul className="space-y-2">
             {shown.map((r) => (
-              <Row key={r.user_id} row={r} lastOpened={lastOpenedAt} />
+              <Row
+                    key={r.user_id}
+                    row={r}
+                    lastOpened={lastOpenedAt}
+                    firstWeek={firstWeeks[r.user_id]}
+                    onMark={markFirstWeek}
+                  />
             ))}
           </ul>
         )}

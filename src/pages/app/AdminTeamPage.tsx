@@ -63,6 +63,9 @@ const LazyDrills = lazy(() =>
 const LazyPlaybook = lazy(() =>
   import('@/components/admin/AdminPlaybookTab').then((m) => ({ default: m.AdminPlaybookTab }))
 );
+const LazyFirstWeek = lazy(() =>
+  import('@/components/admin/AdminFirstWeekTab').then((m) => ({ default: m.AdminFirstWeekTab }))
+);
 const LazyThemes = lazy(() =>
   import('@/components/admin/AdminThemesTab').then((m) => ({ default: m.AdminThemesTab }))
 );
@@ -488,6 +491,15 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             <TabsContent value="drills">
               <Suspense fallback={<LoadingList rows={4} />}>
                 <LazyDrills />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {/* ========== FIRST WEEK TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="firstweek">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyFirstWeek />
               </Suspense>
             </TabsContent>
           )}

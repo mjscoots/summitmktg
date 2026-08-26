@@ -94,18 +94,9 @@ export function BootcampGate({ children }: BootcampGateProps) {
 }
 
 /**
- * The Summer Checklist is a Pest workspace gate only. It lives on the Pest
- * workspace home instead of wrapping every route.
+ * The Summer Checklist page stays as the full list. Rookies are no longer
+ * redirected to it: their first week now shows as a card on Pest Home.
  */
 export function PestChecklistGate({ children }: BootcampGateProps) {
-  const { isLocked, isLoading } = useBootcamp();
-  const { profile } = useAuth();
-  const activeVertical = profile?.active_vertical || 'Pest';
-
-  if (!isLoading && isLocked && activeVertical === 'Pest') {
-    return <Navigate to="/summer-checklist" replace />;
-  }
-
   return <>{children}</>;
 }
-

@@ -28,9 +28,12 @@ interface WeekRow {
   last_active_at: string | null;
   late_rsvps: number;
   needs_attention: boolean;
+  first_week_behind?: number;
+  first_week_day?: number;
 }
 
 function reasonFor(r: WeekRow): string {
+  if ((r.first_week_behind || 0) >= 2) return `stuck on first week day ${r.first_week_day || 1}`;
   if (r.sales_week === 0 && r.training_week === 0) return "no sales and no training this week";
   if (!r.last_active_at) return "has never opened the app";
   const days = Math.floor((Date.now() - new Date(r.last_active_at).getTime()) / 86400000);
@@ -125,7 +128,17 @@ serve(async (req: Request): Promise<Response> => {
         console.error(`get_manager_week failed for ${id}: ${error.message}`);
         continue;
       }
-      const rows = (((data as any)?.rows || []) as WeekRow[]).filter((r) => r.needs_attention);
+      const all = ((data as any)?.rows || []) as WeekRow[];
+      for (const r of all) {
+        const { data: fw } = await admin.rpc("first_week_json", { _target: r.user_id });
+        const w = fw as any;
+        if (w?.found && !w.complete) {
+          r.first_week_behind = Number(w.behind_days || 0);
+          r.first_week_day = Number(w.day_number || 1);
+          if (r.first_week_behind >= 2) r.needs_attention = true;
+        }
+      }
+      const rows = all.filter((r) => r.needs_attention);
       if (rows.length === 0) continue;
 
       const message = `${rows.length} ${rows.length === 1 ? "rep needs" : "reps need"} attention this week — open My week`;

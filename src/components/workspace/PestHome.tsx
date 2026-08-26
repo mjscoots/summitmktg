@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
 import { YourWeekLine } from '@/components/home/YourWeekLine';
+import { FirstWeekCard } from '@/components/home/FirstWeekCard';
 
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { cn } from '@/lib/utils';
@@ -131,6 +132,9 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
       <OnboardingAlert />
+
+      <FirstWeekCard />
+
 
       <header>
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">

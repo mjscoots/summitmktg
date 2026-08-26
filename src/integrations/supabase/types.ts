@@ -2663,6 +2663,69 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_days: {
+        Row: {
+          created_at: string
+          day: number
+          id: string
+          items: Json
+          published: boolean
+          title: string
+          updated_at: string
+          updated_by: string | null
+          vertical: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          id?: string
+          items?: Json
+          published?: boolean
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          vertical: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          id?: string
+          items?: Json
+          published?: boolean
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          vertical?: string
+        }
+        Relationships: []
+      }
+      onboarding_marks: {
+        Row: {
+          day: number
+          id: string
+          item_key: string
+          marked_at: string
+          marked_by: string | null
+          user_id: string
+        }
+        Insert: {
+          day: number
+          id?: string
+          item_key: string
+          marked_at?: string
+          marked_by?: string | null
+          user_id: string
+        }
+        Update: {
+          day?: number
+          id?: string
+          item_key?: string
+          marked_at?: string
+          marked_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       one_on_one_rep_order: {
         Row: {
           display_order: number
@@ -6589,6 +6652,8 @@ export type Database = {
         Returns: number
       }
       finalize_season: { Args: { _season_id: string }; Returns: undefined }
+      finish_first_week: { Args: never; Returns: Json }
+      first_week_json: { Args: { _target: string }; Returns: Json }
       generate_weekly_report: { Args: never; Returns: Json }
       get_access_reset_rows: {
         Args: { _search?: string }
@@ -6816,6 +6881,8 @@ export type Database = {
         }[]
       }
       get_finishing_soon: { Args: { _days?: number }; Returns: Json }
+      get_first_week: { Args: { _target?: string }; Returns: Json }
+      get_first_week_rows: { Args: never; Returns: Json }
       get_global_leaderboard:
         | {
             Args: { _limit?: number; _view_role?: string }
@@ -7404,6 +7471,10 @@ export type Database = {
       mark_event_present: {
         Args: { p_event_id: string; p_present: boolean; p_user_id: string }
         Returns: undefined
+      }
+      mark_first_week_item: {
+        Args: { _day: number; _key: string; _on?: boolean; _user: string }
+        Returns: Json
       }
       mark_inactive_users: { Args: never; Returns: undefined }
       mark_sales_reconciled: {

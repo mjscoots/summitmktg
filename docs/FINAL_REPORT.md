@@ -1370,3 +1370,17 @@ Nothing was published.
 - Email is skipped because `RESEND_FROM_EMAIL` is not set; the run reported `email_configured: false`. Set that secret to turn the Monday email on.
 - Verified in the owner session at 390 and 1280: My week, Team strip, rep Home line, prep card. No horizontal overflow.
 - Typecheck clean. Production build clean, largest chunk 194.98 kB. Linter unchanged at 307 issues, no new anonymous-execute warnings. Nothing published.
+
+## Pass 68 — First week
+
+- New `onboarding_days` (seven published Pest days) and `onboarding_marks`, both with RLS; signed-in only RPCs `get_first_week`, `get_first_week_rows`, `mark_first_week_item`, `finish_first_week`, `first_week_json`. Anonymous execute revoked.
+- Completion reads existing data: profile photo and phone visibility, first chat message, drill completions by category, Ask Summit threads, first logged sale, open event answers; the rest are self checks or manager marks.
+- Pest Home shows "Your first week" at the top: day number, today's items, a seven day bar, and one button that opens the first thing still open. It becomes a single "First week done" line at the end.
+- The Summer Checklist page stays as the full list. Rookies are no longer redirected to it and can use the whole app.
+- Needs you gains a "First week — day N is open" card when the rep is a day or more behind.
+- My week rows show "First week: day N, M of K done" and give the manager "Mark day 5" and "Mark day 7" buttons.
+- Graduation completes the Pest setup step "First week" and notifies the manager.
+- Admin → Content → First week edits each day's title, items and published state, per industry.
+- Monday digest counts rookies two or more days behind; owner-only run returned "45 reps need attention this week — open My week". No email, `RESEND_FROM_EMAIL` is unset.
+- People with no role row are treated as rookies, matching how the app already treats them (43 such people today).
+- Verified as owner at 390 and 1280 on Home, My week and the admin editor: no horizontal overflow. Typecheck clean, production build clean, largest chunk 195.08 kB. Test notification removed. Nothing published.

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useActionCards, type ActionCard } from '@/hooks/useActionCards';
+import { useFirstWeek } from '@/hooks/useFirstWeek';
 
 
 function fmtWhen(iso?: string | null) {
@@ -103,15 +104,46 @@ function SetupStepCard({ card }: { card: ActionCard }) {
   );
 }
 
+/** First week day the rep has fallen behind on. */
+function FirstWeekBehindCard({ day, label }: { day: number; label: string }) {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => navigate('/app/dashboard')}
+      className="w-[260px] shrink-0 rounded-xl border border-border/60 bg-card p-3 text-left"
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        First week
+      </p>
+      <p className="mt-1 truncate text-[14px] font-semibold text-foreground">Day {day} is open</p>
+      <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{label}</p>
+    </button>
+  );
+}
+
 /** Row of unresolved items. Renders nothing when there is nothing to do. */
 export function NeedsYouRow({ className }: { className?: string }) {
   const { cards, dismiss } = useActionCards();
-  if (cards.length === 0) return null;
+  const { week } = useFirstWeek();
+  const behind =
+    week.found && !week.complete && week.behind_days > 0
+      ? week.days.find((d) => d.day <= week.day_number && !d.complete) || null
+      : null;
+  const behindItem = behind?.items.find((i) => !i.done) || null;
+  if (cards.length === 0 && !behind) return null;
 
   return (
     <div className={cn('px-4 pt-3', className)}>
       <p className="mb-2 text-[12px] font-semibold text-muted-foreground">Needs you</p>
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+        {behind && (
+          <FirstWeekBehindCard
+            key="first-week"
+            day={behind.day}
+            label={behindItem?.label || behind.title}
+          />
+        )}
         {cards.map((card) => {
           const key = `${card.type}-${card.id}`;
           if (card.type === 'rsvp') return <RsvpCard key={key} card={card} onDone={() => dismiss('rsvp', card.id)} />;
