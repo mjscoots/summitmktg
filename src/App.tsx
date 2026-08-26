@@ -233,16 +233,9 @@ function LazyFallback() {
                      <VideoPlayerPage />
                  </ProtectedRoute>
                } />
-               <Route path="/app/videos" element={
-                 <ProtectedRoute>
-                     <VideosPage />
-                 </ProtectedRoute>
-               } />
-               <Route path="/app/videos/:videoId" element={
-                 <ProtectedRoute>
-                     <VideoPlayerPage />
-                 </ProtectedRoute>
-               } />
+               {/* One video library: /app/training/videos */}
+               <Route path="/app/videos" element={<Navigate to="/app/training/videos" replace />} />
+               <Route path="/app/videos/:videoId" element={<VideoDeepLinkRedirect />} />
                <Route path="/app/training/:courseSlug" element={
                  <ProtectedRoute>
                      <TrainingCoursePage />
