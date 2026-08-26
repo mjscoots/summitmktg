@@ -176,7 +176,7 @@ export function PeopleSearch({
         .maybeSingle();
       if (cancelled || !row?.full_name) { onPersonHandled?.(); return; }
 
-      const { data: found } = await (supabase as any).rpc('search_people', { _q: rows.full_name });
+      const { data: found } = await (supabase as any).rpc('search_people', { _q: row.full_name });
       if (cancelled) return;
       const hit = ((found?.people || []) as PersonResult[]).find((p) => p.user_id === openPersonId);
       if (hit) setPerson(hit);
