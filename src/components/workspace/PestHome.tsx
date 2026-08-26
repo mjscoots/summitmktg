@@ -11,6 +11,7 @@ import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 import { HomeQuestionCard } from '@/components/home/HomeQuestionCard';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
+import { CommandCenterHeader } from '@/components/dashboard/CommandCenterHeader';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,7 +47,13 @@ function NumberCell({ label, value }: { label: string; value: string }) {
  * Pest home: a greeting, the numbers that matter today, what needs the rep,
  * today's missions, where the rep stands, and the last lines of team chat.
  */
-export function PestHome() {
+export function PestHome({
+  isManager = false,
+  onOpenPoints,
+}: {
+  isManager?: boolean;
+  onOpenPoints?: () => void;
+}) {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { data: points } = useMyPoints();
@@ -140,6 +147,8 @@ export function PestHome() {
 
       <NeedsYouRow className="!px-0" />
 
+      {isManager && <CommandCenterHeader />}
+
       <WinterPlanCard />
       <HomeQuestionCard />
 
@@ -231,6 +240,12 @@ export function PestHome() {
           </ul>
         )}
       </section>
+
+      {onOpenPoints && (
+        <Button variant="outline" className="min-h-11 w-full" onClick={onOpenPoints}>
+          My points
+        </Button>
+      )}
 
       {pinned && (
         <p className="text-[13px] text-muted-foreground">
