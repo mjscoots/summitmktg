@@ -133,6 +133,9 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
       <OnboardingAlert />
 
+      <FirstWeekCard />
+
+
       <header>
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           Welcome back, {firstName}
