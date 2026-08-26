@@ -127,6 +127,30 @@ function Row({
         </div>
       </dl>
 
+      {fw ? (
+        <div className="mt-2 space-y-2">
+          <p className="text-[13px] text-foreground">
+            First week: day {fw.day_number}, {fw.done} of {fw.total} done
+          </p>
+          {managerItems.length > 0 && onMark ? (
+            <div className="flex flex-wrap gap-2">
+              {managerItems.map(({ day, item }) => (
+                <Button
+                  key={`${day}-${item.key}`}
+                  variant={item.done ? 'ghost' : 'outline'}
+                  size="sm"
+                  className="min-h-11"
+                  onClick={() => onMark(row.user_id, day, item.key, !item.done)}
+                >
+                  {item.done ? `Day ${day} marked` : `Mark day ${day}`}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+
       {row.summary_line ? (
         <p className="mt-2 text-[13px] text-muted-foreground">
           Summit says: <span className="text-foreground">{row.summary_line}</span>
