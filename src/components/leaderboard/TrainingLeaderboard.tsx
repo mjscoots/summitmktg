@@ -231,15 +231,15 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/5 rounded-full blur-[60px]" />
           <div className="relative flex items-end justify-center gap-4">
             <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
-              podiumGradient="from-gray-400/30 via-gray-400/15 to-transparent" ringColor="ring-gray-400/60"
+              podiumGradient="bg-muted/40" ringColor="ring-gray-400/60"
               medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gray-400"
               onClick={() => setSelectedEntry(top3[1])} />
             <PodiumSlot entry={top3[0]} rank={1} animateIn={animateIn} delay="0ms" podiumH="h-28"
-              podiumGradient="from-yellow-500/30 via-yellow-500/10 to-transparent" ringColor="ring-yellow-500/70"
+              podiumGradient="bg-primary/25" ringColor="ring-yellow-500/70"
               medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-yellow-400"
               isChampion onClick={() => setSelectedEntry(top3[0])} />
             <PodiumSlot entry={top3[2]} rank={3} animateIn={animateIn} delay="400ms" podiumH="h-14"
-              podiumGradient="from-amber-600/25 via-amber-600/10 to-transparent" ringColor="ring-amber-600/60"
+              podiumGradient="bg-primary/15" ringColor="ring-amber-600/60"
               medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-amber-500"
               onClick={() => setSelectedEntry(top3[2])} />
           </div>
@@ -355,7 +355,7 @@ function PodiumSlot({
       <p className={cn("font-bold text-foreground mt-2 truncate text-center", isChampion ? "text-base max-w-[110px]" : rank === 2 ? "text-sm max-w-[90px]" : "text-[13px] max-w-[85px]")}>{displayName(entry)}</p>
       <p className={cn("font-black text-primary tabular-nums", isChampion ? "text-xl" : "text-sm")}>{entry.totalPoints.toLocaleString()}</p>
       <span className="text-[9px] text-muted-foreground font-semibold -mt-0.5">PTS</span>
-      <div className={cn("rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2", podiumH, `bg-gradient-to-t ${podiumGradient}`, isChampion ? "w-28" : "w-22")}>
+      <div className={cn("rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2", podiumH, podiumGradient, isChampion ? "w-28" : "w-22")}>
         {medalIcon}
       </div>
     </div>
