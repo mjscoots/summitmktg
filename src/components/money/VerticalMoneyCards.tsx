@@ -132,7 +132,7 @@ export function VerticalMoneyCards({
         </Link>
       </section>
 
-      {data.verticals.map((v) => (
+      {orderedVerticals.map((v) => (
         <div key={v.vertical} className="space-y-3">
           <section
             className={cn(
