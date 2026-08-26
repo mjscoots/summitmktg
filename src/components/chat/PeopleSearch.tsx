@@ -169,15 +169,13 @@ export function PeopleSearch({
     if (!openPersonId) return;
     let cancelled = false;
     (async () => {
-      const { data } = await (supabase as any).rpc('search_people', { _q: '' });
-      if (cancelled) return;
-      void data;
-      const { data: rows } = await (supabase as any)
+      const { data: row } = await (supabase as any)
         .from('profiles')
         .select('user_id, full_name')
         .eq('user_id', openPersonId)
         .maybeSingle();
-      if (cancelled || !rows?.full_name) { onPersonHandled?.(); return; }
+      if (cancelled || !row?.full_name) { onPersonHandled?.(); return; }
+
       const { data: found } = await (supabase as any).rpc('search_people', { _q: rows.full_name });
       if (cancelled) return;
       const hit = ((found?.people || []) as PersonResult[]).find((p) => p.user_id === openPersonId);
