@@ -5790,6 +5790,15 @@ export type Database = {
           title: string
         }[]
       }
+      get_fiber_leaderboard: {
+        Args: { p_week_start?: string }
+        Returns: {
+          full_name: string
+          installs: number
+          rank: number
+          user_id: string
+        }[]
+      }
       get_fiber_report: {
         Args: { _carrier_id?: string; _region_id?: string; _weeks?: number }
         Returns: Json
