@@ -61,16 +61,14 @@ export async function uploadChatFile(file: File, userId: string, onSend: (conten
 
   if (uploadError) throw uploadError;
 
-  const { data: { publicUrl } } = supabase.storage
-    .from('chat-uploads')
-    .getPublicUrl(path);
-
+  // Private bucket: store the object path and sign it at read time.
   if (isImageFile(file.name)) {
-    await onSend(`${IMAGE_PREFIX}${publicUrl}`);
+    await onSend(`${IMAGE_PREFIX}${path}`);
   } else {
-    const fileInfo = { url: publicUrl, name: file.name, size: file.size };
+    const fileInfo = { url: path, name: file.name, size: file.size };
     await onSend(`${FILE_PREFIX}${JSON.stringify(fileInfo)}`);
   }
+
 }
 
 interface ChatImageUploadProps {
