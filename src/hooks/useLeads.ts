@@ -232,6 +232,9 @@ export const leadActions = {
   setStage: (leadId: string, stage: string) => rpc('lead_set_stage', { _lead: leadId, _stage: stage }),
   setNotes: (leadId: string, notes: string) => rpc('lead_set_notes', { _lead: leadId, _notes: notes }),
   addTag: (leadId: string, tag: string) => rpc('lead_add_tag', { _lead: leadId, _tag: tag }),
+  setCycling: (leadId: string, cycleDays: number, hold: boolean) =>
+    rpc('lead_set_cycling', { _lead: leadId, _cycle_days: cycleDays, _hold: hold }),
+
   privateNote: (leadId: string, kind: string, body: string) =>
     rpc('lead_private_note_add', { _lead: leadId, _kind: kind, _body: body }),
   log: (
