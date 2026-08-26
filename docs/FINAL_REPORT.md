@@ -1356,3 +1356,17 @@ Nothing was published.
 - The app was already an installable PWA (manifest, per-workspace theme colour, network-first service worker). Added the one-time, dismissable install card to Pest, Fiber and Life Home, phone browsers only, with iOS Share instructions and the Android prompt.
 - Verified with owner-session screenshots at 390 and 1280: Pest Home install card, Fiber Home setup list, Regions panel. No horizontal overflow at either width.
 - Typecheck clean. Production build clean; largest chunk 194.65 kB. Nothing published.
+
+## Pass 67 — My week
+
+- New `/app/week` (manager tier and above): one row per rep, needs-attention first, owner grouped by team with a team filter.
+- Each row shows sales this week, a four-week sales sparkline, training minutes vs last week, last app open, event answers due, the first line of the AI profile, and the next setup step.
+- Row actions: Message (opens the DM) and 1:1 (opens the existing prep for that rep).
+- Server side: `get_manager_week(_manager)` scopes managers to their downline, presidents to their vertical, admin and owner to everyone; `mark_week_opened()` records the last visit for the "new note" rule. Both signed-in only, anon execute revoked.
+- 1:1 prep now opens with a "This week" card: the same numbers, Summit says, concerns, goals, recent Ask Summit questions, next setup step.
+- Team page header gained a "My week" button and a compact "This week" strip (team sales, training minutes, event answers due, need attention).
+- Rep Home gained one quiet line: sales, training minutes, event answers needed. No comparison to others.
+- New `manager-weekly-digest` function, scheduled Monday 13:00 UTC. Writes one notification per manager: "43 reps need attention this week — open My week" (verified for the owner, then removed).
+- Email is skipped because `RESEND_FROM_EMAIL` is not set; the run reported `email_configured: false`. Set that secret to turn the Monday email on.
+- Verified in the owner session at 390 and 1280: My week, Team strip, rep Home line, prep card. No horizontal overflow.
+- Typecheck clean. Production build clean, largest chunk 194.98 kB. Linter unchanged at 307 issues, no new anonymous-execute warnings. Nothing published.

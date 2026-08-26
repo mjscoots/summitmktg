@@ -13,6 +13,8 @@ import { ActionItemsField } from '@/components/shared/ActionItemsField';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
+import { WeekContextCard } from '@/components/one-on-one-prep/WeekContextCard';
+
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react';
@@ -416,11 +418,15 @@ export default function OneOnOnePrepPage() {
               ? mobilePanel === 'data' ? 'w-full' : 'hidden'
               : 'w-[40%] min-w-[320px]'
           )}>
+            <div className="p-4 pb-0">
+              <WeekContextCard userId={selectedRep.user_id} />
+            </div>
             <TrainingDataPanel
               rep={selectedRep}
               lastMonday={lastMonday}
               lastSunday={lastSunday}
             />
+
           </div>
 
           <div className={cn(

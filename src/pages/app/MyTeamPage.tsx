@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -31,6 +31,8 @@ import { TeamMember, getDisplayName, getEffectiveManager } from '@/lib/hierarchy
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberTeam } from '@/components/team/FiberTeam';
+import { ThisWeekStrip } from '@/components/team/ThisWeekStrip';
+
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -61,6 +63,8 @@ export default function MyTeamPage() {
   const { role, profile, isLoading: authLoading } = useAuth();
   const { activeVertical } = useWorkspace();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
 
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
@@ -286,13 +290,23 @@ export default function MyTeamPage() {
             title="Team"
             context={`${profiles.length} active ${profiles.length === 1 ? 'rep' : 'reps'} across ${teams.length} ${teams.length === 1 ? 'team' : 'teams'}`}
             className="border-none pb-0"
-            action={canAddMembers ? (
-              <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
-                <UserPlus className="w-3.5 h-3.5" />
-                Add
-              </Button>
-            ) : undefined}
+            action={
+              <div className="flex items-center gap-2">
+                {isManagerRole && (
+                  <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate('/app/week')}>
+                    My week
+                  </Button>
+                )}
+                {canAddMembers ? (
+                  <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Add
+                  </Button>
+                ) : null}
+              </div>
+            }
           />
+
 
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
@@ -316,9 +330,11 @@ export default function MyTeamPage() {
           </div>
         </header>
 
-
-
-
+        {isManagerRole && (
+          <div className="mb-5">
+            <ThisWeekStrip />
+          </div>
+        )}
 
 
         {loading ? (

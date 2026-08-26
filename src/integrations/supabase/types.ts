@@ -6090,6 +6090,21 @@ export type Database = {
           },
         ]
       }
+      week_screen_views: {
+        Row: {
+          last_opened_at: string
+          user_id: string
+        }
+        Insert: {
+          last_opened_at?: string
+          user_id: string
+        }
+        Update: {
+          last_opened_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_awards: {
         Row: {
           created_at: string
@@ -6891,6 +6906,7 @@ export type Database = {
       }
       get_leaders_list: { Args: never; Returns: Json }
       get_manager_directory: { Args: never; Returns: Json }
+      get_manager_week: { Args: { _manager?: string }; Returns: Json }
       get_missed_meeting_flags: {
         Args: never
         Returns: {
@@ -7394,6 +7410,7 @@ export type Database = {
         Args: { p_month: string; p_user_id: string }
         Returns: number
       }
+      mark_week_opened: { Args: never; Returns: undefined }
       match_leaderboard_rows: { Args: { _rows: Json }; Returns: Json }
       match_revenue_import: { Args: { _rows: Json }; Returns: Json }
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }

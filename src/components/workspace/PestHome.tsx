@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
+import { YourWeekLine } from '@/components/home/YourWeekLine';
+
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { cn } from '@/lib/utils';
 
@@ -150,6 +152,9 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         <NumberCell label="This week" value={String(snapshot?.week_points ?? 0)} />
         <NumberCell label="Sales this week" value={String(salesWeek)} />
       </div>
+
+      <YourWeekLine />
+
 
       <LogSaleButton onSaved={() => void load()} />
 
