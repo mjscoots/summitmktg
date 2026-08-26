@@ -41,17 +41,14 @@ const Index = () => {
           <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={36} />
           </Link>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Link to="/industries/pest" className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-text-secondary transition-colors hover:text-foreground">
+          <div className="flex items-center gap-0.5 sm:gap-2">
+            <Link to="/industries/pest" className="inline-flex min-h-11 items-center rounded-xl px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
               Pest
             </Link>
-            <Link to="/industries/fiber" className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-text-secondary transition-colors hover:text-foreground">
+            <Link to="/industries/fiber" className="inline-flex min-h-11 items-center rounded-xl px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
               Fiber
             </Link>
-            <Link to="/apply/rookie" className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-text-secondary transition-colors hover:text-foreground">
-              Apply
-            </Link>
-            <Link to="/login" className="inline-flex min-h-11 items-center rounded-xl border border-border-strong px-3 text-sm font-semibold text-foreground transition-colors hover:border-foreground">
+            <Link to="/login" className="inline-flex min-h-11 items-center whitespace-nowrap rounded-xl border border-border-strong px-3 text-sm font-semibold text-foreground transition-colors hover:border-foreground">
               Sign in
             </Link>
           </div>
