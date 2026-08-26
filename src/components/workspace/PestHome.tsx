@@ -151,6 +151,9 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         <NumberCell label="Sales this week" value={String(salesWeek)} />
       </div>
 
+      <YourWeekLine />
+
+
       <LogSaleButton onSaved={() => void load()} />
 
       <Button variant="outline" className="min-h-11 w-full" onClick={() => navigate('/app/playbook')}>
