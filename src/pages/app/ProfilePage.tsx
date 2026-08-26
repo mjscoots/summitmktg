@@ -571,7 +571,34 @@ export default function ProfilePage() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 123-4567"
               />
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-foreground mb-2">Who can see my number</label>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    ['everyone', 'Everyone'],
+                    ['team', 'My team and leaders'],
+                    ['staff', 'Staff only'],
+                  ] as const).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setPhoneVisibility(value)}
+                      className={`min-h-[44px] rounded-lg border px-3 text-[13px] transition-colors ${
+                        phoneVisibility === value
+                          ? 'border-primary/60 bg-primary/10 text-foreground'
+                          : 'border-border/60 bg-background text-muted-foreground hover:border-primary/40'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Search on Chat shows your number only to people this allows.
+                </p>
+              </div>
             </div>
+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
