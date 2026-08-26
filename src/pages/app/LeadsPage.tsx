@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall } from 'lucide-react';
+import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall, Check } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,7 +14,6 @@ import { isStaffTier, tierOf } from '@/lib/tiers';
 import {
   LEAD_STAGES,
   leadActions,
-  money,
   telHref,
   useLeadsList,
   type LeadRow,
@@ -23,6 +23,24 @@ import LeadDrawer from '@/components/leads/LeadDrawer';
 import CallMode from '@/components/leads/CallMode';
 
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
+const NOT_ON_ROSTER = 'not-on-2026-roster';
+
+type Chip = 'all' | 'designated' | 'free' | 'not_on_roster' | 'josh' | 'out_for_good';
+
+const CHIPS: { id: Chip; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'designated', label: 'Designated' },
+  { id: 'free', label: 'Free' },
+  { id: 'not_on_roster', label: 'Not on 2026 roster' },
+  { id: 'josh', label: "Josh's system" },
+  { id: 'out_for_good', label: 'Out for good' },
+];
+
+function callbackLabel(iso: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return `Call back ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+}
 
 export default function LeadsPage() {
   const { role, isLoading: authLoading } = useAuth();
@@ -33,8 +51,15 @@ export default function LeadsPage() {
   const [search, setSearch] = useState('');
   const [stage, setStage] = useState<string>('all');
   const [hasPhone, setHasPhone] = useState<string>('all');
+  const [chip, setChip] = useState<Chip>('all');
   const [openLead, setOpenLead] = useState<string | null>(params.get('lead'));
   const [callMode, setCallMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [managers, setManagers] = useState<
+    { user_id: string; full_name: string | null; designated_count: number; has_access: boolean }[]
+  >([]);
+  const [assignTo, setAssignTo] = useState<string>('');
+  const [busy, setBusy] = useState(false);
 
   const { rows, loading, reload } = useLeadsList(
     scope,
@@ -42,12 +67,27 @@ export default function LeadsPage() {
       search: search.trim() || null,
       stage: stage === 'all' ? null : stage,
       hasPhone: hasPhone === 'all' ? null : hasPhone === 'yes',
-      limit: scope === 'all' ? 400 : 200,
+      designation: chip === 'designated' || chip === 'free' ? chip : null,
+      tag: chip === 'not_on_roster' ? NOT_ON_ROSTER : null,
+      system: chip === 'josh' ? 'Josh' : null,
+      limit: scope === 'all' ? 600 : 300,
     },
     tier !== 'sales'
   );
 
-  const callable = useMemo(() => rows.filter((r) => !!r.phone && !r.do_not_call), [rows]);
+  useEffect(() => {
+    if (!staff) return;
+    (supabase.rpc as any)('leads_manager_options').then(({ data }: { data: unknown }) => {
+      setManagers((data as typeof managers) || []);
+    });
+  }, [staff]);
+
+  const visible = useMemo(
+    () => (chip === 'out_for_good' ? rows.filter((r) => !(r.tags || []).includes(NOT_ON_ROSTER)) : rows),
+    [rows, chip]
+  );
+
+  const callable = useMemo(() => visible.filter((r) => !!r.phone && !r.do_not_call), [visible]);
 
   if (authLoading) return null;
   if (tier === 'sales') return <Navigate to="/app" replace />;
@@ -67,6 +107,35 @@ export default function LeadsPage() {
     }
   };
 
+  const toggle = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const designateSelected = async () => {
+    if (selected.size === 0 || !assignTo) return;
+    setBusy(true);
+    const { error } = await (supabase.rpc as any)('leads_designate_bulk', {
+      _leads: Array.from(selected),
+      _to: assignTo === 'free' ? null : assignTo,
+    });
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(
+        assignTo === 'free'
+          ? `${selected.size} moved to the free pool`
+          : `${selected.size} designated`
+      );
+      setSelected(new Set());
+      reload();
+    }
+  };
+
   return (
     <AppLayout>
       <div className="h-full">
@@ -77,7 +146,7 @@ export default function LeadsPage() {
             <div className="min-w-0">
               <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">Leads</h1>
               <p className="mt-1.5 text-[13px] text-muted-foreground">
-                Every person who has been part of Summit. {rows.length} shown.
+                People who are out and not coming back. {visible.length} shown.
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -102,7 +171,11 @@ export default function LeadsPage() {
             {tabs.map((t) => (
               <button
                 key={t.id}
-                onClick={() => setParams({ tab: t.id })}
+                onClick={() => {
+                  setParams({ tab: t.id });
+                  setSelected(new Set());
+                  setChip('all');
+                }}
                 className={cn(
                   'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold transition-colors sm:text-[13px]',
                   scope === t.id
@@ -115,6 +188,25 @@ export default function LeadsPage() {
               </button>
             ))}
           </div>
+
+          {staff && scope === 'all' && (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {CHIPS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setChip(c.id)}
+                  className={cn(
+                    'min-h-9 rounded-full border px-3 text-[12px] font-medium transition-colors',
+                    chip === c.id
+                      ? 'border-primary/40 bg-primary/10 text-primary'
+                      : 'border-border/60 text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mb-4 flex flex-col gap-2 sm:flex-row">
             <Input
@@ -148,13 +240,48 @@ export default function LeadsPage() {
             </Select>
           </div>
 
+          {staff && scope === 'all' && selected.size > 0 && (
+            <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
+              <p className="text-[13px] font-semibold text-foreground tabular-nums">
+                {selected.size} selected
+              </p>
+              <Select value={assignTo} onValueChange={setAssignTo}>
+                <SelectTrigger className="h-10 flex-1 text-[13px] sm:w-[230px] sm:flex-none">
+                  <SelectValue placeholder="Designate to…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free" className="text-[13px]">Free pool (no owner)</SelectItem>
+                  {managers.map((m) => (
+                    <SelectItem key={m.user_id} value={m.user_id} className="text-[13px]">
+                      {m.full_name || 'Unnamed'}
+                      {!m.has_access ? ' · no access' : ''} · {m.designated_count}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <button
+                onClick={designateSelected}
+                disabled={busy || !assignTo}
+                className="inline-flex min-h-10 items-center rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                Apply
+              </button>
+              <button
+                onClick={() => setSelected(new Set())}
+                className="min-h-10 rounded-xl border border-border/60 px-3 text-[13px] text-muted-foreground"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+
           {loading ? (
             <div className="space-y-2">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-16 rounded-[var(--radius)]" />
               ))}
             </div>
-          ) : rows.length === 0 ? (
+          ) : visible.length === 0 ? (
             <div className={cn(CARD, 'p-10 text-center')}>
               <p className="text-sm text-muted-foreground">
                 {scope === 'mine' ? 'No leads are designated to you yet.' : 'No leads match these filters.'}
@@ -162,41 +289,63 @@ export default function LeadsPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {rows.map((lead) => (
-                <div key={lead.id} className={cn(CARD, 'flex items-center gap-3 p-3')}>
-                  <button onClick={() => setOpenLead(lead.id)} className="min-w-0 flex-1 text-left">
-                    <p className="truncate text-[14px] font-semibold text-foreground">{lead.full_name}</p>
-                    <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
-                      {[
-                        lead.stage?.replace('_', ' '),
-                        lead.system,
-                        lead.former_manager_name,
-                        money(lead.season_revenue),
-                        lead.designated_to_name || 'Free',
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  </button>
-                  {telHref(lead.phone) && (
-                    <a
-                      href={telHref(lead.phone) as string}
-                      aria-label={`Call ${lead.full_name}`}
-                      className="shrink-0 rounded-lg border border-primary/25 bg-primary/10 p-2.5 text-primary"
-                    >
-                      <Phone className="h-4 w-4" />
-                    </a>
-                  )}
-                  {lead.designation_status === 'free' && (
-                    <button
-                      onClick={() => claim(lead)}
-                      className="shrink-0 rounded-lg bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground"
-                    >
-                      Claim
+              {visible.map((lead) => {
+                const notOnRoster = (lead.tags || []).includes(NOT_ON_ROSTER);
+                const line = [
+                  lead.former_manager_name ? `Was with ${lead.former_manager_name}` : null,
+                  lead.last_outcome ? lead.last_outcome.replace(/_/g, ' ') : lead.stage?.replace('_', ' '),
+                  callbackLabel(lead.next_call_at),
+                  scope === 'all' ? lead.designated_to_name || 'Free' : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ');
+                return (
+                  <div key={lead.id} className={cn(CARD, 'flex items-center gap-3 p-3')}>
+                    {staff && scope === 'all' && (
+                      <button
+                        onClick={() => toggle(lead.id)}
+                        aria-label={selected.has(lead.id) ? `Deselect ${lead.full_name}` : `Select ${lead.full_name}`}
+                        className={cn(
+                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border',
+                          selected.has(lead.id)
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-border/70'
+                        )}
+                      >
+                        {selected.has(lead.id) && <Check className="h-3.5 w-3.5" />}
+                      </button>
+                    )}
+                    <button onClick={() => setOpenLead(lead.id)} className="min-w-0 flex-1 text-left">
+                      <p className="truncate text-[14px] font-semibold text-foreground">
+                        {lead.full_name}
+                        {notOnRoster && (
+                          <span className="ml-2 rounded-full border border-border/60 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                            Not on 2026 roster
+                          </span>
+                        )}
+                      </p>
+                      <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{line || 'No history yet'}</p>
                     </button>
-                  )}
-                </div>
-              ))}
+                    {telHref(lead.phone) && (
+                      <a
+                        href={telHref(lead.phone) as string}
+                        aria-label={`Call ${lead.full_name}`}
+                        className="shrink-0 rounded-lg border border-primary/25 bg-primary/10 p-2.5 text-primary"
+                      >
+                        <Phone className="h-4 w-4" />
+                      </a>
+                    )}
+                    {lead.designation_status === 'free' && scope !== 'all' && (
+                      <button
+                        onClick={() => claim(lead)}
+                        className="shrink-0 rounded-lg bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground"
+                      >
+                        Claim
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
