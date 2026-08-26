@@ -18,11 +18,13 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-xl lg:hidden"
-      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 10px)' }}
+      className="fixed left-0 right-0 z-40 px-3 lg:hidden"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)' }}
       aria-label="Primary"
+      data-phone-bar
     >
-      <div className="mx-auto flex max-w-lg items-stretch">
+      <div className="mx-auto flex max-w-lg items-stretch rounded-2xl border border-border/60 bg-background/95 shadow-lg backdrop-blur-xl">
+
         {PHONE_BAR.map((item) => {
           const active = isActive(item.path);
           return (
