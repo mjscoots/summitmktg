@@ -138,7 +138,12 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         <NumberCell label="This week" value={String(snapshot?.week_points ?? 0)} />
       </div>
 
+      <Button variant="outline" className="min-h-11 w-full" onClick={() => navigate('/app/playbook')}>
+        Playbook
+      </Button>
+
       <NeedsYouRow className="!px-0" />
+
 
       <WinterPlanCard />
       <HomeQuestionCard />

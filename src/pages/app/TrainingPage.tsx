@@ -129,6 +129,20 @@ export default function TrainingPage() {
             />
           )}
 
+          <button
+            onClick={() => navigate('/app/playbook')}
+            className="glass-card glass-card-hover group mb-4 flex w-full items-center gap-4 p-5 text-left"
+          >
+            <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
+              <BookOpen className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-foreground">Field Playbook</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Script, objections, closes, backyard pitch and prices</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+          </button>
+
           <DailyDrill />
           <GlobalTrainingProgress filterRole="rookie" />
           <TrainingTiles filterRole="rookie" />
@@ -181,6 +195,20 @@ export default function TrainingPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
           <PageHeader title="Training" context="Pick a track." className="mb-6" />
+
+          <button
+            onClick={() => navigate('/app/playbook')}
+            className="glass-card glass-card-hover group mb-4 flex w-full items-center gap-4 p-5 text-left"
+          >
+            <div className="flex-shrink-0 rounded-[var(--radius)] bg-primary/15 p-3.5 text-primary">
+              <BookOpen className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-foreground">Field Playbook</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Script, objections, closes, backyard pitch and prices</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+          </button>
 
           <DailyDrill />
 
