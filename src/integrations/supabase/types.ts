@@ -1874,6 +1874,38 @@ export type Database = {
           },
         ]
       }
+      lead_call_cursors: {
+        Row: {
+          created_at: string
+          lead_id: string | null
+          scope: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          lead_id?: string | null
+          scope?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          lead_id?: string | null
+          scope?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_call_cursors_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "people_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_private_notes: {
         Row: {
           author_id: string | null
@@ -2691,6 +2723,7 @@ export type Database = {
           archived_reason: string | null
           avatar_url: string | null
           calendly_url: string | null
+          can_recruit: boolean
           commitment_terms: string | null
           committed_last_day: string | null
           created_at: string | null
@@ -2762,6 +2795,7 @@ export type Database = {
           archived_reason?: string | null
           avatar_url?: string | null
           calendly_url?: string | null
+          can_recruit?: boolean
           commitment_terms?: string | null
           committed_last_day?: string | null
           created_at?: string | null
@@ -2833,6 +2867,7 @@ export type Database = {
           archived_reason?: string | null
           avatar_url?: string | null
           calendly_url?: string | null
+          can_recruit?: boolean
           commitment_terms?: string | null
           committed_last_day?: string | null
           created_at?: string | null
@@ -5839,6 +5874,10 @@ export type Database = {
         Args: { _lead_id: string; _user_id: string }
         Returns: Json
       }
+      admin_set_can_recruit: {
+        Args: { _user_id: string; _value: boolean }
+        Returns: boolean
+      }
       admin_set_paired_manager: {
         Args: { _manager_id: string; _user_id: string; _vertical: string }
         Returns: Json
@@ -5870,6 +5909,10 @@ export type Database = {
       admin_set_stack_source: {
         Args: { _source: string; _user_id: string; _vertical: string }
         Returns: Json
+      }
+      admin_set_tier: {
+        Args: { _tier: string; _user_id: string }
+        Returns: string
       }
       admin_set_vertical_lead: {
         Args: { _is_lead: boolean; _user_id: string; _vertical: string }
@@ -6325,6 +6368,7 @@ export type Database = {
       get_my_winter_plan: { Args: never; Returns: Json }
       get_my_workspaces: { Args: never; Returns: Json }
       get_new_lead_count: { Args: never; Returns: number }
+      get_off_season_report: { Args: never; Returns: Json }
       get_pairings: {
         Args: { _manager?: string; _status?: string; _vertical?: string }
         Returns: Json
@@ -6526,6 +6570,7 @@ export type Database = {
       }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
       is_manager_tier: { Args: { _uid: string }; Returns: boolean }
+      is_owner: { Args: { _uid: string }; Returns: boolean }
       is_paired_manager_of: {
         Args: { _manager: string; _rep: string }
         Returns: boolean
@@ -6551,6 +6596,91 @@ export type Database = {
       is_vertical_lead_of_rep: {
         Args: { _rep: string; _uid: string }
         Returns: boolean
+      }
+      lead_add_tag: {
+        Args: { _lead: string; _tag: string }
+        Returns: undefined
+      }
+      lead_claim: { Args: { _lead: string }; Returns: undefined }
+      lead_designate: {
+        Args: { _lead: string; _to: string }
+        Returns: undefined
+      }
+      lead_detail: { Args: { _lead: string }; Returns: Json }
+      lead_free: { Args: { _lead: string }; Returns: undefined }
+      lead_log: {
+        Args: {
+          _body?: string
+          _kind: string
+          _lead: string
+          _next_call_at?: string
+          _outcome?: string
+        }
+        Returns: undefined
+      }
+      lead_private_note_add: {
+        Args: { _body: string; _kind: string; _lead: string }
+        Returns: undefined
+      }
+      lead_set_notes: {
+        Args: { _lead: string; _notes: string }
+        Returns: undefined
+      }
+      lead_set_stage: {
+        Args: { _lead: string; _stage: string }
+        Returns: undefined
+      }
+      leads_callbacks_due: { Args: never; Returns: number }
+      leads_import_commit: { Args: { _decisions: Json }; Returns: Json }
+      leads_import_preview: { Args: { _rows: Json }; Returns: Json }
+      leads_list: {
+        Args: {
+          _designated_to?: string
+          _has_phone?: boolean
+          _limit?: number
+          _rev_max?: number
+          _rev_min?: number
+          _roster_status?: string
+          _scope?: string
+          _search?: string
+          _signed?: boolean
+          _stage?: string
+          _system?: string
+          _tag?: string
+        }
+        Returns: {
+          call_count: number
+          committed_last_day: string
+          days_in_market: number
+          designated_has_access: boolean
+          designated_to: string
+          designated_to_name: string
+          designation_status: string
+          do_not_call: boolean
+          email: string
+          former_manager_name: string
+          full_name: string
+          id: string
+          last_contact_at: string
+          last_outcome: string
+          next_call_at: string
+          notes: string
+          on_roster: boolean
+          phone: string
+          profile_id: string
+          recruiter_name: string
+          rep_year: string
+          rev_per_day: number
+          role_title: string
+          roster_status: string
+          season_revenue: number
+          signed_2027: boolean
+          stage: string
+          start_date: string
+          system: string
+          tags: string[]
+          team_name: string
+        }[]
       }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
@@ -6729,6 +6859,7 @@ export type Database = {
         }
         Returns: Json
       }
+      user_tier: { Args: { _uid: string }; Returns: string }
       validate_access_code: { Args: { input_code: string }; Returns: boolean }
       validate_and_record_quiz: {
         Args: { _answers: Json; _lesson_id: string }

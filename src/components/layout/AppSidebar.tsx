@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import summitLogo from '@/assets/summit-logo-new.png';
-import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock, Building2 } from 'lucide-react';
+import { Home, GraduationCap, Trophy, LogOut, User, Shield, MessageCircle, Calendar, Target, Users, FileText, Video, Swords, BookOpen, Crown, Sparkles, DollarSign, CalendarClock, Building2, PhoneCall } from 'lucide-react';
 import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
@@ -45,6 +45,7 @@ const mainNavItems: NavItem[] = [
 
 const managementNavItems: NavItem[] = [
   { label: 'Team', path: '/app/team', icon: Users },
+  { label: 'Leads', path: '/app/leads', icon: PhoneCall },
   { label: 'Calendar', path: '/app/calendar', icon: Calendar },
   { label: 'Forms', path: '/app/forms', icon: FileText },
   { label: 'Approvals', path: '/app/pitch-approvals', icon: Video },
@@ -76,10 +77,10 @@ export function AppSidebar() {
     : role === 'admin'
       ? 'ADMIN'
       : role === 'president'
-        ? `PRESIDENT${presidedName ? ` · ${presidedName.toUpperCase()}` : ''}`
+        ? `MANAGER${presidedName ? ` · ${presidedName.toUpperCase()}` : ''}`
         : isManager
           ? 'MANAGER'
-          : role === 'recruiter' ? 'RECRUITER' : 'ROOKIE';
+          : 'SALES';
 
   const handleSignOut = async () => {
     await signOut();

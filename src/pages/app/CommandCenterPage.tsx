@@ -15,6 +15,7 @@ import DataHealthPanel from "@/components/command/DataHealthPanel";
 import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
 import LeadersSection from "@/components/command/LeadersSection";
+import OffSeasonReport from "@/components/command/OffSeasonReport";
 import PairingsPanel from "@/components/command/PairingsPanel";
 import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
 import StackView from "@/components/command/StackView";
@@ -615,6 +616,11 @@ export default function CommandCenterPage() {
         </div>
 
         {/* ROSTER GAPS */}
+        <SectionHeader title="Off-season" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <OffSeasonReport />
+        </div>
+
         <SectionHeader title="Roster Gaps" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <RosterGapCounters />

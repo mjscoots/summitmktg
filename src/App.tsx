@@ -68,6 +68,7 @@ const ManagerMeetingPage = lazy(() => import("./pages/app/ManagerMeetingPage"));
 const RosterSweepPage = lazy(() => import("./pages/app/RosterSweepPage"));
 const TicketPage = lazy(() => import("./pages/TicketPage"));
 const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
+const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
@@ -296,6 +297,13 @@ function LazyFallback() {
               <Route path="/app/alumni" element={
                 <ProtectedRoute>
                   <AlumniPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Leads — every person who has been part of Summit (manager and above) */}
+              <Route path="/app/leads" element={
+                <ProtectedRoute>
+                  <LeadsPage />
                 </ProtectedRoute>
               } />
 
