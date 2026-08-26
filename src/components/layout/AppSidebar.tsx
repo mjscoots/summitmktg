@@ -20,7 +20,7 @@ import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { useNewLeads } from '@/hooks/useNewLeads';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
-import { WorkspaceSwitcher } from '@/components/workspace/WorkspaceSwitcher';
+import { WorkspaceMenu } from '@/components/workspace/WorkspaceMenu';
 import { DESKTOP_MAIN, manageDestinations, canSeeAdmin, type NavDest } from '@/lib/appNav';
 
 type NavItem = NavDest;
@@ -190,7 +190,7 @@ export function AppSidebar() {
             </span>
           )}
         </button>
-        <WorkspaceSwitcher collapsed={collapsed} />
+        <WorkspaceMenu collapsed={collapsed} />
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-1 flex flex-col flex-1">

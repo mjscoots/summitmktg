@@ -70,6 +70,19 @@ export function manageDestinations(role: string | null | undefined): NavDest[] {
   return DESTINATIONS.filter((d) => MANAGE_KEYS.includes(d.key) && allowed(d, tier));
 }
 
+/**
+ * The phone drawer list, in the owner's order: the main destinations first,
+ * then Manage, then Admin and Profile.
+ */
+export function drawerDestinations(role: string | null | undefined): NavDest[] {
+  const tier = tierOf(role);
+  const main = DESKTOP_MAIN;
+  const rest = DESTINATIONS.filter(
+    (d) => !DESKTOP_MAIN_KEYS.includes(d.key) && allowed(d, tier)
+  );
+  return [...main, ...rest];
+}
+
 /** The "Go to" list in the phone sheet, in the owner's order. */
 export function sheetDestinations(role: string | null | undefined): NavDest[] {
   const tier = tierOf(role);
