@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useRookieView } from '@/contexts/RookieViewContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StreakCelebration } from '@/components/training/StreakCelebration';
 import { useStreak } from '@/hooks/useStreak';
@@ -51,15 +50,13 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-  const { role, isLoading } = useAuth();
-  const { isImpersonating } = useRookieView();
+  const { isLoading } = useAuth();
   const { active } = useWorkspace();
   const { isLocked: bootcampLocked } = useBootcamp();
   const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
   const [showPoints, setShowPoints] = useState(false);
   const [showPointSystem, setShowPointSystem] = useState(false);
 
-  const isManager = !isImpersonating && (role === 'manager' || role === 'admin' || role === 'owner');
 
 
   if (isLoading) {
@@ -96,7 +93,7 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <PestHome isManager={isManager} onOpenPoints={() => setShowPoints(true)} />
+      <PestHome onOpenPoints={() => setShowPoints(true)} />
 
 
       <GuidedTour />
