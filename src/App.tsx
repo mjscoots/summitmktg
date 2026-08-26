@@ -496,6 +496,7 @@ function LazyFallback() {
              {/* Catch-all */}
              <Route path="*" element={<NotFound />} />
            </Routes>
+           </WorkspaceProvider>
          </Suspense>
        </BrowserRouter>
      </TooltipProvider>
