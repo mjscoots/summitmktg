@@ -1521,3 +1521,15 @@ Nothing was published.
 - PWA background and theme colours set to #0B0D12; added `public/splash-1170x2532.png` iOS launch image.
 - Slider labels now reach the thumb (`aria-label`), and the work section has a heading — public home Lighthouse accessibility 100, best practices 96 (the only failure is React's dev-mode ref warning, absent from the production build).
 - Signed-out screenshots at 390 and 1280 for home, Pest, Fiber, rookie form and invite: overflow 0 on every route. Typecheck and production build clean. Nothing published.
+
+## Pass 78 — Money across industries
+- `/app/money` is now one screen with an All · Pest · Fiber · Life segmented control; All is the default in every workspace and the workspace only sets the accent.
+- All tab: estimated season total in the display face, one estimate disclaimer line, per-vertical rows with share bars and drivers, month-by-month chart, and the last 20 earning events.
+- Numbers use the existing calculations only: Pest from `rep_commission` and the existing pay scale, Fiber as installs x confirmed per-install pay less holdback, Life zero with "Not open yet". Unset rates read "Rate not set" and count as zero.
+- Added one read-only RPC `get_my_money_summary(_target uuid default null)`: SECURITY DEFINER, `search_path = public`, self / staff / existing downline only, anon execute revoked, authenticated granted.
+- New `useMoneySummary` hook and `AllMoneyCard` component; existing Pest, Fiber and Life views kept unchanged behind their tabs.
+- Manager view: the same All card renders on a person profile under "Money across industries", using existing profile visibility.
+- Preview fixes: both public hero buttons have min-widths and no longer wrap at 1280 (still stacked at 390); the Knock / Close / Get paid icons now sit in bordered surface-elevated tiles.
+- Verified: owner screenshots of all four tabs at 390 and 1280, overflow 0 at both widths on every tab, typecheck clean, production build clean.
+- Owner account has no logged Pest revenue or Fiber installs, so the All tab correctly shows zeros and "Not set" rather than invented figures.
+- Not published.
