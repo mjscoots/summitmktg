@@ -23,23 +23,25 @@ launch without breaking anything.
 
 ## 2. What changed since the last published version
 
-- **Security.** Every database table now refuses access unless the person asking has the
-  right role. Internal automation routines can no longer be called by hand from outside
-  the app.
-- **Chat is now the access centre.** One list of conversations, event and announcement
-  cards you can act on inside chat, direct messages limited to you and your leaders, and
-  a people search with tap-to-call that respects each person's phone setting.
-- **Honest time.** Time in the app and time actually spent training are now counted
-  separately, in company time, so a manager can tell "logged in" from "did the work".
-- **Ask Summit remembers.** Each rep's conversations are saved as threads they can come
-  back to, and their manager can read them to help.
-- **Rep profiles written by the AI.** Overnight, the app writes a short plain summary of
-  each rep from their own activity, citing where each point came from. No guessing.
-- **Leads.** When someone leaves, their profile becomes a lead carrying what we knew about
-  them. Designated leads that go untouched now move to the next manager automatically.
-- **Every screen has the same header.** Title, one line of context, one main action.
-- **Copy cleanup.** No emoji, no exclamation marks, no hype, no internal words like
-  "queue" or "president" showing on screen.
+- **Three separate businesses.** Pest, Fiber and Life now look and work differently. Each
+  has its own home screen, its own colours and its own bottom tabs on a phone.
+- **Fiber runs on installs.** Its own Installs screen, per-install pay only, region rosters.
+  Account counts and downline figures that never applied to Fiber are gone.
+- **Life runs on appointments.** A light, calm screen with a pipeline. Its setup path is
+  written but left unpublished until you say it is ready.
+- **Field Playbook.** Your own Pest sales material, word for word, searchable, two taps
+  from home, and Ask Summit now answers using it and names the section it came from.
+- **Log a sale.** A rep logs a sale on their phone; it posts a win in chat, adds points
+  once, tells their manager on the first sale of the day, and shows on the leaderboard.
+- **Setup paths.** The Fiber path is published as five steps; Fiber East and West region
+  leads are now assigned from Settings → Industries → Fiber → Regions.
+- **Add to home screen.** The app installs on a phone like an app, with its own icon.
+- **My Week.** One screen for a manager: each rep's sales, training minutes, activity,
+  unanswered event questions, setup progress and who needs attention. A Monday email
+  digest goes with it.
+- **A rookie's first week.** Seven guided days on the home screen, with the manager able
+  to see and mark progress. Only real rookies see it — veterans never do.
+
 
 ---
 
@@ -118,6 +120,13 @@ Each item says where to click and what happens if you leave it.
   Admin → Settings.
 - [ ] **Default phone visibility.** Currently **team only** for everyone. Each person can
   change their own in their profile.
+- [ ] **Seasonal insects pricing page.** Not loaded into the Field Playbook. Everything
+  else in your material is in, word for word. Send that page and it gets added.
+- [ ] **Life setup path.** Written as four draft steps and left unpublished on purpose.
+  Settings → Industries → Life when you want reps to start on it.
+- [ ] **Monday email digest.** Built and scheduled, but no email leaves the app until the
+  sender above is set. Managers can still open My Week any time.
+
 
 ### One test worth doing yourself
 
@@ -130,7 +139,7 @@ Each item says where to click and what happens if you leave it.
 
 ## 4. Known limitations that ship as-is
 
-- **299 database linter items, and that is expected.** 278 of them say "a signed-in user
+- **313 database linter items, and that is expected.** 292 of them say "a signed-in user
   can call this function", and 19 say "anyone can call this function". These functions
   *are* the app's own interface to its data, and every one of them checks the caller's
   role before returning anything. The 19 open ones are the public pages: the landing
