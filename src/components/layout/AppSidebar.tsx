@@ -20,6 +20,8 @@ import { Separator } from '@/components/ui/separator';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { useNewLeads } from '@/hooks/useNewLeads';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { WorkspaceSwitcher } from '@/components/workspace/WorkspaceSwitcher';
 
 interface NavItem {
   label: string;
