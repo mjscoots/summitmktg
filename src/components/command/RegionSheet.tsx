@@ -181,8 +181,7 @@ export default function RegionSheet() {
   const exportCsv = () => {
     const headers = [
       'Name', 'Office', 'Team', 'Manager', 'Rep year', 'Recruited by', 'Vertical',
-      'Status', 'Departure type', 'Departure reason', 'Last day worked', 'Committed last day',
-      'Next season', 'Showed up', 'Revenue total', 'Months active', 'Last revenue month', 'Revenue on file',
+      'Status', 'Last day worked', 'Revenue total', 'Months active', 'Last revenue month', 'Revenue on file',
       ...(hasReSigned ? ['Re-signed'] : []),
     ];
     const lines = [headers.join(',')];
@@ -196,12 +195,7 @@ export default function RegionSheet() {
         blank(r.recruited_by),
         blank(r.vertical),
         r.archived ? 'Departed' : blank(r.status),
-        departureLabel(r.departure_type),
-        blank(r.departure_reason),
         blank(r.last_day_worked),
-        blank(r.committed_last_day),
-        blank(r.next_year_status),
-        blank(r.showed_up_date),
         r.revenue_total === null || r.revenue_total === undefined ? '' : String(r.revenue_total),
         r.months_active === null || r.months_active === undefined ? '' : String(r.months_active),
         blank(r.last_revenue_month),
@@ -379,11 +373,7 @@ export default function RegionSheet() {
               <th>Recruited by</th>
               <th>Vertical</th>
               <th>Status</th>
-              <th>Departure</th>
-              <th>Reason</th>
               <th>Last day</th>
-              <th>Committed last day</th>
-              <th>Next season</th>
               <th>Revenue total</th>
               <th>Months</th>
               <th>Last revenue month</th>
@@ -412,11 +402,7 @@ export default function RegionSheet() {
                 <td style={{ color: r.archived ? COLORS.textMuted : COLORS.text }}>
                   {r.archived ? 'Departed' : blank(r.status_detail) || blank(r.status)}
                 </td>
-                <td>{departureLabel(r.departure_type)}</td>
-                <td style={{ whiteSpace: 'normal', maxWidth: 260 }}>{blank(r.departure_reason)}</td>
                 <td>{blank(r.last_day_worked)}</td>
-                <td>{blank(r.committed_last_day)}</td>
-                <td>{blank(r.next_year_status)}</td>
                 <td>{r.revenue_total ? money(r.revenue_total) : '—'}</td>
                 <td>{r.months_active ?? 0}</td>
                 <td>{blank(r.last_revenue_month)}</td>
