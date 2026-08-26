@@ -413,10 +413,16 @@ serve(async (req) => {
       });
     }
 
-    const body = await req.json().catch(() => null) as { messages?: Message[]; mode?: string; finish?: boolean } | null;
+    const body = await req.json().catch(() => null) as {
+      messages?: Message[];
+      mode?: string;
+      finish?: boolean;
+      thread_id?: string;
+    } | null;
     const messages = body?.messages;
     const mode: "ask" | "practice" = body?.mode === "practice" ? "practice" : "ask";
     const finish = body?.finish === true;
+    const threadIdIn = typeof body?.thread_id === "string" && body.thread_id.length > 0 ? body.thread_id : null;
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
