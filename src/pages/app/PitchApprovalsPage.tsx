@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PairingRequestsPanel } from '@/components/industries/PairingRequestsPanel';
+import { useAuth } from '@/hooks/useAuth';
+import { WorkspaceApplicationsTab } from '@/components/workspace/WorkspaceApplicationsTab';
 
 const AdminSubmittedVideosTab = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 
@@ -26,7 +28,9 @@ export default function PitchApprovalsPage() {
   const [reviewingRequest, setReviewingRequest] = useState<PitchApprovalWithDetails | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [teamFilter, setTeamFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'pitches' | 'checklist'>('pitches');
+  const [activeTab, setActiveTab] = useState<'pitches' | 'checklist' | 'workspaces'>('pitches');
+  const { role } = useAuth();
+  const canSeeApplications = role === 'owner' || role === 'admin' || role === 'president';
 
   // Get unique teams from requests
   const teams = useMemo(() => {
@@ -130,6 +134,19 @@ export default function PitchApprovalsPage() {
             <Video className="w-4 h-4" />
             Checklist Videos
           </button>
+          {canSeeApplications && (
+            <button
+              onClick={() => setActiveTab('workspaces')}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-2 text-sm font-bold rounded-lg transition-all",
+                activeTab === 'workspaces'
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Workspace applications
+            </button>
+          )}
         </div>
 
         <div className="mb-6">
@@ -137,7 +154,9 @@ export default function PitchApprovalsPage() {
         </div>
 
 
-        {activeTab === 'checklist' ? (
+        {activeTab === 'workspaces' && canSeeApplications ? (
+          <WorkspaceApplicationsTab />
+        ) : activeTab === 'checklist' ? (
           <Suspense fallback={<LoadingList rows={4} />}>
             <AdminSubmittedVideosTab />
           </Suspense>

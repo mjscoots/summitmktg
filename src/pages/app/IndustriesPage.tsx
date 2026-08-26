@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { ManagerPicker } from '@/components/industries/ManagerPicker';
 import { LadderStrip } from '@/components/industries/LadderStrip';
+import { VerticalApplicationForm } from '@/components/workspace/VerticalApplicationForm';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 sm:p-5';
@@ -72,36 +74,30 @@ export default function IndustriesPage() {
 
   const [verticals, setVerticals] = useState<HubVertical[]>([]);
   const [loading, setLoading] = useState(true);
-  const [joining, setJoining] = useState<string | null>(null);
+  const [applyingTo, setApplyingTo] = useState<string | null>(null);
+  const { switchWorkspace, refresh: refreshWorkspaces } = useWorkspace();
+  const switchTo = searchParams.get('switch');
 
   const loadHub = useCallback(async () => {
     const { data } = await supabase.rpc('get_industry_hub' as never);
     const rows = ((data as unknown as { verticals: HubVertical[] })?.verticals) || [];
     setVerticals(rows);
     setLoading(false);
-  }, []);
+    refreshWorkspaces();
+  }, [refreshWorkspaces]);
 
   useEffect(() => {
     if (!user?.id) return;
     loadHub();
   }, [user?.id, loadHub]);
 
-  const join = async (v: HubVertical) => {
-    setJoining(v.vertical);
-    const { data, error } = await supabase.rpc('join_vertical' as never, { _vertical: v.vertical } as never);
-    setJoining(null);
-    const res = data as unknown as { success: boolean; configured: boolean; error?: string } | null;
-    if (error || !res?.success) {
-      toast({ title: 'Could not join', description: res?.error || error?.message, variant: 'destructive' });
-      return;
-    }
-    if (!res.configured) {
-      toast({ title: 'Request received', description: "Setup steps are being finalized — you'll be notified." });
-    } else {
-      setSearchParams({ v: v.vertical });
-    }
-    loadHub();
-  };
+  useEffect(() => {
+    if (!switchTo) return;
+    switchWorkspace(switchTo);
+    setSearchParams({});
+  }, [switchTo, switchWorkspace, setSearchParams]);
+
+
 
   if (openVertical) {
     return (
@@ -174,10 +170,10 @@ export default function IndustriesPage() {
 
                   <div className="mt-auto pt-1">
                     {enr?.status === 'active' ? (
-                      <div className="flex items-center gap-2 text-[13px] font-medium text-emerald-400">
-                        <Check className="h-4 w-4" /> You're active here
+                      <div className="flex items-center gap-2 text-[13px] font-medium text-primary">
+                        <Check className="h-4 w-4" /> You are active here
                       </div>
-                    ) : enr?.status === 'onboarding' ? (
+                    ) : enr?.status === 'onboarding' || enr?.status === 'approved' ? (
                       <Button
                         size="sm"
                         className="w-full"
@@ -185,19 +181,32 @@ export default function IndustriesPage() {
                       >
                         Continue setup (step {enr.current_step} of {v.step_count})
                       </Button>
-                    ) : enr?.status === 'interested' ? (
+                    ) : enr?.status === 'applied' ? (
                       <p className="text-[12px] text-muted-foreground">
-                        Setup steps are being finalized — you'll be notified.
+                        Application in review.
                       </p>
+                    ) : enr?.status === 'rejected' ? (
+                      <p className="text-[12px] text-muted-foreground">
+                        Not approved. Talk to your manager.
+                      </p>
+                    ) : applyingTo === v.vertical ? (
+                      <VerticalApplicationForm
+                        vertical={v.vertical}
+                        name={v.label}
+                        onCancel={() => setApplyingTo(null)}
+                        onDone={() => {
+                          setApplyingTo(null);
+                          loadHub();
+                        }}
+                      />
                     ) : (
                       <Button
                         size="sm"
                         variant="secondary"
                         className="w-full"
-                        disabled={joining === v.vertical}
-                        onClick={() => join(v)}
+                        onClick={() => setApplyingTo(v.vertical)}
                       >
-                        {joining === v.vertical ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Join'}
+                        Apply for {v.label}
                       </Button>
                     )}
                   </div>

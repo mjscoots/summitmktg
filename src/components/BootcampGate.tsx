@@ -84,8 +84,9 @@ export function BootcampGate({ children }: BootcampGateProps) {
     );
   }
 
-  // Step 1: Must complete checklist first
-  if (isLocked) {
+  // Step 1: Must complete checklist first — the summer checklist is a Pest workspace gate only
+  const activeVertical = profile?.active_vertical || 'Pest';
+  if (isLocked && activeVertical === 'Pest') {
     return <Navigate to="/summer-checklist" replace />;
   }
 

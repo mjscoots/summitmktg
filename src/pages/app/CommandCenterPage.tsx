@@ -9,6 +9,7 @@ import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
 import RosterGapCounters from "@/components/roster/RosterGapCounters";
+import { WorkspaceApplicationsCount } from "@/components/workspace/WorkspaceApplicationsCount";
 import DataHealthPanel from "@/components/command/DataHealthPanel";
 
 import RegionPace from "@/components/command/RegionPace";
@@ -599,11 +600,18 @@ export default function CommandCenterPage() {
         </div>
 
 
+        {/* WORKSPACE APPLICATIONS */}
+        <SectionHeader title="Workspace Applications" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <WorkspaceApplicationsCount />
+        </div>
+
         {/* ROSTER GAPS */}
         <SectionHeader title="Roster Gaps" tag="Owner" />
         <div style={{ marginBottom: 40 }}>
           <RosterGapCounters />
         </div>
+
 
         {/* DATA HEALTH */}
         <SectionHeader title="Data Health" tag="Owner" />

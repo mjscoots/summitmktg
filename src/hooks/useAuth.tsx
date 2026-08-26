@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
 
-type UserRole = 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner';
+type UserRole = 'rookie' | 'recruiter' | 'manager' | 'president' | 'admin' | 'owner';
 
 interface Profile {
   id: string;
@@ -24,6 +24,7 @@ interface Profile {
   approved: boolean | null;
   referred_by: string | null;
   onboarding_status: string | null;
+  active_vertical?: string | null;
 }
 
 interface AuthContextType {
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasActiveSessionRef = useRef(false);
   const roleCacheRef = useRef<Map<string, UserRole>>(new Map());
 
-  const ROLE_PRIORITY: UserRole[] = ['rookie', 'recruiter', 'manager', 'admin', 'owner'];
+  const ROLE_PRIORITY: UserRole[] = ['rookie', 'recruiter', 'manager', 'president', 'admin', 'owner'];
   const ROLE_STORAGE_PREFIX = 'auth-role-cache:';
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value === 'rookie' ||
       value === 'recruiter' ||
       value === 'manager' ||
+      value === 'president' ||
       value === 'admin' ||
       value === 'owner'
     ) {

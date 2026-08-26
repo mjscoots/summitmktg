@@ -20,6 +20,8 @@ import { Separator } from '@/components/ui/separator';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { useNewLeads } from '@/hooks/useNewLeads';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { WorkspaceSwitcher } from '@/components/workspace/WorkspaceSwitcher';
 
 interface NavItem {
   label: string;
@@ -60,11 +62,23 @@ export function AppSidebar() {
   const adminCounts = useAdminCounts();
   const { newCount: newLeads } = useNewLeads();
   const { season } = useSeasonHub();
+  const { workspaces } = useWorkspace();
+  const presidedName = workspaces.find((w) => w.is_president)?.short_name || null;
+
+
 
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
-  const isManager = role === 'manager' || isAdmin;
-  const roleLabel = isOwner ? 'OWNER' : role === 'admin' ? 'ADMIN' : isManager ? 'MANAGER' : role === 'recruiter' ? 'RECRUITER' : 'ROOKIE';
+  const isManager = role === 'manager' || role === 'president' || isAdmin;
+  const roleLabel = isOwner
+    ? 'OWNER'
+    : role === 'admin'
+      ? 'ADMIN'
+      : role === 'president'
+        ? `PRESIDENT${presidedName ? ` · ${presidedName.toUpperCase()}` : ''}`
+        : isManager
+          ? 'MANAGER'
+          : role === 'recruiter' ? 'RECRUITER' : 'ROOKIE';
 
   const handleSignOut = async () => {
     await signOut();
@@ -200,6 +214,7 @@ export function AppSidebar() {
             </span>
           )}
         </button>
+        <WorkspaceSwitcher collapsed={collapsed} />
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-1 flex flex-col flex-1">

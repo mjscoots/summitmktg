@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { supabase } from '@/integrations/supabase/client';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { cn } from '@/lib/utils';
@@ -89,6 +90,8 @@ export function VerticalMoneyCards({
 }) {
   const [data, setData] = useState<MoneyView | null>(null);
   const [loading, setLoading] = useState(true);
+  const { active: activeWorkspace } = useWorkspace();
+  const activeVertical = activeWorkspace?.vertical ?? null;
 
   useEffect(() => {
     let active = true;
@@ -103,10 +106,22 @@ export function VerticalMoneyCards({
     };
   }, []);
 
+  const orderedVerticals = useMemo(() => {
+    const rows = data?.verticals ?? [];
+    if (!activeVertical) return rows;
+    return [...rows].sort((a, b) => {
+      const av = a.vertical === activeVertical ? 0 : 1;
+      const bv = b.vertical === activeVertical ? 0 : 1;
+      return av - bv;
+    });
+  }, [data, activeVertical]);
+
   if (loading) return <LoadingList rows={3} />;
   if (!data) return null;
 
   const rankLabel = data.rank ?? (data.rank_is_summit ? 'Summit' : 'Not set');
+
+
 
   return (
     <div className="space-y-4">
@@ -132,7 +147,7 @@ export function VerticalMoneyCards({
         </Link>
       </section>
 
-      {data.verticals.map((v) => (
+      {orderedVerticals.map((v) => (
         <div key={v.vertical} className="space-y-3">
           <section
             className={cn(
