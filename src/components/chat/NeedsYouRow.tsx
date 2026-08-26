@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useActionCards, type ActionCard } from '@/hooks/useActionCards';
+import { useFirstWeek } from '@/hooks/useFirstWeek';
 
 
 function fmtWhen(iso?: string | null) {
