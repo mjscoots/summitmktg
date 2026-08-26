@@ -6224,6 +6224,7 @@ export type Database = {
         Returns: number
       }
       can_chat_dm: { Args: { _a: string; _b: string }; Returns: boolean }
+      can_find_person: { Args: { _target: string }; Returns: boolean }
       can_read_channel: {
         Args: { _channel: string; _uid: string }
         Returns: boolean
