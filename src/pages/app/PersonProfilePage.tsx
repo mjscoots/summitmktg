@@ -245,6 +245,14 @@ export default function PersonProfilePage() {
           )}
           <Row label="Last login" value={fmtDateTime(e.last_login_at) || 'Not recorded yet'} />
           <Row label="Last active" value={fmtDateTime(e.last_active_at)} />
+          {timeSplit && (
+            <>
+              <Row label="In the app (7 days)" value={`${timeSplit.app_7d ?? 0} min`} />
+              <Row label="Training (7 days)" value={`${timeSplit.training_7d ?? 0} min`} />
+              <Row label="In the app (30 days)" value={`${timeSplit.app_30d ?? 0} min`} />
+              <Row label="Training (30 days)" value={`${timeSplit.training_30d ?? 0} min`} />
+            </>
+          )}
           <Row label="Time today" value={`${e.minutes_today ?? 0} min`} />
           <Row label="Daily average (14 days)" value={`${e.avg_minutes_14d ?? 0} min`} />
           <Row label="Days active (30 days)" value={e.days_active_30d ?? 0} />
@@ -256,6 +264,66 @@ export default function PersonProfilePage() {
           {trackingStarted && <Row label="Tracking started" value={fmtDate(trackingStarted)} />}
         </Card>
       </Section>
+
+      {/* Where the time went */}
+      {screenRows.length > 0 && (
+        <Section title="Where the time went (7 days)">
+          <Card className="p-4">
+            {screenRows.map(([label, minutes]) => (
+              <Row key={label} label={label} value={`${minutes} min`} />
+            ))}
+          </Card>
+        </Section>
+      )}
+
+      {/* What they trained on */}
+      {recap && (
+        <Section title="What they trained on">
+          <Card className="p-4 space-y-3">
+            {(['lessons', 'videos', 'drills', 'chapters'] as const).map((key) => {
+              const items = (recap[key] || []) as { name: string; at: string }[];
+              const label =
+                key === 'lessons' ? 'Lessons' : key === 'videos' ? 'Videos' : key === 'drills' ? 'Drills' : 'Manual chapters';
+              const last7 = items.filter((i) => new Date(i.at).getTime() >= Date.now() - 7 * 86400000);
+              return (
+                <div key={key}>
+                  <p className="text-[13px] font-medium">
+                    {label}
+                    <span className="text-muted-foreground">
+                      {' '}
+                      · {last7.length} in 7 days · {items.length} in 30 days
+                    </span>
+                  </p>
+                  {items.slice(0, 8).map((i, idx) => (
+                    <p key={`${key}-${idx}`} className="text-[13px] text-muted-foreground">
+                      {i.name} · {fmtDate(i.at)}
+                    </p>
+                  ))}
+                  {items.length === 0 && <p className="text-[13px] text-muted-foreground">None recorded</p>}
+                </div>
+              );
+            })}
+          </Card>
+        </Section>
+      )}
+
+      {/* Events */}
+      {events.length > 0 && (
+        <Section title="Events">
+          <Card className="p-4">
+            {events.map((ev) => (
+              <Row
+                key={ev.event_id}
+                label={`${ev.title} · ${fmtDate(ev.event_date)}`}
+                value={`${answerWord(ev.answer)}${
+                  ev.present === true ? ' · present' : ev.present === false ? ' · absent' : ''
+                }`}
+              />
+            ))}
+          </Card>
+        </Section>
+      )}
+
 
       {/* Production */}
       {(data.production?.revenue_months?.length || data.production?.installs_weeks?.length) ? (
