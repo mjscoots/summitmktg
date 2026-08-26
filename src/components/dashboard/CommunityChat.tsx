@@ -21,10 +21,10 @@ import { SummitLoader } from '@/components/shared/SummitLoader';
 import { ChannelTabs } from '@/components/chat/ChannelTabs';
 import { useChatChannels } from '@/hooks/useChatChannels';
 import {
-import { useWorkspace } from '@/contexts/WorkspaceContext';
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 interface ChatMessage {
   id: string;

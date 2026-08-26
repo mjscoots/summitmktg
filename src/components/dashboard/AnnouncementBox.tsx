@@ -22,14 +22,14 @@ import { cn } from '@/lib/utils';
 import { AnnouncementEditorModal } from './AnnouncementEditorModal';
 import { formatDistanceToNow } from 'date-fns';
 import {
-import { verticalFilter } from '@/lib/workspaceScope';
-import { useWorkspace } from '@/contexts/WorkspaceContext';
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { verticalFilter } from '@/lib/workspaceScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Sparkles }> = {
   new_feature: { label: 'New Feature', icon: Sparkles },

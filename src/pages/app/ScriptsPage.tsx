@@ -13,11 +13,11 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { verticalFilter } from '@/lib/workspaceScope';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
 
 const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections'] as const;
 type Category = (typeof CATEGORIES)[number];
