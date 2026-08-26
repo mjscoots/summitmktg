@@ -41,6 +41,72 @@ export type Database = {
         }
         Relationships: []
       }
+      access_reset_2027: {
+        Row: {
+          approved: boolean | null
+          direct_manager: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          profile_id: string
+          rank_id: string | null
+          reason: string
+          region_id: string | null
+          reset_at: string
+          restored_at: string | null
+          restored_by: string | null
+          roles: string[]
+          runs_vertical: boolean | null
+          status: string | null
+          team_id: string | null
+          user_id: string | null
+          vertical: string | null
+          was_archived: boolean | null
+        }
+        Insert: {
+          approved?: boolean | null
+          direct_manager?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          profile_id: string
+          rank_id?: string | null
+          reason: string
+          region_id?: string | null
+          reset_at?: string
+          restored_at?: string | null
+          restored_by?: string | null
+          roles?: string[]
+          runs_vertical?: boolean | null
+          status?: string | null
+          team_id?: string | null
+          user_id?: string | null
+          vertical?: string | null
+          was_archived?: boolean | null
+        }
+        Update: {
+          approved?: boolean | null
+          direct_manager?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          profile_id?: string
+          rank_id?: string | null
+          reason?: string
+          region_id?: string | null
+          reset_at?: string
+          restored_at?: string | null
+          restored_by?: string | null
+          roles?: string[]
+          runs_vertical?: boolean | null
+          status?: string | null
+          team_id?: string | null
+          user_id?: string | null
+          vertical?: string | null
+          was_archived?: boolean | null
+        }
+        Relationships: []
+      }
       action_items: {
         Row: {
           assigned_to: string
