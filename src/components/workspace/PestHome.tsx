@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
+import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { cn } from '@/lib/utils';
 
 const CARD = 'rounded-[10px] border border-border bg-card p-3';
@@ -256,6 +257,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           My points
         </Button>
       )}
+
+      <InstallAppHint />
 
       {pinned && (
         <p className="text-[13px] text-muted-foreground">
