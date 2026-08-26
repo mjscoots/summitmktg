@@ -29,6 +29,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberStackView } from '@/components/money/FiberStackView';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
+import { LogSaleButton } from '@/components/sales/LogSaleButton';
 
 const CARD = 'rounded border border-border bg-card';
 
@@ -153,6 +154,8 @@ export default function MyMoneyPage() {
           title="My money"
           context="Your pay scale, season earnings, and housing. Set by your manager."
         />
+
+        {activeVertical === 'Pest' && <LogSaleButton />}
 
         <VerticalMoneyCards
           renderExtra={(vertical) =>

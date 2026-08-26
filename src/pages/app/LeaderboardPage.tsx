@@ -17,9 +17,10 @@ import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { isManagerOrAbove } from '@/lib/roles';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceLeaderboard } from '@/components/leaderboard/WorkspaceLeaderboard';
+import { SelfReportedWeek } from '@/components/leaderboard/SelfReportedWeek';
 import { PageHeader } from '@/components/layout/PageHeader';
 
-type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting' | 'hof';
+type LeaderboardTab = 'overall' | 'weekly' | 'sales' | 'streak' | 'recruiting' | 'hof';
 
 
 
@@ -41,6 +42,10 @@ export default function LeaderboardPage() {
           <Mountain className="w-3 h-3 text-success -ml-1.5" />
         </span>
       ),
+    },
+    sales: {
+      subtitle: 'Self-reported, reconciled monthly',
+      icon: <Target className="w-3.5 h-3.5 text-primary" />,
     },
     overall: {
       subtitle: 'Includes managers & rookies · All time',
@@ -68,6 +73,7 @@ export default function LeaderboardPage() {
 
   const TABS: { id: LeaderboardTab; label: string; icon: typeof Trophy }[] = [
     { id: 'weekly', label: 'This Week', icon: Calendar },
+    { id: 'sales', label: 'Sales this week', icon: Target },
     { id: 'overall', label: 'All-Time', icon: Trophy },
     { id: 'streak', label: 'Streaks', icon: Flame },
     { id: 'recruiting', label: 'Recruiting', icon: Target },
@@ -150,6 +156,7 @@ export default function LeaderboardPage() {
             )}
             {isPest && activeTab === 'overall' && <TrainingLeaderboard mode="overall" />}
             {isPest && activeTab === 'weekly' && <TrainingLeaderboard mode="weekly" />}
+            {isPest && activeTab === 'sales' && <SelfReportedWeek />}
             {isPest && activeTab === 'streak' && <StreakLeaderboard />}
             {isPest && activeTab === 'recruiting' && <RecruitingLeaderboard />}
 
