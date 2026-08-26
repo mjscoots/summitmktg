@@ -407,11 +407,11 @@ export default function ProfilePage() {
         <PageHeader title="My profile" context="Manage your account settings" className="mb-8" />
 
         {/* Avatar Section */}
-        <div className="bg-card rounded-xl border border-border/50 p-6 mb-6">
+        <div className="card-hero p-6 mb-6">
           <div className="flex items-center gap-4">
             <div className="relative">
               {isUploadingAvatar ? (
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+                <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
               ) : avatarUrl ? (
@@ -419,13 +419,13 @@ export default function ProfilePage() {
                   src={avatarUrl} 
                   alt="Profile" 
                   className={cn(
-                    "w-20 h-20 rounded-full object-cover",
+                    "w-24 h-24 rounded-full object-cover",
                     getTierBorderClass(systemPct) || "border-2 border-primary/30"
                   )}
                 />
               ) : (
                 <div className={cn(
-                  "w-20 h-20 rounded-full flex items-center justify-center",
+                  "w-24 h-24 rounded-full flex items-center justify-center",
                   isManager ? "bg-primary/15" : "bg-primary/15",
                   getTierBorderClass(systemPct)
                 )}>
@@ -449,7 +449,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-semibold text-foreground">{fullName || 'User'}</h2>
+                <h2 className="font-display text-[20px] font-extrabold text-foreground">{fullName || 'User'}</h2>
                 <TierBadge percentage={systemPct} size="sm" />
               </div>
               <div className="flex items-center gap-2 mt-1">

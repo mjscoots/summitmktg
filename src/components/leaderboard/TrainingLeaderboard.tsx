@@ -7,6 +7,8 @@ import { Trophy, Medal, Award, GraduationCap, Flame, Clock, BookOpen, Target, Cr
 import { NextRankPush } from '@/components/leaderboard/NextRankPush';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { CountUp } from '@/components/shared/CountUp';
+import { StreakChip } from '@/components/shared/StreakChip';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
@@ -26,6 +28,8 @@ const POINTS = {
 
 interface TrainingLeaderboardProps {
   mode?: 'overall' | 'weekly';
+  /** 'summit' ranks everyone; 'team' ranks the signed-in person's team only. */
+  scope?: 'summit' | 'team';
 }
 
 interface LeaderboardEntry {
@@ -70,7 +74,7 @@ const WEEKLY_BADGES: { id: string; icon: typeof Star; label: string; color: stri
   { id: 'social', icon: MessageSquare, label: 'Social', color: 'text-primary', check: (e) => (e.breakdown.chatPoints || 0) >= 200 },
 ];
 
-export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardProps) {
+export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: TrainingLeaderboardProps) {
   const { user } = useAuth();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -212,99 +216,152 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
     );
   }
 
-  // Podium only renders with a full set of 3. With 1–2 entries we must still list
-  // them, otherwise the card renders completely empty.
-  const hasPodium = entries.length >= 3;
-  const top3 = hasPodium ? entries.slice(0, 3) : [];
-  const rest = hasPodium ? entries.slice(3) : entries;
-  const rankOffset = hasPodium ? 4 : 1;
   const isWeekly = mode === 'weekly';
+  const myTeam = entries.find((e) => e.user_id === user?.id)?.teamName || null;
+  const scoped = scope === 'team' && myTeam ? entries.filter((e) => e.teamName === myTeam) : entries;
+
+  if (scoped.length === 0) {
+    return (
+      <EmptyState
+        icon={Users}
+        title="Nothing from your team yet"
+        description="Your team appears here once someone logs points."
+      />
+    );
+  }
+
+  // Equal counts share a rank.
+  const ranked: { entry: LeaderboardEntry; rank: number }[] = [];
+  scoped.forEach((entry, i) => {
+    const prev = ranked[i - 1];
+    const rank = prev && prev.entry.totalPoints === entry.totalPoints ? prev.rank : i + 1;
+    ranked.push({ entry, rank });
+  });
+
+  const leaderPoints = ranked[0]?.entry.totalPoints || 1;
+  const hasPodium = ranked.length >= 3;
+  const top3 = hasPodium ? ranked.slice(0, 3) : [];
+  const rest = hasPodium ? ranked.slice(3) : ranked;
+  const mine = ranked.find((r) => r.entry.user_id === user?.id) || null;
+
+  const PODIUM = [
+    { slot: 1, height: 'min-h-[96px]' },
+    { slot: 0, height: 'min-h-[120px]' },
+    { slot: 2, height: 'min-h-[84px]' },
+  ];
 
   return (
-    <div>
-      {/* Rank status bar removed for cleaner UX */}
-
-      {/* ===== PODIUM ===== */}
-      {top3.length >= 3 && (
-        <div className="relative px-4 pt-10 pb-6 overflow-hidden">
-          <div className="absolute inset-0 bg-yellow-500/5" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/5 rounded-full blur-[60px]" />
-          <div className="relative flex items-end justify-center gap-4">
-            <PodiumSlot entry={top3[1]} rank={2} animateIn={animateIn} delay="200ms" podiumH="h-20"
-              podiumGradient="bg-muted/40" ringColor="ring-gray-400/60"
-              medalIcon={<Medal className="w-5 h-5 text-gray-400" />} rankBg="bg-gray-400"
-              onClick={() => setSelectedEntry(top3[1])} />
-            <PodiumSlot entry={top3[0]} rank={1} animateIn={animateIn} delay="0ms" podiumH="h-28"
-              podiumGradient="bg-primary/25" ringColor="ring-yellow-500/70"
-              medalIcon={<Trophy className="w-7 h-7 text-primary" />} rankBg="bg-yellow-400"
-              isChampion onClick={() => setSelectedEntry(top3[0])} />
-            <PodiumSlot entry={top3[2]} rank={3} animateIn={animateIn} delay="400ms" podiumH="h-14"
-              podiumGradient="bg-primary/15" ringColor="ring-amber-600/60"
-              medalIcon={<Award className="w-5 h-5 text-amber-600" />} rankBg="bg-amber-500"
-              onClick={() => setSelectedEntry(top3[2])} />
+    <div className="relative">
+      {/* Podium */}
+      {hasPodium && (
+        <div className="relative overflow-hidden px-3 pt-6 pb-4">
+          <div className="absolute left-1/2 top-0 h-28 w-56 -translate-x-1/2 rounded-full bg-primary/10 blur-[60px]" />
+          <div className="relative grid grid-cols-3 items-end gap-2">
+            {PODIUM.map(({ slot, height }) => {
+              const row = top3[slot];
+              if (!row) return <div key={slot} />;
+              const first = row.rank === 1;
+              return (
+                <button
+                  key={row.entry.user_id}
+                  onClick={() => setSelectedEntry(row.entry)}
+                  className={cn(
+                    'card-ice flex flex-col items-center justify-end gap-1 px-2 pb-3 pt-3 text-center transition-transform',
+                    height,
+                    animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3',
+                    'duration-500',
+                    first && 'border-primary/40'
+                  )}
+                  style={{ transitionDelay: `${slot * 80}ms` }}
+                >
+                  <UserAvatar
+                    avatarUrl={row.entry.avatar_url}
+                    fullName={row.entry.full_name}
+                    size="lg"
+                    className={cn('!h-12 !w-12 text-sm sm:!h-14 sm:!w-14 sm:text-base', first ? 'avatar-ring' : 'ring-2 ring-border-strong')}
+                  />
+                  <span className="w-full truncate text-[12px] font-semibold text-foreground">
+                    {displayName(row.entry)}
+                  </span>
+                  <CountUp
+                    value={row.entry.totalPoints}
+                    className={cn(
+                      'block w-full truncate font-display font-extrabold leading-none text-primary',
+                      first ? 'text-[20px] tracking-tight sm:text-[40px]' : 'text-[17px] tracking-tight sm:text-[26px]'
+                    )}
+                  />
+                  <span className="text-[10px] font-semibold text-muted-foreground">#{row.rank}</span>
+                  {isWeekly && <StreakChip days={row.entry.streakDays} className="mt-0.5" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Full Leaderboard List */}
-      <div className="divide-y divide-border/30">
-        {rest.map((entry, index) => {
+      {/* Ranks 4 and down */}
+      <div className="space-y-1.5 px-3 pb-4">
+        {rest.map(({ entry, rank }, index) => {
           const isCurrentUser = entry.user_id === user?.id;
-          const rank = index + rankOffset;
+          const pct = Math.max(4, Math.round((entry.totalPoints / leaderPoints) * 100));
           const badge = getBadgeInfo(entry.weeklyBadge);
-
           return (
-            <div
+            <button
               key={entry.user_id}
               onClick={() => setSelectedEntry(entry)}
               className={cn(
-                "flex items-center gap-3 px-4 py-3.5 transition-all cursor-pointer group hover:bg-muted/20",
-                isCurrentUser && "bg-primary/5 border-l-2 border-l-primary"
+                'card-ice block w-full px-3 py-2.5 text-left transition-colors',
+                isCurrentUser && 'border-primary/60 bg-primary/5'
               )}
             >
-              <div className="w-8 flex justify-center">
-                <span className={cn("text-sm font-bold tabular-nums", rank <= 5 ? "text-foreground" : "text-muted-foreground")}>{rank}</span>
-              </div>
-              <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="sm" rank={rank} totalEntries={entries.length} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className={cn("text-sm font-semibold truncate", isCurrentUser ? "text-primary" : "text-foreground")}>
-                    {displayName(entry)}
-                    {isCurrentUser && <span className="text-xs font-normal ml-1 text-muted-foreground">(You)</span>}
-                  </p>
-                  {badge && <badge.icon className={cn('w-3.5 h-3.5 flex-shrink-0', badge.color)} />}
-                </div>
-                {isWeekly && (
-                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
-                    {entry.streakDays > 0 && (
-                      <span className="flex items-center gap-0.5">
-                        <Flame className={cn("w-3 h-3", entry.streakDays >= 14 ? "text-primary" : entry.streakDays >= 7 ? "text-primary" : entry.streakDays >= 3 ? "text-primary" : "text-muted-foreground")} /> {entry.streakDays}d
-                      </span>
+              <div className="flex items-center gap-3">
+                <span className="w-7 shrink-0 text-center font-display text-[15px] font-extrabold tabular-nums text-muted-foreground">
+                  {rank}
+                </span>
+                <UserAvatar
+                  avatarUrl={entry.avatar_url}
+                  fullName={entry.full_name}
+                  size="md"
+                  className="!h-9 !w-9"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5">
+                    <span className={cn('truncate text-[14px] font-semibold', isCurrentUser ? 'text-primary' : 'text-foreground')}>
+                      {displayName(entry)}
+                      {isCurrentUser && <span className="ml-1 text-[11px] font-normal text-muted-foreground">You</span>}
+                    </span>
+                    {badge && <badge.icon className={cn('h-3.5 w-3.5 shrink-0', badge.color)} />}
+                  </span>
+                  <span className="mt-0.5 flex items-center gap-1.5">
+                    {entry.teamName && (
+                      <span className="truncate text-[11px] text-muted-foreground">{entry.teamName}</span>
                     )}
-                    {entry.hoursThisWeek > 0 && (
-                      <span className="flex items-center gap-0.5">
-                        <Clock className="w-3 h-3 text-primary/70" /> {entry.hoursThisWeek}h
-                      </span>
-                    )}
-                    {entry.lessonsCompleted > 0 && (
-                      <span className="flex items-center gap-0.5">
-                        <BookOpen className="w-3 h-3 text-primary/60" /> {entry.lessonsCompleted}
-                      </span>
-                    )}
-                  </div>
-                )}
-                {!isWeekly && entry.teamName && (
-                  <p className="text-[10px] text-muted-foreground/60 truncate">{entry.teamName}</p>
-                )}
+                    {isWeekly && <StreakChip days={entry.streakDays} className="shrink-0" />}
+                  </span>
+                </span>
+                <span className="shrink-0 font-display text-[16px] font-extrabold tabular-nums text-foreground">
+                  {entry.totalPoints.toLocaleString()}
+                </span>
               </div>
-              <div className="text-right pl-2">
-                <span className="text-base font-black text-primary tabular-nums">{entry.totalPoints.toLocaleString()}</span>
-                <p className="text-[9px] text-muted-foreground font-medium">PTS</p>
-              </div>
-            </div>
+              <span className="rank-bar mt-2 block">
+                <span
+                  className="rank-bar-fill"
+                  style={{ width: animateIn ? `${pct}%` : '0%', transitionDelay: `${Math.min(index, 8) * 40}ms` }}
+                />
+              </span>
+            </button>
           );
         })}
       </div>
+
+      {/* Sticky own row */}
+      {mine && mine.rank > 3 && (
+        <div className="sticky bottom-0 z-10 border-t border-primary/30 bg-card/95 px-3 py-2 backdrop-blur">
+          <p className="text-[13px] font-semibold text-primary">
+            You · #{mine.rank} · {mine.entry.totalPoints.toLocaleString()}
+          </p>
+        </div>
+      )}
 
       {/* Player Card Modal */}
       <MemberProfileModal
@@ -324,40 +381,6 @@ export function TrainingLeaderboard({ mode = 'overall' }: TrainingLeaderboardPro
         onClose={() => setSelectedEntry(null)}
         roster={[]}
       />
-    </div>
-  );
-}
-
-// ── Podium slot sub-component ──
-function PodiumSlot({
-  entry, rank, animateIn, delay, podiumH, podiumGradient, ringColor, medalIcon, rankBg, isChampion, onClick
-}: {
-  entry: LeaderboardEntry; rank: number; animateIn: boolean; delay: string;
-  podiumH: string; podiumGradient: string; ringColor: string;
-  medalIcon: React.ReactNode; rankBg: string; isChampion?: boolean; onClick: () => void;
-}) {
-  return (
-    <div
-      className={cn("flex flex-col items-center transition-all duration-700", animateIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")}
-      style={{ transitionDelay: delay }}
-    >
-      <div className="relative cursor-pointer hover:scale-105 transition-transform" onClick={onClick}>
-        <div className={cn("rounded-full p-0.5", isChampion ? "bg-yellow-400" : "")}>
-          <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="lg" rank={rank} totalEntries={20}
-            className={cn("shadow-md", !isChampion && ringColor, !isChampion && "ring-2", isChampion && "ring-0 !w-16 !h-16")} />
-        </div>
-        {isChampion ? (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Crown className="w-6 h-6 text-primary drop-shadow-md" /></div>
-        ) : (
-          <div className={cn("absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm", rankBg)}>{rank}</div>
-        )}
-      </div>
-      <p className={cn("font-bold text-foreground mt-2 truncate text-center", isChampion ? "text-base max-w-[110px]" : rank === 2 ? "text-sm max-w-[90px]" : "text-[13px] max-w-[85px]")}>{displayName(entry)}</p>
-      <p className={cn("font-black text-primary tabular-nums", isChampion ? "text-xl" : "text-sm")}>{entry.totalPoints.toLocaleString()}</p>
-      <span className="text-[9px] text-muted-foreground font-semibold -mt-0.5">PTS</span>
-      <div className={cn("rounded-t-xl mt-2 border border-border/30 flex items-end justify-center pb-2", podiumH, podiumGradient, isChampion ? "w-28" : "w-22")}>
-        {medalIcon}
-      </div>
     </div>
   );
 }

@@ -881,3 +881,62 @@ body {
     transform: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 75 — chat bubbles, ranks, mission tiles
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  /* Own message: ice tint with a 40% accent hairline */
+  .bubble-own {
+    background: linear-gradient(135deg, hsl(197 100% 68% / 0.18), hsl(215 100% 56% / 0.14));
+    border: 1px solid hsl(var(--primary) / 0.4);
+    color: hsl(var(--foreground));
+  }
+
+  /* Reply quote strip above a bubble */
+  .reply-quote {
+    @apply flex items-center gap-1.5 text-[11px] text-muted-foreground;
+    border-left: 2px solid hsl(var(--primary) / 0.45);
+    padding-left: 6px;
+  }
+
+  /* Icon tile used on mission, playbook and settings cards */
+  .icon-tile {
+    @apply inline-flex items-center justify-center shrink-0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: hsl(var(--primary) / 0.16);
+    color: hsl(var(--primary));
+  }
+
+  /* Thin proportional bar under a leaderboard row */
+  .rank-bar {
+    height: 3px;
+    border-radius: 9999px;
+    background: hsl(var(--border-subtle));
+    overflow: hidden;
+  }
+  .rank-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--gradient-ice);
+    transition: width var(--motion-slow) var(--motion-ease);
+  }
+}
+
+@layer utilities {
+  .bubble-in {
+    animation: bubble-pop 180ms var(--motion-ease) both;
+  }
+  @keyframes bubble-pop {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble-in { animation: none !important; }
+  .rank-bar-fill { transition: none !important; }
+}

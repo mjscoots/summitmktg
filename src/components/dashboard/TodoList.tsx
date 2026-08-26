@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { celebrate } from '@/lib/celebrate';
 import { toast } from 'sonner';
 import { format, startOfDay, differenceInDays } from 'date-fns';
 import {
@@ -194,6 +195,7 @@ export function TodoList() {
       t.id === todo.id ? { ...t, is_completed: nowCompleting, completed_at: nowCompleting ? new Date().toISOString() : null } : t
     ));
     if (nowCompleting) {
+      void celebrate('setup');
       setJustCompleted(prev => new Set(prev).add(todo.id));
       setTimeout(() => setJustCompleted(prev => { const next = new Set(prev); next.delete(todo.id); return next; }), 1200);
     }
@@ -398,7 +400,7 @@ export function TodoList() {
           <p className="text-[11px] text-muted-foreground/50 mt-0.5">Add your first task above</p>
         </div>
       ) : (
-        <div className="space-y-1.5">
+        <div className="grid gap-2 stagger sm:grid-cols-2">
           {activeTodos.map((todo, i) => (
             <MissionTaskCard
               key={todo.id}
@@ -424,7 +426,7 @@ export function TodoList() {
             <span>Completed</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground/70">{completedTodos.length}</span>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2 space-y-1">
+          <CollapsibleContent className="mt-2 grid gap-2 sm:grid-cols-2">
             {completedTodos.map((todo, i) => (
               <MissionTaskCard
                 key={todo.id}

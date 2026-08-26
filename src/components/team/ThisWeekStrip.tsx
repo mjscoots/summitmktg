@@ -1,37 +1,40 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { useManagerWeek } from '@/hooks/useManagerWeek';
+import { CountUp } from '@/components/shared/CountUp';
 
-/** Compact team summary for the week, linking to the full My week screen. */
+/** Four stat tiles for the team's week. Tapping any tile opens My week. */
 export function ThisWeekStrip() {
   const navigate = useNavigate();
   const { totals, scope, loading } = useManagerWeek();
 
   if (loading || scope === 'none') return null;
 
-  const cells: { label: string; value: string }[] = [
-    { label: 'Team sales', value: String(totals.sales) },
-    { label: 'Training minutes', value: String(totals.training) },
-    { label: 'Event answers due', value: String(totals.openRsvps) },
-    { label: 'Need attention', value: String(totals.attention) },
+  const cells: { label: string; value: number }[] = [
+    { label: 'Team sales', value: totals.sales },
+    { label: 'Training minutes', value: totals.training },
+    { label: 'Event answers due', value: totals.openRsvps },
+    { label: 'Need attention', value: totals.attention },
   ];
 
   return (
-    <section className="rounded-[10px] border border-border bg-card p-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-foreground">This week</h2>
-        <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/week')}>
-          My week
-        </Button>
       </div>
-      <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 stagger sm:grid-cols-4">
         {cells.map((c) => (
-          <div key={c.label}>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{c.label}</dt>
-            <dd className="text-lg font-semibold tabular-nums text-foreground">{c.value}</dd>
-          </div>
+          <button
+            key={c.label}
+            onClick={() => navigate('/app/week')}
+            className="card-ice min-h-11 px-3 py-2.5 text-left"
+          >
+            <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {c.label}
+            </span>
+            <CountUp value={c.value} className="mt-0.5 block font-display text-[22px] font-extrabold text-foreground" />
+          </button>
         ))}
-      </dl>
+      </div>
     </section>
   );
 }
