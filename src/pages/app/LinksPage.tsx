@@ -374,10 +374,9 @@ export default function LinksPage() {
 
   const TABS: { id: PageTab; label: string; icon: typeof Link2 }[] = [
     { id: 'links', label: 'Links', icon: Link2 },
-    { id: 'phone-numbers', label: 'Phone Numbers', icon: Phone },
+    { id: 'phone-numbers', label: 'Phones', icon: Phone },
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
-    { id: 'pay-scales', label: 'Pay Scales', icon: DollarSign },
     { id: 'tools', label: 'Tools', icon: Wrench },
   ];
 
@@ -545,8 +544,8 @@ export default function LinksPage() {
         </div>
 
         {/* Tab toggle */}
-        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30">
-          <div className="flex">
+        <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30 overflow-x-auto scrollbar-hide">
+          <div className="flex min-w-max">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -773,7 +772,7 @@ export default function LinksPage() {
           </div>
         )}
 
-        {/* Pay Scales Tab */}
+        {/* Tools Tab */}
         {activeTab === 'tools' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
@@ -808,13 +807,6 @@ export default function LinksPage() {
           </div>
         )}
 
-        {activeTab === 'pay-scales' && (
-          <div className="text-center py-16">
-            <DollarSign className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-lg font-semibold text-foreground mb-1">Pay Scales</p>
-            <p className="text-sm text-muted-foreground">Coming soon — pay scale information will be added here.</p>
-          </div>
-        )}
       </div>
     </AppLayout>
   );
