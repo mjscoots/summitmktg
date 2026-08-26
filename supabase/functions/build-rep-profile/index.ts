@@ -77,28 +77,40 @@ async function gatherSources(admin: any, userId: string, since: string | null): 
 
   const { data: lessons } = await admin
     .from("lesson_progress")
-    .select("id, lesson_id, completed_at, training_lessons(title)")
+    .select("id, lesson_id, completed_at")
     .eq("user_id", userId)
     .gte("completed_at", gte)
     .order("completed_at", { ascending: false })
     .limit(25);
+  const lessonIds = (lessons ?? []).map((l: any) => l.lesson_id).filter(Boolean);
+  const lessonTitles = new Map<string, string>();
+  if (lessonIds.length > 0) {
+    const { data: lt } = await admin.from("training_lessons").select("id, title").in("id", lessonIds);
+    for (const row of lt ?? []) lessonTitles.set(row.id, row.title);
+  }
   for (const l of lessons ?? []) {
-    add("lesson_progress", l.id, l.completed_at, `Completed lesson: ${l.training_lessons?.title ?? l.lesson_id}`);
+    add("lesson_progress", l.id, l.completed_at, `Completed lesson: ${lessonTitles.get(l.lesson_id) ?? l.lesson_id}`);
   }
 
   const { data: rsvps } = await admin
     .from("calendar_attendance")
-    .select("id, status, present, created_at, calendar_events(title)")
+    .select("id, status, present, created_at, event_id")
     .eq("user_id", userId)
     .gte("created_at", gte)
     .order("created_at", { ascending: false })
     .limit(20);
+  const eventIds = (rsvps ?? []).map((r: any) => r.event_id).filter(Boolean);
+  const eventTitles = new Map<string, string>();
+  if (eventIds.length > 0) {
+    const { data: evs } = await admin.from("calendar_events").select("id, title").in("id", eventIds);
+    for (const row of evs ?? []) eventTitles.set(row.id, row.title);
+  }
   for (const r of rsvps ?? []) {
     add(
       "calendar_attendance",
       r.id,
       r.created_at,
-      `Event ${r.calendar_events?.title ?? "event"}: answered ${r.status ?? "no answer"}${
+      `Event ${eventTitles.get(r.event_id) ?? "event"}: answered ${r.status ?? "no answer"}${
         r.present === true ? ", present" : r.present === false ? ", absent" : ""
       }`
     );
