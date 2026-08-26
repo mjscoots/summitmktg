@@ -15,7 +15,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   const { state: access, loading: accessLoading } = useAccessState(isAuthenticated);
   const location = useLocation();
 
-  if (isLoading) {
+  if (isLoading || accessLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
