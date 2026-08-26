@@ -2055,6 +2055,57 @@ export type Database = {
         }
         Relationships: []
       }
+      invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          manager_id: string | null
+          note: string | null
+          region: string | null
+          revoked_at: string | null
+          role: string
+          team_id: string | null
+          token: string
+          used_at: string | null
+          used_by: string | null
+          vertical: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string
+          id?: string
+          manager_id?: string | null
+          note?: string | null
+          region?: string | null
+          revoked_at?: string | null
+          role?: string
+          team_id?: string | null
+          token: string
+          used_at?: string | null
+          used_by?: string | null
+          vertical?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          manager_id?: string | null
+          note?: string | null
+          region?: string | null
+          revoked_at?: string | null
+          role?: string
+          team_id?: string | null
+          token?: string
+          used_at?: string | null
+          used_by?: string | null
+          vertical?: string | null
+        }
+        Relationships: []
+      }
       ladder_rungs: {
         Row: {
           created_at: string
@@ -6651,6 +6702,10 @@ export type Database = {
         Args: { _leader: string; _vertical: string }
         Returns: number
       }
+      finalize_invite: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: undefined
+      }
       finalize_season: { Args: { _season_id: string }; Returns: undefined }
       finish_first_week: { Args: never; Returns: Json }
       first_week_json: { Args: { _target: string }; Returns: Json }
@@ -7262,6 +7317,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_preview: { Args: { p_token: string }; Returns: Json }
       is_chat_staff: { Args: { _uid: string }; Returns: boolean }
       is_course_complete: {
         Args: { _course: string; _user: string }
@@ -7491,6 +7547,7 @@ export type Database = {
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }
+      new_invite_token: { Args: never; Returns: string }
       norm_person_name: { Args: { _t: string }; Returns: string }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
       notify_chat_mentions: {
@@ -7537,6 +7594,16 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      redeem_invite: {
+        Args: {
+          p_email: string
+          p_first_name: string
+          p_last_name: string
+          p_phone: string
+          p_token: string
+        }
+        Returns: Json
       }
       region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
