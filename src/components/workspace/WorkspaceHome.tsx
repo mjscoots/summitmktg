@@ -6,6 +6,7 @@ import { useWorkspace, type Workspace } from '@/contexts/WorkspaceContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { HomeQuickCards } from '@/components/dashboard/HomeQuickCards';
 
 function startOfWeek(): string {
   const d = new Date();
