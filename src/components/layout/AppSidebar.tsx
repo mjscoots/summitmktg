@@ -95,18 +95,17 @@ export function AppSidebar() {
 
   const getBadge = (path: string) => {
     if (path === '/app/chat') return unreadChat;
-    if (path === '/app/recruits') return newLeads;
+    if (path === '/app/leads') return newLeads;
     return 0;
   };
 
-  const recruiterPaths = ['/app', '/app/recruits', '/app/chat', '/app/events', '/app/leaderboard', '/app/links'];
-  const baseNavItems = role === 'recruiter'
-    ? mainNavItems.filter((i) => recruiterPaths.includes(i.path))
-    : mainNavItems;
+  const visibleMainNavItems: NavItem[] =
+    season && activeVertical === 'Pest'
+      ? [...DESKTOP_MAIN, { key: 'season', label: 'Season', path: '/app/season', icon: CalendarClock }]
+      : DESKTOP_MAIN;
 
-  const visibleMainNavItems = season && role !== 'recruiter' && activeVertical === 'Pest'
-    ? [...baseNavItems, { label: 'Season', path: '/app/season', icon: CalendarClock }]
-    : baseNavItems;
+  const managementNavItems = manageDestinations(role);
+
 
 
   const NavButton = ({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) => (
