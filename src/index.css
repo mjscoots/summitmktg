@@ -421,7 +421,7 @@ html, body, #root {
 
   /* Input field */
   .input-field {
-    @apply w-full px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none;
+    @apply w-full min-h-12 px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none;
     border-radius: var(--radius);
     background: hsl(var(--surface-sunken));
     border: 1px solid hsl(var(--border));
