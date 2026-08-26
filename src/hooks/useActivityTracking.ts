@@ -18,6 +18,39 @@ function isContentRoute(): boolean {
   return cat === 'video' || cat === 'lesson';
 }
 
+const SECTION_LABELS: Record<string, string> = {
+  dashboard: 'Home',
+  chat: 'Chat',
+  training: 'Training',
+  team: 'Team',
+  leads: 'Leads',
+  events: 'Events',
+  calendar: 'Calendar',
+  leaderboard: 'Leaderboard',
+  'my-money': 'Money',
+  recruits: 'Recruiting',
+  forms: 'Forms',
+  profile: 'Profile',
+  links: 'Links',
+  'ask-summit': 'Ask Summit',
+  command: 'Command',
+  'war-room': 'War room',
+};
+
+/** Plain-language screen label, e.g. "Training › Objections" or "Chat". */
+function getScreenLabel(): string {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  const section = parts[0] === 'app' ? parts[1] : parts[0];
+  const base = SECTION_LABELS[section ?? ''] ?? 'Other';
+  const cat = getRouteCategory();
+  if (cat === 'video' || cat === 'lesson') {
+    const heading = document.querySelector('h1')?.textContent?.trim();
+    if (heading) return `${base} › ${heading.slice(0, 60)}`;
+  }
+  return base;
+}
+
+
 /**
  * Qualified-time activity tracker with anti-idle protection.
  *
