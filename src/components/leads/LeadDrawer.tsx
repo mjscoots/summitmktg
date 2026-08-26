@@ -160,11 +160,12 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
               <p className="mt-4 text-[12px] text-muted-foreground">
                 {lead.hold
                   ? 'On hold — this lead will not cycle.'
-                  : lead.cycles_in_days != null
-                    ? `Cycles in ${lead.cycles_in_days} day${lead.cycles_in_days === 1 ? '' : 's'} without activity.`
+                  : cyclesInDays != null
+                    ? `Cycles in ${cyclesInDays} day${cyclesInDays === 1 ? '' : 's'} without activity.`
                     : 'No designation date on file yet.'}
               </p>
             )}
+
 
             <BeforeTheyLeft
               snapshot={snapshot}
