@@ -89,10 +89,7 @@ export function useActivityTracking() {
 
       try {
         const category = getRouteCategory();
-        await (supabase.rpc as any)('record_daily_time', {
-          _user_id: user.id,
-          _category: category,
-        });
+        await (supabase.rpc as any)('record_daily_time', { _category: category });
         await supabase.rpc('update_user_activity', { _user_id: user.id });
         // Per-day minutes/screens for the person profile
         await (supabase.rpc as any)('record_activity_ping', { _minutes: 1, _screen: category });
