@@ -178,7 +178,7 @@ export default function PitchApprovalsPage() {
 
         {/* Pending */}
         <div className="mb-6">
-          <h2 className="text-sm font-bold text-foreground uppercase tracking-wide mb-3">
+          <h2 className="text-sm font-bold text-foreground tracking-wide mb-3">
             Pending ({pending.length})
           </h2>
           {pending.length === 0 ? (
@@ -239,7 +239,7 @@ export default function PitchApprovalsPage() {
         <div>
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="text-sm font-bold text-foreground uppercase tracking-wide mb-3 hover:text-primary transition-colors"
+            className="text-sm font-bold text-foreground tracking-wide mb-3 hover:text-primary transition-colors"
           >
             Approved ({approved.length}) {showHistory ? '▾' : '▸'}
           </button>

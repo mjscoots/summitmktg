@@ -261,7 +261,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
     <div className="card-elevated p-6 md:p-8">
       {/* PERSONAL INPUTS */}
       <div className="mb-8">
-        <h3 className="text-2xl font-black text-foreground uppercase tracking-wide mb-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] flex items-center gap-3">
+        <h3 className="text-2xl font-black text-foreground tracking-wide mb-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] flex items-center gap-3">
           <User className="w-7 h-7 text-primary" />
           Personal Inputs
         </h3>
@@ -269,7 +269,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
         <div>
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="w-4 h-4 text-primary" />
-            <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Revenue</h4>
+            <h4 className="text-sm font-bold text-foreground tracking-wide">Personal Revenue</h4>
           </div>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
@@ -290,7 +290,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
       {/* TEAM INPUTS */}
       <div className="mb-8">
-        <h3 className="text-2xl font-black text-foreground uppercase tracking-wide mb-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] flex items-center gap-3">
+        <h3 className="text-2xl font-black text-foreground tracking-wide mb-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] flex items-center gap-3">
           <Calculator className="w-7 h-7 text-primary" />
           Team Inputs
         </h3>
@@ -301,7 +301,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Rookies</h4>
+              <h4 className="text-sm font-bold text-foreground tracking-wide">Direct Rookies</h4>
             </div>
             <input
               type="text"
@@ -337,7 +337,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <div>
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Vets</h4>
+              <h4 className="text-sm font-bold text-foreground tracking-wide">Direct Vets</h4>
             </div>
             <p className="text-xs text-muted-foreground mb-2">Veterans with no reps.</p>
             <input
@@ -374,7 +374,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Briefcase className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Managers</h4>
+              <h4 className="text-sm font-bold text-foreground tracking-wide">Direct Managers</h4>
             </div>
             <p className="text-xs text-muted-foreground mb-2">Veterans with their own reps.</p>
             <input
@@ -412,7 +412,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
 
       {/* CALCULATION BREAKDOWN */}
       <div className="border-t border-border pt-8">
-        <h3 className="text-2xl font-black text-foreground uppercase tracking-wide mb-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] flex items-center gap-3">
+        <h3 className="text-2xl font-black text-foreground tracking-wide mb-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] flex items-center gap-3">
           <DollarSign className="w-7 h-7 text-primary" />
           Calculation Breakdown
         </h3>
@@ -533,7 +533,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
       {onApplyClick && (
         <button
           onClick={onApplyClick}
-          className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors uppercase tracking-wide"
+          className="w-full py-4 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition-colors tracking-wide"
         >
           Apply Now
         </button>

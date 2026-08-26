@@ -94,7 +94,74 @@ export const DESKTOP_MAIN: NavDest[] = [
   { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
 ];
 
-export const MANAGE_KEYS = ['team', 'leads', 'forms', 'approvals'];
+export const MANAGE_KEYS = ['team', 'week', 'leads', 'forms', 'approvals'];
+
+/** Every destination a workspace can offer, keyed for the filters below. */
+const ALL: Record<string, NavDest> = {
+  home: { key: 'home', label: 'Home', path: '/app', icon: Home },
+  learn: { key: 'learn', label: 'Learn', path: '/app/training', icon: GraduationCap },
+  chat: { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  money: { key: 'money', label: 'My money', path: '/app/money', icon: DollarSign },
+  schedule: { key: 'schedule', label: 'Schedule', path: '/app/events', icon: CalendarClock },
+  blitzes: { key: 'blitzes', label: 'Blitzes', path: '/app/events', icon: CalendarClock },
+  leaderboard: { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
+  board: { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
+  playbook: { key: 'playbook', label: 'Playbook', path: '/app/playbook', icon: FileText },
+  season: { key: 'season', label: 'Season', path: '/app/season', icon: Trophy },
+  installs: { key: 'installs', label: 'Installs', path: '/app/installs', icon: Wifi },
+  pipeline: { key: 'pipeline', label: 'Pipeline', path: '/app/pipeline', icon: ClipboardList },
+  team: { key: 'team', label: 'Team', path: '/app/team', icon: Users, minTier: 'manager' },
+  week: { key: 'week', label: 'My week', path: '/app/week', icon: CalendarClock, minTier: 'manager' },
+  leads: { key: 'leads', label: 'Leads', path: '/app/leads', icon: PhoneCall, minTier: 'manager' },
+  forms: { key: 'forms', label: 'Forms', path: '/app/forms', icon: FileText, minTier: 'manager' },
+  approvals: { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
+  admin: { key: 'admin', label: 'Admin', path: '/admin/inbox', icon: Shield, minTier: 'admin' },
+  profile: { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
+};
+
+type Workspace = 'pest' | 'fiber' | 'life';
+
+function ws(vertical: string | null | undefined): Workspace {
+  const v = (vertical || 'Pest').toLowerCase();
+  return v === 'fiber' || v === 'life' ? (v as Workspace) : 'pest';
+}
+
+/** The main group per workspace: every surface shows the same set. */
+const MAIN_KEYS: Record<Workspace, string[]> = {
+  pest: ['home', 'learn', 'chat', 'money', 'schedule', 'leaderboard', 'playbook', 'season'],
+  // Fiber Learn only appears once the Fiber training has published content.
+  fiber: ['home', 'installs', 'chat', 'money', 'blitzes', 'board'],
+  life: ['home', 'pipeline', 'chat', 'learn', 'money', 'schedule'],
+};
+
+/** The Manage group per workspace. */
+const WS_MANAGE_KEYS: Record<Workspace, string[]> = {
+  pest: ['team', 'week', 'leads', 'forms', 'approvals'],
+  fiber: ['team', 'week', 'leads'],
+  life: ['team', 'week'],
+};
+
+export function desktopMain(vertical: string | null | undefined): NavDest[] {
+  return MAIN_KEYS[ws(vertical)].map((k) => ALL[k]);
+}
+
+export function manageFor(vertical: string | null | undefined, role: string | null | undefined): NavDest[] {
+  const tier = tierOf(role);
+  return WS_MANAGE_KEYS[ws(vertical)].map((k) => ALL[k]).filter((d) => allowed(d, tier));
+}
+
+/**
+ * Every destination for a workspace and role, in one order:
+ * the main group, then Manage, then Admin and Profile.
+ */
+export function destinations(
+  vertical: string | null | undefined,
+  role: string | null | undefined
+): NavDest[] {
+  const tier = tierOf(role);
+  const tail = [ALL.admin, ALL.profile].filter((d) => allowed(d, tier));
+  return [...desktopMain(vertical), ...manageFor(vertical, role), ...tail];
+}
 
 export function manageDestinations(role: string | null | undefined): NavDest[] {
   const tier = tierOf(role);
@@ -105,20 +172,21 @@ export function manageDestinations(role: string | null | undefined): NavDest[] {
  * The phone drawer list, in the owner's order: the main destinations first,
  * then Manage, then Admin and Profile.
  */
-export function drawerDestinations(role: string | null | undefined): NavDest[] {
-  const tier = tierOf(role);
-  const main = DESKTOP_MAIN;
-  const rest = DESTINATIONS.filter(
-    (d) => !DESKTOP_MAIN_KEYS.includes(d.key) && allowed(d, tier)
-  );
-  return [...main, ...rest];
+export function drawerDestinations(
+  role: string | null | undefined,
+  vertical?: string | null
+): NavDest[] {
+  return destinations(vertical, role);
 }
 
 /** The "Go to" list in the phone sheet, in the owner's order. */
-export function sheetDestinations(role: string | null | undefined): NavDest[] {
-  const tier = tierOf(role);
-  return DESTINATIONS.filter((d) => allowed(d, tier));
+export function sheetDestinations(
+  role: string | null | undefined,
+  vertical?: string | null
+): NavDest[] {
+  return destinations(vertical, role);
 }
+
 
 export function canSeeAdmin(role: string | null | undefined): boolean {
   const tier = tierOf(role);

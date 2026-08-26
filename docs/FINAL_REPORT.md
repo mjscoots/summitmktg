@@ -1496,3 +1496,17 @@ Nothing was published.
 - Empty states now share one pattern: the three-peak mark at 40px in the muted colour, one plain sentence, one action.
 - Verified as owner at 390 and 1280: Leaderboard (week and season podium), Missions, Team, Money, Playbook, Profile, Chat — `scrollWidth - innerWidth = 0` on all. Typecheck clean, production build OK (largest chunk 211 kB).
 - One data fix: the owner profile's active workspace was left on Life by an earlier test and was set back to Pest. Preview only — not published.
+
+## Pass 76 — Mono
+
+- Wordmark rebuilt on the V3 geometry: white SUMMIT, accent "trinity" with a bright white outline over a page-colour knockout; `heroMono` for login, `compactPlain` under 36px; v2 snowcap/glow/peak variants deleted; the five app icons replaced with the mono set.
+- Palette replaced with Mono (background #0B0D12, surface #12151C, elevated #1A1E27, border #262B36 / #333A48, text #F5F7FA / #B6BDC9 / #7C8595). Token names unchanged. Primary action is white, 48px, radius 12; secondary is a 1px strong border; destructive #FF5A5F.
+- Accent ice #5AD1FF limited to trinity, links, focus rings, active tab and sidebar indicator, progress/goal rings and the leaderboard "You" row. Gradients, glow and the shine sweep removed (`.shine` is a no-op).
+- Workspaces are now visibly different: Pest dotted grid + ice, Fiber line grid + mint #3DDC97, Life light mode + blue #1E7BFF with the blue bottom bar. Textures crossfade in 200ms.
+- Type: Montserrat 800/900 headings and numbers, Inter body, sentence case. All-caps headings and button labels removed across public and app pages; only the wordmark and 11px eyebrow labels stay uppercase.
+- Navigation is workspace-aware: `desktopMain`, `manageFor` and `destinations` in `src/lib/appNav.ts` drive the sidebar, phone drawer and phone sheet with distinct Pest / Fiber / Life destinations. Sidebar is 56px collapsed / 208px open with the compact wordmark and a segmented workspace switcher.
+- Switch verified Pest → Fiber → Life → Pest three times at 390 (via the phone sheet) and 1280: bar, sidebar, header, Home, texture and accent swap together, scroll resets, no flash, overflow 0 each time.
+- Login and code screens: dark dotted grid, centred mono wordmark, "Welcome back", elevated inputs, white primary button, sign-in only with invite guidance. `/login?mode=signup` still reaches signup; auth logic untouched.
+- Life Home setup state: light hero, "Life is being set up", and Pipeline / Learn / Schedule cards with plain empty states — no invented data.
+- `docs/DESIGN_TOKENS.md` rewritten for the Mono system.
+- Verified: typecheck clean, production build clean (12.1s). Only chunk over 200 kB: `index` 209.85 kB (gzip 67.9 kB). No horizontal overflow at 390 or 1280 on Home, Leaderboard or login. RLS and auth untouched. Not published.

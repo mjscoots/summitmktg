@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Wordmark } from '@/components/brand/Wordmark';
-import { LogOut, User, Shield, CalendarClock } from 'lucide-react';
+import { LogOut, User, Shield } from 'lucide-react';
 import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
@@ -20,8 +20,9 @@ import { useUnreadChat } from '@/hooks/useUnreadChat';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { useNewLeads } from '@/hooks/useNewLeads';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
-import { WorkspaceMenu } from '@/components/workspace/WorkspaceMenu';
-import { DESKTOP_MAIN, manageDestinations, canSeeAdmin, type NavDest } from '@/lib/appNav';
+import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
+import { desktopMain, manageFor, canSeeAdmin, type NavDest } from '@/lib/appNav';
+
 
 type NavItem = NavDest;
 
@@ -48,14 +49,15 @@ export function AppSidebar() {
   const isManager = role === 'manager' || role === 'president' || isAdmin;
 
   const roleLabel = isOwner
-    ? 'OWNER'
+    ? 'Owner'
     : role === 'admin'
-      ? 'ADMIN'
+      ? 'Admin'
       : role === 'president'
-        ? `MANAGER${presidedName ? ` · ${presidedName.toUpperCase()}` : ''}`
+        ? `Manager${presidedName ? ` · ${presidedName}` : ''}`
         : isManager
-          ? 'MANAGER'
-          : 'SALES';
+          ? 'Manager'
+          : 'Sales';
+
 
   const handleSignOut = async () => {
     await signOut();
@@ -100,12 +102,13 @@ export function AppSidebar() {
     return 0;
   };
 
-  const visibleMainNavItems: NavItem[] =
-    season && activeVertical === 'Pest'
-      ? [...DESKTOP_MAIN, { key: 'season', label: 'Season', path: '/app/season', icon: CalendarClock }]
-      : DESKTOP_MAIN;
+  // Pest keeps Season only while a season exists.
+  const visibleMainNavItems: NavItem[] = desktopMain(activeVertical).filter(
+    (d) => d.key !== 'season' || (season && activeVertical === 'Pest')
+  );
 
-  const managementNavItems = manageDestinations(role);
+  const managementNavItems = manageFor(activeVertical, role);
+
 
 
 
@@ -118,38 +121,35 @@ export function AppSidebar() {
         if (isMobile) setOpenMobile(false);
       }}
       className={cn(
-        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 relative group",
+        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-200 relative group",
         active
-          ? "text-white"
-          : "text-white/60 hover:text-white hover:bg-sidebar-accent",
+          ? "text-foreground"
+          : "text-[hsl(var(--text-muted))] hover:text-foreground hover:bg-sidebar-accent",
         collapsed && "justify-center px-2"
       )}
     >
-      {/* Active indicator — accent left rule */}
+      {/* Active indicator — the workspace accent as a left rule */}
       {active && (
         <div
           className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
-          style={{ background: 'hsl(var(--sidebar-primary))' }}
+          style={{ background: 'hsl(var(--workspace-accent))' }}
         />
       )}
       {active && (
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'hsl(var(--sidebar-primary) / 0.1)', borderRadius: 'var(--radius)' }}
+          style={{ background: 'hsl(var(--workspace-accent) / 0.1)', borderRadius: 12 }}
         />
       )}
 
       <item.icon
-        className={cn(
-          "w-[18px] h-[18px] flex-shrink-0 transition-all duration-250 relative z-10",
-          active ? "text-white" : "text-white/60"
-        )}
+        className="w-[18px] h-[18px] flex-shrink-0 relative z-10"
         strokeWidth={1.75}
       />
       {!collapsed && (
         <span className={cn(
-          "text-[13px] font-medium relative z-10 transition-all duration-250",
-          active ? "font-semibold text-white" : "text-white/60"
+          "truncate text-[13px] relative z-10",
+          active ? "font-semibold" : "font-medium"
         )}>
           {item.label}
         </span>
@@ -173,24 +173,25 @@ export function AppSidebar() {
       data-tour="sidebar"
       className={cn(
         'border-r transition-all duration-300',
-        collapsed ? 'w-[52px]' : 'w-44'
+        collapsed ? 'w-[56px]' : 'w-52'
       )}
-      style={{ background: '#060A10', borderColor: 'hsl(217 44% 15%)' }}
+      style={{ background: 'hsl(var(--sidebar-background))', borderColor: 'hsl(var(--border))' }}
       collapsible="icon"
     >
-      <SidebarHeader className="px-3 pt-4 pb-4">
+      <SidebarHeader className="px-3 pt-4 pb-3 gap-2">
         <button
-          className="flex items-center gap-2.5 cursor-pointer rounded-lg px-1 py-1 transition-all duration-250 hover:bg-white/5 active:scale-95"
+          className="flex items-center gap-2.5 cursor-pointer rounded-lg px-1 py-1 transition-colors hover:bg-foreground/5"
           onClick={() => navigate('/app')}
         >
           {collapsed ? (
-            <Wordmark variant="mark" height={28} />
+            <Wordmark variant="mark" height={26} />
           ) : (
             <Wordmark variant="compact" height={32} />
           )}
         </button>
-        <WorkspaceMenu collapsed={collapsed} />
+        <WorkspaceSegmented collapsed={collapsed} />
       </SidebarHeader>
+
 
       <SidebarContent className="px-2 py-1 flex flex-col flex-1">
         {/* Main nav */}
@@ -209,12 +210,11 @@ export function AppSidebar() {
         {/* Manage (Manager tier and up) */}
         {managementNavItems.length > 0 && (
           <SidebarGroup className="mt-3">
-            <Separator className="mb-2" style={{ background: 'hsl(217 44% 15% / 0.5)' }} />
+            <Separator className="mb-2" style={{ background: 'hsl(var(--border))' }} />
             {!collapsed && (
-              <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white/35">
-                Manage
-              </p>
+              <p className="eyebrow px-3 pb-1.5">Manage</p>
             )}
+
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0.5">
                 {managementNavItems.map((item) => (
@@ -239,16 +239,19 @@ export function AppSidebar() {
                   <button
                     onClick={() => { navigate('/admin/inbox'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors duration-200 relative group",
-                      isActive('/admin') ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-sidebar-accent",
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors duration-200 relative group",
+                      isActive('/admin')
+                        ? "text-foreground"
+                        : "text-[hsl(var(--text-muted))] hover:text-foreground hover:bg-sidebar-accent",
                       collapsed && "justify-center px-2"
                     )}
                   >
                     {isActive('/admin') && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(var(--sidebar-primary))' }} />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(var(--workspace-accent))' }} />
                     )}
-                    <Shield className={cn("w-4 h-4 flex-shrink-0", isActive('/admin') ? "text-white" : "text-white/40")} strokeWidth={2} />
+                    <Shield className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
                     {!collapsed && <span className="text-[12px] font-medium">Admin</span>}
+
                     {adminCounts.total > 0 && (
                       <span className={cn(
                         "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold leading-none",
@@ -267,13 +270,13 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Footer — Profile */}
-      <SidebarFooter className="p-2" style={{ borderTop: '1px solid hsl(217 44% 15% / 0.5)' }}>
+      <SidebarFooter className="p-2" style={{ borderTop: '1px solid hsl(var(--border))' }}>
         <div
           data-tour="profile"
           onClick={() => { navigate('/app/profile'); if (isMobile) setOpenMobile(false); }}
           className={cn(
-            "flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-all duration-250",
-            "hover:bg-white/5 group",
+            "flex items-center gap-2.5 p-2 rounded-xl cursor-pointer transition-colors",
+            "hover:bg-foreground/5 group",
             collapsed ? "justify-center" : ""
           )}
         >
@@ -281,35 +284,38 @@ export function AppSidebar() {
             <img
               src={profile.avatar_url}
               alt="Avatar"
-              className="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-white/10 group-hover:ring-white/20 transition-all duration-300"
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+              style={{ border: '1px solid hsl(var(--border-strong))' }}
             />
           ) : (
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-white/10 group-hover:ring-white/20 transition-all duration-300"
-              style={{ background: 'hsl(216 89% 53%)' }}
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: 'hsl(var(--surface-elevated))', border: '1px solid hsl(var(--border-strong))' }}
             >
-              <User className="w-3.5 h-3.5 text-white" strokeWidth={1.75} />
+              <User className="w-3.5 h-3.5 text-foreground" strokeWidth={1.75} />
             </div>
           )}
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-white truncate leading-tight">
+              <p className="text-xs font-semibold text-foreground truncate leading-tight">
                 {profile?.full_name?.split(' ')[0] || 'User'}
               </p>
-              <p className="text-[9px] uppercase tracking-widest font-bold leading-tight mt-0.5 text-primary/70">
+              <p className="text-[11px] leading-tight mt-0.5 text-[hsl(var(--text-muted))]">
                 {roleLabel}
               </p>
             </div>
           )}
         </div>
 
+
         <button
           onClick={handleSignOut}
           className={cn(
-            "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-250",
-            "text-white/40 hover:text-white hover:bg-white/5",
+            "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl transition-colors",
+            "text-[hsl(var(--text-muted))] hover:text-foreground hover:bg-foreground/5",
             collapsed ? "justify-center" : ""
           )}
+
         >
           <LogOut className="w-4 h-4" strokeWidth={1.75} />
           {!collapsed && <span className="text-xs">Log out</span>}

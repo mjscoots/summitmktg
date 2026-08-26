@@ -93,7 +93,7 @@ export function CommandCenterHeader() {
       <div className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden workspace-texture">
         <div className="flex items-start justify-between relative z-10">
           <div>
-            <h1 className="text-xl font-black uppercase tracking-tight text-foreground leading-tight">
+            <h1 className="text-xl font-black tracking-tight text-foreground leading-tight">
               Welcome back, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">

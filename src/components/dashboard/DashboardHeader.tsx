@@ -45,7 +45,7 @@ export function DashboardHeader() {
               className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors"
             >
               <Mountain className="w-5 h-5 text-primary" />
-              <span className="text-lg font-black tracking-tight uppercase" style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}>
+              <span className="text-lg font-black tracking-tight" style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}>
                 Summit
               </span>
             </button>

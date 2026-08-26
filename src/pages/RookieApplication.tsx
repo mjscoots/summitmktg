@@ -249,7 +249,7 @@ const RookieApplication = () => {
 
         {/* Why Different Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.15s" }}>
-          <h2 className="text-2xl font-bold text-foreground mb-6 text-center uppercase tracking-wide">
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center tracking-wide">
             Why This Is Different
           </h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -279,7 +279,7 @@ const RookieApplication = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Mountain className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl md:text-4xl font-black text-primary uppercase tracking-wide">
+              <h2 className="text-3xl md:text-4xl font-black text-primary tracking-wide">
                 Ready to Run Your First Summer?
               </h2>
               <Mountain className="w-6 h-6 text-primary" />
@@ -386,7 +386,7 @@ const RookieApplication = () => {
             <div className="flex justify-end">
               <button 
                 type="submit" 
-                className="btn-primary uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isFormComplete() || isSubmitting}
               >
                 {isSubmitting ? (

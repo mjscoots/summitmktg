@@ -144,7 +144,7 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
               "w-5 h-5",
               isComplete ? "text-success" : "text-primary"
             )} />
-            <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+            <span className="text-sm font-bold tracking-wider text-foreground">
               Total Training Progress
             </span>
           </div>

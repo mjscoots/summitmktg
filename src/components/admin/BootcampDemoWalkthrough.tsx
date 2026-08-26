@@ -13,7 +13,7 @@ const DEMO_SCREENS = [
     render: () => (
       <div className="bg-black rounded-xl p-6 text-center space-y-4 max-h-[60vh] overflow-y-auto">
         <Lock className="w-10 h-10 text-white/60 mx-auto" />
-        <h2 className="text-xl font-black text-white tracking-tight">SUMMER CHECKLIST REQUIRED</h2>
+        <h2 className="text-xl font-black text-white tracking-tight">Summer checklist required</h2>
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
           <p className="text-primary text-sm font-semibold">You must complete the Summer Checklist before you can access the app.</p>
         </div>
@@ -37,7 +37,7 @@ const DEMO_SCREENS = [
             </div>
           ))}
         </div>
-        <div className="bg-white text-black font-black text-base py-3 rounded-lg">START NOW</div>
+        <div className="bg-white text-black font-black text-base py-3 rounded-lg">Start now</div>
       </div>
     ),
   },
@@ -112,7 +112,7 @@ const DEMO_SCREENS = [
               <Video className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">SUNBLOCK</h2>
+              <h2 className="text-lg font-black text-white">Sunblock</h2>
               <p className="text-white/40 text-xs uppercase tracking-wider">Step 8 of 10</p>
             </div>
           </div>
@@ -148,7 +148,7 @@ const DEMO_SCREENS = [
               <Video className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">MOTIVATION</h2>
+              <h2 className="text-lg font-black text-white">Motivation</h2>
               <p className="text-white/40 text-xs uppercase tracking-wider">Step 9 of 10</p>
             </div>
           </div>
@@ -184,7 +184,7 @@ const DEMO_SCREENS = [
               <FileText className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">FINAL COMMITMENT</h2>
+              <h2 className="text-lg font-black text-white">Final commitment</h2>
               <p className="text-white/40 text-xs uppercase tracking-wider">Step 10 of 10</p>
             </div>
           </div>
@@ -222,7 +222,7 @@ const DEMO_SCREENS = [
               </div>
             </div>
           </div>
-          <div className="mt-4 bg-white/20 text-white font-black text-sm py-2.5 rounded-lg text-center">COMPLETE CHECKLIST</div>
+          <div className="mt-4 bg-white/20 text-white font-black text-sm py-2.5 rounded-lg text-center">Complete checklist</div>
         </div>
       </div>
     ),

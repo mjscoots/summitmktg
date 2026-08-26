@@ -129,7 +129,7 @@ export function FiberEarningsPanel() {
 
       <div className="mb-8">
         <div className="mb-3 flex items-baseline justify-between">
-          <label className="text-sm font-bold uppercase tracking-wide text-foreground">Installs per week</label>
+          <label className="text-sm font-bold tracking-wide text-foreground">Installs per week</label>
           <span className="text-2xl font-extrabold tabular-nums text-foreground">{installsPerWeek}</span>
         </div>
         <Slider
@@ -143,7 +143,7 @@ export function FiberEarningsPanel() {
 
       <div className="mb-8">
         <div className="mb-3 flex items-baseline justify-between">
-          <label className="text-sm font-bold uppercase tracking-wide text-foreground">Weeks worked</label>
+          <label className="text-sm font-bold tracking-wide text-foreground">Weeks worked</label>
           <span className="text-2xl font-extrabold tabular-nums text-foreground">{weeks}</span>
         </div>
         <Slider value={[weeks]} onValueChange={(v) => setWeeks(v[0])} min={1} max={30} step={1} />

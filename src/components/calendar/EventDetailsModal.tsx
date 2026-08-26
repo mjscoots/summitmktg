@@ -148,7 +148,7 @@ export function EventDetailsModal({
     };
     const s = styles[category] || styles.optional;
     return (
-      <span className={cn('text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider', s.class)}>
+      <span className={cn('text-[10px] font-black px-2.5 py-1 rounded-full tracking-wider', s.class)}>
         {s.label}
       </span>
     );
@@ -248,7 +248,7 @@ export function EventDetailsModal({
           {/* ═══ Behavioral Reinforcement Section ═══ */}
           {isMandatory && (
             <div className="rounded-lg border border-primary/20 bg-primary/[0.03] p-4">
-              <h4 className="text-xs font-black text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <h4 className="text-xs font-black text-foreground tracking-wider mb-3 flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 text-primary" />
                 Attending this event increases:
               </h4>

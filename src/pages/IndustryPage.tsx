@@ -68,11 +68,11 @@ export default function IndustryPage() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 text-foreground/80 hover:text-foreground transition-colors">
             <Wordmark variant="compact" height={28} />
-            <span className="text-lg font-black tracking-tight uppercase">Summit</span>
+            <span className="text-lg font-black tracking-tight">Summit</span>
           </Link>
           <button
             onClick={() => navigate('/login')}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/60 px-4 text-sm font-bold tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary"
           >
             <LogIn className="w-4 h-4" /> Log in
           </button>
@@ -84,7 +84,7 @@ export default function IndustryPage() {
           <ArrowLeft className="w-3.5 h-3.5" /> All industries
         </Link>
 
-        <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-foreground mb-4">
+        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground mb-4">
           {data?.label || vertical}
         </h1>
 
@@ -165,7 +165,7 @@ export default function IndustryPage() {
             <section className="pt-2">
               <Link
                 to={`/apply/rookie?vertical=${vertical}`}
-                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]"
+                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold tracking-wider text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(46_65%_52%_/_0.6)]"
               >
                 Apply <ArrowRight className="w-4 h-4" />
               </Link>

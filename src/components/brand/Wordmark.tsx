@@ -1,10 +1,6 @@
 import { memo } from "react";
-import heroV2 from "@/assets/brand/hero-v2.svg";
-import heroV2Fiber from "@/assets/brand/hero-v2-fiber.svg";
-import heroV2Life from "@/assets/brand/hero-v2-life.svg";
-import fullV2 from "@/assets/brand/full-v2.svg";
 
-// Path data copied verbatim from the brand SVGs. Do not redraw.
+// Path data copied verbatim from hero-v3.svg and compact-v3.svg. Do not redraw.
 const SUMMIT_D =
   "M45.43 2.29Q32.86 2.29 21.14 -0.57Q9.43 -3.43 1.86 -8L12.71 -32.57Q19.86 -28.43 28.64 -25.93Q37.43 -23.43 45.71 -23.43Q50.57 -23.43 53.36 -24.07Q56.14 -24.71 57.43 -25.93Q58.71 -27.14 58.71 -28.86Q58.71 -31.57 55.71 -33.14Q52.71 -34.71 47.79 -35.79Q42.86 -36.86 37 -38.07Q31.14 -39.29 25.21 -41.29Q19.29 -43.29 14.36 -46.57Q9.43 -49.86 6.43 -55.21Q3.43 -60.57 3.43 -68.57Q3.43 -77.86 8.64 -85.5Q13.86 -93.14 24.21 -97.71Q34.57 -102.29 50 -102.29Q60.14 -102.29 70 -100.14Q79.86 -98 87.71 -93.57L77.57 -69.14Q70.14 -72.86 63.21 -74.71Q56.29 -76.57 49.71 -76.57Q44.86 -76.57 42 -75.71Q39.14 -74.86 37.93 -73.43Q36.71 -72 36.71 -70.29Q36.71 -67.71 39.71 -66.21Q42.71 -64.71 47.64 -63.71Q52.57 -62.71 58.5 -61.57Q64.43 -60.43 70.29 -58.43Q76.14 -56.43 81.07 -53.14Q86 -49.86 89 -44.57Q92 -39.29 92 -31.43Q92 -22.29 86.79 -14.64Q81.57 -7 71.29 -2.36Q61 2.29 45.43 2.29Z M146.29 2.29Q123.29 2.29 110.43 -10.14Q97.57 -22.57 97.57 -45V-100H131.29V-46Q131.29 -34.57 135.43 -29.79Q139.57 -25 146.57 -25Q153.71 -25 157.79 -29.79Q161.86 -34.57 161.86 -46V-100H195V-45Q195 -22.57 182.14 -10.14Q169.29 2.29 146.29 2.29Z M206.86 0V-100H234.57L274.57 -34.71H260L298.86 -100H326.57L326.86 0H296.14L295.86 -53.71H300.71L274.14 -9H259.29L231.57 -53.71H237.57V0Z M339.57 0V-100H367.29L407.29 -34.71H392.71L431.57 -100H459.29L459.57 0H428.86L428.57 -53.71H433.43L406.86 -9H392L364.29 -53.71H370.29V0Z M472.29 0V-100H506V0Z M540.43 0V-73.86H511.14V-100H603.43V-73.86H574.14V0Z";
 
@@ -14,62 +10,59 @@ const TRINITY_D =
 const TRINITY_COMPACT_D =
   "M460.69 30.62Q458.35 30.62 457.05 28.77Q455.75 26.91 456.64 22.8L462.33 -2.02Q462.54 -3.05 461.51 -3.05H458.9Q457.94 -3.05 457.94 -3.94Q457.94 -4.42 458.29 -4.7Q458.63 -4.97 459.11 -4.97H461.58Q463.15 -4.97 463.43 -6.41L465.07 -13.75Q465.28 -14.5 466.03 -14.5H468.85Q469.81 -14.5 469.6 -13.61L467.89 -6Q467.68 -4.97 468.71 -4.97H472.62Q473.78 -4.97 473.78 -4.08Q473.78 -3.05 472.34 -3.05H468.64Q467.13 -3.05 466.79 -1.61L461.03 23.49Q460.69 24.99 461.13 25.85Q461.58 26.71 462.67 26.71Q464.25 26.71 465.59 24.93Q466.93 23.14 468.43 18.14Q468.71 17.25 469.33 17.25Q469.81 17.25 469.94 17.66Q470.08 18.07 469.74 19.17Q468.43 23.83 466.89 26.3Q465.35 28.77 463.77 29.69Q462.19 30.62 460.69 30.62Z M476.73 30Q475.77 30 475.98 29.11L482.49 1.75Q482.83 0.24 482.59 -0.62Q482.35 -1.47 481.33 -1.47Q480.09 -1.47 478.62 0.34Q477.14 2.16 475.29 7.23Q475.02 8.13 474.33 8.13Q473.3 8.13 473.78 6.89Q475.29 2.16 476.97 -0.51Q478.65 -3.19 480.37 -4.29Q482.08 -5.38 483.52 -5.38Q485.78 -5.38 486.74 -3.7Q487.7 -2.02 486.81 1.82L486.06 5.04Q485.99 5.52 486.26 5.59Q486.54 5.66 486.74 5.25Q489.35 -0.72 491.47 -3.05Q493.6 -5.38 496.34 -5.38Q498.19 -5.38 499.12 -4.39Q500.05 -3.39 500.05 -1.68Q500.05 0.03 499.22 1.06Q498.4 2.09 497.1 2.09Q496 2.09 495.52 1.54Q495.04 0.99 494.8 0.27Q494.56 -0.45 494.29 -0.99Q494.01 -1.54 493.39 -1.54Q492.37 -1.54 490.72 1.06Q489.07 3.67 487.19 8.09Q485.3 12.51 483.55 18Q481.81 23.49 480.5 29.25Q480.3 30 479.54 30Z M511.57 -11.49Q510.26 -11.49 509.41 -12.41Q508.55 -13.34 508.55 -14.64Q508.55 -16.49 509.68 -17.59Q510.81 -18.69 512.25 -18.69Q513.62 -18.69 514.55 -17.83Q515.47 -16.97 515.47 -15.6Q515.47 -13.68 514.31 -12.58Q513.14 -11.49 511.57 -11.49ZM505.94 30.69Q503.68 30.69 502.72 29.01Q501.76 27.33 502.65 23.49L507.73 1.75Q508.07 0.24 507.83 -0.62Q507.59 -1.47 506.56 -1.47Q505.33 -1.47 503.85 0.34Q502.38 2.16 500.53 7.23Q500.25 8.13 499.57 8.13Q498.54 8.13 499.02 6.89Q500.53 2.16 502.21 -0.51Q503.89 -3.19 505.6 -4.29Q507.31 -5.38 508.75 -5.38Q511.15 -5.38 512.11 -3.7Q513.07 -2.02 512.18 1.82L507.11 23.55Q506.77 25.06 507.01 25.92Q507.25 26.78 508.27 26.78Q509.51 26.78 510.98 24.96Q512.46 23.14 514.31 18.07Q514.58 17.18 515.27 17.18Q516.3 17.18 515.82 18.41Q514.38 23.07 512.63 25.78Q510.88 28.49 509.17 29.59Q507.45 30.69 505.94 30.69Z M520.96 29.11 527.47 1.75Q527.82 0.24 527.58 -0.62Q527.34 -1.47 526.31 -1.47Q525.07 -1.47 523.6 0.34Q522.13 2.16 520.27 7.23Q520 8.13 519.31 8.13Q518.29 8.13 518.77 6.89Q520.27 2.16 521.95 -0.51Q523.63 -3.19 525.35 -4.29Q527.06 -5.38 528.5 -5.38Q530.77 -5.38 531.73 -3.7Q532.69 -2.02 531.79 1.82L530.08 9.22Q530.01 9.7 530.29 9.77Q530.56 9.84 530.77 9.43Q533.44 3.87 535.91 0.62Q538.38 -2.64 540.57 -4.01Q542.77 -5.38 544.55 -5.38Q547.09 -5.38 548.25 -3.33Q549.42 -1.27 548.25 2.98L543.04 22.87Q542.56 24.79 542.97 25.75Q543.38 26.71 544.48 26.71Q545.85 26.71 547.19 24.89Q548.53 23.07 549.97 18Q550.17 17.25 550.86 17.25Q551.41 17.25 551.51 17.66Q551.61 18.07 551.47 18.62Q550.17 23.28 548.66 25.92Q547.15 28.56 545.61 29.59Q544.07 30.62 542.49 30.62Q540.02 30.62 538.79 28.56Q537.55 26.5 538.65 22.18L543.93 2.3Q544.69 -0.38 544.17 -1.41Q543.66 -2.43 542.7 -2.43Q541.19 -2.43 539.27 -0.55Q537.35 1.34 535.36 4.59Q533.37 7.85 531.45 11.97Q529.53 16.08 527.99 20.54Q526.45 24.99 525.49 29.25Q525.28 30 524.53 30H521.71Q520.75 30 520.96 29.11Z M567.04 -11.49Q565.74 -11.49 564.88 -12.41Q564.02 -13.34 564.02 -14.64Q564.02 -16.49 565.15 -17.59Q566.29 -18.69 567.73 -18.69Q569.1 -18.69 570.02 -17.83Q570.95 -16.97 570.95 -15.6Q570.95 -13.68 569.78 -12.58Q568.62 -11.49 567.04 -11.49ZM561.42 30.69Q559.15 30.69 558.19 29.01Q557.23 27.33 558.13 23.49L563.2 1.75Q563.54 0.24 563.3 -0.62Q563.06 -1.47 562.03 -1.47Q560.8 -1.47 559.33 0.34Q557.85 2.16 556 7.23Q555.73 8.13 555.04 8.13Q554.01 8.13 554.49 6.89Q556 2.16 557.68 -0.51Q559.36 -3.19 561.07 -4.29Q562.79 -5.38 564.23 -5.38Q566.63 -5.38 567.59 -3.7Q568.55 -2.02 567.66 1.82L562.58 23.55Q562.24 25.06 562.48 25.92Q562.72 26.78 563.75 26.78Q564.98 26.78 566.46 24.96Q567.93 23.14 569.78 18.07Q570.06 17.18 570.74 17.18Q571.77 17.18 571.29 18.41Q569.85 23.07 568.1 25.78Q566.35 28.49 564.64 29.59Q562.93 30.69 561.42 30.69Z M579.79 30.62Q577.46 30.62 576.16 28.77Q574.86 26.91 575.75 22.8L581.44 -2.02Q581.65 -3.05 580.62 -3.05H578.01Q577.05 -3.05 577.05 -3.94Q577.05 -4.42 577.39 -4.7Q577.74 -4.97 578.22 -4.97H580.69Q582.26 -4.97 582.54 -6.41L584.18 -13.75Q584.39 -14.5 585.14 -14.5H587.95Q588.91 -14.5 588.71 -13.61L586.99 -6Q586.79 -4.97 587.82 -4.97H591.73Q592.89 -4.97 592.89 -4.08Q592.89 -3.05 591.45 -3.05H587.75Q586.24 -3.05 585.9 -1.61L580.14 23.49Q579.79 24.99 580.24 25.85Q580.69 26.71 581.78 26.71Q583.36 26.71 584.7 24.93Q586.03 23.14 587.54 18.14Q587.82 17.25 588.43 17.25Q588.91 17.25 589.05 17.66Q589.19 18.07 588.85 19.17Q587.54 23.83 586 26.3Q584.46 28.77 582.88 29.69Q581.3 30.62 579.79 30.62Z M589.6 44.74Q586.99 44.74 585.55 43.41Q584.11 42.07 584.11 40.15Q584.11 38.71 584.87 37.99Q585.62 37.27 586.51 37.27Q587.82 37.27 588.37 37.95Q588.91 38.64 589.19 39.57Q589.46 40.49 590.05 41.18Q590.63 41.86 591.93 41.86Q594.47 41.86 596.94 39.84Q599.41 37.82 600.98 34.29Q602.56 30.75 602.35 26.37L601.33 1.75Q601.26 -0.03 600.71 -0.75Q600.16 -1.47 599.34 -1.47Q597.83 -1.47 596.46 0.34Q595.09 2.16 594.19 7.23Q593.99 8.13 593.3 8.13Q592.34 8.13 592.55 6.89Q593.37 2.16 594.85 -0.51Q596.32 -3.19 598 -4.29Q599.68 -5.38 601.12 -5.38Q603.25 -5.38 604.48 -3.91Q605.71 -2.43 605.85 1.13L606.81 27.46Q606.81 27.94 607.12 28.05Q607.43 28.15 607.7 27.74Q610.1 24.38 612.06 20.78Q614.01 17.18 615.18 13.68Q616.34 10.18 616.34 7.23Q616.34 4.35 615.73 2.67Q615.11 0.99 614.46 -0.17Q613.81 -1.34 613.81 -2.71Q613.81 -5.38 616.14 -5.38Q619.43 -5.38 619.43 1.89Q619.43 5.86 618.06 10.56Q616.69 15.26 614.32 20.09Q611.95 24.93 608.9 29.31Q605.85 33.7 602.53 37.2Q599.2 40.7 595.87 42.72Q592.55 44.74 589.6 44.74Z";
 
-type Peak = { d: string; accent: boolean };
-
-const STACKED_PEAKS: Peak[] = [
-  { d: "M230.89 -132.29 L266.09 -174.29 L266.09 -132.29 Z", accent: false },
-  { d: "M266.09 -174.29 L310.89 -132.29 L266.09 -132.29 Z", accent: true },
-  { d: "M262.89 -132.29 L310.89 -232.29 L310.89 -132.29 Z", accent: false },
-  { d: "M310.89 -232.29 L358.89 -132.29 L310.89 -132.29 Z", accent: true },
-  { d: "M310.89 -132.29 L355.69 -194.29 L355.69 -132.29 Z", accent: false },
-  { d: "M355.69 -194.29 L390.89 -132.29 L355.69 -132.29 Z", accent: true },
-];
-
-const MARK_PEAKS: Peak[] = [
-  { d: "M15.36 204.8 L64.92 140.29 L64.92 204.8 Z", accent: false },
-  { d: "M64.92 140.29 L128 204.8 L64.92 204.8 Z", accent: true },
-  { d: "M60.42 204.8 L128 51.2 L128 204.8 Z", accent: false },
-  { d: "M128 51.2 L195.58 204.8 L128 204.8 Z", accent: true },
-  { d: "M128 204.8 L191.08 109.57 L191.08 204.8 Z", accent: false },
-  { d: "M191.08 109.57 L240.64 204.8 L191.08 204.8 Z", accent: true },
-];
+const MARK_D =
+  "M15.36 204.8 L64.92 140.29 L128 204.8 Z M60.42 204.8 L128 51.2 L195.58 204.8 Z M128 204.8 L191.08 109.57 L240.64 204.8 Z";
 
 export type WordmarkVariant =
-  | "full"
-  | "compact"
-  | "stacked"
   | "hero"
-  | "heroFiber"
-  | "heroLife"
+  | "heroMono"
+  | "compact"
+  | "compactPlain"
+  | "mark"
+  // Retained names so existing chrome keeps compiling; they resolve to the V3 art.
+  | "full"
   | "fullV2"
-  | "mark";
-
-/**
- * Pass 72 logo art. The four V2 files carry their own peaks, ice gradient and
- * glow, so they render as images and stay out of the JS bundle. Compact, mark
- * and stacked keep the CSS-variable knockout for chrome that must re-theme.
- */
-const V2_ART: Partial<Record<WordmarkVariant, { src: string; ratio: number }>> = {
-  hero: { src: heroV2, ratio: 698.07 / 303.84 },
-  heroFiber: { src: heroV2Fiber, ratio: 698.07 / 303.84 },
-  heroLife: { src: heroV2Life, ratio: 698.07 / 303.84 },
-  fullV2: { src: fullV2, ratio: 698.07 / 233.84 },
-};
+  | "stacked"
+  | "heroFiber"
+  | "heroLife";
 
 type Geometry = {
   viewBox: string;
   width: number;
   height: number;
   trinity: string;
-  strokeWidth: number;
-  peaks?: Peak[];
+  knockout: number;
+  outline: number;
 };
 
-const GEOMETRY: Partial<Record<WordmarkVariant, Geometry>> = {
-  full: { viewBox: "-20.14 -124.29 662.07 187.84", width: 662.07, height: 187.84, trinity: TRINITY_D, strokeWidth: 13 },
-  compact: { viewBox: "-4.14 -108.29 636.57 166.03", width: 636.57, height: 166.03, trinity: TRINITY_COMPACT_D, strokeWidth: 14 },
-  stacked: { viewBox: "-33.14 -267.29 688.07 343.84", width: 688.07, height: 343.84, trinity: TRINITY_D, strokeWidth: 13, peaks: STACKED_PEAKS },
-  mark: { viewBox: "0 0 256 256", width: 256, height: 256, trinity: "", strokeWidth: 0, peaks: MARK_PEAKS },
+const HERO: Geometry = {
+  viewBox: "-43.14 -152.29 708.07 243.84",
+  width: 708.07,
+  height: 243.84,
+  trinity: TRINITY_D,
+  knockout: 18,
+  outline: 11,
+};
+
+const COMPACT: Geometry = {
+  viewBox: "-4.14 -108.29 635.57 165.03",
+  width: 635.57,
+  height: 165.03,
+  trinity: TRINITY_COMPACT_D,
+  knockout: 12,
+  outline: 7,
+};
+
+const GEOMETRY: Record<Exclude<WordmarkVariant, "mark">, Geometry> = {
+  hero: HERO,
+  heroMono: HERO,
+  heroFiber: HERO,
+  heroLife: HERO,
+  full: HERO,
+  fullV2: HERO,
+  stacked: HERO,
+  compact: COMPACT,
+  compactPlain: COMPACT,
 };
 
 interface WordmarkProps {
@@ -79,62 +72,66 @@ interface WordmarkProps {
   className?: string;
 }
 
-const WordmarkBase = ({ variant = "full", height = 32, className }: WordmarkProps) => {
+/**
+ * Pass 76 — logo V3. SUMMIT is pure white (currentColor); "trinity" is filled
+ * with the workspace accent and carries a bright white outline over a
+ * page-colour knockout. No glow, no gradient, no peaks.
+ *
+ * compactPlain drops the outline: below 36px the outline gets muddy.
+ * heroMono is the all-white login lockup.
+ */
+const WordmarkBase = ({ variant = "hero", height = 32, className }: WordmarkProps) => {
   const renderedHeight = Math.max(height, 12);
-  const art = V2_ART[variant];
 
-  if (art) {
+  if (variant === "mark") {
+    const size = renderedHeight;
     return (
-      <img
-        src={art.src}
-        alt="Summit"
-        height={renderedHeight}
-        width={Math.round(art.ratio * renderedHeight)}
-        className={className}
-        style={{ display: "block", maxHeight: renderedHeight, height: "auto", width: "auto", maxWidth: "100%" }}
-      />
+      <svg role="img" aria-label="Summit" viewBox="0 0 256 256" width={size} height={size} className={className} style={{ display: "block" }}>
+        <title>Summit</title>
+        <path d={MARK_D} fill="currentColor" />
+      </svg>
     );
   }
 
-  const geo = GEOMETRY[variant] ?? GEOMETRY.full!;
+  const geo = GEOMETRY[variant];
   const width = Math.round((geo.width / geo.height) * renderedHeight);
+  const mono = variant === "heroMono";
+  const plain = variant === "compactPlain";
 
   return (
     <svg
       role="img"
-      aria-label="Summit"
+      aria-label="Summit Trinity"
       viewBox={geo.viewBox}
       width={width}
       height={renderedHeight}
       className={className}
-      style={{ display: "block", color: "var(--wordmark-letters, currentColor)" }}
+      style={{ display: "block", color: mono ? "#FFFFFF" : "var(--wordmark-letters, currentColor)" }}
     >
-      <title>Summit</title>
-      {geo.peaks?.map((peak, index) => (
+      <title>Summit Trinity</title>
+      <path d={SUMMIT_D} fill="currentColor" />
+      <path
+        d={geo.trinity}
+        fill={mono ? "#0B0D12" : "var(--wordmark-bg, #0B0D12)"}
+        stroke={mono ? "#0B0D12" : "var(--wordmark-bg, #0B0D12)"}
+        strokeWidth={geo.knockout}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      {!plain && (
         <path
-          key={`peak-${index}`}
-          d={peak.d}
-          fill={peak.accent ? "var(--wordmark-accent, #5AD1FF)" : "currentColor"}
+          d={geo.trinity}
+          fill={mono ? "#FFFFFF" : "var(--wordmark-outline, #FFFFFF)"}
+          stroke={mono ? "#FFFFFF" : "var(--wordmark-outline, #FFFFFF)"}
+          strokeWidth={geo.outline}
+          strokeLinejoin="round"
+          strokeLinecap="round"
         />
-      ))}
-      {variant !== "mark" && (
-        <>
-          <path d={SUMMIT_D} fill="currentColor" />
-          <path
-            d={geo.trinity}
-            fill="var(--wordmark-bg, #0A1630)"
-            stroke="var(--wordmark-bg, #0A1630)"
-            strokeWidth={geo.strokeWidth}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-          <path d={geo.trinity} fill="var(--wordmark-accent, #5AD1FF)" />
-        </>
       )}
+      <path d={geo.trinity} fill={mono ? "#0B0D12" : "var(--wordmark-accent, #5AD1FF)"} />
     </svg>
   );
 };
-
 
 export const Wordmark = memo(WordmarkBase);
 export default Wordmark;

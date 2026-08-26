@@ -745,7 +745,7 @@ export default function LinksPage() {
                 <button
                   onClick={() => setCalcTab('rookie')}
                   className={cn(
-                    "flex-1 flex items-center justify-center text-sm font-bold uppercase tracking-wide transition-all duration-300 relative z-10",
+                    "flex-1 flex items-center justify-center text-sm font-bold tracking-wide transition-all duration-300 relative z-10",
                     calcTab === 'rookie'
                       ? "text-white"
                       : "text-muted-foreground hover:text-foreground"
@@ -760,7 +760,7 @@ export default function LinksPage() {
                 <button
                   onClick={() => setCalcTab('veteran')}
                   className={cn(
-                    "flex-1 flex items-center justify-center text-sm font-bold uppercase tracking-wide transition-all duration-300 relative z-10",
+                    "flex-1 flex items-center justify-center text-sm font-bold tracking-wide transition-all duration-300 relative z-10",
                     calcTab === 'veteran'
                       ? "text-white"
                       : "text-muted-foreground hover:text-foreground"

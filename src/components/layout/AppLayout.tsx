@@ -35,7 +35,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
         <WorkspaceThemeProvider>
         <SidebarProvider defaultOpen={true}>
           <ImpersonationBanner />
-          <div className={cn("min-h-screen flex w-full summit-atmosphere app-topo-bg bg-background", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
+          <div className={cn("min-h-screen flex w-full app-texture bg-background", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
             <AppSidebar />
             <div className="flex-1 flex flex-col min-w-0">
               {/* Desktop top bar */}

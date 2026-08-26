@@ -38,14 +38,21 @@ function hslToHex(triplet: string): string | null {
   return '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-const CAMO =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M20 30c30-18 52 8 78 2s44-22 66-6-4 40-26 44-40-6-56 8-40 12-52-4-10-34-10-44z'/%3E%3Cpath d='M120 140c26-14 48 6 66 0s26 22 6 34-58 6-74-2-24-24 2-32z'/%3E%3Cpath d='M0 150c22-10 40 10 34 26S6 196 0 184z'/%3E%3C/g%3E%3C/svg%3E\")";
+/** Pest — dotted grid at 6% white, 22px spacing. */
+const DOTS =
+  'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)';
+/** Fiber — fine line grid at 4% white, 44px cells. */
+const LINES =
+  'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)';
+/** Life — soft paper grain at 3% on the light surface. */
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E\")";
 
 /**
- * Pass 72 — the ice system. One coordinated palette, defined here so the three
- * products read as one organisation. A workspace owns its identity accent
- * (wordmark, active tab, hero art, switcher chip, focus ring); everything else
- * — buttons, links, progress — uses the brand ice on the dark workspaces.
+ * Pass 76 — Mono. One near-black palette across the three products. A
+ * workspace owns its identity accent (wordmark trinity, active tab, progress,
+ * hero art) and its signature texture; everything else is white, near-black
+ * and one hairline border.
  */
 type Palette = {
   mode: 'dark' | 'light';
@@ -59,78 +66,71 @@ type Palette = {
   border: string;
   borderSubtle: string;
   borderStrong: string;
-  /** Buttons, links, progress. */
+  /** Buttons: white on the dark products, near-black label. */
   primary: string;
   primaryDeep: string;
   primaryForeground: string;
-  /** Identity accent for the five workspace-owned spots. */
+  /** Identity accent for the workspace-owned spots. */
   workspaceAccent: string;
-  wordmark: { bg: string; accent: string; letters: string };
-  heroGradient: string;
+  wordmark: { bg: string; accent: string; outline: string; letters: string };
+  texture: string;
+  textureSize: string;
 };
 
-const ICE = '197 100% 68%';
-const ICE_DEEP = '215 100% 56%';
+const MONO_DARK = {
+  mode: 'dark' as const,
+  background: '220 22% 6%',
+  surface: '220 21% 9%',
+  surfaceElevated: '221 21% 13%',
+  surfaceSunken: '220 24% 4%',
+  foreground: '213 20% 97%',
+  secondaryText: '218 15% 75%',
+  muted: '217 10% 54%',
+  border: '220 18% 18%',
+  borderSubtle: '220 18% 18%',
+  borderStrong: '220 17% 24%',
+  primary: '213 20% 97%',
+  primaryDeep: '213 20% 97%',
+  primaryForeground: '220 22% 6%',
+};
 
 const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
   pest: {
-    mode: 'dark',
-    background: '221 66% 11%',
-    surface: '220 58% 15%',
-    surfaceElevated: '220 55% 20%',
-    surfaceSunken: '221 62% 9%',
-    foreground: '217 100% 96%',
-    secondaryText: '221 48% 81%',
-    muted: '220 33% 62%',
-    border: '219 47% 25%',
-    borderSubtle: '219 47% 20%',
-    borderStrong: '218 45% 33%',
-    primary: ICE,
-    primaryDeep: ICE_DEEP,
-    primaryForeground: '221 66% 11%',
-    workspaceAccent: ICE,
-    wordmark: { bg: '#0A1630', accent: '#5AD1FF', letters: '#FFFFFF' },
-    heroGradient: 'linear-gradient(160deg, hsl(220 58% 15%) 0%, hsl(221 66% 11%) 60%, hsl(215 60% 14%) 100%)',
+    ...MONO_DARK,
+    workspaceAccent: '197 100% 68%',
+    wordmark: { bg: '#0B0D12', accent: '#5AD1FF', outline: '#FFFFFF', letters: '#FFFFFF' },
+    texture: DOTS,
+    textureSize: '22px 22px',
   },
   fiber: {
-    mode: 'dark',
-    background: '168 41% 7%',
-    surface: '163 40% 10%',
-    surfaceElevated: '161 39% 14%',
-    surfaceSunken: '168 45% 5%',
-    foreground: '150 10% 96%',
-    secondaryText: '155 20% 82%',
-    muted: '155 14% 66%',
-    border: '157 37% 19%',
-    borderSubtle: '157 34% 15%',
-    borderStrong: '157 35% 28%',
-    primary: ICE,
-    primaryDeep: ICE_DEEP,
-    primaryForeground: '168 41% 7%',
-    workspaceAccent: '154 69% 55%',
-    wordmark: { bg: '#0B1A17', accent: '#3DDC97', letters: '#FFFFFF' },
-    heroGradient: 'linear-gradient(160deg, hsl(163 40% 10%) 0%, hsl(168 41% 7%) 60%, hsl(160 45% 11%) 100%)',
+    ...MONO_DARK,
+    workspaceAccent: '158 70% 55%',
+    wordmark: { bg: '#0B0D12', accent: '#3DDC97', outline: '#FFFFFF', letters: '#FFFFFF' },
+    texture: LINES,
+    textureSize: '44px 44px',
   },
   life: {
     mode: 'light',
-    background: '43 30% 95%',
-    surface: '0 0% 100%',
-    surfaceElevated: '43 24% 97%',
-    surfaceSunken: '43 26% 92%',
-    foreground: '221 51% 16%',
-    secondaryText: '221 24% 34%',
-    muted: '35 8% 38%',
-    border: '38 15% 87%',
-    borderSubtle: '38 15% 91%',
-    borderStrong: '38 14% 78%',
-    primary: '177 50% 33%',
-    primaryDeep: '177 52% 26%',
+    background: '0 0% 100%',
+    surface: '220 12% 97%',
+    surfaceElevated: '0 0% 100%',
+    surfaceSunken: '220 12% 95%',
+    foreground: '220 22% 6%',
+    secondaryText: '220 10% 32%',
+    muted: '220 8% 45%',
+    border: '220 12% 88%',
+    borderSubtle: '220 12% 91%',
+    borderStrong: '220 10% 78%',
+    primary: '220 22% 6%',
+    primaryDeep: '220 22% 6%',
     primaryForeground: '0 0% 100%',
-    workspaceAccent: '177 50% 33%',
-    wordmark: { bg: '#F7F5F0', accent: '#2A7F7B', letters: '#14213D' },
-    heroGradient: 'linear-gradient(160deg, hsl(0 0% 100%) 0%, hsl(43 30% 95%) 100%)',
+    workspaceAccent: '218 100% 56%',
+    wordmark: { bg: '#FFFFFF', accent: '#1E7BFF', outline: '#FFFFFF', letters: '#0B0D12' },
+    texture: GRAIN,
+    textureSize: '120px 120px',
   },
 };
+
 
 /**
  * Applies the active workspace's theme as CSS variables on <html>.
@@ -190,25 +190,29 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--sidebar-border', p.borderSubtle);
     set('--sidebar-ring', p.workspaceAccent);
 
-    // Actions and links: brand ice on the dark products, teal inside Life.
+    // Actions: white on the dark products, near-black inside Life.
     set('--primary', p.primary);
     set('--accent', p.primary);
     set('--primary-deep', p.primaryDeep);
     set('--primary-foreground', p.primaryForeground);
     set('--accent-foreground', p.primaryForeground);
-    // Identity accent: focus ring, active tab, wordmark, hero, switcher chip.
+    // Identity accent: focus ring, active tab, wordmark, progress.
     set('--ring', p.workspaceAccent);
     set('--workspace-accent', p.workspaceAccent);
-    set('--gradient-ice', `linear-gradient(135deg, hsl(${p.primary}), hsl(${p.primaryDeep}))`);
-    set('--gradient-hero', p.heroGradient);
+    // Mono has no gradient and no glow.
+    set('--gradient-ice', `hsl(${p.primary})`);
+    set('--gradient-hero', `hsl(${p.surface})`);
+    set('--gradient-primary', `hsl(${p.primary})`);
+    set('--glow-ice', 'none');
 
     set('--wordmark-bg', p.wordmark.bg);
     set('--wordmark-accent', p.wordmark.accent);
+    set('--wordmark-outline', p.wordmark.outline);
     set('--wordmark-letters', p.wordmark.letters);
 
-    const texture = theme.texture === 'camo' ? CAMO : 'none';
-    set('--workspace-texture', texture);
-    set('--workspace-texture-opacity', String(theme.texture_opacity ?? 0));
+    set('--workspace-texture', p.texture);
+    set('--workspace-texture-size', p.textureSize);
+    set('--workspace-texture-opacity', '1');
 
     // A workspace may ask for serif headings; body type never changes.
     if (theme.headings === 'serif') root.dataset.workspaceHeadings = 'serif';
@@ -222,11 +226,13 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
       root.classList.remove('light-workspace');
       root.style.removeProperty('--wordmark-bg');
       root.style.removeProperty('--wordmark-accent');
+      root.style.removeProperty('--wordmark-outline');
       root.style.removeProperty('--wordmark-letters');
       delete root.dataset.workspace;
       delete root.dataset.workspaceHeadings;
     };
-  }, [vertical, theme.texture, theme.texture_opacity, theme.headings]);
+  }, [vertical, theme.headings]);
+
 
   return <>{children}</>;
 }

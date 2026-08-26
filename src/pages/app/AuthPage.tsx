@@ -13,7 +13,11 @@ const AuthPage = () => {
   const declinedReason = searchParams.get("reason") === "declined";
   const { signIn, signUp, isAuthenticated } = useAuth();
   
-  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
+  // Sign up stays reachable by URL (/auth?mode=signup) but is not promoted:
+  // self sign-up creates unplaced accounts, which invites fixed.
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(
+    searchParams.get('mode') === 'signup' ? 'signup' : 'signin'
+  );
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
   
@@ -133,9 +137,14 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-5 py-10 sm:px-6 sm:py-12">
-      <div className="absolute top-0 left-0 right-0 h-px bg-primary/30" />
-
+    <div
+      className="min-h-screen flex items-center justify-center px-5 py-10 sm:px-6 sm:py-12"
+      style={{
+        background: '#0B0D12',
+        backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
+      }}
+    >
       <div className="relative z-10 w-full max-w-md animate-fade-in">
         <button
           onClick={() => navigate("/")}
@@ -146,36 +155,16 @@ const AuthPage = () => {
         </button>
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="mx-auto mb-4 w-full max-w-[320px]"><Wordmark variant="hero" height={110} className="mx-auto h-auto w-full max-w-[320px]" /></div>
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Welcome to Summit</h1>
+        <div className="text-center mb-7">
+          <div className="mx-auto mb-5 w-full max-w-[280px]">
+            <Wordmark variant="heroMono" height={96} className="mx-auto h-auto w-full max-w-[280px]" />
+          </div>
+          <h1 className="font-display text-2xl font-extrabold tracking-[-0.01em] text-foreground mb-1">
+            {mode === 'signup' ? 'Create an account' : 'Welcome back'}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Sign in to your account or create a new one
+            {mode === 'signup' ? 'Ask your manager for an invite if you have one.' : 'Sign in to Summit.'}
           </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex mb-6 border border-border/30 rounded-lg overflow-hidden">
-          <button
-            onClick={() => { setMode('signin'); setError(''); }}
-            className={`flex-1 min-h-11 py-2.5 text-sm font-semibold transition-all ${
-              mode === 'signin'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => { setMode('signup'); setError(''); }}
-            className={`flex-1 min-h-11 py-2.5 text-sm font-semibold transition-all ${
-              mode === 'signup'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Sign Up
-          </button>
         </div>
 
         {declinedReason && (
@@ -194,7 +183,7 @@ const AuthPage = () => {
         {mode === 'signin' && (
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Email address</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
             </div>
             <div>
@@ -206,8 +195,8 @@ const AuthPage = () => {
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={isLoading} className="btn-primary w-full min-h-12 mt-6">
-              {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>) : "Sign In"}
+            <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
+              {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Signing in</>) : "Sign in"}
             </button>
             <button
               type="button"
@@ -271,8 +260,8 @@ const AuthPage = () => {
               </select>
             </div>
 
-            <button type="submit" disabled={isLoading} className="btn-primary w-full min-h-12 mt-6">
-              {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Creating Account...</>) : "Create Account"}
+            <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
+              {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Creating account</>) : "Create account"}
             </button>
           </form>
         )}
@@ -293,7 +282,7 @@ const AuthPage = () => {
                   onClick={() => { setMode('signin'); setForgotSent(false); setForgotEmail(''); }}
                   className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
                 >
-                  Back to Sign In
+                  Back to sign in
                 </button>
               </div>
             ) : (
@@ -315,25 +304,31 @@ const AuthPage = () => {
                   Enter your email address and we'll send you a link to reset your password.
                 </p>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Email address</label>
                   <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
                 </div>
                 <button type="submit" disabled={isLoading} className="btn-primary w-full min-h-12">
-                  {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>) : "Send Reset Link"}
+                  {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>) : "Send reset link"}
                 </button>
                 <button type="button" onClick={() => { setMode('signin'); setError(''); }} className="w-full min-h-11 text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Back to Sign In
+                  Back to sign in
                 </button>
               </form>
             )}
           </div>
         )}
 
-        {mode !== 'forgot' && (
+        {mode === 'signin' && (
+          <div className="mt-8 space-y-1.5 text-center text-xs text-muted-foreground">
+            <p>Have an invite? Open your link.</p>
+            <p>Need an account? Ask your manager for an invite.</p>
+          </div>
+        )}
+        {mode === 'signup' && (
           <p className="mt-8 text-center text-xs text-muted-foreground">
-            {mode === 'signin' 
-              ? "Don't have an account? Switch to Sign Up above." 
-              : "Already have an account? Switch to Sign In above."}
+            <button type="button" onClick={() => { setMode('signin'); setError(''); }} className="text-primary">
+              Back to sign in
+            </button>
           </p>
         )}
       </div>

@@ -123,7 +123,7 @@ export default function VetBidForm() {
             <button
               onClick={submit}
               disabled={sending}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground disabled:opacity-60"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold tracking-wide text-primary-foreground disabled:opacity-60"
             >
               {sending && <Loader2 className="h-4 w-4 animate-spin" />} Request a bid
             </button>

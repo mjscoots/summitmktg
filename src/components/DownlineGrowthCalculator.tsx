@@ -638,7 +638,7 @@ export default function DownlineGrowthCalculator() {
           <BarChart3 className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-black text-foreground uppercase tracking-tight leading-tight">
+          <h2 className="text-lg font-black text-foreground tracking-tight leading-tight">
             Downline KPI Calculator
           </h2>
           <p className="text-[10px] text-muted-foreground">Build your roster. Find your biggest lever.</p>
@@ -695,7 +695,7 @@ export default function DownlineGrowthCalculator() {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Personal Revenue</h3>
+            <h3 className="text-sm font-bold text-foreground tracking-wide">Personal Revenue</h3>
             <InfoTip text="Your own personal production this summer. Commission based on your active revenue (vet scale)." />
           </div>
           <button
@@ -737,7 +737,7 @@ export default function DownlineGrowthCalculator() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Recruit Rookies</h3>
+            <h3 className="text-sm font-bold text-foreground tracking-wide">Direct Recruit Rookies</h3>
             <InfoTip text="Rookies you personally manage. Each row can be an individual or a group of similar rookies." />
           </div>
           <button type="button" onClick={addRookie} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all border border-primary/20">
@@ -813,7 +813,7 @@ export default function DownlineGrowthCalculator() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Direct Vets</h3>
+            <h3 className="text-sm font-bold text-foreground tracking-wide">Direct Vets</h3>
             <InfoTip text="Veterans you directly manage. Previous summer production can lock in a higher commission bracket." />
           </div>
           <button type="button" onClick={addVet} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all border border-primary/20">
@@ -889,7 +889,7 @@ export default function DownlineGrowthCalculator() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Teams</h3>
+            <h3 className="text-sm font-bold text-foreground tracking-wide">Teams</h3>
             <InfoTip text="Teams with their own team lead. You earn the override spread: your deal minus their team deal." />
           </div>
           <button type="button" onClick={addTeam} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-purple-500/20 transition-all border border-purple-500/20">
@@ -1026,7 +1026,7 @@ export default function DownlineGrowthCalculator() {
             <div className="glass-card rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-4 h-4 text-primary" />
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Growth Levers</h3>
+                <h3 className="text-sm font-bold text-foreground tracking-wide">Growth Levers</h3>
               </div>
 
               {/* Structural losses */}
@@ -1084,7 +1084,7 @@ export default function DownlineGrowthCalculator() {
             <div className="glass-card rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Lightbulb className="w-4 h-4 text-primary" />
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Insights</h3>
+                <h3 className="text-sm font-bold text-foreground tracking-wide">Insights</h3>
               </div>
               <div className="space-y-2">
                 {insights.map((ins, i) => (
@@ -1107,7 +1107,7 @@ export default function DownlineGrowthCalculator() {
           <div className="glass-card rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <UserPlus className="w-4 h-4 text-primary" />
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">What-If Scenarios</h3>
+              <h3 className="text-sm font-bold text-foreground tracking-wide">What-If Scenarios</h3>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {[

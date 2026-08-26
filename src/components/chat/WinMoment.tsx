@@ -27,7 +27,7 @@ export function WinMoment({ open, firstName, signedCount, onDismiss }: WinMoment
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 px-6 text-center animate-in fade-in duration-200"
       style={{ background: 'radial-gradient(circle at 50% 40%, hsl(43 74% 20% / 0.95) 0%, hsl(222 47% 4% / 0.98) 60%)' }}
     >
-      <p className="text-[11px] font-black uppercase tracking-[0.3em] text-amber-300/70">Signed</p>
+      <p className="text-[11px] font-black tracking-[0.3em] text-amber-300/70">Signed</p>
       <p className="text-4xl font-black tracking-tight text-amber-200 sm:text-5xl">{firstName}</p>
       {signedCount !== null && (
         <p className="text-sm text-amber-100/60">
