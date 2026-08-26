@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { format, startOfWeek } from 'date-fns';
 import { toast } from 'sonner';
 import { ActionItemsField } from '@/components/shared/ActionItemsField';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { getDisplayName } from '@/lib/hierarchyUtils';
 
 // ───────────────────── Types ─────────────────────
@@ -243,18 +244,11 @@ export default function ManagerMeetingPage() {
         <PageBackButton to="/app/forms" label="Forms" />
 
         {/* Hero */}
-        <div className="flex items-start gap-4 mb-8">
-          <div className="relative mt-0.5">
-            <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl" />
-            <div className="relative w-12 h-12 rounded-2xl bg-primary/25 border border-primary/20 flex items-center justify-center shadow-[0_0_24px_-6px_hsl(var(--primary)/0.4)]">
-              <ClipboardList className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-none">Weekly Manager Meeting</h1>
-            <p className="text-muted-foreground text-sm mt-1.5">Structured weekly recap, assignments, and accountability</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Weekly manager meeting"
+          context="Structured weekly recap, assignments, and accountability"
+          className="mb-8"
+        />
 
         {/* Status bar */}
         <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-white/[0.06] p-4 sm:p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">

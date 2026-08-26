@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { isManagerOrAbove } from '@/lib/roles';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const interviewCards = [
   {
@@ -55,27 +56,22 @@ export default function InterviewsPage() {
         <PageBackButton to="/app/operations" label="Operations" />
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">
-              Interview Resources
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Complete interview forms for your recruiting process
-            </p>
-          </div>
-          
-          {/* Hawx Admin Link */}
-          <a
-            href="https://www.gethawx.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border/60 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-          >
-            <span>Hawx Admin</span>
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        </div>
+        <PageHeader
+          title="Interview resources"
+          context="Complete interview forms for your recruiting process"
+          className="mb-8"
+          action={
+            <a
+              href="https://www.gethawx.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border/60 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
+            >
+              <span>Hawx Admin</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          }
+        />
 
         {/* Tab Toggle - Pill Style */}
         <div className="flex gap-2 mb-8">

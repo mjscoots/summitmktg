@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface LogisticsEntry {
   user_id: string;
@@ -124,13 +125,11 @@ export default function RepLogisticsPage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         <PageBackButton to="/app/links" label="Resources" />
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Truck className="w-6 h-6 text-primary" />
-            Rep Logistics
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Track arrival dates, car status, and travel for summer</p>
-        </div>
+        <PageHeader
+          title="Rep logistics"
+          context="Track arrival dates, car status, and travel for summer"
+          className="mb-6"
+        />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-3 mb-6">

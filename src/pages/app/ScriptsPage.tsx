@@ -18,6 +18,7 @@ import {
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { verticalFilter } from '@/lib/workspaceScope';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections'] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -109,22 +110,21 @@ export default function ScriptsPage() {
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app/training" label="Training" />
 
-          <div className="mb-5 flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="text-foreground">Scripts</h1>
-              <p className="mt-1.5 text-[13px] text-muted-foreground">
-                Openers, objections and closes — searchable, straight from the field.
-              </p>
-            </div>
-            {isAdmin && (
-              <button
-                onClick={() => setEditing({ category: 'Openers', body: '', display_order: 0, is_active: true })}
-                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
-              >
-                <Plus className="h-4 w-4" /> Add script
-              </button>
-            )}
-          </div>
+          <PageHeader
+            title="Scripts"
+            context="Openers, objections and closes — searchable, straight from the field."
+            action={
+              isAdmin ? (
+                <button
+                  onClick={() => setEditing({ category: 'Openers', body: '', display_order: 0, is_active: true })}
+                  className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98]"
+                >
+                  <Plus className="h-4 w-4" /> Add script
+                </button>
+              ) : undefined
+            }
+            className="mb-5"
+          />
 
           <div className="relative mb-5">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

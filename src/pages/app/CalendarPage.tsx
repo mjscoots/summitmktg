@@ -24,6 +24,7 @@ import { ManagerEventForm } from '@/components/calendar/ManagerEventForm';
 import { EventDetailsModal } from '@/components/calendar/EventDetailsModal';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -289,7 +290,7 @@ export default function CalendarPage() {
     if (!user) return;
     const { data } = await supabase.from('todo_items').select('id, title, due_date, is_completed, priority').eq('user_id', user.id).not('due_date', 'is', null);
     const todos: CalendarEvent[] = ((data as any[]) || []).filter(t => !t.is_completed && t.due_date).map(t => ({
-      id: `todo-${t.id}`, title: `📋 ${t.title}`, description: `Priority: ${t.priority}`,
+      id: `todo-${t.id}`, title: t.title, description: `Priority: ${t.priority}`,
       event_date: new Date(t.due_date + 'T09:00:00').toISOString(), end_date: null, location: null,
       event_type: 'general', is_team_wide: false, manager_id: null, created_by: user.id, _virtual: true,
     }));
@@ -306,7 +307,7 @@ export default function CalendarPage() {
       const { error } = await supabase.from('calendar_attendance').upsert({ event_id: eventId, user_id: user.id, status, updated_at: new Date().toISOString() }, { onConflict: 'event_id,user_id' });
       if (error) { toast.error('Failed to update attendance'); return; }
       setUserAttendance(prev => ({ ...prev, [eventId]: { status, updated_at: new Date().toISOString() } }));
-      toast.success(status === 'attending' ? '✅ Marked as attending' : '❌ Marked as not attending');
+      toast.success(status === 'attending' ? 'Marked as attending' : 'Marked as not attending');
       if (isManager) fetchEvents();
     } catch { toast.error('That change did not save. Try again.'); }
   };
@@ -490,8 +491,8 @@ export default function CalendarPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-xs font-bold text-primary">{attending.length} ✓</span>
-                        {notAttending.length > 0 && <span className="text-xs font-bold text-primary">{notAttending.length} ✗</span>}
+                        <span className="text-xs font-bold text-primary flex items-center gap-0.5">{attending.length} <Check className="h-3 w-3" /></span>
+                        {notAttending.length > 0 && <span className="text-xs font-bold text-primary flex items-center gap-0.5">{notAttending.length} <X className="h-3 w-3" /></span>}
                         <ChevronRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
                       </div>
                     </summary>
@@ -530,22 +531,18 @@ export default function CalendarPage() {
         <PageBackButton to="/app/events" label="Schedule" />
         <div className="mb-6">
           <div className="relative z-10">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">Month view</h1>
-                <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted-foreground">
-                  <Globe className="w-3.5 h-3.5" />
-                  All times shown in {getTimezoneShort(timezone)} (your local time)
-                </p>
-              </div>
-              <div className="flex items-center gap-2 pt-1">
-                {isManager && (
+            <PageHeader
+              title="Month view"
+              context={`All times shown in ${getTimezoneShort(timezone)} (your local time)`}
+              action={
+                isManager ? (
                   <Button size="sm" onClick={() => setIsFormOpen(true)} className="h-11 gap-1.5 rounded-xl">
                     <Plus className="w-4 h-4" />Event
                   </Button>
-                )}
-              </div>
-            </div>
+                ) : undefined
+              }
+              className="border-none pb-0"
+            />
 
             {/* Segmented tab control */}
             <div className="mt-4 grid grid-cols-2 items-center gap-1 rounded-[var(--radius)] border border-border/50 bg-foreground/[0.04] p-1 backdrop-blur-sm sm:inline-flex sm:grid-cols-none">

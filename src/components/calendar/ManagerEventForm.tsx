@@ -54,8 +54,8 @@ interface ManagerEventFormProps {
 }
 
 const EVENT_TYPES = [
-  { value: 'mandatory', label: 'Mandatory', icon: '🔴' },
-  { value: 'optional', label: 'Optional', icon: '🟡' },
+  { value: 'mandatory', label: 'Mandatory', icon: '' },
+  { value: 'optional', label: 'Optional', icon: '' },
 ];
 
 type AssignmentMode = 'entire_team' | 'managers_only' | 'rookies_only' | 'specific';

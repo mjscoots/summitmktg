@@ -258,7 +258,7 @@ export default function Interview2Page() {
 
           {/* Submit */}
           <button onClick={handleSubmit} disabled={isSubmitting} className="w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-            ✈ {isSubmitting ? 'Submitting...' : 'Submit Interview 2'}
+            {isSubmitting ? 'Submitting...' : 'Submit Interview 2'}
           </button>
         </div>
       </main>

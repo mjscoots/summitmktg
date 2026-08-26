@@ -20,6 +20,7 @@ import {
 import { PairingRequestsPanel } from '@/components/industries/PairingRequestsPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { WorkspaceApplicationsTab } from '@/components/workspace/WorkspaceApplicationsTab';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const AdminSubmittedVideosTab = lazy(() => import('@/components/admin/AdminSubmittedVideosTab'));
 
@@ -69,19 +70,15 @@ export default function PitchApprovalsPage() {
         {/* Back Button */}
         <PageBackButton to="/app" label="Dashboard" />
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10">
-              <Mic className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Rep Videos</h1>
-              <p className="text-sm text-muted-foreground">Pitch approvals & checklist videos</p>
-            </div>
-          </div>
+        <PageHeader
+          title="Rep videos"
+          context="Pitch approvals & checklist videos"
+          className="mb-4"
+        />
 
-          {/* Team Filter - only show on pitches tab */}
-          {activeTab === 'pitches' && teams.length > 1 && (
+        {/* Team Filter - only show on pitches tab */}
+        {activeTab === 'pitches' && teams.length > 1 && (
+          <div className="flex justify-end mb-4">
             <Select value={teamFilter} onValueChange={setTeamFilter}>
               <SelectTrigger className="w-[180px] bg-card">
                 <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
@@ -102,8 +99,8 @@ export default function PitchApprovalsPage() {
                 })}
               </SelectContent>
             </Select>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Tab Toggle */}
         <div className="flex gap-1 mb-6">
@@ -187,7 +184,7 @@ export default function PitchApprovalsPage() {
           {pending.length === 0 ? (
             <div className="bg-card rounded-lg border border-border p-6 text-center text-muted-foreground">
               <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-primary/50" />
-              <p className="text-sm">No pending approvals — you're caught up! 🎉</p>
+              <p className="text-sm">No pending approvals. You're caught up.</p>
             </div>
           ) : (
             <div className="space-y-2">

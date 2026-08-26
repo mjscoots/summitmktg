@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, Send, Loader2, DoorOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { toast } from 'sonner';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
@@ -230,22 +231,18 @@ export default function AskSummitPage() {
   return (
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <header className="mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary/30 border border-primary/20 flex items-center justify-center">
-              {isPractice ? <DoorOpen className="w-4 h-4 text-primary" /> : <Sparkles className="w-4 h-4 text-primary" />}
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Ask Summit</h1>
-              <p className="text-sm text-muted-foreground">
-                {isPractice
-                  ? 'Practice working a door. The AI plays the homeowner.'
-                  : 'Answers about the schedule, the team, training, and your own pay.'}
-              </p>
-            </div>
-          </div>
+        <PageHeader
+          title="Ask Summit"
+          context={
+            isPractice
+              ? 'Practice working a door. The AI plays the homeowner.'
+              : 'Answers about the schedule, the team, training, and your own pay.'
+          }
+          className="mb-5"
+        />
 
-          <div className="mt-4 inline-flex rounded-xl border border-white/[0.08] bg-background/40 p-1">
+        <div className="mb-5">
+          <div className="inline-flex rounded-xl border border-white/[0.08] bg-background/40 p-1">
             <button
               onClick={() => switchMode('ask')}
               className={cn(
@@ -265,7 +262,7 @@ export default function AskSummitPage() {
               Practice
             </button>
           </div>
-        </header>
+        </div>
 
         {!isPractice && (
           <div className="mb-3 flex flex-wrap items-center gap-2">

@@ -6,12 +6,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Video, ChevronLeft, Loader2, Film, Bookmark } from 'lucide-react';
+import { ChevronLeft, Loader2, Film, Bookmark } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
 import { VideoCard } from '@/components/training/VideoCard';
 import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Database } from '@/integrations/supabase/types';
 
 type TrainingVideo = Database['public']['Tables']['training_videos']['Row'];
@@ -117,13 +118,11 @@ export default function ManagerTrainingVideosPage() {
         {/* Back Button */}
         <PageBackButton to="/app/training" label="Training" />
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
-            <Video className="w-7 h-7 text-primary" />
-            Manager Training Videos
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Advanced and manager-level training content</p>
-        </div>
+        <PageHeader
+          title="Manager training videos"
+          context="Advanced and manager-level training content"
+          className="mb-6"
+        />
 
         <div className="bg-card rounded-xl border border-border p-5 mb-6">
           <div className="flex items-center justify-between mb-3">

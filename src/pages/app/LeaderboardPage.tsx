@@ -17,6 +17,7 @@ import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { isManagerOrAbove } from '@/lib/roles';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceLeaderboard } from '@/components/leaderboard/WorkspaceLeaderboard';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'streak' | 'recruiting' | 'hof';
 
@@ -83,19 +84,20 @@ export default function LeaderboardPage() {
           <PageBackButton to="/app" label="Dashboard" />
 
           {/* Page header */}
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-foreground">Leaderboard</h1>
-              <p className="mt-1 text-[13px] text-muted-foreground">Where you stand this week and all time.</p>
-            </div>
-            <button
-              onClick={() => setShowPointSystem(true)}
-              className="btn-secondary shrink-0 self-start"
-            >
-              <Info className="w-4 h-4" />
-              How points work
-            </button>
-          </div>
+          <PageHeader
+            title="Leaderboard"
+            context="Where you stand this week and all time."
+            action={
+              <button
+                onClick={() => setShowPointSystem(true)}
+                className="btn-secondary shrink-0"
+              >
+                <Info className="w-4 h-4" />
+                How points work
+              </button>
+            }
+            className="mb-6"
+          />
 
           {isPest && (
             <>

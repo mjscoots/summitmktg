@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -264,17 +265,11 @@ export default function RosterSweepPage() {
       <div className="mx-auto max-w-2xl px-4 py-4 pb-24">
         <PageBackButton />
 
-        <div className="mb-4 flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/25">
-            <ClipboardCheck className="h-5 w-5 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold tracking-tight text-foreground">Roster Sweep</h1>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">
-              One person at a time. Still here or gone, then the detail.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Roster sweep"
+          context="One person at a time. Still here or gone, then the detail."
+          className="mb-4"
+        />
 
         {/* Filters */}
         <div className={cn(CARD, 'mb-4 p-4')}>

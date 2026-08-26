@@ -4,13 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Progress } from '@/components/ui/progress';
-import { Video, Film, Star, Bookmark, Search, X, ChevronLeft, ArrowLeft, CheckCircle, Clock, Play, FileText } from 'lucide-react';
+import { Video, Film, Star, Bookmark, Search, X, ChevronLeft, ArrowLeft, CheckCircle, Clock, Play, FileText, Target, Dumbbell, Flame } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { VideoCard } from '@/components/training/VideoCard';
 import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
 import { isBonusCategory } from '@/lib/trainingConstants';
 import { SummitLoader } from '@/components/shared/SummitLoader';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Database } from '@/integrations/supabase/types';
 import { verticalFilter } from '@/lib/workspaceScope';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
@@ -23,28 +24,28 @@ const CATEGORY_GROUPS = [
     key: 'patps',
     title: 'PATPs',
     description: 'Proven scripts & pitch frameworks',
-    icon: '🎯',
+    icon: Target,
     categories: ['Introduction', 'Switchover', 'Fresh Account'],
   },
   {
     key: 'core',
     title: 'Core Training',
     description: 'Master the fundamentals of selling',
-    icon: '💪',
+    icon: Dumbbell,
     categories: ['Body Language', 'Tonality'],
   },
   {
     key: 'closing',
     title: 'Objections & Closing',
     description: 'Handle objections and close the deal',
-    icon: '🔥',
+    icon: Flame,
     categories: ['Objections', 'Closing', 'Advanced Training', 'Mental Mastery'],
   },
   {
     key: 'bonus',
     title: 'Bonus & Zoom',
     description: 'Extra resources & recorded sessions',
-    icon: '⭐',
+    icon: Star,
     categories: ['Manager Training', 'Zoom Trainings'],
   },
 ];
@@ -157,21 +158,20 @@ export default function TrainingVideosPage() {
         <PageBackButton to="/app/training" label="Training" />
 
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-foreground tracking-tight">Videos</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Training library — watch, learn, level up</p>
-            </div>
+        <PageHeader
+          title="Videos"
+          context="Training library — watch, learn, level up"
+          className="mb-6"
+          action={
             <div className="text-right">
               <p className="text-2xl font-black text-foreground">{requiredWatchedCount}<span className="text-muted-foreground font-medium text-base">/{requiredVideos.length}</span></p>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">watched</p>
             </div>
-          </div>
-          <div className="mt-3">
-            <Progress value={progressPercent} className="h-2" />
-            <p className="text-[11px] text-muted-foreground mt-1">{progressPercent}% complete</p>
-          </div>
+          }
+        />
+        <div className="mb-6 -mt-3">
+          <Progress value={progressPercent} className="h-2" />
+          <p className="text-[11px] text-muted-foreground mt-1">{progressPercent}% complete</p>
         </div>
 
         {/* Search */}
@@ -230,7 +230,7 @@ export default function TrainingVideosPage() {
             </button>
 
             <div className="flex items-center gap-3 mb-5">
-              <span className="text-2xl">{activeGroupData?.icon}</span>
+              {activeGroupData?.icon ? <activeGroupData.icon className="w-6 h-6 text-primary" /> : null}
               <div>
                 <h2 className="text-lg font-bold text-foreground">{activeGroupData?.title}</h2>
                 <p className="text-xs text-muted-foreground">
@@ -301,7 +301,7 @@ export default function TrainingVideosPage() {
                     )}
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <span className="text-2xl">{group.icon}</span>
+                      <group.icon className="w-6 h-6 text-primary" />
                       {isBonus && (
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">
                           Optional

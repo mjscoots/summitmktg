@@ -115,7 +115,7 @@ export default function Parents() {
             onClick={() => navigate('/recruiting')}
             className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
           >
-            Back to recruiting
+            Back to summer jobs
           </button>
         </div>
       </footer>

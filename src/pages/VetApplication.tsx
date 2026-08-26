@@ -6,6 +6,7 @@ import VetCalculator, { VetCalculatorValues } from "@/components/VetCalculator";
 import IndustryStep, { useApplicationSource } from "@/components/apply/IndustryStep";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { setPageMeta } from "@/lib/pageMeta";
 
 interface FormData {
   fullName: string;
@@ -28,6 +29,15 @@ interface FormErrors {
 }
 
 const VetApplication = () => {
+  useEffect(() => {
+    setPageMeta({
+      title: "Apply as a Veteran — Summit Marketing",
+      description:
+        "Apply to run a summer season with Summit Marketing as an experienced sales rep.",
+      path: "/apply/veteran",
+    });
+  }, []);
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
@@ -213,10 +223,10 @@ const VetApplication = () => {
 
   const summitUpside = [
     { icon: Users, title: "Instant Marketing Deal", description: "Plug directly into a marketing deal structure designed for scale, not capped overrides." },
-    { icon: Target, title: "Training", description: "Direct training from a Golden Door record holder (56 days) and a recruiting record holder (1,000 reps in one off-season)." },
+    { icon: Target, title: "Training", description: "Direct training from a Golden Door record holder (56 days) and a hiring record holder (1,000 reps in one off-season)." },
     { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts." },
-    { icon: TrendingUp, title: "Uncapped Recruiting", description: "You will never be capped on how many people you want to bring out." },
-    { icon: Settings, title: "Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and recruiting software — all provided free to veterans on day one." },
+    { icon: TrendingUp, title: "Uncapped team building", description: "You will never be capped on how many people you want to bring out." },
+    { icon: Settings, title: "Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and hiring software — all provided free to veterans on day one." },
     { icon: DollarSign, title: "Scalable Structure", description: "Scalable overrides and a marketing deal structure designed for long-term upside." },
   ];
 

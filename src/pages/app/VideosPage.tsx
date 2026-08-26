@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Video, Loader2, Film, Bookmark, Shield, Pencil, Check, X } from 'lucide-react';
+import { Loader2, Film, Bookmark, Shield, Pencil, Check, X } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { VideoSearchBar } from '@/components/training/VideoSearchBar';
@@ -12,6 +12,7 @@ import { VideoCard } from '@/components/training/VideoCard';
 import { useVideoBookmarks } from '@/hooks/useVideoBookmarks';
 import { ALL_VIDEO_CATEGORIES } from '@/lib/trainingConstants';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { Database } from '@/integrations/supabase/types';
 import { verticalFilter } from '@/lib/workspaceScope';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
@@ -139,15 +140,11 @@ export default function VideosPage() {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Dashboard" />
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
-            <Video className="w-7 h-7 text-primary" />
-            Videos
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {watchedCount}/{videos.length} watched
-          </p>
-        </div>
+        <PageHeader
+          title="Videos"
+          context={`${watchedCount}/${videos.length} watched`}
+          className="mb-6"
+        />
 
         {/* Search Bar */}
         <VideoSearchBar

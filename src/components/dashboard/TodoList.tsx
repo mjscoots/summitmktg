@@ -245,7 +245,7 @@ export function TodoList() {
       const maxOrder = todos.reduce((m, t) => Math.max(m, t.display_order), 0);
       const inserts = tasks.map((t, i) => ({ user_id: user.id, title: t.title, priority: t.priority, display_order: maxOrder + i + 1 }));
       await supabase.from('todo_items').insert(inserts as any);
-      toast.success(`${tasks.length} tasks added!`);
+      toast.success(`${tasks.length} tasks added`);
       setUploadText('');
       setShowUpload(false);
       fetchTodos();

@@ -1129,7 +1129,7 @@ export default function AdminUsersTab({
                             )
                           }
                         >
-                          {detailUser.runs_vertical ? 'Runs vertical ✓' : 'Mark runs vertical'}
+                          {detailUser.runs_vertical ? 'Runs vertical' : 'Mark runs vertical'}
                         </Button>
                       </div>
 

@@ -185,7 +185,7 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
                 <Progress value={m.trainingPct} className="h-1.5 flex-1 bg-muted max-w-[80px]" />
                 <span className={cn("text-xs font-bold tabular-nums", m.trainingPct >= 75 ? "text-success" : m.trainingPct >= 50 ? "text-warning" : "text-destructive")}>{m.trainingPct}%</span>
               </div>
-              <span className={cn("text-xs font-semibold min-w-[70px]", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? '✓ Done' : '✗ Incomplete'}</span>
+              <span className={cn("text-xs font-semibold min-w-[70px]", m.checklistDone ? "text-success" : "text-destructive")}>{m.checklistDone ? 'Done' : 'Incomplete'}</span>
               <span className={cn("text-[11px] min-w-[80px]", isInactive3Plus ? "text-destructive font-semibold" : "text-muted-foreground")}>
                 {m.last_active_at ? (() => {
                   if (daysInactive === 0) return 'Today';

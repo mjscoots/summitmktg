@@ -6,6 +6,7 @@ import IndustryStep, { useApplicationSource } from "@/components/apply/IndustryS
 import Testimonials, { rookieTestimonials } from "@/components/Testimonials";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { setPageMeta } from "@/lib/pageMeta";
 interface FormData {
   fullName: string;
   email: string;
@@ -28,6 +29,15 @@ const RookieApplication = () => {
   const formRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { vertical, setVertical, source } = useApplicationSource();
+
+  useEffect(() => {
+    setPageMeta({
+      title: "Apply as a Rookie — Summit Marketing",
+      description:
+        "Apply for a summer sales season with Summit Marketing. First-time reps start here.",
+      path: "/apply/rookie",
+    });
+  }, []);
   const [verticalError, setVerticalError] = useState<string | undefined>();
   const [formData, setFormData] = useState<FormData>({
     fullName: "",

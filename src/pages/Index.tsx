@@ -183,7 +183,7 @@ const Index = () => {
             <button
               onClick={() => navigate("/recruiting")}
               className="micro-label inline-flex min-h-11 items-center rounded-xl px-3 transition-colors hover:text-primary">
-              Recruiting
+              Summer Jobs
             </button>
             <button
               onClick={() => navigate("/apply")}

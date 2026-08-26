@@ -18,6 +18,7 @@ import { SortableLinkCard } from '@/components/links/SortableLinkCard';
 import { cn } from '@/lib/utils';
 import EarningsCalculator from '@/components/EarningsCalculator';
 import VetCalculator from '@/components/VetCalculator';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 
 
@@ -387,12 +388,11 @@ export default function LinksPage() {
     <AppLayout>
       <div className="max-w-3xl mx-auto px-4 py-6">
         <PageBackButton to="/app" label="Home" />
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Resources</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Links, tools & references</p>
-          </div>
-          {isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers' || activeTab === 'emails') && (
+        <PageHeader
+          title="Resources"
+          context="Links, tools & references"
+          action={
+            isAdmin && (activeTab === 'links' || activeTab === 'phone-numbers' || activeTab === 'emails') ? (
             <div className="flex gap-2">
               {/* Mass Upload */}
               <Dialog open={showMassUpload} onOpenChange={setShowMassUpload}>
@@ -543,8 +543,10 @@ export default function LinksPage() {
                 </Dialog>
               )}
             </div>
-          )}
-        </div>
+            ) : undefined
+          }
+          className="mb-5"
+        />
 
         {/* Tab toggle */}
         <div className="p-1 bg-muted/50 rounded-xl mb-5 border border-border/30 overflow-x-auto scrollbar-hide">

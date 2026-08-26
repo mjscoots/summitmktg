@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic, RotateCcw } from 'lucide-react';
+import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic, RotateCcw, Check } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface Module {
   id: string;
@@ -222,7 +223,7 @@ export default function TrainingCoursePage() {
     
     setManualReadCount(newCount);
     setShowRereadCelebration(true);
-    toast.success(`Manual completed for the ${newCount}${newCount === 1 ? 'st' : newCount === 2 ? 'nd' : newCount === 3 ? 'rd' : 'th'} time! 🎉`);
+    toast.success(`Manual completed for the ${newCount}${newCount === 1 ? 'st' : newCount === 2 ? 'nd' : newCount === 3 ? 'rd' : 'th'} time`);
     
     // Reload page to show reset progress
     window.location.reload();
@@ -351,30 +352,20 @@ export default function TrainingCoursePage() {
 
         {/* Course Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-bold text-foreground">
-              {course.title.replace(' (Management Edition)', '')}
-            </h1>
-            <span className={cn(
-              "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border",
-              isRookieCourse 
-                ? "bg-primary/15 text-primary border-primary/30"
-                : "bg-primary/15 text-primary border-primary/30"
-            )}>
-              {isRookieCourse ? 'ROOKIE' : 'MANAGER'}
-            </span>
-            {/* Manual re-read counter badge */}
-            {isManualCourse && manualReadCount > 0 && (
-              <Badge className="bg-primary/15 text-primary border-primary/30 font-bold text-xs">
-                <RotateCcw className="w-3 h-3 mr-1" />
-                {manualReadCount}x Read
-              </Badge>
-            )}
-          </div>
-          {course.description && (
-            <p className="text-muted-foreground">{course.description}</p>
-          )}
-          
+          <PageHeader
+            title={course.title.replace(' (Management Edition)', '')}
+            context={course.description || undefined}
+            vertical={isRookieCourse ? 'ROOKIE' : 'MANAGER'}
+            action={
+              isManualCourse && manualReadCount > 0 ? (
+                <Badge className="bg-primary/15 text-primary border-primary/30 font-bold text-xs">
+                  <RotateCcw className="w-3 h-3 mr-1" />
+                  {manualReadCount}x Read
+                </Badge>
+              ) : undefined
+            }
+          />
+
           {/* Overall Progress */}
           <div className="mt-4 p-4 bg-card rounded-lg border border-border">
             <div className="flex items-center justify-between mb-2">
@@ -457,7 +448,7 @@ export default function TrainingCoursePage() {
                             ? "text-primary bg-primary/10"
                             : "text-primary bg-primary/10"
                       )}>
-                        {isModuleComplete ? '✓' : `Chapter ${moduleIndex + 1}`}
+                        {isModuleComplete ? <Check className="h-4 w-4 text-success" /> : `Chapter ${moduleIndex + 1}`}
                       </span>
                       <h3 className={cn(
                         "font-semibold",
@@ -568,10 +559,10 @@ export default function TrainingCoursePage() {
                                     ? "bg-destructive/15 text-destructive"
                                     : "bg-primary/15 text-primary"
                             )}>
-                              {lesson.pitch_status === 'approved' ? '🎤 Approved' 
-                                : lesson.pitch_status === 'pending' ? '🎤 Pending'
-                                : lesson.pitch_status === 'rejected' ? '🎤 Re-record'
-                                : '🎤 Required'}
+                              {lesson.pitch_status === 'approved' ? 'Approved' 
+                                : lesson.pitch_status === 'pending' ? 'Pending'
+                                : lesson.pitch_status === 'rejected' ? 'Re-record'
+                                : 'Required'}
                             </span>
                           )}
                         </div>

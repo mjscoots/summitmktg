@@ -85,7 +85,7 @@ export function PitchApprovalCard({
               <Mic className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-sm text-amber-600">🎤 PITCH RECORDING REQUIRED</h3>
+              <h3 className="font-bold text-sm text-amber-600">Pitch recording required</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 You need to pass the quiz and submit a pitch for manager approval before moving on.
               </p>
@@ -128,12 +128,12 @@ export function PitchApprovalCard({
 
               {status === 'pending' && (
                 <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
-                  <p className="text-xs font-semibold text-amber-600">⏳ Pitch Submitted — Awaiting Approval</p>
+                  <p className="text-xs font-semibold text-amber-600">Pitch submitted, awaiting approval</p>
                 </div>
               )}
               {status === 'approved' && (
                 <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
-                  <p className="text-xs font-semibold text-primary">✅ Pitch Approved</p>
+                  <p className="text-xs font-semibold text-primary">Pitch approved</p>
                 </div>
               )}
             </div>
@@ -184,7 +184,7 @@ export function PitchApprovalCard({
                 "font-bold text-sm",
                 status === 'rejected' ? "text-destructive" : "text-amber-600"
               )}>
-                {status === 'rejected' ? '❌ PITCH NEEDS IMPROVEMENT' : '🎤 PITCH APPROVAL REQUIRED'}
+                {status === 'rejected' ? 'Pitch needs improvement' : 'Pitch approval required'}
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {status === 'rejected'
@@ -263,7 +263,7 @@ export function PitchApprovalCard({
             <Clock className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-amber-600">🎤 PITCH SUBMITTED — AWAITING APPROVAL</h3>
+            <h3 className="font-bold text-sm text-amber-600">Pitch submitted, awaiting approval</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               Your pitch has been sent to {managerName || 'your manager'} for review.
               You'll be notified when it's approved.
@@ -293,7 +293,7 @@ export function PitchApprovalCard({
         </div>
 
         <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-          <p className="text-xs font-semibold text-amber-600">⚠️ MODULE LOCKED</p>
+          <p className="text-xs font-semibold text-amber-600">Module locked</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             You cannot progress to the next module until your pitch is approved.
             You can still access previous modules, training videos, and the manual.
@@ -319,7 +319,7 @@ export function PitchApprovalCard({
         <div className="flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-primary" />
           <div>
-            <h3 className="font-bold text-sm text-primary">✅ PITCH APPROVED</h3>
+            <h3 className="font-bold text-sm text-primary">Pitch approved</h3>
             <p className="text-xs text-muted-foreground">
               Approved by {managerName || 'manager'} on{' '}
               {pitchRequest.reviewed_at && format(new Date(pitchRequest.reviewed_at), 'MMM d, yyyy')}
