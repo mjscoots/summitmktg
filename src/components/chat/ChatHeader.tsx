@@ -54,7 +54,9 @@ export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, 
             {pinnedCount}
           </button>
         )}
+        {rightSlot}
       </div>
+
     </div>
   );
 }
