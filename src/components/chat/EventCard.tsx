@@ -17,6 +17,9 @@ export interface EventCardMeta {
   rsvp_deadline?: string | null;
   questions?: EventQuestion[];
   cancelled?: boolean;
+  /** Plain cadence for a repeating series, e.g. "repeats weekly". */
+  repeats?: string | null;
+  series_root?: string | null;
 }
 
 interface EventQuestion {
@@ -135,6 +138,7 @@ export function EventCard({ eventId, meta, title }: { eventId: string | null; me
               <MapPin className="h-3.5 w-3.5" /> {meta.location}
             </p>
           )}
+          {meta?.repeats && <p>{meta.repeats}</p>}
           {deadline && <p>Answer by {deadline}</p>}
         </div>
 

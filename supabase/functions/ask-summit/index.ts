@@ -28,7 +28,7 @@ HOW YOU ANSWER:
 PRIVACY RULES (absolute):
 - The MY MONEY section is the asking user's own data only. Never discuss anyone else's pay, commission, or housing — if asked, say: "I can only show your own pay and housing."
 - Never mention or list archived or former team members, job applications, admin queue items, or leads belonging to other reps.
-- Roster contact info in the context is shareable with the asking user. Nothing outside the context is.`;
+- The roster lists a phone or email only for the people the asking user is allowed to see them for. If a person's line has no phone or email, you do not have it — say: "I don't have that — ask your manager." Never guess or take contact details from anywhere else.`;
 
 const PRACTICE_SYSTEM_PROMPT = `You are role-playing as a homeowner answering their front door for a door-to-door sales rep who is practicing their pitch. This is a TRAINING SIMULATION.
 
@@ -170,7 +170,7 @@ async function buildContext(admin: any, userId: string, question = "") {
     commission,
   ] = await Promise.all([
     admin.from("profiles").select("full_name, email, team_id, direct_manager, status").eq("user_id", userId).maybeSingle(),
-    admin.from("profiles").select("user_id, full_name, email, phone, team_id, direct_manager").eq("archived", false).neq("status", "nlc").order("full_name").limit(300),
+    admin.rpc("ask_summit_roster", { _uid: userId }),
     admin.from("teams").select("id, name"),
     scoped(admin.from("calendar_events").select("title, description, event_date, location, event_type")).gte("event_date", now.toISOString()).lte("event_date", in7.toISOString()).order("event_date").limit(40),
     scoped(admin.from("announcement_posts").select("title, body, published_at, expires_at, status")).eq("status", "published").order("published_at", { ascending: false }).limit(15),
@@ -196,13 +196,16 @@ async function buildContext(admin: any, userId: string, question = "") {
   parts.push(`CURRENT DATE/TIME: ${fmtDate(now.toISOString())}`);
 
   // Roster
-  const rosterLines = (roster.data ?? []).map((p: any) => {
+  // Name, role and team for everyone. Phone and email only for the people this
+  // user is allowed to see them for, decided server side by ask_summit_roster
+  // using the same visibility rules as the Team screen.
+  const rosterLines = ((roster.data as any[]) ?? []).map((p: any) => {
     const bits = [p.full_name, roleMap.get(p.user_id) ?? "rookie", teamMap.get(p.team_id) ?? "no team"];
     if (p.phone) bits.push(p.phone);
     if (p.email) bits.push(p.email);
     return `- ${bits.join(" | ")}`;
   });
-  parts.push(`ACTIVE ROSTER (${rosterLines.length} people — contact info is shareable):\n${rosterLines.join("\n") || "- none"}`);
+  parts.push(`ACTIVE ROSTER (${rosterLines.length} people — name, role and team for everyone; a phone or email appears only when this user is allowed to see it):\n${rosterLines.join("\n") || "- none"}`);
 
   // Calendar
   const eventLines = (events.data ?? []).map((e: any) =>

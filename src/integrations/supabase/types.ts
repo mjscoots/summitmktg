@@ -6612,6 +6612,7 @@ export type Database = {
         Args: { _reason: string; _user_id: string }
         Returns: undefined
       }
+      ask_summit_roster: { Args: { _uid: string }; Returns: Json }
       auto_pair: { Args: { _vertical: string }; Returns: Json }
       auto_sync_all_edges: { Args: never; Returns: Json }
       award_chat_message_points: {
@@ -6706,6 +6707,10 @@ export type Database = {
       event_card_meta: {
         Args: { _e: Database["public"]["Tables"]["calendar_events"]["Row"] }
         Returns: Json
+      }
+      event_series_cadence: {
+        Args: { _e: Database["public"]["Tables"]["calendar_events"]["Row"] }
+        Returns: string
       }
       event_target_channel: {
         Args: { _scope: string; _team_id: string }
@@ -7622,6 +7627,7 @@ export type Database = {
         }
         Returns: Json
       }
+      refresh_series_card: { Args: { _root: string }; Returns: undefined }
       region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
       reopen_winter_plan: { Args: { _user_id: string }; Returns: Json }
