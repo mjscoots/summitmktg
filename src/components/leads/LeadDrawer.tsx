@@ -53,7 +53,29 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
 
 
   const lead = detail?.lead;
-  const snapshot = (lead?.profile_snapshot as LeadSnapshot | null) || null;
+  const snapshotRaw = (lead?.profile_snapshot as (LeadSnapshot & { note?: string | null }) | null) || null;
+  const snapshot = snapshotRaw as LeadSnapshot | null;
+  const notesAllowed = tier !== 'sales';
+  const publicNote = (snapshotRaw?.note as string | null) || null;
+
+  const lastSeasonLine = [
+    lead?.season_revenue != null ? `${money(lead.season_revenue as number)} serviced` : null,
+    lead?.rev_per_day != null ? `${money(lead.rev_per_day as number)} a day` : null,
+    lead?.days_in_market != null ? `${lead.days_in_market} days` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const datesLine = [
+    lead?.start_date ? `Started ${new Date(lead.start_date as string).toLocaleDateString()}` : null,
+    lead?.committed_last_day
+      ? `Last day ${new Date(lead.committed_last_day as string).toLocaleDateString()}`
+      : null,
+    lead?.former_manager_name ? `Was with ${lead.former_manager_name}` : null,
+    lead?.recruiter_name ? `Recruited by ${lead.recruiter_name}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   const designatedAt = (lead?.designated_at as string | null) || null;
   const leadCycleDays = (lead?.cycle_days as number | null) ?? 14;
