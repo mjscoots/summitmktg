@@ -68,20 +68,26 @@ export default function LeadsPage() {
       search: search.trim() || null,
       stage: stage === 'all' ? null : stage,
       hasPhone: hasPhone === 'all' ? null : hasPhone === 'yes',
-      designation: chip === 'designated' || chip === 'free' ? chip : null,
-      tag: chip === 'not_on_roster' ? NOT_ON_ROSTER : null,
-      system: chip === 'josh' ? 'Josh' : null,
+      designation: scope === 'all' && (chip === 'designated' || chip === 'free') ? chip : null,
+      rosterStatus:
+        scope === 'all' && (chip === 'out' || chip === 'not_on_roster') ? chip : null,
+      system: system === 'all' ? null : system,
       limit: scope === 'all' ? 600 : 300,
     },
-    tier !== 'sales'
+    true
   );
 
-  const [counts, setCounts] = useState<{ pool: number; designated: number; signed_2027: number } | null>(null);
+  const [counts, setCounts] = useState<{
+    out: number;
+    pool: number;
+    designated: number;
+    signed_2027: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!staff) return;
     (supabase.rpc as any)('leads_counts').then(({ data }: { data: unknown }) => {
-      if (data) setCounts(data as { pool: number; designated: number; signed_2027: number });
+      if (data) setCounts(data as typeof counts);
     });
   }, [staff]);
 
