@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall, Check } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
@@ -14,6 +14,7 @@ import { isStaffTier, tierOf } from '@/lib/tiers';
 import {
   LEAD_STAGES,
   leadActions,
+  money,
   telHref,
   useLeadsList,
   type LeadRow,
@@ -24,17 +25,15 @@ import CallMode from '@/components/leads/CallMode';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
-const NOT_ON_ROSTER = 'not-on-2026-roster';
 
-type Chip = 'all' | 'designated' | 'free' | 'not_on_roster' | 'josh' | 'out_for_good';
+type Chip = 'out' | 'not_on_roster' | 'all' | 'designated' | 'free';
 
 const CHIPS: { id: Chip; label: string }[] = [
+  { id: 'out', label: 'Out this season' },
+  { id: 'not_on_roster', label: 'Older pool' },
   { id: 'all', label: 'All' },
   { id: 'designated', label: 'Designated' },
-  { id: 'free', label: 'Free' },
-  { id: 'not_on_roster', label: 'Not on 2026 roster' },
-  { id: 'josh', label: "Josh's system" },
-  { id: 'out_for_good', label: 'Out for good' },
+  { id: 'free', label: 'Pool' },
 ];
 
 function callbackLabel(iso: string | null): string | null {
@@ -48,11 +47,13 @@ export default function LeadsPage() {
   const tier = tierOf(role);
   const staff = isStaffTier(tier);
   const [params, setParams] = useSearchParams();
-  const scope = ((params.get('tab') as LeadScope) || 'mine') as LeadScope;
+  const rawScope = ((params.get('tab') as LeadScope) || 'mine') as LeadScope;
+  const scope: LeadScope = tier === 'sales' ? 'mine' : rawScope;
   const [search, setSearch] = useState('');
   const [stage, setStage] = useState<string>('all');
   const [hasPhone, setHasPhone] = useState<string>('all');
-  const [chip, setChip] = useState<Chip>('all');
+  const [system, setSystem] = useState<string>('all');
+  const [chip, setChip] = useState<Chip>('out');
   const [openLead, setOpenLead] = useState<string | null>(params.get('lead'));
   const [callMode, setCallMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -68,20 +69,26 @@ export default function LeadsPage() {
       search: search.trim() || null,
       stage: stage === 'all' ? null : stage,
       hasPhone: hasPhone === 'all' ? null : hasPhone === 'yes',
-      designation: chip === 'designated' || chip === 'free' ? chip : null,
-      tag: chip === 'not_on_roster' ? NOT_ON_ROSTER : null,
-      system: chip === 'josh' ? 'Josh' : null,
+      designation: scope === 'all' && (chip === 'designated' || chip === 'free') ? chip : null,
+      rosterStatus:
+        scope === 'all' && (chip === 'out' || chip === 'not_on_roster') ? chip : null,
+      system: system === 'all' ? null : system,
       limit: scope === 'all' ? 600 : 300,
     },
-    tier !== 'sales'
+    true
   );
 
-  const [counts, setCounts] = useState<{ pool: number; designated: number; signed_2027: number } | null>(null);
+  const [counts, setCounts] = useState<{
+    out: number;
+    pool: number;
+    designated: number;
+    signed_2027: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!staff) return;
     (supabase.rpc as any)('leads_counts').then(({ data }: { data: unknown }) => {
-      if (data) setCounts(data as { pool: number; designated: number; signed_2027: number });
+      if (data) setCounts(data as typeof counts);
     });
   }, [staff]);
 
@@ -92,21 +99,20 @@ export default function LeadsPage() {
     });
   }, [staff]);
 
-  const visible = useMemo(
-    () => (chip === 'out_for_good' ? rows.filter((r) => !(r.tags || []).includes(NOT_ON_ROSTER)) : rows),
-    [rows, chip]
-  );
+  const visible = rows;
 
   const callable = useMemo(() => visible.filter((r) => !!r.phone && !r.do_not_call), [visible]);
 
   if (authLoading) return null;
-  if (tier === 'sales') return <Navigate to="/app" replace />;
 
-  const tabs: { id: LeadScope; label: string; icon: typeof Users }[] = [
-    { id: 'mine', label: 'My leads', icon: Users },
-    { id: 'free', label: 'Free pool', icon: Inbox },
-    ...(staff ? [{ id: 'all' as LeadScope, label: 'All leads', icon: Database }] : []),
-  ];
+  const tabs: { id: LeadScope; label: string; icon: typeof Users }[] =
+    tier === 'sales'
+      ? [{ id: 'mine', label: 'My leads', icon: Users }]
+      : [
+          { id: 'mine', label: 'My leads', icon: Users },
+          { id: 'free', label: 'Pool', icon: Inbox },
+          ...(staff ? [{ id: 'all' as LeadScope, label: 'Call board', icon: Database }] : []),
+        ];
 
   const claim = async (lead: LeadRow) => {
     const { error } = await leadActions.claim(lead.id);
@@ -190,14 +196,19 @@ export default function LeadsPage() {
             className="mb-5"
           />
 
-          <div className={cn('mb-4 grid gap-2', staff ? 'grid-cols-3' : 'grid-cols-2')}>
+          <div
+            className={cn(
+              'mb-4 grid gap-2',
+              tabs.length === 1 ? 'grid-cols-1' : staff ? 'grid-cols-3' : 'grid-cols-2'
+            )}
+          >
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => {
                   setParams({ tab: t.id });
                   setSelected(new Set());
-                  setChip('all');
+                  setChip('out');
                 }}
                 className={cn(
                   'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold transition-colors sm:text-[13px]',
@@ -213,11 +224,12 @@ export default function LeadsPage() {
           </div>
 
           {staff && scope === 'all' && counts && (
-            <div className="mb-3 grid grid-cols-3 gap-2">
+            <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
-                { label: 'Pool', value: counts.pool },
+                { label: 'Out this season', value: counts.out },
                 { label: 'Designated', value: counts.designated },
-                { label: 'Signed for next season', value: counts.signed_2027 },
+                { label: 'Pool', value: counts.pool },
+                { label: 'Signed for 2027', value: counts.signed_2027 },
               ].map((c) => (
                 <div key={c.label} className={cn(CARD, 'px-3 py-2')}>
                   <p className="stat-num text-lg font-bold text-foreground tabular-nums">{c.value}</p>
@@ -277,6 +289,18 @@ export default function LeadsPage() {
                 <SelectItem value="no" className="text-[13px]">No phone</SelectItem>
               </SelectContent>
             </Select>
+            {staff && (
+              <Select value={system} onValueChange={setSystem}>
+                <SelectTrigger className="h-10 text-[13px] sm:w-[150px]">
+                  <SelectValue placeholder="System" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[13px]">Both systems</SelectItem>
+                  <SelectItem value="Summit" className="text-[13px]">Summit</SelectItem>
+                  <SelectItem value="Josh" className="text-[13px]">Josh</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {staff && scope === 'all' && selected.size > 0 && (
@@ -329,9 +353,13 @@ export default function LeadsPage() {
           ) : (
             <div className="space-y-2">
               {visible.map((lead) => {
-                const notOnRoster = (lead.tags || []).includes(NOT_ON_ROSTER);
                 const line = [
+                  lead.team_name,
                   lead.former_manager_name ? `Was with ${lead.former_manager_name}` : null,
+                  lead.season_revenue != null ? money(lead.season_revenue) : null,
+                  lead.last_contact_at
+                    ? `Last contact ${new Date(lead.last_contact_at).toLocaleDateString()}`
+                    : null,
                   lead.last_outcome ? lead.last_outcome.replace(/_/g, ' ') : lead.stage?.replace('_', ' '),
                   callbackLabel(lead.next_call_at),
                   scope === 'all' ? lead.designated_to_name || 'Free' : null,
@@ -365,9 +393,9 @@ export default function LeadsPage() {
                     <button onClick={() => setOpenLead(lead.id)} className="min-w-0 flex-1 text-left">
                       <p className="truncate text-[14px] font-semibold text-foreground">
                         {lead.full_name}
-                        {notOnRoster && (
-                          <span className="ml-2 rounded-full border border-border/60 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                            Not on 2026 roster
+                        {lead.signed_2027 && (
+                          <span className="ml-2 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 align-middle text-[10px] font-medium text-primary">
+                            Signed for 2027
                           </span>
                         )}
                       </p>

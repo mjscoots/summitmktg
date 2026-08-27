@@ -53,7 +53,29 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
 
 
   const lead = detail?.lead;
-  const snapshot = (lead?.profile_snapshot as LeadSnapshot | null) || null;
+  const snapshotRaw = (lead?.profile_snapshot as (LeadSnapshot & { note?: string | null }) | null) || null;
+  const snapshot = snapshotRaw as LeadSnapshot | null;
+  const notesAllowed = tier !== 'sales';
+  const publicNote = (snapshotRaw?.note as string | null) || null;
+
+  const lastSeasonLine = [
+    lead?.season_revenue != null ? `${money(lead.season_revenue as number)} serviced` : null,
+    lead?.rev_per_day != null ? `${money(lead.rev_per_day as number)} a day` : null,
+    lead?.days_in_market != null ? `${lead.days_in_market} days` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const datesLine = [
+    lead?.start_date ? `Started ${new Date(lead.start_date as string).toLocaleDateString()}` : null,
+    lead?.committed_last_day
+      ? `Last day ${new Date(lead.committed_last_day as string).toLocaleDateString()}`
+      : null,
+    lead?.former_manager_name ? `Was with ${lead.former_manager_name}` : null,
+    lead?.recruiter_name ? `Recruited by ${lead.recruiter_name}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   const designatedAt = (lead?.designated_at as string | null) || null;
   const leadCycleDays = (lead?.cycle_days as number | null) ?? 14;
@@ -118,9 +140,38 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             <SheetHeader className="text-left">
               <SheetTitle className="text-lg">{lead.full_name}</SheetTitle>
               <SheetDescription className="text-[12px]">
-                {[lead.system, lead.roster_status, lead.rep_year].filter(Boolean).join(' · ') || 'No system on file'}
+                {[lead.team_name, lead.rep_year].filter(Boolean).join(' · ') || 'No team on file'}
               </SheetDescription>
             </SheetHeader>
+
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {lead.system && (
+                <span className="rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {lead.system as string}
+                </span>
+              )}
+              {lead.signed_2027 && (
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                  Signed for 2027
+                </span>
+              )}
+              {lead.stage && (
+                <span className="rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {String(lead.stage).replace(/_/g, ' ')}
+                </span>
+              )}
+            </div>
+
+            {lastSeasonLine && (
+              <p className="mt-3 text-[13px] text-foreground">{lastSeasonLine}</p>
+            )}
+            {datesLine && <p className="mt-1 text-[12px] text-muted-foreground">{datesLine}</p>}
+            {publicNote && (
+              <div className="mt-3 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
+                <p className="micro-label mb-1">Note from the sheet</p>
+                <p className="text-[13px] leading-snug text-foreground">{publicNote}</p>
+              </div>
+            )}
 
             <div className="mt-4 flex flex-wrap gap-2">
               {telHref(lead.phone) && (
@@ -365,7 +416,7 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             )}
 
             {/* Private notes */}
-            {staff && (
+            {notesAllowed && (
               <div className="mt-4 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
                 <p className="micro-label mb-2 flex items-center gap-1.5">
                   <Lock className="h-3 w-3" /> Private notes
@@ -407,7 +458,9 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                     <div key={n.id} className="rounded-lg border border-border/50 bg-background/40 p-2">
                       <p className="micro-label">{n.kind.replace('_', ' ')}</p>
                       <p className="text-[13px] text-foreground">{n.body}</p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">{new Date(n.created_at).toLocaleDateString()}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        {[n.author_name || 'Manager', new Date(n.created_at).toLocaleDateString()].join(' · ')}
+                      </p>
                     </div>
                   ))}
                 </div>

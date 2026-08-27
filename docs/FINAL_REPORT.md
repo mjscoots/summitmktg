@@ -1580,3 +1580,14 @@ Nothing was published.
 - Screens changed: MyTeamPage (Fiber header), InviteDialog, useAdminQueue, AdminQueueTab, LeadsPage, AdminUsersTab.
 - Migration: one — leads_counts() (read-only, role-gated, no RLS changes).
 - Verification: no owner preview session could be minted (multiple auth users, approval unavailable), so counts were verified at the database level and routes at the route level; signed-out runs at 390 and 1280 showed horizontal overflow 0. Typecheck clean, production build clean (index 206.15 kB). Not published.
+
+## Pass 82 — Re-sign call board
+- One migration: `leads_list` (single overload) now enforces bucket = 'lead' server-side, reps see only leads designated to them, managers see their own plus an undesignated pool scoped to their system via `lead_system_for(uid)`, staff see all; roster-bucket rows can never appear in any lead list.
+- `lead_detail` (SECURITY DEFINER) grants managers their own/pool leads and returns `private_notes` with `author_name`; reps get no private notes, so fired/quit wording is never exposed to them.
+- `leads_counts` extended with the out-this-season count; counts today: out 100, designated 123, pool 423, signed for 2027 14.
+- Lead card (`LeadDrawer.tsx`) now reads as a person: name, system chip, team, rep year, last-season line built only from present fields ("$x serviced · $y a day · n days"), start/last day, former manager and recruiter, stage chip, and the sheet note from `profile_snapshot.note`. Managers and admins see the private notes list with author and date plus the add-note box.
+- Leads board (`LeadsPage.tsx`): tabs My leads / Pool / Call board (staff), call-board chips Out this season / Older pool / All / Designated / Pool, a both-systems filter, revenue-descending default sort from the RPC, and count chips. Rows show team, former manager, revenue, last contact and next call.
+- "Signed for 2027" chip renders on lead rows and lead cards.
+- Reps are no longer redirected away from /app/leads; they land on My leads with no pool access.
+- Typecheck clean; production build clean (index 206.15 kB).
+- Verification: no owner preview session could be minted this pass, so surfaces were verified at the database and route level, not by owner screenshots. SQL confirms no lead data changed — claimed_by is null on all 509 lead rows, designation counts unchanged (93 out-leads designated), roster bucket untouched (42 rows).
