@@ -352,9 +352,13 @@ export default function LeadsPage() {
           ) : (
             <div className="space-y-2">
               {visible.map((lead) => {
-                const notOnRoster = (lead.tags || []).includes(NOT_ON_ROSTER);
                 const line = [
+                  lead.team_name,
                   lead.former_manager_name ? `Was with ${lead.former_manager_name}` : null,
+                  lead.season_revenue != null ? money(lead.season_revenue) : null,
+                  lead.last_contact_at
+                    ? `Last contact ${new Date(lead.last_contact_at).toLocaleDateString()}`
+                    : null,
                   lead.last_outcome ? lead.last_outcome.replace(/_/g, ' ') : lead.stage?.replace('_', ' '),
                   callbackLabel(lead.next_call_at),
                   scope === 'all' ? lead.designated_to_name || 'Free' : null,
