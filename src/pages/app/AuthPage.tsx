@@ -331,7 +331,8 @@ const AuthPage = () => {
             </button>
           </p>
         )}
-      </div>
+      </main>
+
     </div>
   );
 };
