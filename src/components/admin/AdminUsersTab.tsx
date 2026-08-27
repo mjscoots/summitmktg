@@ -379,6 +379,9 @@ export default function AdminUsersTab({
 
       if (statusFilter === 'active' && u.status !== 'active') return false;
       if (statusFilter === 'nlc' && u.status !== 'nlc') return false;
+      // Archived people only ever show behind the explicit archived filter.
+      if (statusFilter !== 'nlc' && u.status === 'nlc') return false;
+
 
       if (progressFilter !== 'all' && progress !== progressFilter) return false;
 
