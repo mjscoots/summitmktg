@@ -152,21 +152,24 @@ Each item says where to click and what happens if you leave it.
 
 ## 4. Known limitations that ship as-is
 
-- **313 database linter items, and that is expected.** 292 of them say "a signed-in user
-  can call this function", and 19 say "anyone can call this function". These functions
+- **319 database linter items, and that is expected.** 297 of them say "a signed-in user
+  can call this function", and 20 say "anyone can call this function". These functions
   *are* the app's own interface to its data, and every one of them checks the caller's
-  role before returning anything. The 19 open ones are the public pages: the landing
-  calculator, industry pages, ticket page, application forms. Since Pass 71A one more is
-  deliberately open — `redeem_invite`, which lets a person open an invite link and claim
-  their spot before they have an account; it checks the token, its expiry and its use
-  count before doing anything. One further item notes a
-  table with no policies (`backup_job_tokens`), which is correct — nobody but the backup
-  job should ever read it. The last is the login code length in section 3.
+  role before returning anything. The 20 open ones are the public pages (landing
+  calculator, industry pages, ticket page, application forms), the small helpers those
+  pages lean on to work out who is asking, and `redeem_invite`, which lets a person open
+  an invite link and claim their spot before they have an account; it checks the token,
+  its expiry and its use count first. One further item notes a table with no policies
+  (`backup_job_tokens`), which is correct — nobody but the backup job should ever read it.
+  The last is the login code length in section 3.
 - **A React warning in the browser console during development.** It does not appear in
   the published build and has no effect on anything.
 - **Two first-day sequences were never walked through as a live signed-in user:** the
   Fiber industry lead's first day, and a Fiber rep's day one. The screens exist and were
   checked individually; the end-to-end run was not captured.
+- **The bottom tabs for a Fiber rep are Home, Chat, Installs, Money and Team.** Five tabs,
+  not six; blitzes and the board are reached from the Fiber home screen instead.
+
 - **Recurring events post one chat card per stored occurrence.** If a weekly meeting has
   twelve stored dates, chat shows twelve cards rather than one repeating card.
 - **AI rep profiles are thin until reps generate activity.** 26 profiles exist now. A rep
