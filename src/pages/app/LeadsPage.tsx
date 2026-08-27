@@ -24,17 +24,15 @@ import CallMode from '@/components/leads/CallMode';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
-const NOT_ON_ROSTER = 'not-on-2026-roster';
 
-type Chip = 'all' | 'designated' | 'free' | 'not_on_roster' | 'josh' | 'out_for_good';
+type Chip = 'out' | 'not_on_roster' | 'all' | 'designated' | 'free';
 
 const CHIPS: { id: Chip; label: string }[] = [
+  { id: 'out', label: 'Out this season' },
+  { id: 'not_on_roster', label: 'Older pool' },
   { id: 'all', label: 'All' },
   { id: 'designated', label: 'Designated' },
-  { id: 'free', label: 'Free' },
-  { id: 'not_on_roster', label: 'Not on 2026 roster' },
-  { id: 'josh', label: "Josh's system" },
-  { id: 'out_for_good', label: 'Out for good' },
+  { id: 'free', label: 'Pool' },
 ];
 
 function callbackLabel(iso: string | null): string | null {
