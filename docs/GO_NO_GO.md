@@ -1,47 +1,55 @@
 # Go / No-Go — publish readiness
 
-Written for the owner. Read top to bottom. Nothing in this document has been published.
+Written for the owner. Last checked 26 August 2026. Nothing in this document has been
+published.
 
 ---
 
 ## 1. Verdict
 
-**Not yet — because of two things only you can do.** The app itself is ready: the code
-compiles clean, the production build succeeds with no oversized files, every screen holds
-its layout from a 390-pixel phone to a 1280-pixel desktop, no table in the database is
-readable without the right permission, and the public pages show no pay figures or carrier
-names while stack publishing is switched off. What is not ready is *email* and *one
-person's access*. Right now the app sends every email — welcome messages, application
-approvals, calendar notices, the weekly owner report — from a shared Resend test address,
-which Resend will only deliver to your own inbox. Everyone else silently gets nothing. And
-Mathew Rubino is listed as the lead of Summit Pest but currently has no role assigned in
-the app, so he cannot use the tools that job needs. Fix those two and the app is ready to
-publish. The rest of the checklist below is settings you can change any time after
-launch without breaking anything.
+**Not yet — because of two things only you can do.** A full regression check on 26 August
+re-ran the five everyday actions (new account, chat message, public application, fiber
+install, pest sale), the invite link end to end, and every rebuilt screen at phone and
+desktop width. Everything passed and all test records were deleted afterwards, so the
+counts are back where they started. The code compiles clean, the production build has one
+file at 210 kB and nothing larger, no screen scrolls sideways at any width from 390 to
+1280 pixels, and no table in the database is readable without the right permission. Two
+small faults were found and fixed during the check: logging a fiber install failed on a
+missing note field, and the Fiber team roster was asking the database the wrong question.
+What is still not ready is *email* and *one person's access*. Every email — welcome
+messages, application approvals, calendar notices, the weekly owner report — goes out from
+a shared Resend test address that Resend only delivers to your own inbox. And Mathew
+Rubino is listed as the lead of Summit Pest with no role assigned, so he cannot use the
+tools that job needs. Fix those two and the app is ready to publish. The credit spend for
+this work is tracked outside the app.
 
 ---
 
 ## 2. What changed since the last published version
 
-- **Three separate businesses.** Pest, Fiber and Life now look and work differently. Each
-  has its own home screen, its own colours and its own bottom tabs on a phone.
-- **Fiber runs on installs.** Its own Installs screen, per-install pay only, region rosters.
-  Account counts and downline figures that never applied to Fiber are gone.
-- **Life runs on appointments.** A light, calm screen with a pipeline. Its setup path is
-  written but left unpublished until you say it is ready.
-- **Field Playbook.** Your own Pest sales material, word for word, searchable, two taps
-  from home, and Ask Summit now answers using it and names the section it came from.
-- **Log a sale.** A rep logs a sale on their phone; it posts a win in chat, adds points
-  once, tells their manager on the first sale of the day, and shows on the leaderboard.
-- **Setup paths.** The Fiber path is published as five steps; Fiber East and West region
-  leads are now assigned from Settings → Industries → Fiber → Regions.
-- **Add to home screen.** The app installs on a phone like an app, with its own icon.
-- **My Week.** One screen for a manager: each rep's sales, training minutes, activity,
-  unanswered event questions, setup progress and who needs attention. A Monday email
-  digest goes with it.
-- **A rookie's first week.** Seven guided days on the home screen, with the manager able
-  to see and mark progress. Only real rookies see it — veterans never do.
-
+- **The name.** The organisation is Summit Trinity; day to day the app says Summit. The
+  new three-peak wordmark is on every screen, the login page and the phone icon.
+- **Invites replace sign-up.** Nobody creates their own account any more. An admin or a
+  manager sends one link; the link sets the person's industry, team, region and manager.
+- **One design system.** Dark, sharp, high contrast, one type family, one set of colours.
+- **Home rebuilt.** The screen a rep opens ten times a day: today's number, the week, the
+  goal, their streak, what needs them, and the next event.
+- **Chat is one room, not a list.** It opens straight into your team room, with the other
+  rooms and direct messages on a strip across the top.
+- **The other tabs rebuilt.** Leaderboard with a podium, missions as cards, team as
+  people, and money, playbook and profile all in the same look.
+- **Each industry looks like itself.** Pest, Fiber and Life have their own tabs, their own
+  texture and their own home screen; switching swaps the whole app at once.
+- **The front door.** Public home, industry pages and both application forms rebuilt, with
+  no invented numbers and a top accessibility score.
+- **My money, every industry.** One screen with an All tab plus Pest, Fiber and Life.
+  Anything you have not set reads "Not set" rather than guessing.
+- **Fiber pay loaded from your v5 scale.** 13 carriers, 80 confirmed rows, 10 per cent
+  holdback released at 90 days. Public publishing stays off until you switch it on.
+- **Elijah Hughes has left.** Last day 26 August, archived, and his accounts are in the
+  lead pool.
+- **Brandon Pillar** is the East region lead and still needs an invite or a password reset
+  from you before he can sign in.
 
 ---
 
