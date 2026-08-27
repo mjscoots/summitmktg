@@ -7417,6 +7417,7 @@ export type Database = {
         Args: { _lead: string; _stage: string }
         Returns: undefined
       }
+      lead_system_for: { Args: { _uid: string }; Returns: string }
       leads_callbacks_due: { Args: never; Returns: number }
       leads_counts: { Args: never; Returns: Json }
       leads_designate_bulk: {
@@ -7425,110 +7426,60 @@ export type Database = {
       }
       leads_import_commit: { Args: { _decisions: Json }; Returns: Json }
       leads_import_preview: { Args: { _rows: Json }; Returns: Json }
-      leads_list:
-        | {
-            Args: {
-              _designated_to?: string
-              _has_phone?: boolean
-              _limit?: number
-              _rev_max?: number
-              _rev_min?: number
-              _roster_status?: string
-              _scope?: string
-              _search?: string
-              _signed?: boolean
-              _stage?: string
-              _system?: string
-              _tag?: string
-            }
-            Returns: {
-              call_count: number
-              committed_last_day: string
-              days_in_market: number
-              designated_has_access: boolean
-              designated_to: string
-              designated_to_name: string
-              designation_status: string
-              do_not_call: boolean
-              email: string
-              former_manager_name: string
-              full_name: string
-              id: string
-              last_contact_at: string
-              last_outcome: string
-              next_call_at: string
-              notes: string
-              on_roster: boolean
-              phone: string
-              profile_id: string
-              recruiter_name: string
-              rep_year: string
-              rev_per_day: number
-              role_title: string
-              roster_status: string
-              season_revenue: number
-              signed_2027: boolean
-              stage: string
-              start_date: string
-              system: string
-              tags: string[]
-              team_name: string
-            }[]
-          }
-        | {
-            Args: {
-              _designated_to?: string
-              _designation?: string
-              _has_phone?: boolean
-              _limit?: number
-              _rev_max?: number
-              _rev_min?: number
-              _roster_status?: string
-              _scope?: string
-              _search?: string
-              _signed?: boolean
-              _stage?: string
-              _system?: string
-              _tag?: string
-            }
-            Returns: {
-              call_count: number
-              committed_last_day: string
-              cycle_days: number
-              cycles_in_days: number
-              days_in_market: number
-              designated_at: string
-              designated_has_access: boolean
-              designated_to: string
-              designated_to_name: string
-              designation_status: string
-              do_not_call: boolean
-              email: string
-              former_manager_name: string
-              full_name: string
-              hold: boolean
-              id: string
-              last_contact_at: string
-              last_outcome: string
-              next_call_at: string
-              notes: string
-              on_roster: boolean
-              phone: string
-              profile_id: string
-              recruiter_name: string
-              rep_year: string
-              rev_per_day: number
-              role_title: string
-              roster_status: string
-              season_revenue: number
-              signed_2027: boolean
-              stage: string
-              start_date: string
-              system: string
-              tags: string[]
-              team_name: string
-            }[]
-          }
+      leads_list: {
+        Args: {
+          _designated_to?: string
+          _designation?: string
+          _has_phone?: boolean
+          _limit?: number
+          _rev_max?: number
+          _rev_min?: number
+          _roster_status?: string
+          _scope?: string
+          _search?: string
+          _signed?: boolean
+          _stage?: string
+          _system?: string
+          _tag?: string
+        }
+        Returns: {
+          call_count: number
+          committed_last_day: string
+          cycle_days: number
+          cycles_in_days: number
+          days_in_market: number
+          designated_at: string
+          designated_has_access: boolean
+          designated_to: string
+          designated_to_name: string
+          designation_status: string
+          do_not_call: boolean
+          email: string
+          former_manager_name: string
+          full_name: string
+          hold: boolean
+          id: string
+          last_contact_at: string
+          last_outcome: string
+          next_call_at: string
+          notes: string
+          on_roster: boolean
+          phone: string
+          profile_id: string
+          recruiter_name: string
+          rep_year: string
+          rev_per_day: number
+          role_title: string
+          roster_status: string
+          season_revenue: number
+          signed_2027: boolean
+          stage: string
+          start_date: string
+          system: string
+          tags: string[]
+          team_name: string
+        }[]
+      }
       leads_manager_options: {
         Args: never
         Returns: {
