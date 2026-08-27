@@ -392,9 +392,9 @@ export default function LeadsPage() {
                     <button onClick={() => setOpenLead(lead.id)} className="min-w-0 flex-1 text-left">
                       <p className="truncate text-[14px] font-semibold text-foreground">
                         {lead.full_name}
-                        {notOnRoster && (
-                          <span className="ml-2 rounded-full border border-border/60 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                            Not on 2026 roster
+                        {lead.signed_2027 && (
+                          <span className="ml-2 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 align-middle text-[10px] font-medium text-primary">
+                            Signed for 2027
                           </span>
                         )}
                       </p>
