@@ -233,6 +233,8 @@ minutes for it.
 | **Weekly owner report** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly awards** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly backup** | Sundays 09:20 UTC | **not yet run** |
+| **Manager weekly digest** | Mondays 13:00 UTC | **not yet run** |
 
-The five marked "not yet run" are all recent additions whose first scheduled time has not
+The six marked "not yet run" are all recent additions whose first scheduled time has not
+
 come round yet. Check them on the day after publishing.
