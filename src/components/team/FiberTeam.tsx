@@ -107,18 +107,19 @@ export function FiberTeam() {
     <div className="space-y-4">
       {regions.map((region) => {
         const roster = people.filter((p) => p.region_id === region.id);
-        const lead = roster.find((p) => p.id === region.lead_user_id) || null;
-        const rest = roster.filter((p) => p.id !== region.lead_user_id);
+        const lead = roster.find((p) => p.user_id === region.lead_user_id) || null;
+        const rest = roster.filter((p) => p.user_id !== region.lead_user_id);
         if (roster.length === 0) return null;
         return (
           <section key={region.id} className={`${CARD} p-5`}>
             <h2 className="mb-2 text-sm font-medium tracking-tight text-foreground">{region.name} region</h2>
             <div className="divide-y divide-border">
-              {lead && <PersonRow p={lead} installs={installs[lead.id] || 0} isLead />}
+              {lead && <PersonRow p={lead} installs={installs[lead.user_id] || 0} isLead />}
               {rest.map((p) => (
-                <PersonRow key={p.id} p={p} installs={installs[p.id] || 0} />
+                <PersonRow key={p.user_id} p={p} installs={installs[p.user_id] || 0} />
               ))}
             </div>
+
           </section>
         );
       })}
