@@ -611,9 +611,10 @@ export default function AdminUsersTab({
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="all">All status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="nlc">NLC</SelectItem>
+            <SelectItem value="nlc">Archived</SelectItem>
+
           </SelectContent>
         </Select>
 
