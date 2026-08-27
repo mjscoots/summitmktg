@@ -9,6 +9,9 @@ import {
   Video,
   MessageSquare,
   GitBranch,
+  FileText,
+  Flag,
+  Users,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,6 +38,9 @@ import {
 
 const TYPE_META: Record<QueueItemType, { label: string; icon: typeof Inbox; actionable: boolean }> = {
   approval: { label: 'Rep approval', icon: UserCheck, actionable: true },
+  application: { label: 'Application', icon: FileText, actionable: false },
+  team_lead: { label: 'Team lead application', icon: Flag, actionable: false },
+  pairing: { label: 'Pairing request', icon: Users, actionable: false },
   pitch: { label: 'Pitch review', icon: Video, actionable: true },
   feedback: { label: 'Feedback', icon: MessageSquare, actionable: false },
   sync: { label: 'Hierarchy sync', icon: GitBranch, actionable: false },

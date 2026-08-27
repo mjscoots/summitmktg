@@ -7418,6 +7418,7 @@ export type Database = {
         Returns: undefined
       }
       leads_callbacks_due: { Args: never; Returns: number }
+      leads_counts: { Args: never; Returns: Json }
       leads_designate_bulk: {
         Args: { _leads: string[]; _to: string }
         Returns: number

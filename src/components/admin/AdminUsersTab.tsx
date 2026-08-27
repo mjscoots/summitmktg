@@ -379,6 +379,9 @@ export default function AdminUsersTab({
 
       if (statusFilter === 'active' && u.status !== 'active') return false;
       if (statusFilter === 'nlc' && u.status !== 'nlc') return false;
+      // Archived people only ever show behind the explicit archived filter.
+      if (statusFilter !== 'nlc' && u.status === 'nlc') return false;
+
 
       if (progressFilter !== 'all' && progress !== progressFilter) return false;
 
@@ -608,9 +611,10 @@ export default function AdminUsersTab({
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="all">All status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="nlc">NLC</SelectItem>
+            <SelectItem value="nlc">Archived</SelectItem>
+
           </SelectContent>
         </Select>
 
