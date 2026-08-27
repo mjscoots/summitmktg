@@ -31,7 +31,7 @@ function PersonRow({ p, installs, isLead }: { p: Person; installs: number; isLea
   const navigate = useNavigate();
   return (
     <div className="flex items-center gap-3 py-2">
-      <button onClick={() => navigate(`/app/person/${p.id}`)} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 text-left">
+      <button onClick={() => navigate(`/app/person/${p.user_id}`)} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 text-left">
         {p.avatar_url ? (
           <img src={p.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />
         ) : (
