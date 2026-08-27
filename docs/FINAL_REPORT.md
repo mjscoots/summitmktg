@@ -1533,3 +1533,18 @@ Nothing was published.
 - Verified: owner screenshots of all four tabs at 390 and 1280, overflow 0 at both widths on every tab, typecheck clean, production build clean.
 - Owner account has no logged Pest revenue or Fiber installs, so the All tab correctly shows zeros and "Not set" rather than invented figures.
 - Not published.
+
+## Pass 71B — Fiber pay from v5 and two roster fixes
+- Loaded Summit_Fiber_Pay_Scale_v5 (Aug 2026): 13 fiber carriers, 80 pay rows, all confirmed with source "v5, Aug 2026". Sonic and Surf kept their existing ids.
+- Rows per carrier: Sonic 7, Brightspeed 7, Fidium 7, GoNetspeed CT 7, Lightcurve 6, Surf 6, Xfinity 6, Ripple 6, 123NET 6, Astound 6, ALLO 6, GoNetspeed other 5, NKTelco 5.
+- Ladder labels are the seven v5 rows (Tier 1 through Tier 4, Team Lead, Manager, Org stack). The old nine-rank ladder above Manager is gone. The word President appears nowhere.
+- Holdback set to 10 percent; the 90-day release and the rest of the v5 rules are stored as the rules text and render as a "Pay rules" card on the Fiber pay page with the source note.
+- Publishing stays off: `publish_stacks_publicly` false and `public_fiber_starting_rate` blank, so nothing new is public.
+- Fiber reads updated: the pay table, public pay table and the money read now use each row's own label and order, and the tier card's next tier is the next row that pays more, with the install threshold taken from the label. Missing carrier or tier still reads "Rate not set" and counts as zero.
+- Team lead and manager qualification counts now match the new tier names. Entry classes are EC1 rookie and EC3 veteran only; no EC2 wording exists in the app.
+- Life: not on any public surface. Removed the two leftover life-insurance mentions in public copy (recruiting page, industry page description). /industries/life still redirects home.
+- Elijah Hughes: departed, last day 2026-08-26, reason "left", archived. His lead card carries bucket lead, stage new, not on roster, designated to his former manager Jordan Lee Trotter, with the departure snapshot and AI summary.
+- Brandon Pillar: on the roster with the Fiber vertical active; East region lead cleared so he holds no region lead role.
+- GO/NO-GO updated: Elijah's manager line removed, fiber per-install item now reads loaded from v5 with publishing off, Brandon invite/password guidance added.
+- Verified: owner screenshots of the Fiber money tab, Fiber home and public home at 390 and 1280, overflow 0 at both widths; typecheck and production build clean.
+- Not published.
