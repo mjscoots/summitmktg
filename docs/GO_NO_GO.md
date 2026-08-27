@@ -79,14 +79,20 @@ Each item says where to click and what happens if you leave it.
   *If you do nothing:* login codes stay shorter than recommended. Low risk, but it is the
   one security warning in the report that is a genuine setting rather than by design.
 
-- [ ] **Fiber region leads.** Neither Fiber East nor Fiber West has a region lead.
-  Admin → Settings → Regions.
-  *If you do nothing:* Fiber reps have no region lead and the region picker shows a gap.
+- [ ] **Fiber West region lead.** Fiber East is led by Brandon Pillar; Fiber West has
+  nobody. Admin → Settings → Regions.
+  *If you do nothing:* Fiber West reps have no region lead and the region picker shows a gap.
 
-- [ ] **Brandon Pillar's account.** He is on the roster as a Fiber rep with no region
-  lead role. Send him an invite link from Admin → People → Invite, or reset his password
-  from Admin → Team, so he can sign in himself.
+- [ ] **Brandon Pillar's sign-in.** He is on the roster as a Fiber rep and is the East
+  region lead, but he has never signed in. Send him an invite link from Admin → People →
+  Invite, or reset his password from Admin → Team.
   *If you do nothing:* he cannot get into the app.
+
+- [ ] **The duplicate "Brandon Bruce Pillar" record.** An old archived profile under
+  `brendan.pillar@summitmktg.com` is still on file next to his live account. It is
+  archived and nobody can sign in with it. Decide whether to delete it or merge it.
+  *If you do nothing:* nothing breaks; it stays hidden in the archive.
+
 
 - [x] **Fiber per-install values.** Loaded from v5, Aug 2026: 13 carriers, 80 confirmed
   rows. Publishing stays off, so nothing shows publicly until you switch it on in
