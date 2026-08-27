@@ -1801,6 +1801,7 @@ export type Database = {
           entered_by: string | null
           id: string
           installs: number
+          notes: string | null
           updated_at: string
           user_id: string
           week_start: string
@@ -1812,6 +1813,7 @@ export type Database = {
           entered_by?: string | null
           id?: string
           installs?: number
+          notes?: string | null
           updated_at?: string
           user_id: string
           week_start: string
@@ -1823,6 +1825,7 @@ export type Database = {
           entered_by?: string | null
           id?: string
           installs?: number
+          notes?: string | null
           updated_at?: string
           user_id?: string
           week_start?: string

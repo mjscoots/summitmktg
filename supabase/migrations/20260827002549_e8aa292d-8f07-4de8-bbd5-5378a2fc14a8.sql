@@ -1,0 +1,1 @@
+ALTER TABLE public.fiber_installs ADD COLUMN IF NOT EXISTS notes text;
