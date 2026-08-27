@@ -46,11 +46,13 @@ export default function LeadsPage() {
   const tier = tierOf(role);
   const staff = isStaffTier(tier);
   const [params, setParams] = useSearchParams();
-  const scope = ((params.get('tab') as LeadScope) || 'mine') as LeadScope;
+  const rawScope = ((params.get('tab') as LeadScope) || 'mine') as LeadScope;
+  const scope: LeadScope = tier === 'sales' ? 'mine' : rawScope;
   const [search, setSearch] = useState('');
   const [stage, setStage] = useState<string>('all');
   const [hasPhone, setHasPhone] = useState<string>('all');
-  const [chip, setChip] = useState<Chip>('all');
+  const [system, setSystem] = useState<string>('all');
+  const [chip, setChip] = useState<Chip>('out');
   const [openLead, setOpenLead] = useState<string | null>(params.get('lead'));
   const [callMode, setCallMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
