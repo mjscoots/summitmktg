@@ -108,6 +108,7 @@ export interface LeadPrivateNote {
   kind: string;
   body: string | null;
   created_at: string;
+  author_name?: string | null;
 }
 
 export interface LeadDetail {
