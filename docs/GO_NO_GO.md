@@ -1,47 +1,55 @@
 # Go / No-Go — publish readiness
 
-Written for the owner. Read top to bottom. Nothing in this document has been published.
+Written for the owner. Last checked 26 August 2026. Nothing in this document has been
+published.
 
 ---
 
 ## 1. Verdict
 
-**Not yet — because of two things only you can do.** The app itself is ready: the code
-compiles clean, the production build succeeds with no oversized files, every screen holds
-its layout from a 390-pixel phone to a 1280-pixel desktop, no table in the database is
-readable without the right permission, and the public pages show no pay figures or carrier
-names while stack publishing is switched off. What is not ready is *email* and *one
-person's access*. Right now the app sends every email — welcome messages, application
-approvals, calendar notices, the weekly owner report — from a shared Resend test address,
-which Resend will only deliver to your own inbox. Everyone else silently gets nothing. And
-Mathew Rubino is listed as the lead of Summit Pest but currently has no role assigned in
-the app, so he cannot use the tools that job needs. Fix those two and the app is ready to
-publish. The rest of the checklist below is settings you can change any time after
-launch without breaking anything.
+**Not yet — because of two things only you can do.** A full regression check on 26 August
+re-ran the five everyday actions (new account, chat message, public application, fiber
+install, pest sale), the invite link end to end, and every rebuilt screen at phone and
+desktop width. Everything passed and all test records were deleted afterwards, so the
+counts are back where they started. The code compiles clean, the production build has one
+file at 210 kB and nothing larger, no screen scrolls sideways at any width from 390 to
+1280 pixels, and no table in the database is readable without the right permission. Two
+small faults were found and fixed during the check: logging a fiber install failed on a
+missing note field, and the Fiber team roster was asking the database the wrong question.
+What is still not ready is *email* and *one person's access*. Every email — welcome
+messages, application approvals, calendar notices, the weekly owner report — goes out from
+a shared Resend test address that Resend only delivers to your own inbox. And Mathew
+Rubino is listed as the lead of Summit Pest with no role assigned, so he cannot use the
+tools that job needs. Fix those two and the app is ready to publish. The credit spend for
+this work is tracked outside the app.
 
 ---
 
 ## 2. What changed since the last published version
 
-- **Three separate businesses.** Pest, Fiber and Life now look and work differently. Each
-  has its own home screen, its own colours and its own bottom tabs on a phone.
-- **Fiber runs on installs.** Its own Installs screen, per-install pay only, region rosters.
-  Account counts and downline figures that never applied to Fiber are gone.
-- **Life runs on appointments.** A light, calm screen with a pipeline. Its setup path is
-  written but left unpublished until you say it is ready.
-- **Field Playbook.** Your own Pest sales material, word for word, searchable, two taps
-  from home, and Ask Summit now answers using it and names the section it came from.
-- **Log a sale.** A rep logs a sale on their phone; it posts a win in chat, adds points
-  once, tells their manager on the first sale of the day, and shows on the leaderboard.
-- **Setup paths.** The Fiber path is published as five steps; Fiber East and West region
-  leads are now assigned from Settings → Industries → Fiber → Regions.
-- **Add to home screen.** The app installs on a phone like an app, with its own icon.
-- **My Week.** One screen for a manager: each rep's sales, training minutes, activity,
-  unanswered event questions, setup progress and who needs attention. A Monday email
-  digest goes with it.
-- **A rookie's first week.** Seven guided days on the home screen, with the manager able
-  to see and mark progress. Only real rookies see it — veterans never do.
-
+- **The name.** The organisation is Summit Trinity; day to day the app says Summit. The
+  new three-peak wordmark is on every screen, the login page and the phone icon.
+- **Invites replace sign-up.** Nobody creates their own account any more. An admin or a
+  manager sends one link; the link sets the person's industry, team, region and manager.
+- **One design system.** Dark, sharp, high contrast, one type family, one set of colours.
+- **Home rebuilt.** The screen a rep opens ten times a day: today's number, the week, the
+  goal, their streak, what needs them, and the next event.
+- **Chat is one room, not a list.** It opens straight into your team room, with the other
+  rooms and direct messages on a strip across the top.
+- **The other tabs rebuilt.** Leaderboard with a podium, missions as cards, team as
+  people, and money, playbook and profile all in the same look.
+- **Each industry looks like itself.** Pest, Fiber and Life have their own tabs, their own
+  texture and their own home screen; switching swaps the whole app at once.
+- **The front door.** Public home, industry pages and both application forms rebuilt, with
+  no invented numbers and a top accessibility score.
+- **My money, every industry.** One screen with an All tab plus Pest, Fiber and Life.
+  Anything you have not set reads "Not set" rather than guessing.
+- **Fiber pay loaded from your v5 scale.** 13 carriers, 80 confirmed rows, 10 per cent
+  holdback released at 90 days. Public publishing stays off until you switch it on.
+- **Elijah Hughes has left.** Last day 26 August, archived, and his accounts are in the
+  lead pool.
+- **Brandon Pillar** is the East region lead and still needs an invite or a password reset
+  from you before he can sign in.
 
 ---
 
@@ -71,14 +79,20 @@ Each item says where to click and what happens if you leave it.
   *If you do nothing:* login codes stay shorter than recommended. Low risk, but it is the
   one security warning in the report that is a genuine setting rather than by design.
 
-- [ ] **Fiber region leads.** Neither Fiber East nor Fiber West has a region lead.
-  Admin → Settings → Regions.
-  *If you do nothing:* Fiber reps have no region lead and the region picker shows a gap.
+- [ ] **Fiber West region lead.** Fiber East is led by Brandon Pillar; Fiber West has
+  nobody. Admin → Settings → Regions.
+  *If you do nothing:* Fiber West reps have no region lead and the region picker shows a gap.
 
-- [ ] **Brandon Pillar's account.** He is on the roster as a Fiber rep with no region
-  lead role. Send him an invite link from Admin → People → Invite, or reset his password
-  from Admin → Team, so he can sign in himself.
+- [ ] **Brandon Pillar's sign-in.** He is on the roster as a Fiber rep and is the East
+  region lead, but he has never signed in. Send him an invite link from Admin → People →
+  Invite, or reset his password from Admin → Team.
   *If you do nothing:* he cannot get into the app.
+
+- [ ] **The duplicate "Brandon Bruce Pillar" record.** An old archived profile under
+  `brendan.pillar@summitmktg.com` is still on file next to his live account. It is
+  archived and nobody can sign in with it. Decide whether to delete it or merge it.
+  *If you do nothing:* nothing breaks; it stays hidden in the archive.
+
 
 - [x] **Fiber per-install values.** Loaded from v5, Aug 2026: 13 carriers, 80 confirmed
   rows. Publishing stays off, so nothing shows publicly until you switch it on in
@@ -138,21 +152,24 @@ Each item says where to click and what happens if you leave it.
 
 ## 4. Known limitations that ship as-is
 
-- **313 database linter items, and that is expected.** 292 of them say "a signed-in user
-  can call this function", and 19 say "anyone can call this function". These functions
+- **319 database linter items, and that is expected.** 297 of them say "a signed-in user
+  can call this function", and 20 say "anyone can call this function". These functions
   *are* the app's own interface to its data, and every one of them checks the caller's
-  role before returning anything. The 19 open ones are the public pages: the landing
-  calculator, industry pages, ticket page, application forms. Since Pass 71A one more is
-  deliberately open — `redeem_invite`, which lets a person open an invite link and claim
-  their spot before they have an account; it checks the token, its expiry and its use
-  count before doing anything. One further item notes a
-  table with no policies (`backup_job_tokens`), which is correct — nobody but the backup
-  job should ever read it. The last is the login code length in section 3.
+  role before returning anything. The 20 open ones are the public pages (landing
+  calculator, industry pages, ticket page, application forms), the small helpers those
+  pages lean on to work out who is asking, and `redeem_invite`, which lets a person open
+  an invite link and claim their spot before they have an account; it checks the token,
+  its expiry and its use count first. One further item notes a table with no policies
+  (`backup_job_tokens`), which is correct — nobody but the backup job should ever read it.
+  The last is the login code length in section 3.
 - **A React warning in the browser console during development.** It does not appear in
   the published build and has no effect on anything.
 - **Two first-day sequences were never walked through as a live signed-in user:** the
   Fiber industry lead's first day, and a Fiber rep's day one. The screens exist and were
   checked individually; the end-to-end run was not captured.
+- **The bottom tabs for a Fiber rep are Home, Chat, Installs, Money and Team.** Five tabs,
+  not six; blitzes and the board are reached from the Fiber home screen instead.
+
 - **Recurring events post one chat card per stored occurrence.** If a weekly meeting has
   twelve stored dates, chat shows twelve cards rather than one repeating card.
 - **AI rep profiles are thin until reps generate activity.** 26 profiles exist now. A rep
@@ -163,8 +180,10 @@ Each item says where to click and what happens if you leave it.
   so manager-and-rep interactions were proven by running the same calls as each person
   against the real rules, with throwaway accounts that were then deleted.
 - **Performance on the preview address scores low; the published address will not.** The
-  preview serves unminified files with the editing toolbar attached. The published build
-  is 192 kB for the main file with no file over 200 kB.
+  preview serves unminified files with the editing toolbar attached (performance 30 on the
+  public home, 48 on login, while accessibility scores 100 and 98). The published build is
+  210 kB for the main file, 68 kB compressed, with nothing larger.
+
 
 ---
 
@@ -214,6 +233,8 @@ minutes for it.
 | **Weekly owner report** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly awards** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly backup** | Sundays 09:20 UTC | **not yet run** |
+| **Manager weekly digest** | Mondays 13:00 UTC | **not yet run** |
 
-The five marked "not yet run" are all recent additions whose first scheduled time has not
+The six marked "not yet run" are all recent additions whose first scheduled time has not
+
 come round yet. Check them on the day after publishing.

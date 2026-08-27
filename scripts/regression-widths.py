@@ -44,12 +44,13 @@ APP_ROUTES = [
     ("recruits", "/app/recruits"),
     ("ask", "/app/ask"),
     ("profile", "/app/profile"),
-    ("admin-money", "/app/admin?tab=money"),
+    ("admin-money", "/admin/money"),
     ("chat", "/app/chat"),
     ("leads", "/app/leads"),
     ("events", "/app/events"),
     ("training", "/app/training"),
-    ("command", "/command"),
+    ("admin-reports", "/admin/reports"),
+
 ]
 
 OVERFLOW_JS = """

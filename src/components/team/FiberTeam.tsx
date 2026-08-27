@@ -13,7 +13,7 @@ interface Region {
 }
 
 interface Person {
-  id: string;
+  user_id: string;
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
@@ -31,7 +31,7 @@ function PersonRow({ p, installs, isLead }: { p: Person; installs: number; isLea
   const navigate = useNavigate();
   return (
     <div className="flex items-center gap-3 py-2">
-      <button onClick={() => navigate(`/app/person/${p.id}`)} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 text-left">
+      <button onClick={() => navigate(`/app/person/${p.user_id}`)} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 text-left">
         {p.avatar_url ? (
           <img src={p.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />
         ) : (
@@ -78,8 +78,8 @@ export function FiberTeam() {
         (supabase as any).from('regions').select('id, name, lead_user_id').order('name'),
         (supabase as any)
           .from('profiles')
-          .select('id, full_name, avatar_url, phone, region_id')
-          .eq('runs_vertical', 'Fiber'),
+          .select('user_id, full_name, avatar_url, phone, region_id')
+          .eq('vertical', 'Fiber'),
         (supabase as any).rpc('get_fiber_leaderboard', { p_week_start: weekStart() }),
       ]);
       setRegions((r.data as Region[]) || []);
@@ -107,18 +107,19 @@ export function FiberTeam() {
     <div className="space-y-4">
       {regions.map((region) => {
         const roster = people.filter((p) => p.region_id === region.id);
-        const lead = roster.find((p) => p.id === region.lead_user_id) || null;
-        const rest = roster.filter((p) => p.id !== region.lead_user_id);
+        const lead = roster.find((p) => p.user_id === region.lead_user_id) || null;
+        const rest = roster.filter((p) => p.user_id !== region.lead_user_id);
         if (roster.length === 0) return null;
         return (
           <section key={region.id} className={`${CARD} p-5`}>
             <h2 className="mb-2 text-sm font-medium tracking-tight text-foreground">{region.name} region</h2>
             <div className="divide-y divide-border">
-              {lead && <PersonRow p={lead} installs={installs[lead.id] || 0} isLead />}
+              {lead && <PersonRow p={lead} installs={installs[lead.user_id] || 0} isLead />}
               {rest.map((p) => (
-                <PersonRow key={p.id} p={p} installs={installs[p.id] || 0} />
+                <PersonRow key={p.user_id} p={p} installs={installs[p.user_id] || 0} />
               ))}
             </div>
+
           </section>
         );
       })}
@@ -129,8 +130,9 @@ export function FiberTeam() {
             {people
               .filter((p) => !p.region_id)
               .map((p) => (
-                <PersonRow key={p.id} p={p} installs={installs[p.id] || 0} />
+                <PersonRow key={p.user_id} p={p} installs={installs[p.user_id] || 0} />
               ))}
+
           </div>
         </section>
       )}
