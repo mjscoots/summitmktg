@@ -203,7 +203,23 @@ export default function LeadsPage() {
             ))}
           </div>
 
+          {staff && scope === 'all' && counts && (
+            <div className="mb-3 grid grid-cols-3 gap-2">
+              {[
+                { label: 'Pool', value: counts.pool },
+                { label: 'Designated', value: counts.designated },
+                { label: 'Signed for next season', value: counts.signed_2027 },
+              ].map((c) => (
+                <div key={c.label} className={cn(CARD, 'px-3 py-2')}>
+                  <p className="stat-num text-lg font-bold text-foreground tabular-nums">{c.value}</p>
+                  <p className="text-[11px] leading-tight text-muted-foreground">{c.label}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {staff && scope === 'all' && (
+
             <div className="mb-3 flex flex-wrap gap-1.5">
               {CHIPS.map((c) => (
                 <button
