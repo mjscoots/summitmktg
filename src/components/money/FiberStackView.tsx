@@ -92,6 +92,23 @@ export function FiberStackView() {
           )}
         </section>
       ))}
+
+      {ruleRows.length > 0 && (
+        <section className={`${CARD} p-5`}>
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h2 className="text-sm font-medium tracking-tight text-foreground">Pay rules</h2>
+            {source && <span className="text-xs text-muted-foreground">{source}</span>}
+          </div>
+          <dl className="divide-y divide-border">
+            {ruleRows.map((r) => (
+              <div key={r.key} className="py-2">
+                <dt className="text-xs uppercase tracking-wide text-muted-foreground">{r.label}</dt>
+                <dd className="mt-1 text-sm text-foreground">{rules?.[r.key]}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
     </div>
   );
 }
