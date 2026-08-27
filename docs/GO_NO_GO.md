@@ -71,19 +71,18 @@ Each item says where to click and what happens if you leave it.
   *If you do nothing:* login codes stay shorter than recommended. Low risk, but it is the
   one security warning in the report that is a genuine setting rather than by design.
 
-- [ ] **The two people with no manager.** Mathew Joyce (you — expected, you are the root)
-  and **Elijah Hughes**. Fix Elijah in Admin → Team → set his manager.
-  *If you do nothing:* he does not roll up into anyone's team numbers.
-
-- [ ] **Fiber West region lead.** Fiber East is Brendan Pillar; Fiber West has nobody.
+- [ ] **Fiber region leads.** Neither Fiber East nor Fiber West has a region lead.
   Admin → Settings → Regions.
-  *If you do nothing:* Fiber West reps have no region lead and the region picker shows a
-  gap.
+  *If you do nothing:* Fiber reps have no region lead and the region picker shows a gap.
 
-- [ ] **Fiber per-install values.** Sonic has 9 pay rows and Surf has 9, but **none of
-  the 18 are confirmed**. Admin → Money → Fiber.
-  *If you do nothing:* Fiber pay figures show as unconfirmed everywhere and are excluded
-  from anything public.
+- [ ] **Brandon Pillar's account.** He is on the roster as a Fiber rep with no region
+  lead role. Send him an invite link from Admin → People → Invite, or reset his password
+  from Admin → Team, so he can sign in himself.
+  *If you do nothing:* he cannot get into the app.
+
+- [x] **Fiber per-install values.** Loaded from v5, Aug 2026: 13 carriers, 80 confirmed
+  rows. Publishing stays off, so nothing shows publicly until you switch it on in
+  Admin → Money → Fiber.
 
 - [ ] **Fiber and Life setup steps.** Fiber's path has 4 steps and Life has 1, and
   neither is marked configured. Admin → Industries → the industry → mark configured and

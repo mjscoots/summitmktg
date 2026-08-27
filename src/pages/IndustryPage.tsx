@@ -44,7 +44,7 @@ export default function IndustryPage() {
         title: `${res?.label || vertical} — Summit Marketing`,
         description:
           res?.description ||
-          'We train and field sales reps in pest control, fiber internet, and life insurance. You close, you get paid on what you close.',
+          'We train and field sales reps in pest control and fiber internet. You close, you get paid on what you close.',
         path: `/industries/${slug.toLowerCase()}`,
       });
     })();

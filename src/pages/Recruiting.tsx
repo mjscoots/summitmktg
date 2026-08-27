@@ -186,7 +186,7 @@ const Recruiting = () => {
               Each path is designed to set you up for success.
             </p>
             <p className="text-xs text-muted-foreground max-w-xl mx-auto mt-3">
-              Pest is the main season. Summit also runs fiber internet in the winter and is starting life insurance.
+              Pest is the main season. Summit also runs fiber internet in the winter.
             </p>
 
           </div>
