@@ -11,13 +11,11 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const declinedReason = searchParams.get("reason") === "declined";
-  const { signIn, signUp, isAuthenticated } = useAuth();
+  const { signIn, isAuthenticated } = useAuth();
   
-  // Sign up stays reachable by URL (/auth?mode=signup) but is not promoted:
-  // self sign-up creates unplaced accounts, which invites fixed.
-  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>(
-    searchParams.get('mode') === 'signup' ? 'signup' : 'signin'
-  );
+  // Self sign-up is closed. Invites are the only way in, so /signup and
+  // /auth?mode=signup both land on sign in.
+  const [mode, setMode] = useState<'signin' | 'forgot'>('signin');
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
   
@@ -28,18 +26,6 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [awaitingAuthRedirect, setAwaitingAuthRedirect] = useState(false);
-
-  // Sign Up state
-  const [signupFirstName, setSignupFirstName] = useState("");
-  const [signupLastName, setSignupLastName] = useState("");
-  const [signupEmail, setSignupEmail] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
-  const [signupLevel, setSignupLevel] = useState<'rookie' | 'manager' | ''>('');
-  const [signupTeam, setSignupTeam] = useState("");
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
-
-  // Dropdown data
-  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
 
   // Redirect as soon as auth session is present (profile can hydrate afterward)
   useEffect(() => {
@@ -63,18 +49,6 @@ const AuthPage = () => {
     return () => window.clearTimeout(timeout);
   }, [awaitingAuthRedirect, isAuthenticated]);
 
-  // Fetch teams for dropdown
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await supabase
-        .from("teams")
-        .select("id, name")
-        .order("name");
-      setTeams(data || []);
-    };
-    fetchData();
-  }, []);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return; // Prevent double-click rapid-fire logins
@@ -92,48 +66,6 @@ const AuthPage = () => {
     }
 
     setAwaitingAuthRedirect(true);
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading) return; // Prevent double-click
-    setError("");
-
-    if (!signupFirstName.trim() || !signupLastName.trim() || !signupEmail.trim() || !signupPassword.trim()) {
-      setError("All fields are required.");
-      return;
-    }
-
-    if (!signupLevel) {
-      setError("Please select your level of experience.");
-      return;
-    }
-
-    if (!signupTeam) {
-      setError("Please select a team.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    const selectedTeam = teams.find(t => t.id === signupTeam);
-    const fullName = `${signupFirstName.trim()} ${signupLastName.trim()}`;
-
-    const { error } = await signUp(signupEmail.trim(), signupPassword, fullName, {
-      team_id: signupTeam,
-      team_name: selectedTeam?.name || "",
-      selected_role: signupLevel,
-    });
-
-    if (error) {
-      setError(error.message);
-      toast.error("Sign up failed", { description: error.message });
-      setIsLoading(false);
-      return;
-    }
-
-    toast.success("Account created! Complete the Summer Checklist to get started.");
-    setIsLoading(false);
   };
 
   return (
@@ -160,10 +92,10 @@ const AuthPage = () => {
             <Wordmark variant="heroMono" height={96} className="mx-auto h-auto w-full max-w-[280px]" />
           </div>
           <h1 className="font-display text-2xl font-extrabold tracking-[-0.01em] text-foreground mb-1">
-            {mode === 'signup' ? 'Create an account' : 'Welcome back'}
+            Welcome back
           </h1>
           <p className="text-muted-foreground text-sm">
-            {mode === 'signup' ? 'Ask your manager for an invite if you have one.' : 'Sign in to Summit.'}
+            Sign in to Summit.
           </p>
         </div>
 
@@ -209,63 +141,6 @@ const AuthPage = () => {
         )}
 
         {/* SIGN UP */}
-        {mode === 'signup' && (
-          <form onSubmit={handleSignUp} className="space-y-4">
-            <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-2">
-              New accounts require admin approval before access is granted.
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">First Name *</label>
-                <input type="text" value={signupFirstName} onChange={(e) => setSignupFirstName(e.target.value)} placeholder="John" className="input-field" required disabled={isLoading} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Last Name *</label>
-                <input type="text" value={signupLastName} onChange={(e) => setSignupLastName(e.target.value)} placeholder="Doe" className="input-field" required disabled={isLoading} />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Email *</label>
-              <input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@example.com" className="input-field" required disabled={isLoading} />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Password *</label>
-              <div className="relative">
-                <input type={showSignupPassword ? "text" : "password"} value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="••••••••" className="input-field pr-12" required minLength={6} disabled={isLoading} />
-                <button type="button" aria-label={showSignupPassword ? "Hide password" : "Show password"} onClick={() => setShowSignupPassword(!showSignupPassword)} className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-                  {showSignupPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Level of Experience *</label>
-              <select value={signupLevel} onChange={(e) => setSignupLevel(e.target.value as 'rookie' | 'manager' | '')} className="input-field" required disabled={isLoading}>
-                <option value="">Select experience level...</option>
-                <option value="rookie">Rookie</option>
-                <option value="manager">Manager</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Whose team are you a part of? *</label>
-              <select value={signupTeam} onChange={(e) => setSignupTeam(e.target.value)} className="input-field" required disabled={isLoading}>
-                <option value="">Select a team...</option>
-                {teams.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <button type="submit" disabled={isLoading} className="btn-primary w-full mt-6">
-              {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Creating account</>) : "Create account"}
-            </button>
-          </form>
-        )}
-
         {/* FORGOT PASSWORD */}
         {mode === 'forgot' && (
           <div className="space-y-4">
@@ -323,13 +198,6 @@ const AuthPage = () => {
             <p>Have an invite? Open your link.</p>
             <p>Need an account? Ask your manager for an invite.</p>
           </div>
-        )}
-        {mode === 'signup' && (
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            <button type="button" onClick={() => { setMode('signin'); setError(''); }} className="text-primary">
-              Back to sign in
-            </button>
-          </p>
         )}
       </main>
 

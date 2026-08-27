@@ -81,9 +81,38 @@ serve(async (req: Request): Promise<Response> => {
     const cronHeader = req.headers.get("x-cron-secret");
     let authorized = !!(CRON_SECRET && cronHeader && cronHeader === CRON_SECRET);
 
+    // Read the body once: it can carry the scheduler's single-use token and an
+    // optional single manager to run for.
+    let reqBody: { job_token?: string; only_user?: string } = {};
+    try {
+      reqBody = await req.json();
+    } catch {
+      reqBody = {};
+    }
+
+    // The scheduled run inserts a fresh single-use token row immediately before
+    // calling, the same way the weekly backup does.
+    if (!authorized && typeof reqBody.job_token === "string") {
+      const { data: tokenRow } = await admin
+        .from("backup_job_tokens")
+        .select("token")
+        .eq("token", reqBody.job_token)
+        .is("used_at", null)
+        .gt("created_at", new Date(Date.now() - 10 * 60 * 1000).toISOString())
+        .maybeSingle();
+      if (tokenRow) {
+        await admin
+          .from("backup_job_tokens")
+          .update({ used_at: new Date().toISOString() })
+          .eq("token", reqBody.job_token);
+        authorized = true;
+      }
+    }
+
     if (!authorized) {
       const token = (req.headers.get("Authorization") || "").replace("Bearer ", "");
       if (!token) return json({ error: "Unauthorized" }, 401);
+      {
       const userClient = createClient(SUPABASE_URL, ANON, {
         global: { headers: { Authorization: `Bearer ${token}` } },
       });
@@ -93,16 +122,12 @@ serve(async (req: Request): Promise<Response> => {
       const { data: roles } = await admin.from("user_roles").select("role").eq("user_id", uid);
       authorized = (roles || []).some((r: any) => r.role === "admin" || r.role === "owner");
       if (!authorized) return json({ error: "Forbidden" }, 403);
+      }
     }
 
     // Optional: run for one manager only (used for verification runs)
-    let onlyUser: string | null = null;
-    try {
-      const body = await req.json();
-      if (body && typeof body.only_user === "string") onlyUser = body.only_user;
-    } catch {
-      // no body
-    }
+    const onlyUser: string | null =
+      typeof reqBody.only_user === "string" ? reqBody.only_user : null;
 
     const { data: roleRows } = await admin
       .from("user_roles")
