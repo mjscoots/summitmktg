@@ -416,7 +416,7 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             )}
 
             {/* Private notes */}
-            {staff && (
+            {notesAllowed && (
               <div className="mt-4 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
                 <p className="micro-label mb-2 flex items-center gap-1.5">
                   <Lock className="h-3 w-3" /> Private notes
