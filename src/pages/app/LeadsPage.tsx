@@ -223,11 +223,12 @@ export default function LeadsPage() {
           </div>
 
           {staff && scope === 'all' && counts && (
-            <div className="mb-3 grid grid-cols-3 gap-2">
+            <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
-                { label: 'Pool', value: counts.pool },
+                { label: 'Out this season', value: counts.out },
                 { label: 'Designated', value: counts.designated },
-                { label: 'Signed for next season', value: counts.signed_2027 },
+                { label: 'Pool', value: counts.pool },
+                { label: 'Signed for 2027', value: counts.signed_2027 },
               ].map((c) => (
                 <div key={c.label} className={cn(CARD, 'px-3 py-2')}>
                   <p className="stat-num text-lg font-bold text-foreground tabular-nums">{c.value}</p>
