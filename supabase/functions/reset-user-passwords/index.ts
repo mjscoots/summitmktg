@@ -60,6 +60,7 @@ serve(async (req) => {
       .select("role")
       .eq("user_id", user.id)
       .in("role", ["admin", "owner"])
+      .limit(1)
       .maybeSingle();
 
     if (roleError || !callerRole) {
