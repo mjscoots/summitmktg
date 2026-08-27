@@ -458,7 +458,9 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                     <div key={n.id} className="rounded-lg border border-border/50 bg-background/40 p-2">
                       <p className="micro-label">{n.kind.replace('_', ' ')}</p>
                       <p className="text-[13px] text-foreground">{n.body}</p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">{new Date(n.created_at).toLocaleDateString()}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        {[n.author_name || 'Manager', new Date(n.created_at).toLocaleDateString()].join(' · ')}
+                      </p>
                     </div>
                   ))}
                 </div>
