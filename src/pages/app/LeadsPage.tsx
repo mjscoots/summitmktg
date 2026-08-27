@@ -76,6 +76,15 @@ export default function LeadsPage() {
     tier !== 'sales'
   );
 
+  const [counts, setCounts] = useState<{ pool: number; designated: number; signed_2027: number } | null>(null);
+
+  useEffect(() => {
+    if (!staff) return;
+    (supabase.rpc as any)('leads_counts').then(({ data }: { data: unknown }) => {
+      if (data) setCounts(data as { pool: number; designated: number; signed_2027: number });
+    });
+  }, [staff]);
+
   useEffect(() => {
     if (!staff) return;
     (supabase.rpc as any)('leads_manager_options').then(({ data }: { data: unknown }) => {
