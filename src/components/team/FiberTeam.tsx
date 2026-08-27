@@ -13,7 +13,7 @@ interface Region {
 }
 
 interface Person {
-  id: string;
+  user_id: string;
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
