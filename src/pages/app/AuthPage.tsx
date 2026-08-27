@@ -145,7 +145,7 @@ const AuthPage = () => {
         backgroundSize: '22px 22px',
       }}
     >
-      <div className="relative z-10 w-full max-w-md animate-fade-in">
+      <main className="relative z-10 w-full max-w-md animate-fade-in">
         <button
           onClick={() => navigate("/")}
           className="flex min-h-11 items-center text-muted-foreground hover:text-foreground transition-colors mb-6 -ml-1 px-1"
