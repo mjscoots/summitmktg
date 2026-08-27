@@ -78,8 +78,8 @@ export function FiberTeam() {
         (supabase as any).from('regions').select('id, name, lead_user_id').order('name'),
         (supabase as any)
           .from('profiles')
-          .select('id, full_name, avatar_url, phone, region_id')
-          .eq('runs_vertical', 'Fiber'),
+          .select('user_id, full_name, avatar_url, phone, region_id')
+          .eq('vertical', 'Fiber'),
         (supabase as any).rpc('get_fiber_leaderboard', { p_week_start: weekStart() }),
       ]);
       setRegions((r.data as Region[]) || []);
