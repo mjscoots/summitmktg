@@ -133,13 +133,13 @@ export function useAdminQueue() {
           .eq('status', 'new'),
         (supabase.from('admin_queue_dismissals' as any) as any).select('item_type, item_key'),
         (supabase.from('applications' as any) as any)
-          .select('id, full_name, applicant_type, status, created_at')
+          .select('id, full_name, application_type, status, created_at')
           .in('status', ['pending', 'reviewed']),
         (supabase.from('team_lead_applications' as any) as any)
           .select('id, user_id, status, created_at')
           .eq('status', 'pending'),
         (supabase.from('pairing_requests' as any) as any)
-          .select('id, rep_user_id, manager_user_id, status, created_at')
+          .select('id, rep_id, manager_id, status, created_at')
           .eq('status', 'pending'),
       ]);
 
@@ -183,7 +183,7 @@ export function useAdminQueue() {
           type: 'application',
           id: a.id,
           title: a.full_name || 'Application',
-          subtitle: `${a.applicant_type === 'veteran' ? 'Veteran' : 'Rookie'} application · ${a.status}`,
+          subtitle: `${a.application_type === 'veteran' ? 'Veteran' : 'Rookie'} application · ${a.status}`,
           createdAt: a.created_at || null,
         });
       });
@@ -207,8 +207,8 @@ export function useAdminQueue() {
           key: `pairing:${r.id}`,
           type: 'pairing',
           id: r.id,
-          title: nameByUser.get(r.rep_user_id) || 'Pairing request',
-          subtitle: `Manager: ${nameByUser.get(r.manager_user_id) || 'not found'}`,
+          title: nameByUser.get(r.rep_id) || 'Pairing request',
+          subtitle: `Manager: ${nameByUser.get(r.manager_id) || 'not found'}`,
           createdAt: r.created_at || null,
         });
       });
