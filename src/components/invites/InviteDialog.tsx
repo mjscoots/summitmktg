@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Copy, Loader2, UserPlus } from 'lucide-react';
+import { Copy, Loader2, Share2, UserPlus } from 'lucide-react';
 
 type InviteRow = {
   id: string;
@@ -64,6 +64,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
   const [region, setRegion] = useState<string>('');
   const [managerId, setManagerId] = useState<string>(user?.id || '');
   const [note, setNote] = useState('');
+  const [expiresDays, setExpiresDays] = useState('7');
   const [link, setLink] = useState<string | null>(null);
 
   const [verticals, setVerticals] = useState<{ vertical: string; name: string }[]>([]);
@@ -129,6 +130,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
       region: vertical.toLowerCase() === 'fiber' && region ? region : locked ? profile?.region || null : null,
       manager_id: locked ? user.id : managerId || null,
       note: note.trim() || null,
+      expires_at: new Date(Date.now() + Number(expiresDays) * 86_400_000).toISOString(),
     });
     setSaving(false);
     if (error) {
@@ -149,9 +151,32 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
     loadRows();
   };
 
-  const smsHref = link
-    ? `sms:?&body=${encodeURIComponent(`Here is your Summit invite: ${link}. It works for 7 days.`)}`
-    : '#';
+  const shareText = (url: string) =>
+    `Here is your Summit invite: ${url}. It works for ${expiresDays} days.`;
+
+  const copyLink = async (url: string) => {
+    await navigator.clipboard.writeText(url);
+    toast.success('Link copied');
+  };
+
+  const shareLink = async (url: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Summit invite', text: shareText(url), url });
+        return;
+      } catch {
+        return;
+      }
+    }
+    await copyLink(url);
+  };
+
+  const rowStatus = (r: InviteRow): string => {
+    if (r.used_at) return 'Redeemed';
+    if (r.revoked_at) return 'Revoked';
+    if (new Date(r.expires_at).getTime() < Date.now()) return 'Expired';
+    return 'Pending';
+  };
 
   return (
     <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) setLink(null); }}>
@@ -165,28 +190,26 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
         <DialogHeader>
           <DialogTitle>Invite someone</DialogTitle>
           <DialogDescription>
-            One link. It sets their role, vertical, team and manager, and works for 7 days.
+            One link for one person. It sets their role, vertical, team and manager, and
+            expires in 7 days unless you pick longer.
           </DialogDescription>
         </DialogHeader>
 
         {link ? (
           <div className="space-y-4">
-            <div className="rounded-xl border border-border bg-muted/30 p-3">
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
               <p className="text-xs text-muted-foreground">Invite link</p>
-              <p className="mt-1 break-all text-sm text-foreground">{link}</p>
+              <p className="mt-2 break-all text-base font-semibold leading-snug text-foreground">{link}</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Single use · expires in {expiresDays} days
+              </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button
-                className="min-h-11"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(link);
-                  toast.success('Link copied');
-                }}
-              >
+              <Button className="min-h-11 flex-1" onClick={() => copyLink(link)}>
                 <Copy className="mr-2 h-4 w-4" /> Copy
               </Button>
-              <Button asChild variant="outline" className="min-h-11 sm:hidden">
-                <a href={smsHref}>Send by text</a>
+              <Button variant="outline" className="min-h-11 flex-1" onClick={() => shareLink(link)}>
+                <Share2 className="mr-2 h-4 w-4" /> Share
               </Button>
               <Button variant="ghost" className="min-h-11" onClick={() => setLink(null)}>
                 Create another
@@ -261,6 +284,18 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
               <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Who this is for" />
             </div>
 
+            <div>
+              <Label>Expires in</Label>
+              <Select value={expiresDays} onValueChange={setExpiresDays}>
+                <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">7 days</SelectItem>
+                  <SelectItem value="14">14 days</SelectItem>
+                  <SelectItem value="30">30 days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <Button onClick={create} disabled={saving} className="min-h-11 w-full">
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create invite link
@@ -283,19 +318,29 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
                         {r.region ? ` · ${r.region}` : ''}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Created {new Date(r.created_at).toLocaleDateString()}
+                        {rowStatus(r)} · created {new Date(r.created_at).toLocaleDateString()}
                         {r.used_at
-                          ? ` · Used by ${names[r.used_by || ''] || 'a new member'} on ${new Date(r.used_at).toLocaleDateString()}`
-                          : r.revoked_at
-                            ? ' · Revoked'
-                            : ` · Expires ${new Date(r.expires_at).toLocaleDateString()}`}
+                          ? ` · redeemed by ${names[r.used_by || ''] || 'a new member'} on ${new Date(r.used_at).toLocaleString()}`
+                          : ` · expires ${new Date(r.expires_at).toLocaleDateString()}`}
                       </p>
                     </div>
-                    {!r.used_at && !r.revoked_at && (
-                      <Button variant="ghost" size="sm" className="min-h-11" onClick={() => revoke(r.id)}>
-                        Revoke
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {!r.used_at && !r.revoked_at && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="min-h-11"
+                            onClick={() => copyLink(`${window.location.origin}/invite/${r.token}`)}
+                          >
+                            Copy
+                          </Button>
+                          <Button variant="ghost" size="sm" className="min-h-11" onClick={() => revoke(r.id)}>
+                            Revoke
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </li>
               ))}
