@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { clearAccessStateCache } from '@/hooks/useAccessState';
+
 
 
 type UserRole = 'rookie' | 'recruiter' | 'manager' | 'president' | 'admin' | 'owner';
@@ -299,7 +301,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     const currentUserId = user?.id;
+    clearAccessStateCache();
     await supabase.auth.signOut();
+
     hasActiveSessionRef.current = false;
     setUser(null);
     setSession(null);
