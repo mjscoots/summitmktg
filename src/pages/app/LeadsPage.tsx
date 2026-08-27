@@ -195,14 +195,19 @@ export default function LeadsPage() {
             className="mb-5"
           />
 
-          <div className={cn('mb-4 grid gap-2', staff ? 'grid-cols-3' : 'grid-cols-2')}>
+          <div
+            className={cn(
+              'mb-4 grid gap-2',
+              tabs.length === 1 ? 'grid-cols-1' : staff ? 'grid-cols-3' : 'grid-cols-2'
+            )}
+          >
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => {
                   setParams({ tab: t.id });
                   setSelected(new Set());
-                  setChip('all');
+                  setChip('out');
                 }}
                 className={cn(
                   'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold transition-colors sm:text-[13px]',
