@@ -118,9 +118,38 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             <SheetHeader className="text-left">
               <SheetTitle className="text-lg">{lead.full_name}</SheetTitle>
               <SheetDescription className="text-[12px]">
-                {[lead.system, lead.roster_status, lead.rep_year].filter(Boolean).join(' · ') || 'No system on file'}
+                {[lead.team_name, lead.rep_year].filter(Boolean).join(' · ') || 'No team on file'}
               </SheetDescription>
             </SheetHeader>
+
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {lead.system && (
+                <span className="rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {lead.system as string}
+                </span>
+              )}
+              {lead.signed_2027 && (
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                  Signed for 2027
+                </span>
+              )}
+              {lead.stage && (
+                <span className="rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {String(lead.stage).replace(/_/g, ' ')}
+                </span>
+              )}
+            </div>
+
+            {lastSeasonLine && (
+              <p className="mt-3 text-[13px] text-foreground">{lastSeasonLine}</p>
+            )}
+            {datesLine && <p className="mt-1 text-[12px] text-muted-foreground">{datesLine}</p>}
+            {publicNote && (
+              <div className="mt-3 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
+                <p className="micro-label mb-1">Note from the sheet</p>
+                <p className="text-[13px] leading-snug text-foreground">{publicNote}</p>
+              </div>
+            )}
 
             <div className="mt-4 flex flex-wrap gap-2">
               {telHref(lead.phone) && (
