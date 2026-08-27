@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall, Check } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
