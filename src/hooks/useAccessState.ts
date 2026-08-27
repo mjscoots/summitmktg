@@ -11,26 +11,44 @@ export interface AccessState {
   request_status: string | null;
 }
 
-let cached: AccessState | null = null;
+/** Cached per signed-in person, so a different account never reads the last one's access. */
+let cached: { userId: string; state: AccessState } | null = null;
 
 /**
  * Server-side truth about whether the signed-in person may use the app.
- * Loaded once per session, not per screen.
+ * Loaded once per signed-in person, not per screen.
  */
 export function useAccessState(enabled: boolean) {
-  const [state, setState] = useState<AccessState | null>(cached);
-  const [loading, setLoading] = useState(!cached && enabled);
+  const [state, setState] = useState<AccessState | null>(null);
+  const [loading, setLoading] = useState(enabled);
 
   useEffect(() => {
-    if (!enabled || cached) return;
+    if (!enabled) {
+      setState(null);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth?.user?.id ?? null;
+      if (cancelled) return;
+      if (!uid) {
+        setState(null);
+        setLoading(false);
+        return;
+      }
+      if (cached && cached.userId === uid) {
+        setState(cached.state);
+        setLoading(false);
+        return;
+      }
       const { data } = await supabase.rpc('get_my_access_state');
       if (cancelled) return;
       if (data) {
-        cached = data as unknown as AccessState;
-        setState(cached);
+        cached = { userId: uid, state: data as unknown as AccessState };
+        setState(cached.state);
       }
       setLoading(false);
     })();
