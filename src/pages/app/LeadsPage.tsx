@@ -288,6 +288,18 @@ export default function LeadsPage() {
                 <SelectItem value="no" className="text-[13px]">No phone</SelectItem>
               </SelectContent>
             </Select>
+            {staff && (
+              <Select value={system} onValueChange={setSystem}>
+                <SelectTrigger className="h-10 text-[13px] sm:w-[150px]">
+                  <SelectValue placeholder="System" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[13px]">Both systems</SelectItem>
+                  <SelectItem value="Summit" className="text-[13px]">Summit</SelectItem>
+                  <SelectItem value="Josh" className="text-[13px]">Josh</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {staff && scope === 'all' && selected.size > 0 && (
