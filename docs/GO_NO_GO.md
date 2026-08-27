@@ -180,8 +180,10 @@ Each item says where to click and what happens if you leave it.
   so manager-and-rep interactions were proven by running the same calls as each person
   against the real rules, with throwaway accounts that were then deleted.
 - **Performance on the preview address scores low; the published address will not.** The
-  preview serves unminified files with the editing toolbar attached. The published build
-  is 192 kB for the main file with no file over 200 kB.
+  preview serves unminified files with the editing toolbar attached (performance 30 on the
+  public home, 48 on login, while accessibility scores 100 and 98). The published build is
+  210 kB for the main file, 68 kB compressed, with nothing larger.
+
 
 ---
 
