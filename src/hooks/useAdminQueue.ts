@@ -10,7 +10,14 @@ import {
   namesMatch,
 } from '@/lib/hierarchyUtils';
 
-export type QueueItemType = 'approval' | 'pitch' | 'feedback' | 'sync';
+export type QueueItemType =
+  | 'approval'
+  | 'application'
+  | 'team_lead'
+  | 'pairing'
+  | 'pitch'
+  | 'feedback'
+  | 'sync';
 
 export interface QueueItem {
   /** Stable dismissal key: `${type}:${id}` */
@@ -26,6 +33,9 @@ export interface QueueItem {
 
 export interface QueueCounts {
   pendingApprovals: number;
+  pendingApplications: number;
+  teamLeadApplications: number;
+  pairingRequests: number;
   pendingPitches: number;
   newFeedback: number;
   syncIssues: number;
@@ -46,6 +56,9 @@ export function isStale(item: QueueItem): boolean {
 
 const EMPTY_COUNTS: QueueCounts = {
   pendingApprovals: 0,
+  pendingApplications: 0,
+  teamLeadApplications: 0,
+  pairingRequests: 0,
   pendingPitches: 0,
   newFeedback: 0,
   syncIssues: 0,
@@ -94,7 +107,16 @@ export function useAdminQueue() {
     }
 
     try {
-      const [profilesRes, rolesRes, pitchesRes, feedbackRes, dismissedRes] = await Promise.all([
+      const [
+        profilesRes,
+        rolesRes,
+        pitchesRes,
+        feedbackRes,
+        dismissedRes,
+        applicationsRes,
+        teamLeadRes,
+        pairingRes,
+      ] = await Promise.all([
         supabase
           .from('profiles')
           .select(
@@ -110,6 +132,15 @@ export function useAdminQueue() {
           .select('id, user_id, feedback_type, message, created_at')
           .eq('status', 'new'),
         (supabase.from('admin_queue_dismissals' as any) as any).select('item_type, item_key'),
+        (supabase.from('applications' as any) as any)
+          .select('id, full_name, applicant_type, status, created_at')
+          .in('status', ['pending', 'reviewed']),
+        (supabase.from('team_lead_applications' as any) as any)
+          .select('id, user_id, status, created_at')
+          .eq('status', 'pending'),
+        (supabase.from('pairing_requests' as any) as any)
+          .select('id, rep_user_id, manager_user_id, status, created_at')
+          .eq('status', 'pending'),
       ]);
 
       if (!mountedRef.current) return;
@@ -125,7 +156,14 @@ export function useAdminQueue() {
 
       // === PENDING APPROVALS ===
       profiles
-        .filter((p) => p.approved === false && p.status !== 'rejected' && !isFakeProfile(p))
+        // A real decision is someone still waiting to be let in — people already
+        // on the active roster are not approval work.
+        .filter(
+          (p) =>
+            p.approved === false &&
+            p.status === 'pending' &&
+            !isFakeProfile(p)
+        )
         .forEach((p) => {
           next.push({
             key: `approval:${p.id}`,
@@ -137,6 +175,43 @@ export function useAdminQueue() {
             meta: { userId: p.user_id },
           });
         });
+
+      // === PUBLIC APPLICATIONS ===
+      ((applicationsRes.data as any[]) || []).forEach((a) => {
+        next.push({
+          key: `application:${a.id}`,
+          type: 'application',
+          id: a.id,
+          title: a.full_name || 'Application',
+          subtitle: `${a.applicant_type === 'veteran' ? 'Veteran' : 'Rookie'} application · ${a.status}`,
+          createdAt: a.created_at || null,
+        });
+      });
+
+      // === TEAM LEAD APPLICATIONS ===
+      ((teamLeadRes.data as any[]) || []).forEach((t) => {
+        next.push({
+          key: `team_lead:${t.id}`,
+          type: 'team_lead',
+          id: t.id,
+          title: nameByUser.get(t.user_id) || 'Team lead application',
+          subtitle: 'Wants to run a team',
+          createdAt: t.created_at || null,
+          meta: { userId: t.user_id },
+        });
+      });
+
+      // === PAIRING REQUESTS ===
+      ((pairingRes.data as any[]) || []).forEach((r) => {
+        next.push({
+          key: `pairing:${r.id}`,
+          type: 'pairing',
+          id: r.id,
+          title: nameByUser.get(r.rep_user_id) || 'Pairing request',
+          subtitle: `Manager: ${nameByUser.get(r.manager_user_id) || 'not found'}`,
+          createdAt: r.created_at || null,
+        });
+      });
 
       // === PENDING PITCHES ===
       ((pitchesRes.data as any[]) || []).forEach((r) => {
@@ -219,6 +294,9 @@ export function useAdminQueue() {
       setItems(live);
       setCounts({
         pendingApprovals: live.filter((i) => i.type === 'approval').length,
+        pendingApplications: live.filter((i) => i.type === 'application').length,
+        teamLeadApplications: live.filter((i) => i.type === 'team_lead').length,
+        pairingRequests: live.filter((i) => i.type === 'pairing').length,
         pendingPitches: live.filter((i) => i.type === 'pitch').length,
         newFeedback: live.filter((i) => i.type === 'feedback').length,
         syncIssues: live.filter((i) => i.type === 'sync').length,
