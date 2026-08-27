@@ -130,8 +130,9 @@ export function FiberTeam() {
             {people
               .filter((p) => !p.region_id)
               .map((p) => (
-                <PersonRow key={p.id} p={p} installs={installs[p.id] || 0} />
+                <PersonRow key={p.user_id} p={p} installs={installs[p.user_id] || 0} />
               ))}
+
           </div>
         </section>
       )}
