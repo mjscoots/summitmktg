@@ -98,21 +98,20 @@ export default function LeadsPage() {
     });
   }, [staff]);
 
-  const visible = useMemo(
-    () => (chip === 'out_for_good' ? rows.filter((r) => !(r.tags || []).includes(NOT_ON_ROSTER)) : rows),
-    [rows, chip]
-  );
+  const visible = rows;
 
   const callable = useMemo(() => visible.filter((r) => !!r.phone && !r.do_not_call), [visible]);
 
   if (authLoading) return null;
-  if (tier === 'sales') return <Navigate to="/app" replace />;
 
-  const tabs: { id: LeadScope; label: string; icon: typeof Users }[] = [
-    { id: 'mine', label: 'My leads', icon: Users },
-    { id: 'free', label: 'Free pool', icon: Inbox },
-    ...(staff ? [{ id: 'all' as LeadScope, label: 'All leads', icon: Database }] : []),
-  ];
+  const tabs: { id: LeadScope; label: string; icon: typeof Users }[] =
+    tier === 'sales'
+      ? [{ id: 'mine', label: 'My leads', icon: Users }]
+      : [
+          { id: 'mine', label: 'My leads', icon: Users },
+          { id: 'free', label: 'Pool', icon: Inbox },
+          ...(staff ? [{ id: 'all' as LeadScope, label: 'Call board', icon: Database }] : []),
+        ];
 
   const claim = async (lead: LeadRow) => {
     const { error } = await leadActions.claim(lead.id);
