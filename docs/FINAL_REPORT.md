@@ -2070,3 +2070,13 @@ Admin: Content > Day one course reorders, adds or removes items via set_day_one_
 Invite door: redeem plus code verification now lands on /recruit-course before anything else.
 Verify: temporary pending flip returned locked=true, restore returned locked=false, owner locked=false; profiles 535, actives 23, invites 0, active summer_ready back to 20.
 New functions: PUBLIC and anon execute revoked, authenticated and service_role only. Typecheck and production build clean. Preview only, nothing published.
+
+## Pass 120 — Chat control
+Bubbles: tails on the last message of a group, timestamp inside the bubble, sticky date chips, grouped avatars, muted one check delivered / two checks read from chat_read_state (channel_read_mark).
+Menu: long press on phone, right click on desktop. Reply and Copy for everyone; Edit and Delete for your own message; owner and admin for any message in any room.
+Server enforced: edit_chat_message and delete_chat_message check the caller. A rep touching another person's message is refused; RLS update and delete now allow own rows or owner/admin only (the broad manager delete policy is gone). chat_messages gained edited_at, shown as a small "edited" label. Deletes remove the message for everyone through a realtime DELETE subscription.
+Rooms: the channel sheet lets owner and admin rename any room and delete a room behind a typed DELETE confirmation; a team leader can rename his own team room; direct messages cannot be renamed. Nobody else sees the controls.
+Verify: anon call to edit_chat_message refused (42501); owner-scoped calls to edit, delete, rename and read mark all succeeded on a cross-author message. One synthetic message created, reassigned to a rep, owner edited it (edited_at stamped) and deleted it; chat_messages back to 714, chat_channels 17. New functions: anon execute false, authenticated true.
+Not verified: the rep-scoped refusal could not be executed end to end because a rep session cannot be minted here; the guard was confirmed by policy and function definition (own row or is_chat_admin only).
+Widths 390 and 1280 in both themes: no horizontal overflow, no new console errors (only the pre-existing React ref warnings).
+Everything from Pass 117 still works: list, covers, unread badges, composer above the nav, typing, reactions, attachments. Not published.
