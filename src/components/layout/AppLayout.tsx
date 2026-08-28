@@ -17,6 +17,7 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { WorkspaceSheet } from './WorkspaceSheet';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { useAppearanceSync } from '@/hooks/useAppearance';
+import { VerticalRouteGuard } from '@/components/workspace/VerticalRouteGuard';
 
 
 
@@ -110,7 +111,7 @@ function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fu
       className={cn('app-main-pad page-transition flex-1 overflow-x-hidden', fullHeight && 'min-h-0 overflow-hidden')}
       data-app-main
     >
-      {children}
+      <VerticalRouteGuard>{children}</VerticalRouteGuard>
     </main>
   );
 }

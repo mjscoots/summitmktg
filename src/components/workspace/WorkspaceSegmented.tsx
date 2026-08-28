@@ -20,7 +20,9 @@ export function WorkspaceSegmented({
   collapsed?: boolean;
   className?: string;
 }) {
-  const { workspaces, activeVertical, switchWorkspace } = useWorkspace();
+  // Pass 86 — a rep only sees the workspaces they are enrolled in. Owner and
+  // admins are enrolled in all three by get_my_workspaces, so they keep the switch.
+  const { myWorkspaces: workspaces, activeVertical, switchWorkspace } = useWorkspace();
 
   if (workspaces.length < 2) return null;
 
