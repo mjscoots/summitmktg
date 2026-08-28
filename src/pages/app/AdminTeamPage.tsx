@@ -482,6 +482,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
           {/* ========== PLAYBOOK TAB ========== */}
           {isAdmin && (
             <TabsContent value="playbook">
+              <BugSheetEditor />
               <Suspense fallback={<LoadingList rows={4} />}>
                 <LazyPlaybook />
               </Suspense>
