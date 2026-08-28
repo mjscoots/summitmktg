@@ -2019,3 +2019,14 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Date render fix: multi-day ranges now read the stored day in UTC in `EventsPage.fmtRange` and `CalendarPage`, so Howell reads Aug 30 to Sep 14 and Greece reads Oct 6 to 10; no day added or dropped.
 - Baseline unchanged: profiles 535, active 23, leads 98, invites 0, pending applications 1, edges 395, confirmed stack rows 80.
 - Typecheck and production build clean. Preview only, not published.
+
+## Pass 115 — One on one prep
+- /app/one-on-ones/prep opens on the roster, header "Prep this week's one on one", nobody preselected.
+- Scope enforced in the database by new SECURITY DEFINER prep_roster(): owner/admin see every manager group, a manager sees only his directs, a plain rep gets nothing. anon and PUBLIC execute revoked, authenticated granted.
+- People whose manager is missing or archived group under "Needs a manager" (3 today), owner and admin only.
+- One live search filters the visible list; tapping a person opens the form in a sheet with the Pass 103 prep facts and previous commitment above it, person locked in.
+- Saving stamps the week and moves the "not logged this week" count with no refresh.
+- Every active rep reads as Vet for next season, year derived at read time from rep_year (null counts as first year); rep_year and roster fields untouched.
+- Invite dialog gains one Rookie or Vet choice, stored on invites.experience_level (default rookie).
+- Verified by SQL: actives 23, Rubino directs 4, anon execute false, authenticated true, logged this week 0.
+- Both weekly one on one tables unchanged; no new tables. Typecheck and production build clean, nothing published.

@@ -1,28 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
-import { useOneOnOnePrep, PrepRep } from '@/hooks/useOneOnOnePrep';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { format, startOfWeek } from 'date-fns';
 import { createTasksFromRookieForm, createTasksFromManagerForm } from '@/hooks/usePriorityTasks';
-import { RepSelectionList } from '@/components/one-on-one-prep/RepSelectionList';
-import { TrainingDataPanel } from '@/components/one-on-one-prep/TrainingDataPanel';
 import { ActionItemsField } from '@/components/shared/ActionItemsField';
 import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
-import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
 import { WeekContextCard } from '@/components/one-on-one-prep/WeekContextCard';
 import { RepFactsCard } from '@/components/one-on-one-prep/RepFactsCard';
-
+import { PrepRosterView } from '@/components/one-on-one-prep/PrepRosterView';
+import { usePrepRoster, PrepRosterPerson, nextYearLabel } from '@/hooks/usePrepRoster';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { ArrowLeft, ArrowRight, SkipForward, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useRepOrder } from '@/hooks/useRepOrder';
+import type { PrepRep } from '@/hooks/useOneOnOnePrep';
 
 export interface PrepFormData {
   week_description: string;
@@ -46,144 +39,30 @@ const initialFormData: PrepFormData = {
   focus_area: '',
 };
 
-/** Get current PST Monday as ISO string */
-function getPSTMondayISO(): string {
-  const now = new Date();
-  // Convert to PST
-  const pst = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-  const monday = startOfWeek(pst, { weekStartsOn: 1 });
-  monday.setHours(0, 0, 0, 0);
-  return monday.toISOString();
-}
-
 export default function OneOnOnePrepPage() {
   const { user, profile } = useAuth();
-  const isMobile = useIsMobile();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const mode = (searchParams.get('mode') === 'manager' ? 'manager' : 'rookie') as 'rookie' | 'manager';
-  const repFromUrl = searchParams.get('rep');
 
-  const {
-    reps, needsAttention, onTrack, teamName,
-    loading, lastMonday, lastSunday, refresh,
-  } = useOneOnOnePrep(mode);
+  const { groups, total, loggedIds, owedCount, loading, search, setSearch, markLogged, refresh } = usePrepRoster(mode);
 
-  const allReps = [...needsAttention, ...onTrack];
-  const { orderedReps, reorder, resetToDefault } = useRepOrder(user?.id, allReps);
-
-  const [selectedRepId, setSelectedRepId] = useState<string | null>(repFromUrl);
-  const [completedRepIds, setCompletedRepIds] = useState<Set<string>>(new Set());
-  const [loadingCompleted, setLoadingCompleted] = useState(true);
-  const [existingForSelectedRep, setExistingForSelectedRep] = useState(false);
+  const [person, setPerson] = useState<PrepRosterPerson | null>(null);
   const [formData, setFormData] = useState<PrepFormData>(initialFormData);
   const [mgrFormData, setMgrFormData] = useState<ManagerPrepFormData>(initialManagerPrepFormData);
   const [submitting, setSubmitting] = useState(false);
-  const [mobilePanel, setMobilePanel] = useState<'data' | 'form'>('data');
-  const [scheduleDialogRep, setScheduleDialogRep] = useState<PrepRep | null>(null);
-  const [meetingTime, setMeetingTime] = useState<string>('');
 
-  // Use orderedReps for ALL navigation, but skip completed reps
-  const incompleteReps = orderedReps.filter(r => !completedRepIds.has(r.user_id));
-  const selectedRep = orderedReps.find(r => r.user_id === selectedRepId) || null;
-  const currentIncompleteIndex = selectedRep ? incompleteReps.findIndex(r => r.user_id === selectedRep.user_id) : -1;
-  const prevRep = currentIncompleteIndex > 0 ? incompleteReps[currentIncompleteIndex - 1] : null;
-  const nextRep = currentIncompleteIndex < incompleteReps.length - 1 ? incompleteReps[currentIncompleteIndex + 1] : null;
-
-  // ── Load completed rep IDs from database ──
-  const fetchCompletedReps = useCallback(async () => {
-    if (!user?.id) return;
-    setLoadingCompleted(true);
-    try {
-      const weekStart = getPSTMondayISO();
-
-      if (mode === 'rookie') {
-        const { data } = await supabase
-          .from('weekly_one_on_ones_rookie')
-          .select('rookie_user_id')
-          .eq('submitted_by', user.id)
-          .gte('created_at', weekStart);
-        const ids = new Set((data || []).map(r => r.rookie_user_id).filter(Boolean) as string[]);
-        setCompletedRepIds(ids);
-      } else {
-        const { data } = await supabase
-          .from('weekly_one_on_ones_manager')
-          .select('manager_user_id')
-          .eq('submitted_by', user.id)
-          .gte('created_at', weekStart);
-        const ids = new Set((data || []).map(r => r.manager_user_id).filter(Boolean) as string[]);
-        setCompletedRepIds(ids);
-      }
-    } catch (err) {
-      console.error('Failed to load completed 1:1s:', err);
-    } finally {
-      setLoadingCompleted(false);
-    }
-  }, [user?.id, mode]);
-
-  useEffect(() => { fetchCompletedReps(); }, [fetchCompletedReps]);
-
-  // ── Check if selected rep already has a submission this week ──
-  useEffect(() => {
-    if (!selectedRepId || !user?.id) {
-      setExistingForSelectedRep(false);
-      return;
-    }
-    setExistingForSelectedRep(completedRepIds.has(selectedRepId));
-  }, [selectedRepId, completedRepIds, user?.id]);
-
-  // ── Restore rep from URL on load ──
-  useEffect(() => {
-    if (repFromUrl && orderedReps.length > 0 && !selectedRepId) {
-      const found = orderedReps.find(r => r.user_id === repFromUrl);
-      if (found) setSelectedRepId(found.user_id);
-    }
-  }, [repFromUrl, reps]);
-
-  // ── Reset form when switching reps ──
-  useEffect(() => {
-    if (!selectedRepId) return;
-    if (mode === 'manager') setMgrFormData(initialManagerPrepFormData);
-    else setFormData(initialFormData);
-  }, [selectedRepId, mode]);
-
-  const handleRepClick = (userId: string) => {
-    const rep = orderedReps.find(r => r.user_id === userId);
-    if (rep) {
-      setScheduleDialogRep(rep);
-    }
+  const openPerson = (p: PrepRosterPerson) => {
+    setPerson(p);
+    setFormData(initialFormData);
+    setMgrFormData(initialManagerPrepFormData);
   };
 
-  const handleScheduleConfirm = (time: string, repeats: boolean, recurringTime?: string) => {
-    if (!scheduleDialogRep) return;
-    setMeetingTime(time);
-    setSelectedRepId(scheduleDialogRep.user_id);
-    setMobilePanel('data');
-    const params = new URLSearchParams(searchParams);
-    params.set('rep', scheduleDialogRep.user_id);
-    setSearchParams(params, { replace: true });
-    setScheduleDialogRep(null);
-    if (repeats && recurringTime) {
-      toast.success(`Recurring 1:1 set for ${recurringTime} every Monday`);
-    }
-  };
-
-  const handleSelectRep = (userId: string) => {
-    setSelectedRepId(userId);
-    setMobilePanel('data');
-    const params = new URLSearchParams(searchParams);
-    params.set('rep', userId);
-    setSearchParams(params, { replace: true });
-  };
-
-  const handleBack = () => {
-    setSelectedRepId(null);
-    const params = new URLSearchParams(searchParams);
-    params.delete('rep');
-    setSearchParams(params, { replace: true });
-  };
+  const formRep = person
+    ? ({ user_id: person.user_id, full_name: person.full_name, team_name: person.team_name } as PrepRep)
+    : null;
 
   const handleSubmitRookie = async () => {
-    if (!user?.id || !selectedRep || !profile) return;
+    if (!user?.id || !person || !profile) return;
     const required = ['week_description', 'big_win', 'completed_challenge', 'upcoming_activities', 'pitch_work_needed', 'weekly_mission'] as const;
     for (const field of required) {
       if (!formData[field].trim()) {
@@ -191,17 +70,15 @@ export default function OneOnOnePrepPage() {
         return;
       }
     }
-
     setSubmitting(true);
     try {
-      let teamNameForForm = selectedRep.team_name || teamName || '';
       const { data: submission, error } = await supabase
         .from('weekly_one_on_ones_rookie')
         .insert({
-          rookie_name: selectedRep.full_name,
-          rookie_user_id: selectedRep.user_id,
+          rookie_name: person.full_name,
+          rookie_user_id: person.user_id,
           manager_name: profile.full_name,
-          team: teamNameForForm,
+          team: person.team_name || '',
           week_description: formData.week_description,
           big_win: formData.big_win,
           completed_challenge: formData.completed_challenge,
@@ -215,42 +92,30 @@ export default function OneOnOnePrepPage() {
         })
         .select('id')
         .single();
-
       if (error) throw error;
 
-      // DB save confirmed — now create tasks
       await createTasksFromRookieForm(
-        selectedRep.user_id, submission.id, user.id,
+        person.user_id, submission.id, user.id,
         formData.pitch_work_needed, formData.weekly_mission
       );
-
-      // Award points
       try {
-        await (supabase as any).rpc('award_training_points', {
-          p_user_id: selectedRep.user_id,
-          p_points: 50,
-        });
+        await (supabase as any).rpc('award_training_points', { p_user_id: person.user_id, p_points: 50 });
       } catch {}
 
-      // Update local completed set immediately + refetch from DB
-      setCompletedRepIds(prev => new Set([...prev, selectedRep.user_id]));
-      toast.success(`1:1 saved for ${selectedRep.full_name}`);
-
-      // Refetch from DB to ensure consistency
-      fetchCompletedReps();
-
-      advanceToNext();
+      markLogged(person.user_id);
+      toast.success(`1:1 saved for ${person.full_name}`);
+      setPerson(null);
+      void refresh();
     } catch (err) {
       console.error('Error submitting 1:1:', err);
-      toast.error('Failed to save. Your form data is preserved — try again.');
-      // Form data NOT cleared on failure
+      toast.error('Failed to save. Your form data is preserved, try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleSubmitManager = async () => {
-    if (!user?.id || !selectedRep || !profile) return;
+    if (!user?.id || !person || !profile) return;
     const required = ['rep_relationship', 'obstacles_encountered', 'obstacles_review', 'completed_mission', 'weekly_mission', 'recruit_goal', 'gethawx_review', 'training_progress_check', 'interview_forms_check', 'upcoming_events', 'manager_improvement'] as const;
     for (const field of required) {
       if (!mgrFormData[field].trim()) {
@@ -258,17 +123,15 @@ export default function OneOnOnePrepPage() {
         return;
       }
     }
-
     setSubmitting(true);
     try {
-      let teamNameForForm = selectedRep.team_name || teamName || '';
       const { data: submission, error } = await supabase
         .from('weekly_one_on_ones_manager')
         .insert({
-          manager_name: selectedRep.full_name,
-          manager_user_id: selectedRep.user_id,
+          manager_name: person.full_name,
+          manager_user_id: person.user_id,
           interviewer_name: profile.full_name,
-          team: teamNameForForm,
+          team: person.team_name || '',
           rep_relationship: mgrFormData.rep_relationship,
           obstacles_encountered: mgrFormData.obstacles_encountered,
           obstacles_review: mgrFormData.obstacles_review,
@@ -289,233 +152,98 @@ export default function OneOnOnePrepPage() {
         })
         .select('id')
         .single();
-
       if (error) throw error;
 
       await createTasksFromManagerForm(
-        selectedRep.user_id, submission.id, user.id,
+        person.user_id, submission.id, user.id,
         mgrFormData.weekly_mission, mgrFormData.recruit_goal
       );
-
       try {
-        await (supabase as any).rpc('award_training_points', {
-          p_user_id: selectedRep.user_id,
-          p_points: 50,
-        });
+        await (supabase as any).rpc('award_training_points', { p_user_id: person.user_id, p_points: 50 });
       } catch {}
 
-      setCompletedRepIds(prev => new Set([...prev, selectedRep.user_id]));
-      toast.success(`Manager 1:1 saved for ${selectedRep.full_name}`);
-      fetchCompletedReps();
-      advanceToNext();
+      markLogged(person.user_id);
+      toast.success(`Manager 1:1 saved for ${person.full_name}`);
+      setPerson(null);
+      void refresh();
     } catch (err) {
       console.error('Error submitting manager 1:1:', err);
-      toast.error('Failed to save. Your form data is preserved — try again.');
+      toast.error('Failed to save. Your form data is preserved, try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const advanceToNext = () => {
-    if (nextRep) {
-      handleSelectRep(nextRep.user_id);
-    } else {
-      handleBack();
-      toast.success('All 1:1s completed');
-    }
-  };
-
-  const handleResetOrder = async () => {
-    await resetToDefault();
-    toast.success('Reset to alphabetical order');
-  };
-
-  const modeLabel = mode === 'manager' ? 'Manager' : 'Rookie';
-
-  if (!selectedRep) {
-    return (
-      <AppLayout>
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <PageBackButton to="/app/forms" label="Forms" />
-          <PageHeader
-            title={`${modeLabel} 1:1 prep — ${teamName}`}
-            context={`Week of ${format(lastMonday, 'MMM d')} – ${format(lastSunday, 'MMM d, yyyy')}`}
-            className="mb-6 mt-2"
-          />
-          <RepSelectionList
-            orderedReps={orderedReps}
-            completedRepIds={completedRepIds}
-            onSelect={handleRepClick}
-            onReorder={reorder}
-            onReset={handleResetOrder}
-            loading={loading || loadingCompleted}
-            totalReps={orderedReps.length}
-            completedCount={completedRepIds.size}
-          />
-          {scheduleDialogRep && (
-            <ScheduleTimeDialog
-              open={!!scheduleDialogRep}
-              onOpenChange={(open) => { if (!open) setScheduleDialogRep(null); }}
-              rep={scheduleDialogRep}
-              onConfirm={handleScheduleConfirm}
-            />
-          )}
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout>
-      <div className="flex flex-col h-[calc(100vh-3rem)]">
-
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border/30 bg-card/50">
-          <button onClick={handleBack} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to roster
-          </button>
-          <div className="flex items-center gap-3">
-            {meetingTime && (
-              <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
-                {meetingTime}
-              </span>
-            )}
-            <span className="text-xs text-muted-foreground">
-              {completedRepIds.size} of {orderedReps.length} completed
-            </span>
-          </div>
-        </div>
-
-        {/* Duplicate warning */}
-        {existingForSelectedRep && (
-          <div className="mx-4 mt-2 p-3 rounded-lg border border-primary/30 bg-primary/10 flex items-center gap-2 text-sm">
-            <AlertTriangle className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-yellow-600 dark:text-primary">
-              You already submitted a 1:1 for <strong>{selectedRep.full_name}</strong> this week. Submitting again will create a duplicate.
-            </span>
-          </div>
-        )}
-
-        {/* Mobile panel toggle */}
-        {isMobile && (
-          <div className="flex border-b border-border/30">
-            <button
-              onClick={() => setMobilePanel('data')}
-              className={cn(
-                'flex-1 py-2 text-xs font-medium text-center transition-colors',
-                mobilePanel === 'data' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'
-              )}
-            >
-              Training Data
-            </button>
-            <button
-              onClick={() => setMobilePanel('form')}
-              className={cn(
-                'flex-1 py-2 text-xs font-medium text-center transition-colors',
-                mobilePanel === 'form' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'
-              )}
-            >
-              1:1 Form
-            </button>
-          </div>
-        )}
-
-        {/* Split screen */}
-        <div className="flex-1 flex overflow-hidden">
-          <div className={cn(
-            'overflow-y-auto border-r border-border/20',
-            isMobile
-              ? mobilePanel === 'data' ? 'w-full' : 'hidden'
-              : 'w-[40%] min-w-[320px]'
-          )}>
-            <div className="p-4 pb-0">
-              <RepFactsCard userId={selectedRep.user_id} mode={mode} />
-              <div className="h-3" />
-              <WeekContextCard userId={selectedRep.user_id} />
-            </div>
-            <TrainingDataPanel
-              rep={selectedRep}
-              lastMonday={lastMonday}
-              lastSunday={lastSunday}
-            />
-
-          </div>
-
-          <div className={cn(
-            'overflow-y-auto flex-1 relative',
-            isMobile
-              ? mobilePanel === 'form' ? 'w-full' : 'hidden'
-              : ''
-          )}>
-            {mode === 'manager' ? (
-              <ManagerPrepForm
-                rep={selectedRep}
-                formData={mgrFormData}
-                setFormData={setMgrFormData}
-                onSubmit={handleSubmitManager}
-                submitting={submitting}
-                nextRepName={nextRep?.full_name}
-              />
-            ) : (
-              <PrepForm
-                rep={selectedRep}
-                formData={formData}
-                setFormData={setFormData}
-                onSubmit={handleSubmitRookie}
-                submitting={submitting}
-                nextRepName={nextRep?.full_name}
-              />
-            )}
-
-            {/* Tracked action items for this rep */}
-            <div className="px-4 pb-6">
-              <h3 className="text-sm font-semibold text-foreground mb-1">Action items</h3>
-              <p className="text-xs text-muted-foreground mb-3">
-                Saved instantly — {selectedRep.full_name.split(' ')[0]} sees these on their Home page.
-              </p>
-              <ActionItemsField
-                source="one-on-one"
-                assignees={[{ user_id: selectedRep.user_id, full_name: selectedRep.full_name }]}
-                defaultAssignee={selectedRep.user_id}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom nav */}
-        <div className="flex items-center justify-between px-4 py-2 border-t border-border/30 bg-card/50">
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={!prevRep}
-            onClick={() => prevRep && handleSelectRep(prevRep.user_id)}
-          >
-            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-            <span className="hidden sm:inline">{prevRep?.full_name.split(' ')[0] || 'Prev'}</span>
-          </Button>
-
-          <div className="flex items-center gap-2">
-            {nextRep && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSelectRep(nextRep.user_id)}
-              >
-                <SkipForward className="w-3.5 h-3.5 mr-1" /> Skip
-              </Button>
-            )}
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={!nextRep}
-            onClick={() => nextRep && handleSelectRep(nextRep.user_id)}
-          >
-            <span className="hidden sm:inline">{nextRep?.full_name.split(' ')[0] || 'Next'}</span>
-            <ArrowRight className="w-3.5 h-3.5 ml-1" />
-          </Button>
-        </div>
+      <div className="mx-auto max-w-4xl px-4 py-6 pb-28">
+        <PageBackButton to="/app/forms" label="Forms" />
+        <PageHeader
+          title="Prep this week's one on one"
+          context={total > 0 ? `${owedCount} of ${total} not logged this week` : undefined}
+          className="mb-6 mt-2"
+        />
+        <PrepRosterView
+          groups={groups}
+          loggedIds={loggedIds}
+          loading={loading}
+          search={search}
+          setSearch={setSearch}
+          onSelect={openPerson}
+        />
       </div>
+
+      <Sheet open={!!person} onOpenChange={(open) => { if (!open) setPerson(null); }}>
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
+          {person && formRep ? (
+            <>
+              <SheetHeader className="mb-4 text-left">
+                <SheetTitle className="text-base">{person.full_name}</SheetTitle>
+                <p className="text-[12px] text-muted-foreground">
+                  {person.is_vet ? 'Vet' : 'Rookie'} · {nextYearLabel(person.rep_year)} for 2027
+                  {person.team_name ? ` · ${person.team_name}` : ''}
+                </p>
+              </SheetHeader>
+
+              <RepFactsCard userId={person.user_id} mode={mode} />
+              <div className="h-3" />
+              <WeekContextCard userId={person.user_id} />
+
+              <div className="mt-4">
+                {mode === 'manager' ? (
+                  <ManagerPrepForm
+                    rep={formRep}
+                    formData={mgrFormData}
+                    setFormData={setMgrFormData}
+                    onSubmit={handleSubmitManager}
+                    submitting={submitting}
+                  />
+                ) : (
+                  <PrepForm
+                    rep={formRep}
+                    formData={formData}
+                    setFormData={setFormData}
+                    onSubmit={handleSubmitRookie}
+                    submitting={submitting}
+                  />
+                )}
+              </div>
+
+              <div className="px-1 pb-10">
+                <h3 className="mb-1 text-sm font-semibold text-foreground">Action items</h3>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Saved instantly. {person.full_name.split(' ')[0]} sees these on their Home page.
+                </p>
+                <ActionItemsField
+                  source="one-on-one"
+                  assignees={[{ user_id: person.user_id, full_name: person.full_name }]}
+                  defaultAssignee={person.user_id}
+                />
+              </div>
+            </>
+          ) : null}
+        </SheetContent>
+      </Sheet>
     </AppLayout>
   );
 }

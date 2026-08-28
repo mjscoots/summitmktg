@@ -63,6 +63,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
   const [teamId, setTeamId] = useState<string>(profile?.team_id || '');
   const [region, setRegion] = useState<string>('');
   const [managerId, setManagerId] = useState<string>(user?.id || '');
+  const [experience, setExperience] = useState<'rookie' | 'veteran'>('rookie');
   const [note, setNote] = useState('');
   const [expiresDays, setExpiresDays] = useState('7');
   const [link, setLink] = useState<string | null>(null);
@@ -129,6 +130,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
       team_id: (locked ? profile?.team_id : teamId) || null,
       region: vertical.toLowerCase() === 'fiber' && region ? region : locked ? profile?.region || null : null,
       manager_id: locked ? user.id : managerId || null,
+      experience_level: experience,
       note: note.trim() || null,
       expires_at: new Date(Date.now() + Number(expiresDays) * 86_400_000).toISOString(),
     });
@@ -218,6 +220,17 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
           </div>
         ) : (
           <div className="space-y-4">
+            <div>
+              <Label>Rookie or vet</Label>
+              <Select value={experience} onValueChange={setExperience}>
+                <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rookie">Rookie</SelectItem>
+                  <SelectItem value="veteran">Vet</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {locked ? (
               <div className="rounded-xl border border-border bg-muted/30 p-4 text-[13px]">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">This invite</p>
