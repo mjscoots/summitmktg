@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
 import { cn } from '@/lib/utils';
+import { useAppearanceSync } from '@/hooks/useAppearance';
 
 /** Doors mode content. Everything here comes from the playbook and script cards. */
 interface Entry {
@@ -125,6 +126,7 @@ function PricingGroup({ title, rows }: { title: string; rows: Entry[] }) {
  */
 export default function DoorsPage() {
   const navigate = useNavigate();
+  useAppearanceSync();
   const [segment, setSegment] = useState<SegmentKey>('script');
   const [door, setDoor] = useState<DoorKey>('fresh');
   const [content, setContent] = useState<DoorsContent | null>(null);
