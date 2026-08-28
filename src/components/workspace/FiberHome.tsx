@@ -131,7 +131,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         const { data: lp } = await (supabase as any)
           .from('profiles')
           .select('id, full_name, avatar_url, phone')
-          .eq('id', region.lead_user_id)
+          .eq('user_id', region.lead_user_id)
           .maybeSingle();
         setLead((lp as Lead) || null);
       }
