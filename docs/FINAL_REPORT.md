@@ -1862,3 +1862,11 @@ exactly as before. Only the eyebrow, the number and the one line under it change
 below the hero is untouched. New hook `src/hooks/useSeasonMode.ts` reads the setting and both
 off-season numbers; `leads_counts` stays manager-and-above, so a rep never sees roster money.
 Typecheck clean, production build clean at 217 kB, no console errors. Not published.
+
+## Pass 98 — Color pops
+1. New tokens: `--celebrate-warm`, `--medal-gold/silver/bronze` (dark and light tuned), plus `.celebrate-card`, `.celebrate-wash`, `.celebrate-text`, `.chip-warm`, `.medal-1/2/3`, `.bar-accent`, `.hero-accent-rule`, `.celebrate-in` (320ms, off under reduced motion).
+2. Celebrations: sale/sign win card (`WinMoment`), streak popups (`StreakCelebration`, `LessonPage`), first referral sent (`GuidedSetup`), blitz at capacity (`UpcomingBlitzes` Full chip), Signed for 2027 outcome (`OutcomeBar`).
+3. Rankings: podium top three carry medal tones with a gradient leader number (`TrainingLeaderboard`), rank bars and all progress fills now use the accent gradient (`index.css`, `ui/progress.tsx`), week bars use `bar-accent` (`WeekBars`).
+4. Re-sign scoreboard: signed tile and signed figure render in the workspace accent, lead badge uses the warm chip (`LeadsPage`).
+5. One accent element per Home hero: Pest cyan, Fiber mint, Life violet (`PestHome`, `FiberHubCards`, `LifeHome`).
+6. No layout shifts, no copy changes, no new components; typecheck and production build clean. Preview only — nothing published.
