@@ -261,6 +261,7 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
               const row = top3[slot];
               if (!row) return <div key={slot} />;
               const first = row.rank === 1;
+              const medal = row.rank <= 3 ? (`medal-${row.rank}` as 'medal-1' | 'medal-2' | 'medal-3') : null;
               return (
                 <button
                   key={row.entry.user_id}
@@ -270,7 +271,7 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
                     height,
                     animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3',
                     'duration-500',
-                    first && 'border-primary/40'
+                    medal
                   )}
                   style={{ transitionDelay: `${slot * 80}ms` }}
                 >
@@ -286,11 +287,13 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
                   <CountUp
                     value={row.entry.totalPoints}
                     className={cn(
-                      'block w-full truncate font-display font-extrabold leading-none text-primary',
-                      first ? 'text-[20px] tracking-tight sm:text-[40px]' : 'text-[17px] tracking-tight sm:text-[26px]'
+                      'block w-full truncate font-display font-extrabold leading-none',
+                      first ? 'celebrate-text text-[20px] tracking-tight sm:text-[40px]' : 'text-[17px] tracking-tight sm:text-[26px] text-foreground',
+                      !first && medal && `${medal}-text`
                     )}
                   />
-                  <span className="text-[10px] font-semibold text-muted-foreground">#{row.rank}</span>
+                  <span className={cn('text-[10px] font-semibold', medal ? `${medal}-text` : 'text-muted-foreground')}>#{row.rank}</span>
+
                   {isWeekly && <StreakChip days={row.entry.streakDays} className="mt-0.5" />}
                 </button>
               );
