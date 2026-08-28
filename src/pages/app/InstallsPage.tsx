@@ -8,7 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
+import { TodayNumberSheet, PAY_NOTE } from '@/components/fiber/TodayNumberSheet';
+import { useFiberToday } from '@/hooks/useFiberToday';
 import { isManagerOrAbove } from '@/lib/roles';
 
 const CARD = 'rounded-xl border border-border bg-card';
@@ -44,6 +45,7 @@ export default function InstallsPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const isLead = isManagerOrAbove(role);
+  const { today: todaySold, week: weekSold, reload: reloadToday } = useFiberToday();
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -92,12 +94,16 @@ export default function InstallsPage() {
   return (
     <AppLayout>
       <main className="mx-auto max-w-3xl space-y-4 px-4 py-8">
-        <PageHeader title="Installs" context="What you installed, by week." />
+        <PageHeader title="Numbers" context="What you sold today and this week." />
 
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-3 gap-2.5">
+          <div className={`${CARD} p-3`}>
+            <p className="text-xs text-muted-foreground">Today</p>
+            <p className="text-2xl font-medium tabular-nums text-primary">{todaySold}</p>
+          </div>
           <div className={`${CARD} p-3`}>
             <p className="text-xs text-muted-foreground">This week</p>
-            <p className="text-2xl font-medium tabular-nums text-primary">{thisWeek}</p>
+            <p className="text-2xl font-medium tabular-nums text-primary">{Math.max(thisWeek, weekSold)}</p>
           </div>
           <div className={`${CARD} p-3`}>
             <p className="text-xs text-muted-foreground">Season</p>
@@ -107,8 +113,10 @@ export default function InstallsPage() {
 
         <Button className="min-h-11 w-full" onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Log an install
+          How many today?
         </Button>
+
+        <p className="text-xs text-muted-foreground">{PAY_NOTE}</p>
 
         <section className={`${CARD} p-4`}>
           <h2 className="mb-3 text-sm font-medium text-foreground">My weeks</h2>
@@ -152,7 +160,7 @@ export default function InstallsPage() {
           </section>
         )}
 
-        <LogInstallDialog open={open} onOpenChange={setOpen} onSaved={() => void load()} />
+        <TodayNumberSheet open={open} onOpenChange={setOpen} onSaved={() => { void load(); void reloadToday(); }} />
       </main>
     </AppLayout>
   );

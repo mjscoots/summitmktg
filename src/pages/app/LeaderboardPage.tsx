@@ -115,9 +115,7 @@ export default function LeaderboardPage() {
           )}
 
           {activeVertical === 'Fiber' && (
-            <p className="mb-4 text-xs text-muted-foreground">
-              Counts come from the Gainz weekly sheet when it has been loaded.
-            </p>
+            <FiberBoardToday />
           )}
 
 
