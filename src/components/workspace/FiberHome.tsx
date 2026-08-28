@@ -1,21 +1,29 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, MessageCircle, Plus, Check } from 'lucide-react';
+import { Phone, MessageCircle, Plus, Check, GraduationCap, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Workspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
-import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
-import { HomeHero } from '@/components/home/HomeHero';
-import { QuickChips } from '@/components/home/QuickChips';
 import { useMyFiberStart } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
+import { isManagerOrAbove } from '@/lib/roles';
+import { useFiberHub } from '@/hooks/useFiberHub';
+import {
+  GainzHero,
+  JoinGainzCard,
+  ContactsCard,
+  HowItWorksCards,
+  FiberQuestions,
+  FiberEyebrow,
+  HUB_CARD,
+} from '@/components/fiber/FiberHubCards';
+import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 
-
-export const FIBER_CARD = 'rounded-xl border border-border bg-card';
+export const FIBER_CARD = HUB_CARD;
 
 function weekStart(): string {
   const d = new Date();
@@ -38,12 +46,19 @@ interface Lead {
   phone: string | null;
 }
 
-/** Fiber home. Installs, rank, region lead. No points, streaks, or accounts. */
+/**
+ * Pass 86 — the Fiber hub. The real work runs on Gainz, so this screen is
+ * resources: Gainz, contacts, how it works, questions, training and chat.
+ * Team tracking (installs, tier, region) is kept but demoted to the bottom.
+ */
 export function FiberHome({ workspace }: { workspace: Workspace }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const canShareJoinLink = isManagerOrAbove(role);
+  const { contacts, joinLink, faq } = useFiberHub();
   const [loading, setLoading] = useState(true);
   const [logOpen, setLogOpen] = useState(false);
+  const [trackingOpen, setTrackingOpen] = useState(false);
   const [week, setWeek] = useState(0);
   const [season, setSeason] = useState(0);
   const [recent, setRecent] = useState(0);
@@ -56,7 +71,6 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const [regionIntro, setRegionIntro] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const { start: fiberStart } = useMyFiberStart();
-
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -74,7 +88,6 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         .eq('vertical', 'Fiber')
         .eq('is_active', true)
         .order('display_order'),
-
       (supabase as any)
         .from('vertical_step_completions')
         .select('step_id')
@@ -107,7 +120,6 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
       done: stepRows.filter((s) => doneIds.has(s.id)).length,
     });
     setPinned(((pinnedRes.data as { title: string }[]) || [])[0]?.title || null);
-
 
     const carrierId = rows[0]?.carrier_id;
     if (carrierId) {
@@ -146,7 +158,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl space-y-3 px-4 py-6">
-        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-32 w-full" />
         <Skeleton className="h-24 w-full" />
       </div>
     );
@@ -157,112 +169,59 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-8">
-      {notStarted && fiberStart ? (
-        <section className="mb-4 rounded-2xl border border-border bg-card/60 p-5">
-          <p className="text-lg font-semibold text-foreground">You start {formatStart(fiberStart)}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+      <GainzHero />
+
+      {notStarted && fiberStart && (
+        <div className={`${HUB_CARD} mb-4 p-4`}>
+          <p className="text-[15px] font-semibold text-foreground">You start {formatStart(fiberStart)}</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Your installs and pay live here once you start.
           </p>
-        </section>
-      ) : (
-      <HomeHero
-        className="mb-4"
-        label="Installs this week"
-        value={week}
-        subline={`Last two weeks ${recent} · Season ${season}`}
-        zeroLine="Nothing logged yet this week"
-        shineKey="fiber-hero"
-        action={
-          <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Log an install
-          </Button>
-        }
-      />
-      )}
-
-      <p className="mb-3 text-[13px] text-muted-foreground">
-        {[regionName ? `${regionName} region` : null, carrierName, money?.rank_label]
-          .filter(Boolean)
-          .join(' · ') || 'Region and carrier not set'}
-      </p>
-
-      <QuickChips
-        className="mb-4"
-        chips={[
-          { label: 'Installs', to: '/app/installs' },
-          { label: 'Ask Summit', to: '/app/ask' },
-          { label: 'Chat', to: '/app/chat' },
-          { label: 'Missions', to: '/app/missions' },
-        ]}
-      />
-
-      {money?.next_tier_label && (
-        <div className={`${FIBER_CARD} mb-4 p-4`}>
-          <div className="flex items-baseline justify-between gap-3">
-            <p className="text-sm text-foreground">Next tier: {money.next_tier_label}</p>
-            <p className="text-sm tabular-nums text-muted-foreground">
-              {gap !== null ? `${gap} installs to go` : 'Amount not set'}
-            </p>
-          </div>
-          {gap !== null && season + gap > 0 && (
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full bg-primary"
-                style={{ width: `${Math.min(100, Math.round((season / (season + gap)) * 100))}%` }}
-              />
-            </div>
-          )}
         </div>
       )}
 
+      {canShareJoinLink && <JoinGainzCard link={joinLink} />}
+
+      <ContactsCard contacts={contacts} />
+
+      <HowItWorksCards />
+
+      <FiberQuestions faq={faq} />
+
+      <UpcomingBlitzes />
+
+      <div className="mb-4 grid gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => navigate('/app/training')}
+          className={`${HUB_CARD} flex min-h-11 items-center gap-3 p-4 text-left`}
+        >
+          <GraduationCap className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
+          <span className="text-[14px] font-semibold text-foreground">Training</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/app/chat')}
+          className={`${HUB_CARD} flex min-h-11 items-center gap-3 p-4 text-left`}
+        >
+          <MessageCircle className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
+          <span className="text-[14px] font-semibold text-foreground">
+            {workspace.short_name} chat
+          </span>
+        </button>
+      </div>
 
       <NeedsYouRow />
 
-      <div className={`${FIBER_CARD} mb-4 p-4`}>
-        <p className="mb-3 text-sm font-medium text-foreground">Region lead</p>
-        {lead ? (
-          <div className="flex items-center gap-3">
-            {lead.avatar_url ? (
-              <img src={lead.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
-            ) : (
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-sm font-medium text-foreground">
-                {(lead.full_name || '—').trim().charAt(0).toUpperCase()}
-              </div>
-            )}
-            <p className="min-w-0 flex-1 truncate text-sm text-foreground">{lead.full_name || 'Unnamed'}</p>
-            {lead.phone && (
-              <a
-                href={`tel:${lead.phone}`}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border text-foreground"
-                aria-label="Call region lead"
-              >
-                <Phone className="h-4 w-4" />
-              </a>
-            )}
-            <button
-              onClick={() => navigate('/app/chat')}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-3 text-sm text-foreground"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Message
-            </button>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No region lead assigned yet.</p>
-        )}
-        {regionIntro && <p className="mt-3 text-sm text-muted-foreground">{regionIntro}</p>}
-      </div>
-
       {steps.total > 0 && steps.done < steps.total && (
-        <div className={`${FIBER_CARD} mb-4 space-y-3 p-4`}>
-          <p className="text-sm font-medium text-foreground">Setup path</p>
-          <p className="text-sm tabular-nums text-muted-foreground">
+        <div className={`${HUB_CARD} mb-4 space-y-3 p-4`}>
+          <FiberEyebrow>Setup path</FiberEyebrow>
+          <p className="text-[13px] tabular-nums text-muted-foreground">
             {steps.done} of {steps.total} steps complete
           </p>
           <ul className="space-y-1.5">
             {stepList.map((s) => (
-              <li key={s.id} className="flex items-center gap-2 text-sm">
+              <li key={s.id} className="flex items-center gap-2 text-[13px]">
                 <Check className={s.done ? 'h-4 w-4 text-primary' : 'h-4 w-4 text-muted-foreground/40'} />
                 <span className={s.done ? 'text-muted-foreground' : 'text-foreground'}>{s.title}</span>
               </li>
@@ -274,21 +233,104 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         </div>
       )}
 
-      <div className="mb-4">
-        <InstallAppHint />
+      <div className={`${HUB_CARD} mb-4 p-4`}>
+        <FiberEyebrow>Announcement</FiberEyebrow>
+        <p className="text-[13px] text-muted-foreground">{pinned || 'No announcement yet.'}</p>
       </div>
 
+      {/* Team tracking, demoted: official pay and orders live on Gainz. */}
+      <div className={`${HUB_CARD} p-4`}>
+        <button
+          type="button"
+          onClick={() => setTrackingOpen((v) => !v)}
+          aria-expanded={trackingOpen}
+          className="flex min-h-11 w-full items-center justify-between gap-3 text-left"
+        >
+          <span>
+            <span className="block text-[14px] font-semibold text-foreground">Team tracking</span>
+            <span className="block text-[12px] text-muted-foreground">
+              Installs this week {week} · Season {season}
+            </span>
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform ${trackingOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
 
-      <div className={`${FIBER_CARD} mb-4 p-4`}>
-        <p className="text-sm font-medium text-foreground">Announcement</p>
-        <p className="mt-1 text-sm text-muted-foreground">{pinned || 'No announcement yet.'}</p>
-      </div>
+        {trackingOpen && (
+          <div className="mt-4 space-y-4">
+            <p className="text-[12px] text-muted-foreground">
+              Official pay runs through Gainz / Sales Raptor. This is team tracking only.
+            </p>
+            <p className="text-[13px] text-muted-foreground">
+              {[regionName ? `${regionName} region` : null, carrierName, money?.rank_label]
+                .filter(Boolean)
+                .join(' · ') || 'Region and carrier not set'}
+            </p>
+            <p className="text-[13px] tabular-nums text-muted-foreground">Last two weeks {recent}</p>
 
-      <div className={`${FIBER_CARD} space-y-2 p-4`}>
-        <p className="text-sm font-medium text-foreground">Team chat</p>
-        <Button variant="outline" size="sm" onClick={() => navigate('/app/chat')}>
-          Open {workspace.short_name} chat
-        </Button>
+            <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Log an install
+            </Button>
+
+            {money?.next_tier_label && (
+              <div className="rounded-lg border border-border p-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-[13px] text-foreground">Next tier: {money.next_tier_label}</p>
+                  <p className="text-[13px] tabular-nums text-muted-foreground">
+                    {gap !== null ? `${gap} installs to go` : 'Amount not set'}
+                  </p>
+                </div>
+                {gap !== null && season + gap > 0 && (
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full"
+                      style={{
+                        width: `${Math.min(100, Math.round((season / (season + gap)) * 100))}%`,
+                        background: 'hsl(var(--workspace-accent))',
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="rounded-lg border border-border p-3">
+              <p className="mb-3 text-[13px] font-medium text-foreground">Region lead</p>
+              {lead ? (
+                <div className="flex items-center gap-3">
+                  {lead.avatar_url ? (
+                    <img src={lead.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-[13px] font-medium text-foreground">
+                      {(lead.full_name || '—').trim().charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">
+                    {lead.full_name || 'Unnamed'}
+                  </p>
+                  {lead.phone && (
+                    <a
+                      href={`tel:${lead.phone}`}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border text-foreground"
+                      aria-label="Call region lead"
+                    >
+                      <Phone className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <p className="text-[13px] text-muted-foreground">No region lead assigned yet.</p>
+              )}
+              {regionIntro && <p className="mt-3 text-[13px] text-muted-foreground">{regionIntro}</p>}
+            </div>
+
+            <Button variant="outline" size="sm" onClick={() => navigate('/app/leaderboard')}>
+              Open the board
+            </Button>
+          </div>
+        )}
       </div>
 
       <LogInstallDialog open={logOpen} onOpenChange={setLogOpen} onSaved={() => void load()} />
