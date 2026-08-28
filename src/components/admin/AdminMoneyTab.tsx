@@ -186,6 +186,7 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
+        <PestRevenueImportPanel />
         <RevenueEntryPanel />
       </div>
     );
@@ -204,10 +205,12 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
+        <GainzSheetPanel />
         <FiberInstallsPanel />
       </div>
     );
   }
+
 
   if (view === 'ranks') {
     return (
