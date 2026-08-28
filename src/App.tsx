@@ -57,6 +57,7 @@ const Interview2Page = lazyRoute(() => import("./pages/app/Interview2Page"));
 const Interview3Page = lazyRoute(() => import("./pages/app/Interview3Page"));
 
 const FormsPage = lazyRoute(() => import("./pages/app/FormsPage"));
+const RecruitCoursePage = lazyRoute(() => import("./pages/app/RecruitCoursePage"));
 const TrainingVideosPage = lazyRoute(() => import("./pages/app/TrainingVideosPage"));
 const ManagerTrainingVideosPage = lazyRoute(() => import("./pages/app/ManagerTrainingVideosPage"));
 const AdminTeamPage = lazyRoute(() => import("./pages/app/AdminTeamPage"));
