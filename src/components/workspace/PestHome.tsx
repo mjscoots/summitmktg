@@ -17,6 +17,7 @@ import { TeamTodayCard } from '@/components/home/TeamTodayCard';
 import { NextEventCard } from '@/components/home/NextEventCard';
 import { ChatPreviewCard } from '@/components/home/ChatPreviewCard';
 import { MoreReveal } from '@/components/home/MoreReveal';
+import { YourThreeCard } from '@/components/home/YourThreeCard';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { InviteDialog } from '@/components/invites/InviteDialog';
 import { AnnouncementEditorModal } from '@/components/dashboard/AnnouncementEditorModal';
@@ -199,6 +200,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
       <MoreReveal>
         <QuickChips chips={moreChips} />
+
+        <YourThreeCard />
 
         {staff && (
           <>

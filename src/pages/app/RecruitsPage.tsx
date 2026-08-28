@@ -55,6 +55,18 @@ interface MyLead extends BoardLead {
   notes: string | null;
 }
 
+interface ReferralLead {
+  id: string;
+  first_name: string;
+  city: string | null;
+  interest_reason: string | null;
+  status: string;
+  claimed_by: string | null;
+  claimed_name: string | null;
+  referrer_name: string | null;
+  created_at: string;
+}
+
 function timeAgo(iso: string) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (mins < 1) return 'just now';
@@ -81,14 +93,15 @@ export default function RecruitsPage() {
   const { user, role } = useAuth();
   const isManagerRole = isManagerOrAbove(role);
   const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns'>(() => {
+  const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns' | 'referrals'>(() => {
     const t = searchParams.get('tab');
-    if ((t === 'winback' || t === 'resigns') && isManagerRole) return t;
+    if ((t === 'winback' || t === 'resigns' || t === 'referrals') && isManagerRole) return t;
     return t === 'mine' ? 'mine' : 'board';
   });
 
   const [board, setBoard] = useState<BoardLead[]>([]);
   const [mine, setMine] = useState<MyLead[]>([]);
+  const [referrals, setReferrals] = useState<ReferralLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
@@ -105,11 +118,13 @@ export default function RecruitsPage() {
     if (!user) return;
     // Sweep any leads that went stale before rendering the board
     await (supabase as any).rpc('release_stale_leads');
-    const [boardRes, mineRes] = await Promise.all([
+    const [boardRes, mineRes, refRes] = await Promise.all([
       (supabase as any).rpc('get_lead_board'),
       (supabase as any).rpc('get_my_leads'),
+      isManagerRole ? (supabase as any).rpc('get_referral_leads') : Promise.resolve({ data: [] }),
     ]);
     setBoard((boardRes.data as BoardLead[]) || []);
+    setReferrals((refRes.data as ReferralLead[]) || []);
     const myLeads = (mineRes.data as MyLead[]) || [];
     setMine(myLeads);
     setNoteDrafts((prev) => {
@@ -120,7 +135,8 @@ export default function RecruitsPage() {
       return next;
     });
     setLoading(false);
-  }, [user]);
+  }, [user, isManagerRole]);
+
 
   useEffect(() => { load(); }, [load]);
 
@@ -205,7 +221,7 @@ export default function RecruitsPage() {
 
           {/* Header */}
           <PageHeader
-            title={tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : 'Win-back board'}
+            title={tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : tab === 'referrals' ? 'Referrals' : 'Win-back board'}
             context={
               tab === 'board'
                 ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
@@ -213,7 +229,9 @@ export default function RecruitsPage() {
                   ? `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`
                   : tab === 'resigns'
                     ? 'Where every rep stands for next season'
-                    : 'Former reps with a phone number — cold calls to bring them back'
+                    : tab === 'referrals'
+                      ? `${referrals.length} ${referrals.length === 1 ? 'name' : 'names'} from reps`
+                      : 'Former reps with a phone number — cold calls to bring them back'
             }
             className="mb-5"
             action={
@@ -242,6 +260,7 @@ export default function RecruitsPage() {
               ...(isManagerRole
                 ? [
                     { id: 'resigns' as const, label: 'Re-signs', icon: Handshake, count: null as number | null },
+                    { id: 'referrals' as const, label: 'Referrals', icon: Handshake, count: referrals.length as number | null },
                   ]
                 : []),
             ]).map((t) => (
@@ -267,7 +286,58 @@ export default function RecruitsPage() {
           </div>
 
 
-          {tab === 'resigns' && isManagerRole ? (
+          {tab === 'referrals' && isManagerRole ? (
+            referrals.length === 0 ? (
+              <div className={cn(CARD, 'py-4')}>
+                <EmptyState
+                  icon={Handshake}
+                  title="No referrals yet"
+                  description="Names your reps send from Home land here."
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {referrals.map((lead) => (
+                  <div key={lead.id} className={cn(CARD, 'flex flex-col p-4')}>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-[15px] font-bold text-foreground">{lead.first_name}</h3>
+                      <span className="shrink-0 text-[11px] text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {timeAgo(lead.created_at)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[13px] text-muted-foreground">
+                      Referred by {lead.referrer_name || 'a rep'}
+                    </p>
+                    {lead.city && (
+                      <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
+                        <MapPin className="w-3 h-3" /> {lead.city}
+                      </p>
+                    )}
+                    {lead.claimed_by ? (
+                      <p className="mt-3 text-[12px] text-muted-foreground">
+                        {lead.status} · {lead.claimed_name || 'Claimed'}
+                      </p>
+                    ) : atLimit ? (
+                      <button
+                        disabled
+                        className="mt-3 min-h-11 w-full cursor-not-allowed rounded-lg border border-white/[0.06] bg-white/[0.03] text-[13px] font-semibold text-muted-foreground"
+                      >
+                        Claim Lead
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => claim(lead.id)}
+                        disabled={claiming === lead.id}
+                        className="mt-3 min-h-11 w-full rounded-lg bg-primary text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98] disabled:opacity-60"
+                      >
+                        {claiming === lead.id ? 'Claiming…' : 'Claim Lead'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          ) : tab === 'resigns' && isManagerRole ? (
             <ResignBoard isAdmin={role === 'admin' || role === 'owner'} />
           ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

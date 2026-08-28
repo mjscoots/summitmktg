@@ -23,6 +23,7 @@ import {
 } from '@/components/fiber/FiberHubCards';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { MoreReveal } from '@/components/home/MoreReveal';
+import { YourThreeCard } from '@/components/home/YourThreeCard';
 
 export const FIBER_CARD = HUB_CARD;
 
@@ -180,6 +181,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
       <UpcomingBlitzes />
 
       <MoreReveal>
+        <YourThreeCard />
         <section className={`${HUB_CARD} p-4`}>
           <FiberEyebrow>Today</FiberEyebrow>
           <div className="flex items-end justify-between gap-4">
