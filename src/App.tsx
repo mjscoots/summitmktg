@@ -184,7 +184,14 @@ function LazyFallback() {
               <Route path="/signup" element={<Navigate to="/login" replace />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-              {/* ========== SUMMER CHECKLIST ROUTES ========== */}
+              {/* ========== DAY ONE WATCH COURSE ========== */}
+              <Route path="/recruit-course" element={
+                <ProtectedRoute>
+                  <RecruitCoursePage />
+                </ProtectedRoute>
+              } />
+
+               {/* ========== SUMMER CHECKLIST ROUTES ========== */}
               <Route path="/summer-checklist" element={
                 <ProtectedRoute>
                   <BootcampLock />
