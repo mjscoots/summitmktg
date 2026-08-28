@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { MessageSquarePlus, Search } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityChat } from '@/components/dashboard/CommunityChat';
 import { useChatChannels } from '@/hooks/useChatChannels';
