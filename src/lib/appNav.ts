@@ -46,10 +46,10 @@ export const PHONE_BAR: NavDest[] = [
 /** Fiber works on installs, not accounts, so its bar carries its own work. */
 export const FIBER_PHONE_BAR: NavDest[] = [
   { key: 'home', label: 'Home', path: '/app', icon: Home },
-  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { key: 'installs', label: 'Installs', path: '/app/installs', icon: Wifi },
+  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-  { key: 'team', label: 'Team', path: '/app/team', icon: Users },
+  { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
 ];
 
 /** Life works on appointments and a pipeline, so its bar carries that work. */

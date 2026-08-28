@@ -1610,3 +1610,16 @@ Nothing was published.
 - Rep-facing: Pest home mint card "Fiber starts <date>" with carrier, one line about installs and pay, and a "See Fiber" workspace switch; Fiber home shows "You start <date>" before the start date with the setup path below. No pay figures on either card.
 - Verified at the database level (no preview session could be minted: minting a session for a specific auth user is unavailable here, so no owner screenshots): rolled two existing active Pest reps as the owner — 2 enrollments at `onboarding` with start date and carrier 123NET, one notification each; anonymous call rejected with "not authenticated"; test rows deleted, counts back to baseline (auth users 599, profiles 535, enrollments 54, Fiber 8, notifications 6157).
 - Typecheck clean; production build clean (index 213.23 kB); /app, /app/team, /app/money return 200. Nothing published.
+
+## Pass 85 — Fiber day one
+- Fiber phone bar is now Home, Installs, Chat, Money, Board; Team moved to the drawer with Manage. Five items fit at 390 (flex-1 pill, no fixed widths); desktop sidebar unchanged.
+- Walked the day one path with a throwaway invite (Fiber, East, Brandon Pillar as manager) redeemed through the live invite function. Fixes found and made:
+  1. get_fiber_leaderboard joined profiles on the wrong column, so the Board was empty for everyone. Fixed.
+  2. fiber_installs had no policy letting a rep insert or update their own row, so "Log an install" would fail for a plain rep. Added own-insert and own-update policies scoped to the signed-in rep; read scope unchanged.
+  3. redeem-invite set the region name but not region_id, so a new rep never appeared in the region roster and Home showed no region. It now sets region_id and vertical on the profile.
+  4. FiberHome looked up the region lead by profiles.id instead of user_id, so the lead card never rendered. Fixed.
+  5. FiberTeam listed only profiles.vertical = Fiber, missing reps whose workspace is Fiber. It now matches either column.
+- Confirmed: redemption lands active and approved in the Fiber workspace with the rookie role and a Fiber enrollment; install rows carry the dated note; My money reads installs and shows no rate until a rank and confirmed stack exist; Doors has no Fiber entry point.
+- Throwaway removed completely: profiles back to 535, no test invite, no test install, auth record deleted.
+- Brandon Pillar (read only): Fiber workspace by default, admin role, East region lead, invite button visible, 13 Fiber carriers with 80 confirmed v5 stack rows readable as staff. Data decisions for the owner, unchanged: no Fiber chat channels exist (a Fiber rep sees only Feed and Announcements), and East has one member because no other Fiber rep has a region assigned.
+- No preview session could be minted for a specific user, so day one was verified at the database, function and route level rather than by screenshot; typecheck and production build clean.
