@@ -77,6 +77,7 @@ const LazyAssistant = lazy(() =>
 
   import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
 );
+const LazyDayOne = lazy(() => import('@/components/admin/DayOneCoursePanel'));
 const LazyRestore = lazy(() => import('@/components/admin/RestoreAccessPanel'));
 const LazyReactivations = lazy(() => import('@/components/admin/ReactivationRequestsPanel'));
 import { ADMIN_SECTIONS, SECTION_TABS, type AdminSection } from '@/lib/adminSections';
@@ -511,6 +512,15 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
           )}
 
 
+
+          {/* ========== DAY ONE COURSE TAB ========== */}
+          {isAdmin && (
+            <TabsContent value="dayone">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyDayOne />
+              </Suspense>
+            </TabsContent>
+          )}
 
           {/* ========== ARCHIVED TAB ========== */}
           <TabsContent value="archived">
