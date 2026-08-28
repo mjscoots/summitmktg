@@ -21,6 +21,7 @@ const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 const LazyFiberHub = lazy(() => import('@/components/admin/AdminFiberHubTab').then((m) => ({ default: m.AdminFiberHubTab })));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
+import { ApplicationsPulseLine } from '@/components/admin/ApplicationsPulseLine';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
