@@ -55,6 +55,18 @@ interface MyLead extends BoardLead {
   notes: string | null;
 }
 
+interface ReferralLead {
+  id: string;
+  first_name: string;
+  city: string | null;
+  interest_reason: string | null;
+  status: string;
+  claimed_by: string | null;
+  claimed_name: string | null;
+  referrer_name: string | null;
+  created_at: string;
+}
+
 function timeAgo(iso: string) {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (mins < 1) return 'just now';
