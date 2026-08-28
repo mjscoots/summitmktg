@@ -231,6 +231,13 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
         ))}
       </div>
 
+      {/* Referral harvest, live from the lead table */}
+      <p className="text-[13px] text-muted-foreground">
+        Referrals: {leads.filter((l) => l.source_type === 'rep_referral').length} submitted ·{' '}
+        {leads.filter((l) => l.source_type === 'rep_referral' && l.claimed_by).length} claimed
+      </p>
+
+
       {/* Filters */}
       <div className={cn(CARD, 'p-3 flex flex-wrap items-center gap-2')}>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
