@@ -1797,3 +1797,54 @@ Grouped by density rule: Pest Home (More), Fiber hub (More + questions merge), F
 Type: one display size per Home, body raised to 15px in Fiber hub cards and quick chips, duplicate sub-labels removed with the folded how-it-works lines.
 Vertical contrast: accents pushed — Pest electric cyan 193 100% 55%, Fiber mint 155 90% 48%, Life violet 256 88% 58%; heroes, eyebrows, chip badges and the phone bar active state all read from --workspace-accent. Instant cue: the eyebrow and phone bar glow colour (cyan = Pest, mint = Fiber, violet on white = Life).
 Verify: no session could be minted in this context (multiple auth users, per-user minting needs approval), so counts above are DOM/structure level from the rendered block trees, not screenshots. Typecheck clean, production build clean, no horizontal overflow 390–1280. Preview only; nothing published.
+
+## Pass 96 — Proof: regression and go/no-go refresh after passes 87–95
+
+**Lifecycle.** Walked the whole path at the layer each step lives in. Invite creation,
+preview and redemption were read end to end in `supabase/functions/redeem-invite` and the
+`invite_preview` / `redeem_invite` / `finalize_invite` functions; the sandbox database role
+cannot execute app functions, so no synthetic rows were written — the flow was verified by
+definition rather than by faking data. One real defect fell out of that read: the invite
+function set `approved: true` on both the auth user and the profile, so an invited rep
+bypassed the owner approval gate that pass 89 introduced. It now writes `approved: false`
+with `status = 'active'`, which is exactly what the Approvals tab looks for, and the
+function has been redeployed. Confirmed by definition: `decide_vertical_request` only
+inserts a `rep_vertical_enrollments` row on the approve branch (a decline writes the
+decision, the note and a notification and never touches Pest); `request_vertical_access`
+refuses a duplicate pending request and clears a prior rejection; `submit_referral` inserts
+into `recruiting_leads` with the referrer attached and de-duplicates on phone;
+`log_fiber_today` writes `fiber_day_numbers` and only rolls the weekly `fiber_installs`
+total forward when that week has no `batch_id`, so an import always wins over a typed
+number; `lead_log` records the outcome and the next call date and is gated to the
+designated, claiming or free lead; `ingest_fiber_week`, `ingest_pest_revenue` and
+`undo_import_batch` all key every written row to one `batch_id`, and undo deletes only the
+rows it created and restores the pre-import values it captured.
+
+**Baseline.** profiles 535, people_leads 551, invites 0, pending vertical requests 0,
+revenue_import_batches 0, fiber_day_numbers 0, blitz_optins 0, lead_activities 0.
+
+**Route smoke.** `scripts/regression-widths.py`: 0 overflowing route/width combinations
+across the public routes at 390, 1024, 1180 and 1280. Playwright pass over `/`, `/login`,
+`/invite/:token`, `/app/playbook` and `/app/doors` at 390 and 1280 in both dark and light:
+no sideways scroll, redirects land correctly (`/app/playbook` → login when signed out, and
+`/app/training#field-pack` when signed in), and the only console output is React's
+development-mode "function components cannot be given refs" warning from a dependency,
+which does not appear in the production build. All 20 navigation and admin-section links
+resolve to a defined route.
+
+**Security.** Anonymous execute was revoked on nine internal functions:
+`get_import_batches`, `get_money_sources`, `ingest_fiber_week`, `ingest_pest_revenue`,
+`lead_system_for`, `leads_counts`, `mark_mastery_check`, `set_appearance`,
+`undo_import_batch`. `backup_job_tokens` remains the only table with row level security on
+and no policy, which is deliberate — nothing but the backup job reads it. Manager-only
+surfaces (`lead_activities`, `lead_private_notes`) stay closed to reps at the policy level.
+`handle_new_user` initialises a normal signup as `approved = false`, `status = 'active'`,
+role `rookie`.
+
+**Checks.** Typecheck clean. Production build clean, largest chunk 217 kB. Scheduled jobs:
+eleven have succeeded, the four weekly jobs have not reached their first scheduled run.
+
+**Docs.** `docs/GO_NO_GO.md` refreshed: verdict rewritten for this check, a plain-language
+summary of passes 87–95 added, the job table brought up to date. Verdict is unchanged —
+still blocked on the Resend sender and Mathew Rubino's missing role, both owner actions.
+Nothing has been published.
