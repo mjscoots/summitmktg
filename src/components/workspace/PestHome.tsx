@@ -174,21 +174,6 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
             </button>
           </section>
 
-          <section>
-            <SectionEyebrow>One-on-ones</SectionEyebrow>
-            <button
-              type="button"
-              onClick={() => navigate('/app/one-on-ones/prep')}
-              className="card-ice flex min-h-14 w-full items-center px-4 text-left text-[15px] text-foreground"
-            >
-              Prep this week's one-on-ones
-            </button>
-          </section>
-
-          <section>
-            <SectionEyebrow>Bring someone in</SectionEyebrow>
-            <InviteDialog />
-          </section>
         </>
       ) : (
         <Button className="min-h-14 w-full text-[16px]" onClick={() => navigate('/app/doors')}>
