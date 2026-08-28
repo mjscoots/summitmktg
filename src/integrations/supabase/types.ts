@@ -7398,6 +7398,20 @@ export type Database = {
           signed: number
         }[]
       }
+      get_referral_leads: {
+        Args: never
+        Returns: {
+          city: string
+          claimed_by: string
+          claimed_name: string
+          created_at: string
+          first_name: string
+          id: string
+          interest_reason: string
+          referrer_name: string
+          status: string
+        }[]
+      }
       get_region_pace: { Args: never; Returns: Json }
       get_region_sheet: { Args: never; Returns: Json }
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
@@ -7737,6 +7751,7 @@ export type Database = {
       my_active_vertical: { Args: never; Returns: string }
       my_fiber_tier: { Args: { _uid: string }; Returns: Json }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
+      my_referral_count: { Args: never; Returns: number }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }
       new_invite_token: { Args: never; Returns: string }
@@ -7797,6 +7812,7 @@ export type Database = {
         }
         Returns: Json
       }
+      referral_counts: { Args: never; Returns: Json }
       refresh_series_card: { Args: { _root: string }; Returns: undefined }
       region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
