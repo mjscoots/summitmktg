@@ -483,9 +483,10 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
               </div>
             )}
 
-            {/* History */}
+            {/* Activity feed */}
+            {notesAllowed && (
             <div className="mt-4 mb-8">
-              <p className="micro-label mb-2">History</p>
+              <p className="micro-label mb-2">Activity</p>
               <div className="space-y-2">
                 {(detail?.activities || []).length === 0 && (
                   <p className="text-[13px] text-muted-foreground">No activity logged yet.</p>
@@ -494,8 +495,9 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                   <div key={a.id} className={cn('rounded-lg border border-border/50 bg-background/40 p-2')}>
                     <p className="text-[12px] font-semibold text-foreground">
                       {a.kind}
-                      {a.outcome ? ` · ${a.outcome.replace('_', ' ')}` : ''}
+                      {a.outcome ? ` · ${outcomeLabel(a.outcome)}` : ''}
                     </p>
+
                     {a.body && <p className="text-[13px] text-muted-foreground">{a.body}</p>}
                     <p className="mt-0.5 text-[11px] text-muted-foreground">
                       {a.actor_name || 'Someone'} · {new Date(a.created_at).toLocaleString()}
