@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { isStaffTier, type Tier } from '@/lib/tiers';
 import BeforeTheyLeft from '@/components/leads/BeforeTheyLeft';
+import OutcomeBar from '@/components/leads/OutcomeBar';
+
 import {
   CALL_OUTCOMES,
   LEAD_STAGES,
