@@ -85,13 +85,26 @@ function kindLabel(kind: string) {
   return KINDS.find((k) => k.value === kind)?.label ?? 'Other';
 }
 
+/** Calendar day of a stored timestamp, read in UTC so the stored last day never shifts. */
+function utcDayKey(iso: string) {
+  return iso.slice(0, 10);
+}
+
+function fmtUtcDay(iso: string, withWeekday = false) {
+  const [y, m, d] = utcDayKey(iso).split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(undefined, {
+    timeZone: 'UTC',
+    ...(withWeekday ? { weekday: 'short' as const } : {}),
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 function fmtRange(start: string, end: string | null) {
   const base = fmtWhen(start);
   if (!end) return base;
-  const s = new Date(start);
-  const e = new Date(end);
-  if (e.toDateString() === s.toDateString()) return base;
-  return `${new Date(start).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} to ${e.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+  if (utcDayKey(end) === utcDayKey(start)) return base;
+  return `${fmtUtcDay(start, true)} to ${fmtUtcDay(end)}`;
 }
 
 function fmtWhen(iso: string) {
