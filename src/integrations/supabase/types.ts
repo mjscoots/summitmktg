@@ -2642,6 +2642,47 @@ export type Database = {
         }
         Relationships: []
       }
+      mastery_checks: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          marked_by: string | null
+          module_id: string
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          marked_by?: string | null
+          module_id: string
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          marked_by?: string | null
+          module_id?: string
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mastery_checks_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           announcements: boolean
@@ -3191,6 +3232,7 @@ export type Database = {
           accepting_new_reps: boolean
           active_vertical: string | null
           alumni: boolean
+          appearance: string
           approved: boolean | null
           archived: boolean
           archived_at: string | null
@@ -3268,6 +3310,7 @@ export type Database = {
           accepting_new_reps?: boolean
           active_vertical?: string | null
           alumni?: boolean
+          appearance?: string
           approved?: boolean | null
           archived?: boolean
           archived_at?: string | null
@@ -3345,6 +3388,7 @@ export type Database = {
           accepting_new_reps?: boolean
           active_vertical?: string | null
           alumni?: boolean
+          appearance?: string
           approved?: boolean | null
           archived?: boolean
           archived_at?: string | null
@@ -7507,6 +7551,10 @@ export type Database = {
         Returns: Json
       }
       mark_inactive_users: { Args: never; Returns: undefined }
+      mark_mastery_check: {
+        Args: { _module_id: string; _source?: string; _user_id?: string }
+        Returns: undefined
+      }
       mark_sales_reconciled: {
         Args: { p_month: string; p_user_id: string }
         Returns: number
@@ -7624,6 +7672,7 @@ export type Database = {
         Returns: string
       }
       set_active_vertical: { Args: { _vertical: string }; Returns: Json }
+      set_appearance: { Args: { _appearance: string }; Returns: undefined }
       set_my_winter_plan: { Args: { _answer: string }; Returns: Json }
       set_next_year_status: {
         Args: { _notes?: string; _status: string; _user_id: string }
