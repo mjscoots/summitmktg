@@ -6928,6 +6928,7 @@ export type Database = {
         Returns: Json
       }
       cycle_stale_people_leads: { Args: never; Returns: Json }
+      day_one_video_ids: { Args: never; Returns: string[] }
       decide_vertical_application: {
         Args: { _application_id: string; _decision: string; _note?: string }
         Returns: Json
@@ -6968,6 +6969,19 @@ export type Database = {
       finalize_season: { Args: { _season_id: string }; Returns: undefined }
       finish_first_week: { Args: never; Returns: Json }
       first_week_json: { Args: { _target: string }; Returns: Json }
+      gated_recruits: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          done: number
+          full_name: string
+          last_active_at: string
+          minutes: number
+          pct: number
+          total: number
+          user_id: string
+        }[]
+      }
       generate_weekly_report: { Args: never; Returns: Json }
       get_access_reset_rows: {
         Args: { _search?: string }
@@ -7613,6 +7627,7 @@ export type Database = {
       is_dm_member: { Args: { _slug: string; _uid: string }; Returns: boolean }
       is_effective_manager: { Args: { _uid: string }; Returns: boolean }
       is_first_week_eligible: { Args: { _target: string }; Returns: boolean }
+      is_gated_recruit: { Args: { _uid: string }; Returns: boolean }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
       is_leader_of: {
         Args: { _leader: string; _person: string }
@@ -7871,6 +7886,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      recruit_gate_state: { Args: never; Returns: Json }
       redeem_invite: {
         Args: {
           p_email: string
@@ -7955,6 +7971,7 @@ export type Database = {
         Args: { _path: string; _slug: string }
         Returns: Json
       }
+      set_day_one_items: { Args: { _video_ids: string[] }; Returns: undefined }
       set_manager_seat: {
         Args: { _grant: boolean; _user_id: string }
         Returns: undefined

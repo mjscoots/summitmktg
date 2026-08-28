@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ProfileCompletionGate } from '@/components/ProfileCompletionGate';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useRecruitGate } from '@/hooks/useRecruitGate';
 
 interface BootcampGateProps {
   children: ReactNode;
@@ -23,6 +24,7 @@ export function BootcampGate({ children }: BootcampGateProps) {
   const { profile, signOut, isLoading: authLoading, role, refreshProfile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const recruitGate = useRecruitGate();
   const [isMarkingApprovalRequired, setIsMarkingApprovalRequired] = useState(false);
   const approvalInitAttemptedRef = useRef(false);
 
@@ -76,12 +78,22 @@ export function BootcampGate({ children }: BootcampGateProps) {
     return <>{children}</>;
   }
 
-  if (isLoading || authLoading || isMarkingApprovalRequired || profile?.status === 'rejected') {
+  // Pass 119 — the day-one watch course owns the whole app for a new recruit.
+  if (location.pathname.startsWith('/recruit-course')) {
+    return <>{children}</>;
+  }
+
+  if (isLoading || authLoading || isMarkingApprovalRequired || profile?.status === 'rejected' || recruitGate.isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // A locked recruit sees the day-one watch course and nothing else.
+  if (recruitGate.locked) {
+    return <Navigate to="/recruit-course" replace />;
   }
 
   // Require admin approval (only for rookies)

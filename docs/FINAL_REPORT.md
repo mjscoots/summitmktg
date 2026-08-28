@@ -2060,3 +2060,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Typecheck and production build clean; existing tokens only, no new colors or fonts.
 - Signed out at 390 dark and 1280 light: zero horizontal scroll, `/app` redirects to `/login`; authenticated Home render not verified because a session could not be minted without approval.
 - Nothing published.
+
+## Pass 119 — Recruit gate
+Locked recruits: derived rule only (is_gated_recruit): onboarding_status pending, not archived/alumni, no leadership role. All 23 actives, admins and owner resolve unlocked (0 actives are pending).
+Day one course (existing videos, read back from app_settings.day_one_video_ids): 1 Peters Intro, 2 David PATP, 3 Mason PATP, 4 Setting an Effective Goal, 5 Understanding Objections, 6 Inspection Close.
+Lock: /recruit-course reached through BootcampGate; the page shows the course, progress, minutes and nothing else; last item watched unlocks the app with the Pass 98 celebration once.
+Manager view: Team gains a Recruits group (percent, watched count, minutes, last active) from gated_recruits(); managers see directs, owner and admin see all.
+Admin: Content > Day one course reorders, adds or removes items via set_day_one_items(); no content is created.
+Invite door: redeem plus code verification now lands on /recruit-course before anything else.
+Verify: temporary pending flip returned locked=true, restore returned locked=false, owner locked=false; profiles 535, actives 23, invites 0, active summer_ready back to 20.
+New functions: PUBLIC and anon execute revoked, authenticated and service_role only. Typecheck and production build clean. Preview only, nothing published.
