@@ -24,6 +24,7 @@ export function BootcampGate({ children }: BootcampGateProps) {
   const { profile, signOut, isLoading: authLoading, role, refreshProfile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const recruitGate = useRecruitGate();
   const [isMarkingApprovalRequired, setIsMarkingApprovalRequired] = useState(false);
   const approvalInitAttemptedRef = useRef(false);
 
