@@ -351,7 +351,10 @@ export default function DoorsPage() {
                   {content?.bugSheet ? (
                     <p className="whitespace-pre-wrap text-[18px] leading-[1.6] text-foreground">{content.bugSheet}</p>
                   ) : (
-                    <p className="text-[18px] text-muted-foreground">Bug sheet coming — ask your manager.</p>
+                    <p className="text-[18px] text-muted-foreground">
+                      Your manager loads the local bug sheet here.
+                    </p>
+
                   )}
                 </FieldCard>
               </div>
