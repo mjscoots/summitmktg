@@ -413,6 +413,9 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             {ADMIN_SECTIONS.find((s) => s.key === section)?.blurb}
           </p>
 
+          {section === 'requests' && <ApplicationsPulseLine />}
+
+
           {/* Sub-nav inside the group */}
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
             <TabsList className="inline-flex min-w-max gap-0.5 bg-transparent p-0 h-auto">
