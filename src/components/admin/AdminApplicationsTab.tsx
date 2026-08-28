@@ -38,10 +38,9 @@ const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 const smsHref = (phone: string) => `sms:${phone.replace(/[^\d+]/g, '')}`;
 
 export default function AdminApplicationsTab() {
-  const { user, isAdmin, isOwner } = useAuth() as unknown as {
-    user: { id: string } | null; isAdmin?: boolean; isOwner?: boolean;
-  };
-  const canReassign = Boolean(isAdmin || isOwner);
+  const { user, role } = useAuth();
+  const canReassign = role === 'admin' || role === 'owner';
+
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
