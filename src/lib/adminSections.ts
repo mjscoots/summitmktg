@@ -1,8 +1,8 @@
 /**
- * Admin is six sections, each its own route. Every old tab still exists —
- * it now lives inside one of these sections.
+ * Admin is five groups, each its own route. Every group says what lives in it,
+ * and nothing sits more than two taps from the Admin root.
  */
-export type AdminSection = 'inbox' | 'people' | 'money' | 'content' | 'reports' | 'settings';
+export type AdminSection = 'people' | 'requests' | 'money' | 'content' | 'settings';
 
 export interface AdminTabDef {
   value: string;
@@ -11,17 +11,49 @@ export interface AdminTabDef {
   ownerOnly?: boolean;
 }
 
-export const ADMIN_SECTIONS: { key: AdminSection; label: string; path: string }[] = [
-  { key: 'inbox', label: 'Inbox', path: '/admin/inbox' },
-  { key: 'people', label: 'People', path: '/admin/people' },
-  { key: 'money', label: 'Money', path: '/admin/money' },
-  { key: 'content', label: 'Content', path: '/admin/content' },
-  { key: 'reports', label: 'Reports', path: '/admin/reports' },
-  { key: 'settings', label: 'Settings', path: '/admin/settings' },
+export const ADMIN_SECTIONS: { key: AdminSection; label: string; path: string; blurb: string }[] = [
+  {
+    key: 'people',
+    label: 'People',
+    path: '/admin/people',
+    blurb: 'Roster, teams and regions, access, and archived records.',
+  },
+  {
+    key: 'requests',
+    label: 'Requests',
+    path: '/admin/requests',
+    blurb: 'Everything waiting on a decision: approvals, applications, vertical access, pitches.',
+  },
+  {
+    key: 'money',
+    label: 'Money',
+    path: '/admin/money',
+    blurb: 'Pest revenue import, fiber weekly sheet, pay scales and holdback.',
+  },
+  {
+    key: 'content',
+    label: 'Content',
+    path: '/admin/content',
+    blurb: 'Playbook, training content, and what the public recruiting site says.',
+  },
+  {
+    key: 'settings',
+    label: 'Settings',
+    path: '/admin/settings',
+    blurb: 'Fiber hub, app settings, themes, exports, and the audit log.',
+  },
 ];
 
 export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
-  inbox: [
+  people: [
+    { value: 'users', label: 'Roster' },
+    { value: 'teams', label: 'Teams and regions' },
+    { value: 'tiers', label: 'Access tiers' },
+    { value: 'restore', label: 'Restore access' },
+    { value: 'leadimport', label: 'Import leads', adminOnly: true },
+    { value: 'archived', label: 'Archived' },
+  ],
+  requests: [
     { value: 'queue', label: 'Decisions' },
     { value: 'approvals', label: 'Approvals' },
     { value: 'verticals', label: 'Vertical requests', adminOnly: true },
@@ -29,31 +61,13 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'requests', label: 'Reactivations' },
     { value: 'pitches', label: 'Pitches' },
   ],
-
-  people: [
-    { value: 'users', label: 'Roster' },
-    { value: 'teams', label: 'Teams and regions' },
-    { value: 'restore', label: 'Restore access' },
-    { value: 'tiers', label: 'Access tiers' },
-    { value: 'leadimport', label: 'Import leads', adminOnly: true },
-    { value: 'archived', label: 'Archived' },
-    { value: 'sync', label: 'Hierarchy sync' },
-  ],
-  money: [
-    { value: 'money', label: 'Ladders and production', adminOnly: true },
-    { value: 'statements', label: 'Statements', adminOnly: true },
-  ],
+  money: [{ value: 'money', label: 'Ladders and production', adminOnly: true }],
   content: [
-    { value: 'drills', label: 'Drills', adminOnly: true },
-    { value: 'firstweek', label: 'First week', adminOnly: true },
     { value: 'playbook', label: 'Playbook', adminOnly: true },
+    { value: 'firstweek', label: 'First week', adminOnly: true },
+    { value: 'drills', label: 'Drills', adminOnly: true },
     { value: 'recruiting', label: 'Public site' },
     { value: 'assistant', label: 'Ask Summit', adminOnly: true },
-  ],
-  reports: [
-    { value: 'overview', label: 'Overview' },
-    { value: 'offseason', label: 'Off-season' },
-    { value: 'tools', label: 'Tools' },
   ],
   settings: [
     { value: 'industries', label: 'Industries' },
@@ -65,11 +79,11 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   ],
 };
 
-/** Which section owns a legacy tab value (used for /admin/team redirects). */
+/** Which group owns a legacy tab value (used for /admin/team redirects). */
 export function sectionForTab(tab: string | null): AdminSection {
-  if (!tab) return 'inbox';
+  if (!tab) return 'requests';
   for (const [key, tabs] of Object.entries(SECTION_TABS) as [AdminSection, AdminTabDef[]][]) {
     if (tabs.some((t) => t.value === tab)) return key;
   }
-  return 'inbox';
+  return 'requests';
 }
