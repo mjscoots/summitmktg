@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { PitchRecordingModal } from '@/components/training/PitchRecordingModal';
 
 interface Module {
   id: string;
@@ -66,6 +67,10 @@ export default function TrainingCoursePage() {
   const [editContent, setEditContent] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   
+  // Pass 83 — mastery checks: one per chapter, unlocked when its lessons are done
+  const [masteryDone, setMasteryDone] = useState<Set<string>>(new Set());
+  const [practiceModule, setPracticeModule] = useState<Module | null>(null);
+
   // Manual re-read tracking
   const [manualReadCount, setManualReadCount] = useState(0);
   const [showRereadCelebration, setShowRereadCelebration] = useState(false);
@@ -167,6 +172,16 @@ export default function TrainingCoursePage() {
         });
 
         setModules(modulesWithLessons);
+
+        const moduleIds = modulesWithLessons.map((m) => m.id);
+        if (moduleIds.length > 0) {
+          const { data: checks } = await (supabase as any)
+            .from('mastery_checks')
+            .select('module_id')
+            .eq('user_id', user.id)
+            .in('module_id', moduleIds);
+          setMasteryDone(new Set(((checks as { module_id: string }[]) || []).map((c) => c.module_id)));
+        }
 
         // Auto-expand the current (first incomplete, unlocked) module
         for (let i = 0; i < modulesWithLessons.length; i++) {
@@ -276,6 +291,19 @@ export default function TrainingCoursePage() {
     
     checkAndRecord();
   }, [overallProgress, isManualCourse, modules, user]);
+
+  const markMastery = useCallback(async (moduleId: string, source: string) => {
+    const { error } = await (supabase as any).rpc('mark_mastery_check', {
+      _module_id: moduleId,
+      _source: source,
+    });
+    if (error) {
+      toast.error('Could not save the mastery check');
+      return;
+    }
+    setMasteryDone((prev) => new Set(prev).add(moduleId));
+    toast.success('Mastery check done');
+  }, []);
 
   const handleEditLesson = async (lessonId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -588,6 +616,47 @@ export default function TrainingCoursePage() {
                       </button>
                     );
                   })}
+
+                  {/* Mastery check — the chapter's last row, locked until the lessons are done */}
+                  {(() => {
+                    const unlocked = module.lessons.length > 0 && module.lessons.every(isLessonSatisfied);
+                    const done = masteryDone.has(module.id);
+                    const isPitchChapter =
+                      /pitch|script|close|objection/i.test(module.title) ||
+                      module.lessons.some((l) => l.requires_pitch_approval);
+                    return (
+                      <button
+                        onClick={() => {
+                          if (!unlocked || done) return;
+                          if (isPitchChapter) setPracticeModule(module);
+                          else void markMastery(module.id, 'self');
+                        }}
+                        disabled={!unlocked || done}
+                        className={cn(
+                          'flex w-full items-center justify-between p-4 text-left transition-all',
+                          !unlocked ? 'cursor-not-allowed opacity-40' : done ? 'opacity-60' : 'hover:bg-muted/50'
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          {done ? (
+                            <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-success" />
+                          ) : unlocked ? (
+                            <Mic className="h-5 w-5 flex-shrink-0 text-primary" />
+                          ) : (
+                            <Lock className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                          )}
+                          <span className="text-sm font-medium text-foreground">Mastery check</span>
+                          {!unlocked && (
+                            <span className="text-xs text-muted-foreground">Finish the chapter first</span>
+                          )}
+                          {unlocked && !done && isPitchChapter && (
+                            <span className="text-xs text-muted-foreground">Run the practice roleplay</span>
+                          )}
+                        </div>
+                        {unlocked && !done && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                      </button>
+                    );
+                  })()}
                 </div>
                 )}
               </div>
@@ -595,6 +664,24 @@ export default function TrainingCoursePage() {
           })}
         </div>
       </main>
+
+      {/* Mastery check roleplay — the existing practice pitch recorder */}
+      {practiceModule && (
+        <PitchRecordingModal
+          open={!!practiceModule}
+          onClose={() => setPracticeModule(null)}
+          lessonId={null}
+          lessonTitle={`Mastery check — ${practiceModule.title}`}
+          attemptNumber={1}
+          maxDurationSeconds={120}
+          maxFileSizeMb={200}
+          onSubmitted={() => {
+            const id = practiceModule.id;
+            setPracticeModule(null);
+            void markMastery(id, 'practice');
+          }}
+        />
+      )}
 
       {/* Admin Quick Edit Modal */}
       <Dialog open={!!editingLesson} onOpenChange={(open) => !open && setEditingLesson(null)}>
