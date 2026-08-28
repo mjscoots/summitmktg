@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { SelfReportedSales } from '@/components/sales/SelfReportedSales';
 import { MasteryChecksCard } from '@/components/training/MasteryChecksCard';
 import { AllMoneyCard } from '@/components/money/AllMoneyCard';
+import { NewRepDayOneCard } from '@/components/team/NewRepDayOneCard';
 import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
