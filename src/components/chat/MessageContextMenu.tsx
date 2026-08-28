@@ -132,10 +132,10 @@ export function MessageContextMenu({
               onClick={() => { onPin(); onClose(); }}
             />
           )}
-          {isOwn && (
+          {(isOwn || canModerate) && (
             <MenuItem icon={<Pencil className="w-4 h-4" />} label="Edit" onClick={() => { onEdit(); onClose(); }} />
           )}
-          {(isOwn || isManager) && (
+          {(isOwn || canModerate) && (
             <MenuItem
               icon={<Trash2 className="w-4 h-4" />}
               label="Delete"
