@@ -1938,3 +1938,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Offline cache still covers script, objections, closes and pricing plus the bug sheet in one `summit-doors-cache-v1` payload, and an empty fetch no longer overwrites it. Cold open with no connection: header, paths and segments paint from the last cached load; if the device never loaded Doors online, each segment shows its plain "ask your manager" line.
 - Verified: typecheck and production build clean. Route check at 390 dark and light redirected to /login — a preview session could not be minted (multiple auth users, approval unavailable), so Doors itself was confirmed by code path only.
 - Nothing published.
+
+## Pass 107 — My week
+- Added `manager_owed(_manager)` and `owed_by_manager()` (SECURITY DEFINER, authenticated only, anon revoked, role-checked inside; non-staff get zeros). No new tables.
+- My week now opens with "What you owe this week": calls due, applications you own, applications unclaimed over 24h, reps with no training, one-on-ones not logged, reps who have not named their three. Zero-count lines are hidden; all zero reads "Nothing owed. Go find someone."
+- Counts and nouns only; the Pass 98 warm chip marks calls due and stale applications. No red, no streak language.
+- /command gains "Owed by manager" under The week, one line per manager sorted highest first, tapping to that manager's team. Owner and admin only.
+- SQL check (owner scope): calls due 134, unclaimed applications over 24h 5, reps with no training 21, reps under three referrals 23 — matches the RPC's owner-scope query shape. `user_roles` holds no manager/president rows today, so the owner list renders "No managers on file".
+- A rep never reaches these numbers: role check returns zeros and the section renders nothing.
+- Typecheck and production build clean. Route-level click-through unverified: browser auth status is signed_out and no session could be minted.
+- Preview only; nothing published.
