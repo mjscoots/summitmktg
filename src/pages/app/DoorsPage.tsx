@@ -161,12 +161,14 @@ export default function DoorsPage() {
 
     const entries = (pb?.data as Entry[]) || [];
     const scripts = (sc?.data as ScriptRow[]) || [];
-    if (entries.length === 0 && scripts.length === 0) {
+    const raw = (settings?.data as { value?: unknown } | null)?.value;
+    const bugSheet = typeof raw === 'string' && raw.trim() ? raw : null;
+    // An empty fetch (offline, or a dropped request) must not wipe the cache.
+    if (entries.length === 0 && scripts.length === 0 && !bugSheet) {
       setLoading(false);
       return;
     }
-    const raw = (settings?.data as { value?: unknown } | null)?.value;
-    const bugSheet = typeof raw === 'string' && raw.trim() ? raw : null;
+
     const next: DoorsContent = { entries, scripts, bugSheet };
     setContent(next);
     setLoading(false);
