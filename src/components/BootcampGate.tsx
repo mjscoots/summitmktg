@@ -89,6 +89,11 @@ export function BootcampGate({ children }: BootcampGateProps) {
     );
   }
 
+  // A locked recruit sees the day-one watch course and nothing else.
+  if (recruitGate.locked) {
+    return <Navigate to="/recruit-course" replace />;
+  }
+
   // Require admin approval (only for rookies)
   if (role === 'rookie' && !isBypassed && profile && profile.approved === false) {
     return <Navigate to="/pending-approval" replace />;
