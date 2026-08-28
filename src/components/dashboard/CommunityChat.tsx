@@ -70,10 +70,16 @@ interface CommunityChatProps {
   hideBack?: boolean;
   /** Header controls, e.g. people search. */
   headerRight?: React.ReactNode;
-  /** Rendered between the header and the thread, e.g. room strip. */
+  /** Cover photo or avatar beside the room name. */
+  headerAvatar?: React.ReactNode;
+  /** Tap the header name, e.g. to open the members sheet. */
+  onHeaderTitleClick?: () => void;
+  /** Rendered between the header and the thread. */
   topSlot?: React.ReactNode;
   /** Placeholder for the composer input. */
   composerPlaceholder?: string;
+  /** Direct messages hide sender names on incoming bubbles. */
+  isDm?: boolean;
 }
 
 
