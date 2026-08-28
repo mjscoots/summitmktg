@@ -6913,6 +6913,10 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: Json
       }
+      create_seat_invite: {
+        Args: { _days?: number; _user_id: string }
+        Returns: Json
+      }
       cycle_stale_people_leads: { Args: never; Returns: Json }
       decide_vertical_application: {
         Args: { _application_id: string; _decision: string; _note?: string }
@@ -7590,6 +7594,7 @@ export type Database = {
       }
       is_dm_channel: { Args: { _slug: string }; Returns: boolean }
       is_dm_member: { Args: { _slug: string; _uid: string }; Returns: boolean }
+      is_effective_manager: { Args: { _uid: string }; Returns: boolean }
       is_first_week_eligible: { Args: { _target: string }; Returns: boolean }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
       is_leader_of: {
@@ -7878,6 +7883,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: Json
       }
+      revoke_seat_invite: { Args: { _invite_id: string }; Returns: undefined }
       roll_reps_to_fiber: {
         Args: { _carrier_id?: string; _rep_ids: string[]; _start_date: string }
         Returns: number
@@ -7899,12 +7905,21 @@ export type Database = {
         Returns: Json
       }
       search_people: { Args: { _q: string }; Returns: Json }
+      seat_set_manager: {
+        Args: { _new_manager: string; _user_id: string }
+        Returns: undefined
+      }
+      seats_rows: { Args: never; Returns: Json }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
         Returns: string
       }
       set_active_vertical: { Args: { _vertical: string }; Returns: Json }
       set_appearance: { Args: { _appearance: string }; Returns: undefined }
+      set_manager_seat: {
+        Args: { _grant: boolean; _user_id: string }
+        Returns: undefined
+      }
       set_my_winter_plan: { Args: { _answer: string }; Returns: Json }
       set_next_year_status: {
         Args: { _notes?: string; _status: string; _user_id: string }
