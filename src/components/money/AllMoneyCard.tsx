@@ -60,8 +60,13 @@ export function AllMoneyCard({ userId }: { userId?: string | null }) {
                   style={{ width: `${Math.round((l.amount / maxLine) * 100)}%` }}
                 />
               </div>
-              <p className="mt-1.5 text-xs text-muted-foreground">{l.driver}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{l.source}</p>
+              {l.driver && l.driver !== '—' && (
+                <p className="mt-1.5 text-xs text-muted-foreground">{l.driver}</p>
+              )}
+              {l.source && l.source !== '—' && (
+                <p className="mt-0.5 text-xs text-muted-foreground">{l.source}</p>
+              )}
+
             </div>
           ))}
         </div>
