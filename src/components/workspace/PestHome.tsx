@@ -152,6 +152,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
       <FiberStartCard />
 
+      {!staff && <GoalInterviewCard />}
+
       <FirstWeekCard />
 
       <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start">
