@@ -133,7 +133,7 @@ export default function OwnerWeekSection() {
               label="Applications"
               value={String(w.apps_waiting)}
               sub={w.apps_waiting === 0 ? "Nothing waiting" : `oldest ${w.apps_oldest_hours}h`}
-              onClick={() => navigate("/app/admin/team")}
+              onClick={() => navigate("/admin/requests")}
             />
             <Line
               label="Referrals"
@@ -159,7 +159,7 @@ export default function OwnerWeekSection() {
                   ? `Fiber ${fiber || "none"} · Pest ${pest || "none"}`
                   : "Import a Gainz week or a Vision revenue sheet"
               }
-              onClick={() => navigate("/app/admin/money")}
+              onClick={() => navigate("/admin/money")}
             />
           </div>
         )}
