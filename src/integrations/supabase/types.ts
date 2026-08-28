@@ -1798,6 +1798,7 @@ export type Database = {
       }
       fiber_installs: {
         Row: {
+          batch_id: string | null
           cancels: number
           carrier_id: string
           created_at: string
@@ -1810,6 +1811,7 @@ export type Database = {
           week_start: string
         }
         Insert: {
+          batch_id?: string | null
           cancels?: number
           carrier_id: string
           created_at?: string
@@ -1822,6 +1824,7 @@ export type Database = {
           week_start: string
         }
         Update: {
+          batch_id?: string | null
           cancels?: number
           carrier_id?: string
           created_at?: string
@@ -1842,6 +1845,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fiber_pay_weeks: {
+        Row: {
+          batch_id: string | null
+          costs: number | null
+          created_at: string
+          entered_by: string | null
+          gross: number | null
+          id: string
+          overrides: number | null
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          batch_id?: string | null
+          costs?: number | null
+          created_at?: string
+          entered_by?: string | null
+          gross?: number | null
+          id?: string
+          overrides?: number | null
+          updated_at?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          batch_id?: string | null
+          costs?: number | null
+          created_at?: string
+          entered_by?: string | null
+          gross?: number | null
+          id?: string
+          overrides?: number | null
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
       }
       home_question_answers: {
         Row: {
@@ -4374,6 +4416,7 @@ export type Database = {
       }
       rep_revenue: {
         Row: {
+          batch_id: string | null
           created_at: string
           entered_by: string | null
           id: string
@@ -4385,6 +4428,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          batch_id?: string | null
           created_at?: string
           entered_by?: string | null
           id?: string
@@ -4396,6 +4440,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          batch_id?: string | null
           created_at?: string
           entered_by?: string | null
           id?: string
@@ -4597,8 +4642,10 @@ export type Database = {
           created_by: string
           extracted: Json
           id: string
+          kind: string
           note: string | null
           period_label: string | null
+          prior_rows: Json
           status: string
           updated_at: string
         }
@@ -4609,8 +4656,10 @@ export type Database = {
           created_by: string
           extracted?: Json
           id?: string
+          kind?: string
           note?: string | null
           period_label?: string | null
+          prior_rows?: Json
           status?: string
           updated_at?: string
         }
@@ -4621,8 +4670,10 @@ export type Database = {
           created_by?: string
           extracted?: Json
           id?: string
+          kind?: string
           note?: string | null
           period_label?: string | null
+          prior_rows?: Json
           status?: string
           updated_at?: string
         }
@@ -7069,6 +7120,7 @@ export type Database = {
         }[]
       }
       get_home_snapshot: { Args: never; Returns: Json }
+      get_import_batches: { Args: { _kind: string }; Returns: Json }
       get_incentive_progress: {
         Args: never
         Returns: {
@@ -7116,6 +7168,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_money_sources: { Args: never; Returns: Json }
       get_my_access_state: { Args: never; Returns: Json }
       get_my_leads: {
         Args: never
@@ -7398,6 +7451,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      ingest_fiber_week: { Args: { batch: Json }; Returns: Json }
+      ingest_pest_revenue: { Args: { batch: Json }; Returns: Json }
       invite_preview: { Args: { p_token: string }; Returns: Json }
       is_chat_staff: { Args: { _uid: string }; Returns: boolean }
       is_course_complete: {
@@ -7779,6 +7834,7 @@ export type Database = {
       }
       team_channel_slug: { Args: { _name: string }; Returns: string }
       touch_last_login: { Args: never; Returns: undefined }
+      undo_import_batch: { Args: { _batch_id: string }; Returns: Json }
       update_my_lead: {
         Args: { _lead_id: string; _notes: string; _status: string }
         Returns: Json

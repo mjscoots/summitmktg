@@ -12,6 +12,9 @@ import { RevenueEntryPanel } from '@/components/admin/RevenueEntryPanel';
 import { LeaderboardImportPanel } from '@/components/admin/LeaderboardImportPanel';
 import { RanksStacksPanel } from '@/components/admin/RanksStacksPanel';
 import { FiberInstallsPanel } from '@/components/admin/FiberInstallsPanel';
+import { GainzSheetPanel } from '@/components/admin/GainzSheetPanel';
+import { PestRevenueImportPanel } from '@/components/admin/PestRevenueImportPanel';
+
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -183,6 +186,7 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
+        <PestRevenueImportPanel />
         <RevenueEntryPanel />
       </div>
     );
@@ -201,10 +205,12 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
+        <GainzSheetPanel />
         <FiberInstallsPanel />
       </div>
     );
   }
+
 
   if (view === 'ranks') {
     return (

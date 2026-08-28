@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PayScale, getTier } from '@/lib/commission';
+import { formatLoadedAt } from '@/lib/importMatch';
 
 export interface MoneySummaryRaw {
   user_id: string;
@@ -11,6 +12,7 @@ export interface MoneySummaryRaw {
     active_revenue: number | null;
     rate_override: number | null;
     logged_sales: number | null;
+    imported_revenue: number | null;
   };
   fiber: {
     carrier: string | null;
@@ -18,7 +20,11 @@ export interface MoneySummaryRaw {
     cancels: number | null;
     per_install: number | null;
     holdback_percent: number | null;
+    pay_gross: number | null;
+    pay_overrides: number | null;
+    pay_costs: number | null;
   };
+  sources?: { fiber_loaded_at: string | null; pest_loaded_at: string | null } | null;
   months: { month: string; pest_revenue: number | null; fiber_installs: number | null }[];
   events: {
     at: string | null;
@@ -66,6 +72,12 @@ function pestEarnings(pest: MoneySummaryRaw['pest']) {
 /** Fiber earnings: installs x per-install pay, less the holdback. Existing rule. */
 function fiberEarnings(fiber: MoneySummaryRaw['fiber']) {
   const installs = Number(fiber.installs ?? 0);
+  // Loaded pay sheets win over the estimate from installs x per-install pay.
+  if (fiber.pay_gross !== null && fiber.pay_gross !== undefined) {
+    const amount =
+      Number(fiber.pay_gross) + Number(fiber.pay_overrides ?? 0) - Number(fiber.pay_costs ?? 0);
+    return { amount, rateMissing: false, installs };
+  }
   const per = fiber.per_install !== null ? Number(fiber.per_install) : null;
   if (per === null) return { amount: 0, rateMissing: true, installs };
   const hold = fiber.holdback_percent !== null ? Number(fiber.holdback_percent) : 0;
@@ -92,6 +104,16 @@ export function useMoneySummary(targetUserId?: string | null) {
       }
       const p = pestEarnings(raw.pest);
       const f = fiberEarnings(raw.fiber);
+      const pestLoaded = formatLoadedAt(raw.sources?.pest_loaded_at);
+      const fiberLoaded = formatLoadedAt(raw.sources?.fiber_loaded_at);
+      const pestSource = pestLoaded
+        ? `Pest: Vision revenue, loaded ${pestLoaded}`
+        : raw.pest.logged_sales
+          ? 'Pest: logged sales'
+          : 'Pest: no data loaded yet';
+      const fiberSource = fiberLoaded
+        ? `Fiber: Gainz sheet, loaded ${fiberLoaded}`
+        : 'Fiber: no data loaded yet';
       const lines: VerticalLine[] = [
         {
           vertical: 'Pest',
@@ -102,7 +124,7 @@ export function useMoneySummary(targetUserId?: string | null) {
             p.revenue !== null
               ? `${p.signs} ${p.signs === 1 ? 'account' : 'accounts'}`
               : 'No revenue entered',
-          source: 'Pest: logged sales',
+          source: pestSource,
           note: p.rateMissing ? 'Not set' : undefined,
         },
         {
@@ -111,7 +133,7 @@ export function useMoneySummary(targetUserId?: string | null) {
           amount: f.amount,
           rateMissing: f.rateMissing,
           driver: `${f.installs} ${f.installs === 1 ? 'install' : 'installs'}`,
-          source: 'Fiber: Gainz pay sheets',
+          source: fiberSource,
           note: f.rateMissing ? 'Rate not set' : undefined,
         },
         {
