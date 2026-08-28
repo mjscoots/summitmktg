@@ -65,6 +65,7 @@ export function GuidedSetup({
   const [ecName, setEcName] = useState(initial.emergency_contact_name || '');
   const [ecPhone, setEcPhone] = useState(initial.emergency_contact_phone || '');
   const [source, setSource] = useState(initial.referred_by || '');
+  const [referralSent, setReferralSent] = useState(false);
   const [referrals, setReferrals] = useState<Referral[]>([
     { name: '', phone: '', note: '' },
     { name: '', phone: '', note: '' },
@@ -156,7 +157,10 @@ export function GuidedSetup({
       if (res?.ok) added += 1;
       else if (res?.error) toast.error(res.error);
     }
-    if (added > 0) toast.success(added === 1 ? 'One name sent' : `${added} names sent`);
+    if (added > 0) {
+      setReferralSent(true);
+      toast.success(added === 1 ? 'One name sent' : `${added} names sent`);
+    }
   }
 
   async function finish() {
@@ -397,7 +401,14 @@ export function GuidedSetup({
             {step === 'referrals' && (
               <div className="space-y-4">
                 {referrals.map((r, i) => (
-                  <div key={i} className="space-y-2 rounded-[10px] border border-border p-3">
+                  <div
+                    key={i}
+                    className={
+                      referralSent
+                        ? 'celebrate-card celebrate-in space-y-2 rounded-[10px] p-3'
+                        : 'space-y-2 rounded-[10px] border border-border p-3'
+                    }
+                  >
                     <p className="text-[12px] text-muted-foreground">Person {i + 1}</p>
                     <Input
                       className="h-11"
