@@ -3,20 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
-import { StreakChip } from '@/components/shared/StreakChip';
 import { useSaleStreak } from '@/hooks/useSaleStreak';
 import { useHomeToday } from '@/hooks/useHomeToday';
 import { useManagerWeek } from '@/hooks/useManagerWeek';
-import { useChatChannels } from '@/hooks/useChatChannels';
 import { useActionCards } from '@/hooks/useActionCards';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
-import { HomeHero } from '@/components/home/HomeHero';
 import { QuickChips, type QuickChip } from '@/components/home/QuickChips';
 import { WeekBars } from '@/components/home/WeekBars';
 import { TeamTodayCard } from '@/components/home/TeamTodayCard';
 import { NextEventCard } from '@/components/home/NextEventCard';
+import { ChatPreviewCard } from '@/components/home/ChatPreviewCard';
+import { MoreReveal } from '@/components/home/MoreReveal';
+import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { InviteDialog } from '@/components/invites/InviteDialog';
 import { AnnouncementEditorModal } from '@/components/dashboard/AnnouncementEditorModal';
 import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
@@ -35,8 +35,10 @@ function greeting(): string {
 }
 
 /**
- * Pest home. One big number, the day's shape, and the next action under the
- * thumb. Managers see the same skeleton with their team's numbers.
+ * Pass 95 — Air. Pest home shows five things and folds the rest behind More:
+ * the greeting with today's number, Doors, needs you, the next event and chat.
+ * Managers get their own five: team today, needs attention, one-on-ones,
+ * invite and the next event.
  */
 export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const navigate = useNavigate();
@@ -46,7 +48,6 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const { days: saleStreak } = useSaleStreak();
   const today = useHomeToday();
   const { totals } = useManagerWeek();
-  const { totalUnread } = useChatChannels();
   const { cards } = useActionCards();
 
   const [logOpen, setLogOpen] = useState(false);
@@ -68,139 +69,149 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   }, [loadPinned]);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
-  const dateLine = new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
-
   const weekCount = today.weekBars.reduce((a, n) => a + n, 0);
 
-  const repChips: QuickChip[] = [
-    { label: 'Field pack', to: '/app/training#field-pack' },
-    { label: 'Ask Summit', to: '/app/ask' },
-    { label: 'Chat', to: '/app/chat', badge: totalUnread },
-    { label: 'Missions', to: '/app/missions', badge: cards.length },
-  ];
-
-  const managerChips: QuickChip[] = [
-    { label: 'My week', to: '/app/week' },
-    { label: 'Post', onClick: () => setPostOpen(true) },
-    { label: 'Incentives', to: '/app/leaderboard' },
-    { label: 'Log a sale', onClick: () => setLogOpen(true) },
-    { label: 'Chat', to: '/app/chat', badge: totalUnread },
-  ];
+  const moreChips: QuickChip[] = staff
+    ? [
+        { label: 'My week', to: '/app/week' },
+        { label: 'Leads', to: '/app/leads' },
+        { label: 'Incentives', to: '/app/leaderboard' },
+        { label: 'Post', onClick: () => setPostOpen(true) },
+        { label: 'Log a sale', onClick: () => setLogOpen(true) },
+      ]
+    : [
+        { label: 'Field pack', to: '/app/training#field-pack' },
+        { label: 'Ask Summit', to: '/app/ask' },
+        { label: 'Missions', to: '/app/missions', badge: cards.length },
+        { label: 'Board', to: '/app/leaderboard' },
+      ];
 
   if (today.loading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-3 px-4 py-4">
-        <Skeleton className="skeleton-shimmer h-6 w-48" />
-        <Skeleton className="skeleton-shimmer h-40 w-full" />
-        <Skeleton className="skeleton-shimmer h-11 w-full" />
+      <div className="mx-auto max-w-5xl space-y-8 px-4 py-6">
+        <Skeleton className="skeleton-shimmer h-24 w-full" />
+        <Skeleton className="skeleton-shimmer h-14 w-full" />
         <Skeleton className="skeleton-shimmer h-28 w-full" />
       </div>
     );
   }
 
-  const hero = staff ? (
-    <HomeHero
-      label="Team today"
-      value={today.visibleToday}
-      subline={`Team this week ${totals.sales} · ${totals.reps} ${totals.reps === 1 ? 'rep' : 'reps'}`}
-      zeroLine="Nothing logged yet today"
-      sparkline={today.sparkline}
-      attention={{ count: totals.attention, onOpen: () => navigate('/app/week') }}
-      shineKey="home-hero-manager"
-    />
-  ) : (
-    <HomeHero
-      label="Sales today"
-      value={today.today}
-      subline={`This week ${weekCount} · Team today ${today.visibleToday}`}
-      zeroLine="Nothing logged yet today"
-      weekCount={weekCount}
-      showRing
-      action={
-        <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
-          Log a sale
-        </Button>
-      }
-      shineKey="home-hero-rep"
-    />
-  );
-
   return (
-    <div className="mx-auto max-w-5xl space-y-4 px-4 py-4">
+    <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:space-y-10">
       <OnboardingAlert />
 
+      {/* One display size per screen: this number is it. */}
       <header>
-        <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+        <SectionEyebrow>{staff ? 'Team today' : 'Today'}</SectionEyebrow>
+        <p className="text-[15px] text-muted-foreground">
           {greeting()}, {firstName}
-        </h1>
-        <p className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
-          <span>{dateLine}</span>
-          <StreakChip days={saleStreak} label="days with a sale" />
+        </p>
+        <p className="mt-2 text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
+          {staff ? today.visibleToday : today.today}
+        </p>
+        <p className="mt-2 text-[15px] text-muted-foreground">
+          {staff
+            ? `${totals.sales} this week across ${totals.reps} ${totals.reps === 1 ? 'rep' : 'reps'}`
+            : `${weekCount} this week · ${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale`}
         </p>
       </header>
 
-      {/* Doors mode — the door is where the money is, so it sits above the fold */}
-      <Button
-        className="min-h-14 w-full text-[16px]"
-        onClick={() => navigate('/app/doors')}
-      >
-        Doors
-      </Button>
+      {staff ? (
+        <>
+          <section>
+            <SectionEyebrow>Needs attention</SectionEyebrow>
+            <button
+              type="button"
+              onClick={() => navigate('/app/week')}
+              className="card-ice flex min-h-14 w-full items-center justify-between gap-4 px-4 text-left"
+            >
+              <span className="text-[15px] text-foreground">
+                {totals.attention > 0 ? 'Open my week' : 'Everyone is moving'}
+              </span>
+              <span className="text-[20px] font-bold tabular-nums text-foreground">
+                {totals.attention}
+              </span>
+            </button>
+          </section>
 
-      <FiberStartCard />
+          <section>
+            <SectionEyebrow>One-on-ones</SectionEyebrow>
+            <button
+              type="button"
+              onClick={() => navigate('/app/one-on-ones/prep')}
+              className="card-ice flex min-h-14 w-full items-center px-4 text-left text-[15px] text-foreground"
+            >
+              Prep this week's one-on-ones
+            </button>
+          </section>
 
-      {!staff && <GoalInterviewCard />}
-
-      <FirstWeekCard />
-
-      <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start">
-        <div className="min-w-0 space-y-4">
-          {hero}
-          <QuickChips chips={staff ? managerChips : repChips} />
-          <WeekBars
-            bars={today.weekBars}
-            trainingMinutes={today.trainingMinutes}
-            onOpen={() => navigate(staff ? '/app/week' : '/app/leaderboard')}
-          />
-        </div>
-
-        <div className="min-w-0 space-y-4">
-          <TeamTodayCard
-            rows={today.topToday}
-            limit={staff ? 5 : 3}
-            myUserId={user?.id}
-            title={staff ? 'Top today' : 'Team today'}
-          />
-          <NeedsYouRow className="!px-0" />
-          <NextEventCard />
-          {staff && (
-            <div className="card-ice p-3">
-              <p className="micro-label mb-2">Bring someone in</p>
-              <InviteDialog />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <WinterPlanCard />
-
-      {onOpenPoints && (
-        <Button variant="outline" className="min-h-11 w-full" onClick={onOpenPoints}>
-          My points
+          <section>
+            <SectionEyebrow>Bring someone in</SectionEyebrow>
+            <InviteDialog />
+          </section>
+        </>
+      ) : (
+        <Button className="min-h-14 w-full text-[16px]" onClick={() => navigate('/app/doors')}>
+          Doors
         </Button>
       )}
 
-      <InstallAppHint />
+      {!staff && <NeedsYouRow className="!px-0" />}
 
-      {pinned && (
-        <p className="text-[13px] text-muted-foreground">
-          Pinned: <span className="text-foreground">{pinned}</span>
-        </p>
-      )}
+      <NextEventCard />
+
+      {!staff && <ChatPreviewCard />}
+
+      <MoreReveal>
+        <QuickChips chips={moreChips} />
+
+        {staff && (
+          <>
+            <NeedsYouRow className="!px-0" />
+            <ChatPreviewCard />
+          </>
+        )}
+
+
+        {!staff && (
+          <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
+            Log a sale
+          </Button>
+        )}
+
+        <FiberStartCard />
+        {!staff && <GoalInterviewCard />}
+        <FirstWeekCard />
+
+        <WeekBars
+          bars={today.weekBars}
+          trainingMinutes={today.trainingMinutes}
+          onOpen={() => navigate(staff ? '/app/week' : '/app/leaderboard')}
+        />
+
+        <TeamTodayCard
+          rows={today.topToday}
+          limit={staff ? 5 : 3}
+          myUserId={user?.id}
+          title={staff ? 'Top today' : 'Team today'}
+        />
+
+        <WinterPlanCard />
+
+        {onOpenPoints && (
+          <Button variant="outline" className="min-h-11 w-full" onClick={onOpenPoints}>
+            My points
+          </Button>
+        )}
+
+        <InstallAppHint />
+
+        {pinned && (
+          <p className="text-[15px] text-muted-foreground">
+            Pinned: <span className="text-foreground">{pinned}</span>
+          </p>
+        )}
+      </MoreReveal>
 
       <LogSaleSheet open={logOpen} onOpenChange={setLogOpen} onSaved={() => void today.refresh()} />
       {postOpen && (

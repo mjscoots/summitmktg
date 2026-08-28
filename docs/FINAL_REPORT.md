@@ -1785,3 +1785,15 @@ Verified: one synthetic outcome plus an overdue next call on a real lead moved t
 - Playbook folded into Learn: content moved verbatim into src/components/training/FieldPack.tsx as the "Field pack" section of /app/training; /app/playbook redirects to /app/training#field-pack; sidebar entry removed. Doors keeps its Pest Home button and Pest-only route.
 - Sidebar before → after. Pest: Home, Learn, Chat, Money, Schedule, Leaderboard, Playbook, Season → Home, Learn, Chat, Money, Leaderboard. Fiber: Home, Installs, Chat, Money, Blitzes, Board → Home, Chat, Money, Board. Life: Home, Pipeline, Chat, Learn, Money, Schedule → Home, Pipeline, Chat, Learn, Money. Manage unchanged: Team, My week, Leads, Approvals.
 - Removed rows are all one tap from Home (next event card, installs stepper, blitz list, season card). No sidebar route 404s; typecheck and production build clean. Nothing added, preview only.
+
+## Pass 95 — Air
+Home caps at 390 (top-level blocks, before → after):
+- Pest rep Home: 16 → 6 (greeting with today's number, Doors, needs-you, next event, chat preview, More).
+- Pest manager Home: 16 → 6 (team today with needs attention, one-on-ones, invite, next event, More; needs-you and chat moved into More).
+- Fiber hub: 13 → 6 (Gainz hero, contacts, questions, blitzes, More, collapsed tracking drawer). How-it-works folded in as three question entries.
+- Life Home: unchanged.
+Rhythm: section gap now 32px at 390 / 40px at sm on Fiber hub and Pest Home, one eyebrow per section, single card padding scale, the two Fiber link cards inlined as rows in one card, no side-by-side cards at 390.
+Grouped by density rule: Pest Home (More), Fiber hub (More + questions merge), Fiber tracking drawer; Admin was already sectioned in Pass 91/94.
+Type: one display size per Home, body raised to 15px in Fiber hub cards and quick chips, duplicate sub-labels removed with the folded how-it-works lines.
+Vertical contrast: accents pushed — Pest electric cyan 193 100% 55%, Fiber mint 155 90% 48%, Life violet 256 88% 58%; heroes, eyebrows, chip badges and the phone bar active state all read from --workspace-accent. Instant cue: the eyebrow and phone bar glow colour (cyan = Pest, mint = Fiber, violet on white = Life).
+Verify: no session could be minted in this context (multiple auth users, per-user minting needs approval), so counts above are DOM/structure level from the rendered block trees, not screenshots. Typecheck clean, production build clean, no horizontal overflow 390–1280. Preview only; nothing published.

@@ -104,14 +104,14 @@ const MONO_DARK = {
 const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
   pest: {
     ...MONO_DARK,
-    workspaceAccent: '197 100% 68%',
+    workspaceAccent: '193 100% 55%',
     wordmark: { bg: '#0B0D12', accent: '#5AD1FF', outline: '#FFFFFF', letters: '#FFFFFF' },
     texture: DOTS,
     textureSize: '22px 22px',
   },
   fiber: {
     ...MONO_DARK,
-    workspaceAccent: '158 70% 55%',
+    workspaceAccent: '155 90% 48%',
     wordmark: { bg: '#0B0D12', accent: '#3DDC97', outline: '#FFFFFF', letters: '#FFFFFF' },
     texture: LINES,
     textureSize: '28px 28px',
@@ -131,8 +131,8 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
     primary: '220 22% 6%',
     primaryDeep: '220 22% 6%',
     primaryForeground: '0 0% 100%',
-    workspaceAccent: '218 100% 56%',
-    wordmark: { bg: '#FFFFFF', accent: '#1E7BFF', outline: '#FFFFFF', letters: '#0B0D12' },
+    workspaceAccent: '256 88% 58%',
+    wordmark: { bg: '#FFFFFF', accent: '#6B3BF5', outline: '#FFFFFF', letters: '#0B0D12' },
     texture: GRAIN,
     textureSize: '120px 120px',
   },
