@@ -204,6 +204,24 @@ export function MemberProfileModal({
   const userIds = useMemo(() => member ? [member.user_id] : [], [member]);
   const { getProgress } = useTrainingProgress(userIds);
 
+  // Pass 101 — last day this rep logged training minutes.
+  const [lastTrained, setLastTrained] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open || !member?.user_id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('daily_training_time')
+        .select('date, training_minutes')
+        .eq('user_id', member.user_id)
+        .gt('training_minutes', 0)
+        .order('date', { ascending: false })
+        .limit(1);
+      if (!cancelled) setLastTrained((data as { date: string }[] | null)?.[0]?.date ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, member?.user_id]);
+
   const directReports = useMemo(() => {
     if (!member) return [];
     return roster.filter(m => {
@@ -439,6 +457,11 @@ export function MemberProfileModal({
                     <p className="text-xs font-semibold text-foreground">Training Progress</p>
                     <span className="text-xs text-muted-foreground">{progress.completed}/{progress.total} lessons</span>
                   </div>
+                  <p className="mb-1.5 text-[11px] text-muted-foreground">
+                    {lastTrained
+                      ? `Last trained ${new Date(lastTrained + 'T00:00:00').toLocaleDateString()}`
+                      : 'No training logged yet'}
+                  </p>
                   <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
                     <div 
                       className={cn(
