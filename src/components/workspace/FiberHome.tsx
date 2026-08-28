@@ -180,6 +180,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
       <UpcomingBlitzes />
 
       <MoreReveal>
+        <YourThreeCard />
         <section className={`${HUB_CARD} p-4`}>
           <FiberEyebrow>Today</FiberEyebrow>
           <div className="flex items-end justify-between gap-4">
