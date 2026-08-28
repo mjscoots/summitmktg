@@ -76,7 +76,12 @@ export function BootcampGate({ children }: BootcampGateProps) {
     return <>{children}</>;
   }
 
-  if (isLoading || authLoading || isMarkingApprovalRequired || profile?.status === 'rejected') {
+  // Pass 119 — the day-one watch course owns the whole app for a new recruit.
+  if (location.pathname.startsWith('/recruit-course')) {
+    return <>{children}</>;
+  }
+
+  if (isLoading || authLoading || isMarkingApprovalRequired || profile?.status === 'rejected' || recruitGate.isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
