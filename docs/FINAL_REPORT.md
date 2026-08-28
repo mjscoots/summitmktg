@@ -1948,3 +1948,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - A rep never reaches these numbers: role check returns zeros and the section renders nothing.
 - Typecheck and production build clean. Route-level click-through unverified: browser auth status is signed_out and no session could be minted.
 - Preview only; nothing published.
+
+## Pass 108 — Seats
+- Added `is_effective_manager(uid)`: manager/president/admin/owner role OR at least one live rep via `downline_edges` (manages) or `profiles.manager_id`. `manager_owed` scope and `owed_by_manager`'s list now use it; downline scope stays each manager's own people. No other screen's permissions changed.
+- New Admin → People → Seats (owner/admin only, `src/components/admin/SeatsPanel.tsx`): one row per active rep with team, manager, signed in or never, invite state (none/open/expired/used/revoked) and role; never-signed-in first; header counts never signed in, no invite, managers missing a role.
+- Backed by role-checked SECURITY DEFINER RPCs, anon revoked: `seats_rows`, `create_seat_invite`, `revoke_seat_invite`, `set_manager_seat` (owner only), `seat_set_manager`. Seat invites are tagged on the existing `invites.note` as `seat:<user_id>` — no new columns, no new tables.
+- Create invite writes an `invites` row scoped to the rep's role, vertical, team, manager with a 14-day expiry and copies the redeem link; Create all invites covers everyone without an open invite and returns a copyable name-plus-link list. Nothing is emailed or texted.
+- Grant/Remove manager access shows only to the owner; admin sees the state.
+- Andrew Bucy (Hewitt McBride) and Spiro Mellis (Logan McCarty) show "Manager departed" with a live-manager picker that writes `profiles.manager_id`, `direct_manager` and the `manages` edge together. No replacement guessed.
+- Verified: `is_effective_manager` true for Rubino, Colton Joyce, Luc Chevalier, Sean Jablonski; false for Alex Justice, Lucas Martins, Daniel Kukui (7 effective managers total). One synthetic invite created, revoked and deleted — invites back to 0; one manager role granted and removed — `user_roles` back to owner 1, admin 2.
+- Typecheck and production build clean. Preview only, nothing published. Linter shows 369 pre-existing-style definer warnings; every new function is role-checked inside with anon execute revoked.
