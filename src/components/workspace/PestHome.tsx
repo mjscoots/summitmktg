@@ -102,19 +102,41 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
       {/* One display size per screen: this number is it. */}
       <header>
-        <SectionEyebrow>{staff ? 'Team today' : 'Today'}</SectionEyebrow>
+        <SectionEyebrow>
+          {offSeason ? (staff ? 'Signed for 2027' : 'Training this week') : staff ? 'Team today' : 'Today'}
+        </SectionEyebrow>
         <p className="text-[15px] text-muted-foreground">
           {greeting()}, {firstName}
         </p>
-        <p className="mt-2 text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
-          {staff ? today.visibleToday : today.today}
-        </p>
+        {offSeason && staff ? (
+          <button
+            type="button"
+            onClick={() => navigate('/app/leads')}
+            className="mt-2 block text-left"
+          >
+            <span className="block text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
+              {resign.signed}
+            </span>
+          </button>
+        ) : (
+          <p className="mt-2 text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
+            {offSeason ? today.trainingMinutes : staff ? today.visibleToday : today.today}
+          </p>
+        )}
         <p className="mt-2 text-[15px] text-muted-foreground">
-          {staff
-            ? `${totals.sales} this week across ${totals.reps} ${totals.reps === 1 ? 'rep' : 'reps'}`
-            : `${weekCount} this week · ${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale`}
+          {offSeason
+            ? staff
+              ? `${money(resign.signedRevenue)} signed · ${resign.unsigned} not signed (${money(resign.unsignedRevenue)})`
+              : [
+                  repLine.goal > 0 ? `Goal ${money(repLine.goal)} for 2027` : 'Minutes this week',
+                  `${repLine.streak} ${repLine.streak === 1 ? 'day' : 'days'} in a row`,
+                ].join(' · ')
+            : staff
+              ? `${totals.sales} this week across ${totals.reps} ${totals.reps === 1 ? 'rep' : 'reps'}`
+              : `${weekCount} this week · ${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale`}
         </p>
       </header>
+
 
       {staff ? (
         <>
