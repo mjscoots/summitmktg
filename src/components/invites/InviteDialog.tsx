@@ -190,8 +190,8 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
         <DialogHeader>
           <DialogTitle>Invite someone</DialogTitle>
           <DialogDescription>
-            One link for one person. It sets their role, vertical, team and manager, and
-            expires in 7 days unless you pick longer.
+            This makes a link. Send it yourself. Whoever opens it lands in the app on this team,
+            waiting for your approval.
           </DialogDescription>
         </DialogHeader>
 
@@ -218,9 +218,29 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
           </div>
         ) : (
           <div className="space-y-4">
+            {locked ? (
+              <div className="rounded-xl border border-border bg-muted/30 p-4 text-[13px]">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">This invite</p>
+                <dl className="mt-2 space-y-1">
+                  {[
+                    ['Role', 'Rep'],
+                    ['Vertical', profile?.active_vertical || 'Pest'],
+                    ['Team', teamName(profile?.team_id || null)],
+                    ['Region', profile?.region || 'Not set'],
+                    ['Manager', profile?.full_name || 'You'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">{label}</dt>
+                      <dd className="font-semibold text-foreground">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : (
+              <>
             <div>
               <Label>Role</Label>
-              <Select value={locked ? 'rep' : inviteRole} onValueChange={setInviteRole} disabled={locked}>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
                 <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {roleOptions.map((r) => (
@@ -232,7 +252,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
 
             <div>
               <Label>Vertical</Label>
-              <Select value={locked ? profile?.active_vertical || 'Pest' : vertical} onValueChange={setVertical} disabled={locked}>
+              <Select value={vertical} onValueChange={setVertical}>
                 <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {verticals.map((v) => (
@@ -244,7 +264,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
 
             <div>
               <Label>Team</Label>
-              <Select value={locked ? profile?.team_id || '' : teamId} onValueChange={setTeamId} disabled={locked}>
+              <Select value={teamId} onValueChange={setTeamId}>
                 <SelectTrigger className="min-h-11"><SelectValue placeholder="Choose a team" /></SelectTrigger>
                 <SelectContent>
                   {teams.map((t) => (
@@ -254,7 +274,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
               </Select>
             </div>
 
-            {!locked && vertical.toLowerCase() === 'fiber' && (
+            {vertical.toLowerCase() === 'fiber' && (
               <div>
                 <Label>Region</Label>
                 <Select value={region} onValueChange={setRegion}>
@@ -269,7 +289,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
 
             <div>
               <Label>Manager</Label>
-              <Select value={locked ? user?.id || '' : managerId} onValueChange={setManagerId} disabled={locked}>
+              <Select value={managerId} onValueChange={setManagerId}>
                 <SelectTrigger className="min-h-11"><SelectValue placeholder="Choose a manager" /></SelectTrigger>
                 <SelectContent>
                   {managers.map((m) => (
@@ -278,6 +298,8 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
                 </SelectContent>
               </Select>
             </div>
+              </>
+            )}
 
             <div>
               <Label>Note (optional)</Label>

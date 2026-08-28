@@ -1980,3 +1980,11 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Linter delta: anonymous SECURITY DEFINER warnings 36 to 28; total 369 to 361. Remaining are pre-existing signed-in SECURITY DEFINER notices plus the OTP length setting.
 - Cron: unchanged; job history is not readable from this environment.
 - Typecheck and production build clean. Nothing published.
+
+## Pass 111 — Owner walkthrough
+- Chat: could not reproduce a crash (signed out, session mint unavailable); data is clean (17 channels, 712 messages, no null rows). Hardened the real suspect instead: `src/lib/lazyRoute.ts` wraps all 59 lazy routes, and a failed dynamic import now purges caches, unregisters the worker, and reloads once with a cache-busting param; the unhandled-rejection handler recovers silently instead of showing the dead toast; `public/sw.js` bumped to v3, refuses to cache 404 asset responses, and accepts a CLEAR_CACHES message.
+- Hero truth: `leads_counts()` now returns `roster_total` and scopes signed/unsigned to people actually on the roster. Verified by SQL: 14 signed of 142, 128 unsigned worth $4,752,747; the 409 not_on_roster names (zero revenue) left the denominator.
+- Home hero reads "14 of 142" with the words "Signed for 2027" under it and "128 on the roster not signed"; the re-sign board header shows "14 of 142" and states that historical names are not counted. Nothing else on Home moved.
+- Invite dialog: opens with "This makes a link. Send it yourself. Whoever opens it lands in the app on this team, waiting for your approval." Locked (known person) mode shows role, vertical, team, region and manager as plain text instead of pickers; the generic dialog keeps its pickers and defaults.
+- Link proof: one synthetic invite created, `/invite/<token>` loaded signed out at 390 and rendered the redeem form ("You are invited to Summit · Pest · Rep · Invited by Mathew Joyce") with no horizontal overflow; redeem still lands approved false per the Pass 96 gate; row deleted, invites back to 0.
+- Typecheck and production build clean. Linter unchanged at 361 (no new findings). Not published.

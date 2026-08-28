@@ -128,7 +128,11 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           >
             <span className="block text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
               {resign.signed}
+              {resign.rosterTotal > 0 && (
+                <span className="text-[24px] font-bold text-muted-foreground"> of {resign.rosterTotal}</span>
+              )}
             </span>
+            <span className="mt-1 block text-[13px] text-muted-foreground">Signed for 2027</span>
           </button>
         ) : (
           <p className="mt-2 text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
@@ -139,7 +143,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         <p className="mt-2 text-[15px] text-muted-foreground">
           {offSeason
             ? staff
-              ? `${money(resign.signedRevenue)} signed · ${resign.unsigned} not signed (${money(resign.unsignedRevenue)})`
+              ? `${money(resign.signedRevenue)} signed · ${resign.unsigned} on the roster not signed (${money(resign.unsignedRevenue)})`
               : [
                   repLine.goal > 0 ? `Goal ${money(repLine.goal)} for 2027` : 'Minutes this week',
                   `${repLine.streak} ${repLine.streak === 1 ? 'day' : 'days'} in a row`,
