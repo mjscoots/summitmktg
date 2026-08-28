@@ -1031,3 +1031,110 @@ body {
     outline-offset: 1px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 98 — COLOR POPS. Same Mono system, same layouts: colour
+   only where the app celebrates or ranks. One warm celebratory
+   tone joins the workspace accent, used sparingly.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --celebrate-warm: 38 96% 58%;
+  --medal-gold: 43 96% 60%;
+  --medal-silver: 220 14% 78%;
+  --medal-bronze: 25 70% 55%;
+}
+.light-workspace {
+  --celebrate-warm: 30 92% 44%;
+  --medal-gold: 38 90% 42%;
+  --medal-silver: 220 10% 46%;
+  --medal-bronze: 22 72% 40%;
+}
+
+@layer components {
+  /* A celebration surface: accent into the warm tone, one soft glow. */
+  .celebrate-card {
+    border: 1px solid hsl(var(--workspace-accent) / 0.45);
+    background:
+      radial-gradient(120% 100% at 0% 0%, hsl(var(--workspace-accent) / 0.18) 0%, transparent 60%),
+      radial-gradient(120% 100% at 100% 100%, hsl(var(--celebrate-warm) / 0.16) 0%, transparent 60%),
+      hsl(var(--surface-elevated));
+    box-shadow: 0 0 32px -14px hsl(var(--workspace-accent) / 0.55);
+  }
+
+  /* A full-screen celebration wash. */
+  .celebrate-wash {
+    background:
+      radial-gradient(circle at 50% 38%, hsl(var(--celebrate-warm) / 0.28) 0%, transparent 55%),
+      radial-gradient(circle at 50% 70%, hsl(var(--workspace-accent) / 0.22) 0%, transparent 60%),
+      hsl(var(--background) / 0.96);
+  }
+
+  /* Numbers and names that are being celebrated. */
+  .celebrate-text {
+    background: linear-gradient(92deg, hsl(var(--workspace-accent)), hsl(var(--celebrate-warm)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Small warm badge: a blitz at capacity, a lead signed. */
+  .chip-warm {
+    @apply inline-flex items-center gap-1 px-2 py-1 text-[11px] font-semibold;
+    border-radius: 9999px;
+    color: hsl(var(--celebrate-warm));
+    background: hsl(var(--celebrate-warm) / 0.14);
+    border: 1px solid hsl(var(--celebrate-warm) / 0.38);
+  }
+
+  /* Medal tones for the top three rows of any board. */
+  .medal-1 {
+    border-color: hsl(var(--medal-gold) / 0.55) !important;
+    background: linear-gradient(180deg, hsl(var(--medal-gold) / 0.14), hsl(var(--surface)));
+  }
+  .medal-2 {
+    border-color: hsl(var(--medal-silver) / 0.45) !important;
+    background: linear-gradient(180deg, hsl(var(--medal-silver) / 0.12), hsl(var(--surface)));
+  }
+  .medal-3 {
+    border-color: hsl(var(--medal-bronze) / 0.45) !important;
+    background: linear-gradient(180deg, hsl(var(--medal-bronze) / 0.12), hsl(var(--surface)));
+  }
+  .medal-1-text { color: hsl(var(--medal-gold)); }
+  .medal-2-text { color: hsl(var(--medal-silver)); }
+  .medal-3-text { color: hsl(var(--medal-bronze)); }
+
+  /* Progress and ranking bars gain the accent gradient. */
+  .rank-bar-fill {
+    background: linear-gradient(90deg, hsl(var(--workspace-accent) / 0.5), hsl(var(--workspace-accent)));
+  }
+  .bar-accent {
+    background: linear-gradient(180deg, hsl(var(--workspace-accent)), hsl(var(--workspace-accent) / 0.45));
+  }
+  .bar-accent-warm {
+    background: linear-gradient(180deg, hsl(var(--celebrate-warm)), hsl(var(--workspace-accent) / 0.5));
+  }
+
+  /* One accent element per Home hero, so the hue is felt. */
+  .hero-accent-rule {
+    display: block;
+    height: 3px;
+    width: 44px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, hsl(var(--workspace-accent)), hsl(var(--celebrate-warm) / 0.6));
+  }
+}
+
+@layer utilities {
+  .celebrate-in {
+    animation: celebrate-pop 320ms var(--motion-ease) both;
+  }
+  @keyframes celebrate-pop {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebrate-in { animation: none !important; transform: none !important; }
+  .celebrate-card { box-shadow: none; }
+}
