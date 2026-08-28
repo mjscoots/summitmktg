@@ -105,6 +105,7 @@ export function ChatBubble({
   onEditCancel,
   reactions: reactionsProp = [],
   justSent = false,
+  hideSenderName = false,
 }: ChatBubbleProps) {
 
   const reactions = reactionsProp;
