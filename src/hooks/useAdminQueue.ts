@@ -296,9 +296,8 @@ export function useAdminQueue() {
         });
 
       const verticalRequests = ((verticalRes.data as any[]) || []).length;
-      const reactivations = ((reactivationRes.data as any[]) || []).filter(
-        (r) => (r.status || 'pending') === 'pending'
-      ).length;
+      // The RPC already returns only requests still open.
+      const reactivations = ((reactivationRes.data as any[]) || []).length;
 
       setItems(live);
       const approvals = live.filter((i) => i.type === 'approval').length;
