@@ -16,6 +16,7 @@ import { WorkspaceThemeProvider } from '@/components/workspace/WorkspaceThemePro
 import { MobileBottomNav } from './MobileBottomNav';
 import { WorkspaceSheet } from './WorkspaceSheet';
 import { Wordmark } from '@/components/brand/Wordmark';
+import { useAppearanceSync } from '@/hooks/useAppearance';
 
 
 
@@ -29,6 +30,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
   const { role } = useAuth();
   const isManager = isManagerOrAbove(role);
   useSmartNotifications();
+  useAppearanceSync();
 
   return (
     <ThemeProvider initialRole={isManager ? 'manager' : 'rookie'}>
