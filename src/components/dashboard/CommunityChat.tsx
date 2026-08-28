@@ -359,6 +359,11 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         const updated = payload.new as any;
         setMessages((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated, channel: updated.channel || 'general' } : m)));
       })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, (payload) => {
+        const gone = payload.old as any;
+        if (!gone?.id) return;
+        setMessages((prev) => prev.filter((m) => m.id !== gone.id));
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
         const row = payload.new as any;
         const old = payload.old as any;
