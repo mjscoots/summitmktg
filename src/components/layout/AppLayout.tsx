@@ -17,6 +17,7 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { WorkspaceSheet } from './WorkspaceSheet';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { useAppearanceSync } from '@/hooks/useAppearance';
+import { VerticalRouteGuard } from '@/components/workspace/VerticalRouteGuard';
 
 
 

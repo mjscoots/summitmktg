@@ -58,6 +58,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   ],
   settings: [
     { value: 'industries', label: 'Industries' },
+    { value: 'fiberhub', label: 'Fiber hub', adminOnly: true },
     { value: 'themes', label: 'Themes' },
     { value: 'audit', label: 'Audit log' },
     { value: 'export', label: 'Exports', adminOnly: true },
