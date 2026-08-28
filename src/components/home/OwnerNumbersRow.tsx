@@ -38,8 +38,9 @@ export function OwnerNumbersRow() {
       value: resign.rosterTotal > 0 ? `${resign.signed} of ${resign.rosterTotal}` : String(resign.signed),
       to: '/app/leads',
     },
-    { label: 'Dark 30 days or more', value: String(dark30), to: '/app/admin/people?tab=seats' },
-    { label: 'Applications waiting', value: String(apps), to: '/app/admin/requests' },
+    { label: 'Dark 30 days or more', value: String(dark30), to: '/admin/people?tab=seats' },
+    { label: 'Applications waiting', value: String(apps), to: '/admin/requests' },
+
   ];
 
   return (
