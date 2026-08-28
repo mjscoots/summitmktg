@@ -61,8 +61,8 @@ const Index = () => {
           </div>
           <div className="relative z-10 mx-auto flex min-h-[min(760px,calc(100svh-69px))] max-w-6xl flex-col justify-end pb-16 pt-28 sm:pb-20 md:pb-24 md:pt-36">
             <div className="max-w-4xl">
-              <p className="micro-label text-primary-glow">Summit Marketing</p>
-              <h1 className="mt-5 max-w-4xl font-display text-[3.15rem] font-extrabold leading-[0.98] text-foreground sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+              <p className="micro-label text-primary">Summit Marketing</p>
+              <h1 className="mt-5 max-w-4xl font-display text-[3.15rem] font-extrabold leading-[0.98] tracking-normal text-foreground sm:text-6xl md:text-7xl lg:text-[5.5rem]">
                 Financial freedom.<br />Done differently.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
@@ -96,7 +96,7 @@ const Index = () => {
             {WHAT_WE_DO.map((c, index) => (
               <article key={c.title} className="public-process md:px-8 md:first:pl-0 md:last:pr-0">
                 <div className="mb-5 flex items-center justify-between">
-                  <c.icon className="h-5 w-5 text-primary-glow" strokeWidth={1.5} aria-hidden="true" />
+                  <c.icon className="h-5 w-5 text-primary" strokeWidth={1.5} aria-hidden="true" />
                   <span className="font-mono text-xs tabular-nums text-text-muted">0{index + 1}</span>
                 </div>
                 <h3 className="text-lg font-extrabold text-foreground">{c.title}</h3>
@@ -132,7 +132,7 @@ const Index = () => {
             <ol className="mt-10 border-t border-border">
               {SEASON_STEPS.map((s, i) => (
                 <li key={s.title} className="grid gap-2 border-b border-border py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-5">
-                  <span className="font-mono text-xs tabular-nums text-primary-glow">0{i + 1}</span>
+                  <span className="font-mono text-xs tabular-nums text-primary">0{i + 1}</span>
                   <h3 className="text-lg font-extrabold text-foreground">{s.title}</h3>
                   <p className="text-sm text-text-secondary">{s.line}</p>
                 </li>
