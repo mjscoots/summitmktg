@@ -24,10 +24,12 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   inbox: [
     { value: 'queue', label: 'Decisions' },
     { value: 'approvals', label: 'Approvals' },
+    { value: 'verticals', label: 'Vertical requests', adminOnly: true },
     { value: 'apps', label: 'Applications' },
     { value: 'requests', label: 'Reactivations' },
     { value: 'pitches', label: 'Pitches' },
   ],
+
   people: [
     { value: 'users', label: 'Roster' },
     { value: 'teams', label: 'Teams and regions' },
