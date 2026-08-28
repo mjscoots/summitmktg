@@ -77,7 +77,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const weekCount = today.weekBars.reduce((a, n) => a + n, 0);
 
   const repChips: QuickChip[] = [
-    { label: 'Playbook', to: '/app/playbook' },
+    { label: 'Field pack', to: '/app/training#field-pack' },
     { label: 'Ask Summit', to: '/app/ask' },
     { label: 'Chat', to: '/app/chat', badge: totalUnread },
     { label: 'Missions', to: '/app/missions', badge: cards.length },

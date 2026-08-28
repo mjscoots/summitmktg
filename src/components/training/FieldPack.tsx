@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BookOpen, ChevronDown, Search } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageBackButton } from '@/components/shared/PageBackButton';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,8 +31,6 @@ const CHIPS = [
 
 type ChipKey = (typeof CHIPS)[number]['key'];
 
-const CARD = 'rounded-[10px] border border-border bg-card';
-
 /** The line Ask Summit practice mode opens with for one entry. */
 export function practiceSeed(entry: Pick<PlaybookEntry, 'kind' | 'title'>) {
   return entry.kind === 'close'
@@ -53,7 +48,6 @@ function PracticeButton({ entry }: { entry: PlaybookEntry }) {
     >
       Practice this
     </Button>
-
   );
 }
 
@@ -169,10 +163,10 @@ function PricingTable({ rows }: { rows: PlaybookEntry[] }) {
 }
 
 /**
- * The field playbook: the owner's script, objections, closes, backyard pitch
- * and price sheet, searchable, two taps from anywhere in the Pest workspace.
+ * The field pack inside Learn: the owner's script, objections, closes, backyard
+ * pitch and price sheet, searchable. It used to be its own Playbook page.
  */
-export default function PlaybookPage() {
+export function FieldPack() {
   const { activeVertical } = useWorkspace();
   const [params, setParams] = useSearchParams();
   const [rows, setRows] = useState<PlaybookEntry[]>([]);
@@ -196,6 +190,15 @@ export default function PlaybookPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Arriving from the old Playbook link lands on the section.
+  useEffect(() => {
+    if (window.location.hash !== '#field-pack') return;
+    const t = window.setTimeout(() => {
+      document.getElementById('field-pack')?.scrollIntoView({ block: 'start' });
+    }, 120);
+    return () => window.clearTimeout(t);
+  }, []);
 
   // Deep link from search: open one entry on its own chip.
   const entryParam = params.get('entry');
@@ -229,47 +232,45 @@ export default function PlaybookPage() {
   const cardRows = visible.filter((r) => r.kind !== 'pricing');
 
   return (
-    <AppLayout>
-      <div className="mx-auto max-w-3xl px-4 py-6">
-        <PageBackButton to="/app" label="Back" />
-        <PageHeader
-          title="Field playbook"
-          context="The script, objections, closes, backyard pitch and prices."
-          className="mb-4"
-        />
+    <section id="field-pack" className="min-w-0 scroll-mt-20">
+      <h2 className="font-display text-[17px] font-extrabold text-foreground">Field pack</h2>
+      <p className="mt-0.5 text-[13px] text-muted-foreground">
+        The script, objections, closes, backyard pitch and prices.
+      </p>
 
-        <div className="sticky top-0 z-10 -mx-4 space-y-3 bg-background px-4 pb-3 pt-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search the playbook"
-              className="min-h-11 pl-9"
-              aria-label="Search the playbook"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {CHIPS.map((c) => (
-              <button
-                key={c.key}
-                onClick={() => {
-                  setQ('');
-                  setChip(c.key);
-                }}
-                className={cn(
-                  'min-h-11 rounded-full border px-3 text-[13px]',
-                  !searching && chip === c.key
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-muted-foreground'
-                )}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
+      <div className="mt-3 space-y-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search the field pack"
+            className="min-h-11 pl-9"
+            aria-label="Search the field pack"
+          />
         </div>
+        <div className="flex flex-wrap gap-2">
+          {CHIPS.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => {
+                setQ('');
+                setChip(c.key);
+              }}
+              className={cn(
+                'min-h-11 rounded-full border px-3 text-[13px]',
+                !searching && chip === c.key
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-card text-muted-foreground'
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
+      <div className="mt-3">
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -296,6 +297,8 @@ export default function PlaybookPage() {
           </div>
         )}
       </div>
-    </AppLayout>
+    </section>
   );
 }
+
+export default FieldPack;

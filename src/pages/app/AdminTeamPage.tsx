@@ -176,10 +176,14 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
     };
     // Filter out fake/test records from ALL views, not just pending
     const realUsers = users.filter(u => !isFakeTestRecord(u));
-    const pending = realUsers.filter(r => r.approved === false && r.status !== 'rejected');
-    const allOthers = realUsers.filter(r => r.approved !== false || r.status === 'rejected');
+    // Waiting on a decision = not archived, never approved, not NLC, not rejected.
+    const pending = realUsers.filter(
+      r => !r.archived && r.approved === false && r.status !== 'nlc' && r.status !== 'rejected'
+    );
+    const allOthers = realUsers.filter(r => !pending.includes(r));
     setPendingUsers(pending);
     setAllUsers(allOthers);
+
 
     const managerIds = new Set((roleRes.data || []).filter(r => ['manager', 'admin', 'owner'].includes(r.role)).map(r => r.user_id));
     const mgrs = (profilesRes.data || []).filter(p => managerIds.has(p.user_id)).map(p => ({ user_id: p.user_id, full_name: p.full_name }));
@@ -581,85 +585,97 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
           {/* ========== APPROVALS TAB ========== */}
           <TabsContent value="approvals">
-            {loading ? <TableSkeleton columns={7} rows={3} /> : (() => {
-              const approvalHistory = allUsers.filter(u => u.approved === true || u.status === 'rejected');
+            {loading ? <TableSkeleton columns={3} rows={3} /> : (() => {
+              const approvalHistory = allUsers.filter(
+                u => !u.archived && (u.approved === true || u.status === 'rejected')
+              );
               const displayList = approvalShowHistory ? approvalHistory : pendingUsers;
               const isEmpty = displayList.length === 0;
 
               return (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {pendingUsers.length > 0 && (
-                        <span className="bg-destructive text-destructive-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">
-                          {pendingUsers.length} pending
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[13px] text-muted-foreground">
+                      {approvalShowHistory
+                        ? `${approvalHistory.length} decided`
+                        : `${pendingUsers.length} waiting`}
+                    </p>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs h-7"
+                      className="h-11 text-xs"
                       onClick={() => { setApprovalShowHistory(!approvalShowHistory); }}
                     >
-                      {approvalShowHistory ? 'Show Pending' : 'Show History'}
+                      {approvalShowHistory ? 'Show waiting' : 'Show history'}
                     </Button>
                   </div>
 
                   {isEmpty ? (
-                    <div className="text-center py-16 text-muted-foreground">
-                      <CheckCircle className="w-8 h-8 mx-auto mb-3 text-primary/40" />
-                      <p className="font-medium">{approvalShowHistory ? 'No approval history' : 'No pending approvals'}</p>
+                    <div className="rounded-xl border border-border/40 bg-card/50 px-4 py-12 text-center">
+                      <CheckCircle className="mx-auto mb-3 h-8 w-8 text-primary/40" />
+                      <p className="text-sm font-medium text-foreground">
+                        {approvalShowHistory ? 'No approval history' : 'Nobody waiting'}
+                      </p>
+                      {!approvalShowHistory && (
+                        <p className="mt-1 text-[13px] text-muted-foreground">
+                          New reps appear here when they redeem an invite.
+                        </p>
+                      )}
                     </div>
                   ) : (
-                    <div className="border border-border/30 rounded-lg overflow-x-auto">
-                      <table className="w-full table-fixed text-sm">
-                        <thead>
-                          <tr className="border-b border-border/20 bg-card/30">
-                            <th className="w-[180px] text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Name</th>
-                            <th className="w-[200px] text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Email</th>
-                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Phone</th>
-                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Level</th>
-                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Team</th>
-                            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Date</th>
-                            <th className="text-right px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">{approvalShowHistory ? 'Status' : 'Actions'}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {displayList.map(user => (
-                            <tr key={user.user_id} className="border-b border-border/10 hover:bg-card/20">
-                              <td className="px-4 py-3 font-medium text-foreground truncate">{user.full_name}</td>
-                              <td className="px-4 py-3 text-muted-foreground truncate">{user.email}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{user.phone || '—'}</td>
-                              <td className="px-4 py-3"><Badge variant="secondary" className="text-[9px] px-1.5 py-0 capitalize">{user.role}</Badge></td>
-                              <td className="px-4 py-3 text-muted-foreground">{getTeamName(user.team_id)}</td>
-                              <td className="px-4 py-3 text-muted-foreground text-xs">{user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '—'}</td>
-                              <td className="px-4 py-3 text-right">
-                                {approvalShowHistory ? (
-                                  <Badge variant={user.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[9px] px-1.5 py-0 capitalize">
-                                    {user.status === 'rejected' ? 'Rejected' : 'Approved'}
-                                  </Badge>
-                                ) : (
-                                  <div className="flex items-center justify-end gap-1.5">
-                                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => handleApprove(user.user_id)}>
-                                      <CheckCircle className="w-3 h-3" /> Approve
-                                    </Button>
-                                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-red-500/30 text-primary hover:bg-red-500/10" onClick={() => handleReject(user.user_id)}>
-                                      <XCircle className="w-3 h-3" /> Reject
-                                    </Button>
-                                  </div>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="space-y-2">
+                      {displayList.map(user => (
+                        <div
+                          key={user.user_id}
+                          className="flex min-w-0 flex-col gap-3 rounded-xl border border-border/40 bg-card/50 p-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {user.full_name || user.email || 'Unnamed rep'}
+                            </p>
+                            <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                              {[
+                                user.direct_manager ? `Manager ${user.direct_manager}` : 'No manager assigned',
+                                getTeamName(user.team_id),
+                                user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : null,
+                              ].filter(Boolean).join(' · ')}
+                            </p>
+                          </div>
+                          {approvalShowHistory ? (
+                            <Badge
+                              variant={user.status === 'rejected' ? 'destructive' : 'secondary'}
+                              className="w-fit shrink-0 text-[10px] capitalize"
+                            >
+                              {user.status === 'rejected' ? 'Rejected' : 'Approved'}
+                            </Badge>
+                          ) : (
+                            <div className="flex shrink-0 gap-2">
+                              <Button
+                                size="sm"
+                                className="h-11 gap-1 text-xs"
+                                onClick={() => handleApprove(user.user_id)}
+                              >
+                                <CheckCircle className="h-3.5 w-3.5" /> Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-11 gap-1 text-xs"
+                                onClick={() => handleReject(user.user_id)}
+                              >
+                                <XCircle className="h-3.5 w-3.5" /> Reject
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
               );
             })()}
           </TabsContent>
+
 
           {/* ========== APPS TAB ========== */}
           <TabsContent value="apps">

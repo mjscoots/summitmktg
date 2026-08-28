@@ -104,26 +104,27 @@ export function AdminQueueTab() {
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
+      {/* Summary — decisions only */}
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
         {(
           [
-            ['Total', counts.total],
+            ['Decisions', counts.total],
             ['Approvals', counts.pendingApprovals],
+            ['Applications', counts.pendingApplications],
+            ['Vertical requests', counts.verticalRequests],
             ['Pitches', counts.pendingPitches],
-            ['Feedback', counts.newFeedback],
-            ['Sync', counts.syncIssues],
           ] as const
         ).map(([label, value]) => (
-          <div key={label} className="stat-card">
-            <span className="micro-label">{label}</span>
+          <div key={label} className="stat-card min-w-0">
+            <span className="micro-label block truncate">{label}</span>
             <p className="stat-value mt-1 tabular-nums">{value}</p>
           </div>
         ))}
       </div>
 
+
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-2 rounded-[var(--radius)] border border-white/[0.06] bg-card/60 p-2.5 backdrop-blur-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-[var(--radius)] border border-border/40 bg-card/60 p-2.5 backdrop-blur-sm">
         <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
           <SelectTrigger className="h-11 w-[150px] text-xs">
             <SelectValue placeholder="All types" />
@@ -233,9 +234,9 @@ export function AdminQueueTab() {
           className="py-12"
         />
       ) : (
-        <div className="overflow-hidden rounded-[var(--radius)] border border-white/[0.06] bg-card/60 backdrop-blur-sm">
+        <div className="overflow-hidden rounded-[var(--radius)] border border-border/40 bg-card/60 backdrop-blur-sm">
 
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-border/40">
             {visible.slice(0, visibleCount).map((item) => (
               <QueueRow
                 key={item.key}
@@ -247,13 +248,13 @@ export function AdminQueueTab() {
           </div>
 
           {visible.length > visibleCount && (
-            <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] px-3 py-3">
+            <div className="flex items-center justify-between gap-3 border-t border-border/40 px-3 py-3">
               <span className="text-[11px] text-muted-foreground">
                 Showing {visibleCount} of {visible.length}
               </span>
               <button
                 onClick={() => setVisibleCount((c) => c + 50)}
-                className="min-h-9 rounded-lg border border-white/10 px-3 text-[11px] font-semibold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary"
+                className="min-h-9 rounded-lg border border-border/60 px-3 text-[11px] font-semibold uppercase tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary"
               >
                 Load 50 more
               </button>

@@ -120,7 +120,7 @@ export function useManagerPitchApprovals() {
     const reviewerIds = [...new Set(pitchData.filter(p => p.reviewed_by).map(p => p.reviewed_by!))];
 
     const [profilesRes, lessonsRes, reviewersRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, avatar_url, team_id').in('user_id', userIds),
+      supabase.from('profiles').select('user_id, full_name, avatar_url, team_id, archived').in('user_id', userIds),
       supabase.from('training_lessons').select('id, title').in('id', lessonIds),
       reviewerIds.length > 0
         ? supabase.from('profiles').select('user_id, full_name').in('user_id', reviewerIds)
@@ -138,7 +138,10 @@ export function useManagerPitchApprovals() {
     const lessonMap = new Map((lessonsRes.data || []).map(l => [l.id, l]));
     const reviewerMap = new Map((reviewersRes.data || []).map(r => [r.user_id, r]));
 
-    const enriched: PitchApprovalWithDetails[] = pitchData.map(p => {
+    // Archived reps never appear in a decision list.
+    const enriched: PitchApprovalWithDetails[] = pitchData
+      .filter(p => profileMap.get(p.user_id)?.archived !== true)
+      .map(p => {
       const profile = profileMap.get(p.user_id);
       return {
         ...p,

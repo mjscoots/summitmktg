@@ -8,7 +8,6 @@ import { tierOf, isStaffTier } from '@/lib/tiers';
 const OWNED: { prefix: string; vertical: string }[] = [
   { prefix: '/app/installs', vertical: 'Fiber' },
   { prefix: '/app/pipeline', vertical: 'Life' },
-  { prefix: '/app/playbook', vertical: 'Pest' },
   { prefix: '/app/doors', vertical: 'Pest' },
   { prefix: '/app/season', vertical: 'Pest' },
 ];

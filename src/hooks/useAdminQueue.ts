@@ -33,6 +33,8 @@ export interface QueueItem {
 
 export interface QueueCounts {
   pendingApprovals: number;
+  verticalRequests: number;
+  reactivations: number;
   pendingApplications: number;
   teamLeadApplications: number;
   pairingRequests: number;
@@ -56,6 +58,8 @@ export function isStale(item: QueueItem): boolean {
 
 const EMPTY_COUNTS: QueueCounts = {
   pendingApprovals: 0,
+  verticalRequests: 0,
+  reactivations: 0,
   pendingApplications: 0,
   teamLeadApplications: 0,
   pairingRequests: 0,
@@ -116,6 +120,8 @@ export function useAdminQueue() {
         applicationsRes,
         teamLeadRes,
         pairingRes,
+        verticalRes,
+        reactivationRes,
       ] = await Promise.all([
         supabase
           .from('profiles')
@@ -134,13 +140,15 @@ export function useAdminQueue() {
         (supabase.from('admin_queue_dismissals' as any) as any).select('item_type, item_key'),
         (supabase.from('applications' as any) as any)
           .select('id, full_name, application_type, status, created_at')
-          .in('status', ['pending', 'reviewed']),
+          .eq('status', 'pending'),
         (supabase.from('team_lead_applications' as any) as any)
           .select('id, user_id, status, created_at')
           .eq('status', 'pending'),
         (supabase.from('pairing_requests' as any) as any)
           .select('id, rep_id, manager_id, status, created_at')
           .eq('status', 'pending'),
+        supabase.rpc('get_vertical_requests' as never, { _status: 'pending' } as never),
+        supabase.rpc('get_reactivation_requests' as never),
       ]);
 
       if (!mountedRef.current) return;
@@ -158,12 +166,8 @@ export function useAdminQueue() {
       profiles
         // A real decision is someone still waiting to be let in — people already
         // on the active roster are not approval work.
-        .filter(
-          (p) =>
-            p.approved === false &&
-            p.status === 'pending' &&
-            !isFakeProfile(p)
-        )
+        // Waiting means: not archived (query), never approved, and not NLC.
+        .filter((p) => p.approved === false && p.status !== 'nlc' && p.status !== 'rejected' && !isFakeProfile(p))
         .forEach((p) => {
           next.push({
             key: `approval:${p.id}`,
@@ -291,16 +295,27 @@ export function useAdminQueue() {
           return at - bt;
         });
 
+      const verticalRequests = ((verticalRes.data as any[]) || []).length;
+      // The RPC already returns only requests still open.
+      const reactivations = ((reactivationRes.data as any[]) || []).length;
+
       setItems(live);
+      const approvals = live.filter((i) => i.type === 'approval').length;
+      const applications = live.filter((i) => i.type === 'application').length;
+      const pitches = live.filter((i) => i.type === 'pitch').length;
       setCounts({
-        pendingApprovals: live.filter((i) => i.type === 'approval').length,
-        pendingApplications: live.filter((i) => i.type === 'application').length,
+        pendingApprovals: approvals,
+        verticalRequests,
+        reactivations,
+        pendingApplications: applications,
         teamLeadApplications: live.filter((i) => i.type === 'team_lead').length,
         pairingRequests: live.filter((i) => i.type === 'pairing').length,
-        pendingPitches: live.filter((i) => i.type === 'pitch').length,
+        pendingPitches: pitches,
         newFeedback: live.filter((i) => i.type === 'feedback').length,
         syncIssues: live.filter((i) => i.type === 'sync').length,
-        total: live.length,
+        // The badge counts decisions only: approvals, applications, vertical
+        // requests, pitch reviews and reactivations. Nothing else.
+        total: approvals + applications + verticalRequests + pitches + reactivations,
       });
     } catch {
       if (mountedRef.current) {
