@@ -7747,6 +7747,7 @@ export type Database = {
         Args: { _lead_id: string; _note?: string; _outcome: string }
         Returns: Json
       }
+      manager_owed: { Args: { _manager?: string }; Returns: Json }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_chat_channel_read: {
         Args: { _all?: boolean; _channel: string }
@@ -7798,6 +7799,7 @@ export type Database = {
         Args: { _reason?: string; _user_id: string }
         Returns: undefined
       }
+      owed_by_manager: { Args: never; Returns: Json }
       owner_hard_delete_person: {
         Args: { _user_id: string }
         Returns: undefined
