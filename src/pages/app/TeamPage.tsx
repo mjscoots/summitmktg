@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { TeamNotificationBanners } from '@/components/team/TeamNotificationBanners';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
+import { TrainingWeekChip } from '@/components/team/TrainingWeekChip';
 import { AddMemberModal } from '@/components/team/AddMemberModal';
 import { TeamMember, getDisplayName } from '@/lib/hierarchyUtils';
 import { PageBackButton } from '@/components/shared/PageBackButton';
@@ -394,11 +395,14 @@ export default function TeamPage() {
             const weekData = dailyTimeMap.get(node.member.user_id);
             const defaultDays = Array(7).fill({ minutes: 0 });
             return (
-              <MiniWeekChart
-                days={weekData?.days ?? defaultDays}
-                totalMinutes={weekData?.totalMinutes ?? 0}
-                className="ml-1"
-              />
+              <>
+                <MiniWeekChart
+                  days={weekData?.days ?? defaultDays}
+                  totalMinutes={weekData?.totalMinutes ?? 0}
+                  className="ml-1"
+                />
+                <TrainingWeekChip minutes={weekData?.trainingMinutes ?? 0} className="ml-1" />
+              </>
             );
           })()}
 
@@ -703,10 +707,13 @@ export default function TeamPage() {
                               const weekData = dailyTimeMap.get(member.user_id);
                               const defaultDays = Array(7).fill({ minutes: 0 });
                               return (
-                                <MiniWeekChart
-                                  days={weekData?.days ?? defaultDays}
-                                  totalMinutes={weekData?.totalMinutes ?? 0}
-                                />
+                                <div className="flex items-center gap-2">
+                                  <MiniWeekChart
+                                    days={weekData?.days ?? defaultDays}
+                                    totalMinutes={weekData?.totalMinutes ?? 0}
+                                  />
+                                  <TrainingWeekChip minutes={weekData?.trainingMinutes ?? 0} />
+                                </div>
                               );
                             })()}
                           </td>
