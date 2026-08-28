@@ -237,6 +237,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
                 </dl>
               </div>
             ) : (
+              <>
             <div>
               <Label>Role</Label>
               <Select value={inviteRole} onValueChange={setInviteRole}>
@@ -297,6 +298,8 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
                 </SelectContent>
               </Select>
             </div>
+              </>
+            )}
 
             <div>
               <Label>Note (optional)</Label>
