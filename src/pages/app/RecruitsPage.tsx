@@ -81,14 +81,15 @@ export default function RecruitsPage() {
   const { user, role } = useAuth();
   const isManagerRole = isManagerOrAbove(role);
   const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns'>(() => {
+  const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns' | 'referrals'>(() => {
     const t = searchParams.get('tab');
-    if ((t === 'winback' || t === 'resigns') && isManagerRole) return t;
+    if ((t === 'winback' || t === 'resigns' || t === 'referrals') && isManagerRole) return t;
     return t === 'mine' ? 'mine' : 'board';
   });
 
   const [board, setBoard] = useState<BoardLead[]>([]);
   const [mine, setMine] = useState<MyLead[]>([]);
+  const [referrals, setReferrals] = useState<ReferralLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
@@ -105,11 +106,13 @@ export default function RecruitsPage() {
     if (!user) return;
     // Sweep any leads that went stale before rendering the board
     await (supabase as any).rpc('release_stale_leads');
-    const [boardRes, mineRes] = await Promise.all([
+    const [boardRes, mineRes, refRes] = await Promise.all([
       (supabase as any).rpc('get_lead_board'),
       (supabase as any).rpc('get_my_leads'),
+      isManagerRole ? (supabase as any).rpc('get_referral_leads') : Promise.resolve({ data: [] }),
     ]);
     setBoard((boardRes.data as BoardLead[]) || []);
+    setReferrals((refRes.data as ReferralLead[]) || []);
     const myLeads = (mineRes.data as MyLead[]) || [];
     setMine(myLeads);
     setNoteDrafts((prev) => {
@@ -120,7 +123,8 @@ export default function RecruitsPage() {
       return next;
     });
     setLoading(false);
-  }, [user]);
+  }, [user, isManagerRole]);
+
 
   useEffect(() => { load(); }, [load]);
 
