@@ -72,6 +72,12 @@ function pestEarnings(pest: MoneySummaryRaw['pest']) {
 /** Fiber earnings: installs x per-install pay, less the holdback. Existing rule. */
 function fiberEarnings(fiber: MoneySummaryRaw['fiber']) {
   const installs = Number(fiber.installs ?? 0);
+  // Loaded pay sheets win over the estimate from installs x per-install pay.
+  if (fiber.pay_gross !== null && fiber.pay_gross !== undefined) {
+    const amount =
+      Number(fiber.pay_gross) + Number(fiber.pay_overrides ?? 0) - Number(fiber.pay_costs ?? 0);
+    return { amount, rateMissing: false, installs };
+  }
   const per = fiber.per_install !== null ? Number(fiber.per_install) : null;
   if (per === null) return { amount: 0, rateMissing: true, installs };
   const hold = fiber.holdback_percent !== null ? Number(fiber.holdback_percent) : 0;
