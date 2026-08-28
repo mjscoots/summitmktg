@@ -104,9 +104,11 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
           <h1 className="mt-5 font-display text-xl font-extrabold tracking-tight text-foreground">
             Life is being set up
           </h1>
+          <span className="hero-accent-rule mx-auto mt-3" aria-hidden />
           <p className="mt-1.5 text-sm text-muted-foreground">
             You will hear from the owner when it opens.
           </p>
+
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
