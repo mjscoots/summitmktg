@@ -237,6 +237,29 @@ export default function DoorsPage() {
           </button>
           <span className="ml-auto font-display text-[18px] font-extrabold text-foreground">Doors</span>
         </div>
+        {/* The three paths sit in the header: one tap from anywhere in Doors */}
+        <div className="mx-auto max-w-3xl overflow-x-auto px-3 pb-2">
+          <div className="flex gap-2">
+            {DOORS.map((d) => (
+              <button
+                key={d.key}
+                onClick={() => {
+                  setDoor(d.key);
+                  setSegment('script');
+                }}
+                className={cn(
+                  'shrink-0 rounded-full border px-5 text-[16px]',
+                  segment === 'script' && door === d.key
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border bg-card text-muted-foreground'
+                )}
+                style={{ minHeight: 48 }}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="mx-auto max-w-3xl overflow-x-auto px-3 pb-2">
           <div className="flex gap-2">
             {SEGMENTS.map((s) => (
@@ -257,6 +280,7 @@ export default function DoorsPage() {
           </div>
         </div>
       </header>
+
 
       <main className="mx-auto max-w-3xl px-3 pb-28 pt-3">
         {loading ? (
