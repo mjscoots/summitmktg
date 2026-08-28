@@ -190,7 +190,20 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
         <YourThreeCard />
 
-        {staff && <NeedsYouRow className="!px-0" />}
+        {staff && (
+          <>
+            <NeedsYouRow className="!px-0" />
+            <Button
+              variant="outline"
+              className="min-h-11 w-full"
+              onClick={() => navigate('/app/one-on-ones/prep')}
+            >
+              Prep this week's one-on-ones
+            </Button>
+            <InviteDialog />
+          </>
+        )}
+
 
         {!staff && (
           <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
