@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PayScale, getTier } from '@/lib/commission';
+import { formatLoadedAt } from '@/lib/importMatch';
 
 export interface MoneySummaryRaw {
   user_id: string;
@@ -11,6 +12,7 @@ export interface MoneySummaryRaw {
     active_revenue: number | null;
     rate_override: number | null;
     logged_sales: number | null;
+    imported_revenue: number | null;
   };
   fiber: {
     carrier: string | null;
@@ -18,7 +20,11 @@ export interface MoneySummaryRaw {
     cancels: number | null;
     per_install: number | null;
     holdback_percent: number | null;
+    pay_gross: number | null;
+    pay_overrides: number | null;
+    pay_costs: number | null;
   };
+  sources?: { fiber_loaded_at: string | null; pest_loaded_at: string | null } | null;
   months: { month: string; pest_revenue: number | null; fiber_installs: number | null }[];
   events: {
     at: string | null;
@@ -92,6 +98,16 @@ export function useMoneySummary(targetUserId?: string | null) {
       }
       const p = pestEarnings(raw.pest);
       const f = fiberEarnings(raw.fiber);
+      const pestLoaded = formatLoadedAt(raw.sources?.pest_loaded_at);
+      const fiberLoaded = formatLoadedAt(raw.sources?.fiber_loaded_at);
+      const pestSource = pestLoaded
+        ? `Pest: Vision revenue, loaded ${pestLoaded}`
+        : raw.pest.logged_sales
+          ? 'Pest: logged sales'
+          : 'Pest: no data loaded yet';
+      const fiberSource = fiberLoaded
+        ? `Fiber: Gainz sheet, loaded ${fiberLoaded}`
+        : 'Fiber: no data loaded yet';
       const lines: VerticalLine[] = [
         {
           vertical: 'Pest',
@@ -102,7 +118,7 @@ export function useMoneySummary(targetUserId?: string | null) {
             p.revenue !== null
               ? `${p.signs} ${p.signs === 1 ? 'account' : 'accounts'}`
               : 'No revenue entered',
-          source: 'Pest: logged sales',
+          source: pestSource,
           note: p.rateMissing ? 'Not set' : undefined,
         },
         {
@@ -111,7 +127,7 @@ export function useMoneySummary(targetUserId?: string | null) {
           amount: f.amount,
           rateMissing: f.rateMissing,
           driver: `${f.installs} ${f.installs === 1 ? 'install' : 'installs'}`,
-          source: 'Fiber: Gainz pay sheets',
+          source: fiberSource,
           note: f.rateMissing ? 'Rate not set' : undefined,
         },
         {
