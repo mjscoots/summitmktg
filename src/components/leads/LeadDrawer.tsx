@@ -16,11 +16,13 @@ import {
   PRIVATE_NOTE_KINDS,
   leadActions,
   money,
+  outcomeLabel,
   smsHref,
   telHref,
   useLeadDetail,
   type LeadSnapshot,
 } from '@/hooks/useLeads';
+
 
 
 interface Props {
@@ -506,6 +508,8 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                 ))}
               </div>
             </div>
+            )}
+
           </>
         )}
       </SheetContent>
