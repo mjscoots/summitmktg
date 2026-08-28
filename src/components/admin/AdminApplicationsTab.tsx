@@ -125,7 +125,7 @@ export default function AdminApplicationsTab() {
     <div>
       {/* Type tabs */}
       <Tabs value={typeFilter} onValueChange={(v) => setTypeFilter(v as 'rookie' | 'veteran')} className="mb-4">
-        <TabsList className="bg-white/5 border border-white/10">
+        <TabsList className="border border-border/40 bg-card/60">
           <TabsTrigger value="rookie" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Rookies <span className="ml-1.5 text-[10px] opacity-60">({rookieCount})</span>
           </TabsTrigger>
@@ -143,10 +143,10 @@ export default function AdminApplicationsTab() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, email, or phone..."
-            className="pl-9 bg-white/5 border-white/10"
+            className="pl-9 bg-card/60 border-border/40"
           />
         </div>
-        <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5 shrink-0">
+        <div className="flex items-center rounded-lg border border-border/40 bg-card/60 p-0.5 shrink-0">
           {(['new', 'reviewed', 'all'] as const).map(s => (
             <button
               key={s}
@@ -178,7 +178,7 @@ export default function AdminApplicationsTab() {
               className={`group relative border rounded-lg p-4 transition-colors ${
                 app.status === 'pending'
                   ? 'border-primary/30 bg-primary/[0.03]'
-                  : 'border-white/10 bg-white/[0.02]'
+                  : 'border-border/40 bg-card/40'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
