@@ -7,7 +7,8 @@ import type { Workspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
-import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
+import { TodayNumberSheet, PAY_NOTE } from '@/components/fiber/TodayNumberSheet';
+import { useFiberToday } from '@/hooks/useFiberToday';
 import { useMyFiberStart } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
 import { isManagerOrAbove } from '@/lib/roles';
@@ -71,6 +72,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const [regionIntro, setRegionIntro] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const { start: fiberStart } = useMyFiberStart();
+  const { today: todaySold, week: weekSold, reload: reloadToday } = useFiberToday();
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -171,6 +173,21 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
     <div className="mx-auto max-w-3xl px-4 pb-8">
       <GainzHero />
 
+      <section className={`${HUB_CARD} mb-4 p-4`}>
+        <FiberEyebrow>Today</FiberEyebrow>
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-4xl font-semibold tabular-nums text-foreground">{todaySold}</p>
+            <p className="text-[12px] tabular-nums text-muted-foreground">This week {weekSold}</p>
+          </div>
+          <Button className="min-h-11" onClick={() => setLogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            How many today?
+          </Button>
+        </div>
+        <p className="mt-3 text-[12px] text-muted-foreground">{PAY_NOTE}</p>
+      </section>
+
       {notStarted && fiberStart && (
         <div className={`${HUB_CARD} mb-4 p-4`}>
           <p className="text-[15px] font-semibold text-foreground">You start {formatStart(fiberStart)}</p>
@@ -269,10 +286,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
             </p>
             <p className="text-[13px] tabular-nums text-muted-foreground">Last two weeks {recent}</p>
 
-            <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Log an install
-            </Button>
+            <p className="text-[12px] text-muted-foreground">{PAY_NOTE}</p>
 
             {money?.next_tier_label && (
               <div className="rounded-lg border border-border p-3">
@@ -333,7 +347,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
         )}
       </div>
 
-      <LogInstallDialog open={logOpen} onOpenChange={setLogOpen} onSaved={() => void load()} />
+      <TodayNumberSheet open={logOpen} onOpenChange={setLogOpen} onSaved={() => { void load(); void reloadToday(); }} />
     </div>
   );
 }
