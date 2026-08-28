@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { UpdatePrompt } from "@/components/layout/UpdatePrompt";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,6 +14,7 @@ import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatch } from "@/lib/lazyRoute";
 
 // Every route-level page is loaded on demand so the first paint ships only the
 // shell. AuthPage and NotFound stay eager: they are tiny and must render without
@@ -21,72 +22,72 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import AuthPage from "./pages/app/AuthPage";
 import NotFound from "./pages/NotFound";
 
-const Index = lazy(() => import("./pages/Index"));
-const IndustryPage = lazy(() => import("./pages/IndustryPage"));
-const InvitePage = lazy(() => import("./pages/InvitePage"));
-const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
-const Recruiting = lazy(() => import("./pages/Recruiting"));
-const Parents = lazy(() => import("./pages/Parents"));
-const RookieApplication = lazy(() => import("./pages/RookieApplication"));
-const VetApplication = lazy(() => import("./pages/VetApplication"));
-const ApplySuccess = lazy(() => import("./pages/ApplySuccess"));
-const PendingApproval = lazy(() => import("./pages/app/PendingApproval"));
-const ResetPasswordPage = lazy(() => import("./pages/app/ResetPasswordPage"));
+const Index = lazyRoute(() => import("./pages/Index"));
+const IndustryPage = lazyRoute(() => import("./pages/IndustryPage"));
+const InvitePage = lazyRoute(() => import("./pages/InvitePage"));
+const JoinRedirect = lazyRoute(() => import("./pages/JoinRedirect"));
+const Recruiting = lazyRoute(() => import("./pages/Recruiting"));
+const Parents = lazyRoute(() => import("./pages/Parents"));
+const RookieApplication = lazyRoute(() => import("./pages/RookieApplication"));
+const VetApplication = lazyRoute(() => import("./pages/VetApplication"));
+const ApplySuccess = lazyRoute(() => import("./pages/ApplySuccess"));
+const PendingApproval = lazyRoute(() => import("./pages/app/PendingApproval"));
+const ResetPasswordPage = lazyRoute(() => import("./pages/app/ResetPasswordPage"));
 
-const DashboardPage = lazy(() => import("./pages/app/DashboardPage"));
-const TrainingPage = lazy(() => import("./pages/app/TrainingPage"));
+const DashboardPage = lazyRoute(() => import("./pages/app/DashboardPage"));
+const TrainingPage = lazyRoute(() => import("./pages/app/TrainingPage"));
 
 
 // Lazy-loaded pages (loaded on demand to reduce initial bundle)
-const BootcampLock = lazy(() => import("./pages/app/BootcampLock"));
-const BootcampPhase1 = lazy(() => import("./pages/app/BootcampPhase1"));
-const BootcampPhase2 = lazy(() => import("./pages/app/BootcampPhase2"));
-const BootcampMomentum = lazy(() => import("./pages/app/BootcampMomentum"));
-const BootcampPhase3 = lazy(() => import("./pages/app/BootcampPhase3"));
-const TrainingCoursePage = lazy(() => import("./pages/app/TrainingCoursePage"));
-const LessonPage = lazy(() => import("./pages/app/LessonPage"));
-const LeaderboardPage = lazy(() => import("./pages/app/LeaderboardPage"));
-const CalendarPage = lazy(() => import("./pages/app/CalendarPage"));
-const EventsPage = lazy(() => import("./pages/app/EventsPage"));
-const MyTeamPage = lazy(() => import("./pages/app/MyTeamPage"));
-const MyWeekPage = lazy(() => import("./pages/app/MyWeekPage"));
+const BootcampLock = lazyRoute(() => import("./pages/app/BootcampLock"));
+const BootcampPhase1 = lazyRoute(() => import("./pages/app/BootcampPhase1"));
+const BootcampPhase2 = lazyRoute(() => import("./pages/app/BootcampPhase2"));
+const BootcampMomentum = lazyRoute(() => import("./pages/app/BootcampMomentum"));
+const BootcampPhase3 = lazyRoute(() => import("./pages/app/BootcampPhase3"));
+const TrainingCoursePage = lazyRoute(() => import("./pages/app/TrainingCoursePage"));
+const LessonPage = lazyRoute(() => import("./pages/app/LessonPage"));
+const LeaderboardPage = lazyRoute(() => import("./pages/app/LeaderboardPage"));
+const CalendarPage = lazyRoute(() => import("./pages/app/CalendarPage"));
+const EventsPage = lazyRoute(() => import("./pages/app/EventsPage"));
+const MyTeamPage = lazyRoute(() => import("./pages/app/MyTeamPage"));
+const MyWeekPage = lazyRoute(() => import("./pages/app/MyWeekPage"));
 
-const ProfilePage = lazy(() => import("./pages/app/ProfilePage"));
-const InterviewsPage = lazy(() => import("./pages/app/InterviewsPage"));
-const Interview1Page = lazy(() => import("./pages/app/Interview1Page"));
-const Interview2Page = lazy(() => import("./pages/app/Interview2Page"));
-const Interview3Page = lazy(() => import("./pages/app/Interview3Page"));
+const ProfilePage = lazyRoute(() => import("./pages/app/ProfilePage"));
+const InterviewsPage = lazyRoute(() => import("./pages/app/InterviewsPage"));
+const Interview1Page = lazyRoute(() => import("./pages/app/Interview1Page"));
+const Interview2Page = lazyRoute(() => import("./pages/app/Interview2Page"));
+const Interview3Page = lazyRoute(() => import("./pages/app/Interview3Page"));
 
-const FormsPage = lazy(() => import("./pages/app/FormsPage"));
-const TrainingVideosPage = lazy(() => import("./pages/app/TrainingVideosPage"));
-const ManagerTrainingVideosPage = lazy(() => import("./pages/app/ManagerTrainingVideosPage"));
-const AdminTeamPage = lazy(() => import("./pages/app/AdminTeamPage"));
-const VideoPlayerPage = lazy(() => import("./pages/app/VideoPlayerPage"));
-const ChatPage = lazy(() => import("./pages/app/ChatPage"));
-const LinksPage = lazy(() => import("./pages/app/LinksPage"));
-const OneOnOnePrepPage = lazy(() => import("./pages/app/OneOnOnePrepPage"));
-const PitchApprovalsPage = lazy(() => import("./pages/app/PitchApprovalsPage"));
-const WarRoomPage = lazy(() => import("./pages/app/WarRoomPage"));
-const EstimateEarningsPage = lazy(() => import("./pages/app/EstimateEarningsPage"));
-const RepLogisticsPage = lazy(() => import("./pages/app/RepLogisticsPage"));
-const CommandCenterPage = lazy(() => import("./pages/app/CommandCenterPage"));
-const ManagerMeetingPage = lazy(() => import("./pages/app/ManagerMeetingPage"));
-const RosterSweepPage = lazy(() => import("./pages/app/RosterSweepPage"));
-const TicketPage = lazy(() => import("./pages/TicketPage"));
-const RecruitsPage = lazy(() => import("./pages/app/RecruitsPage"));
-const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
-const MyMoneyPage = lazy(() => import("./pages/app/MyMoneyPage"));
-const InstallsPage = lazy(() => import('@/pages/app/InstallsPage'));
-const MissionsPage = lazy(() => import('@/pages/app/MissionsPage'));
-const PipelinePage = lazy(() => import('@/pages/app/PipelinePage'));
+const FormsPage = lazyRoute(() => import("./pages/app/FormsPage"));
+const TrainingVideosPage = lazyRoute(() => import("./pages/app/TrainingVideosPage"));
+const ManagerTrainingVideosPage = lazyRoute(() => import("./pages/app/ManagerTrainingVideosPage"));
+const AdminTeamPage = lazyRoute(() => import("./pages/app/AdminTeamPage"));
+const VideoPlayerPage = lazyRoute(() => import("./pages/app/VideoPlayerPage"));
+const ChatPage = lazyRoute(() => import("./pages/app/ChatPage"));
+const LinksPage = lazyRoute(() => import("./pages/app/LinksPage"));
+const OneOnOnePrepPage = lazyRoute(() => import("./pages/app/OneOnOnePrepPage"));
+const PitchApprovalsPage = lazyRoute(() => import("./pages/app/PitchApprovalsPage"));
+const WarRoomPage = lazyRoute(() => import("./pages/app/WarRoomPage"));
+const EstimateEarningsPage = lazyRoute(() => import("./pages/app/EstimateEarningsPage"));
+const RepLogisticsPage = lazyRoute(() => import("./pages/app/RepLogisticsPage"));
+const CommandCenterPage = lazyRoute(() => import("./pages/app/CommandCenterPage"));
+const ManagerMeetingPage = lazyRoute(() => import("./pages/app/ManagerMeetingPage"));
+const RosterSweepPage = lazyRoute(() => import("./pages/app/RosterSweepPage"));
+const TicketPage = lazyRoute(() => import("./pages/TicketPage"));
+const RecruitsPage = lazyRoute(() => import("./pages/app/RecruitsPage"));
+const LeadsPage = lazyRoute(() => import("./pages/app/LeadsPage"));
+const MyMoneyPage = lazyRoute(() => import("./pages/app/MyMoneyPage"));
+const InstallsPage = lazyRoute(() => import('@/pages/app/InstallsPage'));
+const MissionsPage = lazyRoute(() => import('@/pages/app/MissionsPage'));
+const PipelinePage = lazyRoute(() => import('@/pages/app/PipelinePage'));
 
-const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
-const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
-const DoorsPage = lazy(() => import("./pages/app/DoorsPage"));
-const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
-const PersonProfilePage = lazy(() => import("./pages/app/PersonProfilePage"));
-const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
-const IndustriesPage = lazy(() => import("./pages/app/IndustriesPage"));
+const AskSummitPage = lazyRoute(() => import("./pages/app/AskSummitPage"));
+const ScriptsPage = lazyRoute(() => import("./pages/app/ScriptsPage"));
+const DoorsPage = lazyRoute(() => import("./pages/app/DoorsPage"));
+const AlumniPage = lazyRoute(() => import("./pages/app/AlumniPage"));
+const PersonProfilePage = lazyRoute(() => import("./pages/app/PersonProfilePage"));
+const SeasonPage = lazyRoute(() => import("./pages/app/SeasonPage"));
+const IndustriesPage = lazyRoute(() => import("./pages/app/IndustriesPage"));
 
 
 /** Old /admin/team?tab=... links land in the section that now owns that tab. */
@@ -121,10 +122,19 @@ function LazyFallback() {
    // Initialize activity tracking
    useActivityTracking();
 
+   // A render on this build means the chunks are healthy again.
+   useEffect(() => { clearChunkRetryLatch(); }, []);
+
    // Global unhandled rejection handler - prevents silent black screens on mobile
    useEffect(() => {
      const handleRejection = (event: PromiseRejectionEvent) => {
        console.error("Unhandled promise rejection:", event.reason);
+       // A dead chunk hash is recovered silently: caches go, the page reloads once.
+       if (isChunkLoadError(event.reason)) {
+         event.preventDefault();
+         void recoverFromStaleBuild();
+         return;
+       }
        // Don't show toast for auth refresh errors (expected on stale sessions)
        const msg = String(event.reason?.message || event.reason || "");
        if (!msg.includes("Refresh Token") && !msg.includes("JWT")) {
