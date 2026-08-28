@@ -14,8 +14,8 @@ export function FiberStartCard() {
   if (!start || daysUntil(start) < -14) return null;
 
   return (
-    <section className="rounded-2xl border border-[hsl(var(--fiber-accent,159_64%_45%))]/30 bg-card/60 p-4">
-      <p className="text-sm font-semibold text-[hsl(var(--fiber-accent,159_64%_45%))]">
+    <section className="rounded-2xl border border-[hsl(var(--fiber-mint))]/30 bg-card/60 p-4">
+      <p className="text-sm font-semibold text-[hsl(var(--fiber-mint))]">
         Fiber starts {formatStart(start)}
       </p>
       {carrier && <p className="mt-1 text-sm text-muted-foreground">{carrier}</p>}
