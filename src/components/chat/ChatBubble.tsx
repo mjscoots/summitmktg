@@ -316,12 +316,21 @@ export function ChatBubble({
               ),
             ),
             message.is_pinned && "ring-1 ring-amber-500/20",
+            !hasMediaContent && isLastInGroup && !message.is_ai && (isOwn ? "bubble-tail-own" : "bubble-tail-other"),
           )}>
 
             {message.is_ai && isFirstInGroup && (
               <span className="text-[10px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}
             {renderContent()}
+            {!hasMediaContent && !isEditing && (
+              <span className="ml-2 inline-flex select-none items-center gap-1 align-bottom text-[10px] text-muted-foreground/50">
+                {message.edited_at && <span>edited</span>}
+                <span>{new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                {isOwn && readTick === 'read' && <CheckCheck className="h-3 w-3 text-muted-foreground/60" aria-label="Read" />}
+                {isOwn && readTick === 'sent' && <Check className="h-3 w-3 text-muted-foreground/50" aria-label="Delivered" />}
+              </span>
+            )}
           </div>
 
           {/* Double-tap fire animation */}
