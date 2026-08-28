@@ -61,6 +61,7 @@ export function AllMoneyCard({ userId }: { userId?: string | null }) {
                 />
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground">{l.driver}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{l.source}</p>
             </div>
           ))}
         </div>

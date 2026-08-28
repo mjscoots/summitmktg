@@ -37,6 +37,8 @@ export interface VerticalLine {
   /** True when no rate is set, so the amount counts as zero. */
   rateMissing: boolean;
   driver: string;
+  /** Plain sentence naming where this number comes from. */
+  source: string;
   note?: string;
 }
 
@@ -100,6 +102,7 @@ export function useMoneySummary(targetUserId?: string | null) {
             p.revenue !== null
               ? `${p.signs} ${p.signs === 1 ? 'account' : 'accounts'}`
               : 'No revenue entered',
+          source: 'Pest: logged sales',
           note: p.rateMissing ? 'Not set' : undefined,
         },
         {
@@ -108,6 +111,7 @@ export function useMoneySummary(targetUserId?: string | null) {
           amount: f.amount,
           rateMissing: f.rateMissing,
           driver: `${f.installs} ${f.installs === 1 ? 'install' : 'installs'}`,
+          source: 'Fiber: Gainz pay sheets',
           note: f.rateMissing ? 'Rate not set' : undefined,
         },
         {
@@ -116,6 +120,7 @@ export function useMoneySummary(targetUserId?: string | null) {
           amount: 0,
           rateMissing: true,
           driver: '—',
+          source: 'Life: not open',
           note: 'Not open yet',
         },
       ];

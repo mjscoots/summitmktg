@@ -46,7 +46,6 @@ export const PHONE_BAR: NavDest[] = [
 /** Fiber works on installs, not accounts, so its bar carries its own work. */
 export const FIBER_PHONE_BAR: NavDest[] = [
   { key: 'home', label: 'Home', path: '/app', icon: Home },
-  { key: 'installs', label: 'Installs', path: '/app/installs', icon: Wifi },
   { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
   { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
@@ -76,7 +75,6 @@ export const DESTINATIONS: NavDest[] = [
   { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { key: 'leads', label: 'Leads', path: '/app/leads', icon: PhoneCall, minTier: 'manager' },
   { key: 'team', label: 'Team', path: '/app/team', icon: Users, minTier: 'manager' },
-  { key: 'forms', label: 'Forms', path: '/app/forms', icon: FileText, minTier: 'manager' },
   { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
   { key: 'admin', label: 'Admin', path: '/admin/inbox', icon: Shield, minTier: 'admin' },
   { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
@@ -94,7 +92,7 @@ export const DESKTOP_MAIN: NavDest[] = [
   { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
 ];
 
-export const MANAGE_KEYS = ['team', 'week', 'leads', 'forms', 'approvals'];
+export const MANAGE_KEYS = ['team', 'week', 'leads', 'approvals'];
 
 /** Every destination a workspace can offer, keyed for the filters below. */
 const ALL: Record<string, NavDest> = {
@@ -136,7 +134,7 @@ const MAIN_KEYS: Record<Workspace, string[]> = {
 
 /** The Manage group per workspace. */
 const WS_MANAGE_KEYS: Record<Workspace, string[]> = {
-  pest: ['team', 'week', 'leads', 'forms', 'approvals'],
+  pest: ['team', 'week', 'leads', 'approvals'],
   fiber: ['team', 'week', 'leads'],
   life: ['team', 'week'],
 };
