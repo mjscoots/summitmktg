@@ -3,7 +3,7 @@
    - Static build assets: cache-first
    - Everything else (API, auth, uploads): untouched, straight to network */
 
-const VERSION = 'v2-2026-08-25';
+const VERSION = 'v3-2026-08-28';
 const STATIC_CACHE = `summit-static-${VERSION}`;
 const SHELL_CACHE = `summit-shell-${VERSION}`;
 const KEEP = [STATIC_CACHE, SHELL_CACHE];
@@ -59,6 +59,9 @@ self.addEventListener('fetch', (event) => {
         (hit) =>
           hit ||
           fetch(req).then((res) => {
+            // A 404 on a hashed asset means this client is on a dead build; do
+            // not cache it, so the page-level recovery can reload cleanly.
+            if (res.status === 404) return res;
             if (res.ok) {
               const copy = res.clone();
               caches.open(STATIC_CACHE).then((c) => c.put(req, copy)).catch(() => undefined);
@@ -70,7 +73,12 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Allow the page to activate a waiting worker immediately (reload prompt).
+// Allow the page to activate a waiting worker immediately (reload prompt), and
+// to purge every cache when a client finds itself holding dead chunk hashes.
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  const type = event.data && event.data.type;
+  if (type === 'SKIP_WAITING') self.skipWaiting();
+  if (type === 'CLEAR_CACHES') {
+    event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
+  }
 });
