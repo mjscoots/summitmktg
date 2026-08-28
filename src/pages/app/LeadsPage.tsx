@@ -414,10 +414,11 @@ export default function LeadsPage() {
                       <p className="truncate text-[14px] font-semibold text-foreground">
                         {lead.full_name}
                         {lead.signed_2027 && (
-                          <span className="ml-2 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 align-middle text-[10px] font-medium text-primary">
+                          <span className="chip-warm ml-2 align-middle text-[10px]">
                             Signed for 2027
                           </span>
                         )}
+
                       </p>
                       <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{line || 'No history yet'}</p>
                     </button>
