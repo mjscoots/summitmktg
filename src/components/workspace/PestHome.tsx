@@ -198,22 +198,14 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
       {!staff && <NeedsYouRow className="!px-0" />}
 
-      <NextEventCard />
-
-      {!staff && <ChatPreviewCard />}
+      <HomeFeed />
 
       <MoreReveal>
         <QuickChips chips={moreChips} />
 
         <YourThreeCard />
 
-        {staff && (
-          <>
-            <NeedsYouRow className="!px-0" />
-            <ChatPreviewCard />
-          </>
-        )}
-
+        {staff && <NeedsYouRow className="!px-0" />}
 
         {!staff && (
           <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
@@ -230,6 +222,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           trainingMinutes={today.trainingMinutes}
           onOpen={() => navigate(staff ? '/app/team' : '/app/leaderboard')}
         />
+
 
         <TeamTodayCard
           rows={today.topToday}
