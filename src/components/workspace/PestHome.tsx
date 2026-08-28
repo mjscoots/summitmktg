@@ -18,7 +18,9 @@ import { HomeFeed } from '@/components/home/HomeFeed';
 import { MoreReveal } from '@/components/home/MoreReveal';
 
 import { YourThreeCard } from '@/components/home/YourThreeCard';
+import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
+
 import { InviteDialog } from '@/components/invites/InviteDialog';
 import { AnnouncementEditorModal } from '@/components/dashboard/AnnouncementEditorModal';
 import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
