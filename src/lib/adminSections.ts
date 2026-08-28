@@ -27,7 +27,6 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'apps', label: 'Applications' },
     { value: 'requests', label: 'Reactivations' },
     { value: 'pitches', label: 'Pitches' },
-    { value: 'feedback', label: 'Feedback' },
   ],
   people: [
     { value: 'users', label: 'Roster' },
@@ -43,11 +42,9 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'statements', label: 'Statements', adminOnly: true },
   ],
   content: [
-    { value: 'questions', label: 'Questions', adminOnly: true },
     { value: 'drills', label: 'Drills', adminOnly: true },
     { value: 'firstweek', label: 'First week', adminOnly: true },
     { value: 'playbook', label: 'Playbook', adminOnly: true },
-    { value: 'culture', label: 'Culture', adminOnly: true },
     { value: 'recruiting', label: 'Public site' },
     { value: 'assistant', label: 'Ask Summit', adminOnly: true },
   ],

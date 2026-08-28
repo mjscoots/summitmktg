@@ -11,7 +11,6 @@ import { useChatChannels } from '@/hooks/useChatChannels';
 import { useActionCards } from '@/hooks/useActionCards';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
-import { HomeQuestionCard } from '@/components/home/HomeQuestionCard';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { HomeHero } from '@/components/home/HomeHero';
 import { QuickChips, type QuickChip } from '@/components/home/QuickChips';
@@ -185,7 +184,6 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
       </div>
 
       <WinterPlanCard />
-      <HomeQuestionCard />
 
       {onOpenPoints && (
         <Button variant="outline" className="min-h-11 w-full" onClick={onOpenPoints}>

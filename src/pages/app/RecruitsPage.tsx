@@ -18,7 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { WinbackTab } from '@/components/recruiting/WinbackTab';
 import { WinMoment } from '@/components/chat/WinMoment';
 import { PageHeader } from '@/components/layout/PageHeader';
 import {
@@ -242,7 +241,6 @@ export default function RecruitsPage() {
               { id: 'mine' as const, label: 'My leads', icon: Users, count: mine.length },
               ...(isManagerRole
                 ? [
-                    { id: 'winback' as const, label: 'Win-back', icon: RotateCcw, count: null as number | null },
                     { id: 'resigns' as const, label: 'Re-signs', icon: Handshake, count: null as number | null },
                   ]
                 : []),
@@ -271,11 +269,6 @@ export default function RecruitsPage() {
 
           {tab === 'resigns' && isManagerRole ? (
             <ResignBoard isAdmin={role === 'admin' || role === 'owner'} />
-          ) : tab === 'winback' && isManagerRole ? (
-            <WinbackTab
-              isAdmin={role === 'admin' || role === 'owner'}
-              focusId={searchParams.get('lead')}
-            />
           ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (

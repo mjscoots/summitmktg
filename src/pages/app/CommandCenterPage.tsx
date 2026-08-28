@@ -16,8 +16,6 @@ import RegionPace from "@/components/command/RegionPace";
 import SessionPrep from "@/components/command/SessionPrep";
 import LeadersSection from "@/components/command/LeadersSection";
 import OffSeasonReport from "@/components/command/OffSeasonReport";
-import PairingsPanel from "@/components/command/PairingsPanel";
-import TeamLeadApplicationsPanel from "@/components/command/TeamLeadApplicationsPanel";
 import StackView from "@/components/command/StackView";
 import FiberReport from "@/components/command/FiberReport";
 import { WinterPlanPanel } from "@/components/command/WinterPlanPanel";
@@ -583,18 +581,6 @@ export default function CommandCenterPage() {
           <LeadersSection />
         </div>
 
-
-        {/* PAIRINGS */}
-        <SectionHeader title="Pairings" tag="Owner" />
-        <div style={{ marginBottom: 40 }}>
-          <PairingsPanel />
-        </div>
-
-        {/* RUN A TEAM REQUESTS */}
-        <SectionHeader title="Run a Team" tag="Owner" />
-        <div style={{ marginBottom: 40 }}>
-          <TeamLeadApplicationsPanel />
-        </div>
 
         {/* WINTER PLAN */}
         <SectionHeader title="Winter Plan" tag="Owner" />

@@ -22,10 +22,7 @@ import { InviteDialog } from '@/components/invites/InviteDialog';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { RepScorecard } from '@/components/shared/RepScorecard';
 import { RankInsignia } from '@/components/badges/RankInsignia';
-import { TriageBoard } from '@/components/team/TriageBoard';
-import { CarGroupsTab } from '@/components/team/CarGroupsTab';
 import { MyMenteesPanel } from '@/components/team/MyMenteesPanel';
-import { TeamActionItems } from '@/components/team/TeamActionItems';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useManagerNotifications } from '@/hooks/useManagerNotifications';
 import { TeamMember, getDisplayName, getEffectiveManager } from '@/lib/hierarchyUtils';
@@ -82,9 +79,9 @@ export default function MyTeamPage() {
     { user_id: string; full_name: string | null; committed_last_day: string }[]
   >([]);
 
-  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'triage' | 'cars' | 'mentees'>(() => {
+  const [viewMode, setViewMode] = useState<'teams' | 'members' | 'mentees'>(() => {
     const t = searchParams.get('tab');
-    if (t === 'members' || t === 'triage' || t === 'cars' || t === 'mentees') return t;
+    if (t === 'members' || t === 'mentees') return t;
     return 'teams';
   });
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
@@ -107,7 +104,7 @@ export default function MyTeamPage() {
   // Manager-only tabs: reps landing on ?tab=triage fall back to Teams
   useEffect(() => {
     if (authLoading) return;
-    if (!isManagerRole && (viewMode === 'triage' || viewMode === 'cars' || viewMode === 'mentees')) setViewMode('teams');
+    if (!isManagerRole && viewMode === 'mentees') setViewMode('teams');
   }, [authLoading, isManagerRole, viewMode]);
 
   useManagerNotifications();
@@ -334,7 +331,7 @@ export default function MyTeamPage() {
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
             {(isManagerRole
-              ? (['teams', 'members', 'triage', 'cars', 'mentees'] as const)
+              ? (['teams', 'members', 'mentees'] as const)
               : (['teams', 'members'] as const)
             ).map(mode => (
               <button
@@ -569,15 +566,6 @@ export default function MyTeamPage() {
             </div>
           </div>
         )}
-
-        {!loading && viewMode === 'triage' && isManagerRole && (
-          <div className="space-y-4">
-            <TriageBoard />
-            <TeamActionItems />
-          </div>
-        )}
-
-        {!loading && viewMode === 'cars' && isManagerRole && <CarGroupsTab />}
 
         {!loading && viewMode === 'mentees' && isManagerRole && <MyMenteesPanel />}
 
