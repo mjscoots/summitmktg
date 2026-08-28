@@ -59,7 +59,7 @@ export function useBlitzOptins(blitzKeys: string[]) {
           .in('blitz_key', keys);
         const rows = (data as { blitz_key: string; user_id: string }[]) || [];
         const ids = [...new Set(rows.map((r) => r.user_id))];
-        let people: Record<string, OptedRep> = {};
+        const people: Record<string, OptedRep> = {};
         if (ids.length) {
           const { data: p } = await (supabase as any)
             .from('profiles')
