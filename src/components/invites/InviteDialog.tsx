@@ -222,7 +222,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
           <div className="space-y-4">
             <div>
               <Label>Rookie or vet</Label>
-              <Select value={experience} onValueChange={setExperience}>
+              <Select value={experience} onValueChange={(value) => setExperience(value === 'veteran' ? 'veteran' : 'rookie')}>
                 <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="rookie">Rookie</SelectItem>

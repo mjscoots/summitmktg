@@ -69,14 +69,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-5 py-10 sm:px-6 sm:py-12"
-      style={{
-        background: '#0B0D12',
-        backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
-        backgroundSize: '22px 22px',
-      }}
-    >
+    <div className="gold-world public-auth min-h-screen flex items-center justify-center px-5 py-10 sm:px-6 sm:py-12">
       <main className="relative z-10 w-full max-w-md animate-fade-in">
         <button
           onClick={() => navigate("/")}
