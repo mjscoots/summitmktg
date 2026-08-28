@@ -24,7 +24,7 @@ const GAINZ_URL = 'https://gainzops.org';
 export function GainzHero() {
   return (
     <section
-      className="relative mb-4 overflow-hidden rounded-2xl border p-5"
+      className="relative overflow-hidden rounded-2xl border p-5"
       style={{
         borderColor: 'hsl(var(--workspace-accent) / 0.35)',
         background:
@@ -45,7 +45,7 @@ export function GainzHero() {
         <h1 className="text-[26px] font-bold leading-tight tracking-tight text-foreground">
           Your work runs on Gainz
         </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
+        <p className="mt-1.5 text-[15px] text-muted-foreground">
           Blitz areas, orders and payroll live on Gainz. This app is training, your team, chat and help.
         </p>
         <a
@@ -93,9 +93,9 @@ export function JoinGainzCard({ link }: { link: string }) {
   };
 
   return (
-    <div className={`${HUB_CARD} mb-4 p-4`}>
+    <div className={`${HUB_CARD} p-4`}>
       <FiberEyebrow>Join Gainz</FiberEyebrow>
-      <p className="text-[13px] text-muted-foreground">Send this to a new fiber rep to get them onboarded</p>
+      <p className="text-[15px] text-muted-foreground">Send this to a new fiber rep to get them onboarded</p>
       <p className="mt-3 break-all rounded-lg border border-border bg-secondary/60 p-3 text-[12px] text-foreground">
         {link}
       </p>
@@ -122,15 +122,15 @@ function dial(phone: string): string {
 export function ContactsCard({ contacts }: { contacts: FiberContact[] }) {
   if (!contacts.length) return null;
   return (
-    <div className={`${HUB_CARD} mb-4 p-4`}>
+    <div className={`${HUB_CARD} p-4`}>
       <FiberEyebrow>Who to contact</FiberEyebrow>
       <ul className="divide-y divide-border">
         {contacts.map((c) => (
           <li key={c.name} className="flex items-center gap-3 py-3 first:pt-1 last:pb-1">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[14px] font-semibold text-foreground">{c.name}</p>
-              <p className="text-[12px] text-muted-foreground">{c.role}</p>
-              <p className="text-[12px] tabular-nums text-muted-foreground">{c.phone}</p>
+              <p className="truncate text-[15px] font-semibold text-foreground">{c.name}</p>
+              <p className="text-[15px] text-muted-foreground">{c.role}</p>
+              <p className="text-[15px] tabular-nums text-muted-foreground">{c.phone}</p>
             </div>
             <a
               href={`tel:${dial(c.phone)}`}
@@ -178,7 +178,7 @@ export function FiberQuestions({ faq }: { faq: FiberFaq[] }) {
   const items = [...HOW_IT_WORKS, ...faq];
   if (!items.length) return null;
   return (
-    <div className={`${HUB_CARD} mb-4 p-4`}>
+    <div className={`${HUB_CARD} p-4`}>
       <FiberEyebrow>Questions</FiberEyebrow>
       <ul className="divide-y divide-border">
         {items.map((q) => (
@@ -187,11 +187,11 @@ export function FiberQuestions({ faq }: { faq: FiberFaq[] }) {
               type="button"
               onClick={() => setOpen(open === q.id ? null : q.id)}
               aria-expanded={open === q.id}
-              className="flex min-h-11 w-full items-center justify-between gap-3 py-2.5 text-left text-[14px] text-foreground"
+              className="flex min-h-11 w-full items-center justify-between gap-3 py-2.5 text-left text-[15px] text-foreground"
             >
               <span>{q.question}</span>
             </button>
-            {open === q.id && <p className="pb-3 text-[13px] text-muted-foreground">{q.answer}</p>}
+            {open === q.id && <p className="pb-3 text-[15px] text-muted-foreground">{q.answer}</p>}
           </li>
         ))}
       </ul>
