@@ -9,6 +9,7 @@ import { ChatList } from '@/components/chat/ChatList';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { ChannelSheet } from '@/components/chat/ChannelSheet';
 import { KnockingNow } from '@/components/chat/KnockingNow';
+import { NewChatSheet } from '@/components/chat/NewChatSheet';
 
 const LAST_ROOM_KEY = 'summit.chat.lastRoom';
 
@@ -17,7 +18,9 @@ export default function ChatPage() {
   const { channels, refresh, loading } = useChatChannels();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
+
 
   const personParam = params.get('person');
   const clearPerson = useCallback(() => {
