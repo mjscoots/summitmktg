@@ -2175,6 +2175,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          experience_level: Database["public"]["Enums"]["experience_level"]
           expires_at: string
           id: string
           manager_id: string | null
@@ -2191,6 +2192,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
           expires_at?: string
           id?: string
           manager_id?: string | null
@@ -2207,6 +2209,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          experience_level?: Database["public"]["Enums"]["experience_level"]
           expires_at?: string
           id?: string
           manager_id?: string | null
