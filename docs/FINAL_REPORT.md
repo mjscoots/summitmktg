@@ -1922,3 +1922,10 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Team room audit: the six teams holding non-archived reps (Apex 1, Atlas 2, Legion Mafia 6, Minions 5, Paper Route 6, Quality Control 2) each already had an active room — none missing, none created. Orphaned: `team-parks` only (deactivated).
 - Verified at database level: active channels now 15; a Pest-scoped channel query (`vertical is null or vertical = 'Pest'`) returns zero `fiber%` rooms, and `get_conversations()` already filters by `my_active_vertical()`, so Fiber reps see the three rooms and Pest reps do not.
 - No code changes were required — the chat strip reads channels from the database. Typecheck and production build clean. Preview only, nothing published.
+
+## Pass 105 — Re-sign scripts
+- Seeded 5 rows in `scripts` under category `Re-sign` (vertical NULL, active, order 1-5): producer in good standing, half-finished rookie, could-run-a-team, plus flips for "not sure I'm coming back" and "might have an internship". Spoken words only, no dollar or percentage figures — each names the tier and says the manager confirms the number on the call, and each ends asking for a specific time.
+- Read policy on `scripts` rewritten: signed-in users still read active scripts, but `Re-sign` rows are readable only by manager/president/admin/owner. Reps cannot see them.
+- Editable through the existing admin Scripts surface — `Re-sign` added to its category list.
+- New `ReSignScriptsSheet` (one script at a time, prev/next, title chips, copy) opens from a Scripts button above the This week queue on `/app/leads` and from the lead card in `LeadDrawer` (staff tiers only).
+- Verified at database level: 5 Re-sign rows, zero dollar/percent characters in any body; the read rule now uses the same `is_manager_tier` check the app's staff tier uses, so reps get none. Route check reached `/app/leads` without a session (redirect to login), so the sheet was confirmed by code path, not a signed-in click. Typecheck and production build clean; linter count unchanged at 353 pre-existing; nothing published.
