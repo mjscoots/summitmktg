@@ -156,14 +156,22 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         </Button>
       )}
 
-      <NeedsYouRow className="!px-0" />
+      {!staff && <NeedsYouRow className="!px-0" />}
 
       <NextEventCard />
 
-      <ChatPreviewCard />
+      {!staff && <ChatPreviewCard />}
 
       <MoreReveal>
         <QuickChips chips={moreChips} />
+
+        {staff && (
+          <>
+            <NeedsYouRow className="!px-0" />
+            <ChatPreviewCard />
+          </>
+        )}
+
 
         {!staff && (
           <Button className="min-h-11 w-full" onClick={() => setLogOpen(true)}>
