@@ -16,8 +16,7 @@ export function LiveCounters({ variant = 'section' }: LiveCountersProps) {
   if (!counters) return null;
 
   const items: { value: number; label: string }[] = [];
-  if (counters.active_reps) items.push({ value: counters.active_reps, label: 'active reps' });
-  if (counters.signed_season) items.push({ value: counters.signed_season, label: 'signed this season' });
+if (counters.signed_season) items.push({ value: counters.signed_season, label: 'signed this season' });
   if (items.length === 0) return null;
 
   if (variant === 'inline') {
