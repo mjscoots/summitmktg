@@ -6926,6 +6926,10 @@ export type Database = {
         Args: { _application_id: string; _decision: string; _note?: string }
         Returns: Json
       }
+      delete_calendar_event: {
+        Args: { p_event_id: string; p_series?: boolean }
+        Returns: number
+      }
       dismiss_reactivation_request: { Args: { _id: string }; Returns: Json }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       event_card_meta: {
@@ -6941,6 +6945,7 @@ export type Database = {
         Returns: string
       }
       expand_event_series: { Args: { p_weeks?: number }; Returns: number }
+      expire_stale_scheduling_requests: { Args: never; Returns: number }
       fiber_installs_total: { Args: { _user: string }; Returns: number }
       fiber_producing_reps: {
         Args: { _leader: string; _vertical: string }

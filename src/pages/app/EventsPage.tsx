@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
-  CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2,
+  CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2, Trash2,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -117,6 +117,27 @@ export default function EventsPage() {
   const [checkinEvent, setCheckinEvent] = useState<EventRow | null>(null);
   const [checkinRows, setCheckinRows] = useState<CheckinRow[]>([]);
   const [checkinLoading, setCheckinLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ ev: EventRow; series: boolean } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const canDelete = role === 'owner' || role === 'admin';
+
+  const runDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await (supabase as any).rpc('delete_calendar_event', {
+      p_event_id: deleteTarget.ev.id,
+      p_series: deleteTarget.series,
+    });
+    setDeleting(false);
+    if (error) {
+      toast.error('Could not delete that event');
+      return;
+    }
+    toast.success(deleteTarget.series ? 'Series deleted' : 'Event deleted');
+    setDeleteTarget(null);
+    load();
+  };
 
   const load = useCallback(async () => {
     const { data, error } = await (supabase as any).rpc('get_events_feed', {});
@@ -310,6 +331,25 @@ export default function EventsPage() {
               >
                 <Pencil className="h-3.5 w-3.5" /> Edit
               </button>
+            </>
+          )}
+
+          {canDelete && (
+            <>
+              <button
+                onClick={() => setDeleteTarget({ ev, series: false })}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+              </button>
+              {ev.is_series && (
+                <button
+                  onClick={() => setDeleteTarget({ ev, series: true })}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete series
+                </button>
+              )}
             </>
           )}
         </div>
@@ -508,6 +548,36 @@ export default function EventsPage() {
               ))}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm */}
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{deleteTarget?.series ? 'Delete this series?' : 'Delete this event?'}</DialogTitle>
+            <DialogDescription>
+              {deleteTarget?.ev.title}
+              {deleteTarget?.series
+                ? '. Every date in the series goes, along with its RSVPs and attendance. This cannot be undone.'
+                : '. Its RSVPs and attendance go with it. This cannot be undone.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteTarget(null)}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border/60 bg-surface px-4 text-[13px] font-medium text-muted-foreground"
+            >
+              Keep it
+            </button>
+            <button
+              onClick={runDelete}
+              disabled={deleting}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-destructive px-4 text-[13px] font-semibold text-destructive-foreground disabled:opacity-60"
+            >
+              {deleting && <Loader2 className="h-4 w-4 animate-spin" />} Delete
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AppLayout>

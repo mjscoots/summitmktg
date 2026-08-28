@@ -806,8 +806,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         </div>
       )}
 
-      {/* Composer */}
-      <div className="relative z-[1]">
+      {/* Composer — sits above the phone bar, never under it */}
+      <div className="phone-bar-clear relative z-[1]">
         <ChatComposer
           input={input}
           onInputChange={setInput}

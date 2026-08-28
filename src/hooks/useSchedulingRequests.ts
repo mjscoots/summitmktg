@@ -31,11 +31,14 @@ export function useSchedulingRequests() {
     if (!user) { setIsLoading(false); return; }
     setIsLoading(true);
 
+    // A pending request whose recipient left, or that is over 30 days old, closes itself.
+    try { await (supabase as any).rpc('expire_stale_scheduling_requests'); } catch { /* non-blocking */ }
+
     const { data, error } = await supabase
       .from('scheduling_requests')
       .select('*')
       .or(`requester_id.eq.${user.id},recipient_id.eq.${user.id}`)
-      .neq('status', 'cancelled')
+      .not('status', 'in', '("cancelled","expired")')
       .order('created_at', { ascending: false });
 
     if (error) { console.error(error); setIsLoading(false); return; }
