@@ -15,13 +15,17 @@ interface ChatHeaderProps {
   hideBack?: boolean;
   /** Extra controls on the right, e.g. people search. */
   rightSlot?: ReactNode;
+  /** Cover photo or avatar shown beside the room name. */
+  avatarSlot?: ReactNode;
+  /** Tap the name to open the room's members. */
+  onTitleClick?: () => void;
 }
 
-export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, memberCount, onBack, hideBack, rightSlot }: ChatHeaderProps) {
+export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, memberCount, onBack, hideBack, rightSlot, avatarSlot, onTitleClick }: ChatHeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 border-b border-border/10 bg-background/60 backdrop-blur-2xl flex-shrink-0 z-[2]">
+    <div className="flex items-center gap-2 px-3 py-2 border-b border-border/10 bg-background/60 backdrop-blur-2xl flex-shrink-0 z-[2]">
       {/* Back arrow - mobile feel */}
       {!hideBack && (
         <button
@@ -33,16 +37,27 @@ export function ChatHeader({ channelName, subtitle, pinnedCount, onPinnedClick, 
         </button>
       )}
 
-
-      <div className="flex-1 min-w-0">
-        <h2 className="text-[15px] font-bold text-foreground tracking-tight leading-tight">{channelName}</h2>
-        {subtitle && (
-          <p className="text-[11px] text-muted-foreground/40 leading-tight">
-            {subtitle}
-            {memberCount ? ` · ${memberCount} members` : ''}
-          </p>
+      <button
+        type="button"
+        onClick={onTitleClick}
+        disabled={!onTitleClick}
+        aria-label={onTitleClick ? `${channelName} members` : undefined}
+        className={cn(
+          'flex min-h-[44px] min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 text-left transition-colors',
+          onTitleClick && 'hover:bg-[hsl(var(--surface-elevated))]'
         )}
-      </div>
+      >
+        {avatarSlot}
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[15px] font-bold leading-tight tracking-tight text-foreground">{channelName}</span>
+          {subtitle && (
+            <span className="block truncate text-[11px] leading-tight text-muted-foreground">
+              {subtitle}
+              {memberCount ? ` · ${memberCount} members` : ''}
+            </span>
+          )}
+        </span>
+      </button>
 
       <div className="flex items-center gap-1">
         {pinnedCount > 0 && (
