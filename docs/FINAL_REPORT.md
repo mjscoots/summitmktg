@@ -1848,3 +1848,17 @@ eleven have succeeded, the four weekly jobs have not reached their first schedul
 summary of passes 87–95 added, the job table brought up to date. Verdict is unchanged —
 still blocked on the Resend sender and Mathew Rubino's missing role, both owner actions.
 Nothing has been published.
+
+## Pass 97 — Off-season home
+
+One setting now decides the season: `app_settings.season_mode` (`in` / `off`, seeded `off`),
+flipped from Admin → Settings → Season with two large choices and a line saying exactly what
+each one changes. No date math. In off season the staff Home hero becomes **Signed for 2027**
+from `leads_counts` — today 14 people, with "$1,326,738 signed · 537 not signed ($4,752,747)"
+under it — and tapping the number opens `/app/leads`. The rep hero drops the zero sales count
+for **training minutes this week**, with "Goal $X for 2027" from their interview
+(`profiles.revenue_goal`) when one exists plus their login streak. In season both heroes read
+exactly as before. Only the eyebrow, the number and the one line under it change; every card
+below the hero is untouched. New hook `src/hooks/useSeasonMode.ts` reads the setting and both
+off-season numbers; `leads_counts` stays manager-and-above, so a rep never sees roster money.
+Typecheck clean, production build clean at 217 kB, no console errors. Not published.
