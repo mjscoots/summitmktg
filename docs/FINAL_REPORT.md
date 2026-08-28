@@ -1879,3 +1879,12 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Read helpers `my_referral_count`, `get_referral_leads`, `referral_counts` are SECURITY DEFINER, anon execution revoked; `recruiting_leads` and `submit_referral` untouched.
 - Verified: baseline 0 referrals (94 leads), one synthetic referral moved counts to 1 of 95, deleted, back to 0 of 94. Rate limit and duplicate-phone behavior unchanged.
 - Typecheck and production build clean. Preview only, nothing published.
+
+## Pass 100 — Fall front door
+- Added `applications.first_touch_at` (only new column); assignment stored on existing `reviewed_by`.
+- New role-gated SECURITY DEFINER RPCs: `claim_application` (managers claim, owner/admin reassign), `log_application_first_touch`, `applications_pulse`. Anon execute revoked.
+- Applications list now shows hours since arrival, owner, referral_source + source_type, Claim/Take over, tap-to-call, tap-to-text, and "Logged first touch"; unclaimed rows past 24h get the Pass 98 warm chip. Nothing sends from the app.
+- Above the list: this month's application counts by source, real counts only.
+- Requests header line: applications waiting · oldest in hours · unclaimed (`ApplicationsPulseLine`), live.
+- Verified at database level: synthetic application inserted, owned and touched, then deleted; baseline back to 5 pending / 8 reviewed with 5 unclaimed.
+- Typecheck and production build clean. Nothing team-facing lists archived people. Preview only; nothing published.
