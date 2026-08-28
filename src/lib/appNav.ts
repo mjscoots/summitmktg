@@ -104,7 +104,6 @@ const ALL: Record<string, NavDest> = {
   blitzes: { key: 'blitzes', label: 'Blitzes', path: '/app/events', icon: CalendarClock },
   leaderboard: { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   board: { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
-  playbook: { key: 'playbook', label: 'Playbook', path: '/app/playbook', icon: FileText },
   season: { key: 'season', label: 'Season', path: '/app/season', icon: Trophy },
   installs: { key: 'installs', label: 'Installs', path: '/app/installs', icon: Wifi },
   pipeline: { key: 'pipeline', label: 'Pipeline', path: '/app/pipeline', icon: ClipboardList },
@@ -126,10 +125,10 @@ function ws(vertical: string | null | undefined): Workspace {
 
 /** The main group per workspace: every surface shows the same set. */
 const MAIN_KEYS: Record<Workspace, string[]> = {
-  pest: ['home', 'learn', 'chat', 'money', 'schedule', 'leaderboard', 'playbook', 'season'],
+  pest: ['home', 'learn', 'chat', 'money', 'leaderboard'],
   // Fiber Learn only appears once the Fiber training has published content.
-  fiber: ['home', 'installs', 'chat', 'money', 'blitzes', 'board'],
-  life: ['home', 'pipeline', 'chat', 'learn', 'money', 'schedule'],
+  fiber: ['home', 'chat', 'money', 'board'],
+  life: ['home', 'pipeline', 'chat', 'learn', 'money'],
 };
 
 /** The Manage group per workspace. */

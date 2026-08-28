@@ -82,7 +82,6 @@ const PipelinePage = lazy(() => import('@/pages/app/PipelinePage'));
 
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
-const PlaybookPage = lazy(() => import("./pages/app/PlaybookPage"));
 const DoorsPage = lazy(() => import("./pages/app/DoorsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
 const PersonProfilePage = lazy(() => import("./pages/app/PersonProfilePage"));
