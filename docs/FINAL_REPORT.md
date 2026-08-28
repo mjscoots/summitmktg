@@ -1715,3 +1715,27 @@ Money numbers now arrive by import, not by typing.
 - Manager view: `NewRepsPanel` on Team shows new reps with Photo / Phone / Details / Interview / Referrals chips; `NewRepDayOneCard` on a person profile lists what day one still needs.
 - Verified: anonymous calls to both RPCs return `permission denied` (401). As the archived test rookie: first referral `ok: true`, same number again refused, goal interview saved with the 2027 last day and the income goal on the profile. All synthetic rows purged afterwards; rate-limit counter cleared.
 - Typecheck clean, production build OK. Linter counts unchanged from baseline (anon-executable definer functions dropped 31 → 29). Preview only; nothing published.
+
+## Pass 91 — Admin organized
+
+Walked every admin surface first: six sections (Inbox, People, Money, Content, Reports, Settings) with 27 sub-tabs, several of which were unreachable shells or dev-era tools. Admin now reorganizes into five groups in fixed order — People, Requests, Money, Content, Settings — using the existing ADMIN_SECTIONS mechanism, so nothing is more than two taps from the Admin root. Each group renders one plain sentence under its heading saying what lives there.
+
+Cuts are code-level removals of controls only: no table, RPC, job, or row was touched. Hierarchy sync is gone from the page and from the nav; its component file and the underlying data stay. The Decisions queue keeps per-row selection but loses the select-all header, since bulk-dismissing the whole triage list is not a recurring admin task. Empty or duplicate screens (Statements, Tools, Culture, Questions, Feedback, and the two Reports tabs that already live on the Command page) are no longer shipped as shells.
+
+Routes: `/admin` and the legacy `/admin/inbox` redirect to `/admin/requests`, `/admin/reports` redirects to `/command`, and `/command` now renders the command reports page directly instead of bouncing into Admin. Old `/admin/team?tab=…` links still resolve through `sectionForTab`. No admin route 404s.
+
+Role gating is unchanged: every `/admin/*` route stays wrapped in `ProtectedRoute requiredRole="admin"`, and `/command` is now wrapped the same way, so a manager role cannot load Admin root. Verified at route level in code; no preview session could be minted this pass, so this was not exercised as a signed-in manager.
+
+Typecheck and production build clean. Layout unchanged at 390–1280 with 44px targets. Preview only, nothing published.
+
+| Control removed | Reason (five words) |
+| --- | --- |
+| Hierarchy sync tab | Dev-era backfill, no longer needed |
+| Queue select-all header | Bulk dismiss not recurring task |
+| Money → Statements tab | Empty shell, never built |
+| Reports → Tools tab | Empty shell, no controls |
+| Reports → Overview tab | Duplicate of Command reports page |
+| Reports → Off-season tab | Duplicate inside Command reports |
+| Culture tab render | Unreachable, cut in Pass 87 |
+| Questions tab render | Unreachable, cut in Pass 87 |
+| Feedback tab render | Unreachable, cut in Pass 87 |

@@ -87,12 +87,6 @@ export function AdminQueueTab() {
     });
   };
 
-  const toggleAll = () => {
-    setSelected((prev) =>
-      prev.size === visible.length ? new Set() : new Set(visible.map((i) => i.key))
-    );
-  };
-
   const run = async (label: string, fn: () => Promise<void>) => {
     setBusy(true);
     try {
@@ -240,16 +234,6 @@ export function AdminQueueTab() {
         />
       ) : (
         <div className="overflow-hidden rounded-[var(--radius)] border border-white/[0.06] bg-card/60 backdrop-blur-sm">
-          <button
-            onClick={toggleAll}
-            className="flex min-h-11 w-full items-center gap-3 border-b border-white/[0.06] px-3 text-left"
-          >
-            <Checkbox checked={selected.size === visible.length && visible.length > 0} />
-            <span className="micro-label">
-              {selected.size === visible.length && visible.length > 0 ? 'Clear' : 'Select'} all{' '}
-              {visible.length}
-            </span>
-          </button>
 
           <div className="divide-y divide-white/[0.04]">
             {visible.slice(0, visibleCount).map((item) => (

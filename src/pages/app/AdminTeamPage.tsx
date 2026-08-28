@@ -12,11 +12,8 @@ import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
-import HierarchySyncTab from '@/components/admin/HierarchySyncTab';
 import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
 import LeadsImportPanel from '@/components/admin/LeadsImportPanel';
-const LazyCommandReports = lazy(() => import('@/pages/app/CommandCenterPage'));
-const LazyOffSeasonReport = lazy(() => import('@/components/command/OffSeasonReport'));
 
 import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
 import AdminVerticalLeadsPanel from '@/components/admin/AdminVerticalLeadsPanel';
@@ -50,7 +47,6 @@ import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
 import { VerticalRequestsPanel } from '@/components/admin/VerticalRequestsPanel';
 
 
-const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
 
 const LazyPitchApprovals = lazy(() => import('@/components/admin/AdminPitchApprovalsTab'));
 const LazyRecruiting = lazy(() => import('@/components/admin/AdminRecruitingTab'));
@@ -72,15 +68,9 @@ const LazyFirstWeek = lazy(() =>
 const LazyThemes = lazy(() =>
   import('@/components/admin/AdminThemesTab').then((m) => ({ default: m.AdminThemesTab }))
 );
-const LazyQuestions = lazy(() =>
-  import('@/components/admin/AdminQuestionsTab').then((m) => ({ default: m.AdminQuestionsTab }))
-);
 const LazyAssistant = lazy(() =>
 
   import('@/components/admin/AdminAssistantTab').then((m) => ({ default: m.AdminAssistantTab }))
-);
-const LazyCulture = lazy(() =>
-  import('@/components/admin/AdminCultureTab').then((m) => ({ default: m.AdminCultureTab }))
 );
 const LazyRestore = lazy(() => import('@/components/admin/RestoreAccessPanel'));
 const LazyReactivations = lazy(() => import('@/components/admin/ReactivationRequestsPanel'));
@@ -102,7 +92,7 @@ interface TeamRow {
 
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || '';
 
-export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSection }) {
+export default function AdminTeamPage({ section = 'requests' }: { section?: AdminSection }) {
   const { role, profile } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -404,7 +394,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
                   )}
                 >
                   {s.label}
-                  {s.key === 'inbox' && adminCounts.total > 0 && (
+                  {s.key === 'requests' && adminCounts.total > 0 && (
                     <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[9px] font-bold text-destructive-foreground">
                       {adminCounts.total}
                     </span>
@@ -414,7 +404,12 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </div>
           </div>
 
-          {/* Sub-nav inside the section */}
+          {/* What this group is for */}
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            {ADMIN_SECTIONS.find((s) => s.key === section)?.blurb}
+          </p>
+
+          {/* Sub-nav inside the group */}
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
             <TabsList className="inline-flex min-w-max gap-0.5 bg-transparent p-0 h-auto">
               {sectionTabs.map((t) => (
@@ -429,7 +424,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsList>
           </div>
 
-          {section === 'inbox' && (
+          {section === 'requests' && (
             <TabsContent value="requests">
               <Suspense fallback={<LoadingList rows={3} />}>
                 <LazyReactivations />
@@ -437,7 +432,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
-          {section === 'inbox' && isAdmin && (
+          {section === 'requests' && isAdmin && (
             <TabsContent value="verticals">
               <VerticalRequestsPanel />
             </TabsContent>
@@ -465,27 +460,8 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
-          {section === 'reports' && (
-            <TabsContent value="overview">
-              <Suspense fallback={<LoadingList rows={4} />}>
-                <LazyCommandReports />
-              </Suspense>
-            </TabsContent>
-          )}
 
-          {section === 'reports' && (
-            <TabsContent value="offseason">
-              <Suspense fallback={<LoadingList rows={4} />}>
-                <LazyOffSeasonReport />
-              </Suspense>
-            </TabsContent>
-          )}
 
-          {section === 'money' && isAdmin && (
-            <TabsContent value="statements">
-              <p className="text-sm text-muted-foreground">Not built yet.</p>
-            </TabsContent>
-          )}
 
 
           {/* ========== PLAYBOOK TAB ========== */}
@@ -515,14 +491,6 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
-          {/* ========== CULTURE TAB ========== */}
-          {isAdmin && (
-            <TabsContent value="culture">
-              <Suspense fallback={<LoadingList rows={4} />}>
-                <LazyCulture />
-              </Suspense>
-            </TabsContent>
-          )}
 
 
           {/* ========== ARCHIVED TAB ========== */}
@@ -712,12 +680,6 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </Suspense>
           </TabsContent>
 
-          {/* ========== FEEDBACK TAB ========== */}
-          <TabsContent value="feedback">
-            <Suspense fallback={<LoadingList rows={4} />}>
-              <LazyFeedback />
-            </Suspense>
-          </TabsContent>
 
           {/* ========== QUEUE TRIAGE TAB ========== */}
           <TabsContent value="queue">
@@ -733,25 +695,7 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
-          {/* ========== QUESTIONS TAB ========== */}
-          {isAdmin && (
-            <TabsContent value="questions">
-              <Suspense fallback={<LoadingList rows={5} />}>
-                <LazyQuestions />
-              </Suspense>
-            </TabsContent>
-          )}
 
-          {/* ========== TOOLS TAB (roster sweep lives here) ========== */}
-          {isAdmin && (
-            <TabsContent value="tools">
-              <div className="space-y-3">
-                <p className="text-[13px] text-muted-foreground">
-                  Admin tools appear here as they are added.
-                </p>
-              </div>
-            </TabsContent>
-          )}
 
           {/* ========== ASSISTANT TAB ========== */}
           {isAdmin && (
@@ -864,27 +808,6 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
-          {/* ========== SYNC TAB ========== */}
-          <TabsContent value="sync">
-            {loading ? <TableSkeleton columns={4} rows={5} /> : (
-              <HierarchySyncTab
-                profiles={allUsers.filter(u => !(u as any).archived).map(u => ({
-                  user_id: u.user_id,
-                  full_name: u.full_name,
-                  email: u.email,
-                  direct_manager: u.direct_manager,
-                  status: u.status,
-                  team_id: u.team_id,
-                  avatar_url: u.avatar_url,
-                  onboarding_status: u.onboarding_status,
-                  recruiter: u.recruiter,
-                }))}
-                managers={managers}
-                teams={teamsSimple}
-                onRefresh={fetchData}
-              />
-            )}
-          </TabsContent>
         </Tabs>
 
         {/* Modals */}

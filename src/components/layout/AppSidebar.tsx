@@ -237,7 +237,7 @@ export function AppSidebar() {
               {(canSeeAdmin(role) || role === 'president') && (
                 <SidebarMenuItem>
                   <button
-                    onClick={() => { navigate('/admin/inbox'); if (isMobile) setOpenMobile(false); }}
+                    onClick={() => { navigate('/admin/requests'); if (isMobile) setOpenMobile(false); }}
                     className={cn(
                       "w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors duration-200 relative group",
                       isActive('/admin')
