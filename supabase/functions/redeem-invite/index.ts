@@ -95,9 +95,10 @@ Deno.serve(async (req) => {
         team_id: (invite.team_id as string) || null,
         manager_id: (invite.manager_id as string) || null,
         direct_manager: managerName,
-        active_vertical: (invite.vertical as string) || null,
+        // Pass 89 — Pest is the default placement unless the invite named another vertical.
+        active_vertical: (invite.vertical as string) || "Pest",
         region: (invite.region as string) || null,
-        vertical: (invite.vertical as string) || null,
+        vertical: (invite.vertical as string) || "Pest",
         status: "active",
         approved: true,
       })
@@ -108,20 +109,21 @@ Deno.serve(async (req) => {
       await admin.from("user_roles").delete().eq("user_id", userId).eq("role", "rookie");
     }
 
-    if (invite.vertical) {
+    {
+      const enrollVertical = (invite.vertical as string) || "Pest";
       let regionId: string | null = null;
       if (invite.region) {
         const { data: reg } = await admin
           .from("regions")
           .select("id")
-          .eq("vertical", invite.vertical as string)
+          .eq("vertical", enrollVertical)
           .eq("name", invite.region as string)
           .maybeSingle();
         regionId = reg?.id ?? null;
       }
       await admin.from("rep_vertical_enrollments").insert({
         user_id: userId,
-        vertical: invite.vertical as string,
+        vertical: enrollVertical,
         status: "active",
         source_type: "other",
         sourced_by: "leader",

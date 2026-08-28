@@ -59,7 +59,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [inviteRole, setInviteRole] = useState('rep');
-  const [vertical, setVertical] = useState<string>(profile?.active_vertical || 'pest');
+  const [vertical, setVertical] = useState<string>(profile?.active_vertical || 'Pest');
   const [teamId, setTeamId] = useState<string>(profile?.team_id || '');
   const [region, setRegion] = useState<string>('');
   const [managerId, setManagerId] = useState<string>(user?.id || '');
@@ -232,7 +232,7 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
 
             <div>
               <Label>Vertical</Label>
-              <Select value={locked ? profile?.active_vertical || 'pest' : vertical} onValueChange={setVertical} disabled={locked}>
+              <Select value={locked ? profile?.active_vertical || 'Pest' : vertical} onValueChange={setVertical} disabled={locked}>
                 <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {verticals.map((v) => (
