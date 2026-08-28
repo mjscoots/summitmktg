@@ -206,18 +206,27 @@ export default function SeatsPanel() {
             <div key={row.user_id} className="rounded-[var(--radius)] border border-border/60 bg-surface p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="min-w-0 flex-1 truncate text-[14px] font-semibold text-foreground">{row.full_name}</p>
-                {!row.signed_in && (
+                {(row.days_since === null || row.days_since >= 30) && (
                   <span className="rounded-full bg-[hsl(var(--celebrate-warm)/0.16)] px-2 py-1 text-[11px] text-[hsl(var(--celebrate-warm))]">
-                    Never signed in
+                    Dark 30 days or more
                   </span>
                 )}
-                <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
-                  {inviteLabel[row.invite_state]}
-                </span>
+                {!row.has_account && (
+                  <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
+                    No account
+                  </span>
+                )}
+                {!row.has_account && (
+                  <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
+                    {inviteLabel[row.invite_state]}
+                  </span>
+                )}
                 <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
                   {row.role ? `Role: ${row.role}` : 'No role'}
                 </span>
               </div>
+
+              <p className="mt-1 text-[12px] text-foreground">{activityText(row)}</p>
 
               <p className="mt-1 text-[12px] text-muted-foreground">
                 {row.team_name || 'No team'} · {row.manager_name || 'No manager'}
@@ -226,10 +235,13 @@ export default function SeatsPanel() {
               </p>
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Button size="sm" variant="outline" className="min-h-11" disabled={busy === row.user_id} onClick={() => createInvite(row)}>
-                  {busy === row.user_id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create invite
-                </Button>
+                {!row.has_account && (
+                  <Button size="sm" variant="outline" className="min-h-11" disabled={busy === row.user_id} onClick={() => createInvite(row)}>
+                    {busy === row.user_id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create invite
+                  </Button>
+                )}
+
                 {row.invite_token && row.invite_state === 'open' && (
                   <>
                     <Button size="sm" variant="ghost" className="min-h-11" onClick={() => copy(linkFor(row.invite_token as string))}>
