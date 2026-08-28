@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { isStaffTier, type Tier } from '@/lib/tiers';
 import BeforeTheyLeft from '@/components/leads/BeforeTheyLeft';
 import OutcomeBar from '@/components/leads/OutcomeBar';
+import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
 
 import {
   CALL_OUTCOMES,
@@ -54,6 +55,7 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
   const [tag, setTag] = useState('');
   const [managers, setManagers] = useState<{ user_id: string; full_name: string }[]>([]);
   const [cycleDays, setCycleDays] = useState('14');
+  const [scriptsOpen, setScriptsOpen] = useState(false);
 
 
   const lead = detail?.lead;
@@ -194,8 +196,10 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
                   <MessageSquare className="h-3.5 w-3.5" /> Text
                 </a>
               )}
+              {staff && <ScriptsButton onClick={() => setScriptsOpen(true)} />}
               {!lead.phone && <p className="text-[12px] text-muted-foreground">No phone on file</p>}
             </div>
+            {staff && <ReSignScriptsSheet open={scriptsOpen} onClose={() => setScriptsOpen(false)} />}
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Field label="Season revenue" value={money(lead.season_revenue)} />

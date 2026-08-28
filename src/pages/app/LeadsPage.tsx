@@ -23,6 +23,7 @@ import {
 import LeadDrawer from '@/components/leads/LeadDrawer';
 import ThisWeekQueue from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
+import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
 
 import { PageHeader } from '@/components/layout/PageHeader';
 
@@ -58,6 +59,7 @@ export default function LeadsPage() {
   const [chip, setChip] = useState<Chip>('out');
   const [openLead, setOpenLead] = useState<string | null>(params.get('lead'));
   const [callMode, setCallMode] = useState(false);
+  const [scriptsOpen, setScriptsOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [managers, setManagers] = useState<
     { user_id: string; full_name: string | null; designated_count: number; has_access: boolean }[]
@@ -491,6 +493,7 @@ export default function LeadsPage() {
           )}
 
           <LeadDrawer leadId={openLead} tier={tier} onClose={() => setOpenLead(null)} onChanged={reload} />
+          <ReSignScriptsSheet open={scriptsOpen} onClose={() => setScriptsOpen(false)} />
           <CallMode open={callMode} leads={callable} onClose={() => setCallMode(false)} onDone={reload} />
         </main>
       </div>

@@ -20,7 +20,7 @@ import { verticalFilter } from '@/lib/workspaceScope';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { PageHeader } from '@/components/layout/PageHeader';
 
-const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections'] as const;
+const CATEGORIES = ['Openers', 'Bridge & Price Sheet', 'Premiums', 'Closes', 'Objections', 'Re-sign'] as const;
 type Category = (typeof CATEGORIES)[number];
 
 interface ScriptRow {
