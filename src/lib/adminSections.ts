@@ -70,6 +70,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'assistant', label: 'Ask Summit', adminOnly: true },
   ],
   settings: [
+    { value: 'season', label: 'Season' },
     { value: 'industries', label: 'Industries' },
     { value: 'fiberhub', label: 'Fiber hub', adminOnly: true },
     { value: 'themes', label: 'Themes' },
