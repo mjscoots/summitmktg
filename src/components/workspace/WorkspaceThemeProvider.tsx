@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useAppearance } from '@/hooks/useAppearance';
 
 export interface WorkspaceTheme {
   mode?: 'dark' | 'light';
@@ -269,7 +270,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
       delete root.dataset.workspace;
       delete root.dataset.workspaceHeadings;
     };
-  }, [vertical, theme.headings]);
+  }, [vertical, theme.headings, appearance]);
 
 
   return <>{children}</>;
