@@ -1,22 +1,25 @@
 # Go / No-Go — publish readiness
 
-Written for the owner. Last checked 26 August 2026. Nothing in this document has been
+Written for the owner. Last checked 28 August 2026. Nothing in this document has been
 published.
 
 ---
 
 ## 1. Verdict
 
-**Not yet — because of two things only you can do.** A full regression check on 26 August
-re-ran the five everyday actions (new account, chat message, public application, fiber
-install, pest sale), the invite link end to end, and every rebuilt screen at phone and
-desktop width. Everything passed and all test records were deleted afterwards, so the
-counts are back where they started. The code compiles clean, the production build has one
-file at 210 kB and nothing larger, no screen scrolls sideways at any width from 390 to
-1280 pixels, and no table in the database is readable without the right permission. Two
-small faults were found and fixed during the check: logging a fiber install failed on a
-missing note field, and the Fiber team roster was asking the database the wrong question.
-What is still not ready is *email* and *one person's access*. Every email — welcome
+**Not yet — because of two things only you can do.** A second full check on 28 August went
+back over everything built since the last one: the invite path, the new approval gate, the
+industry request flow, day-one setup, the daily fiber numbers, blitz sign-ups, the re-sign
+call board, and both money importers with their undo. Every public and signed-out screen
+was opened at phone and desktop width in both dark and light mode with no sideways scroll
+and no errors, every link in the menus points at a screen that exists, the code compiles
+clean and the largest file in the build is 217 kB. Nothing was left behind: the database
+holds the same 535 people and 551 leads it started with, and every table used by the new
+features is empty of test data. Two things were tightened during the check. An invited rep
+now arrives **waiting for your approval** rather than pre-approved, so nobody gets in
+without a decision from you. And nine internal actions — the money importers, undo,
+lead counts, the mastery check — could be called by a signed-out visitor and can no longer
+be. What is still not ready is *email* and *one person's access*. Every email — welcome
 messages, application approvals, calendar notices, the weekly owner report — goes out from
 a shared Resend test address that Resend only delivers to your own inbox. And Mathew
 Rubino is listed as the lead of Summit Pest with no role assigned, so he cannot use the
