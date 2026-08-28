@@ -51,11 +51,17 @@ export default function OutcomeBar({ leadId, nextCallAt, onChanged }: Props) {
             key={o.value}
             disabled={busy}
             onClick={() => logOutcome(o.value, o.kind)}
-            className="min-h-11 rounded-xl border border-border/60 bg-background/50 px-2 text-[13px] font-semibold text-foreground hover:border-primary/40 disabled:opacity-60"
+            className={cn(
+              'min-h-11 rounded-xl border px-2 text-[13px] font-semibold disabled:opacity-60',
+              o.value === 'signed'
+                ? 'celebrate-card text-foreground'
+                : 'border-border/60 bg-background/50 text-foreground hover:border-primary/40'
+            )}
           >
             {o.label}
           </button>
         ))}
+
       </div>
       <textarea
         value={note}
