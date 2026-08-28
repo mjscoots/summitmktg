@@ -284,7 +284,58 @@ export default function RecruitsPage() {
           </div>
 
 
-          {tab === 'resigns' && isManagerRole ? (
+          {tab === 'referrals' && isManagerRole ? (
+            referrals.length === 0 ? (
+              <div className={cn(CARD, 'py-4')}>
+                <EmptyState
+                  icon={Handshake}
+                  title="No referrals yet"
+                  description="Names your reps send from Home land here."
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {referrals.map((lead) => (
+                  <div key={lead.id} className={cn(CARD, 'flex flex-col p-4')}>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-[15px] font-bold text-foreground">{lead.first_name}</h3>
+                      <span className="shrink-0 text-[11px] text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {timeAgo(lead.created_at)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[13px] text-muted-foreground">
+                      Referred by {lead.referrer_name || 'a rep'}
+                    </p>
+                    {lead.city && (
+                      <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
+                        <MapPin className="w-3 h-3" /> {lead.city}
+                      </p>
+                    )}
+                    {lead.claimed_by ? (
+                      <p className="mt-3 text-[12px] text-muted-foreground">
+                        {lead.status} · {lead.claimed_name || 'Claimed'}
+                      </p>
+                    ) : atLimit ? (
+                      <button
+                        disabled
+                        className="mt-3 min-h-11 w-full cursor-not-allowed rounded-lg border border-white/[0.06] bg-white/[0.03] text-[13px] font-semibold text-muted-foreground"
+                      >
+                        Claim Lead
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => claim(lead.id)}
+                        disabled={claiming === lead.id}
+                        className="mt-3 min-h-11 w-full rounded-lg bg-primary text-[13px] font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform active:scale-[0.98] disabled:opacity-60"
+                      >
+                        {claiming === lead.id ? 'Claiming…' : 'Claim Lead'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          ) : tab === 'resigns' && isManagerRole ? (
             <ResignBoard isAdmin={role === 'admin' || role === 'owner'} />
           ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
