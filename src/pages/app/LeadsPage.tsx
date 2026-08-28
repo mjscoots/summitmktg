@@ -238,8 +238,20 @@ export default function LeadsPage() {
                 { label: 'Pool', value: counts.pool },
                 { label: 'Signed for 2027', value: counts.signed_2027 },
               ].map((c) => (
-                <div key={c.label} className={cn(CARD, 'px-3 py-2')}>
-                  <p className="stat-num text-lg font-bold text-foreground tabular-nums">{c.value}</p>
+                <div
+                  key={c.label}
+                  className={cn(CARD, 'px-3 py-2', c.label === 'Signed for 2027' && 'celebrate-card')}
+                >
+                  <p
+                    className="stat-num text-lg font-bold tabular-nums"
+                    style={
+                      c.label === 'Signed for 2027'
+                        ? { color: 'hsl(var(--workspace-accent))' }
+                        : undefined
+                    }
+                  >
+                    {c.value}
+                  </p>
                   <p className="text-[11px] leading-tight text-muted-foreground">{c.label}</p>
                 </div>
               ))}
@@ -248,10 +260,15 @@ export default function LeadsPage() {
 
           {staff && scope === 'all' && counts && (
             <p className="mb-3 text-[12px] leading-snug text-muted-foreground">
-              Signed for 2027: {counts.signed_count} · {money(counts.signed_revenue)} last season. Not signed:{' '}
+              Signed for 2027:{' '}
+              <span className="font-semibold tabular-nums" style={{ color: 'hsl(var(--workspace-accent))' }}>
+                {counts.signed_count}
+              </span>{' '}
+              · {money(counts.signed_revenue)} last season. Not signed:{' '}
               {counts.unsigned_count} · {money(counts.unsigned_revenue)} last season.
             </p>
           )}
+
 
           {tier !== 'sales' && scope === 'mine' && !loading && (
             <ThisWeekQueue rows={rows} onOpen={setOpenLead} />
