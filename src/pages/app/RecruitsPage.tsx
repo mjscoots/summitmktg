@@ -258,6 +258,7 @@ export default function RecruitsPage() {
               ...(isManagerRole
                 ? [
                     { id: 'resigns' as const, label: 'Re-signs', icon: Handshake, count: null as number | null },
+                    { id: 'referrals' as const, label: 'Referrals', icon: Handshake, count: referrals.length as number | null },
                   ]
                 : []),
             ]).map((t) => (
