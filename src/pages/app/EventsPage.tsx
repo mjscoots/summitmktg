@@ -280,7 +280,7 @@ export default function EventsPage() {
   const EventCard = ({ ev, isPast }: { ev: EventRow; isPast: boolean }) => {
     const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
     return (
-      <div className={cn(CARD, 'px-4 py-3.5')}>
+      <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[14px] font-semibold text-foreground">{ev.title}</p>
