@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SelfReportedSales } from '@/components/sales/SelfReportedSales';
+import { MasteryChecksCard } from '@/components/training/MasteryChecksCard';
 import { AllMoneyCard } from '@/components/money/AllMoneyCard';
 import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -314,6 +315,13 @@ export default function PersonProfilePage() {
           {trackingStarted && <Row label="Tracking started" value={fmtDate(trackingStarted)} />}
         </Card>
       </Section>
+
+      {/* Mastery checks — a manager can mark a chapter they watched in person */}
+      {userId && (
+        <Section title="Mastery checks">
+          <MasteryChecksCard userId={userId} />
+        </Section>
+      )}
 
       {/* Money across industries */}
       {userId && (
