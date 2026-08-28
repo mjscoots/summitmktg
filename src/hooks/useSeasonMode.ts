@@ -35,6 +35,8 @@ export function useSeasonMode() {
 
 export interface ResignHero {
   signed: number;
+  /** People actually on the roster: historical names are not in this total. */
+  rosterTotal: number;
   signedRevenue: number;
   unsigned: number;
   unsignedRevenue: number;
@@ -45,6 +47,7 @@ export interface ResignHero {
 export function useResignHero(enabled: boolean): ResignHero {
   const [state, setState] = useState<ResignHero>({
     signed: 0,
+    rosterTotal: 0,
     signedRevenue: 0,
     unsigned: 0,
     unsignedRevenue: 0,
@@ -60,6 +63,7 @@ export function useResignHero(enabled: boolean): ResignHero {
       const c = (data as Record<string, number>) || {};
       setState({
         signed: Number(c.signed_count || 0),
+        rosterTotal: Number(c.roster_total || 0),
         signedRevenue: Number(c.signed_revenue || 0),
         unsigned: Number(c.unsigned_count || 0),
         unsignedRevenue: Number(c.unsigned_revenue || 0),

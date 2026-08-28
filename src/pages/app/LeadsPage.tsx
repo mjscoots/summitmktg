@@ -88,6 +88,7 @@ export default function LeadsPage() {
     designated: number;
     signed_2027: number;
     signed_count: number;
+    roster_total: number;
     signed_revenue: number;
     unsigned_count: number;
     unsigned_revenue: number;
@@ -264,10 +265,11 @@ export default function LeadsPage() {
             <p className="mb-3 text-[12px] leading-snug text-muted-foreground">
               Signed for 2027:{' '}
               <span className="font-semibold tabular-nums" style={{ color: 'hsl(var(--workspace-accent))' }}>
-                {counts.signed_count}
+                {counts.signed_count} of {counts.roster_total}
               </span>{' '}
               · {money(counts.signed_revenue)} last season. Not signed:{' '}
-              {counts.unsigned_count} · {money(counts.unsigned_revenue)} last season.
+              {counts.unsigned_count} · {money(counts.unsigned_revenue)} last season. Historical names are
+              not counted.
             </p>
           )}
 
