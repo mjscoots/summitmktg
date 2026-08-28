@@ -712,8 +712,12 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
           {/* ========== QUEUE TRIAGE TAB ========== */}
           <TabsContent value="queue">
-            <AdminQueueTab />
+            <div className="space-y-4">
+              <TeamLeadApplicationsPanel />
+              <AdminQueueTab />
+            </div>
           </TabsContent>
+
 
           {/* ========== MONEY TAB ========== */}
           {isAdmin && (
