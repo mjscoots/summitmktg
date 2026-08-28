@@ -47,6 +47,8 @@ import {
 } from '@/components/ui/select';
 
 import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
+import { TeamLeadApplicationsPanel } from '@/components/command/TeamLeadApplicationsPanel';
+
 import { VerticalRequestsPanel } from '@/components/admin/VerticalRequestsPanel';
 
 
