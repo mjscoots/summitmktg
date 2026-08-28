@@ -21,6 +21,7 @@ const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 const LazyFiberHub = lazy(() => import('@/components/admin/AdminFiberHubTab').then((m) => ({ default: m.AdminFiberHubTab })));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
+import { ApplicationsPulseLine } from '@/components/admin/ApplicationsPulseLine';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { TableSkeleton } from '@/components/admin/AdminTabSkeleton';
@@ -412,6 +413,9 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
           <p className="mb-3 text-[13px] text-muted-foreground">
             {ADMIN_SECTIONS.find((s) => s.key === section)?.blurb}
           </p>
+
+          {section === 'requests' && <ApplicationsPulseLine />}
+
 
           {/* Sub-nav inside the group */}
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">

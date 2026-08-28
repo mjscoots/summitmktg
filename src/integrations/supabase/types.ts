@@ -470,6 +470,7 @@ export type Database = {
           city_state: string
           created_at: string | null
           email: string
+          first_touch_at: string | null
           full_name: string
           id: string
           notes: string | null
@@ -491,6 +492,7 @@ export type Database = {
           city_state: string
           created_at?: string | null
           email: string
+          first_touch_at?: string | null
           full_name: string
           id?: string
           notes?: string | null
@@ -512,6 +514,7 @@ export type Database = {
           city_state?: string
           created_at?: string | null
           email?: string
+          first_touch_at?: string | null
           full_name?: string
           id?: string
           notes?: string | null
@@ -6773,6 +6776,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      applications_pulse: { Args: never; Returns: Json }
       apply_leaderboard_import: {
         Args: { _batch_id: string; _rows: Json }
         Returns: Json
@@ -6873,6 +6877,10 @@ export type Database = {
           p_window_seconds: number
         }
         Returns: boolean
+      }
+      claim_application: {
+        Args: { _assignee?: string; _id: string }
+        Returns: Json
       }
       claim_lead: { Args: { _lead_id: string }; Returns: Json }
       claim_winback: { Args: { _lead_id: string }; Returns: Json }
@@ -7708,6 +7716,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      log_application_first_touch: { Args: { _id: string }; Returns: Json }
       log_fiber_today: {
         Args: {
           p_carrier_id?: string
