@@ -98,12 +98,7 @@ export function StreakCelebration({
           </p>
           {/* Bonus points badge */}
           {milestone && (
-            <div className={cn(
-              "inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold animate-scale-in",
-              isRookieCourse
-                ? "bg-primary/20 text-primary"
-                : "bg-primary/20 text-primary"
-            )}>
+            <div className="chip-warm mt-1">
               <Zap className="w-3 h-3" />
               +{getBonusPoints()} bonus pts
             </div>
@@ -111,20 +106,21 @@ export function StreakCelebration({
         </div>
 
         {/* Streak Number with count-up */}
-        <div className={cn(
-          "flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg",
-          isRookieCourse ? "bg-primary/20" : "bg-primary/20"
-        )}>
-          <span className={cn(
-            "text-2xl font-black tabular-nums",
-            isRookieCourse ? "text-primary" : "text-primary"
-          )}>
+        <div
+          className="flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg"
+          style={{ background: 'hsl(var(--workspace-accent) / 0.16)' }}
+        >
+          <span
+            className="text-2xl font-black tabular-nums"
+            style={{ color: 'hsl(var(--workspace-accent))' }}
+          >
             {countUp}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
             days
           </span>
         </div>
+
       </div>
     </div>
   );
