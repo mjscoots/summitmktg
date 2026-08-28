@@ -37,6 +37,17 @@ export default function ChatPage() {
     try { localStorage.setItem(LAST_ROOM_KEY, slug); } catch { /* storage unavailable */ }
   }, []);
 
+  // A deep link from Home opens that room straight away.
+  const roomParam = params.get('room');
+  useEffect(() => {
+    if (!roomParam) return;
+    openRoom(roomParam);
+    const next = new URLSearchParams(params);
+    next.delete('room');
+    setParams(next, { replace: true });
+  }, [roomParam, openRoom, params, setParams]);
+
+
   const openDm = useCallback((slug: string) => {
     void refresh();
     openRoom(slug);

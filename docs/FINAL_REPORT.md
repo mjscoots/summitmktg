@@ -2048,3 +2048,15 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Summit tokens only in both themes (ice, fiber mint, success, warning, primary muted), 44px targets, no new tables beyond the one column.
 - Data untouched: 17 channels, 15 active, 712 messages, 0 covers set.
 - Typecheck and production build clean. Route walk at 390 and 1280 in dark and light redirected to /login with zero overflow and no page errors; authenticated chat rendering is unverifiable in this environment because minting a session needs owner approval that is unavailable here.
+
+## Pass 118 — Home loop
+- New `src/components/home/HomeFeed.tsx`: chat row, next two events with RSVP, open blitz lines, training next-up plus minutes row, in that order.
+- Chat row: most active group room (unread first, else newest), sender first name, preview, timestamp, unread badge, taps to `/app/chat?room=<slug>` which now deep-links straight into the room.
+- Events: next two by start time from `get_events_feed`, Going / Can't make it on the card via `rsvp_event`, plus one All events link.
+- Money: one line per open blitz (`event_kind = blitz`, last day not passed), taps to `/app/events#event-<id>`; Events cards now carry that anchor and scroll to it. Renders nothing when no blitz is open.
+- Cut from above the fold on Pest Home: standalone Next event card, standalone chat preview card, One-on-ones row and Bring someone in for staff (both duplicate tabs), Needs attention stays. Kept hero number, streak line and Needs you. Week bars, Top today, Your three, quick chips, Winter plan stay under More.
+- SQL truth: latest message wins / Mathew Joyce / 2026-08-26; next two by start SEASON START then Howell MI Fiber Blitz; open blitzes Howell, Gastonia, Hawx Waves 1-3.
+- Baseline unchanged: profiles 535, recruiting_leads 98, invites 0, chat_messages 712.
+- Typecheck and production build clean; existing tokens only, no new colors or fonts.
+- Signed out at 390 dark and 1280 light: zero horizontal scroll, `/app` redirects to `/login`; authenticated Home render not verified because a session could not be minted without approval.
+- Nothing published.

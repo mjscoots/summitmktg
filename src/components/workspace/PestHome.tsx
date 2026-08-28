@@ -14,9 +14,9 @@ import { QuickChips, type QuickChip } from '@/components/home/QuickChips';
 import { useSeasonMode, useResignHero, useRepOffSeasonLine } from '@/hooks/useSeasonMode';
 import { WeekBars } from '@/components/home/WeekBars';
 import { TeamTodayCard } from '@/components/home/TeamTodayCard';
-import { NextEventCard } from '@/components/home/NextEventCard';
-import { ChatPreviewCard } from '@/components/home/ChatPreviewCard';
+import { HomeFeed } from '@/components/home/HomeFeed';
 import { MoreReveal } from '@/components/home/MoreReveal';
+
 import { YourThreeCard } from '@/components/home/YourThreeCard';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { InviteDialog } from '@/components/invites/InviteDialog';
@@ -174,21 +174,6 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
             </button>
           </section>
 
-          <section>
-            <SectionEyebrow>One-on-ones</SectionEyebrow>
-            <button
-              type="button"
-              onClick={() => navigate('/app/one-on-ones/prep')}
-              className="card-ice flex min-h-14 w-full items-center px-4 text-left text-[15px] text-foreground"
-            >
-              Prep this week's one-on-ones
-            </button>
-          </section>
-
-          <section>
-            <SectionEyebrow>Bring someone in</SectionEyebrow>
-            <InviteDialog />
-          </section>
         </>
       ) : (
         <Button className="min-h-14 w-full text-[16px]" onClick={() => navigate('/app/doors')}>
@@ -198,9 +183,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
       {!staff && <NeedsYouRow className="!px-0" />}
 
-      <NextEventCard />
-
-      {!staff && <ChatPreviewCard />}
+      <HomeFeed />
 
       <MoreReveal>
         <QuickChips chips={moreChips} />
@@ -210,7 +193,14 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         {staff && (
           <>
             <NeedsYouRow className="!px-0" />
-            <ChatPreviewCard />
+            <Button
+              variant="outline"
+              className="min-h-11 w-full"
+              onClick={() => navigate('/app/one-on-ones/prep')}
+            >
+              Prep this week's one-on-ones
+            </Button>
+            <InviteDialog />
           </>
         )}
 
@@ -230,6 +220,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           trainingMinutes={today.trainingMinutes}
           onOpen={() => navigate(staff ? '/app/team' : '/app/leaderboard')}
         />
+
 
         <TeamTodayCard
           rows={today.topToday}

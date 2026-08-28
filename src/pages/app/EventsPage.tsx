@@ -178,6 +178,14 @@ export default function EventsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // A blitz line on Home links straight to its card.
+  useEffect(() => {
+    if (loading || !window.location.hash.startsWith('#event-')) return;
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (el) el.scrollIntoView({ block: 'center' });
+  }, [loading]);
+
+
   useEffect(() => {
     if (!isManager) return;
     supabase.from('teams').select('id, name').order('name').then(({ data }) => {
@@ -280,7 +288,7 @@ export default function EventsPage() {
   const EventCard = ({ ev, isPast }: { ev: EventRow; isPast: boolean }) => {
     const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
     return (
-      <div className={cn(CARD, 'px-4 py-3.5')}>
+      <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[14px] font-semibold text-foreground">{ev.title}</p>
