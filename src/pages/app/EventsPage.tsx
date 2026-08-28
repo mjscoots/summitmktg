@@ -21,6 +21,7 @@ import {
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
+import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -334,6 +335,8 @@ export default function EventsPage() {
           }
           className="mb-2 border-none pb-0"
         />
+        {activeVertical === 'Fiber' && <UpcomingBlitzes />}
+
         <Link
           to="/app/calendar"
           className="mb-5 inline-flex min-h-11 items-center text-[13px] font-medium text-primary hover:underline"

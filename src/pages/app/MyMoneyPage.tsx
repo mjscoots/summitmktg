@@ -154,6 +154,9 @@ export default function MyMoneyPage() {
 
         {tab === 'Fiber' && (
           <>
+            <p className="mb-3 text-[13px] text-muted-foreground">
+              Official pay runs through Gainz / Sales Raptor. This tab is team tracking only.
+            </p>
             <FiberStackView />
             <MyFiberWeeks />
           </>
