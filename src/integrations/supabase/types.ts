@@ -7785,6 +7785,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
+      owner_week: { Args: never; Returns: Json }
       post_weekly_awards: { Args: never; Returns: Json }
       recalc_vertical_enrollment: {
         Args: { _user: string; _vertical: string }

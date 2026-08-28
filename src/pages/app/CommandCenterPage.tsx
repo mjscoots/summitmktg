@@ -6,6 +6,8 @@ import { isAdminOrAbove } from "@/lib/roles";
 import { Loader2, Check, Pencil } from "lucide-react";
 import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
+import OwnerWeekSection from "@/components/command/OwnerWeekSection";
+
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
 import RosterGapCounters from "@/components/roster/RosterGapCounters";
@@ -441,6 +443,10 @@ export default function CommandCenterPage() {
             Operator Command Center
           </h1>
         </div>
+
+        {/* THE WEEK */}
+        <OwnerWeekSection />
+
 
         {/* PRIMARY OBJECTIVE */}
         <Panel style={{ padding: 32, marginBottom: 40 }}>
