@@ -110,44 +110,94 @@ export function AdminFiberHubTab() {
       </section>
 
       <section className={CARD}>
-        <p className="mb-3 text-sm font-semibold text-foreground">Upcoming blitzes</p>
-        <div className="space-y-3">
+        <p className="mb-1 text-sm font-semibold text-foreground">Upcoming blitzes</p>
+        <p className="mb-3 text-[12px] text-muted-foreground">
+          Reps opt in until a blitz hits capacity.
+        </p>
+        <div className="space-y-4">
           {blitzes.map((b, i) => (
-            <div key={i} className="grid gap-2 sm:grid-cols-[2fr_2fr_auto_auto]">
-              <Input
-                value={b.place}
-                placeholder="Market"
-                onChange={(e) =>
-                  setBlitzes(blitzes.map((x, j) => (i === j ? { ...x, place: e.target.value } : x)))
-                }
-              />
-              <Input
-                value={b.timing}
-                placeholder="Timing"
-                onChange={(e) =>
-                  setBlitzes(blitzes.map((x, j) => (i === j ? { ...x, timing: e.target.value } : x)))
-                }
-              />
-              <label className="flex min-h-11 items-center gap-2 text-[13px] text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={Boolean(b.approximate)}
+            <div key={i} className="space-y-2 rounded-lg border border-border p-3">
+              <div className="grid gap-2 sm:grid-cols-[2fr_2fr]">
+                <Input
+                  value={b.place}
+                  placeholder="Market"
                   onChange={(e) =>
-                    setBlitzes(
-                      blitzes.map((x, j) => (i === j ? { ...x, approximate: e.target.checked } : x))
-                    )
+                    setBlitzes(blitzes.map((x, j) => (i === j ? { ...x, place: e.target.value } : x)))
                   }
                 />
-                Approximate
-              </label>
-              <Button
-                variant="outline"
-                className="min-h-11"
-                aria-label="Remove blitz"
-                onClick={() => setBlitzes(blitzes.filter((_, j) => j !== i))}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                <Input
+                  value={b.timing}
+                  placeholder="Timing"
+                  onChange={(e) =>
+                    setBlitzes(blitzes.map((x, j) => (i === j ? { ...x, timing: e.target.value } : x)))
+                  }
+                />
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr]">
+                <label className="text-[12px] text-muted-foreground">
+                  Start date
+                  <Input
+                    type="date"
+                    value={b.start_date || ''}
+                    onChange={(e) =>
+                      setBlitzes(
+                        blitzes.map((x, j) => (i === j ? { ...x, start_date: e.target.value } : x))
+                      )
+                    }
+                  />
+                </label>
+                <label className="text-[12px] text-muted-foreground">
+                  End date
+                  <Input
+                    type="date"
+                    value={b.end_date || ''}
+                    onChange={(e) =>
+                      setBlitzes(
+                        blitzes.map((x, j) => (i === j ? { ...x, end_date: e.target.value } : x))
+                      )
+                    }
+                  />
+                </label>
+                <label className="text-[12px] text-muted-foreground">
+                  Capacity
+                  <Input
+                    type="number"
+                    min={0}
+                    value={b.capacity ?? ''}
+                    onChange={(e) =>
+                      setBlitzes(
+                        blitzes.map((x, j) =>
+                          i === j
+                            ? { ...x, capacity: e.target.value === '' ? undefined : Number(e.target.value) }
+                            : x
+                        )
+                      )
+                    }
+                  />
+                </label>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <label className="flex min-h-11 items-center gap-2 text-[13px] text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(b.approximate)}
+                    onChange={(e) =>
+                      setBlitzes(
+                        blitzes.map((x, j) => (i === j ? { ...x, approximate: e.target.checked } : x))
+                      )
+                    }
+                  />
+                  Approximate
+                </label>
+                <Button
+                  variant="outline"
+                  className="min-h-11"
+                  aria-label="Remove blitz"
+                  onClick={() => setBlitzes(blitzes.filter((_, j) => j !== i))}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -160,6 +210,7 @@ export function AdminFiberHubTab() {
           <Plus className="mr-2 h-4 w-4" /> Add blitz
         </Button>
       </section>
+
 
       <section className={CARD}>
         <p className="mb-2 text-sm font-semibold text-foreground">Gainz rep onboarding link</p>
