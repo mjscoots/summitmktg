@@ -23,6 +23,7 @@ import {
 } from '@/components/fiber/FiberHubCards';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { MoreReveal } from '@/components/home/MoreReveal';
+import { YourThreeCard } from '@/components/home/YourThreeCard';
 
 export const FIBER_CARD = HUB_CARD;
 
