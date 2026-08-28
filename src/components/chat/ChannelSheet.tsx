@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, Loader2 } from 'lucide-react';
+import { Camera, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,6 +19,8 @@ interface Details {
   kind: string;
   cover_image_path: string | null;
   can_set_cover: boolean;
+  can_rename: boolean;
+  can_delete_room: boolean;
   members: Member[];
   member_count: number;
 }
@@ -33,15 +35,21 @@ export function ChannelSheet({
   open,
   onOpenChange,
   onCoverChanged,
+  onRoomDeleted,
 }: {
   slug: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCoverChanged?: () => void;
+  onRoomDeleted?: () => void;
 }) {
   const { user } = useAuth();
   const [details, setDetails] = useState<Details | null>(null);
   const [busy, setBusy] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [confirmText, setConfirmText] = useState('');
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -82,6 +90,31 @@ export function ChannelSheet({
     }
   };
 
+  const saveName = async () => {
+    const label = nameDraft.trim();
+    if (label.length < 2) return;
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('rename_chat_channel', { _slug: slug, _label: label });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'That name did not save.')); return; }
+    toast.success('Room renamed');
+    setRenaming(false);
+    await load();
+    onCoverChanged?.();
+  };
+
+  const deleteRoom = async () => {
+    if (confirmText.trim() !== 'DELETE') return;
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('delete_chat_channel', { _slug: slug });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'That room did not delete.')); return; }
+    toast.success('Room deleted');
+    setDeleteOpen(false);
+    onOpenChange(false);
+    onRoomDeleted?.();
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
@@ -118,6 +151,87 @@ export function ChannelSheet({
             </>
           )}
         </div>
+
+        {(details?.can_rename || details?.can_delete_room) && (
+          <div className="mt-4 space-y-2 rounded-xl border border-border/60 p-3">
+            {details?.can_rename && (
+              renaming ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
+                    placeholder="Room name"
+                    className="min-h-[44px] flex-1 rounded-xl border border-border/60 bg-background px-3 text-[14px] text-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void saveName()}
+                    disabled={busy || nameDraft.trim().length < 2}
+                    className="min-h-[44px] rounded-xl border border-border/60 px-3 text-[12px] font-semibold text-foreground disabled:opacity-50"
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRenaming(false)}
+                    className="min-h-[44px] px-2 text-[12px] text-muted-foreground"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setNameDraft(details?.label || ''); setRenaming(true); }}
+                  className="flex min-h-[44px] w-full items-center gap-2 text-[13px] font-semibold text-foreground"
+                >
+                  <Pencil className="h-4 w-4" /> Rename room
+                </button>
+              )
+            )}
+
+            {details?.can_delete_room && (
+              deleteOpen ? (
+                <div className="space-y-2">
+                  <p className="text-[12px] text-muted-foreground">
+                    Deleting this room removes its messages. Type DELETE to confirm.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={confirmText}
+                      onChange={(e) => setConfirmText(e.target.value)}
+                      placeholder="DELETE"
+                      className="min-h-[44px] flex-1 rounded-xl border border-border/60 bg-background px-3 text-[14px] text-foreground"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void deleteRoom()}
+                      disabled={busy || confirmText.trim() !== 'DELETE'}
+                      className="min-h-[44px] rounded-xl bg-destructive px-3 text-[12px] font-semibold text-destructive-foreground disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setDeleteOpen(false); setConfirmText(''); }}
+                      className="min-h-[44px] px-2 text-[12px] text-muted-foreground"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setDeleteOpen(true)}
+                  className="flex min-h-[44px] w-full items-center gap-2 text-[13px] font-semibold text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" /> Delete room
+                </button>
+              )
+            )}
+          </div>
+        )}
 
         <ul className="mt-4 space-y-1.5">
           {(details?.members || []).map((m) => (

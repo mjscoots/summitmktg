@@ -1295,6 +1295,7 @@ export type Database = {
           channel: string
           content: string
           created_at: string
+          edited_at: string | null
           id: string
           is_ai: boolean
           is_pinned: boolean
@@ -1308,6 +1309,7 @@ export type Database = {
           channel?: string
           content: string
           created_at?: string
+          edited_at?: string | null
           id?: string
           is_ai?: boolean
           is_pinned?: boolean
@@ -1321,6 +1323,7 @@ export type Database = {
           channel?: string
           content?: string
           created_at?: string
+          edited_at?: string | null
           id?: string
           is_ai?: boolean
           is_pinned?: boolean
@@ -6888,6 +6891,7 @@ export type Database = {
         Returns: boolean
       }
       can_view_person: { Args: { _user_id: string }; Returns: string }
+      channel_read_mark: { Args: { _channel: string }; Returns: Json }
       chat_attachment_readable: {
         Args: { _object_name: string }
         Returns: boolean
@@ -6941,7 +6945,13 @@ export type Database = {
         Args: { p_event_id: string; p_series?: boolean }
         Returns: number
       }
+      delete_chat_channel: { Args: { _slug: string }; Returns: Json }
+      delete_chat_message: { Args: { _id: string }; Returns: Json }
       dismiss_reactivation_request: { Args: { _id: string }; Returns: Json }
+      edit_chat_message: {
+        Args: { _content: string; _id: string }
+        Returns: Json
+      }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       event_card_meta: {
         Args: { _e: Database["public"]["Tables"]["calendar_events"]["Row"] }
@@ -7618,6 +7628,7 @@ export type Database = {
       ingest_fiber_week: { Args: { batch: Json }; Returns: Json }
       ingest_pest_revenue: { Args: { batch: Json }; Returns: Json }
       invite_preview: { Args: { p_token: string }; Returns: Json }
+      is_chat_admin: { Args: { _uid: string }; Returns: boolean }
       is_chat_staff: { Args: { _uid: string }; Returns: boolean }
       is_course_complete: {
         Args: { _course: string; _user: string }
@@ -7901,6 +7912,10 @@ export type Database = {
       refresh_series_card: { Args: { _root: string }; Returns: undefined }
       region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
+      rename_chat_channel: {
+        Args: { _label: string; _slug: string }
+        Returns: Json
+      }
       reopen_winter_plan: { Args: { _user_id: string }; Returns: Json }
       request_pairing: {
         Args: { _manager_id: string; _vertical: string }

@@ -988,6 +988,28 @@ body {
   .bubble-in {
     animation: bubble-pop 180ms var(--motion-ease) both;
   }
+
+  /* Pass 120 — WhatsApp style bubble tails on the last message of a group. */
+  .bubble-tail-own::after,
+  .bubble-tail-other::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 10px;
+    height: 12px;
+  }
+  .bubble-tail-own::after {
+    right: -6px;
+    background: hsl(var(--ice) / 0.12);
+    border-right: 1px solid hsl(var(--ice) / 0.4);
+    border-bottom: 1px solid hsl(var(--ice) / 0.4);
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+  }
+  .bubble-tail-other::after {
+    left: -6px;
+    background: hsl(var(--muted) / 0.35);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  }
   @keyframes bubble-pop {
     from { opacity: 0; transform: scale(0.94); }
     to { opacity: 1; transform: scale(1); }

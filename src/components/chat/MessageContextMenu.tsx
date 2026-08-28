@@ -11,6 +11,8 @@ interface MessageContextMenuProps {
   messageId: string;
   isOwn: boolean;
   isManager: boolean;
+  /** Owner and admin may edit or delete any message in any room. */
+  canModerate?: boolean;
   isPinned: boolean;
   position: { x: number; y: number } | null;
   onClose: () => void;
@@ -25,6 +27,7 @@ export function MessageContextMenu({
   messageId,
   isOwn,
   isManager,
+  canModerate = false,
   isPinned,
   position,
   onClose,
@@ -129,10 +132,10 @@ export function MessageContextMenu({
               onClick={() => { onPin(); onClose(); }}
             />
           )}
-          {isOwn && (
+          {(isOwn || canModerate) && (
             <MenuItem icon={<Pencil className="w-4 h-4" />} label="Edit" onClick={() => { onEdit(); onClose(); }} />
           )}
-          {(isOwn || isManager) && (
+          {(isOwn || canModerate) && (
             <MenuItem
               icon={<Trash2 className="w-4 h-4" />}
               label="Delete"

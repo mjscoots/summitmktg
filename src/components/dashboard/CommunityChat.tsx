@@ -46,6 +46,8 @@ interface ChatMessage {
   /** Present on rows read through get_channel_messages. */
   reply_sender?: string | null;
   reply_excerpt?: string | null;
+  /** Set once the message has been changed. */
+  edited_at?: string | null;
 }
 
 
@@ -88,7 +90,7 @@ function DateSeparator({ date }: { date: Date }) {
   if (isToday(date)) label = 'Today';
   else if (isYesterday(date)) label = 'Yesterday';
   return (
-    <div className="flex items-center justify-center my-4">
+    <div className="sticky top-0 z-[2] flex items-center justify-center my-4">
       <span className="text-[10px] font-medium text-muted-foreground/30 bg-card/50 backdrop-blur-sm px-3 py-0.5 rounded-full">{label}</span>
     </div>
   );
@@ -168,7 +170,27 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator(`chat-typing-${activeChannel}`);
 
+  // Read ticks: the newest moment anyone else in this room read it.
+  const [readThrough, setReadThrough] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await (supabase as any).rpc('channel_read_mark', { _channel: activeChannel });
+      if (cancelled || !data || data.error) return;
+      setReadThrough(data.read_through ? new Date(data.read_through).getTime() : null);
+    };
+    void load();
+    const onFocus = () => { void load(); };
+    window.addEventListener('focus', onFocus);
+    return () => { cancelled = true; window.removeEventListener('focus', onFocus); };
+  }, [activeChannel]);
+  const tickFor = useCallback((msg: ChatMessage): 'sent' | 'read' =>
+    (readThrough !== null && readThrough >= new Date(msg.created_at).getTime() ? 'read' : 'sent'),
+  [readThrough]);
+
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
+  /** Owner and admin run every room. The database enforces it as well. */
+  const canModerate = role === 'admin' || role === 'owner';
   const { channels, markChannelRead } = useChatChannels();
   const markReadRef = useRef(markChannelRead);
   useEffect(() => { markReadRef.current = markChannelRead; }, [markChannelRead]);
@@ -247,6 +269,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         meta: r.meta ?? null,
         reply_sender: r.reply_sender ?? null,
         reply_excerpt: r.reply_excerpt ?? null,
+        edited_at: r.edited_at ?? null,
       };
 
     });
@@ -335,6 +358,11 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, (payload) => {
         const updated = payload.new as any;
         setMessages((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated, channel: updated.channel || 'general' } : m)));
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, (payload) => {
+        const gone = payload.old as any;
+        if (!gone?.id) return;
+        setMessages((prev) => prev.filter((m) => m.id !== gone.id));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
         const row = payload.new as any;
@@ -482,15 +510,16 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const handleEdit = async (msgId: string) => {
     if (!editText.trim()) return;
-    const { error } = await supabase.from('chat_messages').update({ content: editText.trim() }).eq('id', msgId);
-    if (error) { toast.error('Failed to edit'); return; }
-    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: editText.trim() } : m));
+    const next = editText.trim();
+    const { data, error } = await (supabase as any).rpc('edit_chat_message', { _id: msgId, _content: next });
+    if (error || data?.error) { toast.error(String(data?.error || 'Failed to edit')); return; }
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: next, edited_at: new Date().toISOString() } : m));
     setEditingId(null); setEditText('');
   };
 
   const handleDelete = async (msgId: string) => {
-    const { error } = await supabase.from('chat_messages').delete().eq('id', msgId);
-    if (error) { toast.error('Failed to delete'); return; }
+    const { data, error } = await (supabase as any).rpc('delete_chat_message', { _id: msgId });
+    if (error || data?.error) { toast.error(String(data?.error || 'Failed to delete')); return; }
     setMessages(prev => prev.filter(m => m.id !== msgId));
   };
 
@@ -785,6 +814,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
                 onEditSave={() => handleEdit(msg.id)}
                 onEditCancel={() => { setEditingId(null); setEditText(''); }}
                 reactions={getReactionsForMessage(msg.id)}
+                readTick={own ? tickFor(msg) : null}
                 justSent={justSentId === msg.id}
               />
             </div>
@@ -842,6 +872,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           messageId={contextMsg.id}
           isOwn={contextMsg.user_id === user?.id}
           isManager={isManager}
+          canModerate={canModerate}
           isPinned={contextMsg.is_pinned}
           position={contextMenu.position}
           onClose={() => setContextMenu(null)}
