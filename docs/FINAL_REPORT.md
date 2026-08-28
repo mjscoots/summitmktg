@@ -1681,3 +1681,16 @@ route and code level plus typecheck and production build, both clean.
 | Admin feedback, questions, culture | cut | zero rows, zero adoption |
 | Admin roster sweep | cut | sweep sessions unused |
 | /app/roster/sweep, all cut routes | kept as route | tables and RLS untouched |
+
+## Pass 88 — The pipes
+Money numbers now arrive by import, not by typing.
+- New `fiber_pay_weeks` (rep, week_start, gross, overrides, costs, batch_id) with RLS: own rows, downline for managers, all for admin/owner.
+- `revenue_import_batches` gained `kind` and `prior_rows`; `fiber_installs` and `rep_revenue` gained `batch_id`.
+- RPCs (SECURITY DEFINER, authenticated only): `ingest_fiber_week` (admin/owner, managers for their own team), `ingest_pest_revenue` (admin/owner), `undo_import_batch`, `get_import_batches`, `get_money_sources`.
+- Admin → Money → Fiber: "Load weekly sheet" (paste or CSV, fuzzy name match, review step with per-row rep picker, nothing writes until confirmed).
+- Admin → Money → Pest revenue: "Import revenue" (name, serviced revenue, same review step, month picker).
+- Past imports list with "Undo batch" on both screens; undo restores prior values or removes the rows.
+- Money summary prefers imported pest revenue over logged sales and imported fiber pay over the install estimate.
+- Source lines now read "Fiber: Gainz sheet, loaded Aug 28" / "Pest: Vision revenue, loaded Aug 28", and "no data loaded yet" before any import. No zeros presented as fact.
+- Verified at database and route level as the owner (no browser session minted): synthetic sheet of 3 rows against real reps → fiber_installs 3 rows / 20 installs, fiber_pay_weeks 3 rows, board ranked 9/7/4, money Fiber gross 1800; synthetic pest batch → rep_revenue 2 rows / $22,300, money Pest active_revenue 12,500. Undo returned all three tables to 0 rows and sources to null; test batch rows deleted.
+- Typecheck and production build clean. Nothing published.
