@@ -53,7 +53,10 @@ export function ChannelSheet({
   const [nameDraft, setNameDraft] = useState('');
   const [confirmText, setConfirmText] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+
 
   const load = useCallback(async () => {
     const { data, error } = await (supabase as any).rpc('get_channel_details', { _slug: slug });
