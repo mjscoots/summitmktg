@@ -1,102 +1,28 @@
+# Plan: Pass 117 — Chat Becomes WhatsApp
 
+## Build
 
-# Plan: Slow Down Learn Your Pitch + Manual Re-Read Tracking
+- Replace the room strip and separate DM screen with one fast conversation list containing every visible group and DM, ordered by activity and showing cover/avatar, name, sender-first-name preview, timestamp, and real unread badge.
+- Open any row directly into the existing room data flow; the room header returns to the list and opens a member sheet with profile photos.
+- Restyle the existing message renderer into compact left/right Summit-color bubbles with group sender names and avatars, day separators, tappable image lightbox, and a stable composer above the phone nav/keyboard.
+- Preserve current messages, memberships, notifications, pagination, reactions, replies, attachments, typing, read state, and realtime subscriptions.
 
-## Problem Summary
+## Channel Covers and Security
 
-1. **Learn Your Pitch rushing**: Reps submit pitch videos and immediately move to the next lesson without waiting for manager approval. The pitch gate currently only blocks the *next module*, not the *next lesson*. Reps blow through the entire pitch course in minutes.
+- Add one nullable `cover_image_path` column to `chat_channels`; no new table.
+- Store covers in the existing private chat upload storage and resolve them with short-lived signed URLs.
+- Add authenticated RPCs for channel details/members and cover updates. Authorization stays inside the database: owner/admin may update any visible group; a team channel's current manager may update that team; existing vertical-manager scope is honored for vertical rooms. DMs use the other person's avatar and do not expose cover editing.
+- Extend the existing conversation payload with the cover path and member summary so the client never broad-fetches people or channels.
 
-2. **Summer Sales Manual re-reads**: Once the manual is completed, there's no incentive or tracking for re-reading it. You want a visible counter (1x, 2x, 3x...) showing how many times they've read through the manual, with continued point earning on each pass.
+## Visual and Responsive Rules
 
----
+- Use only existing semantic tokens and Summit workspace accents, with finished light/dark states and no WhatsApp green.
+- Keep rows and header actions at least 44px; use stable avatar, preview, badge, and timestamp tracks so content cannot shift or overflow from 390 through 1280px.
+- Use a clean Summit-palette monogram whenever a group has no cover.
 
-## Part 1: Slow Down Learn Your Pitch
+## Verification and Report
 
-### What Changes
-
-**Lesson-level pitch blocking**: When a lesson requires pitch approval (`requires_pitch_approval = true`), the lesson itself should NOT be marked complete until the pitch is approved. Currently, the quiz pass marks it complete regardless.
-
-**Specific changes:**
-
-- **`LessonPage.tsx`**: Add a pitch-approval gate to `canProceed`. If the lesson requires a pitch and the pitch is not yet approved, the "Next" button stays disabled even after the quiz is passed. Show a clear message: "Waiting for manager to approve your pitch before you can continue."
-
-- **`TrainingCoursePage.tsx`**: Already blocks next lessons when `quiz_passed` is false, so if we prevent `quiz_passed` from being set until pitch is approved, sequential lesson locking handles the rest automatically.
-
-- **`LessonPage.tsx` completion logic**: Modify `handleMarkComplete` and the quiz pass flow so that if `requiresPitch` is true, the lesson is NOT marked as `completed_at` / `quiz_passed = true` until the pitch status is `'approved'`. Instead, save quiz results but keep the lesson in an "awaiting pitch approval" state.
-
-- **`PitchApprovalCard.tsx`**: When pitch is approved (status changes), trigger lesson completion automatically via a realtime listener or on the next page load.
-
-- **Waiting state UI**: Show a polished "awaiting approval" card with status, submission time, and encouragement. The rep cannot proceed but can re-record if rejected.
-
-### Result
-Reps must wait for their manager to review and approve each pitch before the next lesson unlocks. This forces real practice time between submissions.
-
----
-
-## Part 2: Summer Sales Manual Re-Read Counter
-
-### Database Change
-
-Add a new table `manual_read_completions`:
-
-```sql
-CREATE TABLE public.manual_read_completions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  course_slug text NOT NULL DEFAULT 'summer-sales-manual',
-  completion_number integer NOT NULL DEFAULT 1,
-  completed_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(user_id, course_slug, completion_number)
-);
-
-ALTER TABLE public.manual_read_completions ENABLE ROW LEVEL SECURITY;
-
--- Users can read/insert their own
-CREATE POLICY "Users can view own completions"
-  ON public.manual_read_completions FOR SELECT
-  TO authenticated USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own completions"
-  ON public.manual_read_completions FOR INSERT
-  TO authenticated WITH CHECK (auth.uid() = user_id);
-```
-
-### How It Works
-
-1. When a rep completes 100% of the Summer Sales Manual lessons (all `quiz_passed`), record a row with `completion_number = 1`.
-
-2. After completion, reset all `lesson_progress` rows for manual lessons (clear `completed_at` and `quiz_passed`), so the manual re-locks from the beginning.
-
-3. The rep goes through again. On second full completion, record `completion_number = 2`, and so on.
-
-4. Award points on each completion pass (same lesson completion points apply each time since progress is reset).
-
-### UI Changes
-
-- **`TrainingCoursePage.tsx`** (for `summer-sales-manual`): Show a badge at the top: "1x", "2x", "3x" etc. indicating how many times completed. Style as a polished counter badge.
-
-- **`TrainingTiles.tsx`** (dashboard tiles): Show the read count badge on the manual tile so it's visible from the dashboard.
-
-- After each full completion, show a celebration modal: "Manual completed for the Xth time!" with the updated counter.
-
----
-
-## Files to Edit
-
-| File | Change |
-|------|--------|
-| `src/pages/app/LessonPage.tsx` | Add pitch-approval gate to `canProceed`; prevent completion until pitch approved; add waiting UI state |
-| `src/components/training/PitchApprovalCard.tsx` | Add realtime listener for approval; trigger lesson completion on approval |
-| `src/pages/app/TrainingCoursePage.tsx` | Add manual read count badge; handle manual reset on completion |
-| `src/components/dashboard/TrainingTiles.tsx` | Show read count badge on manual tile |
-| Database migration | Create `manual_read_completions` table |
-
----
-
-## Technical Details
-
-- **Pitch gate logic**: `canProceed = scrollUnlocked && hasCompletedRequirements && (!requiresPitch || pitchRequest?.status === 'approved')`
-- **Manual reset**: On detecting all manual lessons complete + new completion count, run a batch update to clear `completed_at` and `quiz_passed` for all manual lesson IDs for that user
-- **Points**: Each manual re-read triggers the same `award_lesson_completion_points` RPC since progress rows are fresh
-- **No new edge functions needed**: All logic is client-side with existing Supabase queries
+- Verify database totals remain 17 channels and 712 messages, cover authorization rejects unauthorized callers, and cover changes do not alter memberships or messages.
+- With a real authenticated session, inspect list/unreads, room/member sheet, image lightbox, scroll/composer behavior, both themes, and 390/1280 widths with no console errors or horizontal overflow.
+- Run TypeScript checking and the production build, then append `## Pass 117 — Chat` to `docs/FINAL_REPORT.md` in at most 10 lines. Keep preview-only and do not publish.
 
