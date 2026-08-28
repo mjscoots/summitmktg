@@ -21,7 +21,9 @@ import {
   type LeadScope,
 } from '@/hooks/useLeads';
 import LeadDrawer from '@/components/leads/LeadDrawer';
+import ThisWeekQueue from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
+
 import { PageHeader } from '@/components/layout/PageHeader';
 
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
@@ -83,7 +85,12 @@ export default function LeadsPage() {
     pool: number;
     designated: number;
     signed_2027: number;
+    signed_count: number;
+    signed_revenue: number;
+    unsigned_count: number;
+    unsigned_revenue: number;
   } | null>(null);
+
 
   useEffect(() => {
     if (!staff) return;
@@ -238,6 +245,19 @@ export default function LeadsPage() {
               ))}
             </div>
           )}
+
+          {staff && scope === 'all' && counts && (
+            <p className="mb-3 text-[12px] leading-snug text-muted-foreground">
+              Signed for 2027: {counts.signed_count} · {money(counts.signed_revenue)} last season. Not signed:{' '}
+              {counts.unsigned_count} · {money(counts.unsigned_revenue)} last season.
+            </p>
+          )}
+
+          {tier !== 'sales' && scope === 'mine' && !loading && (
+            <ThisWeekQueue rows={rows} onOpen={setOpenLead} />
+          )}
+
+
 
           {staff && scope === 'all' && (
 

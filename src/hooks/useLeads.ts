@@ -264,6 +264,41 @@ export const CALL_OUTCOMES: { value: string; label: string }[] = [
   { value: 'do_not_call', label: 'Do not call' },
 ];
 
+/** One-tap outcomes for the re-sign week. */
+export const RESIGN_OUTCOMES: { value: string; label: string; kind: 'call' | 'text' }[] = [
+  { value: 'called', label: 'Called', kind: 'call' },
+  { value: 'texted', label: 'Texted', kind: 'text' },
+  { value: 'no_answer', label: 'No answer', kind: 'call' },
+  { value: 'meeting_set', label: 'Meeting set', kind: 'call' },
+  { value: 'signed', label: 'Signed for 2027', kind: 'call' },
+  { value: 'not_coming_back', label: 'Not coming back', kind: 'call' },
+];
+
+export const NEXT_CALL_PRESETS: { label: string; days: number }[] = [
+  { label: 'Tomorrow', days: 1 },
+  { label: '3 days', days: 3 },
+  { label: 'Next week', days: 7 },
+];
+
+export function inDays(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(10, 0, 0, 0);
+  return d.toISOString();
+}
+
+export function daysSince(iso: string | null | undefined): number | null {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+export function outcomeLabel(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const hit = RESIGN_OUTCOMES.find((o) => o.value === value) || CALL_OUTCOMES.find((o) => o.value === value);
+  return hit ? hit.label : value.replace(/_/g, ' ');
+}
+
+
 export const LEAD_STAGES = [
   'new',
   'contacted',
