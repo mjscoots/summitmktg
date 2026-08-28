@@ -244,6 +244,14 @@ export default function LeadsPage() {
             </div>
           )}
 
+          {staff && scope === 'all' && counts && (
+            <p className="mb-3 text-[12px] leading-snug text-muted-foreground">
+              Signed for 2027: {counts.signed_count} · {money(counts.signed_revenue)} last season. Not signed:{' '}
+              {counts.unsigned_count} · {money(counts.unsigned_revenue)} last season.
+            </p>
+          )}
+
+
           {staff && scope === 'all' && (
 
             <div className="mb-3 flex flex-wrap gap-1.5">
