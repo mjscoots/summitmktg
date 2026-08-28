@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { MessageSquarePlus, Search } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityChat } from '@/components/dashboard/CommunityChat';
 import { useChatChannels } from '@/hooks/useChatChannels';
@@ -9,6 +9,7 @@ import { ChatList } from '@/components/chat/ChatList';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { ChannelSheet } from '@/components/chat/ChannelSheet';
 import { KnockingNow } from '@/components/chat/KnockingNow';
+import { NewChatSheet } from '@/components/chat/NewChatSheet';
 
 const LAST_ROOM_KEY = 'summit.chat.lastRoom';
 
@@ -17,7 +18,9 @@ export default function ChatPage() {
   const { channels, refresh, loading } = useChatChannels();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
+
 
   const personParam = params.get('person');
   const clearPerson = useCallback(() => {
@@ -118,8 +121,18 @@ export default function ChatPage() {
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <div className="flex flex-shrink-0 items-center gap-2 border-b border-border/10 bg-background/60 px-3 py-2 backdrop-blur-2xl">
           <h1 className="flex-1 text-[17px] font-bold tracking-tight">Chats</h1>
+          <button
+            onClick={() => setNewOpen(true)}
+            aria-label="New chat"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+          >
+            <MessageSquarePlus className="h-4 w-4" />
+          </button>
           {searchButton}
         </div>
+
+        <NewChatSheet open={newOpen} onOpenChange={setNewOpen} onOpenRoom={openDm} />
+
 
         {searchOpen && (
           <div className="flex-shrink-0 border-b border-border/10 px-3 py-2">

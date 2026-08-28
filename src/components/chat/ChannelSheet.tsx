@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Camera, Loader2, Pencil, Trash2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
+import { MemberPicker } from '@/components/chat/MemberPicker';
 
 interface Member {
   user_id: string;
@@ -21,9 +22,11 @@ interface Details {
   can_set_cover: boolean;
   can_rename: boolean;
   can_delete_room: boolean;
+  can_manage_members: boolean;
   members: Member[];
   member_count: number;
 }
+
 
 /**
  * Tap the room name to see who is in it, with their profile photos. Owners,
@@ -50,7 +53,10 @@ export function ChannelSheet({
   const [nameDraft, setNameDraft] = useState('');
   const [confirmText, setConfirmText] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+
 
   const load = useCallback(async () => {
     const { data, error } = await (supabase as any).rpc('get_channel_details', { _slug: slug });
@@ -114,6 +120,31 @@ export function ChannelSheet({
     onOpenChange(false);
     onRoomDeleted?.();
   };
+
+  const addMembers = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('add_channel_members', { _slug: slug, _ids: ids });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'Those people did not save.')); return; }
+    setPicked([]);
+    setAddOpen(false);
+    await load();
+    onCoverChanged?.();
+  };
+
+  const removeMember = async (m: Member) => {
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('remove_channel_member', { _slug: slug, _id: m.user_id });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'That did not save.')); return; }
+    await load();
+    onCoverChanged?.();
+    toast(`${m.full_name} removed`, {
+      action: { label: 'Undo', onClick: () => void addMembers([m.user_id]) },
+    });
+  };
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -233,17 +264,69 @@ export function ChannelSheet({
           </div>
         )}
 
+        {details?.can_manage_members && details.kind !== 'dm' && (
+          <div className="mt-4 space-y-2 rounded-xl border border-border/60 p-3">
+            {addOpen ? (
+              <>
+                <MemberPicker
+                  slug={slug}
+                  hideInRoom
+                  selected={picked}
+                  onToggle={(id) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))}
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void addMembers(picked)}
+                    disabled={busy || picked.length === 0}
+                    className="min-h-[44px] flex-1 rounded-xl bg-primary px-3 text-[12px] font-semibold text-primary-foreground disabled:opacity-50"
+                  >
+                    Add{picked.length > 0 ? ` ${picked.length}` : ''}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setAddOpen(false); setPicked([]); }}
+                    className="min-h-[44px] px-2 text-[12px] text-muted-foreground"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAddOpen(true)}
+                className="flex min-h-[44px] w-full items-center gap-2 text-[13px] font-semibold text-foreground"
+              >
+                <UserPlus className="h-4 w-4" /> Add members
+              </button>
+            )}
+          </div>
+        )}
+
         <ul className="mt-4 space-y-1.5">
           {(details?.members || []).map((m) => (
             <li key={m.user_id} className="flex min-h-[52px] items-center gap-3 rounded-xl px-1">
               <UserAvatar avatarUrl={m.avatar_url} fullName={m.full_name} size="md" />
               <span className="min-w-0 flex-1 truncate text-[14px] text-foreground">{m.full_name}</span>
+              {details?.can_manage_members && details.kind !== 'dm' && (
+                <button
+                  type="button"
+                  onClick={() => void removeMember(m)}
+                  disabled={busy}
+                  aria-label={`Remove ${m.full_name}`}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </li>
           ))}
           {details && details.members.length === 0 && (
             <li className="py-4 text-center text-[13px] text-muted-foreground">Nobody has posted here yet.</li>
           )}
         </ul>
+
       </SheetContent>
     </Sheet>
   );

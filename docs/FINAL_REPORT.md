@@ -2080,3 +2080,15 @@ Verify: anon call to edit_chat_message refused (42501); owner-scoped calls to ed
 Not verified: the rep-scoped refusal could not be executed end to end because a rep session cannot be minted here; the guard was confirmed by policy and function definition (own row or is_chat_admin only).
 Widths 390 and 1280 in both themes: no horizontal overflow, no new console errors (only the pre-existing React ref warnings).
 Everything from Pass 117 still works: list, covers, unread badges, composer above the nav, typing, reactions, attachments. Not published.
+
+## Pass 121 — Members and the owner line
+- Channel sheet: Add members picker (faces, search) plus one tap remove with an Undo toast; owner and admin on any room, a team leader on his own; DMs excluded.
+- New chat button on the chat list: managers and above name a group, pick members and an optional cover; every rep can start a DM through the existing people search.
+- Server enforced: add_channel_members, remove_channel_member, channel_member_options, create_group_channel, can_manage_channel_members, all SECURITY DEFINER with anon and PUBLIC execute revoked (verified anon false, authenticated true).
+- visible_chat_channels now shows a group room only to its members (owner and admin see all); existing channels, team rooms and DMs unchanged.
+- get_channel_details returns can_manage_members and lists a group room's members from its member list.
+- Staff Home: the reps count line and Open my week button are gone; owner and admin get one three number row, Signed for 2027 14 of 142 to the re-sign board, Dark 30 days or more 15 to Seats, Applications waiting 1 to Requests. Managers see no replacement row.
+- Verified in the database: owner created a test room with 3 members, a rep was refused on add, remove, create and the picker, the room was deleted and channels returned to 17; messages 714, profiles 535, invites 0.
+- The three Home numbers match direct SQL (14 of 142, 15, 1).
+- Chat at 390 and 1280 in dark and light: no horizontal overflow, no new console errors.
+- Typecheck and production build clean. Nothing published.

@@ -6725,6 +6725,10 @@ export type Database = {
     }
     Functions: {
       ack_announcement: { Args: { _post_id: string }; Returns: undefined }
+      add_channel_members: {
+        Args: { _ids: string[]; _slug: string }
+        Returns: Json
+      }
       add_manual_lead: {
         Args: {
           _city?: string
@@ -6876,6 +6880,10 @@ export type Database = {
       build_lead_snapshot: { Args: { _profile_id: string }; Returns: Json }
       can_chat_dm: { Args: { _a: string; _b: string }; Returns: boolean }
       can_find_person: { Args: { _target: string }; Returns: boolean }
+      can_manage_channel_members: {
+        Args: { _slug: string; _uid: string }
+        Returns: boolean
+      }
       can_read_channel: {
         Args: { _channel: string; _uid: string }
         Returns: boolean
@@ -6891,6 +6899,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_person: { Args: { _user_id: string }; Returns: string }
+      channel_member_options: {
+        Args: { _q?: string; _slug?: string }
+        Returns: Json
+      }
       channel_read_mark: { Args: { _channel: string }; Returns: Json }
       chat_attachment_readable: {
         Args: { _object_name: string }
@@ -6925,6 +6937,10 @@ export type Database = {
       }
       compute_weekly_report: {
         Args: { _from: string; _to: string }
+        Returns: Json
+      }
+      create_group_channel: {
+        Args: { _cover?: string; _ids?: string[]; _label: string }
         Returns: Json
       }
       create_seat_invite: {
@@ -7912,6 +7928,10 @@ export type Database = {
       refresh_series_card: { Args: { _root: string }; Returns: undefined }
       region_lead_of: { Args: { _uid: string }; Returns: string }
       release_stale_leads: { Args: never; Returns: number }
+      remove_channel_member: {
+        Args: { _id: string; _slug: string }
+        Returns: Json
+      }
       rename_chat_channel: {
         Args: { _label: string; _slug: string }
         Returns: Json

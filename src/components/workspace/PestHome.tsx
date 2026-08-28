@@ -18,7 +18,9 @@ import { HomeFeed } from '@/components/home/HomeFeed';
 import { MoreReveal } from '@/components/home/MoreReveal';
 
 import { YourThreeCard } from '@/components/home/YourThreeCard';
+import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
+
 import { InviteDialog } from '@/components/invites/InviteDialog';
 import { AnnouncementEditorModal } from '@/components/dashboard/AnnouncementEditorModal';
 import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
@@ -157,29 +159,13 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
 
       {staff ? (
-        <>
-          <section>
-            <SectionEyebrow>Needs attention</SectionEyebrow>
-            <button
-              type="button"
-              onClick={() => navigate('/app/team')}
-              className="card-ice flex min-h-14 w-full items-center justify-between gap-4 px-4 text-left"
-            >
-              <span className="text-[15px] text-foreground">
-                {totals.attention > 0 ? 'Open my week' : 'Everyone is moving'}
-              </span>
-              <span className="text-[20px] font-bold tabular-nums text-foreground">
-                {totals.attention}
-              </span>
-            </button>
-          </section>
-
-        </>
+        <OwnerNumbersRow />
       ) : (
         <Button className="min-h-14 w-full text-[16px]" onClick={() => navigate('/app/doors')}>
           Doors
         </Button>
       )}
+
 
       {!staff && <NeedsYouRow className="!px-0" />}
 
