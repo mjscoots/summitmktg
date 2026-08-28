@@ -2009,3 +2009,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - RSVP verified at policy level only: reps may write and read just their own calendar_attendance row and my_rsvp reads back through the feed. A rep session could not be minted, so the click path was not walked in-browser.
 - No baseline drift: profiles 535, active 23, recruiting_leads 98, applications pending 1, invites 0, roles owner 1 / admin 2, downline edges 395.
 - Typecheck and production build clean. Linter count moved 361 to 364 from the recreated feed function family; no new distinct issue types. Nothing published.
+
+## Pass 114 — Pay on Resources
+- Derived year: `src/lib/repYear.ts` (parseRepYear/nextRepYear/repYearLabel) client side, and inside `my_next_year_pay()` server side. `profiles.rep_year` and `people_leads.rep_year` untouched.
+- Resources gains a Pay tab (`LinksPage`, `MyNextYearPay`), signed in only, showing the rep's own next-season tier in words plus the confirmed Fiber v5 per-install rates for that tier. No other tier, no overrides, no manager margins.
+- Pest section carries one line only: "Pest pay scale drops here when the owner loads it." No numbers.
+- New `my_next_year_pay()` is SECURITY DEFINER, scoped to `auth.uid()`, anon execute revoked (verified anon_exec false, auth_exec true). Old `stack_visibility` flags are not consulted; nothing public changed.
+- Tier mapping: year 1 to Tier 1, 2 to Tier 2, 3 to Tier 3, 4 and up to Tier 4. All 23 active reps have null `rep_year`, so they resolve to First year today and see Second year rates for 2027: 13 carriers at $150 per install (13 rows, one distinct value).
+- Date render fix: multi-day ranges now read the stored day in UTC in `EventsPage.fmtRange` and `CalendarPage`, so Howell reads Aug 30 to Sep 14 and Greece reads Oct 6 to 10; no day added or dropped.
+- Baseline unchanged: profiles 535, active 23, leads 98, invites 0, pending applications 1, edges 395, confirmed stack rows 80.
+- Typecheck and production build clean. Preview only, not published.
