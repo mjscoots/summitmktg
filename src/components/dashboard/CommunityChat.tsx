@@ -70,10 +70,16 @@ interface CommunityChatProps {
   hideBack?: boolean;
   /** Header controls, e.g. people search. */
   headerRight?: React.ReactNode;
-  /** Rendered between the header and the thread, e.g. room strip. */
+  /** Cover photo or avatar beside the room name. */
+  headerAvatar?: React.ReactNode;
+  /** Tap the header name, e.g. to open the members sheet. */
+  onHeaderTitleClick?: () => void;
+  /** Rendered between the header and the thread. */
   topSlot?: React.ReactNode;
   /** Placeholder for the composer input. */
   composerPlaceholder?: string;
+  /** Direct messages hide sender names on incoming bubbles. */
+  isDm?: boolean;
 }
 
 
@@ -132,7 +138,7 @@ function AwardsSystemMessage({ content }: { content: string }) {
 }
 
 
-export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, topSlot, composerPlaceholder }: CommunityChatProps) {
+export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, headerAvatar, onHeaderTitleClick, topSlot, composerPlaceholder, isDm }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
@@ -645,6 +651,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           onBack={onBack}
           hideBack={hideBack}
           rightSlot={headerRight}
+          avatarSlot={headerAvatar}
+          onTitleClick={onHeaderTitleClick}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
@@ -759,6 +767,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
               <ChatBubble
                 message={msg}
                 isOwn={own}
+                hideSenderName={isDm}
                 isFirstInGroup={isFirstInGroup}
                 isLastInGroup={isLastInGroup}
                 showTimestamp={isLastInGroup && !showTime}

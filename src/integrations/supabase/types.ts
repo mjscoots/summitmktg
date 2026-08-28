@@ -1245,6 +1245,7 @@ export type Database = {
       chat_channels: {
         Row: {
           color: string
+          cover_image_path: string | null
           created_at: string
           created_by: string | null
           display_order: number
@@ -1259,6 +1260,7 @@ export type Database = {
         }
         Insert: {
           color?: string
+          cover_image_path?: string | null
           created_at?: string
           created_by?: string | null
           display_order?: number
@@ -1273,6 +1275,7 @@ export type Database = {
         }
         Update: {
           color?: string
+          cover_image_path?: string | null
           created_at?: string
           created_by?: string | null
           display_order?: number
@@ -6875,6 +6878,10 @@ export type Database = {
         Returns: boolean
       }
       can_see_phone: { Args: { _target: string }; Returns: boolean }
+      can_set_channel_cover: {
+        Args: { _slug: string; _uid: string }
+        Returns: boolean
+      }
       can_sweep_person: { Args: { _target: string }; Returns: boolean }
       can_view_event: {
         Args: { p_scope: string; p_team_id: string; p_user_id: string }
@@ -7064,6 +7071,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_channel_details: { Args: { _slug: string }; Returns: Json }
       get_channel_messages: {
         Args: { _before?: string; _channel: string; _limit?: number }
         Returns: Json
@@ -7943,6 +7951,10 @@ export type Database = {
       }
       set_active_vertical: { Args: { _vertical: string }; Returns: Json }
       set_appearance: { Args: { _appearance: string }; Returns: undefined }
+      set_channel_cover: {
+        Args: { _path: string; _slug: string }
+        Returns: Json
+      }
       set_manager_seat: {
         Args: { _grant: boolean; _user_id: string }
         Returns: undefined

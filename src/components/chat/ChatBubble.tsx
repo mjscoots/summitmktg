@@ -79,6 +79,8 @@ interface ChatBubbleProps {
   reactions?: Reaction[];
   /** True for the message this person just sent, so it scales in once. */
   justSent?: boolean;
+  /** Direct messages already name the person in the header. */
+  hideSenderName?: boolean;
 
 }
 
@@ -103,6 +105,7 @@ export function ChatBubble({
   onEditCancel,
   reactions: reactionsProp = [],
   justSent = false,
+  hideSenderName = false,
 }: ChatBubbleProps) {
 
   const reactions = reactionsProp;
@@ -250,13 +253,13 @@ export function ChatBubble({
 
         <div className={cn("max-w-[75%] min-w-0 relative", isOwn && "ml-auto")}>
           {/* Name and team */}
-          {!isOwn && isFirstInGroup && !message.is_ai && (
+          {!isOwn && isFirstInGroup && !message.is_ai && !hideSenderName && (
             <span className="flex items-center gap-1 mb-0.5 ml-1 min-w-0">
               <button
                 onClick={() => onProfileClick(message.user_id)}
                 className={cn("text-[11px] font-semibold truncate", getRoleColor(profile.role))}
               >
-                {profile.full_name}
+                {(profile.full_name || '').trim().split(/\s+/)[0] || profile.full_name}
               </button>
               {profile.team_name && (
                 <span className="shrink-0 rounded-full border border-border/60 bg-muted/30 px-1.5 text-[10px] text-muted-foreground">

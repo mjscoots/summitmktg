@@ -2038,3 +2038,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Login now uses the same atmospheric background language; the sign-in and reset forms are untouched.
 - Verified `/` at 390 and 1280 in dark and light: headline legible, document width exact, no horizontal scroll; `/login` at 390 also has zero overflow.
 - Route checks produced no page exceptions; the only console output was the existing preview-instrumentation React ref warning. Typecheck and production build clean; no video, font, or JS dependency added. Nothing published.
+
+## Pass 117 — Chat
+- Chat home is now a WhatsApp style list: cover photo or monogram, name, last message with the sender's first name, timestamp, unread badge, tap to open. Room strip deleted (`RoomStrip.tsx`, `useChatRooms.ts` removed).
+- New column: `chat_channels.cover_image_path` (nullable). Covers upload to the private `chat-uploads` bucket and are read through signed URLs; `chat_attachment_readable` now allows a cover to anyone who can read that room.
+- New RPCs `can_set_channel_cover`, `set_channel_cover`, `get_channel_details`; `get_conversations` returns the cover path. `has_function_privilege`: anon false, PUBLIC false, authenticated true on all four.
+- Cover authorization is database side: owner, admin, president, the room's creator or that team's leader only. A plain rookie evaluates false, owner true; the SQL runner is itself refused execute.
+- Room: tap the header name for members with photos and the cover control; incoming bubbles show avatar plus first name, direct messages hide the name; composer stays above the phone nav (`phone-bar-clear`).
+- Summit tokens only in both themes (ice, fiber mint, success, warning, primary muted), 44px targets, no new tables beyond the one column.
+- Data untouched: 17 channels, 15 active, 712 messages, 0 covers set.
+- Typecheck and production build clean. Route walk at 390 and 1280 in dark and light redirected to /login with zero overflow and no page errors; authenticated chat rendering is unverifiable in this environment because minting a session needs owner approval that is unavailable here.

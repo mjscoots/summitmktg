@@ -1,26 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Bot, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { formatDistanceToNowStrict } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { CommunityChat } from '@/components/dashboard/CommunityChat';
-import { useChatRooms } from '@/hooks/useChatRooms';
-import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
+import { useChatChannels } from '@/hooks/useChatChannels';
 import { PeopleSearch } from '@/components/chat/PeopleSearch';
-import { RoomStrip } from '@/components/chat/RoomStrip';
+import { ChatList } from '@/components/chat/ChatList';
+import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
+import { ChannelSheet } from '@/components/chat/ChannelSheet';
 import { KnockingNow } from '@/components/chat/KnockingNow';
-import { UserAvatar } from '@/components/shared/UserAvatar';
 
 const LAST_ROOM_KEY = 'summit.chat.lastRoom';
 
-type View = { mode: 'room'; slug: string } | { mode: 'dms' } | { mode: 'dm'; slug: string };
-
 export default function ChatPage() {
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const { rooms, homeRoom, dms, dmUnread, refresh } = useChatRooms();
-  const [view, setView] = useState<View | null>(null);
+  const { channels, refresh, loading } = useChatChannels();
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [membersOpen, setMembersOpen] = useState(false);
 
   const personParam = params.get('person');
   const clearPerson = useCallback(() => {
@@ -29,45 +26,31 @@ export default function ChatPage() {
     setParams(next, { replace: true });
   }, [params, setParams]);
 
-  // Chat opens straight into a room: the last one used, else the person's own team.
-  useEffect(() => {
-    if (view || !rooms.length) return;
-    let last: string | null = null;
-    try { last = localStorage.getItem(LAST_ROOM_KEY); } catch { /* storage unavailable */ }
-    const slug = last && rooms.some((r) => r.slug === last) ? last : homeRoom;
-    setView({ mode: 'room', slug });
-  }, [view, rooms, homeRoom]);
-
-  // A deep link to a person opens the people search over the room.
+  // A deep link to a person opens the people search over the list.
   useEffect(() => {
     if (personParam) setSearchOpen(true);
   }, [personParam]);
 
   const openRoom = useCallback((slug: string) => {
-    setView({ mode: 'room', slug });
     setSearchOpen(false);
+    setOpenSlug(slug);
     try { localStorage.setItem(LAST_ROOM_KEY, slug); } catch { /* storage unavailable */ }
   }, []);
 
   const openDm = useCallback((slug: string) => {
     void refresh();
-    setSearchOpen(false);
-    setView({ mode: 'dm', slug });
+    openRoom(slug);
+  }, [refresh, openRoom]);
+
+  const backToList = useCallback(() => {
+    setOpenSlug(null);
+    setMembersOpen(false);
+    void refresh();
   }, [refresh]);
 
-  const activeRoomSlug = view?.mode === 'room' ? view.slug : null;
-  const activeRoom = useMemo(() => rooms.find((r) => r.slug === activeRoomSlug) || null, [rooms, activeRoomSlug]);
-  const activeDm = view?.mode === 'dm' ? dms.find((d) => d.slug === view.slug) || null : null;
-
-  const strip = (
-    <RoomStrip
-      rooms={rooms}
-      active={activeRoomSlug}
-      onSelect={openRoom}
-      dmUnread={dmUnread}
-      dmActive={view?.mode === 'dms' || view?.mode === 'dm'}
-      onOpenDms={() => setView({ mode: 'dms' })}
-    />
+  const active = useMemo(
+    () => (openSlug ? channels.find((c) => c.slug === openSlug) || null : null),
+    [channels, openSlug]
   );
 
   const searchButton = (
@@ -80,129 +63,62 @@ export default function ChatPage() {
     </button>
   );
 
-  const searchPanel = searchOpen ? (
-    <div className="flex-shrink-0 border-b border-border/10 px-3 py-2">
-      <PeopleSearch onOpenDm={openDm} openPersonId={personParam} onPersonHandled={clearPerson} />
-    </div>
-  ) : null;
-
-  // DM list
-  if (view?.mode === 'dms') {
-    return (
-      <AppLayout fullHeight>
-        <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <div className="flex flex-shrink-0 items-center gap-2 border-b border-border/10 bg-background/60 px-3 py-2 backdrop-blur-2xl">
-            <button
-              onClick={() => openRoom(activeRoomSlug || homeRoom)}
-              aria-label="Back to rooms"
-              className="-ml-1 flex h-11 w-11 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <h2 className="flex-1 text-[15px] font-bold tracking-tight">Direct messages</h2>
-            {searchButton}
-          </div>
-          {strip}
-          {searchPanel}
-          <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-3 py-3">
-            <NeedsYouRow className="mx-auto w-full max-w-2xl" />
-            <ul className="mx-auto mt-2 w-full max-w-2xl space-y-2">
-              <li>
-                <button
-                  onClick={() => navigate('/app/ask')}
-                  className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left transition-colors hover:border-primary/40"
-                >
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Bot className="h-4 w-4" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">Ask Summit</span>
-                    <span className="block truncate text-[12px] text-muted-foreground">
-                      Answers about events, pay, training and people
-                    </span>
-                  </span>
-                  <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                </button>
-              </li>
-              {dms.length === 0 && (
-                <li className="px-1 py-6 text-center text-[13px] text-muted-foreground">
-                  No direct messages yet. Use the search to find someone.
-                </li>
-              )}
-              {dms.map((c) => (
-                <li key={c.slug}>
-                  <button
-                    onClick={() => openDm(c.slug)}
-                    className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left transition-colors hover:border-primary/40"
-                  >
-                    <UserAvatar avatarUrl={c.avatar_url || null} fullName={c.label} size="sm" />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <span className="truncate text-sm font-medium">{c.label}</span>
-                        {c.unread > 0 && (
-                          <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 text-primary-foreground">
-                            {c.unread > 99 ? '99+' : c.unread}
-                          </span>
-                        )}
-                      </span>
-                      {c.last_content && (
-                        <span className="block truncate text-[12px] text-muted-foreground">
-                          {c.last_sender ? `${c.last_sender}: ` : ''}{c.last_content.slice(0, 90)}
-                        </span>
-                      )}
-                    </span>
-                    {c.last_at && (
-                      <span className="flex-shrink-0 text-[11px] text-muted-foreground">
-                        {formatDistanceToNowStrict(new Date(c.last_at))}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  // One DM thread
-  if (view?.mode === 'dm') {
+  // One room, WhatsApp style: back to the list, tap the name for members.
+  if (openSlug) {
+    const isDm = active?.kind === 'dm';
+    const label = active?.label || 'Chat';
     return (
       <AppLayout fullHeight>
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
           <div className="min-h-0 flex-1">
             <CommunityChat
-              channelSlug={view.slug}
-              roomLabel={activeDm?.label}
-              onBack={() => setView({ mode: 'dms' })}
-              composerPlaceholder={activeDm ? `Message ${activeDm.label}` : 'Message...'}
+              channelSlug={openSlug}
+              roomLabel={label}
+              onBack={backToList}
+              isDm={isDm}
+              headerAvatar={
+                <ChannelAvatar
+                  name={label}
+                  coverPath={isDm ? null : active?.cover_image_path}
+                  avatarUrl={isDm ? active?.avatar_url : null}
+                  size="sm"
+                />
+              }
+              onHeaderTitleClick={() => setMembersOpen(true)}
+              topSlot={active?.kind === 'team' ? <KnockingNow /> : null}
+              composerPlaceholder={`Message ${label}`}
             />
           </div>
+          <ChannelSheet
+            slug={openSlug}
+            open={membersOpen}
+            onOpenChange={setMembersOpen}
+            onCoverChanged={refresh}
+          />
         </div>
       </AppLayout>
     );
   }
 
-  // The room, which is where Chat lives
+  // The chat home is the list.
   return (
     <AppLayout fullHeight>
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="min-h-0 flex-1">
-          <CommunityChat
-            channelSlug={activeRoomSlug || homeRoom}
-            roomLabel={activeRoom?.label}
-            hideBack
-            headerRight={searchButton}
-            topSlot={
-              <>
-                {strip}
-                {searchPanel}
-                {activeRoom?.tone === 'mine' && <KnockingNow />}
-              </>
-            }
-            composerPlaceholder={activeRoom ? `Message ${activeRoom.label}` : 'Message...'}
-          />
+        <div className="flex flex-shrink-0 items-center gap-2 border-b border-border/10 bg-background/60 px-3 py-2 backdrop-blur-2xl">
+          <h1 className="flex-1 text-[17px] font-bold tracking-tight">Chats</h1>
+          {searchButton}
+        </div>
+
+        {searchOpen && (
+          <div className="flex-shrink-0 border-b border-border/10 px-3 py-2">
+            <div className="mx-auto w-full max-w-2xl">
+              <PeopleSearch onOpenDm={openDm} openPersonId={personParam} onPersonHandled={clearPerson} />
+            </div>
+          </div>
+        )}
+
+        <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-3 py-3">
+          {!loading && <ChatList conversations={channels} onOpen={openRoom} />}
         </div>
       </div>
     </AppLayout>
