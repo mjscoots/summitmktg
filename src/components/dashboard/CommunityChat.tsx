@@ -138,7 +138,7 @@ function AwardsSystemMessage({ content }: { content: string }) {
 }
 
 
-export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, topSlot, composerPlaceholder }: CommunityChatProps) {
+export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, headerAvatar, onHeaderTitleClick, topSlot, composerPlaceholder, isDm }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
