@@ -110,6 +110,7 @@ export function ChatBubble({
   reactions: reactionsProp = [],
   justSent = false,
   hideSenderName = false,
+  readTick = null,
 }: ChatBubbleProps) {
 
   const reactions = reactionsProp;
