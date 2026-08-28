@@ -58,8 +58,12 @@ interface ChatBubbleProps {
     created_at: string;
     reply_to: string | null;
     is_pinned: boolean;
+    /** Set once a message has been changed, so an edited label can show. */
+    edited_at?: string | null;
   };
   isOwn: boolean;
+  /** Own messages only: one check delivered, two checks read. */
+  readTick?: 'sent' | 'read' | null;
   isFirstInGroup: boolean;
   isLastInGroup: boolean;
   showTimestamp: boolean;
