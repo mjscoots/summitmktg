@@ -1764,3 +1764,15 @@ is sent from the app.
 Verified: one synthetic owner day number (3) and one blitz opt-in confirmed the totals,
 count and roster, then both were deleted and both tables read zero. Both RPCs are granted
 to authenticated only. One migration, typecheck and production build clean, preview only.
+
+## Pass 93 — Re-sign week
+
+One migration, no new tables, no new RPC: `lead_log` now accepts the outcomes Called, Texted, No answer, Meeting set, Signed for 2027 and Not coming back, maps them to stages (signed -> signed and signed_2027 true, not coming back -> dead, nothing deleted), and accepts a next call date with any outcome. `leads_counts` gained the signed and not-signed counts with the sum of their last-season revenue, computed live from people_leads across roster and out rows.
+
+`OutcomeBar` on the lead card logs any outcome in one tap with an optional note, and sets the next call from Tomorrow, 3 days, Next week or a custom date. It only renders for managers and above; the RPC still refuses the sales tier and limits managers to their designated or free leads.
+
+`ThisWeekQueue` sits on top of My leads: due and overdue call-backs first, then never-contacted designated leads, both sorted by season revenue descending. Each row shows revenue, last outcome and days since contact with one-tap call and text. Empty state reads "Nothing due. Pull from your queue below."
+
+The call board carries a quiet line with both counts and both revenue sums. The lead card's activity feed (who, what, when, newest first) is now gated to managers and above.
+
+Verified: one synthetic outcome plus an overdue next call on a real lead moved the queue criteria, stage and call count; the activity row was deleted and the captured stamps restored to null / 0 / new. Typecheck and production build clean, 44px targets, no horizontal overflow 390-1280. Preview only, not published.
