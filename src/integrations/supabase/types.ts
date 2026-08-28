@@ -7818,6 +7818,23 @@ export type Database = {
       }
       owner_week: { Args: never; Returns: Json }
       post_weekly_awards: { Args: never; Returns: Json }
+      prep_roster: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          full_name: string
+          group_key: string
+          group_label: string
+          is_vet: boolean
+          manager_name: string
+          manager_team: string
+          manager_user_id: string
+          rep_year: string
+          role: string
+          team_name: string
+          user_id: string
+        }[]
+      }
       recalc_vertical_enrollment: {
         Args: { _user: string; _vertical: string }
         Returns: undefined
