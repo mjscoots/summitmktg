@@ -1897,3 +1897,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Person profile shows "Last trained <date>" from `daily_training_time`, or "No training logged yet".
 - Locked mastery rows now read "Unlocks when the N remaining lessons in this chapter are done"; unlocked pitch chapters show a warm "Record your pitch" chip into the existing roleplay path.
 - Typecheck and production build clean. Preview only, nothing published.
+
+## Pass 102 — The owner's week
+
+- /command now opens with "The week": six live lines, each tapping through to the screen behind it.
+- Signed for 2027 (total + last 7 days from lead_activities), re-sign calls (outcomes + people touched), applications (waiting + oldest hours), referrals (submitted + claimed), training (roster minutes + reps trained of active), money loaded (last Fiber/Pest import dates).
+- New SECURITY DEFINER owner_week() returns the whole set as jsonb; admin/owner only inside the function, authenticated granted, anon revoked (verified: anon execute false, authenticated true).
+- No new tables. Zeros read as zeros; missing pipes say in one plain sentence what would fill them.
+- Live figures at verification: 14 signed, 0 calls in 7d, 5 applications waiting, 0 referrals, 146 training minutes across 3 of 23 active reps, no money imports yet.
+- Existing command report content stays below the new lines.
+- Typecheck and production build clean. Preview only, nothing published.
