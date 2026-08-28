@@ -5909,6 +5909,9 @@ export type Database = {
           answers: Json
           created_at: string
           id: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string
           updated_at: string
           user_id: string
@@ -5918,6 +5921,9 @@ export type Database = {
           answers?: Json
           created_at?: string
           id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -5927,6 +5933,9 @@ export type Database = {
           answers?: Json
           created_at?: string
           id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -6813,6 +6822,10 @@ export type Database = {
         Args: { _application_id: string; _decision: string; _note?: string }
         Returns: Json
       }
+      decide_vertical_request: {
+        Args: { _application_id: string; _decision: string; _note?: string }
+        Returns: Json
+      }
       dismiss_reactivation_request: { Args: { _id: string }; Returns: Json }
       ensure_rep_ref_code: { Args: { _user_id: string }; Returns: string }
       event_card_meta: {
@@ -7434,6 +7447,7 @@ export type Database = {
       }
       get_vertical_applications: { Args: { _status?: string }; Returns: Json }
       get_vertical_enrollments: { Args: never; Returns: Json }
+      get_vertical_requests: { Args: { _status?: string }; Returns: Json }
       get_week_pace: { Args: never; Returns: Json }
       get_winback_feed: { Args: never; Returns: Json }
       get_winter_plan_summary: { Args: never; Returns: Json }
@@ -7706,6 +7720,10 @@ export type Database = {
         Args: { _manager_id: string; _vertical: string }
         Returns: Json
       }
+      request_vertical_access: {
+        Args: { _answers: Json; _vertical: string }
+        Returns: Json
+      }
       resolve_person_by_name: { Args: { _name: string }; Returns: string }
       resolve_sheet_manager: {
         Args: { _m: string; _section: string }
@@ -7873,6 +7891,7 @@ export type Database = {
           slug: string
         }[]
       }
+      withdraw_vertical_request: { Args: { _vertical: string }; Returns: Json }
       write_audit: {
         Args: {
           _action: string
