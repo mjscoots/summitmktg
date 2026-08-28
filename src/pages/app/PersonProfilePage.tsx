@@ -261,6 +261,8 @@ export default function PersonProfilePage() {
         </div>
       </Card>
 
+      {data.scope !== 'self' && userId && <NewRepDayOneCard userId={userId} />
+
       {/* What they've told us */}
       {(data.forms || []).length > 0 && (
         <Section title="What they've told us">
