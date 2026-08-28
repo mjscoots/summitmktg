@@ -9,7 +9,7 @@ import { PracticePitchCard } from '@/components/training/PracticePitchCard';
 import { FieldPack } from '@/components/training/FieldPack';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 
-import { Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
+import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { PageHeader } from '@/components/layout/PageHeader';

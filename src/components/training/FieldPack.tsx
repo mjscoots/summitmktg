@@ -191,6 +191,15 @@ export function FieldPack() {
     void load();
   }, [load]);
 
+  // Arriving from the old Playbook link lands on the section.
+  useEffect(() => {
+    if (window.location.hash !== '#field-pack') return;
+    const t = window.setTimeout(() => {
+      document.getElementById('field-pack')?.scrollIntoView({ block: 'start' });
+    }, 120);
+    return () => window.clearTimeout(t);
+  }, []);
+
   // Deep link from search: open one entry on its own chip.
   const entryParam = params.get('entry');
   useEffect(() => {
