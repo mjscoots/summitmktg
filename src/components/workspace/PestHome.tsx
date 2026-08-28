@@ -14,9 +14,9 @@ import { QuickChips, type QuickChip } from '@/components/home/QuickChips';
 import { useSeasonMode, useResignHero, useRepOffSeasonLine } from '@/hooks/useSeasonMode';
 import { WeekBars } from '@/components/home/WeekBars';
 import { TeamTodayCard } from '@/components/home/TeamTodayCard';
-import { NextEventCard } from '@/components/home/NextEventCard';
-import { ChatPreviewCard } from '@/components/home/ChatPreviewCard';
+import { HomeFeed } from '@/components/home/HomeFeed';
 import { MoreReveal } from '@/components/home/MoreReveal';
+
 import { YourThreeCard } from '@/components/home/YourThreeCard';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { InviteDialog } from '@/components/invites/InviteDialog';
