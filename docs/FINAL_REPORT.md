@@ -1915,3 +1915,10 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Security: column-level SELECT on `commitment`/`focus_area` is revoked from `anon` and `authenticated`, so reps cannot read manager notes even on their own row (verified `has_column_privilege` false). Managers read via SECURITY DEFINER `get_prep_commitment` / `get_rep_prep_facts`, role-gated to manager/admin/owner, anon EXECUTE revoked; non-staff callers get `authorized:false`.
 - Verified: one synthetic rookie one-on-one saved with commitment + focus then deleted; counts back to baseline 37 rookie / 15 manager (52 real records). No rep-facing display of focus area.
 - Typecheck and production build clean. Preview only, nothing published.
+
+## Pass 104 — Fiber rooms
+- Fiber vertical channels: 0 before, 3 after — `fiber` (Fiber, order 2), `fiber-blitzes` (Blitzes, order 3), `fiber-wins` (Wins, order 4), all `is_active = true`, same shape/RLS as the Pest channels (no policy changes needed; existing policies scope by `vertical`).
+- Deactivated (is_active false, nothing deleted, messages intact): `ai-coach` (AI Coach, 2 messages, cut from nav in Pass 87) and `team-parks` (PARKS, 0 active reps, 0 messages).
+- Team room audit: the six teams holding non-archived reps (Apex 1, Atlas 2, Legion Mafia 6, Minions 5, Paper Route 6, Quality Control 2) each already had an active room — none missing, none created. Orphaned: `team-parks` only (deactivated).
+- Verified at database level: active channels now 15; a Pest-scoped channel query (`vertical is null or vertical = 'Pest'`) returns zero `fiber%` rooms, and `get_conversations()` already filters by `my_active_vertical()`, so Fiber reps see the three rooms and Pest reps do not.
+- No code changes were required — the chat strip reads channels from the database. Typecheck and production build clean. Preview only, nothing published.
