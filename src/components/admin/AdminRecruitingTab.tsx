@@ -38,6 +38,7 @@ interface Lead {
   claimed_at: string | null;
   last_activity_at: string | null;
   notes: string | null;
+  source_type?: string | null;
   created_at: string;
 }
 
