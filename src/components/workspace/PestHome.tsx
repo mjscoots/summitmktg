@@ -200,6 +200,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
       <MoreReveal>
         <QuickChips chips={moreChips} />
 
+        <YourThreeCard />
+
         {staff && (
           <>
             <NeedsYouRow className="!px-0" />
