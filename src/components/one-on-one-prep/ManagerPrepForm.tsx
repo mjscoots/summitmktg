@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CommitmentFields } from '@/components/one-on-one-prep/CommitmentFields';
 
 export interface ManagerPrepFormData {
   rep_relationship: string;
@@ -22,6 +23,8 @@ export interface ManagerPrepFormData {
   team_development: string[];
   system_utilization_rating: number;
   manager_improvement: string;
+  commitment: string;
+  focus_area: string;
 }
 
 export const initialManagerPrepFormData: ManagerPrepFormData = {
@@ -38,6 +41,8 @@ export const initialManagerPrepFormData: ManagerPrepFormData = {
   team_development: [],
   system_utilization_rating: 5,
   manager_improvement: '',
+  commitment: '',
+  focus_area: '',
 };
 
 interface ManagerPrepFormProps {
@@ -217,6 +222,13 @@ export function ManagerPrepForm({
           </Label>
           <Textarea value={formData.manager_improvement} onChange={e => update('manager_improvement', e.target.value)} rows={2} />
         </div>
+
+        <CommitmentFields
+          commitment={formData.commitment}
+          focusArea={formData.focus_area}
+          onCommitmentChange={v => update('commitment', v)}
+          onFocusChange={v => update('focus_area', v)}
+        />
       </div>
 
       {/* Submit */}

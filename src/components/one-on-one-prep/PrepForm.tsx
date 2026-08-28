@@ -5,6 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight } from 'lucide-react';
+import { CommitmentFields } from '@/components/one-on-one-prep/CommitmentFields';
+
 
 interface PrepFormProps {
   rep: PrepRep;
@@ -133,7 +135,15 @@ export function PrepForm({
             rows={2}
           />
         </div>
+
+        <CommitmentFields
+          commitment={formData.commitment}
+          focusArea={formData.focus_area}
+          onCommitmentChange={v => update('commitment', v)}
+          onFocusChange={v => update('focus_area', v)}
+        />
       </div>
+
 
       {/* Submit */}
       <Button

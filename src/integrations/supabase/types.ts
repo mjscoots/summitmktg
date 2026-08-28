@@ -6451,8 +6451,10 @@ export type Database = {
       }
       weekly_one_on_ones_manager: {
         Row: {
+          commitment: string | null
           completed_mission: string
           created_at: string
+          focus_area: string | null
           gethawx_review: string
           id: string
           interview_forms_check: string
@@ -6474,8 +6476,10 @@ export type Database = {
           weekly_mission: string
         }
         Insert: {
+          commitment?: string | null
           completed_mission: string
           created_at?: string
+          focus_area?: string | null
           gethawx_review: string
           id?: string
           interview_forms_check: string
@@ -6497,8 +6501,10 @@ export type Database = {
           weekly_mission: string
         }
         Update: {
+          commitment?: string | null
           completed_mission?: string
           created_at?: string
+          focus_area?: string | null
           gethawx_review?: string
           id?: string
           interview_forms_check?: string
@@ -6524,8 +6530,10 @@ export type Database = {
       weekly_one_on_ones_rookie: {
         Row: {
           big_win: string
+          commitment: string | null
           completed_challenge: string
           created_at: string
+          focus_area: string | null
           id: string
           manager_name: string
           pitch_work_needed: string
@@ -6540,8 +6548,10 @@ export type Database = {
         }
         Insert: {
           big_win: string
+          commitment?: string | null
           completed_challenge: string
           created_at?: string
+          focus_area?: string | null
           id?: string
           manager_name: string
           pitch_work_needed: string
@@ -6556,8 +6566,10 @@ export type Database = {
         }
         Update: {
           big_win?: string
+          commitment?: string | null
           completed_challenge?: string
           created_at?: string
+          focus_area?: string | null
           id?: string
           manager_name?: string
           pitch_work_needed?: string
@@ -7328,6 +7340,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_prep_commitment: {
+        Args: { _mode?: string; _user_id: string }
+        Returns: Json
+      }
       get_profile_contact: {
         Args: { _user_id: string }
         Returns: {
@@ -7422,6 +7438,7 @@ export type Database = {
       }
       get_region_pace: { Args: never; Returns: Json }
       get_region_sheet: { Args: never; Returns: Json }
+      get_rep_prep_facts: { Args: { _user_id: string }; Returns: Json }
       get_rep_scorecard: { Args: { _user_id: string }; Returns: Json }
       get_resign_board: { Args: never; Returns: Json }
       get_revenue_month: { Args: { _month: string }; Returns: Json }
