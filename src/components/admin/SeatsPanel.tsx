@@ -185,7 +185,7 @@ export default function SeatsPanel() {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="min-w-0 flex-1 truncate text-[14px] font-semibold text-foreground">{row.full_name}</p>
                 {!row.signed_in && (
-                  <span className="rounded-full bg-[hsl(var(--celebrate)/0.16)] px-2 py-1 text-[11px] text-[hsl(var(--celebrate))]">
+                  <span className="rounded-full bg-[hsl(var(--celebrate-warm)/0.16)] px-2 py-1 text-[11px] text-[hsl(var(--celebrate-warm))]">
                     Never signed in
                   </span>
                 )}
