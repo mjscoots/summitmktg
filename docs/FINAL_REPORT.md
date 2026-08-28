@@ -1888,3 +1888,12 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Requests header line: applications waiting · oldest in hours · unclaimed (`ApplicationsPulseLine`), live.
 - Verified at database level: synthetic application inserted, owned and touched, then deleted; baseline back to 5 pending / 8 reviewed with 5 unclaimed.
 - Typecheck and production build clean. Nothing team-facing lists archived people. Preview only; nothing published.
+
+## Pass 101 — Training
+- Learn (rookie + manager selection views) now opens with one "Next up" card: first unfinished required lesson, or the mastery check of a finished chapter, with Continue.
+- New `useNextTraining` walks active rookie/manager courses, modules and lessons in order against `lesson_progress` and `mastery_checks`. No new tables.
+- New `useTrainingWeek` + `TrainingWeekRow`: minutes this week, days trained out of days elapsed, current streak. Real numbers only.
+- Manager Team view rows (tree + table) gained `TrainingWeekChip`: "Xm trained", or warm "No training this week" at zero minutes.
+- Person profile shows "Last trained <date>" from `daily_training_time`, or "No training logged yet".
+- Locked mastery rows now read "Unlocks when the N remaining lessons in this chapter are done"; unlocked pitch chapters show a warm "Record your pitch" chip into the existing roleplay path.
+- Typecheck and production build clean. Preview only, nothing published.

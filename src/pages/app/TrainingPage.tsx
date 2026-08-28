@@ -8,6 +8,8 @@ import { DailyDrill } from '@/components/training/DailyDrill';
 import { PracticePitchCard } from '@/components/training/PracticePitchCard';
 import { FieldPack } from '@/components/training/FieldPack';
 import { WelcomeBanner } from '@/components/training/WelcomeBanner';
+import { NextUpCard } from '@/components/training/NextUpCard';
+import { TrainingWeekRow } from '@/components/training/TrainingWeekRow';
 
 import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
@@ -130,6 +132,9 @@ export default function TrainingPage() {
             />
           )}
 
+          <NextUpCard track="rookie" />
+          <TrainingWeekRow />
+
           <div className="mb-4">
             <FieldPack />
           </div>
@@ -186,6 +191,9 @@ export default function TrainingPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
           <PageHeader title="Training" context="Pick a track." className="mb-6" />
+
+          <NextUpCard track="rookie" />
+          <TrainingWeekRow />
 
           <div className="mb-4">
             <FieldPack />

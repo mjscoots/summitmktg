@@ -647,10 +647,14 @@ export default function TrainingCoursePage() {
                           )}
                           <span className="text-sm font-medium text-foreground">Mastery check</span>
                           {!unlocked && (
-                            <span className="text-xs text-muted-foreground">Finish the chapter first</span>
+                            <span className="text-xs text-muted-foreground">
+                              Unlocks when the {module.lessons.filter((l) => !isLessonSatisfied(l)).length} remaining{' '}
+                              {module.lessons.filter((l) => !isLessonSatisfied(l)).length === 1 ? 'lesson' : 'lessons'} in
+                              this chapter are done
+                            </span>
                           )}
                           {unlocked && !done && isPitchChapter && (
-                            <span className="text-xs text-muted-foreground">Run the practice roleplay</span>
+                            <span className="chip-warm text-[10px]">Record your pitch</span>
                           )}
                         </div>
                         {unlocked && !done && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
