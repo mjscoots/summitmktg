@@ -767,6 +767,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
               <ChatBubble
                 message={msg}
                 isOwn={own}
+                hideSenderName={isDm}
                 isFirstInGroup={isFirstInGroup}
                 isLastInGroup={isLastInGroup}
                 showTimestamp={isLastInGroup && !showTime}
