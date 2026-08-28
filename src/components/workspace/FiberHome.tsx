@@ -169,90 +169,90 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const notStarted = Boolean(fiberStart && daysUntil(fiberStart) > 0);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-8">
+    <div className="mx-auto max-w-2xl space-y-8 px-4 pb-8 sm:space-y-10">
       <GainzHero />
 
-      <section className={`${HUB_CARD} mb-4 p-4`}>
-        <FiberEyebrow>Today</FiberEyebrow>
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-4xl font-semibold tabular-nums text-foreground">{todaySold}</p>
-            <p className="text-[12px] tabular-nums text-muted-foreground">This week {weekSold}</p>
-          </div>
-          <Button className="min-h-11" onClick={() => setLogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            How many today?
-          </Button>
-        </div>
-        <p className="mt-3 text-[12px] text-muted-foreground">{PAY_NOTE}</p>
-      </section>
-
-      {notStarted && fiberStart && (
-        <div className={`${HUB_CARD} mb-4 p-4`}>
-          <p className="text-[15px] font-semibold text-foreground">You start {formatStart(fiberStart)}</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Your installs and pay live here once you start.
-          </p>
-        </div>
-      )}
-
-      {canShareJoinLink && <JoinGainzCard link={joinLink} />}
-
       <ContactsCard contacts={contacts} />
-
-      <HowItWorksCards />
 
       <FiberQuestions faq={faq} />
 
       <UpcomingBlitzes />
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => navigate('/app/training')}
-          className={`${HUB_CARD} flex min-h-11 items-center gap-3 p-4 text-left`}
-        >
-          <GraduationCap className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
-          <span className="text-[14px] font-semibold text-foreground">Training</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate('/app/chat')}
-          className={`${HUB_CARD} flex min-h-11 items-center gap-3 p-4 text-left`}
-        >
-          <MessageCircle className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
-          <span className="text-[14px] font-semibold text-foreground">
-            {workspace.short_name} chat
-          </span>
-        </button>
-      </div>
+      <MoreReveal>
+        <section className={`${HUB_CARD} p-4`}>
+          <FiberEyebrow>Today</FiberEyebrow>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-4xl font-semibold tabular-nums text-foreground">{todaySold}</p>
+              <p className="text-[15px] tabular-nums text-muted-foreground">This week {weekSold}</p>
+            </div>
+            <Button className="min-h-11" onClick={() => setLogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              How many today?
+            </Button>
+          </div>
+          <p className="mt-3 text-[15px] text-muted-foreground">{PAY_NOTE}</p>
+        </section>
 
-      <NeedsYouRow />
+        {notStarted && fiberStart && (
+          <div className={`${HUB_CARD} p-4`}>
+            <p className="text-[15px] font-semibold text-foreground">You start {formatStart(fiberStart)}</p>
+            <p className="mt-1 text-[15px] text-muted-foreground">
+              Your installs and pay live here once you start.
+            </p>
+          </div>
+        )}
 
-      {steps.total > 0 && steps.done < steps.total && (
-        <div className={`${HUB_CARD} mb-4 space-y-3 p-4`}>
-          <FiberEyebrow>Setup path</FiberEyebrow>
-          <p className="text-[13px] tabular-nums text-muted-foreground">
-            {steps.done} of {steps.total} steps complete
-          </p>
-          <ul className="space-y-1.5">
-            {stepList.map((s) => (
-              <li key={s.id} className="flex items-center gap-2 text-[13px]">
-                <Check className={s.done ? 'h-4 w-4 text-primary' : 'h-4 w-4 text-muted-foreground/40'} />
-                <span className={s.done ? 'text-muted-foreground' : 'text-foreground'}>{s.title}</span>
-              </li>
-            ))}
-          </ul>
-          <Button variant="outline" size="sm" onClick={() => navigate('/app/industries')}>
-            Continue setup
-          </Button>
+        {canShareJoinLink && <JoinGainzCard link={joinLink} />}
+
+        {/* Two links, inlined as rows instead of two cards. */}
+        <div className={`${HUB_CARD} divide-y divide-border`}>
+          <button
+            type="button"
+            onClick={() => navigate('/app/training')}
+            className="flex min-h-14 w-full items-center gap-3 px-4 text-left"
+          >
+            <GraduationCap className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
+            <span className="text-[15px] font-semibold text-foreground">Training</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/app/chat')}
+            className="flex min-h-14 w-full items-center gap-3 px-4 text-left"
+          >
+            <MessageCircle className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
+            <span className="text-[15px] font-semibold text-foreground">{workspace.short_name} chat</span>
+          </button>
         </div>
-      )}
 
-      <div className={`${HUB_CARD} mb-4 p-4`}>
-        <FiberEyebrow>Announcement</FiberEyebrow>
-        <p className="text-[13px] text-muted-foreground">{pinned || 'No announcement yet.'}</p>
-      </div>
+        <NeedsYouRow className="!px-0" />
+
+        {steps.total > 0 && steps.done < steps.total && (
+          <div className={`${HUB_CARD} space-y-3 p-4`}>
+            <FiberEyebrow>Setup path</FiberEyebrow>
+            <p className="text-[15px] tabular-nums text-muted-foreground">
+              {steps.done} of {steps.total} steps complete
+            </p>
+            <ul className="space-y-1.5">
+              {stepList.map((s) => (
+                <li key={s.id} className="flex items-center gap-2 text-[15px]">
+                  <Check className={s.done ? 'h-4 w-4 text-primary' : 'h-4 w-4 text-muted-foreground/40'} />
+                  <span className={s.done ? 'text-muted-foreground' : 'text-foreground'}>{s.title}</span>
+                </li>
+              ))}
+            </ul>
+            <Button variant="outline" className="min-h-11" onClick={() => navigate('/app/industries')}>
+              Continue setup
+            </Button>
+          </div>
+        )}
+
+        <div className={`${HUB_CARD} p-4`}>
+          <FiberEyebrow>Announcement</FiberEyebrow>
+          <p className="text-[15px] text-muted-foreground">{pinned || 'No announcement yet.'}</p>
+        </div>
+      </MoreReveal>
+
 
       {/* Team tracking, demoted: official pay and orders live on Gainz. */}
       <div className={`${HUB_CARD} p-4`}>
