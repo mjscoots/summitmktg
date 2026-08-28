@@ -6,7 +6,6 @@ import { isManagerOrAbove } from '@/lib/roles';
 import { useSaleStreak } from '@/hooks/useSaleStreak';
 import { useHomeToday } from '@/hooks/useHomeToday';
 import { useManagerWeek } from '@/hooks/useManagerWeek';
-import { useChatChannels } from '@/hooks/useChatChannels';
 import { useActionCards } from '@/hooks/useActionCards';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
@@ -49,7 +48,6 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const { days: saleStreak } = useSaleStreak();
   const today = useHomeToday();
   const { totals } = useManagerWeek();
-  const { totalUnread } = useChatChannels();
   const { cards } = useActionCards();
 
   const [logOpen, setLogOpen] = useState(false);
