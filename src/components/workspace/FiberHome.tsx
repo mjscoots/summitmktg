@@ -17,7 +17,6 @@ import {
   GainzHero,
   JoinGainzCard,
   ContactsCard,
-  HowItWorksCards,
   FiberQuestions,
   FiberEyebrow,
   HUB_CARD,

@@ -153,37 +153,35 @@ export function ContactsCard({ contacts }: { contacts: FiberContact[] }) {
   );
 }
 
-const HOW_IT_WORKS = [
-  'Screenshot every sale. Screenshots reconcile against ISP reports so no commission gets lost.',
-  'Pay questions go to Kei. Pay runs through Gainz and Everee, not this app.',
-  'Markets are requested by text, not the portal. Ask your manager.',
+/** How it works, folded into the questions card as three plain entries. */
+const HOW_IT_WORKS: { id: string; question: string; answer: string }[] = [
+  {
+    id: 'how-screenshots',
+    question: 'Do I need a screenshot of every sale?',
+    answer: 'Yes. Screenshots reconcile against ISP reports so no commission gets lost.',
+  },
+  {
+    id: 'how-pay',
+    question: 'Who do I ask about pay?',
+    answer: 'Kei. Pay runs through Gainz and Everee, not this app.',
+  },
+  {
+    id: 'how-markets',
+    question: 'How do I request a market?',
+    answer: 'By text through your manager, not the portal.',
+  },
 ];
-
-/** Three plain info cards. */
-export function HowItWorksCards() {
-  return (
-    <div className="mb-4">
-      <FiberEyebrow>How it works</FiberEyebrow>
-      <div className="grid gap-2 sm:grid-cols-3">
-        {HOW_IT_WORKS.map((line) => (
-          <div key={line} className={`${HUB_CARD} p-4 text-[13px] text-foreground`}>
-            {line}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /** The Gainz onboarding questions, expandable one at a time. */
 export function FiberQuestions({ faq }: { faq: FiberFaq[] }) {
   const [open, setOpen] = useState<string | null>(null);
-  if (!faq.length) return null;
+  const items = [...HOW_IT_WORKS, ...faq];
+  if (!items.length) return null;
   return (
     <div className={`${HUB_CARD} mb-4 p-4`}>
       <FiberEyebrow>Questions</FiberEyebrow>
       <ul className="divide-y divide-border">
-        {faq.map((q) => (
+        {items.map((q) => (
           <li key={q.id}>
             <button
               type="button"
