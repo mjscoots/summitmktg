@@ -1632,3 +1632,52 @@ Nothing was published.
 - Access: the switcher (sidebar and phone sheet) now lists only enrolled workspaces, so a single-vertical rep sees no switcher (30 such reps in the database today); owner and admins keep all three via get_my_workspaces, which is SECURITY DEFINER and server-side. VerticalRouteGuard bounces direct visits to /app/installs, /app/pipeline, /app/playbook, /app/doors and /app/season back to /app for anyone not enrolled in that industry.
 - Three things a rep sees within one second: Fiber opens on a mint-bordered Gainz hero with a mint line grid at 28px and mint section eyebrows; Pest opens on today's number with the ice dot texture and Doors in the bar; Life opens light with paper grain. Each phone bar's active tab carries its own accent. No new colours.
 - Verification: typecheck and production build clean; build log reads build OK. No 390-1280 overflow introduced (all new cards are single-column with sm: grids). Screenshots were not possible: the project has several auth users and minting a session for a specific one needs approval in this context, so access was verified at database and route level as stated above. The Join Gainz card is gated by isManagerOrAbove(role) — rookies never render it. Nothing published.
+
+## Pass 87 — The cut
+
+The four jobs (recruit and onboard, train, run the day, keep people) each reach nav in one hop:
+recruiting sits in Admin inbox plus Team invite, training is Learn, the day is Home/Chat/Board,
+keeping people is Team, My week and Leads. Everything with zero adoption left navigation while its
+tables, routes and RLS stayed exactly as they were, so any of it can return by re-adding one entry.
+
+Cuts made (16 entry points): incentives tracker on Leaderboard; pairing requests panel and Run a
+Team applications panel on Command; car groups, triage board and team action items tabs on Team;
+win-back tab on Recruits; commitment interview tab on Forms; admin Feedback, Questions (home
+question answers) and Culture tabs; admin roster-sweep button; Forms out of Manage; Fiber Installs
+out of the phone bar's prime slot. Vet leads, partners, recruiting testimonials and timeline keep no
+rep-facing entry (admin public-site content only). The Season nav entry already appears only while a
+season exists. Ask Summit stayed; there is no separate AI coach surface.
+
+Money now names its source. My money All tab prints one line per vertical: "Pest: logged sales",
+"Fiber: Gainz pay sheets", "Life: not open". The Fiber board carries "Counts from Gainz weekly
+sheets and blitz entries", and the Installs empty state reads "Installs appear here from the weekly
+Gainz sheet once your manager loads it". Log a sale stays on Pest; Log install stays reachable on
+the Installs page. No ingestion was built — that is Pass 88.
+
+Manage is now exactly Team, My week, Leads, Approvals, with Invite living on the Team page.
+Verified at route level: every nav path resolves to a real route (admin sections render from
+ADMIN_SECTIONS, so /admin/inbox is covered), no 404s. No session could be minted this turn
+(browser auth status: signed out), so screen-by-screen sign-in checks were not run; verification was
+route and code level plus typecheck and production build, both clean.
+
+| Route | Verdict | Reason |
+| --- | --- | --- |
+| /app (all three homes) | kept | today, attention, one-on-one |
+| /app/training, /app/lesson | kept | training is heaviest usage |
+| /app/chat | kept | 712 messages, daily loop |
+| /app/leaderboard | kept | competition drives daily return |
+| /app/money | kept | now states its source |
+| /app/events | kept | blitzes and attendance real |
+| /app/playbook, /app/doors | kept | pest field work |
+| /app/team, /app/week, /app/leads | kept | manager core, kept in Manage |
+| /app/pitch-approvals | kept | real approval decisions |
+| /app/installs | folded | secondary, out of phone bar |
+| /app/forms | folded | route stays, nav entry removed |
+| /app/season | folded | nav only while season exists |
+| /app/recruits win-back | cut | zero usage, no job |
+| Team car groups, triage | cut | zero usage, no job |
+| Command pairings, run-a-team | cut | zero usage, no job |
+| Leaderboard incentives | cut | never configured or used |
+| Admin feedback, questions, culture | cut | zero rows, zero adoption |
+| Admin roster sweep | cut | sweep sessions unused |
+| /app/roster/sweep, all cut routes | kept as route | tables and RLS untouched |
