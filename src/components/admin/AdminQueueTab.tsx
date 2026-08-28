@@ -104,23 +104,24 @@ export function AdminQueueTab() {
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
+      {/* Summary — decisions only */}
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
         {(
           [
-            ['Total', counts.total],
+            ['Decisions', counts.total],
             ['Approvals', counts.pendingApprovals],
+            ['Applications', counts.pendingApplications],
+            ['Vertical requests', counts.verticalRequests],
             ['Pitches', counts.pendingPitches],
-            ['Feedback', counts.newFeedback],
-            ['Sync', counts.syncIssues],
           ] as const
         ).map(([label, value]) => (
-          <div key={label} className="stat-card">
-            <span className="micro-label">{label}</span>
+          <div key={label} className="stat-card min-w-0">
+            <span className="micro-label block truncate">{label}</span>
             <p className="stat-value mt-1 tabular-nums">{value}</p>
           </div>
         ))}
       </div>
+
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-2 rounded-[var(--radius)] border border-white/[0.06] bg-card/60 p-2.5 backdrop-blur-sm">
