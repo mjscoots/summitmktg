@@ -54,7 +54,34 @@ this work is tracked outside the app.
 - **Brandon Pillar** is the East region lead and still needs an invite or a password reset
   from you before he can sign in.
 
+### Since that list — the most recent round of work
+
+- **Less on the menu.** Anything nobody used is gone. What is left does one of four jobs:
+  recruit, train, run the day, keep people.
+- **Money comes in by import, not by typing.** You paste the Gainz week or the Vision
+  revenue month, check the names it matched, and load it. Every load can be undone in one
+  tap, and each number on a rep's money screen says where it came from and when.
+- **Pest is the default; Fiber and Life need your approval.** A rep asks for an industry
+  from their own app; you approve or decline it in Admin → Requests. Locked industries
+  cannot be opened by typing the address.
+- **Day one collects what the business needs.** Photo, phone, hometown and the rest happen
+  in a guided setup, followed by the goal conversation and their first referrals. Managers
+  see who has finished and who has not.
+- **Admin is five groups.** People, Requests, Money, Content, Settings — and the Requests
+  badge now counts only real decisions waiting on you.
+- **Fiber reports the day, not the paperwork.** A rep taps today's number; official pay
+  still comes from Gainz. Blitzes have a capacity and a sign-up list you can copy straight
+  into a message to the dealer.
+- **The re-sign week is a working call board.** One tap logs the outcome of a call, the
+  week's list sorts itself by who is due and who was worth the most last season, and the
+  scoreboard shows who has signed for 2027.
+- **Every screen breathes.** Fewer blocks above the fold, bigger gaps, and each industry
+  now has its own unmistakable accent colour.
+- **New this check.** An invited rep waits for your approval instead of arriving already
+  approved, and nine internal actions are now closed to signed-out visitors.
+
 ---
+
 
 ## 3. Things only you can do
 
