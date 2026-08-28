@@ -18,11 +18,17 @@ export function QuickChips({ chips, className }: { chips: QuickChip[]; className
           key={c.label}
           type="button"
           onClick={() => (c.onClick ? c.onClick() : c.to ? navigate(c.to) : undefined)}
-          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-[13px] font-semibold text-foreground"
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-[15px] font-semibold text-foreground"
         >
           {c.label}
           {c.badge && c.badge > 0 ? (
-            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] tabular-nums text-primary">
+            <span
+              className="rounded-full px-2 py-0.5 text-[11px] tabular-nums"
+              style={{
+                background: 'hsl(var(--workspace-accent) / 0.16)',
+                color: 'hsl(var(--workspace-accent))',
+              }}
+            >
               {c.badge > 99 ? '99+' : c.badge}
             </span>
           ) : null}
