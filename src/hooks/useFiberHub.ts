@@ -11,7 +11,25 @@ export interface FiberBlitz {
   place: string;
   timing: string;
   approximate?: boolean;
+  /** Stable key for opt-ins; derived from the place when missing. */
+  key?: string;
+  start_date?: string;
+  end_date?: string;
+  capacity?: number;
 }
+
+/** Stable opt-in key for a blitz entry. */
+export function blitzKey(b: FiberBlitz): string {
+  return (
+    b.key ||
+    b.place
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') ||
+    'blitz'
+  );
+}
+
 
 export interface FiberFaq {
   id: string;

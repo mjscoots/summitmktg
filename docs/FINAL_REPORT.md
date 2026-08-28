@@ -1739,3 +1739,28 @@ Typecheck and production build clean. Layout unchanged at 390–1280 with 44px t
 | Culture tab render | Unreachable, cut in Pass 87 |
 | Questions tab render | Unreachable, cut in Pass 87 |
 | Feedback tab render | Unreachable, cut in Pass 87 |
+
+## Pass 92 — Fiber run of show
+
+Fiber's primary entry is now a one-tap Today sheet, not data entry. `TodayNumberSheet`
+asks "How many today?" with a big stepper, one optional "What did you sell?" line and a
+carrier prefilled from the rep's last day row, and saves in two taps through
+`log_fiber_today`. Day rows live in `fiber_day_numbers` (one per rep per day, same-day
+edits by the rep, corrections by paired manager, vertical lead, admin or owner) and the
+RPC rolls the week up into the existing `fiber_installs` row — it never overwrites a week
+that came from an imported Gainz sheet. Fiber Home, the Numbers page and the Board all
+read today and this week from the same day rows, each carrying the line "Numbers feed the
+board. Pay comes from Gainz." The old Log install dialog is deleted and folded in.
+
+Blitzes now fill by opt-in. Each entry in Admin → Settings → Fiber hub gained start date,
+end date and capacity. Enrolled fiber reps see a live count ("7 of 12 in"), Opt in until
+capacity ("Full" and disabled at capacity) and Opt out until the start date. Counts come
+from `blitz_optin_counts` so no rep reads another rep's row; `blitz_optins` RLS lets reps
+write only their own row and managers and above read all. Managers see the opted roster
+(name, phone) inline and get "Copy request", which produces exactly
+"Team of <count>, <start date> to <end date>, <blitz name>" from real data only — nothing
+is sent from the app.
+
+Verified: one synthetic owner day number (3) and one blitz opt-in confirmed the totals,
+count and roster, then both were deleted and both tables read zero. Both RPCs are granted
+to authenticated only. One migration, typecheck and production build clean, preview only.

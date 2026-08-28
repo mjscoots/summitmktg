@@ -18,6 +18,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceLeaderboard } from '@/components/leaderboard/WorkspaceLeaderboard';
 import { SelfReportedWeek } from '@/components/leaderboard/SelfReportedWeek';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { FiberBoardToday } from '@/components/fiber/FiberBoardToday';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'sales' | 'streak' | 'recruiting' | 'hof';
 
@@ -115,9 +116,7 @@ export default function LeaderboardPage() {
           )}
 
           {activeVertical === 'Fiber' && (
-            <p className="mb-4 text-xs text-muted-foreground">
-              Counts come from the Gainz weekly sheet when it has been loaded.
-            </p>
+            <FiberBoardToday />
           )}
 
 
