@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ProfileCompletionGate } from '@/components/ProfileCompletionGate';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useRecruitGate } from '@/hooks/useRecruitGate';
 
 interface BootcampGateProps {
   children: ReactNode;
