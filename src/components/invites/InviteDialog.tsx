@@ -218,6 +218,17 @@ export function InviteDialog({ managerLocked = false, triggerLabel = 'Invite', t
           </div>
         ) : (
           <div className="space-y-4">
+            <div>
+              <Label>Rookie or vet</Label>
+              <Select value={experience} onValueChange={setExperience}>
+                <SelectTrigger className="min-h-11"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rookie">Rookie</SelectItem>
+                  <SelectItem value="veteran">Vet</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {locked ? (
               <div className="rounded-xl border border-border bg-muted/30 p-4 text-[13px]">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">This invite</p>
