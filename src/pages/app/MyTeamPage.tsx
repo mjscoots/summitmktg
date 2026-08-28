@@ -311,11 +311,14 @@ export default function MyTeamPage() {
                     My week
                   </Button>
                 )}
-                {isManagerRole && activeVertical === 'Pest' && (
+                {/* Pass 89 — the bulk roll is owner and admin only. A manager's
+                    path is telling reps to request Fiber access. */}
+                {isAdmin && activeVertical === 'Pest' && (
                   <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setRollOpen(true)}>
                     Roll into Fiber
                   </Button>
                 )}
+
                 {isManagerRole && <InviteDialog managerLocked={!isAdmin} />}
                 {canAddMembers ? (
                   <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
