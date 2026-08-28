@@ -105,6 +105,7 @@ export default function ChatPage() {
             open={membersOpen}
             onOpenChange={setMembersOpen}
             onCoverChanged={refresh}
+            onRoomDeleted={backToList}
           />
         </div>
       </AppLayout>
