@@ -77,27 +77,22 @@ export function StreakCelebration({
       isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
     )}>
       <div className={cn(
-        "flex items-center gap-4 px-6 py-4 rounded-2xl border-2 backdrop-blur-sm",
-        isRookieCourse
-          ? "bg-primary/10 border-primary/50 shadow-[0_0_40px_-10px_rgba(34,197,94,0.6)]"
-          : "bg-primary/10 border-primary/50"
+        "celebrate-card celebrate-in flex items-center gap-4 px-6 py-4 rounded-2xl backdrop-blur-sm"
       )}>
         {/* Animated Icon */}
-        <div className={cn(
-          "p-3 rounded-xl animate-pulse",
-          isRookieCourse ? "bg-primary/20 text-primary" : "bg-primary/20 text-primary"
-        )}>
+        <div
+          className="p-3 rounded-xl"
+          style={{ background: 'hsl(var(--celebrate-warm) / 0.16)', color: 'hsl(var(--celebrate-warm))' }}
+        >
           {getMilestoneIcon()}
         </div>
 
         {/* Content */}
         <div>
-          <h3 className={cn(
-            "font-black text-lg",
-            isRookieCourse ? "text-primary" : "text-primary"
-          )}>
+          <h3 className="celebrate-text font-black text-lg">
             {getMilestoneTitle()}
           </h3>
+
           <p className="text-sm text-muted-foreground">
             {message}
           </p>
