@@ -85,7 +85,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
   const moreChips: QuickChip[] = staff
     ? [
-        { label: 'My week', to: '/app/week' },
+        { label: 'My week', to: '/app/team' },
         { label: 'Leads', to: '/app/leads' },
         { label: 'Incentives', to: '/app/leaderboard' },
         { label: 'Post', onClick: () => setPostOpen(true) },
@@ -162,7 +162,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
             <SectionEyebrow>Needs attention</SectionEyebrow>
             <button
               type="button"
-              onClick={() => navigate('/app/week')}
+              onClick={() => navigate('/app/team')}
               className="card-ice flex min-h-14 w-full items-center justify-between gap-4 px-4 text-left"
             >
               <span className="text-[15px] text-foreground">
@@ -228,7 +228,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         <WeekBars
           bars={today.weekBars}
           trainingMinutes={today.trainingMinutes}
-          onOpen={() => navigate(staff ? '/app/week' : '/app/leaderboard')}
+          onOpen={() => navigate(staff ? '/app/team' : '/app/leaderboard')}
         />
 
         <TeamTodayCard

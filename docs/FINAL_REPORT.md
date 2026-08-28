@@ -1997,3 +1997,15 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Events: owner and admin get Delete and Delete series via `delete_calendar_event(uuid, boolean)` (owner/admin check inside, anon revoked, hard delete of the event plus attendance, assignees, notifications), one confirm dialog. `get_events_feed` and the month view now exclude `is_cancelled` rows.
 - Verified: pending applications 1, scheduling pending 0, recruiting_leads 98, profiles 535, active 23, invites 0, cancelled events 0, no other drift. Typecheck and production build clean; linter 361 to 363, the delta being the two new role-checked functions.
 - Authenticated 390px route walk not possible this pass (no session could be minted), so overlap was fixed at the CSS/container level and verified in the built stylesheet.
+
+## Pass 113 — Events
+- One Events screen: /app/events lists upcoming cards with Going / Can't make it plus a List and Calendar toggle (CalendarPage now renders embedded). /app/calendar and /app/operations redirect to /app/events.
+- Nav has one entry named Events for every role and workspace (Pest, Fiber, Life main groups); Schedule/Blitzes duplicates removed from the sidebar and drawer.
+- My week left the nav: MyWeekPage deleted, /app/week redirects to /app/team, and the owed list (OwedThisWeek) renders at the top of Team for both Pest and Fiber views. The owed RPCs are unchanged.
+- get_events_feed now returns end_date so multi-day events show a range ("Mon Sep 28 to Sep 30"); anon execute revoked, authenticated only. Events page requests a 60 day back / 420 day forward window so the 2027 dates appear.
+- Loaded the twelve real events: Shasta Leadership Trip (managers scope only), Howell MI and Gastonia NC fiber blitzes, Greece Sales Trip, Hawx Blitz Waves 1 to 3, LDP Nov 13, Prize Pick Up Nov 14, LDP Jan 9 2027, LDP Mar 4 2027, 2027 Sales Kick Off. Descriptions verbatim, no placeholders.
+- Verified: 12 events added (1 managers-only, 2 Fiber, 4 Pest, 6 all-verticals), cancelled events 0 and never rendered (feed and calendar both filter is_cancelled).
+- Rep visibility: the sampled active rookie holds no manager role, so can_view_event('managers') is false for the Shasta trip; team-wide events pass.
+- RSVP verified at policy level only: reps may write and read just their own calendar_attendance row and my_rsvp reads back through the feed. A rep session could not be minted, so the click path was not walked in-browser.
+- No baseline drift: profiles 535, active 23, recruiting_leads 98, applications pending 1, invites 0, roles owner 1 / admin 2, downline edges 395.
+- Typecheck and production build clean. Linter count moved 361 to 364 from the recreated feed function family; no new distinct issue types. Nothing published.

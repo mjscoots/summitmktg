@@ -47,10 +47,8 @@ const BootcampPhase3 = lazyRoute(() => import("./pages/app/BootcampPhase3"));
 const TrainingCoursePage = lazyRoute(() => import("./pages/app/TrainingCoursePage"));
 const LessonPage = lazyRoute(() => import("./pages/app/LessonPage"));
 const LeaderboardPage = lazyRoute(() => import("./pages/app/LeaderboardPage"));
-const CalendarPage = lazyRoute(() => import("./pages/app/CalendarPage"));
 const EventsPage = lazyRoute(() => import("./pages/app/EventsPage"));
 const MyTeamPage = lazyRoute(() => import("./pages/app/MyTeamPage"));
-const MyWeekPage = lazyRoute(() => import("./pages/app/MyWeekPage"));
 
 const ProfilePage = lazyRoute(() => import("./pages/app/ProfilePage"));
 const InterviewsPage = lazyRoute(() => import("./pages/app/InterviewsPage"));
@@ -286,12 +284,8 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* My week — one screen for a manager's Monday */}
-              <Route path="/app/week" element={
-                <ProtectedRoute requiredRole="manager">
-                  <MyWeekPage />
-                </ProtectedRoute>
-              } />
+              {/* My week folded into Team */}
+              <Route path="/app/week" element={<Navigate to="/app/team" replace />} />
 
 
               {/* Members directory now lives as a tab inside Team */}
@@ -431,12 +425,8 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-               {/* Calendar */}
-               <Route path="/app/calendar" element={
-                <ProtectedRoute>
-                    <CalendarPage />
-                </ProtectedRoute>
-              } />
+               {/* Calendar folded into Events */}
+               <Route path="/app/calendar" element={<Navigate to="/app/events" replace />} />
 
 
              {/* Forms (unified - Manager Only) */}
@@ -512,7 +502,7 @@ function LazyFallback() {
 
 
                {/* Redirect old Hub/Operations to Calendar */}
-               <Route path="/app/operations" element={<Navigate to="/app/calendar" replace />} />
+               <Route path="/app/operations" element={<Navigate to="/app/events" replace />} />
 
               {/* Manage Hub (replaces Analytics) */}
               {/* Manage hub dissolved — everything lives in the sidebar now */}

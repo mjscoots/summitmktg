@@ -25,7 +25,7 @@ export function ThisWeekStrip() {
         {cells.map((c) => (
           <button
             key={c.label}
-            onClick={() => navigate('/app/week')}
+            onClick={() => navigate('/app/team')}
             className="card-ice min-h-11 px-3 py-2.5 text-left"
           >
             <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
