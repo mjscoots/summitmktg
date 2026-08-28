@@ -79,6 +79,8 @@ interface ChatBubbleProps {
   reactions?: Reaction[];
   /** True for the message this person just sent, so it scales in once. */
   justSent?: boolean;
+  /** Direct messages already name the person in the header. */
+  hideSenderName?: boolean;
 
 }
 
