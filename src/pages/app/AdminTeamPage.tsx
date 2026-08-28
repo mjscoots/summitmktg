@@ -782,39 +782,48 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
               </div>
 
               <div className="border-t border-border/30 pt-4">
-                <h2 className="text-lg font-bold text-foreground">Doors bug sheet</h2>
+                <h2 className="text-lg font-bold text-foreground">Season dates</h2>
                 <p className="mt-1 text-[13px] text-muted-foreground">
-                  Paste the local seasonal insect list. Until this is filled, Doors mode says a
-                  manager loads it here. Plain text, one line per pest.
+                  The start and end of the selling season. Dates only, no behavior attached.
                 </p>
-                <textarea
-                  value={settings.pest_bug_sheet ?? ''}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, pest_bug_sheet: e.target.value }))}
-                  rows={8}
-                  placeholder="Spring: ants, spiders&#10;Summer: wasps, earwigs"
-                  className="mt-3 w-full rounded-xl border border-border/30 bg-card/60 p-3 text-[15px] text-foreground"
-                />
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {([
+                    ['season_start_date', 'Starts'],
+                    ['season_end_date', 'Ends'],
+                  ] as const).map(([key, label]) => (
+                    <label key={key} className="block">
+                      <span className="micro-label">{label}</span>
+                      <input
+                        type="date"
+                        value={settings[key] ?? ''}
+                        onChange={(e) => setSettings((prev) => ({ ...prev, [key]: e.target.value }))}
+                        className="mt-1 min-h-11 w-full rounded-xl border border-border/30 bg-card/60 px-3 text-[15px] text-foreground"
+                      />
+                    </label>
+                  ))}
+                </div>
                 <Button
                   variant="outline"
                   className="mt-3 min-h-11"
                   disabled={settingsLoading}
                   onClick={async () => {
                     setSettingsLoading(true);
-                    const { error } = await supabase
-                      .from('app_settings')
-                      .upsert(
-                        { key: 'pest_bug_sheet', value: (settings.pest_bug_sheet ?? '').trim() },
-                        { onConflict: 'key' }
-                      );
+                    const { error } = await supabase.from('app_settings').upsert(
+                      [
+                        { key: 'season_start_date', value: (settings.season_start_date ?? '').trim() },
+                        { key: 'season_end_date', value: (settings.season_end_date ?? '').trim() },
+                      ],
+                      { onConflict: 'key' }
+                    );
                     toast(
                       error
                         ? { title: 'Could not save', description: error.message, variant: 'destructive' }
-                        : { title: 'Bug sheet saved' }
+                        : { title: 'Season dates saved' }
                     );
                     setSettingsLoading(false);
                   }}
                 >
-                  Save bug sheet
+                  Save dates
                 </Button>
               </div>
             </div>
