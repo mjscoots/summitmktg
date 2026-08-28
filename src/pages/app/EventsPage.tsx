@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
-  CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2,
+  CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2, Trash2,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -331,6 +331,25 @@ export default function EventsPage() {
               >
                 <Pencil className="h-3.5 w-3.5" /> Edit
               </button>
+            </>
+          )}
+
+          {canDelete && (
+            <>
+              <button
+                onClick={() => setDeleteTarget({ ev, series: false })}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+              </button>
+              {ev.is_series && (
+                <button
+                  onClick={() => setDeleteTarget({ ev, series: true })}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete series
+                </button>
+              )}
             </>
           )}
         </div>
