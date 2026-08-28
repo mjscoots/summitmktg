@@ -161,12 +161,14 @@ export default function DoorsPage() {
 
     const entries = (pb?.data as Entry[]) || [];
     const scripts = (sc?.data as ScriptRow[]) || [];
-    if (entries.length === 0 && scripts.length === 0) {
+    const raw = (settings?.data as { value?: unknown } | null)?.value;
+    const bugSheet = typeof raw === 'string' && raw.trim() ? raw : null;
+    // An empty fetch (offline, or a dropped request) must not wipe the cache.
+    if (entries.length === 0 && scripts.length === 0 && !bugSheet) {
       setLoading(false);
       return;
     }
-    const raw = (settings?.data as { value?: unknown } | null)?.value;
-    const bugSheet = typeof raw === 'string' && raw.trim() ? raw : null;
+
     const next: DoorsContent = { entries, scripts, bugSheet };
     setContent(next);
     setLoading(false);
@@ -237,6 +239,29 @@ export default function DoorsPage() {
           </button>
           <span className="ml-auto font-display text-[18px] font-extrabold text-foreground">Doors</span>
         </div>
+        {/* The three paths sit in the header: one tap from anywhere in Doors */}
+        <div className="mx-auto max-w-3xl overflow-x-auto px-3 pb-2">
+          <div className="flex gap-2">
+            {DOORS.map((d) => (
+              <button
+                key={d.key}
+                onClick={() => {
+                  setDoor(d.key);
+                  setSegment('script');
+                }}
+                className={cn(
+                  'shrink-0 rounded-full border px-5 text-[16px]',
+                  segment === 'script' && door === d.key
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border bg-card text-muted-foreground'
+                )}
+                style={{ minHeight: 48 }}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="mx-auto max-w-3xl overflow-x-auto px-3 pb-2">
           <div className="flex gap-2">
             {SEGMENTS.map((s) => (
@@ -258,6 +283,7 @@ export default function DoorsPage() {
         </div>
       </header>
 
+
       <main className="mx-auto max-w-3xl px-3 pb-28 pt-3">
         {loading ? (
           <div className="space-y-3">
@@ -269,23 +295,17 @@ export default function DoorsPage() {
           <>
             {segment === 'script' && (
               <div className="space-y-3">
-                <div className="flex gap-2 overflow-x-auto">
-                  {DOORS.map((d) => (
-                    <button
-                      key={d.key}
-                      onClick={() => setDoor(d.key)}
-                      className={cn(
-                        'shrink-0 rounded-full border px-5 text-[16px]',
-                        door === d.key
-                          ? 'border-foreground bg-foreground text-background'
-                          : 'border-border bg-card text-muted-foreground'
-                      )}
-                      style={{ minHeight: 48 }}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
+                {door === 'switchover' && (
+                  <FieldCard className="border-primary/40">
+                    <p className="font-display text-[22px] font-extrabold leading-tight text-foreground">
+                      Who do you use right now?
+                    </p>
+                    <p className="mt-2 text-[18px] leading-[1.6] text-muted-foreground">
+                      Ask that first. Get the company and what they pay before you say a price.
+                    </p>
+                  </FieldCard>
+                )}
+
                 {doorBlocks.length === 0 ? (
                   <FieldCard>
                     <p className="text-[18px] text-foreground">
@@ -333,7 +353,10 @@ export default function DoorsPage() {
                   {content?.bugSheet ? (
                     <p className="whitespace-pre-wrap text-[18px] leading-[1.6] text-foreground">{content.bugSheet}</p>
                   ) : (
-                    <p className="text-[18px] text-muted-foreground">Bug sheet coming — ask your manager.</p>
+                    <p className="text-[18px] text-muted-foreground">
+                      Your manager loads the local bug sheet here.
+                    </p>
+
                   )}
                 </FieldCard>
               </div>

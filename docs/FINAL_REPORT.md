@@ -1929,3 +1929,12 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Editable through the existing admin Scripts surface — `Re-sign` added to its category list.
 - New `ReSignScriptsSheet` (one script at a time, prev/next, title chips, copy) opens from a Scripts button above the This week queue on `/app/leads` and from the lead card in `LeadDrawer` (staff tiers only).
 - Verified at database level: 5 Re-sign rows, zero dollar/percent characters in any body; the read rule now uses the same `is_manager_tier` check the app's staff tier uses, so reps get none. Route check reached `/app/leads` without a session (redirect to login), so the sheet was confirmed by code path, not a signed-in click. Typecheck and production build clean; linter count unchanged at 353 pre-existing; nothing published.
+
+## Pass 106 — Doors frame
+- Bug sheet slot is now honest and admin-editable: `app_settings.pest_bug_sheet`, edited in Admin → Season tab ("Doors bug sheet" textarea, upsert on key). Empty reads "Your manager loads the local bug sheet here." No placeholder pests.
+- The three paths (Fresh account, Switchover, DIY) moved into the sticky Doors header, so each is one tap from anywhere in Doors; tapping a path also returns to the script segment.
+- Switchover now leads with "Who do you use right now?" — get the company and what they pay before any price is said.
+- Westchester pricing groups untouched: same rows, same grouping, same numbers, still offline-cached.
+- Offline cache still covers script, objections, closes and pricing plus the bug sheet in one `summit-doors-cache-v1` payload, and an empty fetch no longer overwrites it. Cold open with no connection: header, paths and segments paint from the last cached load; if the device never loaded Doors online, each segment shows its plain "ask your manager" line.
+- Verified: typecheck and production build clean. Route check at 390 dark and light redirected to /login — a preview session could not be minted (multiple auth users, approval unavailable), so Doors itself was confirmed by code path only.
+- Nothing published.
