@@ -121,6 +121,31 @@ export function ChannelSheet({
     onRoomDeleted?.();
   };
 
+  const addMembers = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('add_channel_members', { _slug: slug, _ids: ids });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'Those people did not save.')); return; }
+    setPicked([]);
+    setAddOpen(false);
+    await load();
+    onCoverChanged?.();
+  };
+
+  const removeMember = async (m: Member) => {
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('remove_channel_member', { _slug: slug, _id: m.user_id });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'That did not save.')); return; }
+    await load();
+    onCoverChanged?.();
+    toast(`${m.full_name} removed`, {
+      action: { label: 'Undo', onClick: () => void addMembers([m.user_id]) },
+    });
+  };
+
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
