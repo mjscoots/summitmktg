@@ -135,7 +135,15 @@ export function PrepForm({
             rows={2}
           />
         </div>
+
+        <CommitmentFields
+          commitment={formData.commitment}
+          focusArea={formData.focus_area}
+          onCommitmentChange={v => update('commitment', v)}
+          onFocusChange={v => update('focus_area', v)}
+        />
       </div>
+
 
       {/* Submit */}
       <Button
