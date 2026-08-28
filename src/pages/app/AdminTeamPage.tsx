@@ -404,7 +404,12 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             </div>
           </div>
 
-          {/* Sub-nav inside the section */}
+          {/* What this group is for */}
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            {ADMIN_SECTIONS.find((s) => s.key === section)?.blurb}
+          </p>
+
+          {/* Sub-nav inside the group */}
           <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
             <TabsList className="inline-flex min-w-max gap-0.5 bg-transparent p-0 h-auto">
               {sectionTabs.map((t) => (
