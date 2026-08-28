@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Camera, Loader2, Pencil, Trash2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
+import { MemberPicker } from '@/components/chat/MemberPicker';
 
 interface Member {
   user_id: string;
@@ -21,9 +22,11 @@ interface Details {
   can_set_cover: boolean;
   can_rename: boolean;
   can_delete_room: boolean;
+  can_manage_members: boolean;
   members: Member[];
   member_count: number;
 }
+
 
 /**
  * Tap the room name to see who is in it, with their profile photos. Owners,
