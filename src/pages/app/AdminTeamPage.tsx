@@ -454,6 +454,12 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             </TabsContent>
           )}
 
+          {section === 'people' && (
+            <TabsContent value="seats">
+              <SeatsPanel />
+            </TabsContent>
+          )}
+
           {section === 'people' && isAdmin && (
             <TabsContent value="leadimport">
               <LeadsImportPanel />
