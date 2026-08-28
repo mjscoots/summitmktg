@@ -55,6 +55,10 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
   const today = useHomeToday();
   const { totals } = useManagerWeek();
   const { cards } = useActionCards();
+  const { offSeason } = useSeasonMode();
+  const resign = useResignHero(offSeason && staff);
+  const repLine = useRepOffSeasonLine(offSeason && !staff);
+
 
   const [logOpen, setLogOpen] = useState(false);
   const [postOpen, setPostOpen] = useState(false);
