@@ -544,10 +544,27 @@ export default function CommandCenterPage() {
         {/* LIVE TEAM PULSE */}
         <SectionHeader title="Live Team Pulse" tag="Live" />
         <div style={{ marginBottom: 16 }}>
-          <a href="/app/team" style={{ fontSize: 13, textDecoration: "underline" }}>
+          <a
+            href="/app/team"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              minHeight: 44,
+              padding: "0 16px",
+              borderRadius: 8,
+              border: `1px solid ${COLORS.border}`,
+              color: COLORS.text,
+              fontFamily: fontMono,
+              fontSize: 12,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              textDecoration: "none",
+            }}
+          >
             Open My week
           </a>
         </div>
+
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 40 }}>
           <StatCard label="Total Reps" value={live.totalReps} />

@@ -2092,3 +2092,21 @@ Everything from Pass 117 still works: list, covers, unread badges, composer abov
 - The three Home numbers match direct SQL (14 of 142, 15, 1).
 - Chat at 390 and 1280 in dark and light: no horizontal overflow, no new console errors.
 - Typecheck and production build clean. Nothing published.
+
+## Pass 122 — Full audit
+Session was injected (owner). Walked every route in src/App.tsx at 390/1280, dark and light; 172 captures in docs/screens/. Light captures render dark because the app theme comes from the user preference, not the browser color scheme — noted as a limitation.
+Rookie first-open path from code: /invite/:token redeems -> profile created pending -> useRecruitGate locks -> BootcampGate redirects every /app route to /recruit-course -> six day-one items -> completion celebration -> gate clears -> /app.
+Fixed this pass: manager_owed() rebuilt without a temp table (it was STABLE + CREATE TEMP TABLE, so owed_by_manager returned HTTP 400 and /command "The week" and "Owed by manager" never loaded); staff Home subline no longer says "N this week across N reps"; /command "Open My week" is now a 44px bordered control instead of a bare underlined link; My money hides orphan "—" driver/source lines.
+Ranked findings, worst first:
+1. /app/leads — only 2 leads visible against 98 in the pool; the roster scope is far tighter than the owner expects.
+2. /command — Money loaded says "No data loaded yet"; no Gainz or Vision import has ever run, so the money half of the owner's week is blank.
+3. /app/leads — Call mode shows 0 and reads inactive while two leads are due; the count source disagrees with This Week.
+4. /app/leaderboard — "Fastest claim-to-sign 3851.4h" is presented as a win; the metric needs a floor or a different label.
+5. /app/events — two red Delete buttons on every card dominate the screen; red is reserved for mandatory and errors.
+6. /app/events — raw Zoom URLs wrap across three lines in event bodies; they should be a single Join control.
+7. /app/leaderboard — team battle rows all read 0 and team names truncate ("Quality C…").
+8. /admin/requests — tab counts render twice and a Demo walkthrough button sits beside live queues.
+9. /app/chat — RSVP cards clip at the right edge at 390 with no affordance that the row scrolls.
+10. /app/money — every industry reads "not set" / "no data"; the screen cannot yet answer "what am I making".
+Cover page, honest rating: strong and on-brand, would hold three seconds. Biggest movers, not shipped: (a) real live proof numbers under the headline, (b) larger headline scale with tighter measure at 1280, (c) higher-contrast filled primary CTA against a deeper layered background.
+Verify: no data writes beyond docs, code, and the manager_owed function definition; baselines untouched. Typecheck and production build clean. /command, /app, /app/leads, /app/money rechecked after the fix: no HTTP 400, no overflow at 1280, only pre-existing React ref warnings. Not published.
