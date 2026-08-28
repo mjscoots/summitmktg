@@ -215,7 +215,7 @@ export default function RecruitsPage() {
 
   return (
     <AppLayout>
-      <div className="h-full overflow-y-auto">
+      <div className="phone-bar-clear h-full overflow-y-auto">
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Home" />
 

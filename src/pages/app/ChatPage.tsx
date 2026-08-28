@@ -104,7 +104,7 @@ export default function ChatPage() {
           </div>
           {strip}
           {searchPanel}
-          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+          <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-3 py-3">
             <NeedsYouRow className="mx-auto w-full max-w-2xl" />
             <ul className="mx-auto mt-2 w-full max-w-2xl space-y-2">
               <li>

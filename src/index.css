@@ -797,6 +797,14 @@ body {
   .app-main-pad { padding-bottom: 0; }
 }
 
+/* Any inner scroll container that ends behind the phone bar gets the same clearance. */
+.phone-bar-clear {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
+@media (min-width: 1024px) {
+  .phone-bar-clear { padding-bottom: 0; }
+}
+
 
 /* ─────────────────────────────────────────────────────────────
    PASS 76 — MONO: shared surfaces and controls

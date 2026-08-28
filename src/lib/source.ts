@@ -1,6 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export type SourceType = 'golden_ticket' | 'rep_referral' | 'partner' | 'organic' | 'other';
+export type SourceType =
+  | 'golden_ticket'
+  | 'rep_referral'
+  | 'partner'
+  | 'organic'
+  | 'other'
+  | 'application';
 
 export interface SourceAttribution {
   source_type: SourceType;

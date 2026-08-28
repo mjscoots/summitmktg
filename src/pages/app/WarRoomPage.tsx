@@ -25,7 +25,7 @@ export default function WarRoomPage() {
 
   return (
     <AppLayout>
-      <div className="h-full overflow-y-auto">
+      <div className="phone-bar-clear h-full overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <PageBackButton to="/app/team" label="Team" />
 
