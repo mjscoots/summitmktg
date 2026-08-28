@@ -123,7 +123,7 @@ export default function SeatsPanel() {
     for (const row of targets) {
       const { data: res, error } = await (supabase.rpc as any)('create_seat_invite', { _user_id: row.user_id, _days: 14 });
       const token = (res as { token?: string })?.token;
-      if (!error && token) lines.push(`${row.full_name} — ${linkFor(token)}`);
+      if (!error && token) lines.push(`${row.full_name}: ${linkFor(token)}`);
     }
     setBusy(null);
     setBulk(lines.join('\n'));
