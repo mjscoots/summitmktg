@@ -117,6 +117,27 @@ export default function EventsPage() {
   const [checkinEvent, setCheckinEvent] = useState<EventRow | null>(null);
   const [checkinRows, setCheckinRows] = useState<CheckinRow[]>([]);
   const [checkinLoading, setCheckinLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ ev: EventRow; series: boolean } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const canDelete = role === 'owner' || role === 'admin';
+
+  const runDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await (supabase as any).rpc('delete_calendar_event', {
+      p_event_id: deleteTarget.ev.id,
+      p_series: deleteTarget.series,
+    });
+    setDeleting(false);
+    if (error) {
+      toast.error('Could not delete that event');
+      return;
+    }
+    toast.success(deleteTarget.series ? 'Series deleted' : 'Event deleted');
+    setDeleteTarget(null);
+    load();
+  };
 
   const load = useCallback(async () => {
     const { data, error } = await (supabase as any).rpc('get_events_feed', {});
