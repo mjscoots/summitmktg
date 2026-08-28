@@ -1907,3 +1907,11 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Live figures at verification: 14 signed, 0 calls in 7d, 5 applications waiting, 0 referrals, 146 training minutes across 3 of 23 active reps, no money imports yet.
 - Existing command report content stays below the new lines.
 - Typecheck and production build clean. Preview only, nothing published.
+
+## Pass 103 — One-on-one prep
+- `RepFactsCard` leads the prep panel with read-only rep figures: season revenue, rev/day, revenue goal, training minutes this week, last trained, signed-for-2027, referrals in (x of 3), days since last sale or fiber number. Missing data reads "Not on file", never a zero.
+- Added two columns to both existing tables (no new tables): `commitment text` and `focus_area text` (checked to skill/desire/activity) on `weekly_one_on_ones_rookie` and `weekly_one_on_ones_manager`.
+- `CommitmentFields` adds the one-sentence commitment and the optional Mind/Heart/Feet picker (44px targets) to both prep forms; the previous commitment shows at the top of the next prep with its date and focus word.
+- Security: column-level SELECT on `commitment`/`focus_area` is revoked from `anon` and `authenticated`, so reps cannot read manager notes even on their own row (verified `has_column_privilege` false). Managers read via SECURITY DEFINER `get_prep_commitment` / `get_rep_prep_facts`, role-gated to manager/admin/owner, anon EXECUTE revoked; non-staff callers get `authorized:false`.
+- Verified: one synthetic rookie one-on-one saved with commitment + focus then deleted; counts back to baseline 37 rookie / 15 manager (52 real records). No rep-facing display of focus area.
+- Typecheck and production build clean. Preview only, nothing published.
