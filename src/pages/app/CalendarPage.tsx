@@ -107,8 +107,12 @@ const truncateTitle = (title: string, maxWords = 3): string => {
   return words.slice(0, maxWords).join(' ');
 };
 
+function CalendarShell({ embedded, children }: { embedded: boolean; children: React.ReactNode }) {
+  return embedded ? <>{children}</> : <AppLayout>{children}</AppLayout>;
+}
+
 // ─── Component ───
-export default function CalendarPage() {
+export default function CalendarPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { role, user, profile } = useAuth();
   const { activeVertical } = useWorkspace();
   const { timezone } = useUserTimezone();
@@ -373,11 +377,11 @@ export default function CalendarPage() {
   // ─── Loading ───
   if (isLoading) {
     return (
-      <AppLayout>
+      <CalendarShell embedded={embedded}>
         <div className="flex items-center justify-center py-20">
           <SummitLoader label="Loading calendar..." />
         </div>
-      </AppLayout>
+      </CalendarShell>
     );
   }
 
@@ -526,11 +530,12 @@ export default function CalendarPage() {
   );
 
   return (
-    <AppLayout>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        <PageBackButton to="/app/events" label="Schedule" />
+    <CalendarShell embedded={embedded}>
+      <main className={embedded ? 'max-w-7xl mx-auto' : 'max-w-7xl mx-auto px-4 sm:px-6 py-4'}>
+        {!embedded && <PageBackButton to="/app/events" label="Events" />}
         <div className="mb-6">
           <div className="relative z-10">
+            {!embedded && (
             <PageHeader
               title="Month view"
               context={`All times shown in ${getTimezoneShort(timezone)} (your local time)`}
@@ -543,6 +548,7 @@ export default function CalendarPage() {
               }
               className="border-none pb-0"
             />
+            )}
 
             {/* Segmented tab control */}
             <div className="mt-4 grid grid-cols-2 items-center gap-1 rounded-[var(--radius)] border border-border/50 bg-foreground/[0.04] p-1 backdrop-blur-sm sm:inline-flex sm:grid-cols-none">
@@ -1052,6 +1058,6 @@ export default function CalendarPage() {
             canEdit={isAdmin || (isManager && selectedEvent.manager_id === user?.id)} />
         )}
       </main>
-    </AppLayout>
+    </CalendarShell>
   );
 }

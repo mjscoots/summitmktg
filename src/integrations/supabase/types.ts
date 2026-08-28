@@ -7147,6 +7147,7 @@ export type Database = {
         Returns: {
           created_by: string
           description: string
+          end_date: string
           event_date: string
           event_kind: string
           going_count: number

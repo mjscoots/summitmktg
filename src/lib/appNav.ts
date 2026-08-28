@@ -71,7 +71,7 @@ export function phoneBar(vertical: string | null | undefined): NavDest[] {
 /** Everything else a rep can reach. One definition, used by the phone sheet and the sidebar. */
 export const DESTINATIONS: NavDest[] = [
   { key: 'money', label: 'My money', path: '/app/money', icon: DollarSign },
-  { key: 'schedule', label: 'Schedule', path: '/app/events', icon: CalendarClock },
+  { key: 'events', label: 'Events', path: '/app/events', icon: CalendarClock },
   { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   { key: 'leads', label: 'Leads', path: '/app/leads', icon: PhoneCall, minTier: 'manager' },
   { key: 'team', label: 'Team', path: '/app/team', icon: Users, minTier: 'manager' },
@@ -81,18 +81,18 @@ export const DESTINATIONS: NavDest[] = [
 ];
 
 /** Desktop sidebar main group: the same five plus Schedule and Leaderboard. */
-export const DESKTOP_MAIN_KEYS = ['home', 'learn', 'chat', 'money', 'schedule', 'leaderboard'];
+export const DESKTOP_MAIN_KEYS = ['home', 'learn', 'chat', 'money', 'events', 'leaderboard'];
 
 export const DESKTOP_MAIN: NavDest[] = [
   { key: 'home', label: 'Home', path: '/app', icon: Home },
   { key: 'learn', label: 'Learn', path: '/app/training', icon: GraduationCap },
   { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   { key: 'money', label: 'My money', path: '/app/money', icon: DollarSign },
-  { key: 'schedule', label: 'Schedule', path: '/app/events', icon: CalendarClock },
+  { key: 'events', label: 'Events', path: '/app/events', icon: CalendarClock },
   { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
 ];
 
-export const MANAGE_KEYS = ['team', 'week', 'leads', 'approvals'];
+export const MANAGE_KEYS = ['team', 'leads', 'approvals'];
 
 /** Every destination a workspace can offer, keyed for the filters below. */
 const ALL: Record<string, NavDest> = {
@@ -100,7 +100,8 @@ const ALL: Record<string, NavDest> = {
   learn: { key: 'learn', label: 'Learn', path: '/app/training', icon: GraduationCap },
   chat: { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
   money: { key: 'money', label: 'My money', path: '/app/money', icon: DollarSign },
-  schedule: { key: 'schedule', label: 'Schedule', path: '/app/events', icon: CalendarClock },
+  events: { key: 'events', label: 'Events', path: '/app/events', icon: CalendarClock },
+  schedule: { key: 'schedule', label: 'Events', path: '/app/events', icon: CalendarClock },
   blitzes: { key: 'blitzes', label: 'Blitzes', path: '/app/events', icon: CalendarClock },
   leaderboard: { key: 'leaderboard', label: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
   board: { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
@@ -125,17 +126,17 @@ function ws(vertical: string | null | undefined): Workspace {
 
 /** The main group per workspace: every surface shows the same set. */
 const MAIN_KEYS: Record<Workspace, string[]> = {
-  pest: ['home', 'learn', 'chat', 'money', 'leaderboard'],
+  pest: ['home', 'learn', 'chat', 'money', 'events', 'leaderboard'],
   // Fiber Learn only appears once the Fiber training has published content.
-  fiber: ['home', 'chat', 'money', 'board'],
-  life: ['home', 'pipeline', 'chat', 'learn', 'money'],
+  fiber: ['home', 'chat', 'money', 'events', 'board'],
+  life: ['home', 'pipeline', 'chat', 'learn', 'money', 'events'],
 };
 
 /** The Manage group per workspace. */
 const WS_MANAGE_KEYS: Record<Workspace, string[]> = {
-  pest: ['team', 'week', 'leads', 'approvals'],
-  fiber: ['team', 'week', 'leads'],
-  life: ['team', 'week'],
+  pest: ['team', 'leads', 'approvals'],
+  fiber: ['team', 'leads'],
+  life: ['team'],
 };
 
 export function desktopMain(vertical: string | null | undefined): NavDest[] {

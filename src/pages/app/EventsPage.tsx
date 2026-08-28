@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Link } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
   CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2, Trash2,
+  List, CalendarDays,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +23,8 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
+
+const CalendarView = lazy(() => import('./CalendarPage'));
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -44,6 +47,7 @@ interface EventRow {
   title: string;
   description: string | null;
   event_date: string;
+  end_date: string | null;
   location: string | null;
   event_kind: string;
   scope: string;
@@ -79,6 +83,15 @@ interface DraftEvent {
 
 function kindLabel(kind: string) {
   return KINDS.find((k) => k.value === kind)?.label ?? 'Other';
+}
+
+function fmtRange(start: string, end: string | null) {
+  const base = fmtWhen(start);
+  if (!end) return base;
+  const s = new Date(start);
+  const e = new Date(end);
+  if (e.toDateString() === s.toDateString()) return base;
+  return `${new Date(start).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} to ${e.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
 }
 
 function fmtWhen(iso: string) {
@@ -119,6 +132,7 @@ export default function EventsPage() {
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ ev: EventRow; series: boolean } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [view, setView] = useState<'list' | 'calendar'>('list');
 
   const canDelete = role === 'owner' || role === 'admin';
 
@@ -140,7 +154,10 @@ export default function EventsPage() {
   };
 
   const load = useCallback(async () => {
-    const { data, error } = await (supabase as any).rpc('get_events_feed', {});
+    const { data, error } = await (supabase as any).rpc('get_events_feed', {
+      p_from: new Date(Date.now() - 60 * 86400000).toISOString(),
+      p_to: new Date(Date.now() + 420 * 86400000).toISOString(),
+    });
     if (error) toast.error('Could not load events');
     setRows((data as EventRow[]) || []);
     setLoading(false);
@@ -255,7 +272,7 @@ export default function EventsPage() {
           <div className="min-w-0">
             <p className="text-[14px] font-semibold text-foreground">{ev.title}</p>
             <p className="mt-1 text-[12px] tabular-nums text-muted-foreground">
-              {fmtWhen(ev.event_date)} · {kindLabel(ev.event_kind)}
+              {fmtRange(ev.event_date, ev.end_date)} · {kindLabel(ev.event_kind)}
               {ev.scope === 'team' && ev.team_name ? ` · ${ev.team_name}` : ''}
               {ev.scope === 'managers' ? ' · Managers and above' : ''}
               {ev.is_series ? ' · Weekly' : ''}
@@ -361,8 +378,8 @@ export default function EventsPage() {
     <AppLayout>
       <main className="mx-auto max-w-3xl px-4 py-6">
         <PageHeader
-          title="Schedule"
-          context="Meetings, training, blitzes and dinners you're expected at."
+          title="Events"
+          context="Trips, blitzes, meetings and training. Say yes or no right on the card."
           action={
             isManager ? (
               <button
@@ -377,14 +394,26 @@ export default function EventsPage() {
         />
         {activeVertical === 'Fiber' && <UpcomingBlitzes />}
 
-        <Link
-          to="/app/calendar"
-          className="mb-5 inline-flex min-h-11 items-center text-[13px] font-medium text-primary hover:underline"
-        >
-          Month view
-        </Link>
+        <div className="mb-5 inline-flex items-center gap-1 rounded-xl border border-border/60 bg-surface p-1">
+          {([['list', 'List', List], ['calendar', 'Calendar', CalendarDays]] as const).map(([v, label, Icon]) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={cn(
+                'inline-flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold transition-colors',
+                view === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Icon className="h-4 w-4" /> {label}
+            </button>
+          ))}
+        </div>
 
-        {loading ? (
+        {view === 'calendar' ? (
+          <Suspense fallback={<Skeleton className="h-64 rounded-[var(--radius)]" />}>
+            <CalendarView embedded />
+          </Suspense>
+        ) : loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-28 rounded-[var(--radius)]" />

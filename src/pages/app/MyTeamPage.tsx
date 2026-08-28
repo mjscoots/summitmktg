@@ -33,6 +33,7 @@ import { ThisWeekStrip } from '@/components/team/ThisWeekStrip';
 import { RollToFiberDialog } from '@/components/team/RollToFiberDialog';
 import { GoingColdCard } from '@/components/team/GoingColdCard';
 import { NewRepsPanel } from '@/components/team/NewRepsPanel';
+import { OwedThisWeek } from '@/components/team/OwedThisWeek';
 import { useRollover } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
 
@@ -290,6 +291,8 @@ export default function MyTeamPage() {
             action={isManagerRole ? <InviteDialog managerLocked={!isAdmin} /> : undefined}
           />
 
+          <OwedThisWeek />
+
           <FiberTeam />
         </main>
       </AppLayout>
@@ -307,11 +310,6 @@ export default function MyTeamPage() {
             className="border-none pb-0"
             action={
               <div className="flex items-center gap-2">
-                {isManagerRole && (
-                  <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate('/app/week')}>
-                    My week
-                  </Button>
-                )}
                 {/* Pass 89 — the bulk roll is owner and admin only. A manager's
                     path is telling reps to request Fiber access. */}
                 {isAdmin && activeVertical === 'Pest' && (
@@ -331,6 +329,9 @@ export default function MyTeamPage() {
             }
           />
 
+          <div className="mt-4">
+            <OwedThisWeek />
+          </div>
 
           {/* View toggle */}
           <div className="mt-4 inline-flex items-center gap-0.5 p-1 rounded-xl bg-card/40 border border-white/[0.06]">
