@@ -68,7 +68,6 @@ Deno.serve(async (req) => {
         full_name: fullName,
         phone: invite.phone || undefined,
         selected_role: appRole,
-        approved: true,
       },
     });
 
@@ -100,7 +99,9 @@ Deno.serve(async (req) => {
         region: (invite.region as string) || null,
         vertical: (invite.vertical as string) || "Pest",
         status: "active",
-        approved: true,
+        // Pass 96 — an invited rep still waits for an owner decision, so they
+        // land in the Approvals tab instead of arriving pre-approved.
+        approved: false,
       })
       .eq("user_id", userId);
 
