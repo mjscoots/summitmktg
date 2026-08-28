@@ -724,8 +724,56 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
 
 
+          {/* ========== SEASON TAB ========== */}
+          <TabsContent value="season">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Season mode</h2>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  Off season leads Home with the 2027 re-sign number for staff and training
+                  minutes for reps. In season leads with sales. Nothing else on Home moves.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: 'in', label: 'In season', desc: 'Home leads with sales' },
+                  { value: 'off', label: 'Off season', desc: 'Home leads with re-signs' },
+                ].map((opt) => {
+                  const current = settings.season_mode === 'in' ? 'in' : 'off';
+                  const active = current === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      disabled={settingsLoading}
+                      onClick={async () => {
+                        setSettingsLoading(true);
+                        const { error } = await supabase
+                          .from('app_settings')
+                          .upsert({ key: 'season_mode', value: opt.value }, { onConflict: 'key' });
+                        if (!error) {
+                          setSettings((prev) => ({ ...prev, season_mode: opt.value }));
+                          toast({ title: `Season set to ${opt.label.toLowerCase()}` });
+                        }
+                        setSettingsLoading(false);
+                      }}
+                      className={`min-h-[76px] rounded-xl border px-4 py-3 text-left ${
+                        active
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border/30 bg-card/60'
+                      }`}
+                    >
+                      <p className="text-[15px] font-semibold text-foreground">{opt.label}</p>
+                      <p className="text-[13px] text-muted-foreground">{opt.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
 
           {/* ========== SYSTEM TAB ========== */}
+
           {isSuperAdmin && (
             <TabsContent value="system">
               <div className="space-y-6">
