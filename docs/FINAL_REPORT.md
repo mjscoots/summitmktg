@@ -1958,3 +1958,13 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Andrew Bucy (Hewitt McBride) and Spiro Mellis (Logan McCarty) show "Manager departed" with a live-manager picker that writes `profiles.manager_id`, `direct_manager` and the `manages` edge together. No replacement guessed.
 - Verified: `is_effective_manager` true for Rubino, Colton Joyce, Luc Chevalier, Sean Jablonski; false for Alex Justice, Lucas Martins, Daniel Kukui (7 effective managers total). One synthetic invite created, revoked and deleted — invites back to 0; one manager role granted and removed — `user_roles` back to owner 1, admin 2.
 - Typecheck and production build clean. Preview only, nothing published. Linter shows 369 pre-existing-style definer warnings; every new function is role-checked inside with anon execute revoked.
+
+## Pass 109 — Seats truth
+- Seats now leads with last activity (later of auth sign-in and profiles.last_active_at), shown as date plus days since, sorted coldest first.
+- Header counts replaced with active in last 7 days, dark 8 to 29 days, dark 30 days or more, plus managers missing a role.
+- Choice on the dead column: keep stamping last_login_at on every sign-in (touch_last_login already does) and backfilled it from real sign-in history, so it is now populated for everyone who has signed in; nothing reads it in the UI.
+- Invites are the exception: Create invite only shows for people with no auth account; the bulk button is scoped to those people, names the count, and is hidden when there are none. Copy and revoke unchanged, nothing sends.
+- /command The week gains one owner/admin line: reps dark 30 days or more, tapping to Seats coldest first.
+- Grant manager access and the one-sentence explanation kept exactly as built.
+- Verified with no synthetic writes: direct SQL over 23 active profiles joined to auth sign-in and last_active_at returns 4 active in 7 days, 4 dark 8 to 29, 15 dark 30 or more, 0 without an account, matching the header. seats_rows and owner_week return zeros below admin and anon has no execute.
+- Typecheck and production build clean. Nothing published.

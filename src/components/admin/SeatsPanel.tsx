@@ -16,7 +16,9 @@ interface SeatRow {
   manager_id: string | null;
   manager_name: string | null;
   manager_departed: boolean;
-  signed_in: boolean;
+  has_account: boolean;
+  last_active_at: string | null;
+  days_since: number | null;
   role: string | null;
   has_manager_role: boolean;
   effective_manager: boolean;
@@ -27,12 +29,14 @@ interface SeatRow {
 
 interface SeatsData {
   rows: SeatRow[];
-  never_signed_in: number;
-  no_invite: number;
+  active_7: number;
+  dark_8_29: number;
+  dark_30: number;
+  no_account: number;
   managers_missing_role: number;
 }
 
-const EMPTY: SeatsData = { rows: [], never_signed_in: 0, no_invite: 0, managers_missing_role: 0 };
+const EMPTY: SeatsData = { rows: [], active_7: 0, dark_8_29: 0, dark_30: 0, no_account: 0, managers_missing_role: 0 };
 
 const inviteLabel: Record<SeatRow['invite_state'], string> = {
   none: 'No invite',
@@ -42,7 +46,15 @@ const inviteLabel: Record<SeatRow['invite_state'], string> = {
   revoked: 'Invite revoked',
 };
 
+const activityText = (row: SeatRow) => {
+  if (!row.last_active_at || row.days_since === null) return 'No activity on record';
+  const date = new Date(row.last_active_at).toLocaleDateString();
+  if (row.days_since <= 0) return `Last active today · ${date}`;
+  return `Last active ${date} · ${row.days_since} ${row.days_since === 1 ? 'day' : 'days'} ago`;
+};
+
 const linkFor = (token: string) => `${window.location.origin}/invite/${token}`;
+
 
 /** Admin -> People -> Seats. Who has been let in the door, and one tap to hand out the app. */
 export default function SeatsPanel() {
@@ -100,9 +112,12 @@ export default function SeatsPanel() {
     void load();
   };
 
+  const accountless = useMemo(() => data.rows.filter((r) => !r.has_account), [data.rows]);
+
   const createAll = async () => {
-    const targets = data.rows.filter((r) => r.invite_state !== 'open' && r.invite_state !== 'used');
-    if (!targets.length) return toast.info('Everyone with a seat already has an open invite');
+    const targets = accountless.filter((r) => r.invite_state !== 'open' && r.invite_state !== 'used');
+    if (!targets.length) return toast.info('Everyone without an account already has an open invite');
+
     setBusy('all');
     const lines: string[] = [];
     for (const row of targets) {
@@ -135,15 +150,19 @@ export default function SeatsPanel() {
   return (
     <div className="space-y-3">
       <p className="text-[13px] text-muted-foreground">
-        An invite is a link. Nothing is emailed or texted from here — copy it and send it yourself.
+        Coldest first. An invite is a link, and only people without an account need one — nothing is emailed or texted
+        from here.
       </p>
 
       <div className="flex flex-wrap gap-2">
         <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
-          Never signed in <span className="font-semibold text-foreground">{data.never_signed_in}</span>
+          Active in the last 7 days <span className="font-semibold text-foreground">{data.active_7}</span>
         </span>
         <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
-          No invite <span className="font-semibold text-foreground">{data.no_invite}</span>
+          Dark 8 to 29 days <span className="font-semibold text-foreground">{data.dark_8_29}</span>
+        </span>
+        <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
+          Dark 30 days or more <span className="font-semibold text-foreground">{data.dark_30}</span>
         </span>
         <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
           Managers missing a role <span className="font-semibold text-foreground">{data.managers_missing_role}</span>
@@ -157,11 +176,14 @@ export default function SeatsPanel() {
           placeholder="Search name"
           className="h-11 min-w-[180px] flex-1 text-[13px]"
         />
-        <Button variant="outline" className="min-h-11" onClick={createAll} disabled={busy === 'all'}>
-          {busy === 'all' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create all invites
-        </Button>
+        {accountless.length > 0 && (
+          <Button variant="outline" className="min-h-11" onClick={createAll} disabled={busy === 'all'}>
+            {busy === 'all' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create invites for {accountless.length} without an account
+          </Button>
+        )}
       </div>
+
 
       {bulk && (
         <div className="rounded-[var(--radius)] border border-border/60 bg-surface p-3">
@@ -184,18 +206,27 @@ export default function SeatsPanel() {
             <div key={row.user_id} className="rounded-[var(--radius)] border border-border/60 bg-surface p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="min-w-0 flex-1 truncate text-[14px] font-semibold text-foreground">{row.full_name}</p>
-                {!row.signed_in && (
+                {(row.days_since === null || row.days_since >= 30) && (
                   <span className="rounded-full bg-[hsl(var(--celebrate-warm)/0.16)] px-2 py-1 text-[11px] text-[hsl(var(--celebrate-warm))]">
-                    Never signed in
+                    Dark 30 days or more
                   </span>
                 )}
-                <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
-                  {inviteLabel[row.invite_state]}
-                </span>
+                {!row.has_account && (
+                  <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
+                    No account
+                  </span>
+                )}
+                {!row.has_account && (
+                  <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
+                    {inviteLabel[row.invite_state]}
+                  </span>
+                )}
                 <span className="rounded-full border border-border/60 px-2 py-1 text-[11px] text-muted-foreground">
                   {row.role ? `Role: ${row.role}` : 'No role'}
                 </span>
               </div>
+
+              <p className="mt-1 text-[12px] text-foreground">{activityText(row)}</p>
 
               <p className="mt-1 text-[12px] text-muted-foreground">
                 {row.team_name || 'No team'} · {row.manager_name || 'No manager'}
@@ -204,10 +235,13 @@ export default function SeatsPanel() {
               </p>
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Button size="sm" variant="outline" className="min-h-11" disabled={busy === row.user_id} onClick={() => createInvite(row)}>
-                  {busy === row.user_id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create invite
-                </Button>
+                {!row.has_account && (
+                  <Button size="sm" variant="outline" className="min-h-11" disabled={busy === row.user_id} onClick={() => createInvite(row)}>
+                    {busy === row.user_id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create invite
+                  </Button>
+                )}
+
                 {row.invite_token && row.invite_state === 'open' && (
                   <>
                     <Button size="sm" variant="ghost" className="min-h-11" onClick={() => copy(linkFor(row.invite_token as string))}>

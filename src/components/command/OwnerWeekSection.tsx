@@ -15,9 +15,11 @@ type Week = {
   training_minutes: number;
   training_reps: number;
   active_reps: number;
+  dark_30: number;
   fiber_loaded_at: string | null;
   pest_loaded_at: string | null;
 };
+
 
 function fmtDate(v: string | null): string | null {
   if (!v) return null;
@@ -161,7 +163,14 @@ export default function OwnerWeekSection() {
               }
               onClick={() => navigate("/admin/money")}
             />
+            <Line
+              label="Reps dark 30 days or more"
+              value={String(w.dark_30 ?? 0)}
+              sub={`of ${w.active_reps} active reps · Seats lists them coldest first`}
+              onClick={() => navigate("/admin/people?tab=seats")}
+            />
           </div>
+
         )}
       </Panel>
     </>
