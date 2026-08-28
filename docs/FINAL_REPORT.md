@@ -1928,4 +1928,4 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Read policy on `scripts` rewritten: signed-in users still read active scripts, but `Re-sign` rows are readable only by manager/president/admin/owner. Reps cannot see them.
 - Editable through the existing admin Scripts surface — `Re-sign` added to its category list.
 - New `ReSignScriptsSheet` (one script at a time, prev/next, title chips, copy) opens from a Scripts button above the This week queue on `/app/leads` and from the lead card in `LeadDrawer` (staff tiers only).
-- Verified: 5 Re-sign rows present; manager-role read returns all 5, rookie-role read returns 0; both buttons open the sheet. Typecheck and production build clean; nothing published.
+- Verified at database level: 5 Re-sign rows, zero dollar/percent characters in any body; the read rule now uses the same `is_manager_tier` check the app's staff tier uses, so reps get none. Route check reached `/app/leads` without a session (redirect to login), so the sheet was confirmed by code path, not a signed-in click. Typecheck and production build clean; linter count unchanged at 353 pre-existing; nothing published.
