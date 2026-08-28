@@ -33,8 +33,12 @@ export interface Workspace {
   president_name: string | null;
   membership_status: MembershipStatus;
   reject_reason: string | null;
+  /** Pass 89 — the rep's latest request for a locked vertical. */
+  request_status?: 'pending' | 'approved' | 'rejected' | null;
+  request_reviewed_at?: string | null;
   approvers: WorkspaceApprover[];
 }
+
 
 const MEMBER_STATUSES: MembershipStatus[] = ['approved', 'onboarding', 'active', 'paused'];
 
