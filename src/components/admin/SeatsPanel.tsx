@@ -150,15 +150,19 @@ export default function SeatsPanel() {
   return (
     <div className="space-y-3">
       <p className="text-[13px] text-muted-foreground">
-        An invite is a link. Nothing is emailed or texted from here — copy it and send it yourself.
+        Coldest first. An invite is a link, and only people without an account need one — nothing is emailed or texted
+        from here.
       </p>
 
       <div className="flex flex-wrap gap-2">
         <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
-          Never signed in <span className="font-semibold text-foreground">{data.never_signed_in}</span>
+          Active in the last 7 days <span className="font-semibold text-foreground">{data.active_7}</span>
         </span>
         <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
-          No invite <span className="font-semibold text-foreground">{data.no_invite}</span>
+          Dark 8 to 29 days <span className="font-semibold text-foreground">{data.dark_8_29}</span>
+        </span>
+        <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
+          Dark 30 days or more <span className="font-semibold text-foreground">{data.dark_30}</span>
         </span>
         <span className="rounded-[var(--radius)] border border-border/60 bg-surface px-3 py-2 text-[12px] text-muted-foreground">
           Managers missing a role <span className="font-semibold text-foreground">{data.managers_missing_role}</span>
@@ -172,11 +176,14 @@ export default function SeatsPanel() {
           placeholder="Search name"
           className="h-11 min-w-[180px] flex-1 text-[13px]"
         />
-        <Button variant="outline" className="min-h-11" onClick={createAll} disabled={busy === 'all'}>
-          {busy === 'all' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create all invites
-        </Button>
+        {accountless.length > 0 && (
+          <Button variant="outline" className="min-h-11" onClick={createAll} disabled={busy === 'all'}>
+            {busy === 'all' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create invites for {accountless.length} without an account
+          </Button>
+        )}
       </div>
+
 
       {bulk && (
         <div className="rounded-[var(--radius)] border border-border/60 bg-surface p-3">
