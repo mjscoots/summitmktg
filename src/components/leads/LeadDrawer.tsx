@@ -238,7 +238,21 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
 
 
 
+            {notesAllowed && (
+              <div className="mt-6">
+                <OutcomeBar
+                  leadId={lead.id as string}
+                  nextCallAt={(lead.next_call_at as string | null) || null}
+                  onChanged={() => {
+                    reload();
+                    onChanged?.();
+                  }}
+                />
+              </div>
+            )}
+
             {/* Log a call */}
+
             <div className="mt-6 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
               <p className="micro-label mb-2">Log a call</p>
               <div className="flex flex-col gap-2 sm:flex-row">
