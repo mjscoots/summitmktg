@@ -112,9 +112,12 @@ export default function SeatsPanel() {
     void load();
   };
 
+  const accountless = useMemo(() => data.rows.filter((r) => !r.has_account), [data.rows]);
+
   const createAll = async () => {
-    const targets = data.rows.filter((r) => r.invite_state !== 'open' && r.invite_state !== 'used');
-    if (!targets.length) return toast.info('Everyone with a seat already has an open invite');
+    const targets = accountless.filter((r) => r.invite_state !== 'open' && r.invite_state !== 'used');
+    if (!targets.length) return toast.info('Everyone without an account already has an open invite');
+
     setBusy('all');
     const lines: string[] = [];
     for (const row of targets) {
