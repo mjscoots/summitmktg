@@ -490,16 +490,18 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
-              {/* Admin — six sections. Old /admin/team links redirect to the owning section. */}
+              {/* Admin — five groups. Old /admin/team links redirect to the owning group. */}
               <Route path="/admin/team" element={<AdminTabRedirect />} />
-              {(['inbox', 'people', 'money', 'content', 'reports', 'settings'] as const).map((s) => (
+              {(['people', 'requests', 'money', 'content', 'settings'] as const).map((s) => (
                 <Route key={s} path={`/admin/${s}`} element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminTeamPage section={s} />
                   </ProtectedRoute>
                 } />
               ))}
-              <Route path="/admin" element={<Navigate to="/admin/inbox" replace />} />
+              <Route path="/admin" element={<Navigate to="/admin/requests" replace />} />
+              <Route path="/admin/inbox" element={<Navigate to="/admin/requests" replace />} />
+              <Route path="/admin/reports" element={<Navigate to="/command" replace />} />
 
 
 
@@ -537,8 +539,12 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Command folded into Admin → Reports */}
-              <Route path="/command" element={<Navigate to="/admin/reports" replace />} />
+              {/* Command reports live on their own route */}
+              <Route path="/command" element={
+                <ProtectedRoute requiredRole="admin">
+                  <CommandCenterPage />
+                </ProtectedRoute>
+              } />
 
 
              {/* Notepad - redirect to Resources */}
