@@ -211,8 +211,7 @@ export default function DoorsPage() {
   const pricingGroups = useMemo(() => {
     const groups = new Map<string, Entry[]>();
     pricing.forEach((r) => {
-      const plan = r.meta?.plan || r.title;
-      const key = r.meta?.notes === 'Add-on' ? 'Add-on services' : plan;
+      const key = r.meta?.plan || r.title;
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(r);
     });
