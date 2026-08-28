@@ -221,7 +221,7 @@ export default function RecruitsPage() {
 
           {/* Header */}
           <PageHeader
-            title={tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : 'Win-back board'}
+            title={tab === 'board' ? 'Lead board' : tab === 'mine' ? 'My leads' : tab === 'resigns' ? 'Re-signs' : tab === 'referrals' ? 'Referrals' : 'Win-back board'}
             context={
               tab === 'board'
                 ? `${board.length} unclaimed ${board.length === 1 ? 'lead' : 'leads'} on the board`
@@ -229,7 +229,9 @@ export default function RecruitsPage() {
                   ? `${activeClaims} of ${MAX_ACTIVE_CLAIMS} active claims`
                   : tab === 'resigns'
                     ? 'Where every rep stands for next season'
-                    : 'Former reps with a phone number — cold calls to bring them back'
+                    : tab === 'referrals'
+                      ? `${referrals.length} ${referrals.length === 1 ? 'name' : 'names'} from reps`
+                      : 'Former reps with a phone number — cold calls to bring them back'
             }
             className="mb-5"
             action={
