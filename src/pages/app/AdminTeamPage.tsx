@@ -737,11 +737,8 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             <TabsContent value="tools">
               <div className="space-y-3">
                 <p className="text-[13px] text-muted-foreground">
-                  Roster sweep — call through the roster and record who is still here.
+                  Admin tools appear here as they are added.
                 </p>
-                <Button variant="outline" className="min-h-11" onClick={() => navigate('/app/roster/sweep')}>
-                  Open roster sweep
-                </Button>
               </div>
             </TabsContent>
           )}

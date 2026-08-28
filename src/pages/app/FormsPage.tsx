@@ -9,10 +9,9 @@ import { PageBackButton } from '@/components/shared/PageBackButton';
 import { InterviewResponsesTable } from '@/components/interviews/InterviewResponsesTable';
 import WeeklyOneOnOnesContent from './WeeklyOneOnOnesContent';
 import ManagerMeetingHubContent from '@/components/forms/ManagerMeetingHubContent';
-import CommitmentInterviewContent from '@/components/forms/CommitmentInterviewContent';
 import { CopyLinkButton } from '@/components/shared/CopyLinkButton';
 
-type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting' | 'commitment';
+type FormSection = 'interviews' | 'weekly-1on1s' | 'manager-meeting';
 type InterviewSubTab = 'forms' | 'responses';
 
 const badgeGradients = ['bg-primary/20', 'bg-primary/15', 'bg-primary/10'];
@@ -95,7 +94,6 @@ export default function FormsPage() {
               { key: 'interviews' as FormSection, label: 'Interview Forms' },
               { key: 'weekly-1on1s' as FormSection, label: 'Weekly 1:1 Forms' },
               { key: 'manager-meeting' as FormSection, label: 'Manager Meeting' },
-              { key: 'commitment' as FormSection, label: 'Commitment Interview' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -229,9 +227,8 @@ export default function FormsPage() {
           </>
         ) : activeSection === 'weekly-1on1s' ? (
           <WeeklyOneOnOnesContent />
-        ) : activeSection === 'commitment' ? (
-          <CommitmentInterviewContent />
         ) : (
+
           <ManagerMeetingHubContent />
         )}
       </main>

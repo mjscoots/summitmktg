@@ -5,7 +5,6 @@ import { StreakLeaderboard } from '@/components/leaderboard/StreakLeaderboard';
 import { RecruitingLeaderboard } from '@/components/leaderboard/RecruitingLeaderboard';
 import { WeekPaceStrip } from '@/components/leaderboard/WeekPaceStrip';
 import { TeamBattles } from '@/components/leaderboard/TeamBattles';
-import { IncentiveTracker } from '@/components/leaderboard/IncentiveTracker';
 import { SeasonBanner } from '@/components/leaderboard/SeasonBanner';
 import { HallOfFame } from '@/components/leaderboard/HallOfFame';
 
@@ -115,6 +114,13 @@ export default function LeaderboardPage() {
             </>
           )}
 
+          {activeVertical === 'Fiber' && (
+            <p className="mb-4 text-xs text-muted-foreground">
+              Counts from Gainz weekly sheets and blitz entries.
+            </p>
+          )}
+
+
 
           {/* Filter Tabs — pill style */}
 
@@ -187,7 +193,6 @@ export default function LeaderboardPage() {
           {isPest && (
             <div className="mt-6 space-y-4">
               <TeamBattles />
-              <IncentiveTracker />
             </div>
           )}
 

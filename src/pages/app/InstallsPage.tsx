@@ -115,7 +115,7 @@ export default function InstallsPage() {
           {loading ? (
             <Skeleton className="h-16 w-full" />
           ) : rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No installs recorded yet.</p>
+            <p className="text-sm text-muted-foreground">Installs appear here from the weekly Gainz sheet once your manager loads it.</p>
           ) : (
             <div className="divide-y divide-border">
               {rows.map((r) => (
@@ -134,7 +134,7 @@ export default function InstallsPage() {
           <section className={`${CARD} p-4`}>
             <h2 className="mb-3 text-sm font-medium text-foreground">Team this week</h2>
             {team.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No installs recorded this week.</p>
+              <p className="text-sm text-muted-foreground">Nothing this week yet. Installs appear here from the weekly Gainz sheet once your manager loads it.</p>
             ) : (
               <div className="divide-y divide-border">
                 {team.map((t) => (
