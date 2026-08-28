@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
+import SeatsPanel from '@/components/admin/SeatsPanel';
 import LeadsImportPanel from '@/components/admin/LeadsImportPanel';
 
 import AdminRegionsPanel from '@/components/admin/AdminRegionsPanel';
