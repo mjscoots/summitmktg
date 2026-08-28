@@ -27,6 +27,7 @@ export function MessageContextMenu({
   messageId,
   isOwn,
   isManager,
+  canModerate = false,
   isPinned,
   position,
   onClose,
