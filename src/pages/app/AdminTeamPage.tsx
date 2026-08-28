@@ -47,6 +47,8 @@ import {
 } from '@/components/ui/select';
 
 import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
+import { VerticalRequestsPanel } from '@/components/admin/VerticalRequestsPanel';
+
 
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
 
