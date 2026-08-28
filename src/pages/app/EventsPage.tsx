@@ -178,6 +178,14 @@ export default function EventsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // A blitz line on Home links straight to its card.
+  useEffect(() => {
+    if (loading || !window.location.hash.startsWith('#event-')) return;
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (el) el.scrollIntoView({ block: 'center' });
+  }, [loading]);
+
+
   useEffect(() => {
     if (!isManager) return;
     supabase.from('teams').select('id, name').order('name').then(({ data }) => {
