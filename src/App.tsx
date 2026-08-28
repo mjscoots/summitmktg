@@ -376,12 +376,9 @@ function LazyFallback() {
 
 
 
-              {/* Field playbook — the owner's script, objections, closes, prices */}
-              <Route path="/app/playbook" element={
-                <ProtectedRoute>
-                    <PlaybookPage />
-                </ProtectedRoute>
-              } />
+              {/* The field pack now lives inside Learn */}
+              <Route path="/app/playbook" element={<Navigate to="/app/training#field-pack" replace />} />
+
 
               {/* Doors mode — the field flow, full screen and oversized */}
               <Route path="/app/doors" element={
