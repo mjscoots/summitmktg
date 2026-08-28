@@ -1,4 +1,7 @@
-import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useState } from 'react';
+import { Lock } from 'lucide-react';
+import { useWorkspace, type Workspace } from '@/contexts/WorkspaceContext';
+import { RequestVerticalAccessDialog } from '@/components/workspace/RequestVerticalAccessDialog';
 import { cn } from '@/lib/utils';
 
 /** The accent a workspace owns, used only on the active segment. */
@@ -10,8 +13,11 @@ const ACCENT: Record<string, string> = {
 
 /**
  * Pass 76 — the workspace switch as a segmented control. One row, one tap,
- * the active workspace in its own accent. Used in the desktop sidebar and the
- * phone sheet so both surfaces switch the same way.
+ * the active workspace in its own accent.
+ *
+ * Pass 89 — Pest is the default for everyone. Verticals the rep has not been
+ * accepted into stay visible as locked rows that open a request, so nothing
+ * disappears and nothing opens without the owner's approval.
  */
 export function WorkspaceSegmented({
   collapsed,
@@ -20,13 +26,14 @@ export function WorkspaceSegmented({
   collapsed?: boolean;
   className?: string;
 }) {
-  // Pass 86 — a rep only sees the workspaces they are enrolled in. Owner and
-  // admins are enrolled in all three by get_my_workspaces, so they keep the switch.
-  const { myWorkspaces: workspaces, activeVertical, switchWorkspace } = useWorkspace();
+  const { myWorkspaces: workspaces, lockedWorkspaces, activeVertical, switchWorkspace } = useWorkspace();
+  const [asking, setAsking] = useState<Workspace | null>(null);
 
-  if (workspaces.length < 2) return null;
+  const locked = lockedWorkspaces;
+  if (workspaces.length < 2 && locked.length === 0) return null;
 
   if (collapsed) {
+    if (workspaces.length < 2) return null;
     return (
       <div className={cn('flex flex-col items-center gap-1', className)}>
         {workspaces.map((w) => {
@@ -52,30 +59,65 @@ export function WorkspaceSegmented({
   }
 
   return (
-    <div
-      className={cn('flex items-stretch gap-0.5 rounded-xl p-0.5', className)}
-      style={{ background: 'hsl(var(--surface-elevated))', border: '1px solid hsl(var(--border))' }}
-      role="group"
-      aria-label="Switch workspace"
-    >
-      {workspaces.map((w) => {
-        const active = w.vertical === activeVertical;
-        const accent = ACCENT[w.vertical] || '197 100% 68%';
+    <div className={cn('space-y-1.5', className)}>
+      {workspaces.length > 1 && (
+        <div
+          className="flex items-stretch gap-0.5 rounded-xl p-0.5"
+          style={{ background: 'hsl(var(--surface-elevated))', border: '1px solid hsl(var(--border))' }}
+          role="group"
+          aria-label="Switch workspace"
+        >
+          {workspaces.map((w) => {
+            const active = w.vertical === activeVertical;
+            const accent = ACCENT[w.vertical] || '197 100% 68%';
+            return (
+              <button
+                key={w.vertical}
+                onClick={() => switchWorkspace(w.vertical)}
+                aria-current={active ? 'true' : undefined}
+                className="min-h-8 flex-1 truncate rounded-[10px] px-2 py-1.5 text-[12px] font-semibold transition-colors"
+                style={{
+                  color: active ? `hsl(${accent})` : 'hsl(var(--text-muted))',
+                  background: active ? `hsl(${accent} / 0.12)` : 'transparent',
+                }}
+              >
+                {w.short_name || w.vertical}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {locked.map((w) => {
+        const pending = w.request_status === 'pending';
+        const comingSoon = w.status === 'coming_soon';
         return (
           <button
             key={w.vertical}
-            onClick={() => switchWorkspace(w.vertical)}
-            aria-current={active ? 'true' : undefined}
-            className="min-h-8 flex-1 truncate rounded-[10px] px-2 py-1.5 text-[12px] font-semibold transition-colors"
-            style={{
-              color: active ? `hsl(${accent})` : 'hsl(var(--text-muted))',
-              background: active ? `hsl(${accent} / 0.12)` : 'transparent',
-            }}
+            onClick={() => !comingSoon && setAsking(w)}
+            disabled={comingSoon}
+            className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 text-left transition-colors hover:bg-foreground/5 disabled:opacity-60"
           >
-            {w.short_name || w.vertical}
+            <span className="flex min-w-0 items-center gap-2">
+              <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+              <span className="truncate text-[13px] font-medium text-foreground">{w.short_name || w.name}</span>
+            </span>
+            <span className="flex-shrink-0 text-[11px] text-muted-foreground">
+              {comingSoon
+                ? 'Not open yet'
+                : pending
+                  ? 'Requested, waiting on approval'
+                  : 'By approval'}
+            </span>
           </button>
         );
       })}
+
+      <RequestVerticalAccessDialog
+        workspace={asking}
+        open={Boolean(asking)}
+        onOpenChange={(next) => !next && setAsking(null)}
+      />
     </div>
   );
 }
