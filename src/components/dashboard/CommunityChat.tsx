@@ -651,6 +651,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           onBack={onBack}
           hideBack={hideBack}
           rightSlot={headerRight}
+          avatarSlot={headerAvatar}
+          onTitleClick={onHeaderTitleClick}
           pinnedCount={pinnedCount}
           onPinnedClick={() => {
             const pinned = channelMessages.filter(m => m.is_pinned);
