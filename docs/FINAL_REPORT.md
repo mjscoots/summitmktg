@@ -1870,3 +1870,12 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 4. Re-sign scoreboard: signed tile and signed figure render in the workspace accent, lead badge uses the warm chip (`LeadsPage`).
 5. One accent element per Home hero: Pest cyan, Fiber mint, Life violet (`PestHome`, `FiberHubCards`, `LifeHome`).
 6. No layout shifts, no copy changes, no new components; typecheck and production build clean. Preview only — nothing published.
+
+## Pass 99 — Your three
+- New `YourThreeCard` on Pest and Fiber Home (inside More): three name/phone asks, one row at a time, through the unchanged `submit_referral` RPC.
+- Shown/collapsed state derives from `my_referral_count()` only; third name fires the Pass 98 celebration, then the card becomes "Your three are in · add another".
+- `RecruitsPage` gains a manager-only Referrals tab from `get_referral_leads()`: newest first, shows who referred each, claim flow unchanged.
+- Admin recruiting board shows one quiet live line: referrals submitted · claimed.
+- Read helpers `my_referral_count`, `get_referral_leads`, `referral_counts` are SECURITY DEFINER, anon execution revoked; `recruiting_leads` and `submit_referral` untouched.
+- Verified: baseline 0 referrals (94 leads), one synthetic referral moved counts to 1 of 95, deleted, back to 0 of 94. Rate limit and duplicate-phone behavior unchanged.
+- Typecheck and production build clean. Preview only, nothing published.
