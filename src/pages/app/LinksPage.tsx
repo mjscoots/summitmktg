@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import EarningsCalculator from '@/components/EarningsCalculator';
 import VetCalculator from '@/components/VetCalculator';
 import { PageHeader } from '@/components/layout/PageHeader';
+import MyNextYearPay from '@/components/money/MyNextYearPay';
 
 
 
@@ -49,7 +50,7 @@ interface EmailEntry {
   display_order: number;
 }
 
-type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'tools';
+type PageTab = 'links' | 'phone-numbers' | 'emails' | 'calculators' | 'pay' | 'tools';
 
 /** Normalize a phone number for display */
 function normalizePhone(raw: string): string {
@@ -380,6 +381,7 @@ export default function LinksPage() {
     ...(isAdmin ? [{ id: 'phone-numbers' as PageTab, label: 'Phones', icon: Phone }] : []),
     { id: 'emails', label: 'Emails', icon: Mail },
     { id: 'calculators', label: 'Calculators', icon: Calculator },
+    { id: 'pay', label: 'Pay', icon: DollarSign },
     { id: 'tools', label: 'Tools', icon: Wrench },
   ];
 
@@ -776,6 +778,9 @@ export default function LinksPage() {
             {calcTab === 'rookie' ? <EarningsCalculator /> : <VetCalculator />}
           </div>
         )}
+
+        {/* Pay Tab */}
+        {activeTab === 'pay' && <MyNextYearPay />}
 
         {/* Tools Tab */}
         {activeTab === 'tools' && (
