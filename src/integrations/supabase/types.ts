@@ -831,6 +831,27 @@ export type Database = {
         }
         Relationships: []
       }
+      blitz_optins: {
+        Row: {
+          blitz_key: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          blitz_key: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          blitz_key?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bootcamp_progress: {
         Row: {
           agreement_end_date: string | null
@@ -1792,6 +1813,50 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiber_day_numbers: {
+        Row: {
+          carrier_id: string | null
+          created_at: string
+          day: string
+          entered_by: string | null
+          id: string
+          note: string | null
+          sold: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          carrier_id?: string | null
+          created_at?: string
+          day?: string
+          entered_by?: string | null
+          id?: string
+          note?: string | null
+          sold?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          carrier_id?: string | null
+          created_at?: string
+          day?: string
+          entered_by?: string | null
+          id?: string
+          note?: string | null
+          sold?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiber_day_numbers_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
             referencedColumns: ["id"]
           },
         ]
@@ -6775,6 +6840,14 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      blitz_optin_counts: {
+        Args: never
+        Returns: {
+          blitz_key: string
+          i_am_in: boolean
+          optin_count: number
+        }[]
+      }
       build_lead_snapshot: { Args: { _profile_id: string }; Returns: Json }
       can_chat_dm: { Args: { _a: string; _b: string }; Returns: boolean }
       can_find_person: { Args: { _target: string }; Returns: boolean }
@@ -7620,6 +7693,15 @@ export type Database = {
           has_access: boolean
           user_id: string
         }[]
+      }
+      log_fiber_today: {
+        Args: {
+          p_carrier_id?: string
+          p_day?: string
+          p_note?: string
+          p_sold: number
+        }
+        Returns: undefined
       }
       log_winback_contact: {
         Args: { _lead_id: string; _note?: string; _outcome: string }
