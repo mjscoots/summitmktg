@@ -16,7 +16,9 @@ interface SeatRow {
   manager_id: string | null;
   manager_name: string | null;
   manager_departed: boolean;
-  signed_in: boolean;
+  has_account: boolean;
+  last_active_at: string | null;
+  days_since: number | null;
   role: string | null;
   has_manager_role: boolean;
   effective_manager: boolean;
@@ -27,12 +29,14 @@ interface SeatRow {
 
 interface SeatsData {
   rows: SeatRow[];
-  never_signed_in: number;
-  no_invite: number;
+  active_7: number;
+  dark_8_29: number;
+  dark_30: number;
+  no_account: number;
   managers_missing_role: number;
 }
 
-const EMPTY: SeatsData = { rows: [], never_signed_in: 0, no_invite: 0, managers_missing_role: 0 };
+const EMPTY: SeatsData = { rows: [], active_7: 0, dark_8_29: 0, dark_30: 0, no_account: 0, managers_missing_role: 0 };
 
 const inviteLabel: Record<SeatRow['invite_state'], string> = {
   none: 'No invite',
@@ -42,7 +46,15 @@ const inviteLabel: Record<SeatRow['invite_state'], string> = {
   revoked: 'Invite revoked',
 };
 
+const activityText = (row: SeatRow) => {
+  if (!row.last_active_at || row.days_since === null) return 'No activity on record';
+  const date = new Date(row.last_active_at).toLocaleDateString();
+  if (row.days_since <= 0) return `Last active today · ${date}`;
+  return `Last active ${date} · ${row.days_since} ${row.days_since === 1 ? 'day' : 'days'} ago`;
+};
+
 const linkFor = (token: string) => `${window.location.origin}/invite/${token}`;
+
 
 /** Admin -> People -> Seats. Who has been let in the door, and one tap to hand out the app. */
 export default function SeatsPanel() {
