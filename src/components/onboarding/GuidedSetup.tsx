@@ -216,7 +216,7 @@ export function GuidedSetup({
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center justify-between">
-          <Wordmark className="h-6 w-auto text-foreground" />
+          <Wordmark height={24} />
           <button
             onClick={onSkipAll}
             className="min-h-11 text-[13px] text-muted-foreground hover:text-foreground"
