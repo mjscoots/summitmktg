@@ -11,6 +11,8 @@ interface MessageContextMenuProps {
   messageId: string;
   isOwn: boolean;
   isManager: boolean;
+  /** Owner and admin may edit or delete any message in any room. */
+  canModerate?: boolean;
   isPinned: boolean;
   position: { x: number; y: number } | null;
   onClose: () => void;
