@@ -129,6 +129,10 @@ Deno.serve(async (req) => {
         paired_manager: (invite.manager_id as string) || null,
         activated_at: new Date().toISOString(),
       });
+      // The region also lives on the profile: home and the region roster read it there.
+      if (regionId) {
+        await admin.from("profiles").update({ region_id: regionId }).eq("user_id", userId);
+      }
     }
 
     if (invite.manager_id) {
