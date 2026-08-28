@@ -594,6 +594,7 @@ export type Database = {
           published: boolean
           question: string
           updated_at: string
+          vertical: string | null
         }
         Insert: {
           answer: string
@@ -605,6 +606,7 @@ export type Database = {
           published?: boolean
           question: string
           updated_at?: string
+          vertical?: string | null
         }
         Update: {
           answer?: string
@@ -616,6 +618,7 @@ export type Database = {
           published?: boolean
           question?: string
           updated_at?: string
+          vertical?: string | null
         }
         Relationships: []
       }
