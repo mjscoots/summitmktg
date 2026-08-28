@@ -369,7 +369,15 @@ export default function CalendarPage({ embedded = false }: { embedded?: boolean 
 
   const getDisplayStatus = (eventId: string) => userAttendance[eventId]?.status ?? null;
 
-  const formatTimeLocal = (dateStr: string) => {
+  /** Stored last day of a multi-day event, read in UTC so it never shifts a day. */
+function formatUtcDay(iso: string) {
+  const [y, mo, d] = iso.slice(0, 10).split('-').map(Number);
+  return new Date(Date.UTC(y, mo - 1, d)).toLocaleDateString(undefined, {
+    timeZone: 'UTC', month: 'short', day: 'numeric',
+  });
+}
+
+const formatTimeLocal = (dateStr: string) => {
     const tzShort = getTimezoneShort(timezone);
     return `${formatInTimezone(new Date(dateStr), timezone, 'h:mm a')} ${tzShort}`;
   };
@@ -425,7 +433,12 @@ export default function CalendarPage({ embedded = false }: { embedded?: boolean 
             </div>
             {!compact && showTime && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 ml-3.5">
-                <Clock className="w-3 h-3" />{formatTimeLocal(event.event_date)}{event.end_date && ` – ${formatTimeLocal(event.end_date)}`}
+                <Clock className="w-3 h-3" />{formatTimeLocal(event.event_date)}
+                {event.end_date && (
+                  event.end_date.slice(0, 10) === event.event_date.slice(0, 10)
+                    ? ` – ${formatTimeLocal(event.end_date)}`
+                    : ` · through ${formatUtcDay(event.end_date)}`
+                )}
               </p>
             )}
             {!compact && !showTime && <p className="text-xs text-muted-foreground ml-3.5">All day</p>}
