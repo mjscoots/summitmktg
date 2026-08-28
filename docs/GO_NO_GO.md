@@ -1,22 +1,25 @@
 # Go / No-Go — publish readiness
 
-Written for the owner. Last checked 26 August 2026. Nothing in this document has been
+Written for the owner. Last checked 28 August 2026. Nothing in this document has been
 published.
 
 ---
 
 ## 1. Verdict
 
-**Not yet — because of two things only you can do.** A full regression check on 26 August
-re-ran the five everyday actions (new account, chat message, public application, fiber
-install, pest sale), the invite link end to end, and every rebuilt screen at phone and
-desktop width. Everything passed and all test records were deleted afterwards, so the
-counts are back where they started. The code compiles clean, the production build has one
-file at 210 kB and nothing larger, no screen scrolls sideways at any width from 390 to
-1280 pixels, and no table in the database is readable without the right permission. Two
-small faults were found and fixed during the check: logging a fiber install failed on a
-missing note field, and the Fiber team roster was asking the database the wrong question.
-What is still not ready is *email* and *one person's access*. Every email — welcome
+**Not yet — because of two things only you can do.** A second full check on 28 August went
+back over everything built since the last one: the invite path, the new approval gate, the
+industry request flow, day-one setup, the daily fiber numbers, blitz sign-ups, the re-sign
+call board, and both money importers with their undo. Every public and signed-out screen
+was opened at phone and desktop width in both dark and light mode with no sideways scroll
+and no errors, every link in the menus points at a screen that exists, the code compiles
+clean and the largest file in the build is 217 kB. Nothing was left behind: the database
+holds the same 535 people and 551 leads it started with, and every table used by the new
+features is empty of test data. Two things were tightened during the check. An invited rep
+now arrives **waiting for your approval** rather than pre-approved, so nobody gets in
+without a decision from you. And nine internal actions — the money importers, undo,
+lead counts, the mastery check — could be called by a signed-out visitor and can no longer
+be. What is still not ready is *email* and *one person's access*. Every email — welcome
 messages, application approvals, calendar notices, the weekly owner report — goes out from
 a shared Resend test address that Resend only delivers to your own inbox. And Mathew
 Rubino is listed as the lead of Summit Pest with no role assigned, so he cannot use the
@@ -51,7 +54,34 @@ this work is tracked outside the app.
 - **Brandon Pillar** is the East region lead and still needs an invite or a password reset
   from you before he can sign in.
 
+### Since that list — the most recent round of work
+
+- **Less on the menu.** Anything nobody used is gone. What is left does one of four jobs:
+  recruit, train, run the day, keep people.
+- **Money comes in by import, not by typing.** You paste the Gainz week or the Vision
+  revenue month, check the names it matched, and load it. Every load can be undone in one
+  tap, and each number on a rep's money screen says where it came from and when.
+- **Pest is the default; Fiber and Life need your approval.** A rep asks for an industry
+  from their own app; you approve or decline it in Admin → Requests. Locked industries
+  cannot be opened by typing the address.
+- **Day one collects what the business needs.** Photo, phone, hometown and the rest happen
+  in a guided setup, followed by the goal conversation and their first referrals. Managers
+  see who has finished and who has not.
+- **Admin is five groups.** People, Requests, Money, Content, Settings — and the Requests
+  badge now counts only real decisions waiting on you.
+- **Fiber reports the day, not the paperwork.** A rep taps today's number; official pay
+  still comes from Gainz. Blitzes have a capacity and a sign-up list you can copy straight
+  into a message to the dealer.
+- **The re-sign week is a working call board.** One tap logs the outcome of a call, the
+  week's list sorts itself by who is due and who was worth the most last season, and the
+  scoreboard shows who has signed for 2027.
+- **Every screen breathes.** Fewer blocks above the fold, bigger gaps, and each industry
+  now has its own unmistakable accent colour.
+- **New this check.** An invited rep waits for your approval instead of arriving already
+  approved, and nine internal actions are now closed to signed-out visitors.
+
 ---
+
 
 ## 3. Things only you can do
 
@@ -213,7 +243,7 @@ minutes for it.
 | Chat photos loading | Open a chat with an image on a phone, not just desktop |
 | Event card RSVPs | Events → an upcoming event → attendance count |
 | Weekly owner report email | Your inbox on Sunday evening; if nothing arrives, section 3's email item is why |
-| Nightly jobs ran | Admin → Reports; the rep profiles and lead cycling both run overnight and have not yet had a first run |
+| Nightly jobs ran | Admin → Reports; the rep profiles and lead cycling both ran overnight and succeeded |
 
 ### Scheduled jobs and their state
 
@@ -227,14 +257,14 @@ minutes for it.
 | Action item due | daily 13:05 UTC | succeeded |
 | Inactivity check | daily 17:00 UTC | succeeded |
 | Event series expansion | daily 03:17 UTC | succeeded |
-| **Rep AI profiles** | daily 10:40 UTC | **not yet run** |
-| **Stale lead cycling** | daily 10:50 UTC | **not yet run** |
+| Rep AI profiles | daily 10:40 UTC | succeeded |
+| Stale lead cycling | daily 10:50 UTC | succeeded |
 | Weekly champion notice | Mondays 08:05 UTC | succeeded |
 | **Weekly owner report** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly awards** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly backup** | Sundays 09:20 UTC | **not yet run** |
 | **Manager weekly digest** | Mondays 13:00 UTC | **not yet run** |
 
-The six marked "not yet run" are all recent additions whose first scheduled time has not
+The four marked "not yet run" are the weekly jobs; their first scheduled Sunday or Monday
+has not come round since they were added. Check them the day after publishing.
 
-come round yet. Check them on the day after publishing.
