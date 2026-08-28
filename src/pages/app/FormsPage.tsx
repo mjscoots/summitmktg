@@ -227,8 +227,8 @@ export default function FormsPage() {
           </>
         ) : activeSection === 'weekly-1on1s' ? (
           <WeeklyOneOnOnesContent />
-        ) : activeSection === 'commitment' ? (
-          <CommitmentInterviewContent />
+        ) : (
+
         ) : (
           <ManagerMeetingHubContent />
         )}
