@@ -1590,4 +1590,4 @@ Nothing was published.
 - "Signed for 2027" chip renders on lead rows and lead cards.
 - Reps are no longer redirected away from /app/leads; they land on My leads with no pool access.
 - Typecheck clean; production build clean (index 206.15 kB).
-- Verification: no owner preview session could be minted this pass, so surfaces were verified at the database and route level, not by owner screenshots. SQL confirms no lead data changed — claimed_by is null on all 509 lead rows, designation counts unchanged (93 out-leads designated), roster bucket untouched (42 rows).
+- Verification: an owner preview session could not be minted (per-user minting needs approval unavailable here), so surfaces were verified at the database and route level, not by owner screenshots at 390/1280. SQL confirms no lead data changed and no test designation or claim was made — claimed_by null on all 509 lead rows, 93 out-leads designated as loaded, roster bucket untouched (42 rows, excluded from every lead list by the bucket = 'lead' guard inside leads_list). Typecheck clean, production build clean. Not published.
