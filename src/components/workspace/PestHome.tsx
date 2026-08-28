@@ -142,6 +142,14 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         </p>
       </header>
 
+      {/* Doors mode — the door is where the money is, so it sits above the fold */}
+      <Button
+        className="min-h-14 w-full text-[16px]"
+        onClick={() => navigate('/app/doors')}
+      >
+        Doors
+      </Button>
+
       <FirstWeekCard />
 
       <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start">

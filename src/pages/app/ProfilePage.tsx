@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
+import { AppearanceCard } from '@/components/profile/AppearanceCard';
 import { RepScorecard } from '@/components/shared/RepScorecard';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { MyRefCodeCard } from '@/components/recruiting/MyRefCodeCard';
@@ -744,6 +745,11 @@ export default function ProfilePage() {
             <RepScorecard userId={user.id} />
           </div>
         )}
+
+        {/* Appearance */}
+        <div className="mb-6">
+          <AppearanceCard />
+        </div>
 
         {/* Notification Preferences */}
         <div className="mb-6">

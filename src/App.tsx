@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RookieViewProvider } from "@/contexts/RookieViewContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
+import { WorkspaceThemeProvider } from "@/components/workspace/WorkspaceThemeProvider";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
@@ -82,6 +83,7 @@ const PipelinePage = lazy(() => import('@/pages/app/PipelinePage'));
 const AskSummitPage = lazy(() => import("./pages/app/AskSummitPage"));
 const ScriptsPage = lazy(() => import("./pages/app/ScriptsPage"));
 const PlaybookPage = lazy(() => import("./pages/app/PlaybookPage"));
+const DoorsPage = lazy(() => import("./pages/app/DoorsPage"));
 const AlumniPage = lazy(() => import("./pages/app/AlumniPage"));
 const PersonProfilePage = lazy(() => import("./pages/app/PersonProfilePage"));
 const SeasonPage = lazy(() => import("./pages/app/SeasonPage"));
@@ -378,6 +380,15 @@ function LazyFallback() {
               <Route path="/app/playbook" element={
                 <ProtectedRoute>
                     <PlaybookPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Doors mode — the field flow, full screen and oversized */}
+              <Route path="/app/doors" element={
+                <ProtectedRoute>
+                  <WorkspaceThemeProvider>
+                    <DoorsPage />
+                  </WorkspaceThemeProvider>
                 </ProtectedRoute>
               } />
 

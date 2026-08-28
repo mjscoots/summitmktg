@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useAppearance } from '@/hooks/useAppearance';
 
 export interface WorkspaceTheme {
   mode?: 'dark' | 'light';
@@ -41,12 +42,18 @@ function hslToHex(triplet: string): string | null {
 /** Pest — dotted grid at 6% white, 22px spacing. */
 const DOTS =
   'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)';
+/** Pest, light appearance — the same dotted grid at 5% black. */
+const DOTS_LIGHT = 'radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)';
 /** Fiber — fine line grid at 4% white, 44px cells. */
 const LINES =
   'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)';
+/** Fiber, light appearance — the same grid at 5% black. */
+const LINES_LIGHT =
+  'linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)';
 /** Life — soft paper grain at 3% on the light surface. */
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E\")";
+
 
 /**
  * Pass 76 — Mono. One near-black palette across the three products. A
@@ -131,6 +138,34 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
   },
 };
 
+/** Pass 83 — the Light palette. Same token names, daylight values. */
+const MONO_LIGHT = {
+  mode: 'light' as const,
+  background: '220 20% 97%',
+  surface: '0 0% 100%',
+  surfaceElevated: '0 0% 100%',
+  surfaceSunken: '220 20% 95%',
+  foreground: '220 22% 6%',
+  secondaryText: '219 13% 34%',
+  muted: '218 11% 54%',
+  border: '218 15% 91%',
+  borderSubtle: '218 15% 91%',
+  borderStrong: '216 15% 82%',
+  primary: '220 22% 6%',
+  primaryDeep: '220 22% 6%',
+  primaryForeground: '0 0% 100%',
+};
+
+/** The light-appearance twin of a dark workspace palette. */
+function lightVariant(p: Palette): Palette {
+  return {
+    ...p,
+    ...MONO_LIGHT,
+    wordmark: { ...p.wordmark, bg: '#FFFFFF', outline: '#0B0D12', letters: '#0B0D12' },
+    texture: p.texture === LINES ? LINES_LIGHT : DOTS_LIGHT,
+  };
+}
+
 
 /**
  * Applies the active workspace's theme as CSS variables on <html>.
@@ -138,6 +173,7 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
  */
 export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
   const { active } = useWorkspace();
+  const { mode: appearance } = useAppearance();
   const theme = ((active as unknown as { theme?: WorkspaceTheme } | null)?.theme || {}) as WorkspaceTheme;
   const vertical = (active?.vertical || 'Pest').toLowerCase();
 
@@ -149,7 +185,10 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     };
 
     const key = (vertical === 'fiber' || vertical === 'life' ? vertical : 'pest') as keyof typeof PALETTES;
-    const p = PALETTES[key];
+    // Life keeps its light look either way; Pest and Fiber follow the rep's choice.
+    const base = PALETTES[key];
+    const p = key !== 'life' && appearance === 'light' ? lightVariant(base) : base;
+
 
     // Lets workspace-scoped CSS target the active product.
     root.dataset.workspace = key;
@@ -231,7 +270,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
       delete root.dataset.workspace;
       delete root.dataset.workspaceHeadings;
     };
-  }, [vertical, theme.headings]);
+  }, [vertical, theme.headings, appearance]);
 
 
   return <>{children}</>;
