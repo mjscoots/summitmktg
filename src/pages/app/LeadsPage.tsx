@@ -21,7 +21,9 @@ import {
   type LeadScope,
 } from '@/hooks/useLeads';
 import LeadDrawer from '@/components/leads/LeadDrawer';
+import ThisWeekQueue from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
+
 import { PageHeader } from '@/components/layout/PageHeader';
 
 const CARD = 'rounded-[var(--radius)] border border-border/60 bg-surface';
@@ -250,6 +252,11 @@ export default function LeadsPage() {
               {counts.unsigned_count} · {money(counts.unsigned_revenue)} last season.
             </p>
           )}
+
+          {tier !== 'sales' && scope === 'mine' && !loading && (
+            <ThisWeekQueue rows={rows} onOpen={setOpenLead} />
+          )}
+
 
 
           {staff && scope === 'all' && (
