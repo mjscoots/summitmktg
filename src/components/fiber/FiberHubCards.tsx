@@ -45,6 +45,8 @@ export function GainzHero() {
         <h1 className="text-[26px] font-bold leading-tight tracking-tight text-foreground">
           Your work runs on Gainz
         </h1>
+        <span className="hero-accent-rule mt-3" aria-hidden />
+
         <p className="mt-1.5 text-[15px] text-muted-foreground">
           Blitz areas, orders and payroll live on Gainz. This app is training, your team, chat and help.
         </p>

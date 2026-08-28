@@ -84,15 +84,20 @@ export function UpcomingBlitzes() {
                 </div>
 
                 {eligible && (
-                  <Button
-                    variant={isIn ? 'outline' : 'default'}
-                    className="min-h-11"
-                    disabled={busy === key || full || (isIn && started(b))}
-                    onClick={() => void toggle(key, isIn)}
-                  >
-                    {full ? 'Full' : isIn ? 'Opt out' : 'Opt in'}
-                  </Button>
+                  full ? (
+                    <span className="chip-warm celebrate-in min-h-11 px-4 text-[13px]">Full</span>
+                  ) : (
+                    <Button
+                      variant={isIn ? 'outline' : 'default'}
+                      className="min-h-11"
+                      disabled={busy === key || (isIn && started(b))}
+                      onClick={() => void toggle(key, isIn)}
+                    >
+                      {isIn ? 'Opt out' : 'Opt in'}
+                    </Button>
+                  )
                 )}
+
               </div>
 
               {isLead && (

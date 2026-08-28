@@ -26,9 +26,10 @@ export function WeekBars({
           <div key={DAYS[i]} className="flex min-w-0 flex-1 flex-col items-center gap-1">
             <span className="text-[11px] tabular-nums text-muted-foreground">{n}</span>
             <div
-              className={cn('w-full rounded-t-[4px]', i === todayIdx ? 'bg-primary' : 'surface-elevated')}
+              className={cn('w-full rounded-t-[4px]', i === todayIdx ? 'bar-accent' : 'surface-elevated')}
               style={{ height: `${Math.max(4, Math.round((n / max) * 56))}px` }}
             />
+
             <span className="text-[10px] text-muted-foreground">{DAYS[i].slice(0, 1)}</span>
           </div>
         ))}

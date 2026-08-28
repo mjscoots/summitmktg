@@ -496,17 +496,16 @@ export default function LessonPage() {
         {/* Streak Celebration */}
         {showStreakCelebration && (
           <div className={cn(
-            "fixed top-4 right-4 z-50 p-4 rounded-lg border shadow-lg animate-fade-in",
-            isRookieCourse 
-              ? "bg-primary/10 border-primary/30 text-primary"
-              : "bg-primary/10 border-primary/30 text-primary"
+            "celebrate-card celebrate-in fixed top-4 right-4 z-50 p-4 rounded-lg",
+            isRookieCourse ? "" : ""
           )}>
-            <p className="font-semibold">{getStreakMessage()}</p>
-            <button onClick={() => { clearStreakCelebration(); clearMilestone(); }} className="text-xs mt-1 opacity-60">
+            <p className="celebrate-text font-semibold">{getStreakMessage()}</p>
+            <button onClick={() => { clearStreakCelebration(); clearMilestone(); }} className="text-xs mt-1 text-muted-foreground">
               Dismiss
             </button>
           </div>
         )}
+
 
         {/* Breadcrumbs */}
         <Breadcrumbs items={[
