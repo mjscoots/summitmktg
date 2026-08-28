@@ -151,8 +151,9 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
                   `${repLine.streak} ${repLine.streak === 1 ? 'day' : 'days'} in a row`,
                 ].join(' · ')
             : staff
-              ? `${totals.sales} this week across ${totals.reps} ${totals.reps === 1 ? 'rep' : 'reps'}`
+              ? `${totals.sales} this week`
               : `${weekCount} this week · ${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale`}
+
         </p>
       </header>
 
