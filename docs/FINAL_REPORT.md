@@ -2030,3 +2030,11 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Invite dialog gains one Rookie or Vet choice, stored on invites.experience_level (default rookie).
 - Verified by SQL: actives 23, Rubino directs 4, anon execute false, authenticated true, logged this week 0.
 - Both weekly one on one tables unchanged; no new tables. Typecheck and production build clean, nothing published.
+
+## Pass 116 — Cover page
+- Rebuilt `/` around the three-peak mark, layered light, shadow, restrained grain and slow reduced-motion-safe depth; headline is "Financial freedom. Done differently."
+- The hero contains no door-to-door wording; application, industry, calculator, parent and sign-in paths remain intact.
+- Simplified the work and season sections into open editorial rows with fewer boxes; calculator behavior and real data are unchanged.
+- Login now uses the same atmospheric background language; the sign-in and reset forms are untouched.
+- Verified `/` at 390 and 1280 in dark and light: headline legible, document width exact, no horizontal scroll; `/login` at 390 also has zero overflow.
+- Route checks produced no page exceptions; the only console output was the existing preview-instrumentation React ref warning. Typecheck and production build clean; no video, font, or JS dependency added. Nothing published.

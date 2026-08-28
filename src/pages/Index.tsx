@@ -1,14 +1,13 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { lazy, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { DoorOpen, Handshake, Wallet } from "lucide-react";
+import { ArrowDown, ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import { usePublicCalc } from "@/hooks/usePublicCalc";
+import { Button } from "@/components/ui/button";
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
-
-const FALLBACK_TAGLINE = "Door-to-door sales, trained and run properly";
 
 const WHAT_WE_DO = [
   { icon: DoorOpen, title: "Knock", line: "You work a set area with a script you have practised." },
@@ -23,20 +22,19 @@ const SEASON_STEPS = [
   { title: "Settle up", line: "Your pay follows the scale you reached." },
 ];
 
-/** Public front door — Mono. Neutral #0B0D12, dotted grid, one accent. */
+/** Public front door: a focused, high-contrast cover for Summit. */
 const Index = () => {
   const navigate = useNavigate();
   const calc = usePublicCalc();
-  const tagline = calc?.settings?.public_tagline?.trim() || FALLBACK_TAGLINE;
 
   const scrollToEarnings = () => {
     document.getElementById('earnings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
-    <div className="gold-world min-h-screen bg-background flex flex-col">
+    <div className="gold-world public-world min-h-screen bg-background flex flex-col">
       {/* Nav */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/[0.88] backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur-xl">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-6">
           <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={36} />
@@ -48,58 +46,58 @@ const Index = () => {
             <Link to="/industries/fiber" className="inline-flex min-h-11 items-center rounded-xl px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
               Fiber
             </Link>
-            <Link to="/login" className="inline-flex min-h-11 items-center whitespace-nowrap rounded-xl border border-border-strong px-3 text-sm font-semibold text-foreground transition-colors hover:border-foreground">
-              Sign in
-            </Link>
+            <Button asChild variant="outline" className="min-h-11 whitespace-nowrap px-3">
+              <Link to="/login">Sign in</Link>
+            </Button>
           </div>
         </nav>
       </header>
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="public-dots relative overflow-hidden px-5 py-14 sm:px-6 md:py-24">
-          <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <h1 className="sr-only">Summit — door-to-door sales</h1>
-            <Wordmark
-              variant="hero"
-              height={200}
-              className="mx-auto !h-auto w-[86vw] max-w-[680px]"
-            />
-            <p className="mx-auto mt-7 max-w-xl text-lg text-text-secondary sm:text-xl">{tagline}</p>
+        <section className="public-cover relative isolate overflow-hidden px-5 sm:px-6">
+          <div className="public-cover-mark" aria-hidden="true">
+            <Wordmark variant="mark" height={740} className="h-full w-full" />
+          </div>
+          <div className="relative z-10 mx-auto flex min-h-[min(760px,calc(100svh-69px))] max-w-6xl flex-col justify-end pb-16 pt-28 sm:pb-20 md:pb-24 md:pt-36">
+            <div className="max-w-4xl">
+              <p className="micro-label text-primary">Summit Marketing</p>
+              <h1 className="mt-5 max-w-4xl font-display text-[3.15rem] font-extrabold leading-[0.98] tracking-normal text-foreground sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+                Financial freedom.<br />Done differently.
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+                A performance-based path through sales, training, and team leadership.
+              </p>
+            </div>
 
-            <div className="mx-auto mt-9 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:justify-center">
-              <button
-                onClick={scrollToEarnings}
-                className="inline-flex min-h-12 min-w-[15rem] flex-1 items-center justify-center whitespace-nowrap rounded-xl bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                See what you would make
-              </button>
-              <Link
-                to="/apply/rookie"
-                className="inline-flex min-h-12 min-w-[9rem] flex-1 items-center justify-center whitespace-nowrap rounded-xl border border-border-strong px-6 text-sm font-bold text-foreground transition-colors hover:border-foreground"
-              >
-                Apply
-              </Link>
+            <div className="mt-9 flex w-full max-w-xl flex-col gap-3 sm:flex-row">
+              <Button onClick={scrollToEarnings} className="min-h-12 flex-1 px-6 font-bold">
+                See what you could make <ArrowDown className="h-4 w-4" aria-hidden="true" />
+              </Button>
+              <Button asChild variant="outline" className="min-h-12 flex-1 px-6 font-bold">
+                <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+              </Button>
             </div>
 
             <p className="mt-5 text-sm text-text-muted">
               Pest control now · Fiber internet in the off-season
             </p>
 
-            <div className="mt-8">
+            <div className="mt-7">
               <LiveCounters variant="inline" />
             </div>
           </div>
         </section>
 
         {/* What the work is */}
-        <section className="px-5 py-14 sm:px-6 md:py-24">
+        <section className="border-b border-border/70 px-5 py-16 sm:px-6 md:py-24">
           <h2 className="sr-only">What the work is</h2>
-          <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-3">
-            {WHAT_WE_DO.map((c) => (
-              <article key={c.title} className="public-card p-6">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-elevated">
-                  <c.icon className="h-5 w-5 text-text-secondary" strokeWidth={1.5} aria-hidden="true" />
+          <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-0">
+            {WHAT_WE_DO.map((c, index) => (
+              <article key={c.title} className="public-process md:px-8 md:first:pl-0 md:last:pr-0">
+                <div className="mb-5 flex items-center justify-between">
+                  <c.icon className="h-5 w-5 text-primary" strokeWidth={1.5} aria-hidden="true" />
+                  <span className="font-mono text-xs tabular-nums text-text-muted">0{index + 1}</span>
                 </div>
                 <h3 className="text-lg font-extrabold text-foreground">{c.title}</h3>
                 <p className="mt-2 text-sm text-text-secondary">{c.line}</p>
@@ -109,7 +107,7 @@ const Index = () => {
         </section>
 
         {/* Calculator */}
-        <section id="earnings" className="scroll-mt-20 px-5 py-14 sm:px-6 md:py-24">
+        <section id="earnings" className="public-band scroll-mt-20 px-5 py-16 sm:px-6 md:py-24">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-center text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
               Estimate your earnings
@@ -126,17 +124,17 @@ const Index = () => {
         </section>
 
         {/* How the season works */}
-        <section className="px-5 py-14 sm:px-6 md:py-24">
+        <section className="px-5 py-16 sm:px-6 md:py-24">
           <div className="mx-auto max-w-4xl">
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
               How the season works
             </h2>
-            <ol className="mt-8 grid gap-4 sm:grid-cols-2">
+            <ol className="mt-10 border-t border-border">
               {SEASON_STEPS.map((s, i) => (
-                <li key={s.title} className="public-card p-6">
-                  <span className="block text-2xl font-black tabular-nums text-text-muted">{i + 1}</span>
-                  <h3 className="mt-3 text-lg font-extrabold text-foreground">{s.title}</h3>
-                  <p className="mt-2 text-sm text-text-secondary">{s.line}</p>
+                <li key={s.title} className="grid gap-2 border-b border-border py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-5">
+                  <span className="font-mono text-xs tabular-nums text-primary">0{i + 1}</span>
+                  <h3 className="text-lg font-extrabold text-foreground">{s.title}</h3>
+                  <p className="text-sm text-text-secondary">{s.line}</p>
                 </li>
               ))}
             </ol>
@@ -144,16 +142,13 @@ const Index = () => {
         </section>
 
         {/* Final band */}
-        <section className="public-dots relative overflow-hidden border-t border-border px-5 py-14 text-center sm:px-6 md:py-24">
+        <section className="public-cta relative overflow-hidden border-t border-border px-5 py-16 text-center sm:px-6 md:py-24">
           <div className="relative z-10 mx-auto max-w-xl">
             <Wordmark variant="hero" height={110} className="mx-auto !h-auto w-[70vw] max-w-[380px]" />
             <p className="mt-6 text-base text-text-secondary">Applications take a few minutes.</p>
-            <Link
-              to="/apply/rookie"
-              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Apply
-            </Link>
+            <Button asChild className="mt-7 min-h-12 px-8 font-bold">
+              <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            </Button>
           </div>
         </section>
       </main>
