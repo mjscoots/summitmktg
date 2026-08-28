@@ -442,6 +442,10 @@ export default function CommandCenterPage() {
           </h1>
         </div>
 
+        {/* THE WEEK */}
+        <OwnerWeekSection />
+
+
         {/* PRIMARY OBJECTIVE */}
         <Panel style={{ padding: 32, marginBottom: 40 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
