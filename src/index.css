@@ -1138,3 +1138,10 @@ body {
   .celebrate-in { animation: none !important; transform: none !important; }
   .celebrate-card { box-shadow: none; }
 }
+
+/* Pass 98 — progress fills carry the accent gradient. */
+@layer components {
+  .progress-fill {
+    background: linear-gradient(90deg, hsl(var(--workspace-accent) / 0.55), hsl(var(--workspace-accent)));
+  }
+}
