@@ -39,7 +39,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
       const row = (data as Record<string, any>) || {};
       setInitial(row);
       const basics = !!(row.full_name?.trim() && row.phone?.trim() && row.avatar_url);
-      setComplete(basics || row.onboarding_status === 'profile_done' || row.onboarding_status === 'interview_done' || row.onboarding_status === 'complete');
+      setComplete(basics);
       setChecking(false);
     })();
 

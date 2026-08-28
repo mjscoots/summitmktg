@@ -161,7 +161,9 @@ export function GuidedSetup({
 
   async function finish() {
     if (!user) return;
-    await writeProfile({ onboarding_status: 'profile_done' });
+    if (['pending', null, undefined, ''].includes(initial.onboarding_status)) {
+      await writeProfile({ onboarding_status: 'info_added' });
+    }
     await refreshProfile();
     onDone();
   }
