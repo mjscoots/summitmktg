@@ -366,6 +366,12 @@ export default function MyTeamPage() {
           </div>
         )}
 
+        {isManagerRole && (
+          <div className="mb-5">
+            <NewRepsPanel />
+          </div>
+        )}
+
         {isAdmin && !rollover.loading && (
           <div className="mb-5">
             <GoingColdCard
