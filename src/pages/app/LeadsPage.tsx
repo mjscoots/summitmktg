@@ -83,7 +83,12 @@ export default function LeadsPage() {
     pool: number;
     designated: number;
     signed_2027: number;
+    signed_count: number;
+    signed_revenue: number;
+    unsigned_count: number;
+    unsigned_revenue: number;
   } | null>(null);
+
 
   useEffect(() => {
     if (!staff) return;
