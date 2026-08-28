@@ -176,10 +176,14 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
     };
     // Filter out fake/test records from ALL views, not just pending
     const realUsers = users.filter(u => !isFakeTestRecord(u));
-    const pending = realUsers.filter(r => r.approved === false && r.status !== 'rejected');
-    const allOthers = realUsers.filter(r => r.approved !== false || r.status === 'rejected');
+    // Waiting on a decision = not archived, never approved, not NLC, not rejected.
+    const pending = realUsers.filter(
+      r => !r.archived && r.approved === false && r.status !== 'nlc' && r.status !== 'rejected'
+    );
+    const allOthers = realUsers.filter(r => !pending.includes(r));
     setPendingUsers(pending);
     setAllUsers(allOthers);
+
 
     const managerIds = new Set((roleRes.data || []).filter(r => ['manager', 'admin', 'owner'].includes(r.role)).map(r => r.user_id));
     const mgrs = (profilesRes.data || []).filter(p => managerIds.has(p.user_id)).map(p => ({ user_id: p.user_id, full_name: p.full_name }));
