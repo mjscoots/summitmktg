@@ -293,23 +293,17 @@ export default function DoorsPage() {
           <>
             {segment === 'script' && (
               <div className="space-y-3">
-                <div className="flex gap-2 overflow-x-auto">
-                  {DOORS.map((d) => (
-                    <button
-                      key={d.key}
-                      onClick={() => setDoor(d.key)}
-                      className={cn(
-                        'shrink-0 rounded-full border px-5 text-[16px]',
-                        door === d.key
-                          ? 'border-foreground bg-foreground text-background'
-                          : 'border-border bg-card text-muted-foreground'
-                      )}
-                      style={{ minHeight: 48 }}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
+                {door === 'switchover' && (
+                  <FieldCard className="border-primary/40">
+                    <p className="font-display text-[22px] font-extrabold leading-tight text-foreground">
+                      Who do you use right now?
+                    </p>
+                    <p className="mt-2 text-[18px] leading-[1.6] text-muted-foreground">
+                      Ask that first. Get the company and what they pay before you say a price.
+                    </p>
+                  </FieldCard>
+                )}
+
                 {doorBlocks.length === 0 ? (
                   <FieldCard>
                     <p className="text-[18px] text-foreground">
