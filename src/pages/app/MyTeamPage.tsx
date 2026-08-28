@@ -33,6 +33,10 @@ import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { FiberTeam } from '@/components/team/FiberTeam';
 import { ThisWeekStrip } from '@/components/team/ThisWeekStrip';
+import { RollToFiberDialog } from '@/components/team/RollToFiberDialog';
+import { GoingColdCard } from '@/components/team/GoingColdCard';
+import { useRollover } from '@/hooks/useRollover';
+import { daysUntil, formatStart } from '@/lib/rollover';
 
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
@@ -107,6 +111,13 @@ export default function MyTeamPage() {
   }, [authLoading, isManagerRole, viewMode]);
 
   useManagerNotifications();
+
+  // Off-season rollover: pest reps into fiber before the season ends.
+  const rollover = useRollover();
+  const [rollOpen, setRollOpen] = useState(false);
+  const seasonDays = rollover.seasonEnd ? daysUntil(rollover.seasonEnd) : null;
+  const showSeasonLine = seasonDays !== null && seasonDays >= 0 && seasonDays <= 21;
+  const withFiber = rollover.reps.filter(r => r.hasFiber).length;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -303,6 +314,11 @@ export default function MyTeamPage() {
                     My week
                   </Button>
                 )}
+                {isManagerRole && activeVertical === 'Pest' && (
+                  <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setRollOpen(true)}>
+                    Roll into Fiber
+                  </Button>
+                )}
                 {isManagerRole && <InviteDialog managerLocked={!isAdmin} />}
                 {canAddMembers ? (
                   <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
@@ -337,10 +353,39 @@ export default function MyTeamPage() {
           </div>
         </header>
 
+        {isManagerRole && showSeasonLine && rollover.seasonEnd && (
+          <p className="mb-4 text-[13px] text-muted-foreground">
+            Season ends {formatStart(rollover.seasonEnd)}. {withFiber} of your {rollover.reps.length} active reps
+            have a Fiber start.
+          </p>
+        )}
+
         {isManagerRole && (
           <div className="mb-5">
             <ThisWeekStrip />
           </div>
+        )}
+
+        {isAdmin && !rollover.loading && (
+          <div className="mb-5">
+            <GoingColdCard
+              reps={rollover.reps}
+              carriers={rollover.carriers}
+              seasonEnd={rollover.seasonEnd}
+              onDone={() => void rollover.refresh()}
+            />
+          </div>
+        )}
+
+        {rollOpen && (
+          <RollToFiberDialog
+            open={rollOpen}
+            onOpenChange={setRollOpen}
+            reps={rollover.reps}
+            carriers={rollover.carriers}
+            seasonEnd={rollover.seasonEnd}
+            onDone={() => void rollover.refresh()}
+          />
         )}
 
 
