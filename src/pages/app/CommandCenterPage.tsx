@@ -7,6 +7,7 @@ import { Loader2, Check, Pencil } from "lucide-react";
 import CommandFunnel from "@/components/command/CommandFunnel";
 import WeeklyReportSection from "@/components/command/WeeklyReportSection";
 import OwnerWeekSection from "@/components/command/OwnerWeekSection";
+import OwedByManagerSection from "@/components/command/OwedByManagerSection";
 
 import AuditLogPanel from "@/components/command/AuditLogPanel";
 import RegionSheet from "@/components/command/RegionSheet";
@@ -446,6 +447,7 @@ export default function CommandCenterPage() {
 
         {/* THE WEEK */}
         <OwnerWeekSection />
+        <OwedByManagerSection />
 
 
         {/* PRIMARY OBJECTIVE */}

@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useManagerWeek, attentionReasons, type WeekRow } from '@/hooks/useManagerWeek';
 import { useFirstWeekRows, type FirstWeek } from '@/hooks/useFirstWeek';
 import { useAuth } from '@/hooks/useAuth';
+import { OwedThisWeek } from '@/components/team/OwedThisWeek';
 import { isManagerOrAbove } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 
@@ -215,6 +216,8 @@ export default function MyWeekPage() {
               : `${totals.reps} reps · ${totals.attention} need attention · ${totals.sales} sales · ${totals.training} training minutes`
           }
         />
+
+        <OwedThisWeek />
 
         {teams.length > 1 && (
           <div className="flex flex-wrap gap-2">
