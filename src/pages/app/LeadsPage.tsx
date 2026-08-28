@@ -271,8 +271,14 @@ export default function LeadsPage() {
 
 
           {tier !== 'sales' && scope === 'mine' && !loading && (
-            <ThisWeekQueue rows={rows} onOpen={setOpenLead} />
+            <>
+              <div className="mb-3">
+                <ScriptsButton onClick={() => setScriptsOpen(true)} />
+              </div>
+              <ThisWeekQueue rows={rows} onOpen={setOpenLead} />
+            </>
           )}
+
 
 
 
