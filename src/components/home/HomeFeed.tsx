@@ -172,9 +172,12 @@ export function HomeFeed() {
   }, []);
 
   const now = Date.now();
-  const upcoming = events.filter((e) => new Date(e.end_date || e.event_date).getTime() >= now);
-  const nextTwo = upcoming.slice(0, 2);
-  const openBlitzes = upcoming.filter((e) => e.event_kind === 'blitz');
+  // Next two by start time; a blitz stays open until its last day passes.
+  const nextTwo = events.filter((e) => new Date(e.event_date).getTime() >= now).slice(0, 2);
+  const openBlitzes = events.filter(
+    (e) => e.event_kind === 'blitz' && new Date(e.end_date || e.event_date).getTime() >= now
+  );
+
 
   const setRsvp = (id: string, status: string) =>
     setEvents((prev) => prev.map((e) => (e.id === id ? { ...e, my_rsvp: status } : e)));
