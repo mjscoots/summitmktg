@@ -11,6 +11,7 @@ import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
 import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
 import { QuickChips, type QuickChip } from '@/components/home/QuickChips';
+import { useSeasonMode, useResignHero, useRepOffSeasonLine } from '@/hooks/useSeasonMode';
 import { WeekBars } from '@/components/home/WeekBars';
 import { TeamTodayCard } from '@/components/home/TeamTodayCard';
 import { NextEventCard } from '@/components/home/NextEventCard';
