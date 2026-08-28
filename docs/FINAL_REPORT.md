@@ -1968,3 +1968,15 @@ Typecheck clean, production build clean at 217 kB, no console errors. Not publis
 - Grant manager access and the one-sentence explanation kept exactly as built.
 - Verified with no synthetic writes: direct SQL over 23 active profiles joined to auth sign-in and last_active_at returns 4 active in 7 days, 4 dark 8 to 29, 15 dark 30 or more, 0 without an account, matching the header. seats_rows and owner_week return zeros below admin and anon has no execute.
 - Typecheck and production build clean. Nothing published.
+
+## Pass 110 — Second proof
+
+- Copy: removed the three em dashes added in passes 107 to 109 (Seats intro, invite list line, manager-grant note). No other pass 107 to 109 string had one.
+- Routes: all 10 public screens at 390 and 1280, dark and light: 0 overflow, no console errors, tap targets at 44px minimum. Signed-in screens could not be opened; `lovable auth-session` needs approval for a specific user, so those are proven at database and permission level only.
+- Security: all 17 functions added since pass 96 are SECURITY DEFINER with the role check inside. Eight of them (seats_rows, manager_owed, owed_by_manager, is_effective_manager, create_seat_invite, revoke_seat_invite, set_manager_seat, seat_set_manager) still allowed anonymous execute; revoked, authenticated granted. set_manager_seat is owner only; seat_set_manager refuses an archived or nlc target.
+- Tables: none with RLS off; only backup_job_tokens has RLS on with no policy.
+- No leak: seats_rows and owed_by_manager return an empty payload with zero counts for any non admin/owner caller; every people-facing helper filters archived and nlc.
+- State: profiles 535, active 23, people_leads 551, recruiting_leads 94, applications 13, invites 0, roles owner 1 / admin 2, downline edges 395. No drift.
+- Linter delta: anonymous SECURITY DEFINER warnings 36 to 28; total 369 to 361. Remaining are pre-existing signed-in SECURITY DEFINER notices plus the OTP length setting.
+- Cron: unchanged; job history is not readable from this environment.
+- Typecheck and production build clean. Nothing published.

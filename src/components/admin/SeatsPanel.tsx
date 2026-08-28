@@ -123,7 +123,7 @@ export default function SeatsPanel() {
     for (const row of targets) {
       const { data: res, error } = await (supabase.rpc as any)('create_seat_invite', { _user_id: row.user_id, _days: 14 });
       const token = (res as { token?: string })?.token;
-      if (!error && token) lines.push(`${row.full_name} — ${linkFor(token)}`);
+      if (!error && token) lines.push(`${row.full_name}: ${linkFor(token)}`);
     }
     setBusy(null);
     setBulk(lines.join('\n'));
@@ -150,7 +150,7 @@ export default function SeatsPanel() {
   return (
     <div className="space-y-3">
       <p className="text-[13px] text-muted-foreground">
-        Coldest first. An invite is a link, and only people without an account need one — nothing is emailed or texted
+        Coldest first. An invite is a link, and only people without an account need one. Nothing is emailed or texted
         from here.
       </p>
 
@@ -259,7 +259,7 @@ export default function SeatsPanel() {
                       Grant manager access
                     </Button>
                   ) : (
-                    <span className="text-[12px] text-muted-foreground">Has people, no manager role — the owner grants this</span>
+                    <span className="text-[12px] text-muted-foreground">Has people, no manager role. The owner grants this</span>
                   )
                 )}
                 {isOwner && row.role === 'manager' && (
