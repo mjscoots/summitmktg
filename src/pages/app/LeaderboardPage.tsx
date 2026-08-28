@@ -18,6 +18,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceLeaderboard } from '@/components/leaderboard/WorkspaceLeaderboard';
 import { SelfReportedWeek } from '@/components/leaderboard/SelfReportedWeek';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { FiberBoardToday } from '@/components/fiber/FiberBoardToday';
 
 type LeaderboardTab = 'overall' | 'weekly' | 'sales' | 'streak' | 'recruiting' | 'hof';
 
