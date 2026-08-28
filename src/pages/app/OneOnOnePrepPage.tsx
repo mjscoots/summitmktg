@@ -14,6 +14,7 @@ import { PrepForm } from '@/components/one-on-one-prep/PrepForm';
 import { ManagerPrepForm, ManagerPrepFormData, initialManagerPrepFormData } from '@/components/one-on-one-prep/ManagerPrepForm';
 import { ScheduleTimeDialog } from '@/components/one-on-one-prep/ScheduleTimeDialog';
 import { WeekContextCard } from '@/components/one-on-one-prep/WeekContextCard';
+import { RepFactsCard } from '@/components/one-on-one-prep/RepFactsCard';
 
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -30,6 +31,8 @@ export interface PrepFormData {
   upcoming_activities: string;
   pitch_work_needed: string;
   weekly_mission: string;
+  commitment: string;
+  focus_area: string;
 }
 
 const initialFormData: PrepFormData = {
@@ -39,6 +42,8 @@ const initialFormData: PrepFormData = {
   upcoming_activities: '',
   pitch_work_needed: '',
   weekly_mission: '',
+  commitment: '',
+  focus_area: '',
 };
 
 /** Get current PST Monday as ISO string */
@@ -203,6 +208,8 @@ export default function OneOnOnePrepPage() {
           upcoming_activities: formData.upcoming_activities,
           pitch_work_needed: formData.pitch_work_needed,
           weekly_mission: formData.weekly_mission,
+          commitment: formData.commitment.trim() || null,
+          focus_area: formData.focus_area || null,
           submitted_by: user.id,
           submitted_at: new Date().toISOString(),
         })
@@ -275,6 +282,8 @@ export default function OneOnOnePrepPage() {
           team_development: mgrFormData.team_development,
           system_utilization_rating: mgrFormData.system_utilization_rating,
           manager_improvement: mgrFormData.manager_improvement,
+          commitment: mgrFormData.commitment.trim() || null,
+          focus_area: mgrFormData.focus_area || null,
           submitted_by: user.id,
           submitted_at: new Date().toISOString(),
         })
@@ -419,6 +428,8 @@ export default function OneOnOnePrepPage() {
               : 'w-[40%] min-w-[320px]'
           )}>
             <div className="p-4 pb-0">
+              <RepFactsCard userId={selectedRep.user_id} mode={mode} />
+              <div className="h-3" />
               <WeekContextCard userId={selectedRep.user_id} />
             </div>
             <TrainingDataPanel
