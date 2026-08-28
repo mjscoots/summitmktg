@@ -4487,6 +4487,7 @@ export type Database = {
           activated_at: string | null
           applied_at: string | null
           approved_at: string | null
+          carrier_id: string | null
           created_at: string
           current_step: number
           id: string
@@ -4500,6 +4501,7 @@ export type Database = {
           source_type: string
           sourced_by: string
           stack_source: string
+          start_date: string | null
           status: string
           updated_at: string
           user_id: string
@@ -4509,6 +4511,7 @@ export type Database = {
           activated_at?: string | null
           applied_at?: string | null
           approved_at?: string | null
+          carrier_id?: string | null
           created_at?: string
           current_step?: number
           id?: string
@@ -4522,6 +4525,7 @@ export type Database = {
           source_type?: string
           sourced_by?: string
           stack_source?: string
+          start_date?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -4531,6 +4535,7 @@ export type Database = {
           activated_at?: string | null
           applied_at?: string | null
           approved_at?: string | null
+          carrier_id?: string | null
           created_at?: string
           current_step?: number
           id?: string
@@ -4544,12 +4549,20 @@ export type Database = {
           source_type?: string
           sourced_by?: string
           stack_source?: string
+          start_date?: string | null
           status?: string
           updated_at?: string
           user_id?: string
           vertical?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rep_vertical_enrollments_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rep_vertical_enrollments_partner_id_fkey"
             columns: ["partner_id"]
@@ -7658,6 +7671,10 @@ export type Database = {
       review_team_lead_application: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: Json
+      }
+      roll_reps_to_fiber: {
+        Args: { _carrier_id?: string; _rep_ids: string[]; _start_date: string }
+        Returns: number
       }
       rsvp_event:
         | { Args: { p_event_id: string; p_status: string }; Returns: undefined }

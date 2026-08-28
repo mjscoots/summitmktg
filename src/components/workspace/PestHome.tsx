@@ -24,6 +24,7 @@ import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FirstWeekCard } from '@/components/home/FirstWeekCard';
+import { FiberStartCard } from '@/components/workspace/FiberStartCard';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 
 function greeting(): string {
@@ -149,6 +150,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
       >
         Doors
       </Button>
+
+      <FiberStartCard />
 
       <FirstWeekCard />
 

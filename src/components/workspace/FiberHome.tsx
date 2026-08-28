@@ -11,6 +11,8 @@ import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { LogInstallDialog } from '@/components/fiber/LogInstallDialog';
 import { HomeHero } from '@/components/home/HomeHero';
 import { QuickChips } from '@/components/home/QuickChips';
+import { useMyFiberStart } from '@/hooks/useRollover';
+import { daysUntil, formatStart } from '@/lib/rollover';
 
 
 export const FIBER_CARD = 'rounded-xl border border-border bg-card';
@@ -53,6 +55,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   const [stepList, setStepList] = useState<{ id: string; title: string; done: boolean }[]>([]);
   const [regionIntro, setRegionIntro] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+  const { start: fiberStart } = useMyFiberStart();
 
 
   const load = useCallback(async () => {
@@ -150,9 +153,18 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   }
 
   const gap = money?.next_tier_gap ?? null;
+  const notStarted = Boolean(fiberStart && daysUntil(fiberStart) > 0);
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-8">
+      {notStarted && fiberStart ? (
+        <section className="mb-4 rounded-2xl border border-border bg-card/60 p-5">
+          <p className="text-lg font-semibold text-foreground">You start {formatStart(fiberStart)}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your installs and pay live here once you start.
+          </p>
+        </section>
+      ) : (
       <HomeHero
         className="mb-4"
         label="Installs this week"
@@ -167,6 +179,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
           </Button>
         }
       />
+      )}
 
       <p className="mb-3 text-[13px] text-muted-foreground">
         {[regionName ? `${regionName} region` : null, carrierName, money?.rank_label]

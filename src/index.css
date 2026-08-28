@@ -81,6 +81,10 @@ html, body, #root {
     /* Workspace identity accent — wordmark, active tab, focus ring */
     --workspace-accent: 197 100% 68%;
 
+    /* Fiber mint, for the rollover card shown inside other workspaces */
+    --fiber-mint: 158 70% 55%;
+
+
     /* Role accents follow the one accent */
     --rookie-accent: 197 100% 68%;
     --rookie-glow: 197 100% 68%;
