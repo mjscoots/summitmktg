@@ -1,7 +1,33 @@
-# Go / No-Go — publish readiness
+# Go / No-Go: publish readiness
 
-Written for the owner. Last checked 28 August 2026. Nothing in this document has been
-published.
+Written for the owner. Last checked 28 August 2026 (second proof pass). Nothing in this
+document has been published.
+
+## Proven on 28 August 2026
+
+- Every public screen opens clean at 390 and 1280 in dark and light: no sideways scroll, no
+  element wider than its container, no console errors.
+- The database baseline is unchanged: 535 people, 23 active, 551 roster leads, 94 recruiting
+  leads, 13 applications, 0 invites, 1 owner and 2 admins, 395 reporting lines.
+- Every function added since the last full check now refuses signed-out callers, and each one
+  checks the caller's role inside itself. Granting manager access is owner only. Reassigning a
+  rep refuses an archived or inactive manager.
+- No table has row security switched off, and the only table with security on and no rule is
+  the internal backup token table.
+- Code compiles clean and the production build succeeds.
+
+## Blocked (only you can clear these)
+
+- Email still sends from a shared Resend test address that reaches your inbox only.
+- Mathew Rubino leads Summit Pest with no role assigned.
+
+## Cannot be verified without a signed-in session
+
+- Signed-in screens (My week, the owner's week, Seats, Requests, Learn, Doors, Leads, Team)
+  could not be opened this pass: a preview session could not be minted in this environment.
+  They are proven at database and permission level only.
+- Scheduled job history is not readable from this environment; the table below is unchanged
+  from the last check.
 
 ---
 
