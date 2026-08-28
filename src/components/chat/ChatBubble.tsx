@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { BadgeStrip } from '@/components/badges/BadgeStrip';
 import { UserAvatar } from '@/components/shared/UserAvatar';
-import { CornerDownRight, SmilePlus, Reply } from 'lucide-react';
+import { CornerDownRight, SmilePlus, Reply, Check, CheckCheck } from 'lucide-react';
 import { isStickerMessage, getStickerFromMessage } from '@/components/dashboard/StickerPicker';
 import { isGifMessage, getGifUrl } from '@/components/dashboard/GifPicker';
 import { isImageMessage, getImageUrl, ChatImage, isFileMessage, getFileInfo, ChatFile } from '@/components/dashboard/ChatImageUpload';
