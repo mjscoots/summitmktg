@@ -435,6 +435,14 @@ export default function AdminTeamPage({ section = 'inbox' }: { section?: AdminSe
             </TabsContent>
           )}
 
+          {section === 'inbox' && isAdmin && (
+            <TabsContent value="verticals">
+              <VerticalRequestsPanel />
+            </TabsContent>
+          )}
+
+
+
           {section === 'people' && (
             <TabsContent value="tiers">
               <AccessTiersPanel />
