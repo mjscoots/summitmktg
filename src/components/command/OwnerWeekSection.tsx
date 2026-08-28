@@ -163,7 +163,14 @@ export default function OwnerWeekSection() {
               }
               onClick={() => navigate("/admin/money")}
             />
+            <Line
+              label="Reps dark 30 days or more"
+              value={String(w.dark_30 ?? 0)}
+              sub={`of ${w.active_reps} active reps · Seats lists them coldest first`}
+              onClick={() => navigate("/admin/people?tab=seats")}
+            />
           </div>
+
         )}
       </Panel>
     </>
