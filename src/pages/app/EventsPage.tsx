@@ -550,6 +550,36 @@ export default function EventsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete confirm */}
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{deleteTarget?.series ? 'Delete this series?' : 'Delete this event?'}</DialogTitle>
+            <DialogDescription>
+              {deleteTarget?.ev.title}
+              {deleteTarget?.series
+                ? '. Every date in the series goes, along with its RSVPs and attendance. This cannot be undone.'
+                : '. Its RSVPs and attendance go with it. This cannot be undone.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={() => setDeleteTarget(null)}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border/60 bg-surface px-4 text-[13px] font-medium text-muted-foreground"
+            >
+              Keep it
+            </button>
+            <button
+              onClick={runDelete}
+              disabled={deleting}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-destructive px-4 text-[13px] font-semibold text-destructive-foreground disabled:opacity-60"
+            >
+              {deleting && <Loader2 className="h-4 w-4 animate-spin" />} Delete
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
