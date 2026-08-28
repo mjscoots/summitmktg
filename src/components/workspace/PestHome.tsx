@@ -134,6 +134,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
             {offSeason ? today.trainingMinutes : staff ? today.visibleToday : today.today}
           </p>
         )}
+        <span className="hero-accent-rule mt-3" aria-hidden />
         <p className="mt-2 text-[15px] text-muted-foreground">
           {offSeason
             ? staff
@@ -147,6 +148,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
               : `${weekCount} this week · ${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale`}
         </p>
       </header>
+
 
 
       {staff ? (
