@@ -261,7 +261,7 @@ export default function PersonProfilePage() {
         </div>
       </Card>
 
-      {data.scope !== 'self' && userId && <NewRepDayOneCard userId={userId} />
+      {data.scope !== 'self' && userId && <NewRepDayOneCard userId={userId} />}
 
       {/* What they've told us */}
       {(data.forms || []).length > 0 && (
