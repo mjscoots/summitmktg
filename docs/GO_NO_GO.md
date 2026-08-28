@@ -243,7 +243,7 @@ minutes for it.
 | Chat photos loading | Open a chat with an image on a phone, not just desktop |
 | Event card RSVPs | Events → an upcoming event → attendance count |
 | Weekly owner report email | Your inbox on Sunday evening; if nothing arrives, section 3's email item is why |
-| Nightly jobs ran | Admin → Reports; the rep profiles and lead cycling both run overnight and have not yet had a first run |
+| Nightly jobs ran | Admin → Reports; the rep profiles and lead cycling both ran overnight and succeeded |
 
 ### Scheduled jobs and their state
 
@@ -257,14 +257,14 @@ minutes for it.
 | Action item due | daily 13:05 UTC | succeeded |
 | Inactivity check | daily 17:00 UTC | succeeded |
 | Event series expansion | daily 03:17 UTC | succeeded |
-| **Rep AI profiles** | daily 10:40 UTC | **not yet run** |
-| **Stale lead cycling** | daily 10:50 UTC | **not yet run** |
+| Rep AI profiles | daily 10:40 UTC | succeeded |
+| Stale lead cycling | daily 10:50 UTC | succeeded |
 | Weekly champion notice | Mondays 08:05 UTC | succeeded |
 | **Weekly owner report** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly awards** | Sundays 22:05 UTC | **not yet run** |
 | **Weekly backup** | Sundays 09:20 UTC | **not yet run** |
 | **Manager weekly digest** | Mondays 13:00 UTC | **not yet run** |
 
-The six marked "not yet run" are all recent additions whose first scheduled time has not
+The four marked "not yet run" are the weekly jobs; their first scheduled Sunday or Monday
+has not come round since they were added. Check them the day after publishing.
 
-come round yet. Check them on the day after publishing.
