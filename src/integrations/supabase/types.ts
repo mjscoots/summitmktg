@@ -3297,6 +3297,7 @@ export type Database = {
           emergency_contact_phone: string | null
           experience: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
+          hometown: string | null
           id: string
           is_active_now: boolean | null
           ladder_rung_override: number | null
@@ -3375,6 +3376,7 @@ export type Database = {
           emergency_contact_phone?: string | null
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name: string
+          hometown?: string | null
           id?: string
           is_active_now?: boolean | null
           ladder_rung_override?: number | null
@@ -3453,6 +3455,7 @@ export type Database = {
           emergency_contact_phone?: string | null
           experience?: Database["public"]["Enums"]["experience_level"] | null
           full_name?: string
+          hometown?: string | null
           id?: string
           is_active_now?: boolean | null
           ladder_rung_override?: number | null
@@ -7759,6 +7762,15 @@ export type Database = {
             Returns: undefined
           }
       run_notification_digest: { Args: never; Returns: number }
+      save_goal_interview: {
+        Args: {
+          _income_goal: number
+          _last_day: string
+          _rep: string
+          _why: string
+        }
+        Returns: Json
+      }
       search_people: { Args: { _q: string }; Returns: Json }
       set_access_code: {
         Args: { code_description?: string; new_code: string }
@@ -7819,6 +7831,10 @@ export type Database = {
           _vertical: string
           _worked_under: string
         }
+        Returns: Json
+      }
+      submit_referral: {
+        Args: { _name: string; _note?: string; _phone: string }
         Returns: Json
       }
       sweep_mark_gone: {

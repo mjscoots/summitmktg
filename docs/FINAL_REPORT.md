@@ -1704,3 +1704,14 @@ Money numbers now arrive by import, not by typing.
 - DB verification (synthetic, then rolled back): request created pending; a second open Fiber request refused; owner approve produced exactly one Fiber enrollment (onboarding, start 2026-08-31 = next Monday) + one approvals row, Pest untouched, rep notified; deny produced zero enrollments and blocked re-request until Sep 11; a plain rep calling `decide_vertical_request` got "Only the owner or an admin can decide this"; a non-admin calling `roll_reps_to_fiber` got "not authorized"; `anon` has no EXECUTE on either.
 - Baseline restored: `vertical_applications` 0, `vertical_application_approvals` 0, no leftover non-Pest enrollments for the test reps.
 - Typecheck and production build clean. Nothing published.
+
+## Pass 90 — Onboarding, front and back
+
+- Guided first open: `GuidedSetup.tsx` runs one question per screen (photo, name, phone, hometown, school or job, shirt size, emergency contact, how they found us, your three). Every answer writes to `profiles` as it is given; each step is skippable and recorded in `onboarding_marks` (day 0, `setup:<step>` or `setup:<step>:skipped`). `ProfileCompletionGate` now hosts the flow and still allows "Finish later" for the day.
+- Fields reused, not duplicated: `organization` holds school or job, `referred_by` holds how they found us, `shirt_size` and the emergency contact columns already existed. Only `profiles.hometown` was added. Pipeline stage moves `pending` → `info_added` (existing vocabulary; no new status values invented).
+- Goal interview: `save_goal_interview(rep, why, income goal, last day)` writes the 2027 row in `commitment_interviews` and the income goal to `profiles.revenue_goal`. Rep can run it for themselves from the Home card; a manager, admin, owner or president can run it for one of their reps from the person profile ("Complete interview").
+- Your three: `submit_referral(name, phone, note)` creates a `rep_referral` lead credited to the rep. Duplicate phone numbers are refused; five per rep per day via `check_rate_limit`.
+- Fiber days: three published `onboarding_days` rows for Fiber (Get on Gainz, Your first numbers, Your first blitz) beside the seven Pest days.
+- Manager view: `NewRepsPanel` on Team shows new reps with Photo / Phone / Details / Interview / Referrals chips; `NewRepDayOneCard` on a person profile lists what day one still needs.
+- Verified: anonymous calls to both RPCs return `permission denied` (401). As the archived test rookie: first referral `ok: true`, same number again refused, goal interview saved with the 2027 last day and the income goal on the profile. All synthetic rows purged afterwards; rate-limit counter cleared.
+- Typecheck clean, production build OK. Linter counts unchanged from baseline (anon-executable definer functions dropped 31 → 29). Preview only; nothing published.

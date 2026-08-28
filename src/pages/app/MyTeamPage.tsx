@@ -32,6 +32,7 @@ import { FiberTeam } from '@/components/team/FiberTeam';
 import { ThisWeekStrip } from '@/components/team/ThisWeekStrip';
 import { RollToFiberDialog } from '@/components/team/RollToFiberDialog';
 import { GoingColdCard } from '@/components/team/GoingColdCard';
+import { NewRepsPanel } from '@/components/team/NewRepsPanel';
 import { useRollover } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
 
@@ -363,6 +364,12 @@ export default function MyTeamPage() {
         {isManagerRole && (
           <div className="mb-5">
             <ThisWeekStrip />
+          </div>
+        )}
+
+        {isManagerRole && (
+          <div className="mb-5">
+            <NewRepsPanel />
           </div>
         )}
 
