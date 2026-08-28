@@ -24,22 +24,22 @@ export function WinMoment({ open, firstName, signedCount, onDismiss }: WinMoment
       aria-modal="true"
       aria-label={`Signed ${firstName}`}
       onClick={onDismiss}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 px-6 text-center animate-in fade-in duration-200"
-      style={{ background: 'radial-gradient(circle at 50% 40%, hsl(43 74% 20% / 0.95) 0%, hsl(222 47% 4% / 0.98) 60%)' }}
+      className="celebrate-wash fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 px-6 text-center animate-in fade-in duration-200"
     >
-      <p className="text-[11px] font-black tracking-[0.3em] text-amber-300/70">Signed</p>
-      <p className="text-4xl font-black tracking-tight text-amber-200 sm:text-5xl">{firstName}</p>
+      <p className="text-[11px] font-black tracking-[0.3em]" style={{ color: 'hsl(var(--celebrate-warm))' }}>Signed</p>
+      <p className="celebrate-text celebrate-in text-4xl font-black tracking-tight sm:text-5xl">{firstName}</p>
       {signedCount !== null && (
-        <p className="text-sm text-amber-100/60">
+        <p className="text-sm text-foreground/70">
           {signedCount} {signedCount === 1 ? 'sign' : 'signs'} this season
         </p>
       )}
       <button
         onClick={onDismiss}
-        className="mt-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-100/40"
+        className="mt-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground"
       >
         Tap to close
       </button>
     </div>
   );
+
 }
