@@ -150,7 +150,7 @@ export default function SeatsPanel() {
   return (
     <div className="space-y-3">
       <p className="text-[13px] text-muted-foreground">
-        Coldest first. An invite is a link, and only people without an account need one — nothing is emailed or texted
+        Coldest first. An invite is a link, and only people without an account need one. Nothing is emailed or texted
         from here.
       </p>
 
