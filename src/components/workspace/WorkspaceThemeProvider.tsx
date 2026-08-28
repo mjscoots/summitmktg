@@ -41,12 +41,18 @@ function hslToHex(triplet: string): string | null {
 /** Pest — dotted grid at 6% white, 22px spacing. */
 const DOTS =
   'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)';
+/** Pest, light appearance — the same dotted grid at 5% black. */
+const DOTS_LIGHT = 'radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)';
 /** Fiber — fine line grid at 4% white, 44px cells. */
 const LINES =
   'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)';
+/** Fiber, light appearance — the same grid at 5% black. */
+const LINES_LIGHT =
+  'linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)';
 /** Life — soft paper grain at 3% on the light surface. */
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E\")";
+
 
 /**
  * Pass 76 — Mono. One near-black palette across the three products. A
