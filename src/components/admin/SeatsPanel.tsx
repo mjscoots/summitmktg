@@ -259,7 +259,7 @@ export default function SeatsPanel() {
                       Grant manager access
                     </Button>
                   ) : (
-                    <span className="text-[12px] text-muted-foreground">Has people, no manager role — the owner grants this</span>
+                    <span className="text-[12px] text-muted-foreground">Has people, no manager role. The owner grants this</span>
                   )
                 )}
                 {isOwner && row.role === 'manager' && (
