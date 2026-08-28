@@ -137,6 +137,34 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
   },
 };
 
+/** Pass 83 — the Light palette. Same token names, daylight values. */
+const MONO_LIGHT = {
+  mode: 'light' as const,
+  background: '220 20% 97%',
+  surface: '0 0% 100%',
+  surfaceElevated: '0 0% 100%',
+  surfaceSunken: '220 20% 95%',
+  foreground: '220 22% 6%',
+  secondaryText: '219 13% 34%',
+  muted: '218 11% 54%',
+  border: '218 15% 91%',
+  borderSubtle: '218 15% 91%',
+  borderStrong: '216 15% 82%',
+  primary: '220 22% 6%',
+  primaryDeep: '220 22% 6%',
+  primaryForeground: '0 0% 100%',
+};
+
+/** The light-appearance twin of a dark workspace palette. */
+function lightVariant(p: Palette): Palette {
+  return {
+    ...p,
+    ...MONO_LIGHT,
+    wordmark: { ...p.wordmark, bg: '#FFFFFF', outline: '#0B0D12', letters: '#0B0D12' },
+    texture: p.texture === LINES ? LINES_LIGHT : DOTS_LIGHT,
+  };
+}
+
 
 /**
  * Applies the active workspace's theme as CSS variables on <html>.
@@ -144,6 +172,7 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
  */
 export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
   const { active } = useWorkspace();
+  const { mode: appearance } = useAppearance();
   const theme = ((active as unknown as { theme?: WorkspaceTheme } | null)?.theme || {}) as WorkspaceTheme;
   const vertical = (active?.vertical || 'Pest').toLowerCase();
 
@@ -155,7 +184,10 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     };
 
     const key = (vertical === 'fiber' || vertical === 'life' ? vertical : 'pest') as keyof typeof PALETTES;
-    const p = PALETTES[key];
+    // Life keeps its light look either way; Pest and Fiber follow the rep's choice.
+    const base = PALETTES[key];
+    const p = key !== 'life' && appearance === 'light' ? lightVariant(base) : base;
+
 
     // Lets workspace-scoped CSS target the active product.
     root.dataset.workspace = key;
