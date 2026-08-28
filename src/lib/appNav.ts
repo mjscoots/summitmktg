@@ -76,7 +76,7 @@ export const DESTINATIONS: NavDest[] = [
   { key: 'leads', label: 'Leads', path: '/app/leads', icon: PhoneCall, minTier: 'manager' },
   { key: 'team', label: 'Team', path: '/app/team', icon: Users, minTier: 'manager' },
   { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
-  { key: 'admin', label: 'Admin', path: '/admin/inbox', icon: Shield, minTier: 'admin' },
+  { key: 'admin', label: 'Admin', path: '/admin/requests', icon: Shield, minTier: 'admin' },
   { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
 ];
 
@@ -113,7 +113,7 @@ const ALL: Record<string, NavDest> = {
   leads: { key: 'leads', label: 'Leads', path: '/app/leads', icon: PhoneCall, minTier: 'manager' },
   forms: { key: 'forms', label: 'Forms', path: '/app/forms', icon: FileText, minTier: 'manager' },
   approvals: { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
-  admin: { key: 'admin', label: 'Admin', path: '/admin/inbox', icon: Shield, minTier: 'admin' },
+  admin: { key: 'admin', label: 'Admin', path: '/admin/requests', icon: Shield, minTier: 'admin' },
   profile: { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
 };
 
