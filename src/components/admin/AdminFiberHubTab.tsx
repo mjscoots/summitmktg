@@ -62,10 +62,50 @@ export function AdminFiberHubTab() {
     else toast('Fiber hub saved');
   };
 
-  if (loading) return <Skeleton className="h-64 w-full" />;
+  if (loading || gateLoading) return <Skeleton className="h-64 w-full" />;
+
+  if (!canEdit) {
+    return (
+      <div className="space-y-3">
+        <section className={CARD}>
+          <p className="text-sm font-semibold text-foreground">Read only</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Fiber content is edited by the owner and Brandon Pillar.
+          </p>
+        </section>
+        <section className={CARD}>
+          <p className="mb-2 text-sm font-semibold text-foreground">Who to contact</p>
+          {contacts.length === 0 ? (
+            <p className="text-[13px] text-muted-foreground">No contacts yet</p>
+          ) : (
+            <ul className="space-y-1 text-[13px] text-muted-foreground">
+              {contacts.map((c, i) => (
+                <li key={i}>
+                  {[c.name, c.phone, c.role].filter(Boolean).join(' · ')}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <section className={CARD}>
+          <p className="mb-2 text-sm font-semibold text-foreground">Upcoming blitzes</p>
+          {blitzes.length === 0 ? (
+            <p className="text-[13px] text-muted-foreground">No blitzes yet</p>
+          ) : (
+            <ul className="space-y-1 text-[13px] text-muted-foreground">
+              {blitzes.map((b, i) => (
+                <li key={i}>{[b.place, b.timing].filter(Boolean).join(' · ')}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
+
       <section className={CARD}>
         <p className="mb-3 text-sm font-semibold text-foreground">Who to contact</p>
         <div className="space-y-3">
