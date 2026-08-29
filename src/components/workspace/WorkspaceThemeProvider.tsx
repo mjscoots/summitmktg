@@ -166,6 +166,17 @@ function lightVariant(p: Palette): Palette {
   };
 }
 
+/** The dark-appearance twin of a light workspace palette. */
+function darkVariant(p: Palette): Palette {
+  return {
+    ...p,
+    ...MONO_DARK,
+    wordmark: { ...p.wordmark, bg: '#0B0D12', outline: '#FFFFFF', letters: '#FFFFFF' },
+    texture: p.texture === GRAIN ? DOTS : p.texture,
+  };
+}
+
+
 
 /**
  * Applies the active workspace's theme as CSS variables on <html>.
@@ -185,9 +196,17 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     };
 
     const key = (vertical === 'fiber' || vertical === 'life' ? vertical : 'pest') as keyof typeof PALETTES;
-    // Life keeps its light look either way; Pest and Fiber follow the rep's choice.
+    // Every workspace follows the resolved appearance, which follows the phone
+    // by default. The workspace keeps its identity accent and texture.
     const base = PALETTES[key];
-    const p = key !== 'life' && appearance === 'light' ? lightVariant(base) : base;
+    const p =
+      appearance === 'light'
+        ? base.mode === 'light'
+          ? base
+          : lightVariant(base)
+        : base.mode === 'dark'
+          ? base
+          : darkVariant(base);
 
 
     // Lets workspace-scoped CSS target the active product.

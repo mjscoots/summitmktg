@@ -130,6 +130,92 @@ html, body, #root {
     --foreground: 213 20% 97%;
   }
 
+  /* ━━━ LIGHT APPEARANCE — the same Mono system in daylight values.
+     Applied whenever the resolved mode is light, which is the phone
+     setting by default and the rep's override when they pin one. ━━━ */
+  html[data-appearance='light'],
+  html[data-appearance='light'] .light,
+  html[data-appearance='light'] .dark,
+  html[data-appearance='light'] .gold-world {
+    --background: 220 20% 97%;
+    --foreground: 220 22% 6%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 22% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 22% 6%;
+
+    --primary: 220 22% 6%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 220 22% 6%;
+    --accent-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 94%;
+    --secondary-foreground: 220 22% 6%;
+    --muted: 220 20% 94%;
+    --muted-foreground: 218 11% 44%;
+
+    --destructive: 358 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 158 62% 34%;
+    --success-foreground: 0 0% 100%;
+    --warning: 33 92% 38%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 218 15% 88%;
+    --input: 0 0% 100%;
+    --ring: 199 92% 38%;
+
+    --shadow-lift: 0 1px 2px rgba(16, 24, 40, 0.08);
+
+    --surface: 0 0% 100%;
+    --surface-elevated: 0 0% 100%;
+    --surface-sunken: 220 20% 94%;
+    --border-subtle: 218 15% 91%;
+    --border-strong: 216 15% 80%;
+
+    --text-primary: 220 22% 6%;
+    --text-secondary: 219 13% 30%;
+    --text-muted: 218 11% 44%;
+
+    --ice: 199 92% 38%;
+    --primary-soft: 199 92% 38% / 0.1;
+    --primary-muted: 200 45% 34%;
+    --primary-glow: 199 92% 38%;
+    --primary-deep: 220 22% 6%;
+    --workspace-accent: 199 92% 38%;
+    --fiber-mint: 158 62% 34%;
+
+    --rookie-accent: 199 92% 38%;
+    --rookie-glow: 199 92% 38%;
+    --manager-accent: 199 92% 38%;
+    --manager-glow: 199 92% 38%;
+
+    --glass-bg: 0 0% 100%;
+    --glass-border: 218 15% 88%;
+
+    --gradient-ice: hsl(var(--ice));
+    --gradient-hero: hsl(var(--surface));
+    --gradient-primary: hsl(var(--primary));
+    --gradient-gold: hsl(var(--primary));
+    --gradient-surface: hsl(var(--surface));
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 219 13% 30%;
+    --sidebar-primary: 199 92% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 94%;
+    --sidebar-accent-foreground: 220 22% 6%;
+    --sidebar-border: 218 15% 91%;
+    --sidebar-ring: 199 92% 38%;
+
+    --wordmark-bg: #FFFFFF;
+    --wordmark-accent: #0B7FB0;
+    --wordmark-outline: #0B0D12;
+    --wordmark-letters: #0B0D12;
+  }
+
+
   /* ━━━ PUBLIC WORLD — outward-facing pages (cover, recruiting, applications).
      The same Mono palette; the public site stays dark. ━━━ */
   .gold-world {
@@ -1347,4 +1433,33 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .public-cover-mark { animation: none !important; }
   .production-ticker-card { animation: none !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 132 — the light appearance on the public pages. Same
+   atmosphere, daylight values, so every token resolves in both
+   modes with no invisible text and no invisible hairlines.
+   ───────────────────────────────────────────────────────────── */
+html[data-appearance='light'] .public-world,
+html[data-appearance='light'] .public-auth {
+  --primary: 199 92% 34%;
+  --primary-foreground: 0 0% 100%;
+  --primary-glow: 199 92% 38%;
+}
+
+html[data-appearance='light'] .public-dots::before {
+  background-image: radial-gradient(rgba(11, 13, 18, 0.06) 1px, transparent 1px);
+}
+
+html[data-appearance='light'] .public-cover::after,
+html[data-appearance='light'] .public-auth::after {
+  opacity: 0.1;
+}
+
+html[data-appearance='light'] .public-cover::before,
+html[data-appearance='light'] .public-auth::before,
+html[data-appearance='light'] .public-cta::before {
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
 }

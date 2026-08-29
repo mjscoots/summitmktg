@@ -26,30 +26,11 @@ function applyRoleTheme(role: ThemeRole) {
   root.style.setProperty('--sidebar-ring', '216 89% 53%');
 }
 
-function applyModeTheme(mode: ThemeMode) {
-  const root = document.documentElement;
-  // Always dark — the brand is a dark premium dashboard
-  root.classList.add('dark');
-  root.classList.remove('light');
-  if (root.dataset.workspaceTheme === '1') return;
-  root.style.setProperty('--background', '216 30% 5%');
-  root.style.setProperty('--foreground', '223 100% 97%');
-  root.style.setProperty('--card', '220 40% 10%');
-  root.style.setProperty('--card-foreground', '223 100% 97%');
-  root.style.setProperty('--popover', '220 40% 10%');
-  root.style.setProperty('--popover-foreground', '223 100% 97%');
-  root.style.setProperty('--secondary', '218 46% 14%');
-  root.style.setProperty('--secondary-foreground', '223 100% 97%');
-  root.style.setProperty('--muted', '218 46% 14%');
-  root.style.setProperty('--muted-foreground', '217 25% 50%');
-  root.style.setProperty('--border', '217 44% 20%');
-  root.style.setProperty('--input', '220 40% 10%');
-  root.style.setProperty('--sidebar-background', '216 40% 3%');
-  root.style.setProperty('--sidebar-foreground', '0 0% 85%');
-  root.style.setProperty('--sidebar-accent', '218 46% 14%');
-  root.style.setProperty('--sidebar-accent-foreground', '0 0% 90%');
-  root.style.setProperty('--sidebar-border', '217 44% 15%');
+function applyModeTheme(_mode: ThemeMode) {
+  // Appearance owns light and dark now: src/lib/appearance.ts marks the
+  // resolved mode on <html> and the workspace theme writes the palette.
 }
+
 
 export function ThemeProvider({
   children,

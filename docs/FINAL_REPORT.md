@@ -2219,3 +2219,16 @@ Archive only, no rows deleted, no profiles merged.
 - Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58.
 - Screenshot docs/screens/p131-events-manager-390.png (owner session, 390). No rep session could be minted, so the rep case was proven at the database and in source.
 - New user-facing copy read back: no em dashes. Typecheck and production build clean. Nothing published.
+
+## Pass 132 — Structure and skin
+- Nav: one phone bar for every workspace, Home, Chat, Events, Money, Training, More, 44px targets, safe area respected, no content overlap at 390.
+- New /app/more: role aware groups (Your work, Learn and tools, Manage, Company, You) plus log out; /app/menu redirects there. The header drawer now renders the same model, so nothing is reachable in one place and missing in the other.
+- Orphan check: every /app route in App.tsx is a bar item, a More item, a redirect, or an in app detail link. Added Video library, Manager videos and Manager meeting to More to close the last gaps.
+- Theme: appearance defaults to System, so a new visitor follows the phone. Verified signed out at 390: light scheme renders bg 246,247,249 with fg 12,14,19 on cover and login, dark scheme renders the dark tokens. Dark, Light and System override kept on Profile.
+- Full light token layer added (background, card, border, muted, sidebar, workspace accent, wordmark, public cover grid, dots and grain). Every workspace now has a light twin and a dark twin; Life no longer forced light.
+- Legacy dark: all 535 profile rows carry an explicit appearance of dark from before System existed. Flipping them is a data write this pass forbids, so each person picks System on Profile. New rows still default to dark at the schema level; changing that default needs a migration next pass.
+- Light render proof at 390 on Home, Events, Chat, Money, Training and More: white cards, dark text, visible hairlines, accent on primary actions. Screenshots docs/screens/p132-{home,events,more}-390-light.png and p132-cover-390-{light,dark}.png.
+- Skin: card radius and border unified on the new surfaces via var(--radius) and border tokens, red left to destructive only.
+- Blitzes: grep confirms no blitz component or copy on the rep money page, command money or admin money. Home's blitz list is now labelled Blitzes, not Money. Import pipeline panels untouched.
+- Zero data writes: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30. No new or changed database functions.
+- No em dashes in the new copy. Typecheck and production build clean. Preview only, not published.

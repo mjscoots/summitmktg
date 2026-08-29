@@ -11,20 +11,20 @@ const OPTIONS: { key: AppearancePref; label: string }[] = [
 ];
 
 /**
- * Pass 83 — Appearance. Reps knock in daylight, so Light is back. The choice is
- * saved on the profile so it follows them to any device.
+ * Appearance. System follows the phone, and Dark or Light pins the app to one
+ * look. The choice is saved on the profile so it follows the rep to any device.
  */
 export function AppearanceCard() {
   const { preference, setPreference } = useAppearance();
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card p-6">
+    <div className="rounded-[var(--radius)] border border-border bg-card p-6">
       <h3 className="mb-1 flex items-center gap-2 font-semibold text-foreground">
         <Sun className="h-4 w-4 text-primary" />
         Appearance
       </h3>
       <p className="mb-4 text-sm text-muted-foreground">
-        Light is easier to read on a doorstep in the sun. Life keeps its light look either way.
+        System follows your phone. Light is easier to read on a doorstep in the sun.
       </p>
       <div
         className="flex flex-wrap gap-2"
@@ -51,6 +51,7 @@ export function AppearanceCard() {
           </button>
         ))}
       </div>
+
     </div>
   );
 }

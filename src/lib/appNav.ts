@@ -13,6 +13,11 @@ import {
   User,
   Wifi,
   ClipboardList,
+  MoreHorizontal,
+  BookOpen,
+  Link2,
+  Sparkles,
+  Wrench,
 
   type LucideIcon,
 } from 'lucide-react';
@@ -34,38 +39,24 @@ function allowed(dest: NavDest, tier: Tier): boolean {
   return TIER_ORDER.indexOf(tier) >= TIER_ORDER.indexOf(dest.minTier);
 }
 
-/** Pest bottom bar: the five places a pest rep works from. */
+/**
+ * The one phone bar for every workspace: the five places the day runs
+ * through, plus More for everything else.
+ */
 export const PHONE_BAR: NavDest[] = [
   { key: 'home', label: 'Home', path: '/app', icon: Home },
   { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { key: 'events', label: 'Events', path: '/app/events', icon: CalendarClock },
+  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
   { key: 'training', label: 'Training', path: '/app/training', icon: GraduationCap },
-  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-  { key: 'leaderboard', label: 'Board', path: '/app/leaderboard', icon: Trophy },
+  { key: 'more', label: 'More', path: '/app/more', icon: MoreHorizontal },
 ];
 
-/** Fiber works on installs, not accounts, so its bar carries its own work. */
-export const FIBER_PHONE_BAR: NavDest[] = [
-  { key: 'home', label: 'Home', path: '/app', icon: Home },
-  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-  { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
-];
-
-/** Life works on appointments and a pipeline, so its bar carries that work. */
-export const LIFE_PHONE_BAR: NavDest[] = [
-  { key: 'home', label: 'Home', path: '/app', icon: Home },
-  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { key: 'pipeline', label: 'Pipeline', path: '/app/pipeline', icon: ClipboardList },
-  { key: 'training', label: 'Training', path: '/app/training', icon: GraduationCap },
-  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-];
-
-/** The phone bottom bar for the active workspace. */
-export function phoneBar(vertical: string | null | undefined): NavDest[] {
-  if (vertical === 'Fiber') return FIBER_PHONE_BAR;
-  if (vertical === 'Life') return LIFE_PHONE_BAR;
+/** The phone bottom bar. Every workspace shares it. */
+export function phoneBar(_vertical?: string | null): NavDest[] {
   return PHONE_BAR;
 }
+
 
 
 /** Everything else a rep can reach. One definition, used by the phone sheet and the sidebar. */
@@ -115,7 +106,88 @@ const ALL: Record<string, NavDest> = {
   approvals: { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
   admin: { key: 'admin', label: 'Admin', path: '/admin/requests', icon: Shield, minTier: 'admin' },
   profile: { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
+  scripts: { key: 'scripts', label: 'Scripts', path: '/app/scripts', icon: BookOpen },
+  resources: { key: 'resources', label: 'Resources', path: '/app/links', icon: Link2 },
+  ask: { key: 'ask', label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+  doors: { key: 'doors', label: 'Doors mode', path: '/app/doors', icon: Home },
+  missions: { key: 'missions', label: 'Missions', path: '/app/missions', icon: ClipboardList },
+  recruits: { key: 'recruits', label: 'Recruits', path: '/app/recruits', icon: Users },
+  industries: { key: 'industries', label: 'Industries', path: '/app/industries', icon: Wrench },
+  estimate: { key: 'estimate', label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign },
+  alumni: { key: 'alumni', label: 'Alumni', path: '/app/alumni', icon: Users },
+  prep: { key: 'prep', label: 'One on one prep', path: '/app/one-on-ones/prep', icon: FileText, minTier: 'manager' },
+  sweep: { key: 'sweep', label: 'Roster sweep', path: '/app/roster/sweep', icon: ClipboardList, minTier: 'manager' },
+  warroom: { key: 'warroom', label: 'War room', path: '/app/war-room', icon: Shield, minTier: 'manager' },
+  logistics: { key: 'logistics', label: 'Rep logistics', path: '/app/logistics', icon: ClipboardList, minTier: 'manager' },
+  command: { key: 'command', label: 'Command center', path: '/command', icon: Shield, minTier: 'admin' },
+  videos: { key: 'videos', label: 'Video library', path: '/app/training/videos', icon: Video },
+  managerVideos: {
+    key: 'managerVideos',
+    label: 'Manager videos',
+    path: '/app/training/manager-videos',
+    icon: Video,
+    minTier: 'manager',
+  },
+  managerMeeting: {
+    key: 'managerMeeting',
+    label: 'Manager meeting',
+    path: '/app/manager-meeting',
+    icon: CalendarClock,
+    minTier: 'manager',
+  },
 };
+
+export interface NavGroup {
+  title: string;
+  items: NavDest[];
+}
+
+/**
+ * The More screen: everything the phone bar does not carry, grouped by the
+ * job it belongs to and filtered to what this person can open.
+ */
+export function moreGroups(
+  vertical: string | null | undefined,
+  role: string | null | undefined
+): NavGroup[] {
+  const tier = tierOf(role);
+  const w = ws(vertical);
+
+  const workspaceKeys =
+    w === 'fiber'
+      ? ['leaderboard', 'installs', 'industries']
+      : w === 'life'
+        ? ['pipeline', 'leaderboard', 'industries']
+        : ['leaderboard', 'season', 'missions', 'doors', 'industries'];
+
+  const groups: NavGroup[] = [
+    { title: 'Your work', items: workspaceKeys.map((k) => ALL[k]) },
+    { title: 'Learn and tools', items: ['scripts', 'resources', 'videos', 'ask', 'estimate'].map((k) => ALL[k]) },
+    {
+      title: 'Manage',
+      items: [
+        'team',
+        'leads',
+        'approvals',
+        'forms',
+        'prep',
+        'sweep',
+        'recruits',
+        'warroom',
+        'logistics',
+        'managerVideos',
+        'managerMeeting',
+      ].map((k) => ALL[k]),
+    },
+    { title: 'Company', items: ['admin', 'command', 'alumni'].map((k) => ALL[k]) },
+    { title: 'You', items: ['profile'].map((k) => ALL[k]) },
+  ];
+
+  return groups
+    .map((g) => ({ title: g.title, items: g.items.filter((d) => d && allowed(d, tier)) }))
+    .filter((g) => g.items.length > 0);
+}
+
 
 type Workspace = 'pest' | 'fiber' | 'life';
 

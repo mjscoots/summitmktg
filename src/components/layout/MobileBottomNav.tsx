@@ -31,7 +31,7 @@ export function MobileBottomNav() {
       data-phone-bar
     >
       <div
-        className="mx-auto flex max-w-lg items-stretch gap-1 p-1.5"
+        className="mx-auto flex max-w-lg items-stretch gap-0.5 p-1.5"
         style={{
           background: 'hsl(var(--surface-elevated))',
           border: '1px solid hsl(var(--border))',
@@ -51,14 +51,15 @@ export function MobileBottomNav() {
               }}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'relative flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 transition-colors',
+                'relative flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[14px] px-0.5 py-1.5 transition-colors',
                 active
                   ? 'bg-[hsl(var(--workspace-accent)/0.14)] text-[hsl(var(--workspace-accent))]'
                   : 'text-muted-foreground'
               )}
             >
-              <item.icon className="h-6 w-6" strokeWidth={active ? 2 : 1.75} />
-              <span className="text-[11px] font-semibold leading-none">{item.label}</span>
+              <item.icon className="h-[22px] w-[22px]" strokeWidth={active ? 2 : 1.75} />
+              <span className="text-[10px] font-semibold leading-none">{item.label}</span>
+
               {item.path === '/app/chat' && unreadCount > 0 && (
                 <span className="absolute right-[22%] top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
                   {unreadCount > 99 ? '99+' : unreadCount}
