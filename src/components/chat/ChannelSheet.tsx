@@ -198,6 +198,23 @@ export function ChannelSheet({
           )}
         </div>
 
+        {details && (
+          <button
+            type="button"
+            onClick={() => void toggleMute()}
+            disabled={busy}
+            className="mt-4 flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-border/60 px-3 text-[13px] font-semibold text-foreground disabled:opacity-50"
+          >
+            {details.is_muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+            {details.is_muted ? 'Unmute this room' : 'Mute this room'}
+            <span className="ml-auto text-[12px] font-normal text-muted-foreground">
+              {details.is_muted ? 'Muted' : 'Notifications on'}
+            </span>
+          </button>
+        )}
+
+
+
         {(details?.can_rename || details?.can_delete_room) && (
           <div className="mt-4 space-y-2 rounded-xl border border-border/60 p-3">
             {details?.can_rename && (
