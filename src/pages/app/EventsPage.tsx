@@ -33,6 +33,22 @@ const CalendarView = lazy(() => import('./CalendarPage'));
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
+const URL_RE = /https?:\/\/[^\s<>"')]+/gi;
+
+/** First web link found in a field, if any. */
+function firstUrl(text?: string | null): string | null {
+  if (!text) return null;
+  const match = text.match(URL_RE);
+  return match && match.length > 0 ? match[0] : null;
+}
+
+/** Same text with raw links removed so a Join button can stand in for them. */
+function stripUrls(text?: string | null): string {
+  if (!text) return '';
+  return text.replace(URL_RE, '').replace(/[ \t]{2,}/g, ' ').trim();
+}
+
+
 const KINDS = [
   { value: 'meeting', label: 'Meeting' },
   { value: 'training', label: 'Training' },
