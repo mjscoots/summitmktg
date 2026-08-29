@@ -24,6 +24,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { useEventScope } from '@/hooks/useEventScope';
+import { BlitzPlanningBoard } from '@/components/blitz/BlitzPlanningBoard';
 
 
 const CalendarView = lazy(() => import('./CalendarPage'));
@@ -422,6 +423,7 @@ export default function EventsPage() {
           className="mb-2 border-none pb-0"
         />
         {activeVertical === 'Fiber' && <UpcomingBlitzes />}
+        <BlitzPlanningBoard />
 
         <div className="mb-5 inline-flex items-center gap-1 rounded-xl border border-border/60 bg-surface p-1">
           {([['list', 'List', List], ['calendar', 'Calendar', CalendarDays]] as const).map(([v, label, Icon]) => (

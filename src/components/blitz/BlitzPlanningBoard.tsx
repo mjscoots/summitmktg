@@ -67,6 +67,7 @@ export function BlitzPlanningBoard() {
         .select('id, title, event_date, end_date, location')
         .eq('event_kind', 'blitz')
         .eq('is_cancelled', false)
+        .gte('event_date', new Date(Date.now() - 30 * 86400000).toISOString())
         .order('event_date'),
     ]);
     setMarkets(((m.data as MarketRow[]) || []));
