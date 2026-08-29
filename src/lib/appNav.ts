@@ -120,6 +120,21 @@ const ALL: Record<string, NavDest> = {
   warroom: { key: 'warroom', label: 'War room', path: '/app/war-room', icon: Shield, minTier: 'manager' },
   logistics: { key: 'logistics', label: 'Rep logistics', path: '/app/logistics', icon: ClipboardList, minTier: 'manager' },
   command: { key: 'command', label: 'Command center', path: '/command', icon: Shield, minTier: 'admin' },
+  videos: { key: 'videos', label: 'Video library', path: '/app/training/videos', icon: Video },
+  managerVideos: {
+    key: 'managerVideos',
+    label: 'Manager videos',
+    path: '/app/training/manager-videos',
+    icon: Video,
+    minTier: 'manager',
+  },
+  managerMeeting: {
+    key: 'managerMeeting',
+    label: 'Manager meeting',
+    path: '/app/manager-meeting',
+    icon: CalendarClock,
+    minTier: 'manager',
+  },
 };
 
 export interface NavGroup {
