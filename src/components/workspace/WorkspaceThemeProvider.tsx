@@ -196,9 +196,17 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     };
 
     const key = (vertical === 'fiber' || vertical === 'life' ? vertical : 'pest') as keyof typeof PALETTES;
-    // Life keeps its light look either way; Pest and Fiber follow the rep's choice.
+    // Every workspace follows the resolved appearance, which follows the phone
+    // by default. The workspace keeps its identity accent and texture.
     const base = PALETTES[key];
-    const p = key !== 'life' && appearance === 'light' ? lightVariant(base) : base;
+    const p =
+      appearance === 'light'
+        ? base.mode === 'light'
+          ? base
+          : lightVariant(base)
+        : base.mode === 'dark'
+          ? base
+          : darkVariant(base);
 
 
     // Lets workspace-scoped CSS target the active product.
