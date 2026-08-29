@@ -218,7 +218,7 @@ export function HomeFeed() {
 
       {openBlitzes.length > 0 && (
         <section>
-          <SectionEyebrow>Money</SectionEyebrow>
+          <SectionEyebrow>Blitzes</SectionEyebrow>
           <div className="space-y-2">
             {openBlitzes.map((ev) => (
               <button
