@@ -396,23 +396,14 @@ export default function EventsPage() {
           )}
 
           {canDelete && (
-            <>
-              <button
-                onClick={() => setDeleteTarget({ ev, series: false })}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Delete
-              </button>
-              {ev.is_series && (
-                <button
-                  onClick={() => setDeleteTarget({ ev, series: true })}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Delete series
-                </button>
-              )}
-            </>
+            <button
+              onClick={() => setDeleteTarget({ ev, series: false })}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </button>
           )}
+
         </div>
       </div>
     );
