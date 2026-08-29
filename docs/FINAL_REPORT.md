@@ -2123,3 +2123,13 @@ Verify: no data writes beyond docs, code, and the manager_owed function definiti
 - Removed one em dash from the profile tracking line.
 - Linter still reports 387 broad issues, almost all pre-existing SECURITY DEFINER notices plus the short OTP setting, not introduced here.
 - Typecheck and production build clean. Nothing published.
+
+## Pass 124 — Honest pages, manager funnel, fiber key, approvals cleanup
+- Under construction card (exact copy "This page is still being built") on My money industry cards with no money source and on the Command Center Primary Objective money panel when command settings were never saved. Invented defaults no longer render.
+- Manager funnel server side: lead_match_manager, route_people_leads, lead_decline_designation, lead_assignment_queue, lead_assign_to_manager. Leads funnel to the direct manager by name match, decline drops them to the open pool, unmatched leads sit in an owner assignment queue rendered inline on /app/leads for owner and admin only.
+- Bingham system freed: designated leads to Joshua Bingham 57 to 0, open pool 417 to 474. Blocklist lead_route_blocked_managers holds 14 people (him plus his 13 direct downline), so their leads never auto route.
+- Fiber key: fiber_editors table plus is_fiber_editor, owner extendable. Verified Mathew Joyce true, Brandon Pillar true, third admin Liam Gardner false. Admin Fiber hub renders read only for everyone else.
+- Approvals: pending only with "Nothing waiting right now", past decisions (approved and sent back) behind the collapsed history. Removed the duplicated Requests count row and the Demo walkthrough button on /admin.
+- Names: profiles Hunter Shannon and Gideon Peters, people_leads Gideon Peters. No merges, no deletions.
+- Function privileges proven with has_function_privilege: all seven new functions anon false, authenticated true.
+- Baselines untouched: chat_channels 17. Typecheck and production build clean. Nothing published.
