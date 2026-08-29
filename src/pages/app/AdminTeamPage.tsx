@@ -88,6 +88,7 @@ interface TeamRow {
   slug: string;
   created_at: string | null;
   leader_id: string | null;
+  retired?: boolean | null;
   member_count: number;
   active_count: number;
   nlc_count: number;
@@ -150,7 +151,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
       supabase.from('profiles').select('user_id, full_name, email, phone, direct_manager, referred_by, status, approved, created_at, team_id, experience, avatar_url, onboarding_status, organization, last_active_at, region, office_name, recruiter, archived, archived_at, archived_reason, office_id, vertical, runs_vertical, rep_year, recruited_by_name, status_detail').order('created_at', { ascending: false }),
       supabase.from('bootcamp_progress').select('user_id, bootcamp_completed'),
       supabase.from('user_roles').select('user_id, role'),
-      supabase.from('teams').select('id, name, slug, created_at, leader_id').order('name'),
+      supabase.from('teams').select('id, name, slug, created_at, leader_id, retired').order('name'),
       supabase.from('app_settings').select('key, value'),
     ]);
 
@@ -204,7 +205,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
       };
     });
     setTeams(teamsList);
-    setTeamsSimple((teamsRes.data || []).map(t => ({ id: t.id, name: t.name })));
+    setTeamsSimple((teamsRes.data || []).filter(t => !(t as { retired?: boolean }).retired).map(t => ({ id: t.id, name: t.name })));
 
     const settingsMap: Record<string, string> = {};
     (settingsRes.data || []).forEach(s => { settingsMap[s.key] = s.value || ''; });
@@ -562,7 +563,9 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                 <tbody>
                   {filteredTeams.map(team => (
                     <tr key={team.id} className="border-b border-border/10 hover:bg-card/20">
-                      <td className="px-4 py-3 font-medium text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-primary/60" />{team.name}</td>
+                      <td className="px-4 py-3 font-medium text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-primary/60" />{team.name}
+                        {team.retired && <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-muted/40 text-muted-foreground">Retired</span>}
+                      </td>
                       <td className="px-4 py-3">
                         <Select value={team.leader_id || 'none'} onValueChange={(val) => handleAssignLeader(team.id, val === 'none' ? null : val)}>
                           <SelectTrigger className="w-48 bg-card/50 border-border/30 h-8 text-xs"><SelectValue placeholder="Unassigned" /></SelectTrigger>
