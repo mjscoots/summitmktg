@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { PayScale, PAY_SCALE_LABELS, formatCurrency, formatRate, getRate, getTier, formatTierRange } from '@/lib/commission';
 import { cn } from '@/lib/utils';
+import { PipelinePanel } from '@/components/admin/PipelinePanel';
 import { RevenueEntryPanel } from '@/components/admin/RevenueEntryPanel';
 import { LeaderboardImportPanel } from '@/components/admin/LeaderboardImportPanel';
 import { RanksStacksPanel } from '@/components/admin/RanksStacksPanel';
@@ -186,8 +187,12 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
-        <PestRevenueImportPanel />
-        <RevenueEntryPanel />
+        <PipelinePanel table="revenue_import_batches">
+          <PestRevenueImportPanel />
+        </PipelinePanel>
+        <PipelinePanel table="rep_revenue">
+          <RevenueEntryPanel />
+        </PipelinePanel>
       </div>
     );
   }
@@ -196,7 +201,9 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
-        <LeaderboardImportPanel />
+        <PipelinePanel table="leaderboard_points" recentDays={120}>
+          <LeaderboardImportPanel />
+        </PipelinePanel>
       </div>
     );
   }
@@ -205,8 +212,12 @@ export function AdminMoneyTab() {
     return (
       <div className="space-y-4">
         {nav}
-        <GainzSheetPanel />
-        <FiberInstallsPanel />
+        <PipelinePanel table="fiber_pay_weeks">
+          <GainzSheetPanel />
+        </PipelinePanel>
+        <PipelinePanel table="fiber_installs">
+          <FiberInstallsPanel />
+        </PipelinePanel>
       </div>
     );
   }

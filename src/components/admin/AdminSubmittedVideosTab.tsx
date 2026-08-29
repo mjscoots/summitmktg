@@ -40,7 +40,7 @@ export default function AdminSubmittedVideosTab() {
   const fetchVideos = async () => {
     setLoading(true);
     const [profilesRes, rolesRes, bootcampRes, pitchRes, teamsRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, team_id, status'),
+      supabase.from('profiles').select('user_id, full_name, team_id, status').eq('archived', false),
       supabase.from('user_roles').select('user_id, role'),
       supabase.from('bootcamp_progress').select('user_id, sunblock_video_url, motivation_video_url, final_commitment_video_url, phase_2_video_url, phase_3_video_url, created_at'),
       supabase.from('pitch_approval_requests').select('id, user_id, video_url, status, submitted_at, lesson_id'),

@@ -44,7 +44,7 @@ export function AdminAssistantTab() {
     const [f, l, p] = await Promise.all([
       supabase.from('assistant_faq').select('*').order('display_order').order('created_at'),
       supabase.from('assistant_logs').select('*').order('created_at', { ascending: false }).limit(50),
-      supabase.from('profiles').select('user_id, full_name'),
+      supabase.from('profiles').select('user_id, full_name').eq('archived', false),
     ]);
     setFaqs((f.data as FaqRow[]) ?? []);
     setLogs((l.data as LogRow[]) ?? []);

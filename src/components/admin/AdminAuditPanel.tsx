@@ -69,7 +69,7 @@ export default function AdminAuditPanel() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     const [pRes, eRes, tRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name, email, direct_manager, status, approved, team_id, onboarding_status, last_active_at, created_at, recruiter'),
+      supabase.from('profiles').select('user_id, full_name, email, direct_manager, status, approved, team_id, onboarding_status, last_active_at, created_at, recruiter').eq('archived', false),
       supabase.from('downline_edges').select('parent_user_id, child_user_id').eq('edge_type', 'manages'),
       supabase.from('teams').select('id, name, slug'),
     ]);

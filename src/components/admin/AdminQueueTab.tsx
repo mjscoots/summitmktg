@@ -54,7 +54,7 @@ export function AdminQueueTab() {
   const { items, counts, isLoading, dismissItems, approveItems, denyItems } = useAdminQueue();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('all');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('oldest');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [visibleCount, setVisibleCount] = useState(50);
@@ -94,7 +94,7 @@ export function AdminQueueTab() {
       setSelected(new Set());
       toast.success(label);
     } catch {
-      toast.error('Action failed — nothing was changed');
+      toast.error('Action failed, nothing was changed');
     } finally {
       setBusy(false);
     }
@@ -225,7 +225,7 @@ export function AdminQueueTab() {
       {visible.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title={counts.total === 0 ? 'Queue is clear' : 'Nothing matches these filters'}
+          title={counts.total === 0 ? 'Nothing waiting right now' : 'Nothing matches these filters'}
           description={
             counts.total === 0
               ? 'No approvals, pitch reviews, feedback or sync issues are waiting.'
@@ -306,7 +306,7 @@ function QueueRow({
       <div className="shrink-0 text-right">
         <p className="micro-label">{meta.label}</p>
         <p className="text-[11px] tabular-nums text-muted-foreground">
-          {item.createdAt ? `${age}d` : '—'}
+          {item.createdAt ? `${age}d` : ''}
         </p>
       </div>
     </div>
