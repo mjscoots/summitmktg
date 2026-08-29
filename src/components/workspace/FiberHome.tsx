@@ -21,6 +21,7 @@ import {
   FiberEyebrow,
   HUB_CARD,
 } from '@/components/fiber/FiberHubCards';
+import { UpdatesStrip } from '@/components/home/UpdatesStrip';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { MoreReveal } from '@/components/home/MoreReveal';
 import { YourThreeCard } from '@/components/home/YourThreeCard';
@@ -172,6 +173,8 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 pb-8 sm:space-y-10">
+      <UpdatesStrip isManagerTier={false} />
+
       <GainzHero />
 
       <ContactsCard contacts={contacts} />
@@ -186,8 +189,14 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
           <FiberEyebrow>Today</FiberEyebrow>
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-4xl font-semibold tabular-nums text-foreground">{todaySold}</p>
-              <p className="text-[15px] tabular-nums text-muted-foreground">This week {weekSold}</p>
+              {(todaySold > 0 || weekSold > 0) && (
+                <>
+                  <p className="text-4xl font-semibold tabular-nums text-foreground">{todaySold}</p>
+                  {weekSold > 0 && (
+                    <p className="text-[15px] tabular-nums text-muted-foreground">This week {weekSold}</p>
+                  )}
+                </>
+              )}
             </div>
             <Button className="min-h-11" onClick={() => setLogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
