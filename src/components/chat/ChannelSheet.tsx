@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { RoleChip } from '@/components/shared/RoleChip';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { MemberPicker } from '@/components/chat/MemberPicker';
 

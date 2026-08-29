@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Check, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { RoleChip } from '@/components/shared/RoleChip';
 import { cn } from '@/lib/utils';
 
 export interface MemberOption {
