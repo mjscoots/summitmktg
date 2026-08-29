@@ -24,6 +24,8 @@ import LeadDrawer from '@/components/leads/LeadDrawer';
 import ThisWeekQueue from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
 import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
+import OwnerAssignQueue from '@/components/leads/OwnerAssignQueue';
+
 
 import { PageHeader } from '@/components/layout/PageHeader';
 
@@ -132,6 +134,16 @@ export default function LeadsPage() {
       reload();
     }
   };
+
+  const decline = async (lead: LeadRow) => {
+    const { error } = await leadActions.decline(lead.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(`${lead.full_name} moved to the pool`);
+      reload();
+    }
+  };
+
 
   const toggle = (id: string) => {
     setSelected((prev) => {
