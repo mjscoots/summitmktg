@@ -166,6 +166,17 @@ function lightVariant(p: Palette): Palette {
   };
 }
 
+/** The dark-appearance twin of a light workspace palette. */
+function darkVariant(p: Palette): Palette {
+  return {
+    ...p,
+    ...MONO_DARK,
+    wordmark: { ...p.wordmark, bg: '#0B0D12', outline: '#FFFFFF', letters: '#FFFFFF' },
+    texture: p.texture === GRAIN ? DOTS : p.texture,
+  };
+}
+
+
 
 /**
  * Applies the active workspace's theme as CSS variables on <html>.
