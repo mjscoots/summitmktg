@@ -1434,3 +1434,32 @@ body {
   .public-cover-mark { animation: none !important; }
   .production-ticker-card { animation: none !important; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 132 — the light appearance on the public pages. Same
+   atmosphere, daylight values, so every token resolves in both
+   modes with no invisible text and no invisible hairlines.
+   ───────────────────────────────────────────────────────────── */
+html[data-appearance='light'] .public-world,
+html[data-appearance='light'] .public-auth {
+  --primary: 199 92% 34%;
+  --primary-foreground: 0 0% 100%;
+  --primary-glow: 199 92% 38%;
+}
+
+html[data-appearance='light'] .public-dots::before {
+  background-image: radial-gradient(rgba(11, 13, 18, 0.06) 1px, transparent 1px);
+}
+
+html[data-appearance='light'] .public-cover::after,
+html[data-appearance='light'] .public-auth::after {
+  opacity: 0.1;
+}
+
+html[data-appearance='light'] .public-cover::before,
+html[data-appearance='light'] .public-auth::before,
+html[data-appearance='light'] .public-cta::before {
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+}
