@@ -2208,3 +2208,14 @@ Archive only, no rows deleted, no profiles merged.
 - Verified with the injected owner session at 390 and 1280: Updates, numbers, events with Going and Can't make it, chat preview, training. Rep, vet and manager variants were checked at code level only, no session could be minted for them.
 - Zero data writes: profiles 535, chat_messages 716, people_leads 551, calendar_events 58.
 - Typecheck and production build clean. Nothing published.
+
+## Pass 131 - The blitz planning board
+- New table blitz_markets (wave, market, state, window_start, window_end, status, official_event_id) seeded with exactly the 30 Hawx markets; count verified 30.
+- RLS: managers, presidents, admin and owner read; only admin and owner write; anon has no grant. Rep-scoped select under a real rep uid returned 0 rows.
+- make_blitz_official and revert_blitz_official are SECURITY DEFINER, role gated on admin or owner in source; has_function_privilege anon=false, authenticated=true for both.
+- Make official creates a public event: kind blitz, scope everyone, is_team_wide true, vertical Pest, last day stored inclusive, existing going or can't make it untouched. Revert cancels the event (is_cancelled) and reopens the market.
+- New Blitz planning section on Events for managers and above only: already official blitzes (Howell MI, Gastonia NC, Phoenix Mega, Hawx Waves 1 to 3) at the top with tap-through, then waves soonest first with Open chips.
+- Reps see no planning UI and no planning data; their Events list is unchanged.
+- Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58.
+- Screenshot docs/screens/p131-events-manager-390.png (owner session, 390). No rep session could be minted, so the rep case was proven at the database and in source.
+- New user-facing copy read back: no em dashes. Typecheck and production build clean. Nothing published.
