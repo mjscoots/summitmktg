@@ -162,12 +162,22 @@ export function moreGroups(
 
   const groups: NavGroup[] = [
     { title: 'Your work', items: workspaceKeys.map((k) => ALL[k]) },
-    { title: 'Learn and tools', items: ['scripts', 'resources', 'ask', 'estimate'].map((k) => ALL[k]) },
+    { title: 'Learn and tools', items: ['scripts', 'resources', 'videos', 'ask', 'estimate'].map((k) => ALL[k]) },
     {
       title: 'Manage',
-      items: ['team', 'leads', 'approvals', 'forms', 'prep', 'sweep', 'recruits', 'warroom', 'logistics'].map(
-        (k) => ALL[k]
-      ),
+      items: [
+        'team',
+        'leads',
+        'approvals',
+        'forms',
+        'prep',
+        'sweep',
+        'recruits',
+        'warroom',
+        'logistics',
+        'managerVideos',
+        'managerMeeting',
+      ].map((k) => ALL[k]),
     },
     { title: 'Company', items: ['admin', 'command', 'alumni'].map((k) => ALL[k]) },
     { title: 'You', items: ['profile'].map((k) => ALL[k]) },
