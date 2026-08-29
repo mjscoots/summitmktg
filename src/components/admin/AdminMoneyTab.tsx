@@ -413,6 +413,7 @@ export function AdminMoneyTab() {
           )}
         </div>
       )}
+      </PipelinePanel>
     </div>
   );
 }
