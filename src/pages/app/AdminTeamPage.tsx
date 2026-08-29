@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
+import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
 import SeatsPanel from '@/components/admin/SeatsPanel';
@@ -22,7 +22,6 @@ const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 const LazyFiberHub = lazy(() => import('@/components/admin/AdminFiberHubTab').then((m) => ({ default: m.AdminFiberHubTab })));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
-import { ApplicationsPulseLine } from '@/components/admin/ApplicationsPulseLine';
 import { BugSheetEditor } from '@/components/admin/BugSheetEditor';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -125,7 +124,6 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
   const [teamsSimple, setTeamsSimple] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [demoOpen, setDemoOpen] = useState(false);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
 
