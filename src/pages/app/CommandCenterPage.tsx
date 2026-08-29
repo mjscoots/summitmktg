@@ -556,6 +556,8 @@ export default function CommandCenterPage() {
             </div>
           </div>
         </Panel>
+        )}
+
 
         {/* LIVE TEAM PULSE */}
         <SectionHeader title="Live Team Pulse" tag="Live" />
