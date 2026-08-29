@@ -7,8 +7,10 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
   CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2, Trash2,
-  List, CalendarDays,
+  List, CalendarDays, Video,
 } from 'lucide-react';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
+
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
