@@ -1870,6 +1870,27 @@ export type Database = {
           },
         ]
       }
+      fiber_editors: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fiber_installs: {
         Row: {
           batch_id: string | null
@@ -2365,6 +2386,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_route_blocked_managers: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          reason: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          reason?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          reason?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       lead_sheet_import: {
         Row: {
@@ -7653,6 +7701,7 @@ export type Database = {
       is_dm_channel: { Args: { _slug: string }; Returns: boolean }
       is_dm_member: { Args: { _slug: string; _uid: string }; Returns: boolean }
       is_effective_manager: { Args: { _uid: string }; Returns: boolean }
+      is_fiber_editor: { Args: { _uid: string }; Returns: boolean }
       is_first_week_eligible: { Args: { _target: string }; Returns: boolean }
       is_gated_recruit: { Args: { _uid: string }; Returns: boolean }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
@@ -7692,7 +7741,13 @@ export type Database = {
         Args: { _lead: string; _tag: string }
         Returns: undefined
       }
+      lead_assign_to_manager: {
+        Args: { _lead_id: string; _to: string }
+        Returns: Json
+      }
+      lead_assignment_queue: { Args: { _limit?: number }; Returns: Json }
       lead_claim: { Args: { _lead: string }; Returns: undefined }
+      lead_decline_designation: { Args: { _lead_id: string }; Returns: Json }
       lead_designate: {
         Args: { _lead: string; _to: string }
         Returns: undefined
@@ -7709,6 +7764,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      lead_manager_blocked: { Args: { _name: string }; Returns: boolean }
+      lead_match_manager: {
+        Args: { _former_manager_name: string }
+        Returns: string
+      }
+      lead_name_key: { Args: { _name: string }; Returns: string }
+      lead_norm_name: { Args: { _name: string }; Returns: string }
       lead_private_note_add: {
         Args: { _body: string; _kind: string; _lead: string }
         Returns: undefined
@@ -7976,6 +8038,7 @@ export type Database = {
         Args: { _carrier_id?: string; _rep_ids: string[]; _start_date: string }
         Returns: number
       }
+      route_people_leads: { Args: never; Returns: Json }
       rsvp_event:
         | { Args: { p_event_id: string; p_status: string }; Returns: undefined }
         | {
