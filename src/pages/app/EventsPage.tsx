@@ -256,17 +256,21 @@ export default function EventsPage() {
       return;
     }
     setSaving(true);
+    // A manager writes only for his own team; owner, admin and presidents are
+    // unrestricted. The database enforces the same rule on insert and update.
+    const scoped = !eventScope.unrestricted;
     const payload = {
       title: draft.title.trim(),
       description: draft.description.trim() || null,
       event_date: new Date(draft.local_datetime).toISOString(),
       location: draft.location.trim() || null,
       event_kind: draft.event_kind,
-      scope: draft.scope,
-      team_id: draft.scope === 'team' ? draft.team_id : null,
+      scope: scoped ? 'team' : draft.scope,
+      team_id: scoped ? eventScope.teamId : (draft.scope === 'team' ? draft.team_id : null),
       recurrence_type: draft.weekly ? 'weekly' : null,
       vertical: draft.vertical === undefined ? activeVertical : draft.vertical,
     };
+
     const { error } = draft.id
       ? await supabase.from('calendar_events').update(payload).eq('id', draft.id)
       : await supabase.from('calendar_events').insert({ ...payload, created_by: user?.id ?? null });
