@@ -121,12 +121,7 @@ export function ChatList({
           );
         })}
 
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
+
 
         {rows.length === 0 && (
           <li className="px-3 py-8 text-center text-[13px] text-muted-foreground">
