@@ -87,6 +87,7 @@ const AlumniPage = lazyRoute(() => import("./pages/app/AlumniPage"));
 const PersonProfilePage = lazyRoute(() => import("./pages/app/PersonProfilePage"));
 const SeasonPage = lazyRoute(() => import("./pages/app/SeasonPage"));
 const IndustriesPage = lazyRoute(() => import("./pages/app/IndustriesPage"));
+const MorePage = lazyRoute(() => import("./pages/app/MorePage"));
 
 
 /** Old /admin/team?tab=... links land in the section that now owns that tab. */
@@ -242,6 +243,14 @@ function LazyFallback() {
              <Route path="/manager" element={<Navigate to="/app" replace />} />
              <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
              <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
+
+              {/* More — every destination the phone bar does not carry */}
+              <Route path="/app/more" element={
+                <ProtectedRoute>
+                    <MorePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/menu" element={<Navigate to="/app/more" replace />} />
 
               {/* Chat */}
               <Route path="/app/chat" element={
