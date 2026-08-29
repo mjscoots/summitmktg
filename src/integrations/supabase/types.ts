@@ -834,6 +834,50 @@ export type Database = {
         }
         Relationships: []
       }
+      blitz_markets: {
+        Row: {
+          created_at: string
+          id: string
+          market: string
+          official_event_id: string | null
+          state: string
+          status: string
+          wave: number
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market: string
+          official_event_id?: string | null
+          state: string
+          status?: string
+          wave: number
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market?: string
+          official_event_id?: string | null
+          state?: string
+          status?: string
+          wave?: number
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blitz_markets_official_event_id_fkey"
+            columns: ["official_event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blitz_optins: {
         Row: {
           blitz_key: string
@@ -7901,6 +7945,16 @@ export type Database = {
         Args: { _lead_id: string; _note?: string; _outcome: string }
         Returns: Json
       }
+      make_blitz_official: {
+        Args: {
+          p_end: string
+          p_host?: string
+          p_location?: string
+          p_market_id: string
+          p_start: string
+        }
+        Returns: string
+      }
       manager_owed: { Args: { _manager?: string }; Returns: Json }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_chat_channel_read: {
@@ -8058,6 +8112,7 @@ export type Database = {
         Returns: Json
       }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
+      revert_blitz_official: { Args: { p_market_id: string }; Returns: boolean }
       review_team_lead_application: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: Json
