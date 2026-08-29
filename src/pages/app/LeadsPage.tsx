@@ -21,7 +21,7 @@ import {
   type LeadScope,
 } from '@/hooks/useLeads';
 import LeadDrawer from '@/components/leads/LeadDrawer';
-import ThisWeekQueue from '@/components/leads/ThisWeekQueue';
+import ThisWeekQueue, { buildWeekQueue } from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
 import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
 import OwnerAssignQueue from '@/components/leads/OwnerAssignQueue';
