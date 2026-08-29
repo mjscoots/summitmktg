@@ -456,7 +456,18 @@ export default function CommandCenterPage() {
 
 
         {/* PRIMARY OBJECTIVE */}
+        {!moneyLoaded ? (
+          <Panel style={{ padding: 32, marginBottom: 40 }}>
+            <div style={{ color: COLORS.gold, fontFamily: fontMono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
+              Primary Objective
+            </div>
+            <div style={{ marginTop: 14, color: COLORS.textMuted, fontFamily: fontBody, fontSize: 14 }}>
+              This page is still being built
+            </div>
+          </Panel>
+        ) : (
         <Panel style={{ padding: 32, marginBottom: 40 }}>
+
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
             <div>
               <div style={{ color: COLORS.gold, fontFamily: fontMono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
