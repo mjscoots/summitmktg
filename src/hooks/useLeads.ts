@@ -229,7 +229,9 @@ export function useCallbacksDue() {
 export const leadActions = {
   claim: (leadId: string) => rpc('lead_claim', { _lead: leadId }),
   free: (leadId: string) => rpc('lead_free', { _lead: leadId }),
+  decline: (leadId: string) => rpc('lead_decline_designation', { _lead_id: leadId }),
   designate: (leadId: string, to: string) => rpc('lead_designate', { _lead: leadId, _to: to }),
+
   setStage: (leadId: string, stage: string) => rpc('lead_set_stage', { _lead: leadId, _stage: stage }),
   setNotes: (leadId: string, notes: string) => rpc('lead_set_notes', { _lead: leadId, _notes: notes }),
   addTag: (leadId: string, tag: string) => rpc('lead_add_tag', { _lead: leadId, _tag: tag }),
