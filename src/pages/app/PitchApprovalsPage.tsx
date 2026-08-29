@@ -51,8 +51,8 @@ export default function PitchApprovalsPage() {
   }, [requests, teamFilter]);
 
   const pending = filtered.filter(r => r.status === 'pending');
-  const approved = filtered.filter(r => r.status === 'approved');
-  const rejected = filtered.filter(r => r.status === 'rejected');
+  const decided = filtered.filter(r => r.status === 'approved' || r.status === 'rejected');
+
 
   if (isLoading) {
     return (
@@ -226,23 +226,28 @@ export default function PitchApprovalsPage() {
             onClick={() => setShowHistory(!showHistory)}
             className="text-sm font-bold text-foreground tracking-wide mb-3 hover:text-primary transition-colors"
           >
-            Approved ({approved.length}) {showHistory ? '▾' : '▸'}
+            Past decisions ({decided.length}) {showHistory ? '▾' : '▸'}
           </button>
           {showHistory && (
             <div className="space-y-2">
-              {approved.map(req => {
+              {decided.map(req => {
                 const tc = getTeamColor(req.team_name);
+                const wasApproved = req.status === 'approved';
                 return (
                   <div 
                     key={req.id} 
                     className="bg-card rounded-lg border border-border p-3 flex items-center gap-3 opacity-70"
                     style={{ borderLeftWidth: 3, borderLeftColor: `hsl(${tc.hsl})` }}
                   >
-                    <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                    {wasApproved ? (
+                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    )}
                     <UserAvatar avatarUrl={req.user_avatar} fullName={req.user_name || ''} size="xs" teamName={req.team_name} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-medium text-foreground truncate">{req.user_name} — {req.lesson_title}</p>
+                        <p className="text-xs font-medium text-foreground truncate">{req.user_name} · {req.lesson_title}</p>
                         {req.team_name && (
                           <span className={cn("text-[9px] font-medium px-1 py-0.5 rounded-full", tc.bgBadge, tc.text)}>
                             {req.team_name}
@@ -250,13 +255,14 @@ export default function PitchApprovalsPage() {
                         )}
                       </div>
                       <p className="text-[10px] text-muted-foreground">
-                        Approved {req.reviewed_at && format(new Date(req.reviewed_at), 'MMM d')} by {req.reviewer_name || 'manager'}
+                        {wasApproved ? 'Approved' : 'Sent back'} {req.reviewed_at && format(new Date(req.reviewed_at), 'MMM d')} by {req.reviewer_name || 'manager'}
                       </p>
                     </div>
                   </div>
                 );
               })}
             </div>
+
           )}
         </div>
 
