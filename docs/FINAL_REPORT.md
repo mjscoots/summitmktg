@@ -2232,3 +2232,15 @@ Archive only, no rows deleted, no profiles merged.
 - Blitzes: grep confirms no blitz component or copy on the rep money page, command money or admin money. Home's blitz list is now labelled Blitzes, not Money. Import pipeline panels untouched.
 - Zero data writes: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30. No new or changed database functions.
 - No em dashes in the new copy. Typecheck and production build clean. Preview only, not published.
+
+## Pass 133 — Credibility blades
+- Leaderboard: fastest claim to sign only renders when 72 hours or less; the 3851 hour line is gone.
+- Team battles hide entirely unless a team has points this period; no zero rows.
+- Event cards: raw meeting URLs stripped from description and location, replaced by one Join button (8 found live).
+- Event delete is one quiet control; red only on the confirm step, with this date or whole series choice.
+- Leads: owner and admin see the true recruiting pool count (98 open) above their list.
+- Call mode counter now derives from the shared buildWeekQueue used by This week, so the two cannot disagree.
+- Chat Needs you row scrolls horizontally with a peeking next card and a fade edge at 390.
+- Screens: docs/screens/p133-leaderboard-390.png, p133-event-join-390.png, p133-chat-390.png, p133-events-390.png.
+- Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30.
+- No em dashes in new copy; typecheck and production build clean; nothing published.

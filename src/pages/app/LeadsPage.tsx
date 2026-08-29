@@ -21,7 +21,7 @@ import {
   type LeadScope,
 } from '@/hooks/useLeads';
 import LeadDrawer from '@/components/leads/LeadDrawer';
-import ThisWeekQueue from '@/components/leads/ThisWeekQueue';
+import ThisWeekQueue, { buildWeekQueue } from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
 import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
 import OwnerAssignQueue from '@/components/leads/OwnerAssignQueue';
@@ -104,6 +104,18 @@ export default function LeadsPage() {
     });
   }, [staff]);
 
+  // True open recruiting pool, so the owner sees the whole board, not just their own list.
+  const isTop = role === 'owner' || role === 'admin';
+  const [recruitPool, setRecruitPool] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isTop) return;
+    (supabase as any)
+      .from('recruiting_leads')
+      .select('id', { count: 'exact', head: true })
+      .then(({ count }: { count: number | null }) => setRecruitPool(count ?? null));
+  }, [isTop]);
+
+
   useEffect(() => {
     if (!staff) return;
     (supabase.rpc as any)('leads_manager_options').then(({ data }: { data: unknown }) => {
@@ -113,7 +125,12 @@ export default function LeadsPage() {
 
   const visible = rows;
 
-  const callable = useMemo(() => visible.filter((r) => !!r.phone && !r.do_not_call), [visible]);
+  // Call mode works the exact list the This week section shows, so the two counts agree.
+  const callable = useMemo(
+    () => buildWeekQueue(visible).filter((r) => !!r.phone && !r.do_not_call),
+    [visible]
+  );
+
 
   if (authLoading) return null;
 
@@ -217,6 +234,16 @@ export default function LeadsPage() {
             }
             className="mb-5"
           />
+
+          {isTop && recruitPool !== null && recruitPool > 0 && (
+            <p className="mb-4 text-[12px] text-muted-foreground">
+              Recruiting pool:{' '}
+              <span className="font-semibold tabular-nums text-foreground">{recruitPool}</span> open
+              leads on the board.
+            </p>
+          )}
+
+
 
           <div
             className={cn(

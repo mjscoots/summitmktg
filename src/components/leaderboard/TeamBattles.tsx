@@ -32,8 +32,11 @@ export function useTeamBattles() {
 export function TeamBattles() {
   const rows = useTeamBattles();
   if (!rows || rows.length < 2) return null;
+  // No board without a single point scored this period.
+  if (!rows.some((r) => (r.total_points || 0) > 0)) return null;
 
   const top = rows[0].total_points || 1;
+
 
   return (
     <div className={cn(CARD, 'p-4 mb-4')}>
@@ -72,8 +75,10 @@ export function TeamBattles() {
 export function TeamBattleStrip({ teamId }: { teamId?: string | null }) {
   const rows = useTeamBattles();
   if (!rows || rows.length < 2 || !teamId) return null;
+  if (!rows.some((r) => (r.total_points || 0) > 0)) return null;
   const mine = rows.find((r) => r.team_id === teamId);
   if (!mine) return null;
+
   const leader = rows[0];
   const behind = leader.total_points - mine.total_points;
 

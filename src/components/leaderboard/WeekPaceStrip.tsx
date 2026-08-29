@@ -33,11 +33,15 @@ export function WeekPaceStrip() {
 
   if (!pace) return null;
 
+  // A claim that took days is not a highlight, so anything over 72 hours drops out.
+  const fastest = pace.fastest_sign && pace.fastest_sign.value <= 72 ? pace.fastest_sign : null;
+
   const items = [
     pace.most_signs && { icon: Trophy, label: 'Most Signs', name: pace.most_signs.name, value: `${pace.most_signs.value}` },
     pace.most_worked && { icon: PhoneCall, label: 'Most Leads Worked', name: pace.most_worked.name, value: `${pace.most_worked.value}` },
-    pace.fastest_sign && { icon: Timer, label: 'Fastest Claim-to-Sign', name: pace.fastest_sign.name, value: `${pace.fastest_sign.value}h` },
+    fastest && { icon: Timer, label: 'Fastest Claim-to-Sign', name: fastest.name, value: `${fastest.value}h` },
   ].filter(Boolean) as { icon: typeof Trophy; label: string; name: string; value: string }[];
+
 
   if (items.length === 0) return null;
 

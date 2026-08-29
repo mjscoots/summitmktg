@@ -7,8 +7,10 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
   CalendarClock, MapPin, Plus, Pencil, Check, X, ChevronDown, ClipboardCheck, Loader2, Trash2,
-  List, CalendarDays,
+  List, CalendarDays, Video,
 } from 'lucide-react';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
+
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,6 +32,22 @@ import { BlitzPlanningBoard } from '@/components/blitz/BlitzPlanningBoard';
 const CalendarView = lazy(() => import('./CalendarPage'));
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
+
+const URL_RE = /https?:\/\/[^\s<>"')]+/gi;
+
+/** First web link found in a field, if any. */
+function firstUrl(text?: string | null): string | null {
+  if (!text) return null;
+  const match = text.match(URL_RE);
+  return match && match.length > 0 ? match[0] : null;
+}
+
+/** Same text with raw links removed so a Join button can stand in for them. */
+function stripUrls(text?: string | null): string {
+  if (!text) return '';
+  return text.replace(URL_RE, '').replace(/[ \t]{2,}/g, ' ').trim();
+}
+
 
 const KINDS = [
   { value: 'meeting', label: 'Meeting' },
@@ -296,6 +314,8 @@ export default function EventsPage() {
 
   const EventCard = ({ ev, isPast }: { ev: EventRow; isPast: boolean }) => {
     const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
+    const joinUrl = firstUrl(ev.description) || firstUrl(ev.location);
+    const descText = stripUrls(ev.description);
     return (
       <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
         <div className="flex items-start justify-between gap-3">
@@ -307,14 +327,14 @@ export default function EventsPage() {
               {ev.scope === 'managers' ? ' · Managers and above' : ''}
               {ev.is_series ? ' · Weekly' : ''}
             </p>
-            {ev.location && (
+            {ev.location && !firstUrl(ev.location) && (
               <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" /> {ev.location}
               </p>
             )}
-            {ev.description && (
+            {descText && (
               <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
-                {ev.description}
+                {descText}
               </p>
             )}
           </div>
@@ -323,9 +343,21 @@ export default function EventsPage() {
           </span>
         </div>
 
+
         <div className="mt-3 flex flex-wrap items-center gap-2">
+          {joinUrl && (
+            <a
+              href={sanitizeUrl(joinUrl)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-[12px] font-semibold text-primary-foreground"
+            >
+              <Video className="h-3.5 w-3.5" /> Join
+            </a>
+          )}
           {!isPast && (
             <>
+
               <button
                 onClick={() => rsvp(ev.id, 'attending')}
                 disabled={rsvpBusy === ev.id}
@@ -382,23 +414,14 @@ export default function EventsPage() {
           )}
 
           {canDelete && (
-            <>
-              <button
-                onClick={() => setDeleteTarget({ ev, series: false })}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Delete
-              </button>
-              {ev.is_series && (
-                <button
-                  onClick={() => setDeleteTarget({ ev, series: true })}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-destructive/40 bg-surface px-2.5 text-[12px] font-medium text-destructive"
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Delete series
-                </button>
-              )}
-            </>
+            <button
+              onClick={() => setDeleteTarget({ ev, series: false })}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete
+            </button>
           )}
+
         </div>
       </div>
     );
@@ -623,7 +646,21 @@ export default function EventsPage() {
                 : '. Its RSVPs and attendance go with it. This cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
+          {deleteTarget?.ev.is_series && (
+            <button
+              onClick={() => setDeleteTarget({ ev: deleteTarget.ev, series: !deleteTarget.series })}
+              className={cn(
+                'inline-flex min-h-11 items-center justify-center rounded-xl border px-4 text-[13px] font-medium',
+                deleteTarget.series
+                  ? 'border-primary/40 bg-primary/10 text-foreground'
+                  : 'border-border/60 bg-surface text-muted-foreground'
+              )}
+            >
+              {deleteTarget.series ? 'Every date in the series' : 'This date only'}
+            </button>
+          )}
           <DialogFooter>
+
             <button
               onClick={() => setDeleteTarget(null)}
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border/60 bg-surface px-4 text-[13px] font-medium text-muted-foreground"

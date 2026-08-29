@@ -136,7 +136,9 @@ export function NeedsYouRow({ className }: { className?: string }) {
   return (
     <div className={cn('px-4 pt-3', className)}>
       <p className="mb-2 text-[12px] font-semibold text-muted-foreground">Needs you</p>
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      <div className="relative -mx-4">
+        <div className="flex snap-x gap-2 overflow-x-auto px-4 pb-1 [&>*]:snap-start">
+
         {behind && (
           <FirstWeekBehindCard
             key="first-week"
@@ -153,8 +155,16 @@ export function NeedsYouRow({ className }: { className?: string }) {
           if (card.type === 'setup_step') return <SetupStepCard key={key} card={card} />;
           return <IncentiveActionCard key={key} card={card} />;
         })}
+        </div>
+        {(cards.length + (behind ? 1 : 0)) > 1 && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent"
+          />
+        )}
       </div>
     </div>
+
   );
 }
 
