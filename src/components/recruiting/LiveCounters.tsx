@@ -48,3 +48,25 @@ if (counters.signed_season) items.push({ value: counters.signed_season, label: '
     </div>
   );
 }
+
+/** Tight, database-backed proof for the public cover. */
+export function PublicProofStrip() {
+  const counters = usePublicCounters();
+
+  if (!counters || counters.serviced_total <= 0) return null;
+
+  const serviced = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 2,
+  }).format(counters.serviced_total);
+
+  return (
+    <div className="public-proof-strip" aria-label="Summit production proof">
+      <span><strong>{serviced}</strong> serviced</span>
+      <span aria-hidden="true">·</span>
+      <span><strong>{counters.signed_2027.toLocaleString()}</strong> signed for 2027</span>
+    </div>
+  );
+}
