@@ -7870,6 +7870,7 @@ export type Database = {
         Returns: undefined
       }
       owner_week: { Args: never; Returns: Json }
+      parse_rep_year_text: { Args: { _raw: string }; Returns: number }
       post_weekly_awards: { Args: never; Returns: Json }
       prep_roster: {
         Args: never
@@ -7970,6 +7971,7 @@ export type Database = {
         Returns: Json
       }
       revoke_seat_invite: { Args: { _invite_id: string }; Returns: undefined }
+      role_chips: { Args: { _user_ids: string[] }; Returns: Json }
       roll_reps_to_fiber: {
         Args: { _carrier_id?: string; _rep_ids: string[]; _start_date: string }
         Returns: number
