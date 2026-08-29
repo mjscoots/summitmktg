@@ -104,6 +104,18 @@ export default function LeadsPage() {
     });
   }, [staff]);
 
+  // True open recruiting pool, so the owner sees the whole board, not just their own list.
+  const isTop = role === 'owner' || role === 'admin';
+  const [recruitPool, setRecruitPool] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isTop) return;
+    (supabase as any)
+      .from('recruiting_leads')
+      .select('id', { count: 'exact', head: true })
+      .then(({ count }: { count: number | null }) => setRecruitPool(count ?? null));
+  }, [isTop]);
+
+
   useEffect(() => {
     if (!staff) return;
     (supabase.rpc as any)('leads_manager_options').then(({ data }: { data: unknown }) => {
