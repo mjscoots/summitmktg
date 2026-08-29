@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, ChevronRight } from 'lucide-react';
+import { BellOff, Bot, ChevronRight } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';

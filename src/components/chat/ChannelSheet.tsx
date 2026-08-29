@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, Loader2, Pencil, Trash2, UserPlus, X } from 'lucide-react';
+import { Bell, BellOff, Camera, Loader2, Pencil, Trash2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,9 +24,11 @@ interface Details {
   can_rename: boolean;
   can_delete_room: boolean;
   can_manage_members: boolean;
+  is_muted: boolean;
   members: Member[];
   member_count: number;
 }
+
 
 
 /**
