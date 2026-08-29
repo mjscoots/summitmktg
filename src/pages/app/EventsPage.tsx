@@ -646,7 +646,21 @@ export default function EventsPage() {
                 : '. Its RSVPs and attendance go with it. This cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
+          {deleteTarget?.ev.is_series && (
+            <button
+              onClick={() => setDeleteTarget({ ev: deleteTarget.ev, series: !deleteTarget.series })}
+              className={cn(
+                'inline-flex min-h-11 items-center justify-center rounded-xl border px-4 text-[13px] font-medium',
+                deleteTarget.series
+                  ? 'border-primary/40 bg-primary/10 text-foreground'
+                  : 'border-border/60 bg-surface text-muted-foreground'
+              )}
+            >
+              {deleteTarget.series ? 'Every date in the series' : 'This date only'}
+            </button>
+          )}
           <DialogFooter>
+
             <button
               onClick={() => setDeleteTarget(null)}
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border/60 bg-surface px-4 text-[13px] font-medium text-muted-foreground"
