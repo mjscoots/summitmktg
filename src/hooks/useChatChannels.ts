@@ -20,7 +20,10 @@ export interface ChatConversation {
   other_user_id?: string | null;
   /** Group rooms only: object path of the cover photo. */
   cover_image_path?: string | null;
+  /** This person muted the room: readable, but quiet. */
+  is_muted?: boolean;
 }
+
 
 
 /**
