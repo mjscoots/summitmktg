@@ -59,7 +59,7 @@ export function AdminQueueTab() {
   const [busy, setBusy] = useState(false);
   const [visibleCount, setVisibleCount] = useState(50);
 
-  const staleItems = useMemo(() => items.filter(isStale), [items]);
+  const staleItems = useMemo(() => items.filter((i) => i.type !== 'sync' && isStale(i)), [items]);
 
   const visible = useMemo(() => {
     // Live decisions only. Hierarchy sync notes are not a decision.
