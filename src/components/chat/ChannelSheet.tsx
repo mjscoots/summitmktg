@@ -309,6 +309,8 @@ export function ChannelSheet({
             <li key={m.user_id} className="flex min-h-[52px] items-center gap-3 rounded-xl px-1">
               <UserAvatar avatarUrl={m.avatar_url} fullName={m.full_name} size="md" />
               <span className="min-w-0 flex-1 truncate text-[14px] text-foreground">{m.full_name}</span>
+              <RoleChip userId={m.user_id} />
+
               {details?.can_manage_members && details.kind !== 'dm' && (
                 <button
                   type="button"
