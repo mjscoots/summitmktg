@@ -592,6 +592,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button onClick={() => { setEditTeam(team); setEditTeamName(team.name); }} className="p-1.5 rounded text-foreground/40 hover:text-foreground hover:bg-muted/20" title="Rename"><Edit2 className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => handleToggleRetired(team)} className="min-h-[36px] px-2 rounded text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/20" title={team.retired ? 'Restore team' : 'Retire team'}>{team.retired ? 'Restore' : 'Retire'}</button>
                             <button onClick={() => { setDeleteTeam(team); setReassignTeamId(''); }} className="p-1.5 rounded text-destructive/60 hover:text-destructive hover:bg-destructive/5" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
