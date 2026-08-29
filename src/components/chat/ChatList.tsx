@@ -65,6 +65,8 @@ export function ChatList({
         {rows.map((row) => {
           const sender = firstName(row.last_sender);
           const preview = previewText(row);
+          const muted = Boolean(row.is_muted);
+          const loud = row.unread > 0 && !muted;
           return (
             <li key={row.slug}>
               <button
@@ -82,10 +84,11 @@ export function ChatList({
                     <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-foreground">
                       {row.label}
                     </span>
+                    {muted && <BellOff className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
                     <span
                       className={cn(
                         'flex-shrink-0 text-[11px] tabular-nums',
-                        row.unread > 0 ? 'font-semibold text-[hsl(var(--ice))]' : 'text-muted-foreground'
+                        loud ? 'font-semibold text-[hsl(var(--ice))]' : 'text-muted-foreground'
                       )}
                     >
                       {stamp(row.last_at)}
@@ -95,12 +98,12 @@ export function ChatList({
                     <span
                       className={cn(
                         'min-w-0 flex-1 truncate text-[13px]',
-                        row.unread > 0 ? 'text-foreground' : 'text-muted-foreground'
+                        loud ? 'text-foreground' : 'text-muted-foreground'
                       )}
                     >
                       {row.last_content && sender && row.kind !== 'dm' ? `${sender}: ${preview}` : preview}
                     </span>
-                    {row.unread > 0 && (
+                    {loud && (
                       <span
                         className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums"
                         style={{
@@ -111,6 +114,13 @@ export function ChatList({
                         {row.unread > 99 ? '99+' : row.unread}
                       </span>
                     )}
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+
                   </span>
                 </span>
               </button>
