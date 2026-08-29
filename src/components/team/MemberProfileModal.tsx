@@ -58,6 +58,8 @@ import { MemberEditForm } from './MemberEditForm';
 import { DailyTimeBreakdown } from './DailyTimeBreakdown';
 import { toast } from 'sonner';
 import { RepScorecard } from '@/components/shared/RepScorecard';
+import { RoleChip } from '@/components/shared/RoleChip';
+
 
 interface MemberProfileModalProps {
   member: TeamMember | null;
@@ -343,15 +345,16 @@ export function MemberProfileModal({
               {getDisplayName(member.full_name)}
             </h2>
             <div className="flex items-center gap-2 mt-1 flex-wrap justify-center">
-              <span className={cn(
-                "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                isNLC ? "bg-destructive/15 text-destructive"
-                  : cn(teamColor.bgBadge, teamColor.text)
-              )}>
-                {isNLC ? 'NLC' : isMgr ? 'Manager' : 'Rookie'}
-              </span>
+              {isNLC ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-destructive/15 text-destructive">
+                  NLC
+                </span>
+              ) : (
+                <RoleChip userId={member.user_id} />
+              )}
               {isSelf && <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">You</span>}
             </div>
+
             <Button
               variant="ghost"
               size="sm"

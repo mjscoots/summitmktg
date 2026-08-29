@@ -4,11 +4,16 @@ import { SelfReportedSales } from '@/components/sales/SelfReportedSales';
 import { MasteryChecksCard } from '@/components/training/MasteryChecksCard';
 import { AllMoneyCard } from '@/components/money/AllMoneyCard';
 import { NewRepDayOneCard } from '@/components/team/NewRepDayOneCard';
-import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronDown, Phone, Mail, Pencil } from 'lucide-react';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RoleChip } from '@/components/shared/RoleChip';
+
 
 interface PersonProfile {
   scope: 'self' | 'manager' | 'staff';
@@ -78,6 +83,81 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     </div>
   );
 }
+
+/**
+ * The owner key. Owner and admin edit the person's details right here.
+ * The database decides: the profiles admin policy is what allows the write,
+ * so a rep pressing the same path is refused server side.
+ */
+function StaffProfileEdit({
+  userId,
+  initial,
+  onSaved,
+}: {
+  userId: string;
+  initial: { full_name: string; phone: string; email: string };
+  onSaved: (patch: { full_name: string; phone: string; email: string }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(initial);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ full_name: form.full_name, phone: form.phone || null, email: form.email || null })
+      .eq('user_id', userId);
+    setSaving(false);
+    if (error) {
+      toast.error('That change was not allowed.');
+      return;
+    }
+    onSaved(form);
+    setOpen(false);
+    toast.success('Profile updated');
+  };
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => {
+          setForm(initial);
+          setOpen(true);
+        }}
+        className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border/60 px-3 text-[13px] text-foreground"
+      >
+        <Pencil className="h-3.5 w-3.5" /> Edit profile
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-3 space-y-3 rounded-lg border border-border/60 p-3">
+      <div className="space-y-1">
+        <Label htmlFor="pp-name" className="text-[12px]">Name</Label>
+        <Input id="pp-name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="pp-phone" className="text-[12px]">Phone</Label>
+        <Input id="pp-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="pp-email" className="text-[12px]">Email</Label>
+        <Input id="pp-email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+      </div>
+      <div className="flex gap-2">
+        <Button className="min-h-11 flex-1" disabled={saving || !form.full_name.trim()} onClick={save}>
+          {saving ? 'Saving' : 'Save'}
+        </Button>
+        <Button variant="outline" className="min-h-11" disabled={saving} onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 
 export default function PersonProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -223,12 +303,21 @@ export default function PersonProfilePage() {
           )}
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{h.full_name || 'Unnamed'}</h1>
-            <p className="text-[13px] text-muted-foreground">
-              {statusWord(h, data.lead)}
-              {h.role ? ` · ${h.role}` : ''}
+            <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
+              <span>{statusWord(h, data.lead)}</span>
+              {userId && <RoleChip userId={userId} />}
             </p>
           </div>
         </div>
+
+        {staff && userId && (
+          <StaffProfileEdit
+            userId={userId}
+            initial={{ full_name: h.full_name || '', phone: h.phone || '', email: h.email || '' }}
+            onSaved={(patch) => setData((d) => (d ? { ...d, header: { ...d.header, ...patch } } : d))}
+          />
+        )}
+
 
         <div className="mt-3">
           <Row label="Manager" value={h.manager} />
@@ -294,7 +383,7 @@ export default function PersonProfilePage() {
         <Card className="p-4">
           {!trackingStarted && (
             <p className="mb-2 text-[13px] text-muted-foreground">
-              Tracking started {fmtDate(new Date().toISOString())} — no day-by-day data yet.
+              Tracking started {fmtDate(new Date().toISOString())}. No day-by-day data yet.
             </p>
           )}
           <Row label="Last login" value={fmtDateTime(e.last_login_at) || 'Not recorded yet'} />

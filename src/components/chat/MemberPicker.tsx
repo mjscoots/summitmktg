@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Check, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { RoleChip } from '@/components/shared/RoleChip';
 import { cn } from '@/lib/utils';
 
 export interface MemberOption {
@@ -69,6 +70,8 @@ export function MemberPicker({
               >
                 <UserAvatar avatarUrl={p.avatar_url} fullName={p.full_name || ''} size="md" />
                 <span className="min-w-0 flex-1 truncate text-[14px] text-foreground">{p.full_name}</span>
+                <RoleChip userId={p.user_id} />
+
                 {p.in_room && !picked && <span className="text-[11px] text-muted-foreground">In room</span>}
                 {picked && <Check className="h-4 w-4 text-primary" />}
               </button>
