@@ -57,6 +57,8 @@ export function useRecruitingContent() {
 export interface PublicCounters {
   active_reps: number | null;
   signed_season: number | null;
+  serviced_total: number;
+  signed_2027: number;
 }
 
 /** Server-cached counters. Values below the owner's thresholds come back null. */
@@ -68,7 +70,12 @@ export function usePublicCounters() {
     (async () => {
       const { data } = await (supabase as any).rpc('get_public_counters');
       if (!alive) return;
-      setCounters((data as PublicCounters) || { active_reps: null, signed_season: null });
+      setCounters((data as PublicCounters) || {
+        active_reps: null,
+        signed_season: null,
+        serviced_total: 0,
+        signed_2027: 0,
+      });
     })();
     return () => {
       alive = false;

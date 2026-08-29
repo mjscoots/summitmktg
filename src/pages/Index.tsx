@@ -3,7 +3,8 @@ import { lazy, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { LiveCounters } from "@/components/recruiting/LiveCounters";
+import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
+import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
 import { usePublicCalc } from "@/hooks/usePublicCalc";
 import { Button } from "@/components/ui/button";
 
@@ -62,16 +63,17 @@ const Index = () => {
           <div className="relative z-10 mx-auto flex min-h-[min(760px,calc(100svh-69px))] max-w-6xl flex-col justify-end pb-16 pt-28 sm:pb-20 md:pb-24 md:pt-36">
             <div className="max-w-4xl">
               <p className="micro-label text-primary">Summit Marketing</p>
-              <h1 className="mt-5 max-w-4xl font-display text-[3.15rem] font-extrabold leading-[0.98] tracking-normal text-foreground sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+              <h1 className="public-cover-title mt-5 max-w-4xl font-display text-[3.15rem] font-extrabold leading-[0.98] tracking-normal text-foreground sm:text-6xl md:text-7xl lg:text-[5.5rem]">
                 Financial freedom.<br />Done differently.
               </h1>
+              <PublicProofStrip />
               <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
                 A performance-based path through sales, training, and team leadership.
               </p>
             </div>
 
             <div className="mt-9 flex w-full max-w-xl flex-col gap-3 sm:flex-row">
-              <Button onClick={scrollToEarnings} className="min-h-12 flex-1 px-6 font-bold">
+              <Button onClick={scrollToEarnings} className="public-primary-cta min-h-12 flex-1 px-6 font-bold">
                 See what you could make <ArrowDown className="h-4 w-4" aria-hidden="true" />
               </Button>
               <Button asChild variant="outline" className="min-h-12 flex-1 px-6 font-bold">
@@ -83,9 +85,6 @@ const Index = () => {
               Pest control now · Fiber internet in the off-season
             </p>
 
-            <div className="mt-7">
-              <LiveCounters variant="inline" />
-            </div>
           </div>
         </section>
 
@@ -177,6 +176,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      <ProductionTicker />
     </div>
   );
 };

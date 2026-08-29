@@ -2174,3 +2174,13 @@ Archive only, no rows deleted, no profiles merged.
 6. Counts: actives 23 to 22, archived profiles 512 to 513, retired teams 0 to 2, in_market 34 to 13, people_leads total 551 unchanged, chat_messages 715, pending applications 1, user_roles 3.
 7. get_team_battles rewritten to skip retired teams, EXECUTE revoked from PUBLIC and anon, granted to authenticated. Linter total stayed 394, no new findings.
 8. Typecheck and production build clean. Nothing published.
+
+## Pass 128 — Cover page excitement
+- Added an anonymous production ticker with 11 approved lines, randomized per visit, starting only after first scroll, visible about four seconds, dismissible, and paused while the tab is hidden.
+- Ticker is fixed bottom left on desktop and above the mobile safe area; it uses a subtle rise and fade with reduced-motion disabled.
+- Public counter response now includes real serviced total and signed-for-2027 count without exposing names or rows.
+- Hero proof reads $6.08M serviced and 14 signed for 2027 from live database totals.
+- At 1280 the unchanged headline scales to 108px with a tighter measure; the primary CTA is filled ice blue on a deeper layered cover background.
+- Ticker copy verified: all 11 approved lines present, no names, no em dashes.
+- Baselines before implementation: profiles 535, chat messages 715, people leads 551.
+- No application data rows were written. Nothing published.
