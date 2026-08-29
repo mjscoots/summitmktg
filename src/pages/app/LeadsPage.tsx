@@ -295,7 +295,9 @@ export default function LeadsPage() {
             </>
           )}
 
-
+          {staff && scope === 'all' && (
+            <OwnerAssignQueue managers={managers} onChanged={reload} />
+          )}
 
 
           {staff && scope === 'all' && (
@@ -492,7 +494,7 @@ export default function LeadsPage() {
                         <Phone className="h-4 w-4" />
                       </a>
                     )}
-                    {lead.designation_status === 'free' && scope !== 'all' && (
+                    {!lead.designated_to && scope !== 'all' && (
                       <button
                         onClick={() => claim(lead)}
                         className="shrink-0 rounded-lg bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground"
@@ -500,6 +502,15 @@ export default function LeadsPage() {
                         Claim
                       </button>
                     )}
+                    {lead.designated_to && scope === 'mine' && (
+                      <button
+                        onClick={() => decline(lead)}
+                        className="min-h-11 shrink-0 rounded-lg border border-border/60 px-3 text-[12px] font-semibold text-muted-foreground hover:text-foreground"
+                      >
+                        Decline
+                      </button>
+                    )}
+
                   </div>
                 );
               })}
