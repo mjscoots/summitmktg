@@ -7931,6 +7931,7 @@ export type Database = {
       mentee_count: { Args: { _manager_id: string }; Returns: number }
       my_active_vertical: { Args: never; Returns: string }
       my_fiber_tier: { Args: { _uid: string }; Returns: Json }
+      my_home_numbers: { Args: never; Returns: Json }
       my_next_year_pay: { Args: never; Returns: Json }
       my_notification_prefs: { Args: never; Returns: Json }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }

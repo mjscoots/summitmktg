@@ -16,6 +16,8 @@ import { WeekBars } from '@/components/home/WeekBars';
 import { TeamTodayCard } from '@/components/home/TeamTodayCard';
 import { HomeFeed } from '@/components/home/HomeFeed';
 import { MoreReveal } from '@/components/home/MoreReveal';
+import { UpdatesStrip } from '@/components/home/UpdatesStrip';
+import { YourNumbers } from '@/components/home/YourNumbers';
 
 import { YourThreeCard } from '@/components/home/YourThreeCard';
 import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
@@ -110,67 +112,80 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
     );
   }
 
+  const heroValue = offSeason ? today.trainingMinutes : staff ? today.visibleToday : today.today;
+  const showHeroNumber = offSeason && staff ? resign.signed > 0 || resign.rosterTotal > 0 : heroValue > 0;
+
+  const sublineParts = offSeason
+    ? staff
+      ? [
+          resign.signedRevenue > 0 ? `${money(resign.signedRevenue)} signed` : null,
+          resign.unsigned > 0
+            ? `${resign.unsigned} on the roster not signed (${money(resign.unsignedRevenue)})`
+            : null,
+        ]
+      : [
+          repLine.goal > 0 ? `Goal ${money(repLine.goal)} for 2027` : null,
+          repLine.streak > 0 ? `${repLine.streak} ${repLine.streak === 1 ? 'day' : 'days'} in a row` : null,
+        ]
+    : staff
+      ? [totals.sales > 0 ? `${totals.sales} this week` : null]
+      : [
+          weekCount > 0 ? `${weekCount} this week` : null,
+          saleStreak > 0 ? `${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale` : null,
+        ];
+  const subline = sublineParts.filter(Boolean).join(' · ');
+
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:space-y-10">
       <OnboardingAlert />
 
-      {/* One display size per screen: this number is it. */}
+      <UpdatesStrip isManagerTier={staff} />
+
       <header>
-        <SectionEyebrow>
-          {offSeason ? (staff ? 'Signed for 2027' : 'Training this week') : staff ? 'Team today' : 'Today'}
-        </SectionEyebrow>
         <p className="text-[15px] text-muted-foreground">
           {greeting()}, {firstName}
         </p>
-        {offSeason && staff ? (
-          <button
-            type="button"
-            onClick={() => navigate('/app/leads')}
-            className="mt-2 block text-left"
-          >
-            <span className="block text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
-              {resign.signed}
-              {resign.rosterTotal > 0 && (
-                <span className="text-[24px] font-bold text-muted-foreground"> of {resign.rosterTotal}</span>
-              )}
-            </span>
-            <span className="mt-1 block text-[13px] text-muted-foreground">Signed for 2027</span>
-          </button>
-        ) : (
-          <p className="mt-2 text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
-            {offSeason ? today.trainingMinutes : staff ? today.visibleToday : today.today}
-          </p>
+        {showHeroNumber && (
+          <>
+            <SectionEyebrow>
+              {offSeason ? (staff ? 'Signed for 2027' : 'Training this week') : staff ? 'Team today' : 'Today'}
+            </SectionEyebrow>
+            {offSeason && staff ? (
+              <button
+                type="button"
+                onClick={() => navigate('/app/leads')}
+                className="mt-1 block text-left"
+              >
+                <span className="block text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
+                  {resign.signed}
+                  {resign.rosterTotal > 0 && (
+                    <span className="text-[24px] font-bold text-muted-foreground"> of {resign.rosterTotal}</span>
+                  )}
+                </span>
+              </button>
+            ) : (
+              <p className="mt-1 text-[56px] font-bold leading-none tracking-tight text-foreground tabular-nums">
+                {heroValue}
+              </p>
+            )}
+            <span className="hero-accent-rule mt-3" aria-hidden />
+          </>
         )}
-        <span className="hero-accent-rule mt-3" aria-hidden />
-        <p className="mt-2 text-[15px] text-muted-foreground">
-          {offSeason
-            ? staff
-              ? `${money(resign.signedRevenue)} signed · ${resign.unsigned} on the roster not signed (${money(resign.unsignedRevenue)})`
-              : [
-                  repLine.goal > 0 ? `Goal ${money(repLine.goal)} for 2027` : 'Minutes this week',
-                  `${repLine.streak} ${repLine.streak === 1 ? 'day' : 'days'} in a row`,
-                ].join(' · ')
-            : staff
-              ? `${totals.sales} this week`
-              : `${weekCount} this week · ${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale`}
-
-        </p>
+        {subline && <p className="mt-2 text-[15px] text-muted-foreground">{subline}</p>}
       </header>
 
+      <YourNumbers />
 
-
-      {staff ? (
-        <OwnerNumbersRow />
-      ) : (
+      {!staff && (
         <Button className="min-h-14 w-full text-[16px]" onClick={() => navigate('/app/doors')}>
           Doors
         </Button>
       )}
 
-
       {!staff && <NeedsYouRow className="!px-0" />}
 
       <HomeFeed />
+
 
       <MoreReveal>
         <QuickChips chips={moreChips} />

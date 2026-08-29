@@ -184,8 +184,6 @@ export function HomeFeed() {
 
   return (
     <div className="space-y-8">
-      <ChatRow />
-
       {nextTwo.length > 0 && (
         <section>
           <SectionEyebrow>Events</SectionEyebrow>
@@ -238,6 +236,8 @@ export function HomeFeed() {
           </div>
         </section>
       )}
+
+      <ChatRow />
 
       <section>
         <SectionEyebrow>Training</SectionEyebrow>
