@@ -118,6 +118,8 @@ function StepSection({ icon: Icon, title, children, className }: { icon: React.C
 
 export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }: ManagerEventFormProps) {
   const { user, profile } = useAuth();
+  const eventScope = useEventScope();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
