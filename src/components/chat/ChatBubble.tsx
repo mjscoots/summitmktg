@@ -271,7 +271,9 @@ export function ChatBubble({
                   {profile.team_name}
                 </span>
               )}
+              <RoleChip userId={message.user_id} />
               <RankInsignia role={profile.role} size="sm" className="shrink-0" />
+
               <BadgeStrip userId={message.user_id} max={2} className="shrink-0" />
             </span>
           )}
