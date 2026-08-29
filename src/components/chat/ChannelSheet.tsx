@@ -147,6 +147,18 @@ export function ChannelSheet({
       action: { label: 'Undo', onClick: () => void addMembers([m.user_id]) },
     });
   };
+  const toggleMute = async () => {
+    if (!details) return;
+    const next = !details.is_muted;
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('set_channel_mute', { _slug: slug, _muted: next });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'That did not save.')); return; }
+    setDetails({ ...details, is_muted: next });
+    onCoverChanged?.();
+    toast.success(next ? 'Room muted' : 'Room unmuted');
+  };
+
 
 
   return (
