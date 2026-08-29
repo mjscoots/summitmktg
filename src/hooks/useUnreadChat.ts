@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 
 /**
  * Total unread chat count across every channel the user can see.
  * Per-channel last-read timestamps live in `chat_read_state`; `get_conversations`
- * does the math (and excludes ai-coach), so the badge survives new devices.
+ * does the math (and excludes ai-coach and muted rooms), so the badge survives
+ * new devices. Turning chat messages off in notification settings hides the badge.
  *
  * No message subscription here: the count refreshes on mount, on window focus
  * and when the caller's own read state changes.
  */
 export function useUnreadChat() {
   const { user } = useAuth();
+  const { prefs } = useNotificationPreferences(user?.id);
   const [unreadCount, setUnreadCount] = useState(0);
   const isViewingRef = useRef(false);
 
@@ -21,6 +24,7 @@ export function useUnreadChat() {
     if (error || !data) return;
     setUnreadCount(Number(data.total_unread) || 0);
   }, [user]);
+
 
   const markRead = useCallback(async () => {
     setUnreadCount(0);
@@ -45,5 +49,6 @@ export function useUnreadChat() {
     return () => { window.removeEventListener('focus', onFocus); };
   }, [user, refresh]);
 
-  return { unreadCount, markRead, setViewing, refresh };
+  return { unreadCount: prefs.chat_mentions ? unreadCount : 0, markRead, setViewing, refresh };
 }
+

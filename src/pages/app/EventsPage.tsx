@@ -23,6 +23,8 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
+import { useEventScope } from '@/hooks/useEventScope';
+
 
 const CalendarView = lazy(() => import('./CalendarPage'));
 
@@ -129,6 +131,8 @@ function emptyDraft(): DraftEvent {
 
 export default function EventsPage() {
   const { user, role } = useAuth();
+  const eventScope = useEventScope();
+
   const { activeVertical, isPresidentOfActive } = useWorkspace();
   const canEditScope = role === 'owner' || role === 'admin' || role === 'president';
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
@@ -256,17 +260,21 @@ export default function EventsPage() {
       return;
     }
     setSaving(true);
+    // A manager writes only for his own team; owner, admin and presidents are
+    // unrestricted. The database enforces the same rule on insert and update.
+    const scoped = !eventScope.unrestricted;
     const payload = {
       title: draft.title.trim(),
       description: draft.description.trim() || null,
       event_date: new Date(draft.local_datetime).toISOString(),
       location: draft.location.trim() || null,
       event_kind: draft.event_kind,
-      scope: draft.scope,
-      team_id: draft.scope === 'team' ? draft.team_id : null,
+      scope: scoped ? 'team' : draft.scope,
+      team_id: scoped ? eventScope.teamId : (draft.scope === 'team' ? draft.team_id : null),
       recurrence_type: draft.weekly ? 'weekly' : null,
       vertical: draft.vertical === undefined ? activeVertical : draft.vertical,
     };
+
     const { error } = draft.id
       ? await supabase.from('calendar_events').update(payload).eq('id', draft.id)
       : await supabase.from('calendar_events').insert({ ...payload, created_by: user?.id ?? null });

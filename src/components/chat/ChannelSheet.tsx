@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, Loader2, Pencil, Trash2, UserPlus, X } from 'lucide-react';
+import { Bell, BellOff, Camera, Loader2, Pencil, Trash2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,9 +24,11 @@ interface Details {
   can_rename: boolean;
   can_delete_room: boolean;
   can_manage_members: boolean;
+  is_muted: boolean;
   members: Member[];
   member_count: number;
 }
+
 
 
 /**
@@ -145,6 +147,18 @@ export function ChannelSheet({
       action: { label: 'Undo', onClick: () => void addMembers([m.user_id]) },
     });
   };
+  const toggleMute = async () => {
+    if (!details) return;
+    const next = !details.is_muted;
+    setBusy(true);
+    const { data, error } = await (supabase as any).rpc('set_channel_mute', { _slug: slug, _muted: next });
+    setBusy(false);
+    if (error || data?.error) { toast.error(String(data?.error || 'That did not save.')); return; }
+    setDetails({ ...details, is_muted: next });
+    onCoverChanged?.();
+    toast.success(next ? 'Room muted' : 'Room unmuted');
+  };
+
 
 
   return (
@@ -183,6 +197,23 @@ export function ChannelSheet({
             </>
           )}
         </div>
+
+        {details && (
+          <button
+            type="button"
+            onClick={() => void toggleMute()}
+            disabled={busy}
+            className="mt-4 flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-border/60 px-3 text-[13px] font-semibold text-foreground disabled:opacity-50"
+          >
+            {details.is_muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+            {details.is_muted ? 'Unmute this room' : 'Mute this room'}
+            <span className="ml-auto text-[12px] font-normal text-muted-foreground">
+              {details.is_muted ? 'Muted' : 'Notifications on'}
+            </span>
+          </button>
+        )}
+
+
 
         {(details?.can_rename || details?.can_delete_room) && (
           <div className="mt-4 space-y-2 rounded-xl border border-border/60 p-3">

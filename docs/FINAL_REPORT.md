@@ -2185,3 +2185,16 @@ Archive only, no rows deleted, no profiles merged.
 - Baselines before implementation: profiles 535, chat messages 715, people leads 551.
 - No application data rows were written. Nothing published.
 - Final baselines: profiles 535, chat messages 715, people leads 551. Anonymous proof RPC returned $6,079,485 and 14; 390 and 1280 screenshots saved under docs/screens.
+
+## Pass 129 - Access matrix and personal controls
+- Chat mute: chat_channel_mutes plus set_channel_mute; ChannelSheet has a 44px mute control, ChatList shows a muted icon and drops muted rooms from badges while they stay readable.
+- Notification settings: my_notification_prefs writes sensible defaults on first read; the profile surface toggles chat messages, event reminders and announcements; useUnreadChat, useSmartNotifications and useActionCards all read the same flags.
+- Self edit scope: trigger a_refuse_self_privileged_profile_edit_trg refuses any self change to year, team, vertical, status, approval, rank, manager, recruiter, region, money or points. Owner and admin paths untouched.
+- Manager event scope: can_write_event gates insert and update through the policy "Event writes stay in scope"; both event forms now send the writer's own team.
+- Proof, manager label granted then removed: own team true, other team false, company wide false, owner any true.
+- Proof as a plain rep: mute allowed, own phone and contact fields allowed, rep_year refused, team refused, money refused, event insert refused by RLS.
+- No leak as a plain rep: managers scoped events 0 rows, people_leads 0, other profiles 0, rep_revenue 0, other leaderboard rows 0.
+- Function privileges: set_channel_mute, my_notification_prefs and can_write_event are anon false, authenticated true.
+- Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, user_roles 3. Test phone, year and mute rows were restored or removed.
+- Linter total stayed at 399, all pre existing global SECURITY DEFINER and OTP notices; no new public exposure.
+- Typecheck and production build clean. No em dashes in new words. Nothing published.

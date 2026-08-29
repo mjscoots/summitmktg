@@ -18,16 +18,17 @@ interface Preferences {
 }
 
 const PREF_LABELS: { key: keyof Preferences; label: string; description: string }[] = [
+  { key: 'chat_mentions', label: 'Chat messages', description: 'Unread message alerts from the rooms you have not muted' },
+  { key: 'calendar_events', label: 'Event reminders', description: 'Upcoming event reminders and schedule notifications' },
+  { key: 'announcements', label: 'Announcements', description: 'A new announcement is published to the team' },
   { key: 'new_leads', label: 'New leads', description: 'A new lead lands on the Lead Board unclaimed' },
   { key: 'lead_expiry', label: 'Lead expiry warnings', description: 'Your claimed lead is within 8 hours of auto-release' },
-  { key: 'announcements', label: 'Announcements', description: 'A new announcement is published to the team' },
-  { key: 'training_quiz', label: 'Training & Quiz', description: 'Quiz completions, training milestones, and rep progress alerts' },
-  { key: 'calendar_events', label: 'Calendar Events', description: 'Upcoming event reminders and schedule notifications' },
+  { key: 'training_quiz', label: 'Training', description: 'Training milestones and rep progress alerts' },
   { key: 'leaderboard', label: 'Leaderboard', description: 'Weekly rank changes and #1 position alerts' },
-  { key: 'chat_mentions', label: 'Chat Activity', description: 'Unread message alerts when 10+ messages pile up' },
   { key: 'bootcamp_reminders', label: 'Summer Checklist', description: 'Summer Checklist deadline reminders and phase completion' },
   { key: 'streak_milestones', label: 'Streak Milestones', description: 'Daily login streak achievements and milestone bonuses' },
 ];
+
 
 const DEFAULTS: Preferences = {
   new_leads: true,
@@ -52,24 +53,20 @@ export function NotificationPreferences() {
     if (!user?.id) return;
 
     const load = async () => {
-      const { data } = await supabase
-        .from('notification_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // my_notification_prefs() writes the sensible defaults on first read.
+      const { data } = await (supabase as any).rpc('my_notification_prefs');
 
-      if (data) {
+      if (data && !data.error) {
         setPrefs({
-          new_leads: (data as any).new_leads ?? true,
-          lead_expiry: (data as any).lead_expiry ?? true,
-          announcements: (data as any).announcements ?? true,
-          training_quiz: (data as any).training_quiz ?? true,
-          calendar_events: (data as any).calendar_events ?? true,
-
-          leaderboard: (data as any).leaderboard ?? true,
-          chat_mentions: (data as any).chat_mentions ?? true,
-          bootcamp_reminders: (data as any).bootcamp_reminders ?? true,
-          streak_milestones: (data as any).streak_milestones ?? true,
+          new_leads: data.new_leads ?? true,
+          lead_expiry: data.lead_expiry ?? true,
+          announcements: data.announcements ?? true,
+          training_quiz: data.training_quiz ?? true,
+          calendar_events: data.calendar_events ?? true,
+          leaderboard: data.leaderboard ?? true,
+          chat_mentions: data.chat_mentions ?? true,
+          bootcamp_reminders: data.bootcamp_reminders ?? true,
+          streak_milestones: data.streak_milestones ?? true,
         });
       }
       setIsLoading(false);
@@ -77,6 +74,7 @@ export function NotificationPreferences() {
 
     load();
   }, [user?.id]);
+
 
   const handleToggle = async (key: keyof Preferences) => {
     if (!user?.id) return;

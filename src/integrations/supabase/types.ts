@@ -1242,6 +1242,27 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_channel_mutes: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_channels: {
         Row: {
           color: string
@@ -6950,6 +6971,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_person: { Args: { _user_id: string }; Returns: string }
+      can_write_event: {
+        Args: { _team_id: string; _uid: string }
+        Returns: boolean
+      }
       channel_member_options: {
         Args: { _q?: string; _slug?: string }
         Returns: Json
@@ -7907,6 +7932,7 @@ export type Database = {
       my_active_vertical: { Args: never; Returns: string }
       my_fiber_tier: { Args: { _uid: string }; Returns: Json }
       my_next_year_pay: { Args: never; Returns: Json }
+      my_notification_prefs: { Args: never; Returns: Json }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_referral_count: { Args: never; Returns: number }
       my_signed_count: { Args: never; Returns: number }
@@ -8072,6 +8098,10 @@ export type Database = {
       set_appearance: { Args: { _appearance: string }; Returns: undefined }
       set_channel_cover: {
         Args: { _path: string; _slug: string }
+        Returns: Json
+      }
+      set_channel_mute: {
+        Args: { _muted: boolean; _slug: string }
         Returns: Json
       }
       set_day_one_items: { Args: { _video_ids: string[] }; Returns: undefined }

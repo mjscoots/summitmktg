@@ -6,6 +6,7 @@ export interface NotificationPrefs {
   calendar_events: boolean;
   leaderboard: boolean;
   chat_mentions: boolean;
+  announcements: boolean;
   bootcamp_reminders: boolean;
   streak_milestones: boolean;
 }
@@ -15,10 +16,16 @@ const DEFAULTS: NotificationPrefs = {
   calendar_events: true,
   leaderboard: true,
   chat_mentions: true,
+  announcements: true,
   bootcamp_reminders: true,
   streak_milestones: true,
 };
 
+/**
+ * Pass 129 — one read path for notification settings. The database RPC writes
+ * the sensible defaults the first time a person opens the app, so every screen
+ * that gates a badge or a toast reads the same flags.
+ */
 export function useNotificationPreferences(userId: string | undefined) {
   const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULTS);
   const [loaded, setLoaded] = useState(false);
@@ -26,24 +33,21 @@ export function useNotificationPreferences(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
 
-    supabase
-      .from('notification_preferences')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          setPrefs({
-            training_quiz: (data as any).training_quiz ?? true,
-            calendar_events: (data as any).calendar_events ?? true,
-            leaderboard: (data as any).leaderboard ?? true,
-            chat_mentions: (data as any).chat_mentions ?? true,
-            bootcamp_reminders: (data as any).bootcamp_reminders ?? true,
-            streak_milestones: (data as any).streak_milestones ?? true,
-          });
-        }
-        setLoaded(true);
-      });
+    void (async () => {
+      const { data } = await (supabase as any).rpc('my_notification_prefs');
+      if (data && !data.error) {
+        setPrefs({
+          training_quiz: data.training_quiz ?? true,
+          calendar_events: data.calendar_events ?? true,
+          leaderboard: data.leaderboard ?? true,
+          chat_mentions: data.chat_mentions ?? true,
+          announcements: data.announcements ?? true,
+          bootcamp_reminders: data.bootcamp_reminders ?? true,
+          streak_milestones: data.streak_milestones ?? true,
+        });
+      }
+      setLoaded(true);
+    })();
   }, [userId]);
 
   return { prefs, loaded };
