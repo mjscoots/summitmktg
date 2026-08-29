@@ -4,11 +4,16 @@ import { SelfReportedSales } from '@/components/sales/SelfReportedSales';
 import { MasteryChecksCard } from '@/components/training/MasteryChecksCard';
 import { AllMoneyCard } from '@/components/money/AllMoneyCard';
 import { NewRepDayOneCard } from '@/components/team/NewRepDayOneCard';
-import { ChevronLeft, ChevronDown, Phone, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronDown, Phone, Mail, Pencil } from 'lucide-react';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RoleChip } from '@/components/shared/RoleChip';
+
 
 interface PersonProfile {
   scope: 'self' | 'manager' | 'staff';
