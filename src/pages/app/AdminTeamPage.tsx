@@ -10,8 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Play, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
-import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
+import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
 import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
 import SeatsPanel from '@/components/admin/SeatsPanel';
 import LeadsImportPanel from '@/components/admin/LeadsImportPanel';
@@ -22,7 +21,6 @@ const LazyAuditPanel = lazy(() => import('@/components/admin/AdminAuditPanel'));
 const LazyIndustries = lazy(() => import('@/components/admin/AdminIndustriesTab'));
 const LazyFiberHub = lazy(() => import('@/components/admin/AdminFiberHubTab').then((m) => ({ default: m.AdminFiberHubTab })));
 import AdminApplicationsTab from '@/components/admin/AdminApplicationsTab';
-import { ApplicationsPulseLine } from '@/components/admin/ApplicationsPulseLine';
 import { BugSheetEditor } from '@/components/admin/BugSheetEditor';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -125,7 +123,6 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
   const [teamsSimple, setTeamsSimple] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [demoOpen, setDemoOpen] = useState(false);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
 
@@ -376,13 +373,8 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
           ) : undefined}
         />
 
-        {isAdmin && (
-          <div className="mb-4">
-            <Button size="sm" variant="outline" onClick={() => setDemoOpen(true)} className="gap-1.5 h-9 rounded-xl">
-              <Play className="w-3.5 h-3.5" /> Demo
-            </Button>
-          </div>
-        )}
+
+
 
         <Tabs
           value={activeTab}
@@ -419,7 +411,8 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             {ADMIN_SECTIONS.find((s) => s.key === section)?.blurb}
           </p>
 
-          {section === 'requests' && <ApplicationsPulseLine />}
+
+
 
 
           {/* Sub-nav inside the group */}
@@ -952,7 +945,6 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
         {/* Modals */}
         <CreateRepModal open={createOpen} onOpenChange={setCreateOpen} managers={managers} teams={teamsSimple} onSuccess={fetchData} />
-        <BootcampDemoWalkthrough open={demoOpen} onOpenChange={setDemoOpen} />
 
         {/* Edit User Modal */}
         <Dialog open={!!editUser} onOpenChange={(open) => !open && setEditUser(null)}>

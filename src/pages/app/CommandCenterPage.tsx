@@ -307,6 +307,7 @@ export default function CommandCenterPage() {
   });
   const [loading, setLoading] = useState(true);
   const [commitment, setCommitment] = useState({ noDate: 0, soon: 0 });
+  const [moneyLoaded, setMoneyLoaded] = useState(true);
 
   // Load settings + live stats
   useEffect(() => {
@@ -321,6 +322,10 @@ export default function CommandCenterPage() {
         if (r.value != null) map[r.key] = String(r.value);
       });
       setSettings(map);
+      setMoneyLoaded(
+        (rows || []).some((r: any) => r.key === "command_revenue_sold" && r.value != null)
+      );
+
 
       const sevenAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const thirtyAgo = new Date(Date.now() - 30 * 86400000).toISOString();
@@ -451,7 +456,18 @@ export default function CommandCenterPage() {
 
 
         {/* PRIMARY OBJECTIVE */}
+        {!moneyLoaded ? (
+          <Panel style={{ padding: 32, marginBottom: 40 }}>
+            <div style={{ color: COLORS.gold, fontFamily: fontMono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
+              Primary Objective
+            </div>
+            <div style={{ marginTop: 14, color: COLORS.textMuted, fontFamily: fontBody, fontSize: 14 }}>
+              This page is still being built
+            </div>
+          </Panel>
+        ) : (
         <Panel style={{ padding: 32, marginBottom: 40 }}>
+
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
             <div>
               <div style={{ color: COLORS.gold, fontFamily: fontMono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
@@ -540,6 +556,8 @@ export default function CommandCenterPage() {
             </div>
           </div>
         </Panel>
+        )}
+
 
         {/* LIVE TEAM PULSE */}
         <SectionHeader title="Live Team Pulse" tag="Live" />

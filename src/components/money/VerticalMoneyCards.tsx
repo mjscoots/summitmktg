@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { ArrowUpRight, DollarSign, Layers } from 'lucide-react';
 import { formatCurrency } from '@/lib/commission';
 import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
+import { UnderConstruction } from '@/components/shared/UnderConstruction';
+
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -147,7 +149,15 @@ export function VerticalMoneyCards({
         </Link>
       </section>
 
-      {orderedVerticals.map((v) => (
+      {orderedVerticals.map((v) => {
+        const hasMoneyData =
+          v.stack_value !== null ||
+          !!v.stack_note ||
+          !!v.leader ||
+          (v.chain?.length ?? 0) > 0 ||
+          v.requirements.length > 0;
+
+        return (
         <div key={v.vertical} className="space-y-3">
           <section
             className={cn(
@@ -180,7 +190,10 @@ export function VerticalMoneyCards({
               )}
             </div>
 
-            {v.enrolled && (
+            {v.enrolled && !hasMoneyData && <UnderConstruction className="mt-4" />}
+
+            {v.enrolled && hasMoneyData && (
+
               <div className="mt-4 space-y-3">
                 <div className="rounded-xl border border-white/[0.06] bg-background/40 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -276,10 +289,12 @@ export function VerticalMoneyCards({
               </div>
             )}
           </section>
-          {v.enrolled && v.vertical === 'Pest' && <SentRepOverrideNote />}
-          {v.enrolled && renderExtra?.(v.vertical)}
+          {v.enrolled && hasMoneyData && v.vertical === 'Pest' && <SentRepOverrideNote />}
+          {v.enrolled && hasMoneyData && renderExtra?.(v.vertical)}
         </div>
-      ))}
+        );
+      })}
+
     </div>
   );
 }
