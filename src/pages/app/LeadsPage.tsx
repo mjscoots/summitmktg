@@ -235,6 +235,16 @@ export default function LeadsPage() {
             className="mb-5"
           />
 
+          {isTop && recruitPool !== null && recruitPool > 0 && (
+            <p className="mb-4 text-[12px] text-muted-foreground">
+              Recruiting pool:{' '}
+              <span className="font-semibold tabular-nums text-foreground">{recruitPool}</span> open
+              leads on the board.
+            </p>
+          )}
+
+
+
           <div
             className={cn(
               'mb-4 grid gap-2',
