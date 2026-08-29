@@ -160,22 +160,6 @@ export default function PitchApprovalsPage() {
         ) : (
         <>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-primary stat-num">{pending.length}</p>
-            <p className="text-xs text-muted-foreground">Pending</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-primary stat-num">{approved.length}</p>
-            <p className="text-xs text-muted-foreground">Approved</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-bold text-destructive stat-num">{rejected.length}</p>
-            <p className="text-xs text-muted-foreground">Rejected</p>
-          </div>
-        </div>
-
         {/* Pending */}
         <div className="mb-6">
           <h2 className="text-sm font-bold text-foreground tracking-wide mb-3">
@@ -184,8 +168,9 @@ export default function PitchApprovalsPage() {
           {pending.length === 0 ? (
             <div className="bg-card rounded-lg border border-border p-6 text-center text-muted-foreground">
               <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-primary/50" />
-              <p className="text-sm">No pending approvals. You're caught up.</p>
+              <p className="text-sm">Nothing waiting right now</p>
             </div>
+
           ) : (
             <div className="space-y-2">
               {pending.map(req => {
