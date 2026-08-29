@@ -307,6 +307,7 @@ export default function CommandCenterPage() {
   });
   const [loading, setLoading] = useState(true);
   const [commitment, setCommitment] = useState({ noDate: 0, soon: 0 });
+  const [moneyLoaded, setMoneyLoaded] = useState(true);
 
   // Load settings + live stats
   useEffect(() => {
@@ -321,6 +322,10 @@ export default function CommandCenterPage() {
         if (r.value != null) map[r.key] = String(r.value);
       });
       setSettings(map);
+      setMoneyLoaded(
+        (rows || []).some((r: any) => r.key === "command_revenue_sold" && r.value != null)
+      );
+
 
       const sevenAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const thirtyAgo = new Date(Date.now() - 30 * 86400000).toISOString();
