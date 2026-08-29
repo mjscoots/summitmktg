@@ -327,8 +327,19 @@ export default function EventsPage() {
 
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
+          {joinUrl && (
+            <a
+              href={sanitizeUrl(joinUrl)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-[12px] font-semibold text-primary-foreground"
+            >
+              <Video className="h-3.5 w-3.5" /> Join
+            </a>
+          )}
           {!isPast && (
             <>
+
               <button
                 onClick={() => rsvp(ev.id, 'attending')}
                 disabled={rsvpBusy === ev.id}
