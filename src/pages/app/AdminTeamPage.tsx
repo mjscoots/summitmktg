@@ -142,6 +142,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
   const [deleteTeam, setDeleteTeam] = useState<TeamRow | null>(null);
   const [reassignTeamId, setReassignTeamId] = useState('');
   const [approvalShowHistory, setApprovalShowHistory] = useState(false);
+  const [decidedOpen, setDecidedOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -415,34 +416,23 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
 
 
-          {/* Sub-nav inside the group */}
-          <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
-            <TabsList className="inline-flex min-w-max gap-0.5 bg-transparent p-0 h-auto">
-              {sectionTabs.map((t) => (
-                <TabsTrigger
-                  key={t.value}
-                  value={t.value}
-                  className="whitespace-nowrap rounded-lg px-2.5 py-2 text-xs transition-colors data-[state=active]:bg-secondary data-[state=active]:text-foreground"
-                >
-                  {t.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-          {section === 'requests' && (
-            <TabsContent value="requests">
-              <Suspense fallback={<LoadingList rows={3} />}>
-                <LazyReactivations />
-              </Suspense>
-            </TabsContent>
+          {/* Sub-nav inside the group. One lane needs no tab bar. */}
+          {sectionTabs.length > 1 && (
+            <div className="overflow-x-auto -mx-4 px-4 mb-4 scrollbar-hide">
+              <TabsList className="inline-flex min-w-max gap-0.5 bg-transparent p-0 h-auto">
+                {sectionTabs.map((t) => (
+                  <TabsTrigger
+                    key={t.value}
+                    value={t.value}
+                    className="whitespace-nowrap rounded-lg px-2.5 py-2 text-xs transition-colors data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                  >
+                    {t.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           )}
 
-          {section === 'requests' && isAdmin && (
-            <TabsContent value="verticals">
-              <VerticalRequestsPanel />
-            </TabsContent>
-          )}
 
 
 
@@ -601,8 +591,35 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             </div>
           </TabsContent>
 
-          {/* ========== APPROVALS TAB ========== */}
-          <TabsContent value="approvals">
+
+
+
+          {/* ========== RECRUITING TAB ========== */}
+          <TabsContent value="recruiting">
+            <Suspense fallback={<TableSkeleton columns={7} rows={8} />}>
+              <LazyRecruiting reps={allUsers.map(u => ({ user_id: u.user_id, full_name: u.full_name || u.email || 'Unknown' }))} />
+            </Suspense>
+          </TabsContent>
+
+
+
+          {/* ========== DECISIONS LANE ========== */}
+          <TabsContent value="queue">
+            <div className="space-y-4">
+              <TeamLeadApplicationsPanel />
+              <AdminQueueTab />
+
+              <button
+                onClick={() => setDecidedOpen((o) => !o)}
+                className="min-h-11 w-full rounded-xl border border-border/50 px-4 text-left text-[13px] font-semibold text-foreground transition-colors hover:border-primary/50"
+              >
+                {decidedOpen ? 'Hide decided history' : 'Decided history'}
+              </button>
+
+              {decidedOpen && (
+                <div className="space-y-6 rounded-xl border border-border/40 bg-card/40 p-3">
+          {/* Pending rep approvals, kept wired */}
+          <div>
             {loading ? <TableSkeleton columns={3} rows={3} /> : (() => {
               const approvalHistory = allUsers.filter(
                 u => !u.archived && (u.approved === true || u.status === 'rejected')
@@ -692,34 +709,17 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                 </div>
               );
             })()}
-          </TabsContent>
-
-
-          {/* ========== APPS TAB ========== */}
-          <TabsContent value="apps">
-            <AdminApplicationsTab />
-          </TabsContent>
-
-          {/* ========== RECRUITING TAB ========== */}
-          <TabsContent value="recruiting">
-            <Suspense fallback={<TableSkeleton columns={7} rows={8} />}>
-              <LazyRecruiting reps={allUsers.map(u => ({ user_id: u.user_id, full_name: u.full_name || u.email || 'Unknown' }))} />
-            </Suspense>
-          </TabsContent>
-
-          {/* ========== PITCHES TAB ========== */}
-          <TabsContent value="pitches">
-            <Suspense fallback={<LoadingList rows={4} />}>
-              <LazyPitchApprovals />
-            </Suspense>
-          </TabsContent>
-
-
-          {/* ========== QUEUE TRIAGE TAB ========== */}
-          <TabsContent value="queue">
-            <div className="space-y-4">
-              <TeamLeadApplicationsPanel />
-              <AdminQueueTab />
+          </div>
+                  <Suspense fallback={<LoadingList rows={3} />}>
+                    <LazyReactivations />
+                  </Suspense>
+                  {isAdmin && <VerticalRequestsPanel />}
+                  <AdminApplicationsTab />
+                  <Suspense fallback={<LoadingList rows={4} />}>
+                    <LazyPitchApprovals />
+                  </Suspense>
+                </div>
+              )}
             </div>
           </TabsContent>
 

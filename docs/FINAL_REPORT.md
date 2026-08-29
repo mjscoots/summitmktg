@@ -2151,3 +2151,15 @@ Ten worst, worst first:
 9. Public site tab renders empty testimonials, timeline and partners blocks (all 0 rows).
 10. Other spring-only sets: weekly_one_on_ones_manager (2026-04-06), scheduling_requests (2026-03-02), training_videos (2026-03-11).
 Nothing published.
+
+## Pass 126 — Admin mechanical cuts
+- Requests is one Decisions lane at /admin/requests: six tabs removed, tab bar hides when a section has one tab, every panel stays wired under one collapsed Decided history.
+- Queue defaults to newest first, empty copy is now Nothing waiting right now, hierarchy sync notes no longer count as decisions, so the lane shows exactly 1 pending item today (Mason Primmer application).
+- Exports: BackupsPanel already reads backup_snapshots (2 rows) and the private backups bucket exists, so nothing was broken; the earlier map note was a bucket call read as a table.
+- Deleted five unmounted components: AdminCultureTab, AdminFeedbackTab, AdminQuestionsTab, HierarchySyncTab, BootcampDemoWalkthrough. No imports remained.
+- Honest money: new PipelinePanel wraps pay and housing (rep_commission 0), pest revenue import (revenue_import_batches 0), revenue entry (rep_revenue 0), leaderboard import (no rows in 120 days), gainz sheet (fiber_pay_weeks 0), fiber installs (fiber_installs 0). Each shows the UnderConstruction card plus Ready for the first import. with the tools one tap away. Ranks and stacks stay live (7 ranks, 80 stacks).
+- Public blocks: testimonials, timeline and partners are all zero rows; get_recruiting_content already returns only filled blocks and no public page renders partners, so the admin editors were left intact, otherwise rows could never be added.
+- Archived filter defaulted to false on the profile list reads in AdminAssistantTab, AdminSubmittedVideosTab and AdminAuditPanel. Name lookups keyed by user id were left alone so decided rows keep their reviewer names.
+- Verified zero data writes: profiles 535, people_leads 551, chat_messages 715 before and after. No table or RPC dropped.
+- Typecheck and production build clean. Screenshots at 390 and 1280 in docs/screens/pass126-admin-requests-*.png and pass126-admin-money-*.png. Console shows only the pre-existing React ref warnings.
+- Not published.
