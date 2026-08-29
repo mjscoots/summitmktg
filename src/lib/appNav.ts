@@ -106,7 +106,63 @@ const ALL: Record<string, NavDest> = {
   approvals: { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
   admin: { key: 'admin', label: 'Admin', path: '/admin/requests', icon: Shield, minTier: 'admin' },
   profile: { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
+  scripts: { key: 'scripts', label: 'Scripts', path: '/app/scripts', icon: BookOpen },
+  resources: { key: 'resources', label: 'Resources', path: '/app/links', icon: Link2 },
+  ask: { key: 'ask', label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+  doors: { key: 'doors', label: 'Doors mode', path: '/app/doors', icon: Home },
+  missions: { key: 'missions', label: 'Missions', path: '/app/missions', icon: ClipboardList },
+  recruits: { key: 'recruits', label: 'Recruits', path: '/app/recruits', icon: Users },
+  industries: { key: 'industries', label: 'Industries', path: '/app/industries', icon: Wrench },
+  estimate: { key: 'estimate', label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign },
+  alumni: { key: 'alumni', label: 'Alumni', path: '/app/alumni', icon: Users },
+  prep: { key: 'prep', label: 'One on one prep', path: '/app/one-on-ones/prep', icon: FileText, minTier: 'manager' },
+  sweep: { key: 'sweep', label: 'Roster sweep', path: '/app/roster/sweep', icon: ClipboardList, minTier: 'manager' },
+  warroom: { key: 'warroom', label: 'War room', path: '/app/war-room', icon: Shield, minTier: 'manager' },
+  logistics: { key: 'logistics', label: 'Rep logistics', path: '/app/logistics', icon: ClipboardList, minTier: 'manager' },
+  command: { key: 'command', label: 'Command center', path: '/command', icon: Shield, minTier: 'admin' },
 };
+
+export interface NavGroup {
+  title: string;
+  items: NavDest[];
+}
+
+/**
+ * The More screen: everything the phone bar does not carry, grouped by the
+ * job it belongs to and filtered to what this person can open.
+ */
+export function moreGroups(
+  vertical: string | null | undefined,
+  role: string | null | undefined
+): NavGroup[] {
+  const tier = tierOf(role);
+  const w = ws(vertical);
+
+  const workspaceKeys =
+    w === 'fiber'
+      ? ['leaderboard', 'installs', 'industries']
+      : w === 'life'
+        ? ['pipeline', 'leaderboard', 'industries']
+        : ['leaderboard', 'season', 'missions', 'doors', 'industries'];
+
+  const groups: NavGroup[] = [
+    { title: 'Your work', items: workspaceKeys.map((k) => ALL[k]) },
+    { title: 'Learn and tools', items: ['scripts', 'resources', 'ask', 'estimate'].map((k) => ALL[k]) },
+    {
+      title: 'Manage',
+      items: ['team', 'leads', 'approvals', 'forms', 'prep', 'sweep', 'recruits', 'warroom', 'logistics'].map(
+        (k) => ALL[k]
+      ),
+    },
+    { title: 'Company', items: ['admin', 'command', 'alumni'].map((k) => ALL[k]) },
+    { title: 'You', items: ['profile'].map((k) => ALL[k]) },
+  ];
+
+  return groups
+    .map((g) => ({ title: g.title, items: g.items.filter((d) => d && allowed(d, tier)) }))
+    .filter((g) => g.items.length > 0);
+}
+
 
 type Workspace = 'pest' | 'fiber' | 'life';
 
