@@ -23,6 +23,8 @@ import { UserAvatar } from '@/components/shared/UserAvatar';
 import { TIMEZONES } from '@/lib/timezones';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { useEventScope } from '@/hooks/useEventScope';
+
 
 interface TeamMember {
   user_id: string;
@@ -272,6 +274,9 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
         event_type: eventType,
         is_team_wide: isTeamWide,
         manager_id: user?.id,
+        // Managers write only for their own team; owner and admin unrestricted.
+        ...(eventScope.unrestricted ? {} : { team_id: eventScope.teamId }),
+
         created_by: user?.id,
         updated_at: new Date().toISOString(),
         timezone: eventTimezone || null,
