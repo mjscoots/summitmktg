@@ -296,6 +296,8 @@ export default function EventsPage() {
 
   const EventCard = ({ ev, isPast }: { ev: EventRow; isPast: boolean }) => {
     const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
+    const joinUrl = firstUrl(ev.description) || firstUrl(ev.location);
+    const descText = stripUrls(ev.description);
     return (
       <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
         <div className="flex items-start justify-between gap-3">
@@ -307,14 +309,14 @@ export default function EventsPage() {
               {ev.scope === 'managers' ? ' · Managers and above' : ''}
               {ev.is_series ? ' · Weekly' : ''}
             </p>
-            {ev.location && (
+            {ev.location && !firstUrl(ev.location) && (
               <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" /> {ev.location}
               </p>
             )}
-            {ev.description && (
+            {descText && (
               <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
-                {ev.description}
+                {descText}
               </p>
             )}
           </div>
@@ -322,6 +324,7 @@ export default function EventsPage() {
             {isPast ? `${ev.present_count} present` : `${ev.going_count} going`}
           </span>
         </div>
+
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {!isPast && (
