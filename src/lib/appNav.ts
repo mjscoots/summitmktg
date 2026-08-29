@@ -13,6 +13,11 @@ import {
   User,
   Wifi,
   ClipboardList,
+  MoreHorizontal,
+  BookOpen,
+  Link2,
+  Sparkles,
+  Wrench,
 
   type LucideIcon,
 } from 'lucide-react';
@@ -34,38 +39,24 @@ function allowed(dest: NavDest, tier: Tier): boolean {
   return TIER_ORDER.indexOf(tier) >= TIER_ORDER.indexOf(dest.minTier);
 }
 
-/** Pest bottom bar: the five places a pest rep works from. */
+/**
+ * The one phone bar for every workspace: the five places the day runs
+ * through, plus More for everything else.
+ */
 export const PHONE_BAR: NavDest[] = [
   { key: 'home', label: 'Home', path: '/app', icon: Home },
   { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
+  { key: 'events', label: 'Events', path: '/app/events', icon: CalendarClock },
+  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
   { key: 'training', label: 'Training', path: '/app/training', icon: GraduationCap },
-  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-  { key: 'leaderboard', label: 'Board', path: '/app/leaderboard', icon: Trophy },
+  { key: 'more', label: 'More', path: '/app/more', icon: MoreHorizontal },
 ];
 
-/** Fiber works on installs, not accounts, so its bar carries its own work. */
-export const FIBER_PHONE_BAR: NavDest[] = [
-  { key: 'home', label: 'Home', path: '/app', icon: Home },
-  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-  { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
-];
-
-/** Life works on appointments and a pipeline, so its bar carries that work. */
-export const LIFE_PHONE_BAR: NavDest[] = [
-  { key: 'home', label: 'Home', path: '/app', icon: Home },
-  { key: 'chat', label: 'Chat', path: '/app/chat', icon: MessageCircle },
-  { key: 'pipeline', label: 'Pipeline', path: '/app/pipeline', icon: ClipboardList },
-  { key: 'training', label: 'Training', path: '/app/training', icon: GraduationCap },
-  { key: 'money', label: 'Money', path: '/app/money', icon: DollarSign },
-];
-
-/** The phone bottom bar for the active workspace. */
-export function phoneBar(vertical: string | null | undefined): NavDest[] {
-  if (vertical === 'Fiber') return FIBER_PHONE_BAR;
-  if (vertical === 'Life') return LIFE_PHONE_BAR;
+/** The phone bottom bar. Every workspace shares it. */
+export function phoneBar(_vertical?: string | null): NavDest[] {
   return PHONE_BAR;
 }
+
 
 
 /** Everything else a rep can reach. One definition, used by the phone sheet and the sidebar. */
