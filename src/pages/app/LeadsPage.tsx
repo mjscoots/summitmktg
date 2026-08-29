@@ -113,7 +113,12 @@ export default function LeadsPage() {
 
   const visible = rows;
 
-  const callable = useMemo(() => visible.filter((r) => !!r.phone && !r.do_not_call), [visible]);
+  // Call mode works the exact list the This week section shows, so the two counts agree.
+  const callable = useMemo(
+    () => buildWeekQueue(visible).filter((r) => !!r.phone && !r.do_not_call),
+    [visible]
+  );
+
 
   if (authLoading) return null;
 
