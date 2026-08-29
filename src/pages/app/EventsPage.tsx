@@ -23,6 +23,8 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
+import { useEventScope } from '@/hooks/useEventScope';
+
 
 const CalendarView = lazy(() => import('./CalendarPage'));
 
@@ -129,6 +131,8 @@ function emptyDraft(): DraftEvent {
 
 export default function EventsPage() {
   const { user, role } = useAuth();
+  const eventScope = useEventScope();
+
   const { activeVertical, isPresidentOfActive } = useWorkspace();
   const canEditScope = role === 'owner' || role === 'admin' || role === 'president';
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
