@@ -9,6 +9,8 @@ import { isImageMessage, getImageUrl, ChatImage, isFileMessage, getFileInfo, Cha
 import { ChatPoll } from '@/components/dashboard/ChatPoll';
 import { isVoiceMessage, getVoiceInfo, VoiceNoteBubble } from '@/components/chat/VoiceNote';
 import { RankInsignia } from '@/components/badges/RankInsignia';
+import { RoleChip } from '@/components/shared/RoleChip';
+
 
 function renderMentions(text: string, keyPrefix: string) {
   // @First Last (up to two capitalised words) or @firstname
