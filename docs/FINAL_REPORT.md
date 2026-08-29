@@ -2184,3 +2184,4 @@ Archive only, no rows deleted, no profiles merged.
 - Ticker copy verified: all 11 approved lines present, no names, no em dashes.
 - Baselines before implementation: profiles 535, chat messages 715, people leads 551.
 - No application data rows were written. Nothing published.
+- Final baselines: profiles 535, chat messages 715, people leads 551. Anonymous proof RPC returned $6,079,485 and 14; 390 and 1280 screenshots saved under docs/screens.
