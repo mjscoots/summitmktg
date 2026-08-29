@@ -2133,3 +2133,21 @@ Verify: no data writes beyond docs, code, and the manager_owed function definiti
 - Names: profiles Hunter Shannon and Gideon Peters, people_leads Gideon Peters. No merges, no deletions.
 - Function privileges proven with has_function_privilege: all seven new functions anon false, authenticated true.
 - Baselines untouched: chat_channels 17. Typecheck and production build clean. Nothing published.
+
+## Pass 125 — Admin back end map
+Investigation only. Zero data writes, zero component changes, typecheck untouched.
+Wrote docs/ADMIN_MAP.md: all 5 sections and 27 tabs, tables and RPCs per tab, live row counts.
+Verdicts: WORKS 21, EMPTY 4, BROKEN 1, RELIC 1.
+Empty tables: 33 referenced somewhere in src, 18 orphan (nothing reads them).
+Ten worst, worst first:
+1. Settings > Exports BROKEN: BackupsPanel queries public.backups, which does not exist; real table is backup_snapshots (2 rows).
+2. Money > Ladders and production: every production and pay table is at zero (rep_commission, rep_housing, rep_revenue, revenue_import_batches, fiber_installs, fiber_pay_weeks); only ranks and rank_stacks are live.
+3. Requests > Pitches RELIC: 65 rows all spring, latest 2026-05-13, zero pending.
+4. teams.leader_id stale: Quality Control still points at Joshua Bingham (gone); PARKS has no leader.
+5. people_leads roster_status: 34 in_market still includes departed people including Bingham.
+6. Requests > Vertical requests, Reactivations and Decisions are wired correctly but their tables are empty (vertical_applications, reactivation_requests, team_lead_applications all 0).
+7. Eight admin components read profiles with no archived filter, so departed people can surface.
+8. Five components are mounted nowhere: AdminCultureTab, AdminFeedbackTab, AdminQuestionsTab, HierarchySyncTab, BootcampDemoWalkthrough.
+9. Public site tab renders empty testimonials, timeline and partners blocks (all 0 rows).
+10. Other spring-only sets: weekly_one_on_ones_manager (2026-04-06), scheduling_requests (2026-03-02), training_videos (2026-03-11).
+Nothing published.
