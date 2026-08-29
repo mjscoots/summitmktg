@@ -223,12 +223,21 @@ export default function PersonProfilePage() {
           )}
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{h.full_name || 'Unnamed'}</h1>
-            <p className="text-[13px] text-muted-foreground">
-              {statusWord(h, data.lead)}
-              {h.role ? ` · ${h.role}` : ''}
+            <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
+              <span>{statusWord(h, data.lead)}</span>
+              {userId && <RoleChip userId={userId} />}
             </p>
           </div>
         </div>
+
+        {staff && userId && (
+          <StaffProfileEdit
+            userId={userId}
+            initial={{ full_name: h.full_name || '', phone: h.phone || '', email: h.email || '' }}
+            onSaved={(patch) => setData((d) => (d ? { ...d, header: { ...d.header, ...patch } } : d))}
+          />
+        )}
+
 
         <div className="mt-3">
           <Row label="Manager" value={h.manager} />
