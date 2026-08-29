@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Trash2 } from 'lucide-react';
 import type { FiberBlitz, FiberContact } from '@/hooks/useFiberHub';
+import { useFiberEditor } from '@/hooks/useFiberEditor';
+
 
 const CARD = 'rounded-xl border border-border bg-card p-4';
 
@@ -20,11 +22,13 @@ function parse<T>(raw: string | null | undefined, fallback: T): T {
 
 /** Owner and admin editor for the Fiber hub: contacts, blitzes, join link. */
 export function AdminFiberHubTab() {
+  const { canEdit, loading: gateLoading } = useFiberEditor();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [contacts, setContacts] = useState<FiberContact[]>([]);
   const [blitzes, setBlitzes] = useState<FiberBlitz[]>([]);
   const [joinLink, setJoinLink] = useState('');
+
 
   const load = useCallback(async () => {
     const { data } = await (supabase as any)
