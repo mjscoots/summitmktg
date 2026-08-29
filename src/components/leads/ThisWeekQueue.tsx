@@ -10,19 +10,26 @@ interface Props {
   onOpen: (id: string) => void;
 }
 
+/**
+ * Due and overdue call-backs first, then never-contacted leads by revenue.
+ * Single source of truth so the This week list and Call mode always agree.
+ */
+export function buildWeekQueue(rows: LeadRow[]): LeadRow[] {
+  const now = Date.now();
+  const byRevenue = (a: LeadRow, b: LeadRow) => (b.season_revenue ?? 0) - (a.season_revenue ?? 0);
+  const due = rows
+    .filter((r) => r.next_call_at && new Date(r.next_call_at).getTime() <= now && !r.do_not_call)
+    .sort(byRevenue);
+  const fresh = rows
+    .filter((r) => !r.last_contact_at && !r.next_call_at && !r.do_not_call)
+    .sort(byRevenue);
+  return [...due, ...fresh].slice(0, 25);
+}
+
 /** Due and overdue call-backs first, then never-contacted leads by revenue. */
 export default function ThisWeekQueue({ rows, onOpen }: Props) {
-  const queue = useMemo(() => {
-    const now = Date.now();
-    const byRevenue = (a: LeadRow, b: LeadRow) => (b.season_revenue ?? 0) - (a.season_revenue ?? 0);
-    const due = rows
-      .filter((r) => r.next_call_at && new Date(r.next_call_at).getTime() <= now && !r.do_not_call)
-      .sort(byRevenue);
-    const fresh = rows
-      .filter((r) => !r.last_contact_at && !r.next_call_at && !r.do_not_call)
-      .sort(byRevenue);
-    return [...due, ...fresh].slice(0, 25);
-  }, [rows]);
+  const queue = useMemo(() => buildWeekQueue(rows), [rows]);
+
 
   return (
     <section className="mb-5">
