@@ -2198,3 +2198,13 @@ Archive only, no rows deleted, no profiles merged.
 - Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, user_roles 3. Test phone, year and mute rows were restored or removed.
 - Linter total stayed at 399, all pre existing global SECURITY DEFINER and OTP notices; no new public exposure.
 - Typecheck and production build clean. No em dashes in new words. Nothing published.
+
+## Pass 130 — The scoreboard home, three views, updates first
+- Home now opens with UpdatesStrip: latest published post (14 day window), the next open blitz, the next event inside 14 days, and for manager scope only the incentive line off the Shasta card. No items means no strip.
+- YourNumbers renders scoped by role: recruit gate shows course progress, next video and trainer; vets see signed for 2027, season production and Supra tickets only when real; managers add one on ones due, reps with no training, re-sign calls due plus a named prep tap; owner and admin keep the business row with a Needs you badge into Decisions.
+- New read only RPC my_home_numbers() gives each person their own lead status, season revenue, blitz RSVPs and Supra tickets (2026 class that re-signed only). anon revoked, authenticated only.
+- HomeFeed reordered to events, money, chat, training so the loop reads top down.
+- Zero lines removed: Pest hero number and subline segments only render with real values; Fiber Today numbers hide at zero. Grep confirms no "0 this week" or "days with a sale" strings remain on Home.
+- Verified with the injected owner session at 390 and 1280: Updates, numbers, events with Going and Can't make it, chat preview, training. Rep, vet and manager variants were checked at code level only, no session could be minted for them.
+- Zero data writes: profiles 535, chat_messages 716, people_leads 551, calendar_events 58.
+- Typecheck and production build clean. Nothing published.
