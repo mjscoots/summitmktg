@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { ArrowUpRight, DollarSign, Layers } from 'lucide-react';
 import { formatCurrency } from '@/lib/commission';
 import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
+import { UnderConstruction } from '@/components/shared/UnderConstruction';
+
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -287,10 +289,12 @@ export function VerticalMoneyCards({
               </div>
             )}
           </section>
-          {v.enrolled && v.vertical === 'Pest' && <SentRepOverrideNote />}
-          {v.enrolled && renderExtra?.(v.vertical)}
+          {v.enrolled && hasMoneyData && v.vertical === 'Pest' && <SentRepOverrideNote />}
+          {v.enrolled && hasMoneyData && renderExtra?.(v.vertical)}
         </div>
-      ))}
+        );
+      })}
+
     </div>
   );
 }
