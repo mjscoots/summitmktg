@@ -236,6 +236,7 @@ export function AdminMoneyTab() {
     <div className="space-y-4">
       {nav}
 
+      <PipelinePanel table="rep_commission">
       <div className={cn(CARD, 'p-4')}>
         <div className="flex items-center gap-3 mb-1">
           <DollarSign className="w-4 h-4 text-primary" />

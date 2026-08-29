@@ -62,7 +62,8 @@ export function AdminQueueTab() {
   const staleItems = useMemo(() => items.filter(isStale), [items]);
 
   const visible = useMemo(() => {
-    let list = items;
+    // Live decisions only. Hierarchy sync notes are not a decision.
+    let list = items.filter((i) => i.type !== 'sync');
     if (typeFilter !== 'all') list = list.filter((i) => i.type === typeFilter);
     if (ageFilter !== 'all') {
       const min = Number(ageFilter);
