@@ -11,7 +11,6 @@ import { Switch } from '@/components/ui/switch';
 import { CreateRepModal } from '@/components/admin/CreateRepModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Search, Shield, CheckCircle, XCircle, Edit2, ChevronUp, ChevronDown, Trash2, Users, Settings, Plus, Eye, Loader2, ArrowUpDown, Swords, FileText, BookOpen, Video, GitBranch } from 'lucide-react';
-import { BootcampDemoWalkthrough } from '@/components/admin/BootcampDemoWalkthrough';
 import AccessTiersPanel from '@/components/admin/AccessTiersPanel';
 import SeatsPanel from '@/components/admin/SeatsPanel';
 import LeadsImportPanel from '@/components/admin/LeadsImportPanel';
@@ -946,7 +945,6 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
         {/* Modals */}
         <CreateRepModal open={createOpen} onOpenChange={setCreateOpen} managers={managers} teams={teamsSimple} onSuccess={fetchData} />
-        <BootcampDemoWalkthrough open={demoOpen} onOpenChange={setDemoOpen} />
 
         {/* Edit User Modal */}
         <Dialog open={!!editUser} onOpenChange={(open) => !open && setEditUser(null)}>
