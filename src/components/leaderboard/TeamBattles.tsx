@@ -75,8 +75,10 @@ export function TeamBattles() {
 export function TeamBattleStrip({ teamId }: { teamId?: string | null }) {
   const rows = useTeamBattles();
   if (!rows || rows.length < 2 || !teamId) return null;
+  if (!rows.some((r) => (r.total_points || 0) > 0)) return null;
   const mine = rows.find((r) => r.team_id === teamId);
   if (!mine) return null;
+
   const leader = rows[0];
   const behind = leader.total_points - mine.total_points;
 
