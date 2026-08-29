@@ -188,7 +188,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     if (!isManager) return;
-    supabase.from('teams').select('id, name').order('name').then(({ data }) => {
+    supabase.from('teams').select('id, name').eq('retired', false).order('name').then(({ data }) => {
       setTeams((data as { id: string; name: string }[]) || []);
     });
   }, [isManager]);

@@ -219,7 +219,7 @@ export default function TeamPage() {
   }, [statusFilter]);
 
   const fetchTeams = useCallback(async () => {
-    const { data } = await supabase.from('teams').select('id, name, slug, leader_id').order('name');
+    const { data } = await supabase.from('teams').select('id, name, slug, leader_id').eq('retired', false).order('name');
     setTeams(data || []);
 
     // Build dynamic team pillars from DB
