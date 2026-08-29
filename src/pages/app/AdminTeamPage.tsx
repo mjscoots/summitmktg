@@ -376,13 +376,8 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
           ) : undefined}
         />
 
-        {isAdmin && (
-          <div className="mb-4">
-            <Button size="sm" variant="outline" onClick={() => setDemoOpen(true)} className="gap-1.5 h-9 rounded-xl">
-              <Play className="w-3.5 h-3.5" /> Demo
-            </Button>
-          </div>
-        )}
+
+
 
         <Tabs
           value={activeTab}
