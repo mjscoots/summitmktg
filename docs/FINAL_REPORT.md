@@ -2163,3 +2163,14 @@ Nothing published.
 - Verified zero data writes: profiles 535, people_leads 551, chat_messages 715 before and after. No table or RPC dropped.
 - Typecheck and production build clean. Screenshots at 390 and 1280 in docs/screens/pass126-admin-requests-*.png and pass126-admin-money-*.png. Console shows only the pre-existing React ref warnings.
 - Not published.
+
+## Pass 127 — People scrub
+Archive only, no rows deleted, no profiles merged.
+1. Joshua Bingham (f1a8d4c3) archived, reason departed; his people_leads row de49c84f set to out.
+2. teams gained boolean retired default false; Quality Control and PARKS retired (0 to 2). Hidden from team pickers, the app team list, one on ones, events and get_team_battles; admin Teams keeps them with a Retired chip and a Retire/Restore control.
+3. in_market corrected 34 to 13. Set to out (21): Adam Matthew Mcelfresh, Archie Walker, Athan Vaughn Coberley, Barrett Carrancho, Brandon Clinton Woods, Brendan Kavanagh, Bryce Michael Lungaretti, Charlie Carrancho, Dominic Aponte, Drew Charles Dittus, Jack Robbins, Jacob Robert Jazwin, Jared Anthony Yates, Jayce Christian Nelson, Joshua Bingham, Joshua Jackson, Peter Joshua Tasca, Ryan Michael Stento, Spencer John Yanbin Mamrick, Troy Thomas Dela Vega, Zekiel John Ihrke. Kept 13 rows matching active profiles. out bucket 100 to 121, off_market and not_on_roster untouched.
+4. Junk profiles: only Young N Retired qualified and it was already archived, so zero new archives. Every other active name reads as a real person.
+5. Brandon Bruce Pillar untouched. No chat, application, calendar, recruiting_leads or role changes.
+6. Counts: actives 23 to 22, archived profiles 512 to 513, retired teams 0 to 2, in_market 34 to 13, people_leads total 551 unchanged, chat_messages 715, pending applications 1, user_roles 3.
+7. get_team_battles rewritten to skip retired teams, EXECUTE revoked from PUBLIC and anon, granted to authenticated. Linter total stayed 394, no new findings.
+8. Typecheck and production build clean. Nothing published.

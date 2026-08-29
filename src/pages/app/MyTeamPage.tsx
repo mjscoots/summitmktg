@@ -130,7 +130,7 @@ export default function MyTeamPage() {
           )
           .eq('archived', false)
           .order('full_name'),
-        supabase.from('teams').select('*').order('name'),
+        supabase.from('teams').select('*').eq('retired', false).order('name'),
         supabase.from('user_roles').select('user_id, role'),
       ]);
 

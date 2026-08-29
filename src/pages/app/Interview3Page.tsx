@@ -99,7 +99,7 @@ export default function Interview3Page() {
 
   useEffect(() => {
     const fetchTeams = async () => {
-      const { data } = await supabase.from('teams').select('id, name').order('name');
+      const { data } = await supabase.from('teams').select('id, name').eq('retired', false).order('name');
       setTeams(data || []);
     };
     fetchTeams();

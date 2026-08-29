@@ -5436,6 +5436,7 @@ export type Database = {
           leader_id: string | null
           logo_url: string | null
           name: string
+          retired: boolean
           slug: string
         }
         Insert: {
@@ -5444,6 +5445,7 @@ export type Database = {
           leader_id?: string | null
           logo_url?: string | null
           name: string
+          retired?: boolean
           slug: string
         }
         Update: {
@@ -5452,6 +5454,7 @@ export type Database = {
           leader_id?: string | null
           logo_url?: string | null
           name?: string
+          retired?: boolean
           slug?: string
         }
         Relationships: []
