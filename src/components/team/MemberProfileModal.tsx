@@ -58,6 +58,8 @@ import { MemberEditForm } from './MemberEditForm';
 import { DailyTimeBreakdown } from './DailyTimeBreakdown';
 import { toast } from 'sonner';
 import { RepScorecard } from '@/components/shared/RepScorecard';
+import { RoleChip } from '@/components/shared/RoleChip';
+
 
 interface MemberProfileModalProps {
   member: TeamMember | null;
