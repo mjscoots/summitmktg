@@ -32,8 +32,11 @@ export function useTeamBattles() {
 export function TeamBattles() {
   const rows = useTeamBattles();
   if (!rows || rows.length < 2) return null;
+  // No board without a single point scored this period.
+  if (!rows.some((r) => (r.total_points || 0) > 0)) return null;
 
   const top = rows[0].total_points || 1;
+
 
   return (
     <div className={cn(CARD, 'p-4 mb-4')}>
