@@ -414,7 +414,8 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             {ADMIN_SECTIONS.find((s) => s.key === section)?.blurb}
           </p>
 
-          {section === 'requests' && <ApplicationsPulseLine />}
+
+
 
 
           {/* Sub-nav inside the group */}
