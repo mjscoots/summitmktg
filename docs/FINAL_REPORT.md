@@ -2110,3 +2110,16 @@ Ranked findings, worst first:
 10. /app/money — every industry reads "not set" / "no data"; the screen cannot yet answer "what am I making".
 Cover page, honest rating: strong and on-brand, would hold three seconds. Biggest movers, not shipped: (a) real live proof numbers under the headline, (b) larger headline scale with tighter measure at 1280, (c) higher-contrast filled primary CTA against a deeper layered background.
 Verify: no data writes beyond docs, code, and the manager_owed function definition; baselines untouched. Typecheck and production build clean. /command, /app, /app/leads, /app/money rechecked after the fix: no HTTP 400, no overflow at 1280, only pre-existing React ref warnings. Not published.
+
+## Pass 123 — Role chips and the owner key
+- New database function role_chips(uuid[]) decides one label per person: Owner, Admin, Manager, Vet, Rookie. Null or blank rep_year gets no chip, nobody is guessed into Rookie.
+- New useRoleChips hook batches label lookups; new RoleChip component renders one quiet chip, theme colors, no red.
+- Chips added on the person profile header, the member profile modal (NLC badge kept), chat sender names, the channel member list and the member picker. The modal no longer guesses "Rookie".
+- Owner key: inline "Edit profile" on /app/person/:userId for owner and admin only, writing name, phone and email straight to profiles.
+- Server enforcement proven with role-scoped transactions: rep write to another person's profile 0 rows, rep write to an event 0 rows, owner profile write 1 row, owner event 1 row, resource 1 row, lead 1 row, chat room 1 row. Every check ran inside an aborted transaction, so no rows changed.
+- Migration granted EXECUTE on is_chat_staff to authenticated and revoked PUBLIC and anon, which is what unblocked owner room edits at table level. role_chips and parse_rep_year_text: anon false, PUBLIC false, authenticated true.
+- Chat message moderation from pass 120 reused, not duplicated. Reps keep exactly their current powers.
+- Chips verified for one known person of each role at 390 and 1280 with an owner session, correct label every time and the edit control present.
+- Removed one em dash from the profile tracking line.
+- Linter still reports 387 broad issues, almost all pre-existing SECURITY DEFINER notices plus the short OTP setting, not introduced here.
+- Typecheck and production build clean. Nothing published.
