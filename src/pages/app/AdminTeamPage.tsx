@@ -321,6 +321,15 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
     else { toast({ title: 'Pillar Leader Updated' }); fetchData(); }
   };
 
+  const handleToggleRetired = async (team: TeamRow) => {
+    const next = !team.retired;
+    const { error } = await (supabase.from('teams') as any).update({ retired: next }).eq('id', team.id);
+    if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    else { toast({ title: next ? 'Team retired' : 'Team restored' }); fetchData(); }
+  };
+
+
+
   const handleRenameTeam = async () => {
     if (!editTeam || !editTeamName.trim()) return;
     const { error } = await supabase.from('teams').update({ name: editTeamName.trim() }).eq('id', editTeam.id);
