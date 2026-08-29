@@ -383,7 +383,7 @@ export default function PersonProfilePage() {
         <Card className="p-4">
           {!trackingStarted && (
             <p className="mb-2 text-[13px] text-muted-foreground">
-              Tracking started {fmtDate(new Date().toISOString())} — no day-by-day data yet.
+              Tracking started {fmtDate(new Date().toISOString())}. No day-by-day data yet.
             </p>
           )}
           <Row label="Last login" value={fmtDateTime(e.last_login_at) || 'Not recorded yet'} />
