@@ -50,6 +50,8 @@ export function ChatComposer({
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
+
   const [showDrawer, setShowDrawer] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
   const [showStickers, setShowStickers] = useState(false);
