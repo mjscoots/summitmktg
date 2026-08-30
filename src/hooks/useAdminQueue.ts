@@ -43,6 +43,8 @@ export interface QueueCounts {
   newFeedback: number;
   resignIntents: number;
   syncIssues: number;
+  /** Informational only: stack rank changes in the last 7 days. */
+  stackChanges7d: number;
   total: number;
 }
 
@@ -69,6 +71,7 @@ const EMPTY_COUNTS: QueueCounts = {
   newFeedback: 0,
   resignIntents: 0,
   syncIssues: 0,
+  stackChanges7d: 0,
   total: 0,
 };
 
@@ -333,6 +336,7 @@ export function useAdminQueue() {
         newFeedback: live.filter((i) => i.type === 'feedback').length,
         resignIntents: live.filter((i) => i.type === 'resign').length,
         syncIssues: live.filter((i) => i.type === 'sync').length,
+        stackChanges7d: stackChanges,
         // The badge counts decisions only: approvals, applications, vertical
         // requests, pitch reviews and reactivations. Nothing else.
         total: approvals + applications + verticalRequests + pitches + reactivations + resigns,
