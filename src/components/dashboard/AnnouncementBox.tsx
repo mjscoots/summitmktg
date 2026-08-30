@@ -70,6 +70,7 @@ export function AnnouncementBox() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<AnnouncementPost | null>(null);
   const [seen, setSeen] = useState<{ total: number; counts: Record<string, { seen: number; total: number }> }>({ total: 0, counts: {} });
+  const [acks, setAcks] = useState<{ total: number; counts: Record<string, number> }>({ total: 0, counts: {} });
   const markedRef = useRef(false);
 
   const fetchPosts = useCallback(async () => {
@@ -102,6 +103,18 @@ export function AnnouncementBox() {
       } catch {}
     })();
   }, [isStaff, user, posts.length]);
+
+  // Got it counts, owner and admin only
+  useEffect(() => {
+    if (!isAdmin || !user) return;
+    (async () => {
+      try {
+        const { data } = await (supabase.rpc as any)('announcement_ack_counts');
+        if (data && !data.error) setAcks({ total: data.total || 0, counts: data.counts || {} });
+      } catch {}
+    })();
+  }, [isAdmin, user, posts.length]);
+
 
   const now = Date.now();
   const isExpired = (p: AnnouncementPost) => !!p.expires_at && new Date(p.expires_at).getTime() < now;
