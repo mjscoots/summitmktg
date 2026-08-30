@@ -22,6 +22,8 @@ import {
   HUB_CARD,
 } from '@/components/fiber/FiberHubCards';
 import { UpdatesStrip } from '@/components/home/UpdatesStrip';
+import { HomeGreeting } from '@/components/home/HomeGreeting';
+
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { MoreReveal } from '@/components/home/MoreReveal';
 import { YourThreeCard } from '@/components/home/YourThreeCard';
@@ -173,7 +175,11 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 pb-8 sm:space-y-10">
-      <UpdatesStrip isManagerTier={false} />
+      <div className="space-y-8 pt-6 sm:space-y-10">
+        <HomeGreeting />
+        <UpdatesStrip isManagerTier={false} />
+      </div>
+
 
       <GainzHero />
 

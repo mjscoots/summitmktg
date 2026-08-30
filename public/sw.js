@@ -1,84 +1,32 @@
-/* Summit service worker — conservative caching.
-   - Navigations / HTML: network-first (never serve a stale app shell after a deploy)
-   - Static build assets: cache-first
-   - Everything else (API, auth, uploads): untouched, straight to network */
+/* Summit cleanup worker.
 
-const VERSION = 'v3-2026-08-28';
-const STATIC_CACHE = `summit-static-${VERSION}`;
-const SHELL_CACHE = `summit-shell-${VERSION}`;
-const KEEP = [STATIC_CACHE, SHELL_CACHE];
+   Summit is an installable app, not an offline app: nothing here caches, and
+   nothing here serves responses. This file exists only so browsers that still
+   hold the old caching worker at /sw.js receive a replacement that clears the
+   caches that worker created and then unregisters itself.
 
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
+   Only Summit's own caches are removed. Cache Storage is shared across the
+   origin, so other workers keep their own buckets. */
+
+function isSummitAppShellCache(name) {
+  return /^summit-(static|shell)-/.test(name);
+}
+
+self.addEventListener('install', () => self.skipWaiting());
+
+self.addEventListener('activate', (event) =>
   event.waitUntil(
-    caches.open(SHELL_CACHE).then((c) => c.addAll(['/']).catch(() => undefined))
-  );
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => !KEEP.includes(k)).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
-});
-
-const isStaticAsset = (url) =>
-  url.origin === self.location.origin &&
-  (url.pathname.startsWith('/assets/') ||
-    /\.(?:css|js|png|jpg|jpeg|svg|webp|woff2?|ico)$/.test(url.pathname));
-
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
-
-  const url = new URL(req.url);
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
-
-  // Never touch backend traffic.
-  if (url.origin !== self.location.origin) return;
-
-  // Navigation requests: network-first with a cached shell fallback when offline.
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(SHELL_CACHE).then((c) => c.put('/', copy)).catch(() => undefined);
-          return res;
-        })
-        .catch(() => caches.match('/').then((r) => r || Response.error()))
-    );
-    return;
-  }
-
-  if (isStaticAsset(url)) {
-    event.respondWith(
-      caches.match(req).then(
-        (hit) =>
-          hit ||
-          fetch(req).then((res) => {
-            // A 404 on a hashed asset means this client is on a dead build; do
-            // not cache it, so the page-level recovery can reload cleanly.
-            if (res.status === 404) return res;
-            if (res.ok) {
-              const copy = res.clone();
-              caches.open(STATIC_CACHE).then((c) => c.put(req, copy)).catch(() => undefined);
-            }
-            return res;
-          })
-      )
-    );
-  }
-});
-
-// Allow the page to activate a waiting worker immediately (reload prompt), and
-// to purge every cache when a client finds itself holding dead chunk hashes.
-self.addEventListener('message', (event) => {
-  const type = event.data && event.data.type;
-  if (type === 'SKIP_WAITING') self.skipWaiting();
-  if (type === 'CLEAR_CACHES') {
-    event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
-  }
-});
+    (async () => {
+      try {
+        const names = await caches.keys();
+        await Promise.allSettled(names.filter(isSummitAppShellCache).map((n) => caches.delete(n)));
+        await self.clients.claim();
+        const windows = await self.clients.matchAll({ type: 'window' });
+        await Promise.allSettled(windows.map((client) => client.navigate(client.url)));
+      } finally {
+        // activate fires once, so the unregister has to happen no matter what.
+        await self.registration.unregister();
+      }
+    })()
+  )
+);

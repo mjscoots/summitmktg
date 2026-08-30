@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RoleChip } from '@/components/shared/RoleChip';
+import { RankMark } from '@/components/badges/RankInsignia';
+
 
 
 interface PersonProfile {
@@ -302,12 +304,16 @@ export default function PersonProfilePage() {
             </div>
           )}
           <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold">{h.full_name || 'Unnamed'}</h1>
+            <h1 className="flex items-center gap-1.5 truncate text-lg font-semibold">
+              <span className="truncate">{h.full_name || 'Unnamed'}</span>
+              <RankMark rankName={h.rank_label} size="md" />
+            </h1>
             <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
               <span>{statusWord(h, data.lead)}</span>
               {userId && <RoleChip userId={userId} />}
             </p>
           </div>
+
         </div>
 
         {staff && userId && (

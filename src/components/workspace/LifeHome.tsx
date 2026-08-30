@@ -7,7 +7,7 @@ import type { Workspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
-import { InstallAppHint } from '@/components/shared/InstallAppHint';
+
 
 import { Wordmark } from '@/components/brand/Wordmark';
 import { LIFE_CARD, LIFE_STAGES } from '@/lib/lifePipeline';
@@ -217,7 +217,8 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
         </section>
       )}
 
-      <InstallAppHint />
+
+
 
       <section className={`${LIFE_CARD} p-4`}>
         <p className="text-sm font-medium text-foreground">Announcement</p>

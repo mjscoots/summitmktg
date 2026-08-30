@@ -1,6 +1,5 @@
 import { useEffect, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { UpdatePrompt } from "@/components/layout/UpdatePrompt";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom";
@@ -160,7 +159,6 @@ function LazyFallback() {
      <TooltipProvider>
        <Toaster />
        <Sonner />
-       <UpdatePrompt />
         <BrowserRouter>
           <ScrollToTop />
           <Suspense fallback={<LazyFallback />}>

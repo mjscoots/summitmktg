@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { moreGroups } from '@/lib/appNav';
 import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
+import { InstallAppHint } from '@/components/shared/InstallAppHint';
+
 
 /**
  * More: everything the phone bar does not carry, grouped by the job it
@@ -22,9 +24,12 @@ export default function MorePage() {
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
         <PageHeader title="More" context="Every other place in the app." />
 
+        <InstallAppHint />
+
         <div className="lg:hidden">
           <WorkspaceSegmented />
         </div>
+
 
         {groups.map((group) => (
           <section key={group.title} className="space-y-2">

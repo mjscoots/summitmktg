@@ -12,6 +12,9 @@ import { StreakChip } from '@/components/shared/StreakChip';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
+import { RankMark } from '@/components/badges/RankInsignia';
+import { useRankLabels } from '@/hooks/useRankLabels';
+
 
 const POINTS = {
   HOUR_LOGGED: 120,
@@ -80,6 +83,8 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const [animateIn, setAnimateIn] = useState(false);
+  const rankLabels = useRankLabels(entries.map((e) => e.user_id));
+
 
   useEffect(() => {
     const fetchLeaderboard = async (isRefresh = false) => {
@@ -281,9 +286,13 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
                     size="lg"
                     className={cn('!h-12 !w-12 text-sm sm:!h-14 sm:!w-14 sm:text-base', first ? 'avatar-ring' : 'ring-2 ring-border-strong')}
                   />
-                  <span className="w-full truncate text-[12px] font-semibold text-foreground">
-                    {displayName(row.entry)}
+                  <span className="flex w-full items-center justify-center gap-1">
+                    <span className="min-w-0 truncate text-[12px] font-semibold text-foreground">
+                      {displayName(row.entry)}
+                    </span>
+                    <RankMark rankName={rankLabels[row.entry.user_id]} />
                   </span>
+
                   <CountUp
                     value={row.entry.totalPoints}
                     className={cn(
@@ -333,8 +342,10 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
                       {displayName(entry)}
                       {isCurrentUser && <span className="ml-1 text-[11px] font-normal text-muted-foreground">You</span>}
                     </span>
+                    <RankMark rankName={rankLabels[entry.user_id]} />
                     {badge && <badge.icon className={cn('h-3.5 w-3.5 shrink-0', badge.color)} />}
                   </span>
+
                   <span className="mt-0.5 flex items-center gap-1.5">
                     {entry.teamName && (
                       <span className="truncate text-[11px] text-muted-foreground">{entry.teamName}</span>
