@@ -2267,3 +2267,14 @@ Archive only, no rows deleted, no profiles merged.
 - has_function_privilege: submit_your_three, my_your_three, get_lead_board, get_my_leads all anon false, authenticated true; enforce_referral_cap revoked from all client roles.
 - Baselines after: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30, recruiting pool 98, referral rows 0.
 - Typecheck and production build clean. No em dashes in new copy. Authenticated screenshots not captured: the preview was signed out and per user session mint approval was unavailable. Nothing published.
+
+## Pass 136 — Storage foundation and profile photos
+- Avatars bucket already existed and is public read; write, update and delete policies scope to the caller's own uid folder, and admin team-logo paths stay separate. Bucket file size limit set to 2MB.
+- Storage proof (rolled back, authenticated role): own folder write ALLOWED, other person's folder write REFUSED.
+- New `src/lib/avatarUpload.ts`: square crop output re-encoded as JPEG at most 512px, quality steps down until under 1MB, EXIF dropped by re-encoding, one stable object per person so a new photo replaces the old file, cache busting on the returned URL.
+- Profile page and guided setup both upload through the shared helper. Remove photo now clears `avatar_url` and deletes the stored file.
+- Crop dialog output raised from 400 to 512.
+- Shared `UserAvatar` with initials fallback now used in one on one prep rows, Team today, Fiber team, team activity table and My team cards, replacing ad hoc image or initials markup. Sizes are fixed so nothing shifts while an image loads or is missing.
+- No new tables, no role changes, existing `profiles.avatar_url` column untouched.
+- Baselines after: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30, avatar objects 163 (unchanged).
+- Typecheck and production build clean. Preview only, nothing published. Authenticated screenshots were not possible because the preview session is signed out.
