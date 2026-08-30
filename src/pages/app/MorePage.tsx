@@ -53,6 +53,20 @@ export default function MorePage() {
           </section>
         ))}
 
+        <FeedbackDialog
+          trigger={
+            <button className="w-full rounded-[var(--radius)] border border-border bg-card p-4 text-left transition-colors hover:bg-secondary">
+              <span className="flex items-center gap-3">
+                <MessageSquare className="h-[18px] w-[18px] text-muted-foreground" strokeWidth={1.75} />
+                <span className="text-[15px] text-foreground">Report an issue or idea</span>
+              </span>
+              <span className="mt-1 block pl-[30px] text-[13px] text-muted-foreground">
+                Bugs, ideas, or anything confusing. We read every one.
+              </span>
+            </button>
+          }
+        />
+
         <button
           onClick={async () => {
             await signOut();
