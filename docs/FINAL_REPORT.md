@@ -2257,3 +2257,13 @@ Archive only, no rows deleted, no profiles merged.
 - Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30, resign_intents 0, signed_2027 14.
 - Screenshots not captured: a session for a specific auth user could not be minted in this context, so the card, post tap state and Decisions lane were verified at code and database level only.
 - Typecheck and production build clean. No em dashes in new user-facing copy. Nothing published.
+
+## Pass 135 — Your three referrals
+- Added recruiting_leads.referred_by and referred_at plus an index; a database trigger refuses a fourth referral per user (raw insert test returned "REFUSED: Referral cap reached").
+- New my_your_three() and submit_your_three(jsonb): normalizes phone digits, skips duplicates against the pool, people_leads and profiles by phone or normalized name, inserts unassigned rep_referral leads, never returns pool contents.
+- Rebuilt get_lead_board() and get_my_leads() to carry referred_by_name; owner and manager board gained an All leads / Referrals filter and a "Referred by" tag that follows claim and assignment.
+- YourThreeCard rewritten: three name and phone rows, submit with at least one complete row, quiet Submitted list, tally "You have sent N of 3", already in our system response, no editing after submit. Rendered on Home under the re-sign card and at the top of Leads; recruits see nothing.
+- Rolled-back role test as a rep: three added, fourth returned cap, my count 3, duplicate phone and spaced duplicate name both skipped, rep select on the pool returned 0 rows, owner board showed "Referred by Luc Chevalier".
+- has_function_privilege: submit_your_three, my_your_three, get_lead_board, get_my_leads all anon false, authenticated true; enforce_referral_cap revoked from all client roles.
+- Baselines after: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30, recruiting pool 98, referral rows 0.
+- Typecheck and production build clean. No em dashes in new copy. Authenticated screenshots not captured: the preview was signed out and per user session mint approval was unavailable. Nothing published.
