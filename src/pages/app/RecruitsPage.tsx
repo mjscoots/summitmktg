@@ -45,7 +45,9 @@ interface BoardLead {
   interest_reason: string | null;
   ref_code: string | null;
   created_at: string;
+  referred_by_name?: string | null;
 }
+
 
 interface MyLead extends BoardLead {
   phone: string | null;
@@ -111,8 +113,12 @@ export default function RecruitsPage() {
   const [, setTick] = useState(0);
   const [winMoment, setWinMoment] = useState<{ firstName: string; signedCount: number | null } | null>(null);
 
+  const [refOnly, setRefOnly] = useState(false);
+  const boardShown = refOnly ? board.filter((l) => !!l.referred_by_name) : board;
+
   const activeClaims = mine.filter((l) => l.status === 'Claimed' || l.status === 'Contacted').length;
   const atLimit = activeClaims >= MAX_ACTIVE_CLAIMS;
+
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -346,7 +352,29 @@ export default function RecruitsPage() {
               ))}
             </div>
           ) : tab === 'board' ? (
-            board.length === 0 ? (
+            <>
+            {isManagerRole && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {([
+                  { id: false, label: 'All leads' },
+                  { id: true, label: 'Referrals' },
+                ] as const).map((f) => (
+                  <button
+                    key={String(f.id)}
+                    onClick={() => setRefOnly(f.id)}
+                    className={cn(
+                      'min-h-11 rounded-xl border px-3 text-[12px] font-semibold',
+                      refOnly === f.id
+                        ? 'border-primary/40 bg-primary text-primary-foreground'
+                        : 'border-border/50 bg-surface text-muted-foreground'
+                    )}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {boardShown.length === 0 ? (
               <div className={cn(CARD, 'py-4')}>
                 <EmptyState
                   icon={Sparkles}
@@ -356,7 +384,8 @@ export default function RecruitsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {board.map((lead) => (
+                {boardShown.map((lead) => (
+
                   <div key={lead.id} className={cn(CARD, 'p-4 flex flex-col')}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -372,11 +401,17 @@ export default function RecruitsPage() {
                       </span>
                     </div>
 
+                    {lead.referred_by_name && (
+                      <p className="mt-1 text-[12px] text-muted-foreground">
+                        Referred by {lead.referred_by_name}
+                      </p>
+                    )}
                     {lead.city && (
                       <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {lead.city}
                       </p>
                     )}
+
                     {lead.interest_reason && (
                       <span className="mt-2.5 self-start rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
                         {lead.interest_reason}
@@ -416,8 +451,10 @@ export default function RecruitsPage() {
                   </div>
                 ))}
               </div>
-            )
+            )}
+            </>
           ) : mine.length === 0 ? (
+
             <div className={cn(CARD, 'p-10 text-center')}>
               <p className="text-sm text-muted-foreground">You haven’t claimed any leads yet.</p>
               <button
@@ -444,7 +481,9 @@ export default function RecruitsPage() {
                             </span>
                           )}
                           {lead.interest_reason && <span>{lead.interest_reason}</span>}
+                          {lead.referred_by_name && <span>Referred by {lead.referred_by_name}</span>}
                           {lead.ref_code && <span className="text-primary/70">ref {lead.ref_code}</span>}
+
                         </div>
                       </div>
                       <span
