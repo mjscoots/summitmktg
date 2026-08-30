@@ -78,6 +78,8 @@ const LazyAssistant = lazy(() =>
 const LazyDayOne = lazy(() => import('@/components/admin/DayOneCoursePanel'));
 const LazyRestore = lazy(() => import('@/components/admin/RestoreAccessPanel'));
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
+const LazyStackChanges = lazy(() => import('@/components/admin/StackChangesPanel'));
+
 const LazyReactivations = lazy(() => import('@/components/admin/ReactivationRequestsPanel'));
 import { ADMIN_SECTIONS, SECTION_TABS, type AdminSection } from '@/lib/adminSections';
 
