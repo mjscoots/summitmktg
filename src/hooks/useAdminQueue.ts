@@ -140,7 +140,7 @@ export function useAdminQueue() {
           .eq('status', 'pending'),
         (supabase.from('app_feedback' as any) as any)
           .select('id, user_id, feedback_type, message, created_at')
-          .eq('status', 'new'),
+          .eq('status', 'open'),
         (supabase.from('admin_queue_dismissals' as any) as any).select('item_type, item_key'),
         (supabase.from('applications' as any) as any)
           .select('id, full_name, application_type, status, created_at')
@@ -392,7 +392,7 @@ export function useAdminQueue() {
       const feedbackIds = targets.filter((i) => i.type === 'feedback').map((i) => i.id);
       if (feedbackIds.length) {
         await (supabase.from('app_feedback' as any) as any)
-          .update({ status: 'reviewed' })
+          .update({ status: 'wont_fix' })
           .in('id', feedbackIds);
       }
 
