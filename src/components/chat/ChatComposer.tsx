@@ -287,7 +287,14 @@ export function ChatComposer({
         </div>
       )}
 
-      {/* Hidden file input */}
+      {/* Hidden file inputs */}
+      <input
+        ref={imageRef}
+        type="file"
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileUpload}
+      />
       <input
         ref={fileRef}
         type="file"
@@ -295,6 +302,7 @@ export function ChatComposer({
         accept="*/*"
         onChange={handleFileUpload}
       />
+
 
       {/* Pickers */}
       {showGifs && <GifPicker onSelect={(url) => { onSendGif(url); closeAll(); }} onClose={closeAll} />}
