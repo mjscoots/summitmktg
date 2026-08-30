@@ -12,6 +12,9 @@ import { StreakChip } from '@/components/shared/StreakChip';
 import { Progress } from '@/components/ui/progress';
 import { MemberProfileModal } from '@/components/team/MemberProfileModal';
 import { TeamMember } from '@/lib/hierarchyUtils';
+import { RankMark } from '@/components/badges/RankInsignia';
+import { useRankLabels } from '@/hooks/useRankLabels';
+
 
 const POINTS = {
   HOUR_LOGGED: 120,
@@ -80,6 +83,8 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const [animateIn, setAnimateIn] = useState(false);
+  const rankLabels = useRankLabels(entries.map((e) => e.user_id));
+
 
   useEffect(() => {
     const fetchLeaderboard = async (isRefresh = false) => {
