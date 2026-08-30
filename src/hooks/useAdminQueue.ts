@@ -17,6 +17,7 @@ export type QueueItemType =
   | 'pairing'
   | 'pitch'
   | 'feedback'
+  | 'resign'
   | 'sync';
 
 export interface QueueItem {
@@ -40,6 +41,7 @@ export interface QueueCounts {
   pairingRequests: number;
   pendingPitches: number;
   newFeedback: number;
+  resignIntents: number;
   syncIssues: number;
   total: number;
 }
@@ -65,6 +67,7 @@ const EMPTY_COUNTS: QueueCounts = {
   pairingRequests: 0,
   pendingPitches: 0,
   newFeedback: 0,
+  resignIntents: 0,
   syncIssues: 0,
   total: 0,
 };
@@ -122,6 +125,7 @@ export function useAdminQueue() {
         pairingRes,
         verticalRes,
         reactivationRes,
+        resignRes,
       ] = await Promise.all([
         supabase
           .from('profiles')
@@ -149,6 +153,7 @@ export function useAdminQueue() {
           .eq('status', 'pending'),
         supabase.rpc('get_vertical_requests' as never, { _status: 'pending' } as never),
         supabase.rpc('get_reactivation_requests' as never),
+        supabase.rpc('list_resign_intents' as never),
       ]);
 
       if (!mountedRef.current) return;
@@ -242,6 +247,19 @@ export function useAdminQueue() {
         });
       });
 
+      // === RE-SIGN INTENTS ===
+      ((resignRes.data as any[]) || []).forEach((r) => {
+        next.push({
+          key: `resign:${r.id}`,
+          type: 'resign',
+          id: r.id,
+          title: r.full_name || 'Re-sign intent',
+          subtitle: 'Raised a hand for 2027',
+          createdAt: r.created_at || null,
+          meta: { userId: r.user_id },
+        });
+      });
+
       // === HIERARCHY SYNC ISSUES ===
       const roleMap = new Map(((rolesRes.data as any[]) || []).map((r) => [r.user_id, r.role]));
       for (const p of profiles) {
@@ -303,6 +321,7 @@ export function useAdminQueue() {
       const approvals = live.filter((i) => i.type === 'approval').length;
       const applications = live.filter((i) => i.type === 'application').length;
       const pitches = live.filter((i) => i.type === 'pitch').length;
+      const resigns = live.filter((i) => i.type === 'resign').length;
       setCounts({
         pendingApprovals: approvals,
         verticalRequests,
@@ -312,10 +331,11 @@ export function useAdminQueue() {
         pairingRequests: live.filter((i) => i.type === 'pairing').length,
         pendingPitches: pitches,
         newFeedback: live.filter((i) => i.type === 'feedback').length,
+        resignIntents: live.filter((i) => i.type === 'resign').length,
         syncIssues: live.filter((i) => i.type === 'sync').length,
         // The badge counts decisions only: approvals, applications, vertical
         // requests, pitch reviews and reactivations. Nothing else.
-        total: approvals + applications + verticalRequests + pitches + reactivations,
+        total: approvals + applications + verticalRequests + pitches + reactivations + resigns,
       });
     } catch {
       if (mountedRef.current) {
@@ -386,6 +406,11 @@ export function useAdminQueue() {
     async (targets: QueueItem[]) => {
       const approvalIds = targets.filter((i) => i.type === 'approval').map((i) => i.id);
       const pitchIds = targets.filter((i) => i.type === 'pitch').map((i) => i.id);
+      const resignIds = targets.filter((i) => i.type === 'resign').map((i) => i.id);
+
+      for (const id of resignIds) {
+        await (supabase as any).rpc('decide_resign_intent', { _intent_id: id, _confirm: true });
+      }
 
       if (approvalIds.length) {
         await supabase
@@ -413,6 +438,11 @@ export function useAdminQueue() {
     async (targets: QueueItem[]) => {
       const approvalIds = targets.filter((i) => i.type === 'approval').map((i) => i.id);
       const pitchIds = targets.filter((i) => i.type === 'pitch').map((i) => i.id);
+      const resignIds = targets.filter((i) => i.type === 'resign').map((i) => i.id);
+
+      for (const id of resignIds) {
+        await (supabase as any).rpc('decide_resign_intent', { _intent_id: id, _confirm: false });
+      }
 
       if (approvalIds.length) {
         await supabase

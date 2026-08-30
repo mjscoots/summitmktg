@@ -12,6 +12,7 @@ import {
   FileText,
   Flag,
   Users,
+  Handshake,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -43,6 +44,7 @@ const TYPE_META: Record<QueueItemType, { label: string; icon: typeof Inbox; acti
   pairing: { label: 'Pairing request', icon: Users, actionable: false },
   pitch: { label: 'Pitch review', icon: Video, actionable: true },
   feedback: { label: 'Feedback', icon: MessageSquare, actionable: false },
+  resign: { label: 'Re-sign intent', icon: Handshake, actionable: true },
   sync: { label: 'Hierarchy sync', icon: GitBranch, actionable: false },
 };
 
@@ -106,7 +108,7 @@ export function AdminQueueTab() {
   return (
     <div className="space-y-4">
       {/* Summary — decisions only */}
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-6">
         {(
           [
             ['Decisions', counts.total],
@@ -114,6 +116,7 @@ export function AdminQueueTab() {
             ['Applications', counts.pendingApplications],
             ['Vertical requests', counts.verticalRequests],
             ['Pitches', counts.pendingPitches],
+            ['Re-sign intents', counts.resignIntents],
           ] as const
         ).map(([label, value]) => (
           <div key={label} className="stat-card min-w-0">
