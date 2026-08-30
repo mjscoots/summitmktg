@@ -169,7 +169,7 @@ export function PollCreator({ onSubmit, onClose }: { onSubmit: (question: string
   const [options, setOptions] = useState(['', '']);
 
   const addOption = () => {
-    if (options.length < 6) setOptions([...options, '']);
+    if (options.length < 4) setOptions([...options, '']);
   };
 
   const removeOption = (idx: number) => {
@@ -220,7 +220,7 @@ export function PollCreator({ onSubmit, onClose }: { onSubmit: (question: string
       </div>
 
       <div className="flex items-center justify-between">
-        {options.length < 6 && (
+        {options.length < 4 && (
           <button onClick={addOption} className="text-xs text-primary hover:underline">+ Add option</button>
         )}
         <button
