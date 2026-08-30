@@ -75,6 +75,8 @@ const TicketPage = lazyRoute(() => import("./pages/TicketPage"));
 const RecruitsPage = lazyRoute(() => import("./pages/app/RecruitsPage"));
 const LeadsPage = lazyRoute(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazyRoute(() => import("./pages/app/MyMoneyPage"));
+const StacksPage = lazyRoute(() => import("./pages/app/StacksPage"));
+
 const InstallsPage = lazyRoute(() => import('@/pages/app/InstallsPage'));
 const MissionsPage = lazyRoute(() => import('@/pages/app/MissionsPage'));
 const PipelinePage = lazyRoute(() => import('@/pages/app/PipelinePage'));
@@ -370,6 +372,15 @@ function LazyFallback() {
                     <MyMoneyPage />
                 </ProtectedRoute>
               } />
+
+              {/* Stacks — a manager sets the stack per rep per carrier */}
+              <Route path="/app/stacks" element={
+                <ProtectedRoute requiredRole="manager">
+                    <StacksPage />
+                </ProtectedRoute>
+              } />
+
+
 
               {/* Scripts library — openers, objections, closes */}
               <Route path="/app/scripts" element={

@@ -78,6 +78,8 @@ const LazyAssistant = lazy(() =>
 const LazyDayOne = lazy(() => import('@/components/admin/DayOneCoursePanel'));
 const LazyRestore = lazy(() => import('@/components/admin/RestoreAccessPanel'));
 const LazyFeedback = lazy(() => import('@/components/admin/AdminFeedbackTab'));
+const LazyStackChanges = lazy(() => import('@/components/admin/StackChangesPanel'));
+
 const LazyReactivations = lazy(() => import('@/components/admin/ReactivationRequestsPanel'));
 import { ADMIN_SECTIONS, SECTION_TABS, type AdminSection } from '@/lib/adminSections';
 
@@ -624,6 +626,15 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
               </Suspense>
             </TabsContent>
           )}
+
+          {section === 'money' && (
+            <TabsContent value="stackchanges">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyStackChanges />
+              </Suspense>
+            </TabsContent>
+          )}
+
 
           {/* ========== DECISIONS LANE ========== */}
           <TabsContent value="queue">

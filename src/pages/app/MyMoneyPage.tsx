@@ -30,6 +30,8 @@ import { FiberStackView } from '@/components/money/FiberStackView';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
 import { LogSaleButton } from '@/components/sales/LogSaleButton';
 import { AllMoneyCard } from '@/components/money/AllMoneyCard';
+import { YourStacksCard } from '@/components/money/YourStacksCard';
+
 
 const CARD = 'rounded border border-border bg-card';
 
@@ -150,7 +152,13 @@ export default function MyMoneyPage() {
           ))}
         </div>
 
-        {tab === 'all' && <AllMoneyCard />}
+        {tab === 'all' && (
+          <div className="space-y-4">
+            <AllMoneyCard />
+            <YourStacksCard />
+          </div>
+        )}
+
 
         {tab === 'Fiber' && (
           <>

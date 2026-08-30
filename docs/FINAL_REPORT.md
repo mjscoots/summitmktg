@@ -2330,3 +2330,16 @@ Archive only, no rows deleted, no profiles merged.
 - Queue: useAdminQueue now counts status open, so the Needs You badge and Decisions counts read the same lane; a dismissal sets wont_fix.
 - Verified by rolled back probe: rep sees 1 own row and 0 of another user, rep update affects 0 rows, owner sees 2 and updates 1, fixed notification fires once, resolved_at set, 0 rows left. Storage insert policy requires the sender own folder, so cross path writes are refused; reads pass for the submitter own folder and for staff.
 - Typecheck clean, production build clean. No em dashes in new copy. Nothing published. Screenshots not captured: no rep session available, code proof above.
+
+## Pass 142 — Manager stacks board, filtered by ISP
+- New tables rep_carrier_ranks (unique user plus carrier) and rank_change_log, both with grants and RLS; triggers log every override write and every profiles.rank_id change.
+- New functions: can_set_rep_rank, manager_stack_board, set_rep_carrier_rank, my_stacks, stack_change_log, stack_changes_7d, revert_stack_change. anon execute false, authenticated true on all seven; the two trigger helpers are revoked from public, anon and authenticated.
+- Follow-up migration made rank_change_log.new_rank_id required and stopped revert from writing a blank extra entry.
+- Screens: /app/stacks (manager and above) with vertical then carrier filter, search, seven-rank picker and optional note; owner and admin get the whole roster plus a manager filter. Entry points: Home staff block "Set stacks by carrier" and a Stacks button on Team.
+- Rep side: quiet "Your stacks" card on the Money all tab, own carriers only.
+- Admin: Money now has a Stack changes tab, newest first, one tap Revert. Decisions summary shows an informational "Stack changes, 7 days" tile, never added to the badge total.
+- Confirmed only: board and rep card receive a value only when rank_stacks.confirmed is true; src/lib/__tests__/stackText.test.ts asserts an absent value renders the rank name with no number. 2 tests pass.
+- Role proof, run in a rolled back transaction: manager sets a downline rep success; manager on someone outside the downline "Not allowed" and a direct insert refused; no-role rep insert refused, update touched 0 rows, sees 0 override rows and 0 log rows; owner sets anyone; one write produced exactly one log row and two writes two; revert restored the prior rank, marked the row reverted, second revert returned "Already reverted"; reverting the original creation removed the override.
+- Seats rank editing still calls admin_set_rank, which now also writes the shared log.
+- Baselines after rollback: profiles 535, people_leads 551, calendar_events 58, blitz_markets 30, rep_carrier_ranks 0, rank_change_log 0, user_roles 3. chat_messages read 717, one above the earlier 716 because the scheduled weekly digest posted; no Pass 142 code writes messages.
+- Typecheck and production build clean. No em dashes in new copy. Screenshots not captured: minting a session needed a specific auth user id and per user approval, so this pass is code and database proof only. Nothing published.

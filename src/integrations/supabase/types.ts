@@ -3926,6 +3926,64 @@ export type Database = {
           },
         ]
       }
+      rank_change_log: {
+        Row: {
+          carrier_id: string | null
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_rank_id: string
+          old_rank_id: string | null
+          reverted_at: string | null
+          reverted_by: string | null
+          user_id: string
+        }
+        Insert: {
+          carrier_id?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_rank_id: string
+          old_rank_id?: string | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          user_id: string
+        }
+        Update: {
+          carrier_id?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_rank_id?: string
+          old_rank_id?: string | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rank_change_log_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rank_change_log_new_rank_id_fkey"
+            columns: ["new_rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rank_change_log_old_rank_id_fkey"
+            columns: ["old_rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rank_requirements: {
         Row: {
           confirmed: boolean
@@ -4516,6 +4574,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      rep_carrier_ranks: {
+        Row: {
+          carrier_id: string
+          created_at: string
+          id: string
+          note: string | null
+          rank_id: string
+          set_at: string
+          set_by: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          carrier_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          rank_id: string
+          set_at?: string
+          set_by?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          carrier_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          rank_id?: string
+          set_at?: string
+          set_by?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rep_carrier_ranks_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rep_carrier_ranks_rank_id_fkey"
+            columns: ["rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rep_commission: {
         Row: {
@@ -7061,6 +7170,7 @@ export type Database = {
         Args: { _slug: string; _uid: string }
         Returns: boolean
       }
+      can_set_rep_rank: { Args: { _target: string }; Returns: boolean }
       can_sweep_person: { Args: { _target: string }; Returns: boolean }
       can_view_event: {
         Args: { p_scope: string; p_team_id: string; p_user_id: string }
@@ -8025,6 +8135,10 @@ export type Database = {
         Returns: string
       }
       manager_owed: { Args: { _manager?: string }; Returns: Json }
+      manager_stack_board: {
+        Args: { _carrier_id: string; _manager?: string }
+        Returns: Json
+      }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_chat_channel_read: {
         Args: { _all?: boolean; _channel: string }
@@ -8061,6 +8175,7 @@ export type Database = {
       my_referral_count: { Args: never; Returns: number }
       my_resign_intent: { Args: never; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
+      my_stacks: { Args: never; Returns: Json }
       my_vertical: { Args: never; Returns: string }
       my_your_three: { Args: never; Returns: Json }
       new_invite_token: { Args: never; Returns: string }
@@ -8186,6 +8301,7 @@ export type Database = {
       }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
       revert_blitz_official: { Args: { p_market_id: string }; Returns: boolean }
+      revert_stack_change: { Args: { _log_id: string }; Returns: Json }
       review_team_lead_application: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: Json
@@ -8253,6 +8369,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_rep_carrier_rank: {
+        Args: {
+          _carrier_id: string
+          _note?: string
+          _rank_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       set_roster_state: {
         Args: { _state: string; _user_id: string }
         Returns: undefined
@@ -8269,6 +8394,8 @@ export type Database = {
         Args: { _default: string; _key: string }
         Returns: string
       }
+      stack_change_log: { Args: { _limit?: number }; Returns: Json }
+      stack_changes_7d: { Args: never; Returns: number }
       start_dm: { Args: { _other: string }; Returns: Json }
       start_sweep_session: { Args: { _filter?: Json }; Returns: Json }
       submission_client_key: { Args: never; Returns: string }
