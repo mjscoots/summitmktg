@@ -157,37 +157,57 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
 
   if (items.length === 0) return null;
 
+  const ack = async (postId: string, key: string) => {
+    setAcking(key);
+    await (supabase.rpc as any)('ack_announcement', { _post_id: postId });
+    setItems((prev) => prev.filter((i) => i.key !== key));
+    setAcking(null);
+  };
+
   return (
     <section>
       <SectionEyebrow>Updates</SectionEyebrow>
       <div className="space-y-2">
         {items.map((it) => (
-          <button
-            key={it.key}
-            type="button"
-            onClick={() => navigate(it.to)}
-            className="card-ice flex min-h-14 w-full items-center gap-3 p-3 text-left"
-          >
-            <span
-              className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-              style={{
-                background: 'hsl(var(--workspace-accent) / 0.16)',
-                color: 'hsl(var(--workspace-accent))',
-              }}
+          <div key={it.key} className="card-ice flex min-h-14 w-full items-center gap-2 p-3">
+            <button
+              type="button"
+              onClick={() => navigate(it.to)}
+              className="flex min-w-0 flex-1 items-center gap-3 text-left"
             >
-              {it.tag}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-semibold text-foreground">{it.title}</span>
-              {it.detail && (
-                <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">{it.detail}</span>
-              )}
-            </span>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </button>
+              <span
+                className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                style={{
+                  background: 'hsl(var(--workspace-accent) / 0.16)',
+                  color: 'hsl(var(--workspace-accent))',
+                }}
+              >
+                {it.tag}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[15px] font-semibold text-foreground">{it.title}</span>
+                {it.detail && (
+                  <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">{it.detail}</span>
+                )}
+              </span>
+            </button>
+            {it.postId ? (
+              <button
+                type="button"
+                disabled={acking === it.key}
+                onClick={() => ack(it.postId!, it.key)}
+                className="min-h-11 shrink-0 rounded-xl border border-border/40 px-3 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground/5 disabled:opacity-60"
+              >
+                Got it
+              </button>
+            ) : (
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            )}
+          </div>
         ))}
       </div>
     </section>
+
   );
 }
 
