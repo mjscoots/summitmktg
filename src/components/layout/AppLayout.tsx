@@ -14,6 +14,7 @@ import { isManagerOrAbove } from '@/lib/roles';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { WorkspaceThemeProvider } from '@/components/workspace/WorkspaceThemeProvider';
 import { MobileBottomNav } from './MobileBottomNav';
+import { LockedInMoment } from '@/components/home/LockedInMoment';
 import { WorkspaceSheet } from './WorkspaceSheet';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { useAppearanceSync } from '@/hooks/useAppearance';
@@ -88,6 +89,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
 
               <WorkspaceScopedMain fullHeight={fullHeight}>{children}</WorkspaceScopedMain>
               <MobileBottomNav />
+              <LockedInMoment />
 
 
 
