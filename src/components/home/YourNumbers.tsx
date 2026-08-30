@@ -224,8 +224,11 @@ export function YourNumbers() {
         </section>
       )}
 
+      <ResignIntentCard eligible={mine?.has_lead === true && !signed && !gate.is_recruit} />
+
       {staff && <ManagerBlock />}
     </div>
+
   );
 }
 
