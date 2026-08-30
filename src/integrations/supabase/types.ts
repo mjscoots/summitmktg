@@ -8075,6 +8075,7 @@ export type Database = {
       parse_rep_year_text: { Args: { _raw: string }; Returns: number }
       poll_channel_readable: { Args: { _poll_id: string }; Returns: boolean }
       post_weekly_awards: { Args: never; Returns: Json }
+      post_weekly_digest: { Args: never; Returns: Json }
       prep_roster: {
         Args: never
         Returns: {
@@ -8187,6 +8188,7 @@ export type Database = {
             Args: { p_answers: Json; p_event_id: string; p_status: string }
             Returns: undefined
           }
+      run_nightly_backup: { Args: never; Returns: Json }
       run_notification_digest: { Args: never; Returns: number }
       save_goal_interview: {
         Args: {
