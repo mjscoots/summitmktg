@@ -1,61 +1,62 @@
-/** Registers the PWA service worker. Safe no-op where unsupported. */
+/**
+ * Summit is installable, not offline. No worker caches anything.
+ *
+ * This module only cleans up: where it is safe to do so it hands the browser
+ * the replacement worker at /sw.js, which clears Summit's old caches and
+ * unregisters itself. In dev, in the Lovable preview, inside an iframe, or
+ * with ?sw=off, it registers nothing and unregisters whatever is there.
+ */
 
-export const SW_UPDATE_EVENT = 'summit:sw-update';
+const SW_PATH = '/sw.js';
 
-let waitingWorker: ServiceWorker | null = null;
+function isPreviewHost(): boolean {
+  const host = window.location.hostname;
+  return (
+    host.startsWith('id-preview--') ||
+    host.startsWith('preview--') ||
+    host === 'lovableproject.com' ||
+    host.endsWith('.lovableproject.com') ||
+    host === 'lovableproject-dev.com' ||
+    host.endsWith('.lovableproject-dev.com') ||
+    host === 'beta.lovable.dev' ||
+    host.endsWith('.beta.lovable.dev') ||
+    host === 'localhost' ||
+    host === '127.0.0.1'
+  );
+}
 
-/** Activates the waiting worker and reloads once it takes control. */
-export function applyServiceWorkerUpdate() {
-  if (!waitingWorker) {
-    window.location.reload();
-    return;
+function shouldRegister(): boolean {
+  if (!import.meta.env.PROD) return false;
+  if (window.self !== window.top) return false;
+  if (new URLSearchParams(window.location.search).get('sw') === 'off') return false;
+  return !isPreviewHost();
+}
+
+async function unregisterAll() {
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.allSettled(
+      registrations
+        .filter((r) => (r.active || r.installing || r.waiting)?.scriptURL.endsWith(SW_PATH))
+        .map((r) => r.unregister())
+    );
+  } catch {
+    /* cleanup must never break the app */
   }
-  waitingWorker.postMessage({ type: 'SKIP_WAITING' });
 }
 
 export function registerServiceWorker() {
   if (typeof window === 'undefined') return;
   if (!('serviceWorker' in navigator)) return;
 
-  let reloading = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
-    reloading = true;
-    window.location.reload();
-  });
+  if (!shouldRegister()) {
+    void unregisterAll();
+    return;
+  }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js', { scope: '/' })
-      .then((registration) => {
-        const announce = (worker: ServiceWorker | null) => {
-          if (!worker) return;
-          // Only prompt when an older worker is already in control; a first
-          // install must never interrupt someone signing in.
-          if (!navigator.serviceWorker.controller) return;
-          waitingWorker = worker;
-          window.dispatchEvent(new CustomEvent(SW_UPDATE_EVENT));
-        };
-
-        announce(registration.waiting);
-
-        registration.addEventListener('updatefound', () => {
-          const installing = registration.installing;
-          if (!installing) return;
-          installing.addEventListener('statechange', () => {
-            if (installing.state === 'installed') announce(installing);
-          });
-        });
-
-        // Check for a fresh build when the app comes back to the foreground.
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') {
-            registration.update().catch(() => undefined);
-          }
-        });
-      })
-      .catch(() => {
-        /* registration failures must never break the app */
-      });
+    navigator.serviceWorker.register(SW_PATH, { scope: '/' }).catch(() => {
+      /* registration failures must never break the app */
+    });
   });
 }
