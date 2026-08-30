@@ -222,6 +222,7 @@ export function ChatComposer({
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
+      if (imageRef.current) imageRef.current.value = '';
     }
     setShowDrawer(false);
   };
