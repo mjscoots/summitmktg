@@ -22,7 +22,7 @@ import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { AppearanceCard } from '@/components/profile/AppearanceCard';
 import { RepScorecard } from '@/components/shared/RepScorecard';
-import { InstallAppHint } from '@/components/shared/InstallAppHint';
+
 import { MyRefCodeCard } from '@/components/recruiting/MyRefCodeCard';
 import { PageHeader } from '@/components/layout/PageHeader';
 
@@ -728,9 +728,8 @@ export default function ProfilePage() {
           <MyRefCodeCard />
         </div>
 
-        <div className="mb-6">
-          <InstallAppHint />
-        </div>
+
+
 
         {user?.id && (
           <div className="mb-6">

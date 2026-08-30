@@ -30,7 +30,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { FirstWeekCard } from '@/components/home/FirstWeekCard';
 import { GoalInterviewCard } from '@/components/home/GoalInterviewCard';
 import { FiberStartCard } from '@/components/workspace/FiberStartCard';
-import { InstallAppHint } from '@/components/shared/InstallAppHint';
+import { HomeGreeting } from '@/components/home/HomeGreeting';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -138,12 +138,16 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:space-y-10">
       <OnboardingAlert />
 
-      <UpdatesStrip isManagerTier={staff} />
+      <div className="space-y-8 sm:space-y-10">
+        <HomeGreeting />
+        <UpdatesStrip isManagerTier={staff} />
+      </div>
 
       <header>
         <p className="text-[15px] text-muted-foreground">
           {greeting()}, {firstName}
         </p>
+
         {showHeroNumber && (
           <>
             <SectionEyebrow>
@@ -238,7 +242,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           </Button>
         )}
 
-        <InstallAppHint />
+
+
 
         {pinned && (
           <p className="text-[15px] text-muted-foreground">
