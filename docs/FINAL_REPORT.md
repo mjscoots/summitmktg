@@ -2343,3 +2343,15 @@ Archive only, no rows deleted, no profiles merged.
 - Seats rank editing still calls admin_set_rank, which now also writes the shared log.
 - Baselines after rollback: profiles 535, people_leads 551, calendar_events 58, blitz_markets 30, rep_carrier_ranks 0, rank_change_log 0, user_roles 3. chat_messages read 717, one above the earlier 716 because the scheduled weekly digest posted; no Pass 142 code writes messages.
 - Typecheck and production build clean. No em dashes in new copy. Screenshots not captured: minting a session needed a specific auth user id and per user approval, so this pass is code and database proof only. Nothing published.
+
+## Pass 143 — Dark rep radar and the application stall alarm
+
+- Last seen rule: newest of profiles.last_active_at, auth.users.last_sign_in_at, chat_read_state.last_read_at, video_watch_log.watched_at and lead_activities.created_at for that person. No signal at all renders as Never opened, never a day count.
+- dark_rep_radar(uuid): manager and above only, archived and nlc excluded, quietest first, buckets 7 plus, 14 plus, 30 plus and Never opened. Managers see their own downline (profiles.manager_id plus is_in_my_downline); owner and admin see the whole roster with a manager filter. Each row has a Check in button that opens a DM through start_dm with an empty composer.
+- Surfaces: DarkRepRadar mounted in the existing staff block on Home (PestHome) and in the manager area of the team page. No new nav tab. Reps see nothing.
+- notify_stalled_applications(): daily cron job 29, schedule 20 13 * * *, finds applications pending over 48 hours and writes one owner or admin notification per application per day, linking to the Decisions lane. Guard is a new nullable user_notifications.source_key plus a partial unique index on (user_id, source_key). Announcements preference respected exactly like the resign intent notification.
+- Role proof, rolled back: no-role rep 0 rows; plain manager 4 rows, all inside their own downline, staff false; owner 21 rows, staff true.
+- Stall proof: three runs in one day wrote 3 rows on the first run (one per owner or admin) and 0 on each rerun. Message: "Mason primmer has been waiting 12 days."
+- Privileges: dark_rep_radar anon false, authenticated true; notify_stalled_applications anon false, authenticated false.
+- Baselines: profiles 535, people_leads 551, chat_messages 717, calendar_events 58, user_roles 3, rep_carrier_ranks 0. Only change is the 3 intended stall notifications.
+- Typecheck and production build clean. No em dashes in new user-facing copy. Authenticated screenshots not possible, session minting needs a specific auth user and per-user approval, so this is code and database proof. Nothing published.
