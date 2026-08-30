@@ -21,6 +21,7 @@ import { Switch } from '@/components/ui/switch';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { AppearanceCard } from '@/components/profile/AppearanceCard';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { RepScorecard } from '@/components/shared/RepScorecard';
 
 import { MyRefCodeCard } from '@/components/recruiting/MyRefCodeCard';
@@ -740,6 +741,18 @@ export default function ProfilePage() {
         {/* Appearance */}
         <div className="mb-6">
           <AppearanceCard />
+        </div>
+
+        {/* Quiet feedback entry, reachable from anywhere the profile is */}
+        <div className="mb-6">
+          <FeedbackDialog
+            trigger={
+              <button className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-border bg-card px-4 text-left text-sm text-muted-foreground transition-colors hover:text-foreground">
+                Feedback
+                <span className="text-xs">Report an issue or idea</span>
+              </button>
+            }
+          />
         </div>
 
         {/* Notification Preferences */}

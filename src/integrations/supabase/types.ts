@@ -410,30 +410,45 @@ export type Database = {
       app_feedback: {
         Row: {
           admin_notes: string | null
+          app_commit: string | null
           created_at: string
+          device_info: string | null
           feedback_type: string
           id: string
           message: string
+          page_path: string | null
+          resolved_at: string | null
+          screenshot_path: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
           admin_notes?: string | null
+          app_commit?: string | null
           created_at?: string
+          device_info?: string | null
           feedback_type?: string
           id?: string
           message: string
+          page_path?: string | null
+          resolved_at?: string | null
+          screenshot_path?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           admin_notes?: string | null
+          app_commit?: string | null
           created_at?: string
+          device_info?: string | null
           feedback_type?: string
           id?: string
           message?: string
+          page_path?: string | null
+          resolved_at?: string | null
+          screenshot_path?: string | null
           status?: string
           updated_at?: string
           user_id?: string

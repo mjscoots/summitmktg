@@ -54,7 +54,10 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'leadimport', label: 'Import leads', adminOnly: true },
     { value: 'archived', label: 'Archived' },
   ],
-  requests: [{ value: 'queue', label: 'Decisions' }],
+  requests: [
+    { value: 'queue', label: 'Decisions' },
+    { value: 'feedback', label: 'Feedback' },
+  ],
   money: [{ value: 'money', label: 'Ladders and production', adminOnly: true }],
   content: [
     { value: 'playbook', label: 'Playbook', adminOnly: true },
