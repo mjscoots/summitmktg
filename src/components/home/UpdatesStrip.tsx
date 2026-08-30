@@ -21,7 +21,10 @@ interface Item {
   title: string;
   detail: string;
   to: string;
+  /** Announcement rows carry an acknowledgement id. */
+  postId?: string;
 }
+
 
 function utcDay(iso: string, withWeekday = false) {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
