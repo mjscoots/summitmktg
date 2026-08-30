@@ -6085,6 +6085,7 @@ export type Database = {
           link: string | null
           message: string
           reminder_window: string | null
+          source_key: string | null
           title: string
           urgent: boolean
           user_id: string
@@ -6100,6 +6101,7 @@ export type Database = {
           link?: string | null
           message: string
           reminder_window?: string | null
+          source_key?: string | null
           title: string
           urgent?: boolean
           user_id: string
@@ -6115,6 +6117,7 @@ export type Database = {
           link?: string | null
           message?: string
           reminder_window?: string | null
+          source_key?: string | null
           title?: string
           urgent?: boolean
           user_id?: string
@@ -7231,6 +7234,7 @@ export type Database = {
         Returns: Json
       }
       cycle_stale_people_leads: { Args: never; Returns: Json }
+      dark_rep_radar: { Args: { _manager?: string }; Returns: Json }
       day_one_video_ids: { Args: never; Returns: string[] }
       decide_resign_intent: {
         Args: { _confirm: boolean; _intent_id: string }
@@ -8188,6 +8192,7 @@ export type Database = {
       notify_due_action_items: { Args: never; Returns: number }
       notify_event_reminders: { Args: never; Returns: number }
       notify_lead_expiry_warnings: { Args: never; Returns: number }
+      notify_stalled_applications: { Args: never; Returns: Json }
       nudge_mentee: {
         Args: { _user_id: string; _vertical: string }
         Returns: Json
