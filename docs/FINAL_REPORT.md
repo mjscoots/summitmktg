@@ -2299,3 +2299,14 @@ Archive only, no rows deleted, no profiles merged.
 - Rolled back probe: first run inserted 1 reminder, second run inserted 0, one row total. Live run inserted 0 since no attending RSVPs fall in either window.
 - Baselines unchanged: profiles 535, chat_messages 716, calendar_events 58.
 - Typecheck and production build clean. No em dashes. Nothing published.
+
+## Pass 139 - Weekly digest bot and nightly backups
+- post_weekly_digest(): builds lines only from live data (signed_2027 count, profiles created in past 7 days with first names when 5 or fewer, next 7 days of scope=everyone uncancelled events). Empty or zero lines are omitted; if no line qualifies it does not post.
+- Sender pattern: posted into general as is_ai with kind='system' and meta.source='weekly_digest'. CommunityChat renders kind='system' through a new HqMessage block labelled Summit HQ, so it never looks like a person's bubble.
+- Weekly guard: partial unique index chat_messages_weekly_digest_once on the New York week of created_at plus an in-function exists check.
+- run_nightly_backup(): guards on one cron snapshot per New York night, mints a backup_job_tokens row and calls db-backup, matching the existing storage_path/file_bytes/table_count/row_count/trigger_source contract that BackupsPanel already renders newest first. Partial unique index backup_snapshots_one_per_night added.
+- Cron: summit-weekly-backup unscheduled; job 27 summit-nightly-backup 0 7 * * * UTC (early morning New York); job 28 summit-weekly-digest 0 22 * * 0 UTC (Sunday 6pm New York during EDT).
+- Proof in rolled back transactions: first call posted "14 people are signed for 2027 so far. 1 person joined the app this week: Brandon. Coming up in the next seven days: Howell MI Fiber Blitz on Sunday, 1 on 1 on Monday, Summit Regional Call on Tuesday, Mindset Training on Friday, 1 on 1 on Friday."; second call returned already posted this week; with sales, joins and events neutralised it returned nothing to say.
+- Backup proof: live first call requested true, tonight_rows 1, second call already ran tonight. backup_snapshots 2 to 3, which is the intended nightly artifact kept under the existing retention of 8.
+- Privileges: both functions show execute false for public, anon and authenticated.
+- Baselines unchanged: profiles 535, chat_messages 716, calendar_events 58, digest rows 0. Typecheck and production build clean. Pre-existing security linter warnings remain. Nothing published.
