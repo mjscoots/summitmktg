@@ -4231,6 +4231,8 @@ export type Database = {
           phone: string | null
           priority: boolean
           ref_code: string | null
+          referred_at: string | null
+          referred_by: string | null
           referrer_user_id: string | null
           revenue_total: number | null
           source_code: string | null
@@ -4260,6 +4262,8 @@ export type Database = {
           phone?: string | null
           priority?: boolean
           ref_code?: string | null
+          referred_at?: string | null
+          referred_by?: string | null
           referrer_user_id?: string | null
           revenue_total?: number | null
           source_code?: string | null
@@ -4289,6 +4293,8 @@ export type Database = {
           phone?: string | null
           priority?: boolean
           ref_code?: string | null
+          referred_at?: string | null
+          referred_by?: string | null
           referrer_user_id?: string | null
           revenue_total?: number | null
           source_code?: string | null
@@ -7474,6 +7480,7 @@ export type Database = {
           id: string
           interest_reason: string
           ref_code: string
+          referred_by_name: string
         }[]
       }
       get_leader_scorecard: {
@@ -7505,6 +7512,7 @@ export type Database = {
           notes: string
           phone: string
           ref_code: string
+          referred_by_name: string
           status: string
         }[]
       }
@@ -8034,6 +8042,7 @@ export type Database = {
       my_resign_intent: { Args: never; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }
+      my_your_three: { Args: never; Returns: Json }
       new_invite_token: { Args: never; Returns: string }
       norm_person_name: { Args: { _t: string }; Returns: string }
       notification_deliver_at: { Args: { _urgent: boolean }; Returns: string }
@@ -8267,6 +8276,7 @@ export type Database = {
         Returns: Json
       }
       submit_resign_intent: { Args: never; Returns: Json }
+      submit_your_three: { Args: { _rows: Json }; Returns: Json }
       sweep_mark_gone: {
         Args: {
           _departure_type?: string
