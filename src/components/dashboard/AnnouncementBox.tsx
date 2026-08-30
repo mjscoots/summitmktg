@@ -70,6 +70,7 @@ export function AnnouncementBox() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<AnnouncementPost | null>(null);
   const [seen, setSeen] = useState<{ total: number; counts: Record<string, { seen: number; total: number }> }>({ total: 0, counts: {} });
+  const [acks, setAcks] = useState<{ total: number; counts: Record<string, number> }>({ total: 0, counts: {} });
   const markedRef = useRef(false);
 
   const fetchPosts = useCallback(async () => {
@@ -102,6 +103,18 @@ export function AnnouncementBox() {
       } catch {}
     })();
   }, [isStaff, user, posts.length]);
+
+  // Got it counts, owner and admin only
+  useEffect(() => {
+    if (!isAdmin || !user) return;
+    (async () => {
+      try {
+        const { data } = await (supabase.rpc as any)('announcement_ack_counts');
+        if (data && !data.error) setAcks({ total: data.total || 0, counts: data.counts || {} });
+      } catch {}
+    })();
+  }, [isAdmin, user, posts.length]);
+
 
   const now = Date.now();
   const isExpired = (p: AnnouncementPost) => !!p.expires_at && new Date(p.expires_at).getTime() < now;
@@ -228,6 +241,8 @@ export function AnnouncementBox() {
               isStaff={isStaff}
               seenCount={seen.counts[pinnedPost.id]?.seen || 0}
               seenTotal={seen.counts[pinnedPost.id]?.total ?? seen.total}
+              ackCount={acks.counts[pinnedPost.id] || 0}
+              ackTotal={acks.total}
               isPinned
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -246,6 +261,8 @@ export function AnnouncementBox() {
               isStaff={isStaff}
               seenCount={seen.counts[post.id]?.seen || 0}
               seenTotal={seen.counts[post.id]?.total ?? seen.total}
+              ackCount={acks.counts[post.id] || 0}
+              ackTotal={acks.total}
               archived={showArchive}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -305,6 +322,8 @@ function AnnouncementCard({
   isStaff,
   seenCount,
   seenTotal,
+  ackCount,
+  ackTotal,
   isPinned,
   archived,
   onEdit,
@@ -319,6 +338,8 @@ function AnnouncementCard({
   isStaff: boolean;
   seenCount: number;
   seenTotal: number;
+  ackCount?: number;
+  ackTotal?: number;
   isPinned?: boolean;
   archived?: boolean;
   onEdit: (p: AnnouncementPost) => void;
@@ -374,6 +395,11 @@ function AnnouncementCard({
             {isStaff && seenTotal > 0 && (
               <span className="micro-label inline-flex items-center gap-1 !text-muted-foreground/70">
                 <Eye className="h-3 w-3" /> Seen by {seenCount} of {seenTotal}
+              </span>
+            )}
+            {isAdmin && (ackTotal || 0) > 0 && (
+              <span className="micro-label inline-flex items-center gap-1 !text-muted-foreground/70">
+                Got it {ackCount || 0} of {ackTotal}
               </span>
             )}
           </div>

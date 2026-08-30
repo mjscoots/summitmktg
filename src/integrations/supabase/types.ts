@@ -5960,6 +5960,7 @@ export type Database = {
           is_read: boolean | null
           link: string | null
           message: string
+          reminder_window: string | null
           title: string
           urgent: boolean
           user_id: string
@@ -5974,6 +5975,7 @@ export type Database = {
           is_read?: boolean | null
           link?: string | null
           message: string
+          reminder_window?: string | null
           title: string
           urgent?: boolean
           user_id: string
@@ -5988,6 +5990,7 @@ export type Database = {
           is_read?: boolean | null
           link?: string | null
           message?: string
+          reminder_window?: string | null
           title?: string
           urgent?: boolean
           user_id?: string
@@ -6941,6 +6944,7 @@ export type Database = {
         Args: { _is_lead: boolean; _user_id: string; _vertical: string }
         Returns: Json
       }
+      announcement_ack_counts: { Args: never; Returns: Json }
       answer_home_question: {
         Args: {
           _answer: string
@@ -7840,6 +7844,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _uid: string }; Returns: boolean }
+      is_staff_channel: { Args: { _slug: string }; Returns: boolean }
       is_staff_data_reader: { Args: never; Returns: boolean }
       is_vertical_lead: {
         Args: { _uid: string; _vertical: string }

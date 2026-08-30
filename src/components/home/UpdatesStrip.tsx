@@ -21,7 +21,10 @@ interface Item {
   title: string;
   detail: string;
   to: string;
+  /** Announcement rows carry an acknowledgement id. */
+  postId?: string;
 }
+
 
 function utcDay(iso: string, withWeekday = false) {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
@@ -58,18 +61,21 @@ function incentiveLine(text: string | null): string | null {
 export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
   const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
+  const [acking, setAcking] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const now = Date.now();
-      const [postRes, evRes] = await Promise.all([
+      const nowIso = new Date(now).toISOString();
+      const [postRes, ackRes, evRes] = await Promise.all([
         (supabase as any)
           .from('announcement_posts')
-          .select('id, title, created_at')
+          .select('id, title, body, created_at, expires_at')
           .eq('status', 'published')
           .order('created_at', { ascending: false })
-          .limit(1),
+          .limit(6),
+        (supabase as any).from('announcement_acks').select('post_id'),
         (supabase as any)
           .from('calendar_events')
           .select('id, title, event_date, end_date, location, event_kind, scope, description')
@@ -81,14 +87,28 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
 
       const next: Item[] = [];
 
-      const post = ((postRes.data as { id: string; title: string; created_at: string }[]) || [])[0];
-      if (post && now - new Date(post.created_at).getTime() < 14 * 86_400_000) {
-        next.push({ key: `post-${post.id}`, tag: 'Update', title: post.title, detail: 'Latest post', to: '/app/chat' });
+      const acked = new Set(((ackRes.data as { post_id: string }[]) || []).map((a) => a.post_id));
+      const posts = ((postRes.data as
+        { id: string; title: string; body: string | null; created_at: string; expires_at: string | null }[]) || [])
+        .filter((p) => !p.expires_at || p.expires_at > nowIso)
+        .filter((p) => !acked.has(p.id))
+        .slice(0, 3);
+
+      for (const post of posts) {
+        next.push({
+          key: `post-${post.id}`,
+          tag: 'Update',
+          title: post.title,
+          detail: (post.body || '').split('\n')[0].slice(0, 120),
+          to: '/app/chat',
+          postId: post.id,
+        });
       }
 
       const events = ((evRes.data as EventRow[]) || []).filter(
         (e) => new Date(e.end_date || e.event_date).getTime() >= now
       );
+
 
       const blitz = events.find((e) => e.event_kind === 'blitz');
       if (blitz) {
@@ -137,37 +157,57 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
 
   if (items.length === 0) return null;
 
+  const ack = async (postId: string, key: string) => {
+    setAcking(key);
+    await (supabase.rpc as any)('ack_announcement', { _post_id: postId });
+    setItems((prev) => prev.filter((i) => i.key !== key));
+    setAcking(null);
+  };
+
   return (
     <section>
       <SectionEyebrow>Updates</SectionEyebrow>
       <div className="space-y-2">
         {items.map((it) => (
-          <button
-            key={it.key}
-            type="button"
-            onClick={() => navigate(it.to)}
-            className="card-ice flex min-h-14 w-full items-center gap-3 p-3 text-left"
-          >
-            <span
-              className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-              style={{
-                background: 'hsl(var(--workspace-accent) / 0.16)',
-                color: 'hsl(var(--workspace-accent))',
-              }}
+          <div key={it.key} className="card-ice flex min-h-14 w-full items-center gap-2 p-3">
+            <button
+              type="button"
+              onClick={() => navigate(it.to)}
+              className="flex min-w-0 flex-1 items-center gap-3 text-left"
             >
-              {it.tag}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-semibold text-foreground">{it.title}</span>
-              {it.detail && (
-                <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">{it.detail}</span>
-              )}
-            </span>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </button>
+              <span
+                className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                style={{
+                  background: 'hsl(var(--workspace-accent) / 0.16)',
+                  color: 'hsl(var(--workspace-accent))',
+                }}
+              >
+                {it.tag}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[15px] font-semibold text-foreground">{it.title}</span>
+                {it.detail && (
+                  <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">{it.detail}</span>
+                )}
+              </span>
+            </button>
+            {it.postId ? (
+              <button
+                type="button"
+                disabled={acking === it.key}
+                onClick={() => ack(it.postId!, it.key)}
+                className="min-h-11 shrink-0 rounded-xl border border-border/40 px-3 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground/5 disabled:opacity-60"
+              >
+                Got it
+              </button>
+            ) : (
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            )}
+          </div>
         ))}
       </div>
     </section>
+
   );
 }
 
