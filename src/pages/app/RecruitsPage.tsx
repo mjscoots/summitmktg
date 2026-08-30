@@ -45,7 +45,9 @@ interface BoardLead {
   interest_reason: string | null;
   ref_code: string | null;
   created_at: string;
+  referred_by_name?: string | null;
 }
+
 
 interface MyLead extends BoardLead {
   phone: string | null;
