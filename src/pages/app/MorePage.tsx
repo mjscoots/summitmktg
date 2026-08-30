@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, LogOut } from 'lucide-react';
+import { ChevronRight, LogOut, MessageSquare } from 'lucide-react';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
