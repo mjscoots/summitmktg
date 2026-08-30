@@ -4827,6 +4827,33 @@ export type Database = {
           },
         ]
       }
+      resign_intents: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       revenue_import_batches: {
         Row: {
           committed_at: string | null
@@ -7041,6 +7068,7 @@ export type Database = {
         Returns: Json
       }
       claim_lead: { Args: { _lead_id: string }; Returns: Json }
+      claim_resign_celebration: { Args: never; Returns: boolean }
       claim_winback: { Args: { _lead_id: string }; Returns: Json }
       company_timezone: { Args: never; Returns: string }
       complete_daily_drill: {
@@ -7069,6 +7097,10 @@ export type Database = {
       }
       cycle_stale_people_leads: { Args: never; Returns: Json }
       day_one_video_ids: { Args: never; Returns: string[] }
+      decide_resign_intent: {
+        Args: { _confirm: boolean; _intent_id: string }
+        Returns: Json
+      }
       decide_vertical_application: {
         Args: { _application_id: string; _decision: string; _note?: string }
         Returns: Json
@@ -7931,6 +7963,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      list_resign_intents: {
+        Args: never
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          user_id: string
+        }[]
+      }
       log_application_first_touch: { Args: { _id: string }; Returns: Json }
       log_fiber_today: {
         Args: {
@@ -7990,6 +8031,7 @@ export type Database = {
       my_notification_prefs: { Args: never; Returns: Json }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_referral_count: { Args: never; Returns: number }
+      my_resign_intent: { Args: never; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
       my_vertical: { Args: never; Returns: string }
       new_invite_token: { Args: never; Returns: string }
@@ -8224,6 +8266,7 @@ export type Database = {
         Args: { _name: string; _note?: string; _phone: string }
         Returns: Json
       }
+      submit_resign_intent: { Args: never; Returns: Json }
       sweep_mark_gone: {
         Args: {
           _departure_type?: string
