@@ -133,7 +133,9 @@ export function ChatImageUpload({ onSend }: ChatImageUploadProps) {
 // Render component for image messages
 export function ChatImage({ url }: { url: string }) {
   const [expanded, setExpanded] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
   const { url: signed, failed } = useChatAttachmentUrl(url);
+  const pinchRef = useRef(0);
 
   if (failed) {
     return <p className="text-xs text-muted-foreground">Image unavailable</p>;
@@ -141,6 +143,17 @@ export function ChatImage({ url }: { url: string }) {
   if (!signed) {
     return <div className="h-[160px] w-[220px] animate-pulse rounded-lg bg-muted/40" />;
   }
+
+  const close = () => { setExpanded(false); setZoomed(false); };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) return;
+    const [a, b] = [e.touches[0], e.touches[1]];
+    const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    if (!pinchRef.current) { pinchRef.current = dist; return; }
+    if (dist > pinchRef.current * 1.2) setZoomed(true);
+    if (dist < pinchRef.current * 0.8) setZoomed(false);
+  };
 
   return (
     <>
@@ -152,14 +165,31 @@ export function ChatImage({ url }: { url: string }) {
         loading="lazy"
       />
       {expanded && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setExpanded(false)}>
-          <button className="absolute top-4 right-4 text-white/80 hover:text-white" onClick={() => setExpanded(false)}>
-            <X className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black/90 p-4" onClick={close}>
+          <button
+            aria-label="Close photo"
+            className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full text-white/80 hover:text-white"
+            onClick={close}
+          >
+            <X className="h-6 w-6" />
           </button>
-          <img src={signed} alt="Shared image" className="max-w-full max-h-full rounded-lg" />
+          <img
+            src={signed}
+            alt="Shared image"
+            onClick={(e) => { e.stopPropagation(); }}
+            onDoubleClick={(e) => { e.stopPropagation(); setZoomed(z => !z); }}
+            onTouchStart={() => { pinchRef.current = 0; }}
+            onTouchMove={handleTouchMove}
+            className={
+              zoomed
+                ? 'max-w-none rounded-lg transition-transform duration-200 scale-[2] origin-center'
+                : 'max-h-full max-w-full rounded-lg transition-transform duration-200'
+            }
+          />
         </div>
       )}
     </>
+
   );
 }
 
