@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -455,15 +456,7 @@ export default function MyTeamPage() {
                             onClick={() => setSheetMember(m)}
                             className="card-ice flex items-center gap-3 px-3 py-3 text-left"
                           >
-                            {m.avatar_url ? (
-                              <img src={m.avatar_url} alt="" className="avatar-ring h-14 w-14 shrink-0 rounded-full object-cover" />
-                            ) : (
-                              <span className="avatar-ring flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                                <span className="text-base font-bold text-primary">
-                                  {m.full_name?.charAt(0)?.toUpperCase() ?? '?'}
-                                </span>
-                              </span>
-                            )}
+                            <UserAvatar avatarUrl={m.avatar_url} fullName={m.full_name || 'Unnamed'} size="lg" className="avatar-ring h-14 w-14 text-base" />
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-[14px] font-semibold text-foreground">
                                 {getDisplayName(m.full_name)}
@@ -536,15 +529,7 @@ export default function MyTeamPage() {
                   onClick={() => setSheetMember(m)}
                   className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/[0.03] transition-colors"
                 >
-                  {m.avatar_url ? (
-                    <img src={m.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-                  ) : (
-                    <div className="w-9 h-9 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-primary">
-                        {m.full_name?.charAt(0)?.toUpperCase() ?? '?'}
-                      </span>
-                    </div>
-                  )}
+                  <UserAvatar avatarUrl={m.avatar_url} fullName={m.full_name || 'Unnamed'} size="md" className="w-9 h-9 text-xs" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <p className="text-sm font-medium text-foreground truncate">{getDisplayName(m.full_name)}</p>
