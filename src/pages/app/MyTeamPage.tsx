@@ -290,8 +290,16 @@ export default function MyTeamPage() {
           <PageHeader
             title="Team"
             context="Your region, by installs this week."
-            action={isManagerRole ? <InviteDialog managerLocked={!isAdmin} /> : undefined}
+            action={isManagerRole ? (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate('/app/stacks')}>
+                  Stacks
+                </Button>
+                <InviteDialog managerLocked={!isAdmin} />
+              </div>
+            ) : undefined}
           />
+
 
           <OwedThisWeek />
 
