@@ -61,18 +61,21 @@ function incentiveLine(text: string | null): string | null {
 export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
   const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
+  const [acking, setAcking] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const now = Date.now();
-      const [postRes, evRes] = await Promise.all([
+      const nowIso = new Date(now).toISOString();
+      const [postRes, ackRes, evRes] = await Promise.all([
         (supabase as any)
           .from('announcement_posts')
-          .select('id, title, created_at')
+          .select('id, title, body, created_at, expires_at')
           .eq('status', 'published')
           .order('created_at', { ascending: false })
-          .limit(1),
+          .limit(6),
+        (supabase as any).from('announcement_acks').select('post_id'),
         (supabase as any)
           .from('calendar_events')
           .select('id, title, event_date, end_date, location, event_kind, scope, description')
@@ -84,14 +87,28 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
 
       const next: Item[] = [];
 
-      const post = ((postRes.data as { id: string; title: string; created_at: string }[]) || [])[0];
-      if (post && now - new Date(post.created_at).getTime() < 14 * 86_400_000) {
-        next.push({ key: `post-${post.id}`, tag: 'Update', title: post.title, detail: 'Latest post', to: '/app/chat' });
+      const acked = new Set(((ackRes.data as { post_id: string }[]) || []).map((a) => a.post_id));
+      const posts = ((postRes.data as
+        { id: string; title: string; body: string | null; created_at: string; expires_at: string | null }[]) || [])
+        .filter((p) => !p.expires_at || p.expires_at > nowIso)
+        .filter((p) => !acked.has(p.id))
+        .slice(0, 3);
+
+      for (const post of posts) {
+        next.push({
+          key: `post-${post.id}`,
+          tag: 'Update',
+          title: post.title,
+          detail: (post.body || '').split('\n')[0].slice(0, 120),
+          to: '/app/chat',
+          postId: post.id,
+        });
       }
 
       const events = ((evRes.data as EventRow[]) || []).filter(
         (e) => new Date(e.end_date || e.event_date).getTime() >= now
       );
+
 
       const blitz = events.find((e) => e.event_kind === 'blitz');
       if (blitz) {
