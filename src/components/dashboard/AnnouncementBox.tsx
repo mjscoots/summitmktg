@@ -241,6 +241,8 @@ export function AnnouncementBox() {
               isStaff={isStaff}
               seenCount={seen.counts[pinnedPost.id]?.seen || 0}
               seenTotal={seen.counts[pinnedPost.id]?.total ?? seen.total}
+              ackCount={acks.counts[pinnedPost.id] || 0}
+              ackTotal={acks.total}
               isPinned
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -259,6 +261,8 @@ export function AnnouncementBox() {
               isStaff={isStaff}
               seenCount={seen.counts[post.id]?.seen || 0}
               seenTotal={seen.counts[post.id]?.total ?? seen.total}
+              ackCount={acks.counts[post.id] || 0}
+              ackTotal={acks.total}
               archived={showArchive}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -318,6 +322,8 @@ function AnnouncementCard({
   isStaff,
   seenCount,
   seenTotal,
+  ackCount,
+  ackTotal,
   isPinned,
   archived,
   onEdit,
@@ -332,6 +338,8 @@ function AnnouncementCard({
   isStaff: boolean;
   seenCount: number;
   seenTotal: number;
+  ackCount?: number;
+  ackTotal?: number;
   isPinned?: boolean;
   archived?: boolean;
   onEdit: (p: AnnouncementPost) => void;
@@ -387,6 +395,11 @@ function AnnouncementCard({
             {isStaff && seenTotal > 0 && (
               <span className="micro-label inline-flex items-center gap-1 !text-muted-foreground/70">
                 <Eye className="h-3 w-3" /> Seen by {seenCount} of {seenTotal}
+              </span>
+            )}
+            {isAdmin && (ackTotal || 0) > 0 && (
+              <span className="micro-label inline-flex items-center gap-1 !text-muted-foreground/70">
+                Got it {ackCount || 0} of {ackTotal}
               </span>
             )}
           </div>
