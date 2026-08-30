@@ -451,8 +451,10 @@ export default function RecruitsPage() {
                   </div>
                 ))}
               </div>
-            )
+            )}
+            </>
           ) : mine.length === 0 ? (
+
             <div className={cn(CARD, 'p-10 text-center')}>
               <p className="text-sm text-muted-foreground">You haven’t claimed any leads yet.</p>
               <button
