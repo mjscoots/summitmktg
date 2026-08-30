@@ -3932,7 +3932,7 @@ export type Database = {
           changed_at: string
           changed_by: string | null
           id: string
-          new_rank_id: string | null
+          new_rank_id: string
           old_rank_id: string | null
           reverted_at: string | null
           reverted_by: string | null
@@ -3943,7 +3943,7 @@ export type Database = {
           changed_at?: string
           changed_by?: string | null
           id?: string
-          new_rank_id?: string | null
+          new_rank_id: string
           old_rank_id?: string | null
           reverted_at?: string | null
           reverted_by?: string | null
@@ -3954,7 +3954,7 @@ export type Database = {
           changed_at?: string
           changed_by?: string | null
           id?: string
-          new_rank_id?: string | null
+          new_rank_id?: string
           old_rank_id?: string | null
           reverted_at?: string | null
           reverted_by?: string | null
