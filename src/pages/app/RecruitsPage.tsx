@@ -481,7 +481,9 @@ export default function RecruitsPage() {
                             </span>
                           )}
                           {lead.interest_reason && <span>{lead.interest_reason}</span>}
+                          {lead.referred_by_name && <span>Referred by {lead.referred_by_name}</span>}
                           {lead.ref_code && <span className="text-primary/70">ref {lead.ref_code}</span>}
+
                         </div>
                       </div>
                       <span
