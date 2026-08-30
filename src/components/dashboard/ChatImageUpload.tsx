@@ -49,22 +49,30 @@ export async function uploadChatFile(file: File, userId: string, onSend: (conten
     return;
   }
 
-  const ext = file.name.split('.').pop() || 'png';
+  // Photos are downscaled and re-encoded in the browser, which also drops EXIF.
+  const prepared = await prepareChatImage(file);
+
+  const ext = prepared ? prepared.ext : (file.name.split('.').pop() || 'png');
   const path = `${userId}/${Date.now()}.${ext}`;
 
-  // Read the file into an ArrayBuffer first to ensure drag-and-drop files
-  // are fully read before uploading (prevents 0-byte uploads)
-  const arrayBuffer = await file.arrayBuffer();
-  const blob = new Blob([arrayBuffer], { type: file.type || 'application/octet-stream' });
+  let blob: Blob;
+  if (prepared) {
+    blob = prepared.blob;
+  } else {
+    // Read the file into an ArrayBuffer first to ensure drag-and-drop files
+    // are fully read before uploading (prevents 0-byte uploads)
+    const arrayBuffer = await file.arrayBuffer();
+    blob = new Blob([arrayBuffer], { type: file.type || 'application/octet-stream' });
+  }
 
   const { error: uploadError } = await supabase.storage
     .from('chat-uploads')
-    .upload(path, blob, { contentType: file.type || 'application/octet-stream' });
+    .upload(path, blob, { contentType: blob.type || 'application/octet-stream' });
 
   if (uploadError) throw uploadError;
 
   // Private bucket: store the object path and sign it at read time.
-  if (isImageFile(file.name)) {
+  if (prepared || isImageFile(file.name)) {
     await onSend(`${IMAGE_PREFIX}${path}`);
   } else {
     const fileInfo = { url: path, name: file.name, size: file.size };
@@ -72,6 +80,7 @@ export async function uploadChatFile(file: File, userId: string, onSend: (conten
   }
 
 }
+
 
 interface ChatImageUploadProps {
   onSend: (content: string) => Promise<void>;
