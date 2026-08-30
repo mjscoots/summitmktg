@@ -205,9 +205,17 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
             >
               Prep this week's one-on-ones
             </Button>
+            <Button
+              variant="outline"
+              className="min-h-11 w-full"
+              onClick={() => navigate('/app/stacks')}
+            >
+              Set stacks by carrier
+            </Button>
             <InviteDialog />
           </>
         )}
+
 
 
         {!staff && (
