@@ -328,6 +328,12 @@ export default function MyTeamPage() {
                   </Button>
                 )}
 
+                {isManagerRole && (
+                  <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate('/app/stacks')}>
+                    Stacks
+                  </Button>
+                )}
+
                 {isManagerRole && <InviteDialog managerLocked={!isAdmin} />}
                 {canAddMembers ? (
                   <Button onClick={() => setAddMemberOpen(true)} size="sm" className="gap-1.5 rounded-xl flex-shrink-0">
