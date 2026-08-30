@@ -784,7 +784,9 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
               <div key={msg.id}>
               {newDivider}
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                {msg.kind === 'award' || isAwardsPost(msg.content)
+                {msg.kind === 'system'
+                  ? <HqMessage content={msg.content} />
+                  : msg.kind === 'award' || isAwardsPost(msg.content)
                   ? <AwardsSystemMessage content={msg.content} />
                   : msg.kind === 'win' || isWinPost(msg.content)
                     ? <WinSystemMessage content={msg.content} />
