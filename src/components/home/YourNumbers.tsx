@@ -8,7 +8,9 @@ import { useManagerOwed } from '@/hooks/useManagerOwed';
 import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
+import { ResignIntentCard } from '@/components/home/ResignIntentCard';
 import { Button } from '@/components/ui/button';
+
 
 interface MyNumbers {
   has_lead?: boolean;
