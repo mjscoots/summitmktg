@@ -31,6 +31,7 @@ import { FirstWeekCard } from '@/components/home/FirstWeekCard';
 import { GoalInterviewCard } from '@/components/home/GoalInterviewCard';
 import { FiberStartCard } from '@/components/workspace/FiberStartCard';
 import { HomeGreeting } from '@/components/home/HomeGreeting';
+import { DarkRepRadar } from '@/components/team/DarkRepRadar';
 
 function greeting(): string {
   const h = new Date().getHours();

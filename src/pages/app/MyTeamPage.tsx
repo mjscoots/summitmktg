@@ -35,6 +35,7 @@ import { RollToFiberDialog } from '@/components/team/RollToFiberDialog';
 import { GoingColdCard } from '@/components/team/GoingColdCard';
 import { NewRepsPanel } from '@/components/team/NewRepsPanel';
 import { GatedRecruitsPanel } from '@/components/team/GatedRecruitsPanel';
+import { DarkRepRadar } from '@/components/team/DarkRepRadar';
 import { OwedThisWeek } from '@/components/team/OwedThisWeek';
 import { useRollover } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
