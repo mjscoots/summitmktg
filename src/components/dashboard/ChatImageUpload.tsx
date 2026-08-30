@@ -2,8 +2,10 @@ import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatAttachmentUrl } from '@/lib/chatAttachments';
+import { prepareChatImage } from '@/lib/chatImage';
 import { Paperclip, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
+
 
 
 const IMAGE_PREFIX = 'img:';
