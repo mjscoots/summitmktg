@@ -150,7 +150,13 @@ export default function MyMoneyPage() {
           ))}
         </div>
 
-        {tab === 'all' && <AllMoneyCard />}
+        {tab === 'all' && (
+          <div className="space-y-4">
+            <AllMoneyCard />
+            <YourStacksCard />
+          </div>
+        )}
+
 
         {tab === 'Fiber' && (
           <>
