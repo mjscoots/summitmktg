@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadAvatar, deleteAvatarFile } from '@/lib/avatarUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
@@ -317,17 +318,7 @@ export default function ProfilePage() {
     setIsUploadingAvatar(true);
 
     try {
-      const fileName = `${user.id}/${Date.now()}.jpg`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
+      const publicUrl = await uploadAvatar(user.id, blob);
 
       const { error: updateError } = await supabase
         .from('profiles')
@@ -360,6 +351,7 @@ export default function ProfilePage() {
         .update({ avatar_url: null, updated_at: new Date().toISOString() })
         .eq('user_id', user.id);
       if (error) throw error;
+      await deleteAvatarFile(user.id);
       setAvatarUrl(null);
       await refreshProfile();
       toast.success('Photo removed');
