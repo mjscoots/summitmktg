@@ -9,6 +9,8 @@ import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { ResignIntentCard } from '@/components/home/ResignIntentCard';
+import { YourThreeCard } from '@/components/home/YourThreeCard';
+
 import { Button } from '@/components/ui/button';
 
 
