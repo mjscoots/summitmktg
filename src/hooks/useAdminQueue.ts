@@ -325,6 +325,10 @@ export function useAdminQueue() {
       const applications = live.filter((i) => i.type === 'application').length;
       const pitches = live.filter((i) => i.type === 'pitch').length;
       const resigns = live.filter((i) => i.type === 'resign').length;
+      // Informational only. Never part of the decisions badge total.
+      const stackRes = await (supabase as any).rpc('stack_changes_7d');
+      const stackChanges = Number(stackRes?.data ?? 0) || 0;
+
       setCounts({
         pendingApprovals: approvals,
         verticalRequests,
