@@ -8068,6 +8068,7 @@ export type Database = {
       }
       owner_week: { Args: never; Returns: Json }
       parse_rep_year_text: { Args: { _raw: string }; Returns: number }
+      poll_channel_readable: { Args: { _poll_id: string }; Returns: boolean }
       post_weekly_awards: { Args: never; Returns: Json }
       prep_roster: {
         Args: never
