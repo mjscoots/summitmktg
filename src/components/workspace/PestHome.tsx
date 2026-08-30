@@ -19,7 +19,6 @@ import { MoreReveal } from '@/components/home/MoreReveal';
 import { UpdatesStrip } from '@/components/home/UpdatesStrip';
 import { YourNumbers } from '@/components/home/YourNumbers';
 
-import { YourThreeCard } from '@/components/home/YourThreeCard';
 import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 
