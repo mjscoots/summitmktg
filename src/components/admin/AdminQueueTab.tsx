@@ -108,7 +108,7 @@ export function AdminQueueTab() {
   return (
     <div className="space-y-4">
       {/* Summary — decisions only */}
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-7">
         {(
           [
             ['Decisions', counts.total],
@@ -117,7 +117,9 @@ export function AdminQueueTab() {
             ['Vertical requests', counts.verticalRequests],
             ['Pitches', counts.pendingPitches],
             ['Re-sign intents', counts.resignIntents],
+            ['Stack changes, 7 days', counts.stackChanges7d],
           ] as const
+
         ).map(([label, value]) => (
           <div key={label} className="stat-card min-w-0">
             <span className="micro-label block truncate">{label}</span>
