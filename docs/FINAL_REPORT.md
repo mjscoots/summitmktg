@@ -2288,3 +2288,14 @@ Archive only, no rows deleted, no profiles merged.
 - Poll UI capped at 2 to 4 options, counts only, one vote per person, changeable.
 - Verified in a rolled back transaction: member readable true, vote change left exactly 1 row at option 1 (no double counting). A stranger uid still passed `can_read_channel('managers')` because the existing channel visibility function treats staff rooms as broadly visible; that is pre-existing channel scope, not poll scope, and is listed here rather than changed in this pass.
 - Typecheck and production build clean. No session could be minted, so verification was database and code level. Nothing published.
+
+## Pass 138 - Managers room leak, announcements, event reminders
+- Fixed `visible_chat_channels`: new `is_staff_channel` classifies `managers`, `managers-*`, `staff*`, `leadership*` as manager only; team rooms stay team plus leadership; public rooms unchanged; null or roleless users fail closed.
+- Proof: roleless rep sees 9 channels with managers absent and `can_read_channel('managers')` false, `general` true; owner sees 15 channels and managers true; random UID false. Poll policies inherit through `poll_channel_readable`.
+- `can_read_channel` no longer returns true for the inactive `ai-coach` slug.
+- Announcements: composer already owner and admin only with audience everyone, managers or one team, enforced database side. UpdatesStrip now lists up to three published unexpired posts newest first with a one time 44px "Got it" writing `announcement_acks`; acked posts drop out.
+- New `announcement_ack_counts()` owner and admin only powers a "Got it N of M" line on each announcement card. Anon and public execute revoked.
+- Reminders: `notify_event_reminders` rewritten for 24h and 1h windows, attending RSVPs only, `notification_preferences.calendar_events` respected, unique guard on (user, event, reminder_window). Cron moved to hourly. In app only, no email or push.
+- Rolled back probe: first run inserted 1 reminder, second run inserted 0, one row total. Live run inserted 0 since no attending RSVPs fall in either window.
+- Baselines unchanged: profiles 535, chat_messages 716, calendar_events 58.
+- Typecheck and production build clean. No em dashes. Nothing published.
