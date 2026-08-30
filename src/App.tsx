@@ -373,6 +373,15 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Stacks — a manager sets the stack per rep per carrier */}
+              <Route path="/app/stacks" element={
+                <ProtectedRoute requiredRole="manager">
+                    <StacksPage />
+                </ProtectedRoute>
+              } />
+
+
+
               {/* Scripts library — openers, objections, closes */}
               <Route path="/app/scripts" element={
                 <ProtectedRoute>
