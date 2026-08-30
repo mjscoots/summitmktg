@@ -104,6 +104,19 @@ function SystemMessage({ content }: { content: string }) {
   );
 }
 
+/** Scheduled Summit HQ posts, such as the Sunday digest. */
+function HqMessage({ content }: { content: string }) {
+  return (
+    <div className="my-3 flex justify-center px-4">
+      <div className="max-w-[85%] rounded-2xl border border-primary/20 bg-primary/[0.06] px-4 py-3">
+        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-primary/70">Summit HQ</span>
+        <span className="block text-[13px] leading-relaxed text-foreground/80">{content}</span>
+      </div>
+    </div>
+  );
+}
+
+
 const WIN_PREFIX = /^\[\[WIN\|[0-9a-f-]+\]\]/i;
 const isWinPost = (content: string) => WIN_PREFIX.test(content);
 const stripWinPrefix = (content: string) => content.replace(WIN_PREFIX, '');
