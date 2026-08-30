@@ -10,6 +10,8 @@ import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { ResignIntentCard } from '@/components/home/ResignIntentCard';
 import { YourThreeCard } from '@/components/home/YourThreeCard';
+import { SupraTicketCard } from '@/components/home/SupraTicketCard';
+
 
 import { Button } from '@/components/ui/button';
 
@@ -172,9 +174,9 @@ export function YourNumbers() {
   const personal: { label: string; value: string; to: string }[] = [];
   if (signed) personal.push({ label: 'Your 2027 seat', value: 'Signed', to: '/app/season' });
   if (revenue > 0) personal.push({ label: 'Your season', value: money(revenue), to: '/app/money' });
-  if (tickets > 0) personal.push({ label: 'Supra tickets', value: String(tickets), to: '/app/events' });
 
   const showPersonal = personal.length > 0 || unsigned;
+
 
   return (
     <div className="space-y-8">
@@ -227,6 +229,9 @@ export function YourNumbers() {
           )}
         </section>
       )}
+
+      <SupraTicketCard tickets={tickets} />
+
 
       <ResignIntentCard eligible={mine?.has_lead === true && !signed && !gate.is_recruit} />
 
