@@ -352,7 +352,29 @@ export default function RecruitsPage() {
               ))}
             </div>
           ) : tab === 'board' ? (
-            board.length === 0 ? (
+            <>
+            {isManagerRole && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {([
+                  { id: false, label: 'All leads' },
+                  { id: true, label: 'Referrals' },
+                ] as const).map((f) => (
+                  <button
+                    key={String(f.id)}
+                    onClick={() => setRefOnly(f.id)}
+                    className={cn(
+                      'min-h-11 rounded-xl border px-3 text-[12px] font-semibold',
+                      refOnly === f.id
+                        ? 'border-primary/40 bg-primary text-primary-foreground'
+                        : 'border-border/50 bg-surface text-muted-foreground'
+                    )}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {boardShown.length === 0 ? (
               <div className={cn(CARD, 'py-4')}>
                 <EmptyState
                   icon={Sparkles}
@@ -362,7 +384,8 @@ export default function RecruitsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {board.map((lead) => (
+                {boardShown.map((lead) => (
+
                   <div key={lead.id} className={cn(CARD, 'p-4 flex flex-col')}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 flex-wrap items-center gap-2">
