@@ -213,6 +213,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
             >
               Set stacks by carrier
             </Button>
+            <DarkRepRadar />
             <InviteDialog />
           </>
         )}

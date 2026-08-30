@@ -387,6 +387,12 @@ export default function MyTeamPage() {
 
         {isManagerRole && (
           <div className="mb-5">
+            <DarkRepRadar />
+          </div>
+        )}
+
+        {isManagerRole && (
+          <div className="mb-5">
             <GatedRecruitsPanel />
           </div>
         )}
