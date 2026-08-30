@@ -268,7 +268,7 @@ export function ChatComposer({
         <div className="animate-fade-in px-4 py-3 border-t border-border/10">
           <div className="grid grid-cols-4 gap-3">
             {[
-              { icon: <Image className="w-5 h-5" />, label: 'Photo', action: () => { fileRef.current?.click(); } },
+              { icon: <Image className="w-5 h-5" />, label: 'Photo', action: () => { imageRef.current?.click(); } },
               { icon: <Paperclip className="w-5 h-5" />, label: 'File', action: () => { fileRef.current?.click(); } },
               { icon: <Smile className="w-5 h-5" />, label: 'GIF', action: () => { setShowGifs(true); setShowDrawer(false); } },
               { icon: <Sticker className="w-5 h-5" />, label: 'Sticker', action: () => { setShowStickers(true); setShowDrawer(false); } },
