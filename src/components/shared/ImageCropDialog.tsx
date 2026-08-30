@@ -13,7 +13,7 @@ interface ImageCropDialogProps {
 }
 
 const CANVAS_SIZE = 300;
-const OUTPUT_SIZE = 400;
+const OUTPUT_SIZE = 512;
 
 export function ImageCropDialog({ open, onClose, imageSrc, onCropComplete, isSaving }: ImageCropDialogProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

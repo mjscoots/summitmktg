@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 import { useNavigate } from 'react-router-dom';
 import { Phone, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,13 +33,7 @@ function PersonRow({ p, installs, isLead }: { p: Person; installs: number; isLea
   return (
     <div className="flex items-center gap-3 py-2">
       <button onClick={() => navigate(`/app/person/${p.user_id}`)} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 text-left">
-        {p.avatar_url ? (
-          <img src={p.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />
-        ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-secondary text-xs text-foreground">
-            {(p.full_name || '—').trim().charAt(0).toUpperCase()}
-          </div>
-        )}
+        <UserAvatar avatarUrl={p.avatar_url} fullName={p.full_name || 'Unnamed'} size="md" className="h-9 w-9 text-xs" />
         <span className="min-w-0 truncate text-sm text-foreground">
           {p.full_name || 'Unnamed'}
           {isLead && <span className="ml-2 text-xs text-muted-foreground">Region lead</span>}

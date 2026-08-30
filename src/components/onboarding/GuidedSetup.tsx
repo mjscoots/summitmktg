@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2, Camera, User, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadAvatar } from '@/lib/avatarUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,13 +124,7 @@ export function GuidedSetup({
     }
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
-      if (error) throw error;
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('avatars').getPublicUrl(path);
+      const publicUrl = await uploadAvatar(user.id, file);
       setAvatarUrl(publicUrl);
       await writeProfile({ avatar_url: publicUrl });
     } catch {

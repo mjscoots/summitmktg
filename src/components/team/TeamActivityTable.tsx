@@ -64,19 +64,11 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
                 >
                   <td className="py-2.5 pr-4">
                     <div className="flex items-center gap-2">
-                      {(member as any).avatar_url ? (
-                        <UserAvatar
-                          avatarUrl={(member as any).avatar_url}
-                          fullName={member.full_name}
-                          size="sm"
-                        />
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                          <span className="text-[10px] font-medium text-muted-foreground">
-                            {getDisplayName(member.full_name).charAt(0)}
-                          </span>
-                        </div>
-                      )}
+                      <UserAvatar
+                        avatarUrl={(member as any).avatar_url}
+                        fullName={member.full_name}
+                        size="sm"
+                      />
                       <span className="font-medium text-foreground truncate max-w-[140px]">
                         {getDisplayName(member.full_name)}
                       </span>

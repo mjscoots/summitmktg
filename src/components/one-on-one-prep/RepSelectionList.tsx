@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 import { PrepRep } from '@/hooks/useOneOnOnePrep';
 import { cn } from '@/lib/utils';
 import { Check, ChevronDown, GripVertical, Loader2, RotateCcw, Plus, Search } from 'lucide-react';
@@ -89,13 +90,7 @@ function SortableRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void 
         onClick={onSelect}
         className="flex-1 flex items-center gap-3 pr-4 py-3 text-left min-w-0"
       >
-        {rep.avatar_url ? (
-          <img src={rep.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary">
-            {rep.full_name.charAt(0)}
-          </div>
-        )}
+        <UserAvatar avatarUrl={rep.avatar_url} fullName={rep.full_name} size="md" className="w-8 h-8 text-[10px]" />
 
         <div className="flex-1 min-w-0">
           <span className="text-sm font-medium text-foreground truncate block">{rep.full_name}</span>
@@ -139,13 +134,7 @@ function CompletedRepRow({ rep, onSelect }: { rep: PrepRep; onSelect: () => void
       className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-primary/20 bg-primary/5 text-left opacity-70 hover:opacity-90 transition-opacity"
     >
       <Check className="w-4 h-4 text-primary flex-shrink-0" />
-      {rep.avatar_url ? (
-        <img src={rep.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-      ) : (
-        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-green-600">
-          {rep.full_name.charAt(0)}
-        </div>
-      )}
+      <UserAvatar avatarUrl={rep.avatar_url} fullName={rep.full_name} size="sm" className="w-6 h-6 text-[9px]" />
       <span className="text-sm text-foreground/70 truncate">{rep.full_name}</span>
       <span className="ml-auto text-[10px] text-green-600 font-medium">Done</span>
     </button>

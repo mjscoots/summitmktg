@@ -1,27 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 import type { TopRow } from '@/hooks/useHomeToday';
 
 const RING = ['ring-primary', 'ring-primary/70', 'ring-primary/45'];
 
 function Avatar({ row, place }: { row: TopRow; place: number }) {
   const ring = RING[place] || 'ring-border';
-  return row.avatar_url ? (
-    <img
-      src={row.avatar_url}
-      alt=""
-      className={cn('h-9 w-9 rounded-full object-cover ring-2', ring)}
-      loading="lazy"
+  return (
+    <UserAvatar
+      avatarUrl={row.avatar_url}
+      fullName={row.name}
+      size="md"
+      className={cn('h-9 w-9 text-[13px] ring-2', ring)}
     />
-  ) : (
-    <div
-      className={cn(
-        'flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-[13px] font-semibold text-foreground ring-2',
-        ring
-      )}
-    >
-      {row.name.trim().charAt(0).toUpperCase()}
-    </div>
   );
 }
 
