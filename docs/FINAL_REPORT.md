@@ -2244,3 +2244,16 @@ Archive only, no rows deleted, no profiles merged.
 - Screens: docs/screens/p133-leaderboard-390.png, p133-event-join-390.png, p133-chat-390.png, p133-events-390.png.
 - Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30.
 - No em dashes in new copy; typecheck and production build clean; nothing published.
+
+## Pass 134 — Re-sign 2027 intent
+- New table resign_intents (pending, confirmed, dismissed) with a partial unique index enforcing one pending row per user; no delete policy exists.
+- RLS: a user inserts and reads only their own row; owner and admin read all and update status.
+- New functions submit_resign_intent, my_resign_intent, list_resign_intents, decide_resign_intent, claim_resign_celebration: anon false, PUBLIC false, authenticated true (has_function_privilege proof).
+- Home: ResignIntentCard renders under Your numbers only when the roster row exists, signed_2027 is false and the user is not in the recruit gate; swaps to "Got it. Mathew has been pinged."
+- Decisions lane: resign items in useAdminQueue and AdminQueueTab, counted in Needs You; approve confirms, deny dismisses; manager role never loads the list.
+- Celebration: LockedInMoment mounted in AppLayout, claim_resign_celebration returns true once per confirmation and logs resign_2027 in celebration_log; reduced motion gets the static card.
+- Notification: new pending intent inserts a user_notifications row for owner and admins, skipping anyone with announcements off. No email, no push.
+- Role scoped rollback test: rep_sees 1, second pending refused, insert for another user refused, other rep sees 0 and queue 0, owner queue 1, confirm flipped exactly one roster row (delta 1), celebration first true then false.
+- Baselines unchanged: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30, resign_intents 0, signed_2027 14.
+- Screenshots not captured: a session for a specific auth user could not be minted in this context, so the card, post tap state and Decisions lane were verified at code and database level only.
+- Typecheck and production build clean. No em dashes in new user-facing copy. Nothing published.
