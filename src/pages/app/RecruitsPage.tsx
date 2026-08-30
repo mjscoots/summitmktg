@@ -401,11 +401,17 @@ export default function RecruitsPage() {
                       </span>
                     </div>
 
+                    {lead.referred_by_name && (
+                      <p className="mt-1 text-[12px] text-muted-foreground">
+                        Referred by {lead.referred_by_name}
+                      </p>
+                    )}
                     {lead.city && (
                       <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {lead.city}
                       </p>
                     )}
+
                     {lead.interest_reason && (
                       <span className="mt-2.5 self-start rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
                         {lead.interest_reason}
