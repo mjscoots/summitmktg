@@ -625,6 +625,15 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
             </TabsContent>
           )}
 
+          {section === 'money' && (
+            <TabsContent value="stackchanges">
+              <Suspense fallback={<LoadingList rows={4} />}>
+                <LazyStackChanges />
+              </Suspense>
+            </TabsContent>
+          )}
+
+
           {/* ========== DECISIONS LANE ========== */}
           <TabsContent value="queue">
             <div className="space-y-4">
