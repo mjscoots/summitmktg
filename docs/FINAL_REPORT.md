@@ -2278,3 +2278,13 @@ Archive only, no rows deleted, no profiles merged.
 - No new tables, no role changes, existing `profiles.avatar_url` column untouched.
 - Baselines after: profiles 535, chat_messages 716, people_leads 551, calendar_events 58, blitz_markets 30, avatar objects 163 (unchanged).
 - Typecheck and production build clean. Preview only, nothing published. Authenticated screenshots were not possible because the preview session is signed out.
+
+## Pass 137 — Chat photos and polls
+- Storage choice: reused the existing private `chat-uploads` bucket rather than a new bucket. Writes require the first path folder to equal auth.uid(); reads go through the member-scoped `chat_attachment_readable` policy and short-lived signed URLs, so no public-url guessing tradeoff applies.
+- Added `src/lib/chatImage.ts`: photos are re-encoded to JPEG (drops EXIF), longest edge capped at 1600px, quality stepped down until under about 2MB. GIFs and non-images pass through untouched.
+- `ChatImageUpload.tsx` now routes photos through that helper and stores the object path as before, so existing text and file messages render unchanged.
+- Lightbox: inline thumbnail opens full screen with double-tap and pinch zoom, a 44px close control, and tap outside to close.
+- Poll RLS fixed: `poll_channel_readable(uuid)` joins the poll message to its channel and `can_read_channel`, and poll read, create, vote insert and vote update policies now all require channel membership. PUBLIC and anon execute revoked, authenticated granted.
+- Poll UI capped at 2 to 4 options, counts only, one vote per person, changeable.
+- Verified in a rolled back transaction: member readable true, vote change left exactly 1 row at option 1 (no double counting). A stranger uid still passed `can_read_channel('managers')` because the existing channel visibility function treats staff rooms as broadly visible; that is pre-existing channel scope, not poll scope, and is listed here rather than changed in this pass.
+- Typecheck and production build clean. No session could be minted, so verification was database and code level. Nothing published.
