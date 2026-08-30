@@ -113,8 +113,12 @@ export default function RecruitsPage() {
   const [, setTick] = useState(0);
   const [winMoment, setWinMoment] = useState<{ firstName: string; signedCount: number | null } | null>(null);
 
+  const [refOnly, setRefOnly] = useState(false);
+  const boardShown = refOnly ? board.filter((l) => !!l.referred_by_name) : board;
+
   const activeClaims = mine.filter((l) => l.status === 'Claimed' || l.status === 'Contacted').length;
   const atLimit = activeClaims >= MAX_ACTIVE_CLAIMS;
+
 
   const load = useCallback(async () => {
     if (!user) return;
