@@ -1,25 +1,21 @@
-# Plan: Pass 132 — Structure and Skin
+# Plan: Pass 140 — PWA Install and Visual Polish
 
-## Navigation
+## Installable App
+- Keep the existing manifest-only install path: rename it to Summit MKTG HQ, preserve the correct `/app` launch scope, standalone display, and required 192px, 512px, maskable, Apple touch, and favicon assets rendered from the existing three-peak brand mark.
+- Match manifest and browser chrome to the current semantic dark/light palette, keep the mobile install hint only on More, and make it a quiet one-line, platform-aware, dismissible per-device prompt.
+- Remove the existing app-shell caching worker and registration because offline behavior was not requested. Ship the same-path cleanup worker for one release so returning browsers unregister stale caches safely without registering in preview.
 
-- Replace every workspace-specific phone bar with exactly six destinations: Home, Chat, Events, Money, Training, and More, preserving unread badges, 44px targets, keyboard hiding, and safe-area clearance.
-- Add a role-aware More screen that groups all remaining currently reachable app destinations, including leaderboard, team and management tools, scripts, resources, profile, and staff administration. Keep legacy redirects where route names have changed and make the header menu open the same complete destination model.
-- Keep desktop navigation compact while ensuring every protected route still has a reachable parent destination or intentional deep-link path.
+## Daily Surface Polish
+- Add a compact shared greeting showing the signed-in user’s first name, weekday, and date immediately above Updates on each active workspace Home, with reserved line height so loading does not shift the layout.
+- Redesign the existing rank insignia around the seven database ranks and render it only when a real rank id/name exists on profile headers and person leaderboard rows. Use accessible title/label text and no placeholder for null ranks.
+- Extract a token-based Supra ticket poster card shown only for positive ticket counts, preserving the real ticket count and existing Supra label without inventing prize or role claims.
 
-## Theme and Skin
-
-- Make `system` the true default and apply the resolved phone color scheme to every workspace; retain the existing Dark, Light, and System profile override without forcing Pest/Fiber dark or Life light.
-- Define complete semantic light and dark token sets, update browser chrome/wordmark/texture values with the resolved mode, and remove compatibility rules that merely repaint hardcoded dark utilities where the touched screens can use tokens directly.
-- Normalize the shared visual language through existing global primitives and high-traffic app shells: one 12px card radius, one semantic hairline border, restrained elevation, coherent spacing/type, workspace accent for primary actions and chips, and destructive red only for destructive states. Preserve working layouts.
-
-## Blitz and Money Scope
-
-- Remove blitz content and imports from rep Money, command Money, and Admin Money surfaces while leaving all import/reconciliation pipeline panels intact.
-- Keep blitz planning, official blitz cards, RSVP actions, and all related navigation on Events only.
+## Technical Details
+- Extend existing leaderboard data loading with profile rank joins/queries rather than changing ranking formulas or routes.
+- Use semantic CSS tokens and existing controls; preserve navigation, routes, data, and permissions.
+- Keep install metadata valid in both color schemes through manifest defaults plus runtime theme-color synchronization.
 
 ## Verification and Report
-
-- Confirm read-only baselines remain profiles 535, chat messages 716, people leads 551, calendar events 58, and blitz markets 30.
-- At 390px verify six phone destinations, safe-area/content clearance, and no overlap; emulate both light and dark schemes on Home, Chat, Events, Money, and the cover, with screenshots for Home, Events, and cover in both modes saved under `docs/screens/`.
-- Verify no blitz component imports remain in money pages, scan new visible copy for em dashes, check console/runtime output, run TypeScript and the production build, then append at most 14 lines under `## Pass 132 — Structure and skin` in `docs/FINAL_REPORT.md`. Do not publish.
-
+- Validate manifest fields and PNG dimensions, confirm no app service worker registers in preview, and verify the cleanup worker contains no offline caching.
+- Verify null ranks render no mark and zero Supra tickets render no card through code checks; test Home and More at 390px with an authenticated session when available, otherwise record code proof.
+- Check console/runtime telemetry, TypeScript, production build, responsive layout, user-facing em dashes, and append a concise `## Pass 140 — PWA install and visual polish` entry to `docs/FINAL_REPORT.md`. Do not publish.
