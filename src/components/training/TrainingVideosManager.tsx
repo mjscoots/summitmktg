@@ -77,6 +77,7 @@ export function TrainingVideosManager() {
     setCategory('Introduction');
     setTargetRole('all');
     setIsPublished(true);
+    setAudience(verticalToAudience(activeVertical));
     setVideoSource('url');
     setExternalUrl('');
     setUploadedUrl('');
@@ -95,6 +96,7 @@ export function TrainingVideosManager() {
     setCategory(video.category);
     setTargetRole(video.target_role || 'all');
     setIsPublished(video.is_active ?? true);
+    setAudience(verticalToAudience((video as { vertical?: string | null }).vertical));
     const url = video.video_url || '';
     const isExternal = url.includes('vimeo.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.startsWith('http');
     if (isExternal) {
