@@ -98,6 +98,7 @@ const ALL: Record<string, NavDest> = {
   board: { key: 'board', label: 'Board', path: '/app/leaderboard', icon: Trophy },
   season: { key: 'season', label: 'Season', path: '/app/season', icon: Trophy },
   installs: { key: 'installs', label: 'Installs', path: '/app/installs', icon: Wifi },
+  stacks: { key: 'stacks', label: 'Stacks', path: '/app/stacks', icon: DollarSign, minTier: 'manager' },
   pipeline: { key: 'pipeline', label: 'Pipeline', path: '/app/pipeline', icon: ClipboardList },
   team: { key: 'team', label: 'Team', path: '/app/team', icon: Users, minTier: 'manager' },
   week: { key: 'week', label: 'My week', path: '/app/week', icon: CalendarClock, minTier: 'manager' },
@@ -155,7 +156,7 @@ export function moreGroups(
 
   const workspaceKeys =
     w === 'fiber'
-      ? ['leaderboard', 'installs', 'industries']
+      ? ['leaderboard', 'installs', 'stacks', 'industries']
       : w === 'life'
         ? ['pipeline', 'leaderboard', 'industries']
         : ['leaderboard', 'season', 'missions', 'doors', 'industries'];
