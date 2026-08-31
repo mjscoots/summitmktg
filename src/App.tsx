@@ -413,10 +413,13 @@ function LazyFallback() {
               <Route path="/app/doors" element={
                 <ProtectedRoute>
                   <WorkspaceThemeProvider>
-                    <DoorsPage />
+                    <VerticalRouteGuard>
+                      <DoorsPage />
+                    </VerticalRouteGuard>
                   </WorkspaceThemeProvider>
                 </ProtectedRoute>
               } />
+
 
               {/* Ask Summit — grounded AI assistant */}
               <Route path="/app/ask" element={
