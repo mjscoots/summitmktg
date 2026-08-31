@@ -46,7 +46,7 @@ export default function StacksPage() {
 
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [ranks, setRanks] = useState<Rank[]>([]);
-  const [vertical, setVertical] = useState<string>(activeVertical || 'Fiber');
+  const vertical = activeVertical || 'Fiber';
   const [carrierId, setCarrierId] = useState<string>('');
   const [rows, setRows] = useState<BoardRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,19 +67,10 @@ export default function StacksPage() {
     })();
   }, []);
 
-  const verticals = useMemo(
-    () => Array.from(new Set(carriers.map((c) => c.vertical))),
-    [carriers],
-  );
   const verticalCarriers = useMemo(
     () => carriers.filter((c) => c.vertical === vertical),
     [carriers, vertical],
   );
-
-  useEffect(() => {
-    if (verticals.length === 0) return;
-    if (!verticals.includes(vertical)) setVertical(verticals[0]);
-  }, [verticals, vertical]);
 
   useEffect(() => {
     if (verticalCarriers.length === 0) { setCarrierId(''); return; }
@@ -148,9 +139,6 @@ export default function StacksPage() {
         />
 
         <div className="flex flex-wrap gap-2">
-          <select value={vertical} onChange={(e) => setVertical(e.target.value)} className={selectClass}>
-            {verticals.map((v) => <option key={v} value={v}>{v}</option>)}
-          </select>
           <select value={carrierId} onChange={(e) => setCarrierId(e.target.value)} className={selectClass}>
             {verticalCarriers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>

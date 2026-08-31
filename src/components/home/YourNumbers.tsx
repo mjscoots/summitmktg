@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { isManagerOrAbove } from '@/lib/roles';
 import { useRecruitGate } from '@/hooks/useRecruitGate';
 import { useManagerOwed } from '@/hooks/useManagerOwed';
@@ -85,6 +86,7 @@ function RecruitBlock() {
 function ManagerBlock() {
   const navigate = useNavigate();
   const { owed } = useManagerOwed();
+  const { activeVertical } = useWorkspace();
   const [rep, setRep] = useState<{ user_id: string; full_name: string } | null>(null);
 
   useEffect(() => {
@@ -95,7 +97,7 @@ function ManagerBlock() {
       if (alive && rows.length > 0) setRep(rows[0]);
     })();
     return () => { alive = false; };
-  }, []);
+  }, [activeVertical]);
 
   const cells = [
     owed.one_on_ones_missing > 0
