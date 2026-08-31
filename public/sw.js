@@ -5,6 +5,10 @@
    hold the old caching worker at /sw.js receive a replacement that clears the
    caches that worker created and then unregisters itself.
 
+   It never navigates or reloads open tabs. Reloading from a worker that then
+   unregisters itself can put a tab into a repeating reload loop, so the page
+   is left alone and picks up fresh files on its next normal navigation.
+
    Only Summit's own caches are removed. Cache Storage is shared across the
    origin, so other workers keep their own buckets. */
 
@@ -20,9 +24,6 @@ self.addEventListener('activate', (event) =>
       try {
         const names = await caches.keys();
         await Promise.allSettled(names.filter(isSummitAppShellCache).map((n) => caches.delete(n)));
-        await self.clients.claim();
-        const windows = await self.clients.matchAll({ type: 'window' });
-        await Promise.allSettled(windows.map((client) => client.navigate(client.url)));
       } finally {
         // activate fires once, so the unregister has to happen no matter what.
         await self.registration.unregister();
