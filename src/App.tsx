@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RookieViewProvider } from "@/contexts/RookieViewContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
+import { VerticalRouteGuard } from '@/components/workspace/VerticalRouteGuard';
 import { WorkspaceThemeProvider } from "@/components/workspace/WorkspaceThemeProvider";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
