@@ -56,8 +56,10 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
   ],
   requests: [
     { value: 'queue', label: 'Decisions' },
+    { value: 'applications', label: 'Applications' },
     { value: 'feedback', label: 'Feedback' },
   ],
+
   money: [
     { value: 'money', label: 'Ladders and production', adminOnly: true },
     { value: 'stackchanges', label: 'Stack changes', adminOnly: true },
