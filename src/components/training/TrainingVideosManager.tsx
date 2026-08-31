@@ -10,6 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Video, Loader2, Film, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AudienceSelect, audienceToVertical, verticalToAudience } from '@/components/shared/AudienceSelect';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { toast } from 'sonner';
 import { VideoUploader } from '@/components/VideoUploader';
 import { VideoPlayer } from '@/components/VideoPlayer';
@@ -127,6 +129,7 @@ export function TrainingVideosManager() {
         target_role: targetRole === 'all' ? null : targetRole,
         video_url: finalUrl,
         is_active: isPublished,
+        vertical: audienceToVertical(audience),
         added_by: user?.id,
       };
 
