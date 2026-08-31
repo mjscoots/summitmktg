@@ -6,6 +6,7 @@ import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import type { ChatConversation } from '@/hooks/useChatChannels';
 import { cn } from '@/lib/utils';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 const firstName = (name?: string | null) => (name || '').trim().split(/\s+/)[0] || '';
 
@@ -43,10 +44,31 @@ export function ChatList({
   onOpen: (slug: string) => void;
 }) {
   const navigate = useNavigate();
+  const { activeVertical, switchWorkspace } = useWorkspace();
+
+  const mine = useMemo(
+    () =>
+      conversations.filter(
+        (c) => c.kind === 'dm' || !c.vertical || c.vertical === (activeVertical || 'Pest')
+      ),
+    [conversations, activeVertical]
+  );
+
+  /** Rooms in another workspace stay counted, collapsed into one line each. */
+  const elsewhere = useMemo(() => {
+    const tally = new Map<string, number>();
+    conversations.forEach((c) => {
+      if (c.kind === 'dm' || !c.vertical) return;
+      if (c.vertical === (activeVertical || 'Pest')) return;
+      if (c.is_muted) return;
+      tally.set(c.vertical, (tally.get(c.vertical) || 0) + (c.unread || 0));
+    });
+    return [...tally.entries()].filter(([, n]) => n > 0).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [conversations, activeVertical]);
 
   const rows = useMemo(
     () =>
-      [...conversations]
+      [...mine]
         .filter((c) => c.slug !== 'ai-coach')
         .sort((a, b) => {
           const at = a.last_at ? new Date(a.last_at).getTime() : 0;
@@ -54,7 +76,7 @@ export function ChatList({
           if (bt !== at) return bt - at;
           return a.label.localeCompare(b.label);
         }),
-    [conversations]
+    [mine]
   );
 
   return (
@@ -122,6 +144,21 @@ export function ChatList({
         })}
 
 
+
+        {elsewhere.map(([vertical, unread]) => (
+          <li key={`elsewhere-${vertical}`}>
+            <button
+              type="button"
+              onClick={() => switchWorkspace(vertical)}
+              className="flex min-h-[56px] w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[hsl(var(--surface-elevated))]"
+            >
+              <span className="min-w-0 flex-1 truncate text-[13px] text-muted-foreground">
+                {unread} unread in {vertical}. Switch workspace to read it.
+              </span>
+              <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+            </button>
+          </li>
+        ))}
 
         {rows.length === 0 && (
           <li className="px-3 py-8 text-center text-[13px] text-muted-foreground">

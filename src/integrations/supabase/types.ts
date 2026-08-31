@@ -7234,7 +7234,10 @@ export type Database = {
         Returns: Json
       }
       cycle_stale_people_leads: { Args: never; Returns: Json }
-      dark_rep_radar: { Args: { _manager?: string }; Returns: Json }
+      dark_rep_radar: {
+        Args: { _manager?: string; _vertical?: string }
+        Returns: Json
+      }
       day_one_video_ids: { Args: never; Returns: string[] }
       decide_resign_intent: {
         Args: { _confirm: boolean; _intent_id: string }
@@ -7983,6 +7986,10 @@ export type Database = {
         Args: { _rep: string; _uid: string }
         Returns: boolean
       }
+      is_vertical_member: {
+        Args: { _user: string; _vertical: string }
+        Returns: boolean
+      }
       lead_add_tag: {
         Args: { _lead: string; _tag: string }
         Returns: undefined
@@ -8140,7 +8147,7 @@ export type Database = {
       }
       manager_owed: { Args: { _manager?: string }; Returns: Json }
       manager_stack_board: {
-        Args: { _carrier_id: string; _manager?: string }
+        Args: { _carrier_id: string; _manager?: string; _vertical?: string }
         Returns: Json
       }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
@@ -8179,7 +8186,7 @@ export type Database = {
       my_referral_count: { Args: never; Returns: number }
       my_resign_intent: { Args: never; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
-      my_stacks: { Args: never; Returns: Json }
+      my_stacks: { Args: { _vertical?: string }; Returns: Json }
       my_vertical: { Args: never; Returns: string }
       my_your_three: { Args: never; Returns: Json }
       new_invite_token: { Args: never; Returns: string }
@@ -8212,7 +8219,7 @@ export type Database = {
       post_weekly_awards: { Args: never; Returns: Json }
       post_weekly_digest: { Args: never; Returns: Json }
       prep_roster: {
-        Args: never
+        Args: { _vertical?: string }
         Returns: {
           avatar_url: string
           full_name: string

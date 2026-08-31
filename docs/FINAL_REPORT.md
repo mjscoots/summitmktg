@@ -2355,3 +2355,17 @@ Archive only, no rows deleted, no profiles merged.
 - Privileges: dark_rep_radar anon false, authenticated true; notify_stalled_applications anon false, authenticated false.
 - Baselines: profiles 535, people_leads 551, chat_messages 717, calendar_events 58, user_roles 3, rep_carrier_ranks 0. Only change is the 3 intended stall notifications.
 - Typecheck and production build clean. No em dashes in new user-facing copy. Authenticated screenshots not possible, session minting needs a specific auth user and per-user approval, so this is code and database proof. Nothing published.
+
+## Pass 144 — Vertical separation
+
+| Surface | Scope now |
+| --- | --- |
+| Route wall (`VerticalRouteGuard`) | Installs, Stacks (Fiber), Pipeline (Life), Doors, Season (Pest). Wrong workspace redirects to `/app` with "That lives in X. Switch workspace to open it." |
+| Home updates strip | announcement_posts and calendar_events filtered to active vertical plus All Summit |
+| Next training, video player list | training_courses and training_videos filtered to active vertical plus All Summit |
+| Chat list | Rooms of other verticals collapse into one "N unread in X" line; the nav badge still counts every room (`get_conversations` now returns each room's vertical) |
+| Radar, Stacks board, Your stacks, One on one prep, Home manager block | Pass `_vertical` into `dark_rep_radar`, `manager_stack_board`, `my_stacks`, `prep_roster`; old unscoped overloads dropped |
+| Admin forms | Events, announcements, training videos and assistant FAQ gained a required "Who is this for" choice, default active workspace, All Summit option |
+| Fiber navigation | Stacks added to the Fiber Your work group |
+
+Counts: chat_channels 11 Pest / 3 Fiber / 3 All Summit; calendar_events 48 / 2 / 8; scripts 20 Pest / 5 All Summit; assistant_faq 2 Pest / 10 Fiber; announcement_posts 4 Pest; training 97 videos and 6 courses Pest, so Fiber training shows the quiet empty state and no Pest rows. Every new or changed function is authenticated only, never anon or PUBLIC. Typecheck and production build clean. Nothing published.

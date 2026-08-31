@@ -18,6 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { toast } from 'sonner';
 import { Users, User, UserCheck, Loader2, Search, Globe, MapPin, Video, Link2, CalendarPlus, CalendarIcon, Clock, Type, Tag, Repeat, MapPinned, FileText, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AudienceSelect, audienceToVertical, verticalToAudience } from '@/components/shared/AudienceSelect';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { RecurrenceSelector, DEFAULT_RECURRENCE, type RecurrenceSettings } from './RecurrenceSelector';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { TIMEZONES } from '@/lib/timezones';
@@ -135,6 +137,10 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
   const [locationMode, setLocationMode] = useState<LocationMode>('virtual');
   const [locationDetail, setLocationDetail] = useState('');
   const [eventType, setEventType] = useState('mandatory');
+  const { activeVertical } = useWorkspace();
+  const [audience, setAudience] = useState<string>(
+    verticalToAudience((event as { vertical?: string | null } | undefined)?.vertical ?? activeVertical)
+  );
   const [isTeamWide, setIsTeamWide] = useState(true);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [assignmentMode, setAssignmentMode] = useState<AssignmentMode>('entire_team');
@@ -274,6 +280,7 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
         end_date: endDateTime?.toISOString() || null,
         location: locationValue,
         event_type: eventType,
+        vertical: audienceToVertical(audience),
         is_team_wide: isTeamWide,
         manager_id: user?.id,
         // Managers write only for their own team; owner and admin unrestricted.
@@ -388,6 +395,8 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
               required 
               className="h-11 text-base bg-background/50 border-border/40 focus:border-primary/50 transition-colors"
             />
+
+            <AudienceSelect value={audience} onChange={setAudience} label="Who is this for" />
 
             {/* Event type chips */}
             <div className="flex flex-wrap gap-1.5">

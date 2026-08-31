@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Radar, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ const ORDER: Bucket[] = ['never', '30', '14', '7'];
 export function DarkRepRadar({ className }: { className?: string }) {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [rows, setRows] = useState<RadarRow[]>([]);
   const [staff, setStaff] = useState(false);
   const [managerFilter, setManagerFilter] = useState('all');
@@ -41,10 +43,10 @@ export function DarkRepRadar({ className }: { className?: string }) {
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await (supabase as any).rpc('dark_rep_radar', { _manager: null });
+    const { data } = await (supabase as any).rpc('dark_rep_radar', { _manager: null, _vertical: activeVertical });
     setRows((data?.rows as RadarRow[]) ?? []);
     setStaff(Boolean(data?.staff));
-  }, []);
+  }, [activeVertical]);
 
   // The list is empty for a signed out caller, so wait for the session before
   // asking; otherwise a fast mount leaves the card permanently hidden.

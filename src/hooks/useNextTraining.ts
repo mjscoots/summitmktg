@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 export interface NextTrainingItem {
   kind: 'lesson' | 'mastery';
@@ -42,6 +44,7 @@ interface CourseRow {
  */
 export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {
   const { user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [next, setNext] = useState<NextTrainingItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,6 +60,7 @@ export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {
             training_modules ( id, title, display_order, is_active,
               training_lessons ( id, title, display_order, is_active ) )`)
           .eq('is_active', true)
+          .or(verticalFilter(activeVertical))
           .in('slug', slugs)
           .order('display_order'),
         supabase
@@ -117,7 +121,7 @@ export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, track]);
+  }, [user?.id, track, activeVertical]);
 
   useEffect(() => {
     void load();

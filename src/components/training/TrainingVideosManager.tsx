@@ -10,6 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Video, Loader2, Film, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AudienceSelect, audienceToVertical, verticalToAudience } from '@/components/shared/AudienceSelect';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { toast } from 'sonner';
 import { VideoUploader } from '@/components/VideoUploader';
 import { VideoPlayer } from '@/components/VideoPlayer';
@@ -42,6 +44,8 @@ export function TrainingVideosManager() {
   const [category, setCategory] = useState('Introduction');
   const [targetRole, setTargetRole] = useState<AppRole | 'all'>('all');
   const [isPublished, setIsPublished] = useState(true);
+  const { activeVertical } = useWorkspace();
+  const [audience, setAudience] = useState<string>(verticalToAudience(activeVertical));
   const [videoSource, setVideoSource] = useState<VideoSource>('url');
   const [externalUrl, setExternalUrl] = useState('');
   const [uploadedUrl, setUploadedUrl] = useState('');
@@ -73,6 +77,7 @@ export function TrainingVideosManager() {
     setCategory('Introduction');
     setTargetRole('all');
     setIsPublished(true);
+    setAudience(verticalToAudience(activeVertical));
     setVideoSource('url');
     setExternalUrl('');
     setUploadedUrl('');
@@ -91,6 +96,7 @@ export function TrainingVideosManager() {
     setCategory(video.category);
     setTargetRole(video.target_role || 'all');
     setIsPublished(video.is_active ?? true);
+    setAudience(verticalToAudience((video as { vertical?: string | null }).vertical));
     const url = video.video_url || '';
     const isExternal = url.includes('vimeo.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.startsWith('http');
     if (isExternal) {
@@ -125,6 +131,7 @@ export function TrainingVideosManager() {
         target_role: targetRole === 'all' ? null : targetRole,
         video_url: finalUrl,
         is_active: isPublished,
+        vertical: audienceToVertical(audience),
         added_by: user?.id,
       };
 
@@ -357,6 +364,10 @@ export function TrainingVideosManager() {
             )}
 
             {/* Title */}
+            <div>
+              <AudienceSelect value={audience} onChange={setAudience} label="Who is this for" />
+            </div>
+
             <div>
               <Label>Video Title *</Label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Body Language Training" className="mt-1" />

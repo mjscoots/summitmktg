@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 interface EventRow {
   id: string;
@@ -59,6 +61,7 @@ function incentiveLine(text: string | null): string | null {
  * first, every one tappable. Nothing to say means the strip is not there.
  */
 export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
   const [acking, setAcking] = useState<string | null>(null);
@@ -73,12 +76,14 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
           .from('announcement_posts')
           .select('id, title, body, created_at, expires_at')
           .eq('status', 'published')
+          .or(verticalFilter(activeVertical))
           .order('created_at', { ascending: false })
           .limit(6),
         (supabase as any).from('announcement_acks').select('post_id'),
         (supabase as any)
           .from('calendar_events')
           .select('id, title, event_date, end_date, location, event_kind, scope, description')
+          .or(verticalFilter(activeVertical))
           .gte('event_date', new Date(now - 21 * 86_400_000).toISOString())
           .lte('event_date', new Date(now + 120 * 86_400_000).toISOString())
           .order('event_date', { ascending: true }),
@@ -153,7 +158,7 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
       setItems(next);
     })();
     return () => { cancelled = true; };
-  }, [isManagerTier]);
+  }, [isManagerTier, activeVertical]);
 
   if (items.length === 0) return null;
 

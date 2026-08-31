@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { cn } from '@/lib/utils';
+import { AudienceSelect, audienceToVertical, verticalToAudience } from '@/components/shared/AudienceSelect';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -38,11 +41,13 @@ export function AdminAssistantTab() {
   const [newAnswer, setNewAnswer] = useState('');
   const [saving, setSaving] = useState(false);
   const [edits, setEdits] = useState<Record<string, { question: string; answer: string }>>({});
+  const { activeVertical } = useWorkspace();
+  const [audience, setAudience] = useState<string>(verticalToAudience(activeVertical));
 
   const load = async () => {
     setLoading(true);
     const [f, l, p] = await Promise.all([
-      supabase.from('assistant_faq').select('*').order('display_order').order('created_at'),
+      supabase.from('assistant_faq').select('*').or(verticalFilter(activeVertical)).order('display_order').order('created_at'),
       supabase.from('assistant_logs').select('*').order('created_at', { ascending: false }).limit(50),
       supabase.from('profiles').select('user_id, full_name').eq('archived', false),
     ]);
@@ -54,7 +59,8 @@ export function AdminAssistantTab() {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeVertical]);
 
   const addFaq = async () => {
     if (!newQuestion.trim() || !newAnswer.trim()) return;
@@ -63,6 +69,7 @@ export function AdminAssistantTab() {
       question: newQuestion.trim(),
       answer: newAnswer.trim(),
       display_order: faqs.length,
+      vertical: audienceToVertical(audience),
       created_by: user?.id ?? null,
     });
     setSaving(false);
@@ -135,7 +142,7 @@ export function AdminAssistantTab() {
           <Input
             value={newQuestion}
             onChange={e => setNewQuestion(e.target.value)}
-            placeholder="Question — e.g. When is rent due?"
+            placeholder="Question, for example: when is rent due?"
             className="bg-background/60 border-white/[0.08]"
           />
           <textarea
@@ -145,6 +152,7 @@ export function AdminAssistantTab() {
             placeholder="Answer"
             className="w-full rounded-lg bg-background/60 border border-white/[0.08] px-3 py-2 text-sm text-foreground resize-none"
           />
+          <AudienceSelect value={audience} onChange={setAudience} label="Who is this for" />
           <div className="flex justify-end">
             <Button
               onClick={addFaq}

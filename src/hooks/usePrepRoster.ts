@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { parseRepYear, nextRepYear, repYearLabel } from '@/lib/repYear';
 
 export interface PrepRosterPerson {
@@ -32,6 +33,7 @@ export interface PrepRosterGroup {
  */
 export function usePrepRoster(mode: 'rookie' | 'manager') {
   const { user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [people, setPeople] = useState<PrepRosterPerson[]>([]);
   const [loggedIds, setLoggedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -44,11 +46,11 @@ export function usePrepRoster(mode: 'rookie' | 'manager') {
       return;
     }
     setLoading(true);
-    const { data, error } = await (supabase as any).rpc('prep_roster');
+    const { data, error } = await (supabase as any).rpc('prep_roster', { _vertical: activeVertical });
     if (error) console.error('prep_roster failed:', error);
     setPeople(((data as PrepRosterPerson[]) || []));
     setLoading(false);
-  }, [user?.id]);
+  }, [user?.id, activeVertical]);
 
   const loadLogged = useCallback(async () => {
     if (!user?.id) return;
