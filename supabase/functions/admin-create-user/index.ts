@@ -251,7 +251,7 @@ Deno.serve(async (req) => {
                 <p><strong>Email:</strong> ${normalizedEmail}</p>
                 <p><strong>Temporary Password:</strong> ${password}</p>
                 <p>Please log in and change your password immediately.</p>
-                <p><a href="https://summitmktg.lovable.app/app/auth">Log in to Summit</a></p>
+                <p><a href="https://summitmktg.lovable.app/login">Log in to Summit</a></p>
               `,
             }),
           });
