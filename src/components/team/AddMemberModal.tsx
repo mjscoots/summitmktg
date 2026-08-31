@@ -198,6 +198,8 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
           role: selectedRole,
           team_id: selectedTeamId,
           direct_manager: reportsTo?.full_name || '',
+          manager_user_id: reportsTo?.user_id || undefined,
+
           status,
           send_welcome: sendWelcome,
         },

@@ -74,9 +74,11 @@ Deno.serve(async (req) => {
       role = "rookie", 
       team_id, 
       direct_manager, 
+      manager_user_id,
       status = "active",
       send_welcome = true,
     } = body;
+
 
     if (!email || !full_name) {
       return new Response(JSON.stringify({ error: "Email and full name are required" }), {
@@ -171,6 +173,7 @@ Deno.serve(async (req) => {
         phone: phone || null,
         team_id: team_id || null,
         direct_manager: direct_manager || null,
+        manager_id: manager_user_id || null,
         status: status,
         approved: true,
       })
@@ -179,6 +182,20 @@ Deno.serve(async (req) => {
     if (updateError) {
       console.error("Profile update error:", updateError);
     }
+
+    // Without the edge the new person is missing from their manager's downline
+    // views (quiet reps, stacks board, pulse), so record it alongside manager_id.
+    if (manager_user_id) {
+      const { error: edgeError } = await supabaseAdmin
+        .from("downline_edges")
+        .insert({
+          parent_user_id: manager_user_id,
+          child_user_id: newUser.user.id,
+          edge_type: "manages",
+        });
+      if (edgeError) console.error("Downline edge error:", edgeError);
+    }
+
 
     // Apply the requested role. The signup trigger only ever writes 'rookie',
     // so without this a new manager or admin would land as a rookie.
@@ -234,7 +251,7 @@ Deno.serve(async (req) => {
                 <p><strong>Email:</strong> ${normalizedEmail}</p>
                 <p><strong>Temporary Password:</strong> ${password}</p>
                 <p>Please log in and change your password immediately.</p>
-                <p><a href="https://summitmktg.lovable.app/app/auth">Log in to Summit</a></p>
+                <p><a href="https://summitmktg.lovable.app/login">Log in to Summit</a></p>
               `,
             }),
           });

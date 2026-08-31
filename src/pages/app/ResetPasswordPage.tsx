@@ -38,7 +38,7 @@ const ResetPasswordPage = () => {
       toast.error("Failed to reset password", { description: error.message });
     } else {
       toast.success("Password updated");
-      navigate("/app/auth", { replace: true });
+      navigate("/login", { replace: true });
     }
   };
 
@@ -51,7 +51,7 @@ const ResetPasswordPage = () => {
           <p className="text-muted-foreground mb-4">
             This page is used to set a new password after clicking a reset link in your email.
           </p>
-          <button onClick={() => navigate("/app/auth")} className="btn-primary">
+          <button onClick={() => navigate("/login")} className="btn-primary">
             Go to Sign In
           </button>
         </div>
@@ -63,7 +63,7 @@ const ResetPasswordPage = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md animate-fade-in">
         <button
-          onClick={() => navigate("/app/auth")}
+          onClick={() => navigate("/login")}
           className="flex items-center text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
