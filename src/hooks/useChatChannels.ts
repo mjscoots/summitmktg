@@ -18,6 +18,8 @@ export interface ChatConversation {
   /** Direct messages only. */
   avatar_url?: string | null;
   other_user_id?: string | null;
+  /** The industry this room belongs to. NULL is All Summit. */
+  vertical?: string | null;
   /** Group rooms only: object path of the cover photo. */
   cover_image_path?: string | null;
   /** This person muted the room: readable, but quiet. */

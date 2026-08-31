@@ -93,6 +93,7 @@ export default function StacksPage() {
     const { data, error } = await (supabase as any).rpc('manager_stack_board', {
       _carrier_id: carrierId,
       _manager: null,
+      _vertical: activeVertical,
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }

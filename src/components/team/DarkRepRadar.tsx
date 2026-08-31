@@ -41,7 +41,7 @@ export function DarkRepRadar({ className }: { className?: string }) {
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await (supabase as any).rpc('dark_rep_radar', { _manager: null });
+    const { data } = await (supabase as any).rpc('dark_rep_radar', { _manager: null, _vertical: activeVertical });
     setRows((data?.rows as RadarRow[]) ?? []);
     setStaff(Boolean(data?.staff));
   }, []);

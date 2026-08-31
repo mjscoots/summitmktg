@@ -44,7 +44,7 @@ export function usePrepRoster(mode: 'rookie' | 'manager') {
       return;
     }
     setLoading(true);
-    const { data, error } = await (supabase as any).rpc('prep_roster');
+    const { data, error } = await (supabase as any).rpc('prep_roster', { _vertical: activeVertical });
     if (error) console.error('prep_roster failed:', error);
     setPeople(((data as PrepRosterPerson[]) || []));
     setLoading(false);

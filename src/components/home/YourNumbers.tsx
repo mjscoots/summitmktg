@@ -90,7 +90,7 @@ function ManagerBlock() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data } = await (supabase as any).rpc('prep_roster');
+      const { data } = await (supabase as any).rpc('prep_roster', { _vertical: activeVertical });
       const rows = (data as { user_id: string; full_name: string }[]) || [];
       if (alive && rows.length > 0) setRep(rows[0]);
     })();

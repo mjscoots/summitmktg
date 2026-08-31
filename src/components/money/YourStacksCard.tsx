@@ -27,7 +27,7 @@ export function YourStacksCard() {
   useEffect(() => {
     if (authLoading || !user) return;
     (async () => {
-      const { data } = await (supabase as any).rpc('my_stacks');
+      const { data } = await (supabase as any).rpc('my_stacks', { _vertical: activeVertical });
       setRows(((data as StackRow[]) ?? []).filter((r) => r.rank_name || r.stack_value != null));
     })();
   }, [authLoading, user]);
