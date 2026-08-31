@@ -747,7 +747,6 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                     <LazyReactivations />
                   </Suspense>
                   {isAdmin && <VerticalRequestsPanel />}
-                  <AdminApplicationsTab />
                   <Suspense fallback={<LoadingList rows={4} />}>
                     <LazyPitchApprovals />
                   </Suspense>
@@ -755,6 +754,15 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
               )}
             </div>
           </TabsContent>
+
+          {/* ========== APPLICATIONS LANE ========== */}
+          <TabsContent value="applications">
+            <div className="space-y-2">
+              <ApplicationsPulseLine />
+              <AdminApplicationsTab />
+            </div>
+          </TabsContent>
+
 
 
           {/* ========== MONEY TAB ========== */}
