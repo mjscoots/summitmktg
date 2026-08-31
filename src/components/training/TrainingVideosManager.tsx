@@ -42,6 +42,8 @@ export function TrainingVideosManager() {
   const [category, setCategory] = useState('Introduction');
   const [targetRole, setTargetRole] = useState<AppRole | 'all'>('all');
   const [isPublished, setIsPublished] = useState(true);
+  const { activeVertical } = useWorkspace();
+  const [audience, setAudience] = useState<string>(verticalToAudience(activeVertical));
   const [videoSource, setVideoSource] = useState<VideoSource>('url');
   const [externalUrl, setExternalUrl] = useState('');
   const [uploadedUrl, setUploadedUrl] = useState('');
@@ -357,6 +359,10 @@ export function TrainingVideosManager() {
             )}
 
             {/* Title */}
+            <div>
+              <AudienceSelect value={audience} onChange={setAudience} label="Who is this for" />
+            </div>
+
             <div>
               <Label>Video Title *</Label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Body Language Training" className="mt-1" />

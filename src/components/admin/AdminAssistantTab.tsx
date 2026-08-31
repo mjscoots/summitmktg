@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { cn } from '@/lib/utils';
+import { AudienceSelect, audienceToVertical, verticalToAudience } from '@/components/shared/AudienceSelect';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -38,11 +41,13 @@ export function AdminAssistantTab() {
   const [newAnswer, setNewAnswer] = useState('');
   const [saving, setSaving] = useState(false);
   const [edits, setEdits] = useState<Record<string, { question: string; answer: string }>>({});
+  const { activeVertical } = useWorkspace();
+  const [audience, setAudience] = useState<string>(verticalToAudience(activeVertical));
 
   const load = async () => {
     setLoading(true);
     const [f, l, p] = await Promise.all([
-      supabase.from('assistant_faq').select('*').order('display_order').order('created_at'),
+      supabase.from('assistant_faq').select('*').or(verticalFilter(activeVertical)).order('display_order').order('created_at'),
       supabase.from('assistant_logs').select('*').order('created_at', { ascending: false }).limit(50),
       supabase.from('profiles').select('user_id, full_name').eq('archived', false),
     ]);
@@ -63,6 +68,7 @@ export function AdminAssistantTab() {
       question: newQuestion.trim(),
       answer: newAnswer.trim(),
       display_order: faqs.length,
+      vertical: audienceToVertical(audience),
       created_by: user?.id ?? null,
     });
     setSaving(false);

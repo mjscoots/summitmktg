@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { AudienceSelect, audienceToVertical, verticalToAudience } from '@/components/shared/AudienceSelect';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -39,6 +41,8 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
   const [audienceTeamId, setAudienceTeamId] = useState<string>('');
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
+  const { activeVertical } = useWorkspace();
+  const [industry, setIndustry] = useState<string>(verticalToAudience(activeVertical));
 
   useEffect(() => {
     if (!open) return;
@@ -61,6 +65,7 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       setExpiresAt(post.expires_at ? post.expires_at.split('T')[0] : '');
       setAudience(post.audience || 'everyone');
       setAudienceTeamId(post.audience_team_id || '');
+      setIndustry(verticalToAudience((post as { vertical?: string | null }).vertical));
     } else {
       setTitle('');
       setBody('');
@@ -96,6 +101,7 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
       created_by: user?.id,
       audience,
       audience_team_id: audience === 'team' ? audienceTeamId : null,
+      vertical: audienceToVertical(industry),
     };
 
     // If pinning, unpin others first
@@ -158,6 +164,10 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
               <Label className="text-xs text-muted-foreground mb-1.5 block">CTA Destination</Label>
               <Input value={ctaTarget} onChange={e => setCtaTarget(e.target.value)} placeholder="/app/videos" className="bg-background/50" />
             </div>
+          </div>
+
+          <div>
+            <AudienceSelect value={industry} onChange={setIndustry} label="Who is this for" />
           </div>
 
           <div>
