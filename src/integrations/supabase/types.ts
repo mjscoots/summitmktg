@@ -7234,9 +7234,10 @@ export type Database = {
         Returns: Json
       }
       cycle_stale_people_leads: { Args: never; Returns: Json }
-      dark_rep_radar:
-        | { Args: { _manager?: string }; Returns: Json }
-        | { Args: { _manager?: string; _vertical?: string }; Returns: Json }
+      dark_rep_radar: {
+        Args: { _manager?: string; _vertical?: string }
+        Returns: Json
+      }
       day_one_video_ids: { Args: never; Returns: string[] }
       decide_resign_intent: {
         Args: { _confirm: boolean; _intent_id: string }
@@ -8145,12 +8146,10 @@ export type Database = {
         Returns: string
       }
       manager_owed: { Args: { _manager?: string }; Returns: Json }
-      manager_stack_board:
-        | { Args: { _carrier_id: string; _manager?: string }; Returns: Json }
-        | {
-            Args: { _carrier_id: string; _manager?: string; _vertical?: string }
-            Returns: Json
-          }
+      manager_stack_board: {
+        Args: { _carrier_id: string; _manager?: string; _vertical?: string }
+        Returns: Json
+      }
       mark_announcements_seen: { Args: { _ids: string[] }; Returns: undefined }
       mark_chat_channel_read: {
         Args: { _all?: boolean; _channel: string }
