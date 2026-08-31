@@ -59,7 +59,8 @@ export function AdminAssistantTab() {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeVertical]);
 
   const addFaq = async () => {
     if (!newQuestion.trim() || !newAnswer.trim()) return;
@@ -141,7 +142,7 @@ export function AdminAssistantTab() {
           <Input
             value={newQuestion}
             onChange={e => setNewQuestion(e.target.value)}
-            placeholder="Question — e.g. When is rent due?"
+            placeholder="Question, for example: when is rent due?"
             className="bg-background/60 border-white/[0.08]"
           />
           <textarea
@@ -151,6 +152,7 @@ export function AdminAssistantTab() {
             placeholder="Answer"
             className="w-full rounded-lg bg-background/60 border border-white/[0.08] px-3 py-2 text-sm text-foreground resize-none"
           />
+          <AudienceSelect value={audience} onChange={setAudience} label="Who is this for" />
           <div className="flex justify-end">
             <Button
               onClick={addFaq}
