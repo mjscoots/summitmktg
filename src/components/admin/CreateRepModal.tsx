@@ -85,6 +85,8 @@ export function CreateRepModal({ open, onOpenChange, managers, teams, onSuccess 
           role: 'rookie',
           team_id: teamId || undefined,
           direct_manager: selectedManager?.full_name || undefined,
+          manager_user_id: managerId || undefined,
+
           status: 'active',
           send_welcome: sendEmail,
         },

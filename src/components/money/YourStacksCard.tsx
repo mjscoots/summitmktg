@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
 
 interface StackRow {
   carrier_id: string;
@@ -19,14 +21,17 @@ export function stackLine(row: StackRow): string {
 
 /** Quiet card on My money: what the rep is stacked at, carrier by carrier. */
 export function YourStacksCard() {
+  const { user, isLoading: authLoading } = useAuth();
   const [rows, setRows] = useState<StackRow[]>([]);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     (async () => {
       const { data } = await (supabase as any).rpc('my_stacks');
       setRows(((data as StackRow[]) ?? []).filter((r) => r.rank_name || r.stack_value != null));
     })();
-  }, []);
+  }, [authLoading, user]);
+
 
   if (rows.length === 0) return null;
 

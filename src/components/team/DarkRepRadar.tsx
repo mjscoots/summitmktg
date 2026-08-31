@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radar, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
 import { UserAvatar } from '@/components/shared/UserAvatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +33,7 @@ const ORDER: Bucket[] = ['never', '30', '14', '7'];
 /** Days since last app activity for the people a manager is responsible for. */
 export function DarkRepRadar({ className }: { className?: string }) {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   const [rows, setRows] = useState<RadarRow[]>([]);
   const [staff, setStaff] = useState(false);
   const [managerFilter, setManagerFilter] = useState('all');
@@ -43,9 +46,13 @@ export function DarkRepRadar({ className }: { className?: string }) {
     setStaff(Boolean(data?.staff));
   }, []);
 
+  // The list is empty for a signed out caller, so wait for the session before
+  // asking; otherwise a fast mount leaves the card permanently hidden.
   useEffect(() => {
+    if (authLoading || !user) return;
     void load();
-  }, [load]);
+  }, [load, authLoading, user]);
+
 
   const managers = useMemo(() => {
     const set = new Set<string>();

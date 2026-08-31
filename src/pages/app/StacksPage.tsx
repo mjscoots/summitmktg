@@ -40,7 +40,7 @@ export function stackText(row: { rank_name: string | null; stack_value: number |
 }
 
 export default function StacksPage() {
-  const { role } = useAuth();
+  const { role, user, isLoading: authLoading } = useAuth();
   const { activeVertical } = useWorkspace();
   const isStaff = role === 'admin' || role === 'owner';
 
@@ -87,6 +87,7 @@ export default function StacksPage() {
   }, [verticalCarriers, carrierId]);
 
   const load = useCallback(async () => {
+    if (authLoading || !user) return;
     if (!carrierId) { setRows([]); setLoading(false); return; }
     setLoading(true);
     const { data, error } = await (supabase as any).rpc('manager_stack_board', {
@@ -96,7 +97,7 @@ export default function StacksPage() {
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     setRows(((data?.rows as BoardRow[]) ?? []));
-  }, [carrierId]);
+  }, [carrierId, authLoading, user]);
 
   useEffect(() => { void load(); }, [load]);
 
