@@ -304,7 +304,10 @@ export default function MyTeamPage() {
 
           <OwedThisWeek />
 
+          {isManagerRole && <DarkRepRadar />}
+
           <FiberTeam />
+
         </main>
       </AppLayout>
     );
