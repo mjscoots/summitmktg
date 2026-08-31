@@ -98,7 +98,7 @@ export default function VideoPlayerPage() {
       try {
         const [videoRes, allRes, progressRes, watchedRes] = await Promise.all([
           supabase.from('training_videos').select('*').eq('id', videoId).maybeSingle(),
-          supabase.from('training_videos').select('*').eq('is_active', true).order('display_order'),
+          supabase.from('training_videos').select('*').eq('is_active', true).or(verticalFilter(activeVertical)).order('display_order'),
           supabase.from('video_progress').select('watched, last_position').eq('user_id', user.id).eq('video_id', videoId).maybeSingle(),
           supabase.from('video_progress').select('video_id').eq('user_id', user.id).eq('watched', true),
         ]);

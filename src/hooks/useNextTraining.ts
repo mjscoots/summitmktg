@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { verticalFilter } from '@/lib/workspaceScope';
 
 export interface NextTrainingItem {
   kind: 'lesson' | 'mastery';
@@ -57,6 +59,7 @@ export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {
             training_modules ( id, title, display_order, is_active,
               training_lessons ( id, title, display_order, is_active ) )`)
           .eq('is_active', true)
+          .or(verticalFilter(activeVertical))
           .in('slug', slugs)
           .order('display_order'),
         supabase
