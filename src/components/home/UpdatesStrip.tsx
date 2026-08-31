@@ -61,6 +61,7 @@ function incentiveLine(text: string | null): string | null {
  * first, every one tappable. Nothing to say means the strip is not there.
  */
 export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
   const [acking, setAcking] = useState<string | null>(null);
@@ -157,7 +158,7 @@ export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {
       setItems(next);
     })();
     return () => { cancelled = true; };
-  }, [isManagerTier]);
+  }, [isManagerTier, activeVertical]);
 
   if (items.length === 0) return null;
 

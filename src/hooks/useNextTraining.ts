@@ -44,6 +44,7 @@ interface CourseRow {
  */
 export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {
   const { user } = useAuth();
+  const { activeVertical } = useWorkspace();
   const [next, setNext] = useState<NextTrainingItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -120,7 +121,7 @@ export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, track]);
+  }, [user?.id, track, activeVertical]);
 
   useEffect(() => {
     void load();
