@@ -1,35 +1,16 @@
 /**
- * Summit is installable, not offline. No worker caches anything.
+ * Summit is installable, not offline. No worker caches anything, and no worker
+ * is registered anywhere.
  *
- * This module only cleans up: where it is safe to do so it hands the browser
- * the replacement worker at /sw.js, which clears Summit's old caches and
- * unregisters itself. In dev, in the Lovable preview, inside an iframe, or
- * with ?sw=off, it registers nothing and unregisters whatever is there.
+ * This module only cleans up after the old caching worker: it unregisters any
+ * worker still installed at /sw.js and deletes the caches that worker created.
+ * The cleanup runs from the page, so nothing can reload the tab.
  */
 
 const SW_PATH = '/sw.js';
 
-function isPreviewHost(): boolean {
-  const host = window.location.hostname;
-  return (
-    host.startsWith('id-preview--') ||
-    host.startsWith('preview--') ||
-    host === 'lovableproject.com' ||
-    host.endsWith('.lovableproject.com') ||
-    host === 'lovableproject-dev.com' ||
-    host.endsWith('.lovableproject-dev.com') ||
-    host === 'beta.lovable.dev' ||
-    host.endsWith('.beta.lovable.dev') ||
-    host === 'localhost' ||
-    host === '127.0.0.1'
-  );
-}
-
-function shouldRegister(): boolean {
-  if (!import.meta.env.PROD) return false;
-  if (window.self !== window.top) return false;
-  if (new URLSearchParams(window.location.search).get('sw') === 'off') return false;
-  return !isPreviewHost();
+function isSummitAppShellCache(name: string): boolean {
+  return /^summit-(static|shell)-/.test(name);
 }
 
 async function unregisterAll() {
@@ -45,18 +26,19 @@ async function unregisterAll() {
   }
 }
 
+async function clearOldCaches() {
+  try {
+    if (!('caches' in window)) return;
+    const names = await caches.keys();
+    await Promise.allSettled(names.filter(isSummitAppShellCache).map((n) => caches.delete(n)));
+  } catch {
+    /* cleanup must never break the app */
+  }
+}
+
 export function registerServiceWorker() {
   if (typeof window === 'undefined') return;
   if (!('serviceWorker' in navigator)) return;
-
-  if (!shouldRegister()) {
-    void unregisterAll();
-    return;
-  }
-
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register(SW_PATH, { scope: '/' }).catch(() => {
-      /* registration failures must never break the app */
-    });
-  });
+  void unregisterAll();
+  void clearOldCaches();
 }
