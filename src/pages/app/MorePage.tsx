@@ -8,6 +8,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { moreGroups } from '@/lib/appNav';
 import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
+import { ViewAsSwitcher } from '@/components/layout/ViewAsSwitcher';
 
 
 /**
@@ -53,6 +54,8 @@ export default function MorePage() {
             </div>
           </section>
         ))}
+
+        <ViewAsSwitcher />
 
         <FeedbackDialog
           trigger={
