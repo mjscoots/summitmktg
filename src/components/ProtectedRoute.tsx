@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAccessState } from '@/hooks/useAccessState';
 import { LockedOutScreen } from '@/components/auth/LockedOutScreen';
 import { BootcampGate } from '@/components/BootcampGate';
+import { AwaitingIndustryGate } from '@/components/workspace/AwaitingIndustryGate';
 
 import { Loader2 } from 'lucide-react';
 
@@ -95,6 +96,10 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/app" replace />;
   }
 
-  return <BootcampGate>{children}</BootcampGate>;
+  return (
+    <AwaitingIndustryGate>
+      <BootcampGate>{children}</BootcampGate>
+    </AwaitingIndustryGate>
+  );
 
 }

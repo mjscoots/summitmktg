@@ -49,6 +49,7 @@ import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
 import { TeamLeadApplicationsPanel } from '@/components/command/TeamLeadApplicationsPanel';
 
 import { VerticalRequestsPanel } from '@/components/admin/VerticalRequestsPanel';
+import { AwaitingIndustryPanel } from '@/components/admin/AwaitingIndustryPanel';
 
 
 
