@@ -2997,6 +2997,7 @@ export type Database = {
           lead_expiry: boolean
           leaderboard: boolean
           new_leads: boolean
+          push_enabled: boolean
           streak_milestones: boolean
           training_quiz: boolean
           updated_at: string
@@ -3012,6 +3013,7 @@ export type Database = {
           lead_expiry?: boolean
           leaderboard?: boolean
           new_leads?: boolean
+          push_enabled?: boolean
           streak_milestones?: boolean
           training_quiz?: boolean
           updated_at?: string
@@ -3027,6 +3029,7 @@ export type Database = {
           lead_expiry?: boolean
           leaderboard?: boolean
           new_leads?: boolean
+          push_enabled?: boolean
           streak_milestones?: boolean
           training_quiz?: boolean
           updated_at?: string
@@ -3932,6 +3935,39 @@ export type Database = {
           label?: string
           updated_at?: string
           vertical?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_seen_at: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_seen_at?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_seen_at?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -6137,6 +6173,7 @@ export type Database = {
           is_read: boolean | null
           link: string | null
           message: string
+          push_sent_at: string | null
           reminder_window: string | null
           source_key: string | null
           title: string
@@ -6153,6 +6190,7 @@ export type Database = {
           is_read?: boolean | null
           link?: string | null
           message: string
+          push_sent_at?: string | null
           reminder_window?: string | null
           source_key?: string | null
           title: string
@@ -6169,6 +6207,7 @@ export type Database = {
           is_read?: boolean | null
           link?: string | null
           message?: string
+          push_sent_at?: string | null
           reminder_window?: string | null
           source_key?: string | null
           title?: string
@@ -8352,6 +8391,10 @@ export type Database = {
         Args: { _id: string; _slug: string }
         Returns: Json
       }
+      remove_push_subscription: {
+        Args: { _endpoint?: string }
+        Returns: undefined
+      }
       rename_chat_channel: {
         Args: { _label: string; _slug: string }
         Returns: Json
@@ -8415,6 +8458,15 @@ export type Database = {
           _why: string
         }
         Returns: Json
+      }
+      save_push_subscription: {
+        Args: {
+          _auth: string
+          _endpoint: string
+          _p256dh: string
+          _user_agent?: string
+        }
+        Returns: undefined
       }
       search_people: { Args: { _q: string }; Returns: Json }
       seat_set_manager: {
