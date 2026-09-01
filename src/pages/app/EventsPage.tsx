@@ -193,11 +193,12 @@ export default function EventsPage() {
     const { data, error } = await (supabase as any).rpc('get_events_feed', {
       p_from: new Date(Date.now() - 60 * 86400000).toISOString(),
       p_to: new Date(Date.now() + 420 * 86400000).toISOString(),
+      p_vertical: activeVertical,
     });
     if (error) toast.error('Could not load events');
     setRows((data as EventRow[]) || []);
     setLoading(false);
-  }, []);
+  }, [activeVertical]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -446,7 +447,7 @@ export default function EventsPage() {
           className="mb-2 border-none pb-0"
         />
         {activeVertical === 'Fiber' && <UpcomingBlitzes />}
-        <BlitzPlanningBoard />
+        {activeVertical === 'Pest' && <BlitzPlanningBoard />}
 
         <div className="mb-5 inline-flex items-center gap-1 rounded-xl border border-border/60 bg-surface p-1">
           {([['list', 'List', List], ['calendar', 'Calendar', CalendarDays]] as const).map(([v, label, Icon]) => (

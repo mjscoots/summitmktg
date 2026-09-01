@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { toast } from 'sonner';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -32,6 +33,7 @@ interface ThreadRow {
 }
 
 export default function AskSummitPage() {
+  const { activeVertical } = useWorkspace();
   const [params, setParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>('ask');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -126,7 +128,11 @@ export default function AskSummitPage() {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...payload, thread_id: threadRef.current }),
+      body: JSON.stringify({
+        ...payload,
+        thread_id: threadRef.current,
+        active_vertical: activeVertical,
+      }),
     });
 
     if (!res.ok || !res.body) {

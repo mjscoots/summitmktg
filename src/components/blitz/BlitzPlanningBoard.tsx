@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CalendarClock, Loader2, MapPin } from 'lucide-react';
@@ -49,7 +50,11 @@ function fmtWindow(start: string, end: string | null) {
  */
 export function BlitzPlanningBoard() {
   const { role } = useAuth();
-  const canSee = role === 'manager' || role === 'president' || role === 'admin' || role === 'owner';
+  const { activeVertical } = useWorkspace();
+  // Blitz markets are a Pest construct: the board only exists inside Pest.
+  const canSee =
+    activeVertical === 'Pest' &&
+    (role === 'manager' || role === 'president' || role === 'admin' || role === 'owner');
   const canDecide = role === 'admin' || role === 'owner';
 
   const [markets, setMarkets] = useState<MarketRow[]>([]);

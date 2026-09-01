@@ -145,15 +145,16 @@ async function loadPlaybook(admin: any, vert: string, question: string): Promise
 }
 
 
-async function buildContext(admin: any, userId: string, question = "") {
+async function buildContext(admin: any, userId: string, question = "", verticalIn?: string | null) {
   // Grounding is limited to company-wide content plus the workspace the rep is in.
   const { data: activeRow } = await admin
     .from("profiles")
     .select("active_vertical")
     .eq("user_id", userId)
     .maybeSingle();
-  const vert: string = activeRow?.active_vertical ?? "Pest";
+  const vert: string = verticalIn || activeRow?.active_vertical || "Pest";
   const scoped = (q: any) => q.or(`vertical.is.null,vertical.eq.${vert}`);
+
   const now = new Date();
   const in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -176,7 +177,7 @@ async function buildContext(admin: any, userId: string, question = "") {
     scoped(admin.from("announcement_posts").select("title, body, published_at, expires_at, status")).eq("status", "published").order("published_at", { ascending: false }).limit(15),
     scoped(admin.from("training_courses").select("id, title, slug")).eq("is_active", true),
     admin.from("training_modules").select("title, course_id, display_order").eq("is_active", true).order("display_order"),
-    admin.from("assistant_faq").select("question, answer, category").eq("published", true).order("display_order").limit(200),
+    scoped(admin.from("assistant_faq").select("question, answer, category")).eq("published", true).order("display_order").limit(200),
     admin.from("rep_housing").select("monthly_cost, location, notes").eq("user_id", userId).maybeSingle(),
     admin.from("rep_commission").select("pay_scale, signs, avg_account_value, active_revenue, rate_override, notes").eq("user_id", userId).maybeSingle(),
   ]);
@@ -497,11 +498,16 @@ serve(async (req) => {
       mode?: string;
       finish?: boolean;
       thread_id?: string;
+      active_vertical?: string;
     } | null;
     const messages = body?.messages;
     const mode: "ask" | "practice" = body?.mode === "practice" ? "practice" : "ask";
     const finish = body?.finish === true;
     const threadIdIn = typeof body?.thread_id === "string" && body.thread_id.length > 0 ? body.thread_id : null;
+    const verticalIn = ["Pest", "Fiber", "Life"].includes(String(body?.active_vertical))
+      ? String(body?.active_vertical)
+      : null;
+
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
@@ -593,7 +599,7 @@ serve(async (req) => {
       }
     } else {
       const lastUser = [...(messages as ChatMessage[])].reverse().find((m) => m.role === "user")?.content ?? "";
-      const context = await buildContext(admin, userId, lastUser);
+      const context = await buildContext(admin, userId, lastUser, verticalIn);
       const isStaff = verifiedRole === "admin" || verifiedRole === "owner";
       const dataContext = isStaff ? await buildOwnerDataContext(admin) : "";
       systemContent =

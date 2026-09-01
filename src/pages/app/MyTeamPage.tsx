@@ -124,6 +124,13 @@ export default function MyTeamPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      // The workspace is the wall: only people who belong to the active
+      // industry appear on this roster.
+      const { data: memberRows } = await (supabase as any).rpc('vertical_member_ids', {
+        _vertical: activeVertical,
+      });
+      const memberIds = ((memberRows as { user_id: string }[]) ?? []).map((m) => m.user_id);
+
       const [p, t, r] = await Promise.all([
         supabase
           .from('profiles')
@@ -131,6 +138,7 @@ export default function MyTeamPage() {
             'id, user_id, full_name, email, phone, avatar_url, status, experience, team_id, direct_manager, last_active_at, is_active_now'
           )
           .eq('archived', false)
+          .in('user_id', memberIds.length > 0 ? memberIds : ['00000000-0000-0000-0000-000000000000'])
           .order('full_name'),
         supabase.from('teams').select('*').eq('retired', false).order('name'),
         supabase.from('user_roles').select('user_id, role'),
@@ -148,7 +156,7 @@ export default function MyTeamPage() {
 
       // Points this week for team cards
       try {
-        const { data: lb } = await supabase.rpc('get_current_leaderboard');
+        const { data: lb } = await supabase.rpc('get_current_leaderboard', { _vertical: activeVertical } as never);
         const map = new Map<string, number>();
         for (const row of (lb as any[]) ?? []) {
           map.set(row.user_id, row.total_points ?? 0);
@@ -160,7 +168,7 @@ export default function MyTeamPage() {
 
       // Incomplete profile flags — manager/admin/owner only
       try {
-        const { data: incomplete } = await supabase.rpc('get_incomplete_profiles' as never, {} as never);
+        const { data: incomplete } = await supabase.rpc('get_incomplete_profiles' as never, { _vertical: activeVertical } as never);
         const incMap = new Map<string, string[]>();
         for (const row of (incomplete as any[]) ?? []) {
           incMap.set(row.user_id, row.missing ?? []);
@@ -172,7 +180,7 @@ export default function MyTeamPage() {
 
       // Missed-meeting flags — manager/admin/owner only
       try {
-        const { data: flags } = await (supabase as any).rpc('get_attendance_flags');
+        const { data: flags } = await (supabase as any).rpc('get_attendance_flags', { _vertical: activeVertical });
         const fMap = new Map<string, number>();
         for (const row of (flags as any[]) ?? []) {
           if ((row.missed_streak ?? 0) >= 2) fMap.set(row.user_id, row.missed_streak);
@@ -184,7 +192,7 @@ export default function MyTeamPage() {
 
       // Finishing soon (committed last day within 14 days) — manager/admin/owner only
       try {
-        const { data: fs } = await (supabase as any).rpc('get_finishing_soon', { _days: 14 });
+        const { data: fs } = await (supabase as any).rpc('get_finishing_soon', { _days: 14, _vertical: activeVertical });
         setFinishingSoon((fs?.soon as any[]) ?? []);
       } catch {
         // optional, only visible to managers+
@@ -194,7 +202,7 @@ export default function MyTeamPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeVertical]);
 
   useEffect(() => {
     if (!authLoading) fetchData();

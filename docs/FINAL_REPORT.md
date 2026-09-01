@@ -2369,3 +2369,12 @@ Archive only, no rows deleted, no profiles merged.
 | Fiber navigation | Stacks added to the Fiber Your work group |
 
 Counts: chat_channels 11 Pest / 3 Fiber / 3 All Summit; calendar_events 48 / 2 / 8; scripts 20 Pest / 5 All Summit; assistant_faq 2 Pest / 10 Fiber; announcement_posts 4 Pest; training 97 videos and 6 courses Pest, so Fiber training shows the quiet empty state and no Pest rows. Every new or changed function is authenticated only, never anon or PUBLIC. Typecheck and production build clean. Nothing published.
+
+## Pass 144b — four leaks sealed
+- get_events_feed now takes p_vertical and returns only matching or All Summit rows; EventsPage passes the active workspace and refetches on switch. Owner probe: Fiber feed 11 rows (2 Fiber, 9 All Summit, 0 Pest); Pest feed 48 rows, 0 Fiber.
+- Blitz planning is Pest only: the Events blitz section mounts only in Pest and BlitzPlanningBoard also refuses to render outside Pest, so blitz_markets is unreachable from a Fiber or Life session path.
+- My Team: roster ids come from the new vertical_member_ids RPC, and get_current_leaderboard, get_incomplete_profiles, get_attendance_flags and get_finishing_soon all take _vertical and filter with is_vertical_member server side. Old overloads dropped. Life probe: 3 active members, 1 on the week board, 3 with missing profile fields, 0 finishing soon.
+- Ask Summit sends active_vertical and the edge function scopes assistant_faq to that industry plus All Summit rows.
+- Estimate earnings is Pest in VerticalRouteGuard and is gone from Fiber and Life More lists. WorkspaceLeaderboard queries only the Fiber board behind its vertical prop.
+- post_weekly_digest names an event's industry, for example "Gastonia NC Ripple Blitz (Fiber)"; All Summit events stay bare, and both guards are untouched.
+- has_function_privilege anon false on all seven touched functions. Baselines unchanged: profiles 536, calendar_events 59, chat_messages 718, blitz_markets 30, user_roles 4. No data writes. Typecheck and production build clean. Nothing published.
