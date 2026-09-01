@@ -126,7 +126,11 @@ export default function AskSummitPage() {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...payload, thread_id: threadRef.current }),
+      body: JSON.stringify({
+        ...payload,
+        thread_id: threadRef.current,
+        active_vertical: activeVertical,
+      }),
     });
 
     if (!res.ok || !res.body) {

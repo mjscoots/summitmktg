@@ -10,6 +10,7 @@ const OWNED: { prefix: string; vertical: string }[] = [
   { prefix: '/app/pipeline', vertical: 'Life' },
   { prefix: '/app/doors', vertical: 'Pest' },
   { prefix: '/app/season', vertical: 'Pest' },
+  { prefix: '/app/estimate-earnings', vertical: 'Pest' },
 ];
 
 /**
