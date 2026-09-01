@@ -67,7 +67,7 @@ export default function InterviewsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border/60 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
             >
-              <span>Hawx Admin</span>
+              <span>Hawx portal</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           }
