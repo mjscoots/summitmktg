@@ -177,7 +177,7 @@ async function buildContext(admin: any, userId: string, question = "", verticalI
     scoped(admin.from("announcement_posts").select("title, body, published_at, expires_at, status")).eq("status", "published").order("published_at", { ascending: false }).limit(15),
     scoped(admin.from("training_courses").select("id, title, slug")).eq("is_active", true),
     admin.from("training_modules").select("title, course_id, display_order").eq("is_active", true).order("display_order"),
-    admin.from("assistant_faq").select("question, answer, category").eq("published", true).order("display_order").limit(200),
+    scoped(admin.from("assistant_faq").select("question, answer, category")).eq("published", true).order("display_order").limit(200),
     admin.from("rep_housing").select("monthly_cost, location, notes").eq("user_id", userId).maybeSingle(),
     admin.from("rep_commission").select("pay_scale, signs, avg_account_value, active_revenue, rate_override, notes").eq("user_id", userId).maybeSingle(),
   ]);
