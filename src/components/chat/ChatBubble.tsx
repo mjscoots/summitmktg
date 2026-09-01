@@ -10,6 +10,10 @@ import { ChatPoll } from '@/components/dashboard/ChatPoll';
 import { isVoiceMessage, getVoiceInfo, VoiceNoteBubble } from '@/components/chat/VoiceNote';
 import { RankInsignia } from '@/components/badges/RankInsignia';
 import { RoleChip } from '@/components/shared/RoleChip';
+import { IndustryChips } from '@/components/shared/IndustryChips';
+import { ExperienceStars } from '@/components/shared/ExperienceStars';
+import { useIdentity } from '@/hooks/useIdentityChips';
+
 
 
 function renderMentions(text: string, keyPrefix: string) {
@@ -87,6 +91,10 @@ interface ChatBubbleProps {
   justSent?: boolean;
   /** Direct messages already name the person in the header. */
   hideSenderName?: boolean;
+  /** Show accepted industry chips under the sender name. */
+  showIndustryChips?: boolean;
+  /** Industry room: skip the chip everyone in the room already shares. */
+  skipIndustry?: string | null;
 
 }
 
@@ -113,9 +121,16 @@ export function ChatBubble({
   justSent = false,
   hideSenderName = false,
   readTick = null,
+  showIndustryChips = false,
+  skipIndustry = null,
 }: ChatBubbleProps) {
 
+
   const reactions = reactionsProp;
+  // Identity line under the sender name: accepted industries plus experience.
+  const showIdentity = showIndustryChips && !isOwn && isFirstInGroup && !message.is_ai && !hideSenderName;
+  const identity = useIdentity(showIdentity ? message.user_id : null);
+
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
   const [showQuickPicker, setShowQuickPicker] = useState(false);
@@ -278,6 +293,15 @@ export function ChatBubble({
 
               <BadgeStrip userId={message.user_id} max={2} className="shrink-0" />
             </span>
+          )}
+
+          {/* Industry chips and years in the industry */}
+          {showIdentity && identity && (identity.verticals.length > 0 || identity.years != null) && (
+            <span className="mb-0.5 ml-1 flex items-center gap-1">
+              <IndustryChips verticals={identity.verticals} skip={skipIndustry} max={3} />
+              <ExperienceStars years={identity.years} />
+            </span>
+
           )}
 
 

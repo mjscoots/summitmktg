@@ -14,6 +14,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RoleChip } from '@/components/shared/RoleChip';
 import { RankMark } from '@/components/badges/RankInsignia';
+import { ExperienceStars } from '@/components/shared/ExperienceStars';
+import { YearsInIndustryField } from '@/components/shared/YearsInIndustryField';
+import { useIdentity } from '@/hooks/useIdentityChips';
+
+/** Stars and tier wording for the person being viewed. */
+function PersonExperience({ userId }: { userId: string }) {
+  const identity = useIdentity(userId);
+  if (!identity?.years) return null;
+  return <ExperienceStars years={identity.years} showLabel />;
+}
+
 
 
 
@@ -311,7 +322,9 @@ export default function PersonProfilePage() {
             <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
               <span>{statusWord(h, data.lead)}</span>
               {userId && <RoleChip userId={userId} />}
+              {userId && <PersonExperience userId={userId} />}
             </p>
+
           </div>
 
         </div>
@@ -323,6 +336,14 @@ export default function PersonProfilePage() {
             onSaved={(patch) => setData((d) => (d ? { ...d, header: { ...d.header, ...patch } } : d))}
           />
         )}
+
+        {userId && (data.scope === 'manager' || staff) && (
+          <div className="mt-3 rounded-lg border border-border/60 p-3">
+            <YearsInIndustryField userId={userId} />
+          </div>
+        )}
+
+
 
 
         <div className="mt-3">

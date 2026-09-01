@@ -41,6 +41,16 @@ import OnboardingTrackerPanel from '@/components/onboarding/OnboardingTrackerPan
 import { OwedThisWeek } from '@/components/team/OwedThisWeek';
 import { useRollover } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
+import { ExperienceStars } from '@/components/shared/ExperienceStars';
+import { useIdentity } from '@/hooks/useIdentityChips';
+
+/** Roster row stars: half a star per year in the industry. */
+function RosterExperience({ userId }: { userId: string }) {
+  const identity = useIdentity(userId);
+  if (!identity?.years) return null;
+  return <ExperienceStars years={identity.years} />;
+}
+
 
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
@@ -511,10 +521,14 @@ export default function MyTeamPage() {
                               <span className="block truncate text-[14px] font-semibold text-foreground">
                                 {getDisplayName(m.full_name)}
                               </span>
-                              <span className="mt-1 inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                                {roleLabel(m.user_id)}
+                              <span className="mt-1 flex items-center gap-1.5">
+                                <span className="inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                                  {roleLabel(m.user_id)}
+                                </span>
+                                <RosterExperience userId={m.user_id} />
                               </span>
                             </span>
+
                           </button>
                         ))}
                       </div>

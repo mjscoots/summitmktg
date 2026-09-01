@@ -3713,6 +3713,8 @@ export type Database = {
           vertical: string
           week_start: string | null
           weekly_goal: number | null
+          years_in_industry: number | null
+          years_self_set_at: string | null
         }
         Insert: {
           accepting_new_reps?: boolean
@@ -3792,6 +3794,8 @@ export type Database = {
           vertical?: string
           week_start?: string | null
           weekly_goal?: number | null
+          years_in_industry?: number | null
+          years_self_set_at?: string | null
         }
         Update: {
           accepting_new_reps?: boolean
@@ -3871,6 +3875,8 @@ export type Database = {
           vertical?: string
           week_start?: string | null
           weekly_goal?: number | null
+          years_in_industry?: number | null
+          years_self_set_at?: string | null
         }
         Relationships: [
           {
@@ -8157,6 +8163,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      identity_chips: { Args: { _user_ids: string[] }; Returns: Json }
       ingest_fiber_week: { Args: { batch: Json }; Returns: Json }
       ingest_pest_revenue: { Args: { batch: Json }; Returns: Json }
       invite_lookup: { Args: { p_token: string }; Returns: Json }
@@ -8677,6 +8684,10 @@ export type Database = {
       }
       set_winback_priority: {
         Args: { _lead_id: string; _priority: boolean }
+        Returns: Json
+      }
+      set_years_in_industry: {
+        Args: { _user_id: string; _years: number }
         Returns: Json
       }
       setting_text: {

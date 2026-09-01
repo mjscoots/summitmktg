@@ -205,6 +205,13 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   /** Owner and admin run every room. The database enforces it as well. */
   const canModerate = role === 'admin' || role === 'owner';
   const { channels, markChannelRead } = useChatChannels();
+  /**
+   * Pass 151 — identity chips run in rooms, not in direct messages. In an
+   * industry room the room's own industry chip is skipped.
+   */
+  const roomVertical = channels.find((c) => c.slug === activeChannel)?.vertical ?? null;
+  const showIndustryChips = !isDm;
+
   const markReadRef = useRef(markChannelRead);
   useEffect(() => { markReadRef.current = markChannelRead; }, [markChannelRead]);
 
@@ -812,6 +819,9 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
                 message={msg}
                 isOwn={own}
                 hideSenderName={isDm}
+                showIndustryChips={showIndustryChips}
+                skipIndustry={roomVertical}
+
                 isFirstInGroup={isFirstInGroup}
                 isLastInGroup={isLastInGroup}
                 showTimestamp={isLastInGroup && !showTime}

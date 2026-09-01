@@ -26,6 +26,8 @@ import { RepScorecard } from '@/components/shared/RepScorecard';
 
 import { MyRefCodeCard } from '@/components/recruiting/MyRefCodeCard';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { YearsInIndustryField } from '@/components/shared/YearsInIndustryField';
+
 
 function PointsCard() {
   const { data } = useMyPoints();
@@ -612,6 +614,10 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
+
+            {user?.id && <YearsInIndustryField userId={user.id} self />}
+
+
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
