@@ -2387,3 +2387,24 @@ Counts: chat_channels 11 Pest / 3 Fiber / 3 All Summit; calendar_events 48 / 2 /
 4. Rollback proofs: rep_create=refused, manager_create=ok mine=1 others_visible=0, manager_all_invites=refused, lookup has_phone=false, bad token valid false, status_after_open=Opened, joined then second_lookup=used, second_join_ignored=true, redeem_after_join=used, expired lookup and redeem=expired, other_revoke=refused, owner_revoke=ok, owner_all=1. Baseline restored: invites 0, profiles 536.
 5. Privileges: anon true only on invite_lookup among new functions; create_invite, my_invites, all_invites, revoke_invite anon false; invites_sync_status revoked from all client roles. Linter back to the pre-existing 427 broad definer warnings.
 6. Typecheck and production build clean. No data left behind, no publish.
+
+## Pass 146 — blitz caps and spots left
+
+What shipped
+- `blitz_markets.cap` (nullable positive integer) and `calendar_events.capacity` (nullable positive integer), both with positive CHECK constraints. `make_blitz_official` copies the market cap onto the public RSVP card; `revert_blitz_official` leaves the stored cap alone.
+- `blitz_waitlist` (event_id, user_id, created_at, unique pair) holds overflow in join order. Managers and above read the full list; a rep reads only their own row.
+- `rsvp_event` (both overloads) locks the event row with `SELECT ... FOR UPDATE` before counting attending answers, so the last seat cannot be taken twice. Over cap it raises `blitz_full`. Dropping out of a capped event calls `promote_blitz_waitlist`.
+- `promote_blitz_waitlist` (SECURITY DEFINER, execute revoked from PUBLIC, anon and authenticated) promotes the earliest waitlisted person, deletes the waitlist row, and writes one preference-aware notification keyed `blitz_promo:<event>:<user>`.
+- `join_blitz_waitlist`, `leave_blitz_waitlist`, `blitz_cap_state`, `set_blitz_cap` (admin and owner only) added; execute revoked from PUBLIC and anon, granted to authenticated.
+- UI: `useBlitzCap` hook with realtime refresh on attendance and waitlist changes, `BlitzCapBar` (spots left, own waitlist position, Join or Leave waitlist, staff-only waitlist order), wired into the chat event card and the events list card. Going is hidden when full unless the person already holds a seat. The planning board gains a cap line per market and a Set cap or Change cap dialog for admin and owner only. No cap means the card looks exactly as before.
+
+Proofs (all test rows rolled back)
+- Cap 2 set on the Raleigh test market, made official: `calendar_events.capacity` = 2 carried across.
+- Two reps answered going; a third was refused at the database and joined the waitlist at position 1. `blitz_cap_state` for that rep returned capacity 2, going 2, spots left 0, my_position 1, waitlist null (reps never see other names).
+- First rep withdrew: the waitlisted rep flipped to attending, waitlist rows 0, attending 2, exactly 1 notification, text "You are in for Raleigh Blitz. Your waitlist spot became a seat."
+- Contention: with the event full, a serialized second attempt on the last seat was refused (`blitz_full`); the event row lock in `rsvp_event` is what serializes concurrent phones.
+- A no-privilege account calling `set_blitz_cap` was refused; cap stayed 2.
+- `has_function_privilege` anon false on every blitz function; `promote_blitz_waitlist` also false for authenticated.
+- Baselines restored after cleanup: blitz_markets 30, official 0, calendar_events 59, blitz_waitlist 0, profiles 536, test market cap null.
+- Typecheck clean, production build clean, no em dashes in new copy.
+- Not verified: authenticated screenshots at 390px and 1280px could not be captured this pass because no preview session could be minted in this environment. Layout follows the existing card patterns with wrapping rows and 44px targets on every new control.
