@@ -8,6 +8,7 @@ import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { StatusBar } from './StatusBar';
 import { ImpersonationBanner } from './ImpersonationBanner';
+import { ViewAsBanner } from './ViewAsBanner';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
@@ -39,6 +40,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
         <WorkspaceThemeProvider>
         <SidebarProvider defaultOpen={true}>
           <ImpersonationBanner />
+          <ViewAsBanner />
           <div className={cn("min-h-screen flex w-full app-texture bg-background", fullHeight && "h-[100dvh] max-h-[100dvh]")}>
             <AppSidebar />
             <div className="flex-1 flex flex-col min-w-0">
