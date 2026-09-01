@@ -20,15 +20,15 @@ interface Preferences {
 }
 
 const PREF_LABELS: { key: keyof Preferences; label: string; description: string }[] = [
-  { key: 'chat_mentions', label: 'Chat messages', description: 'Unread message alerts from the rooms you have not muted' },
-  { key: 'calendar_events', label: 'Event reminders', description: 'Upcoming event reminders and schedule notifications' },
-  { key: 'announcements', label: 'Announcements', description: 'A new announcement is published to the team' },
-  { key: 'new_leads', label: 'New leads', description: 'A new lead lands on the Lead Board unclaimed' },
-  { key: 'lead_expiry', label: 'Lead expiry warnings', description: 'Your claimed lead is within 8 hours of auto-release' },
-  { key: 'training_quiz', label: 'Training', description: 'Training milestones and rep progress alerts' },
-  { key: 'leaderboard', label: 'Leaderboard', description: 'Weekly rank changes and #1 position alerts' },
-  { key: 'bootcamp_reminders', label: 'Summer Checklist', description: 'Summer Checklist deadline reminders and phase completion' },
-  { key: 'streak_milestones', label: 'Streak Milestones', description: 'Daily login streak achievements and milestone bonuses' },
+  { key: 'chat_mentions', label: 'Chat messages', description: 'On: you are alerted about unread messages in the rooms you have not muted.' },
+  { key: 'calendar_events', label: 'Event reminders', description: 'On: you are reminded about events you are expected at, including blitz spots.' },
+  { key: 'announcements', label: 'Announcements', description: 'On: you are notified when a new announcement is posted.' },
+  { key: 'new_leads', label: 'New leads', description: 'On: you are notified when a lead lands on the Lead Board unclaimed.' },
+  { key: 'lead_expiry', label: 'Lead expiry warnings', description: 'On: you are warned before a lead you claimed is released back to the board.' },
+  { key: 'training_quiz', label: 'Training', description: 'On: you are notified about training progress on your own account and your reps.' },
+  { key: 'leaderboard', label: 'Leaderboard', description: 'On: you are notified about your weekly rank changes.' },
+  { key: 'bootcamp_reminders', label: 'Summer Checklist', description: 'On: you are reminded about Summer Checklist steps you have not finished.' },
+  { key: 'streak_milestones', label: 'Streak milestones', description: 'On: you are notified when your daily login streak hits a milestone.' },
 ];
 
 
@@ -128,7 +128,7 @@ export function NotificationPreferences() {
           Notification Preferences
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Choose which notifications you'd like to receive
+          Every switch below is live. Turn one off and that kind of notification stops for your account.
         </p>
       </div>
 
