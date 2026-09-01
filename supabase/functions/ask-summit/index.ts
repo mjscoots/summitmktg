@@ -498,11 +498,16 @@ serve(async (req) => {
       mode?: string;
       finish?: boolean;
       thread_id?: string;
+      active_vertical?: string;
     } | null;
     const messages = body?.messages;
     const mode: "ask" | "practice" = body?.mode === "practice" ? "practice" : "ask";
     const finish = body?.finish === true;
     const threadIdIn = typeof body?.thread_id === "string" && body.thread_id.length > 0 ? body.thread_id : null;
+    const verticalIn = ["Pest", "Fiber", "Life"].includes(String(body?.active_vertical))
+      ? String(body?.active_vertical)
+      : null;
+
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
