@@ -11,6 +11,7 @@ interface WaitingPerson {
   avatar_url: string | null;
   created_at: string;
   manager_name: string | null;
+  invited_vertical: string | null;
 }
 
 const INDUSTRIES = ['Pest', 'Fiber', 'Life'] as const;
