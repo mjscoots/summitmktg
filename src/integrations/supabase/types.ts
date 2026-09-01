@@ -3495,6 +3495,21 @@ export type Database = {
         }
         Relationships: []
       }
+      probe145: {
+        Row: {
+          line: string | null
+          n: number
+        }
+        Insert: {
+          line?: string | null
+          n?: number
+        }
+        Update: {
+          line?: string | null
+          n?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           accepting_new_reps: boolean
