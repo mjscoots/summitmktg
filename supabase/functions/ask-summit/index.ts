@@ -145,15 +145,16 @@ async function loadPlaybook(admin: any, vert: string, question: string): Promise
 }
 
 
-async function buildContext(admin: any, userId: string, question = "") {
+async function buildContext(admin: any, userId: string, question = "", verticalIn?: string | null) {
   // Grounding is limited to company-wide content plus the workspace the rep is in.
   const { data: activeRow } = await admin
     .from("profiles")
     .select("active_vertical")
     .eq("user_id", userId)
     .maybeSingle();
-  const vert: string = activeRow?.active_vertical ?? "Pest";
+  const vert: string = verticalIn || activeRow?.active_vertical || "Pest";
   const scoped = (q: any) => q.or(`vertical.is.null,vertical.eq.${vert}`);
+
   const now = new Date();
   const in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
