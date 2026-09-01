@@ -599,7 +599,7 @@ serve(async (req) => {
       }
     } else {
       const lastUser = [...(messages as ChatMessage[])].reverse().find((m) => m.role === "user")?.content ?? "";
-      const context = await buildContext(admin, userId, lastUser);
+      const context = await buildContext(admin, userId, lastUser, verticalIn);
       const isStaff = verifiedRole === "admin" || verifiedRole === "owner";
       const dataContext = isStaff ? await buildOwnerDataContext(admin) : "";
       systemContent =
