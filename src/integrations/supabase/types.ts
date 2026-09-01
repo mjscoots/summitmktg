@@ -7095,6 +7095,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_into_industry: {
+        Args: { _user_id: string; _vertical: string }
+        Returns: Json
+      }
       ack_announcement: { Args: { _post_id: string }; Returns: undefined }
       add_channel_members: {
         Args: { _ids: string[]; _slug: string }
@@ -8326,6 +8330,7 @@ export type Database = {
       }
       owner_week: { Args: never; Returns: Json }
       parse_rep_year_text: { Args: { _raw: string }; Returns: number }
+      people_awaiting_industry: { Args: never; Returns: Json }
       poll_channel_readable: { Args: { _poll_id: string }; Returns: boolean }
       post_weekly_awards: { Args: never; Returns: Json }
       post_weekly_digest: { Args: never; Returns: Json }
