@@ -49,6 +49,7 @@ import { AdminQueueTab } from '@/components/admin/AdminQueueTab';
 import { TeamLeadApplicationsPanel } from '@/components/command/TeamLeadApplicationsPanel';
 
 import { VerticalRequestsPanel } from '@/components/admin/VerticalRequestsPanel';
+import { AwaitingIndustryPanel } from '@/components/admin/AwaitingIndustryPanel';
 
 
 
@@ -747,6 +748,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                   <Suspense fallback={<LoadingList rows={3} />}>
                     <LazyReactivations />
                   </Suspense>
+                  {isAdmin && <AwaitingIndustryPanel />}
                   {isAdmin && <VerticalRequestsPanel />}
                   <Suspense fallback={<LoadingList rows={4} />}>
                     <LazyPitchApprovals />

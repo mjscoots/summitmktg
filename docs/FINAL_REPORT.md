@@ -2475,3 +2475,52 @@ Proofs
 - Typecheck clean, production build clean.
 - New user-facing strings read back, no em dashes.
 - Nothing published.
+
+## Pass 149 — Four rooms and acceptance only membership
+
+### 1. Summit Trinity
+The room the owner made already existed as channel `general`, labelled Summit Trinity, holding all 719 messages. It was promoted in place to the company wide room: `vertical` NULL, first in order, every profile a member with no opt out, mute still allowed. Nothing was moved or deleted.
+
+`announcements` was kept as its own room directly below Summit Trinity rather than merged, because merging would have rewritten the channel of existing rows. Announcement posts continue to surface in Summit Trinity. This was the least disruptive of the two options.
+
+Cover image: whatever the owner set on `general` is untouched, and the room still accepts a cover from the room sheet.
+
+### 2. Industry rooms
+`summit-pest`, `summit-fiber`, `summit-life` exist with their `vertical` set. Membership is exactly `is_vertical_member` for that industry. Access is enforced in `can_read_channel`, in `visible_chat_channels` and in the RLS policies on `chat_channels` and `chat_messages`, so a person without the membership cannot list, search or read the room at all.
+
+### 3. Membership model
+Backfill first: every non archived profile on Pest without a Pest enrollment row received one with status active. Pest enrollments went from 31 to 32, and all 23 live profiles are Pest members afterwards.
+
+The Pest default was then removed from `is_vertical_member` and `get_my_workspaces` together. The staff fallback for owner and admin stays. Both functions now read the same enrollment rows, so they agree by construction.
+
+Zero live profiles lost membership:
+
+- live profiles 23, Pest members 23, Fiber 3, Life 3
+- non archived profiles with no enrollment row at all: 0
+
+A no enrollment account (checked against an existing archived profile with no enrollment and no role) passes the industry gate only for the two company wide rooms:
+
+| room | industry | gate |
+| --- | --- | --- |
+| general (Summit Trinity) | none | open |
+| announcements | none | open |
+| summit-pest | Pest | closed |
+| summit-fiber | Fiber | closed |
+| summit-life | Life | closed |
+
+### 4. Workspace toggle
+The switcher lists only accepted industries. The rest stay as quiet locked rows that open the existing `vertical_applications` request. A person accepted into one industry sees no switch.
+
+### 5. New signups
+`AwaitingIndustryGate` keeps a person with no industry on one waiting screen plus Summit Trinity chat, their own profile and Ask Summit. Everything else redirects to that screen. Owner and admin are never gated.
+
+`AwaitingIndustryPanel` sits at the top of the Requests lane for owner and admin only. It lists people waiting, the industry they were invited into when the invite link carried one, their manager, and one tap per industry that writes the enrollment row through `accept_into_industry`. The invite link path is unchanged: an invited joiner lands pending in the inviter's industry and shows here with that industry preselected. No self serve industry picker was added.
+
+### Verification
+- baselines: profiles 536, chat_messages 719, calendar_events 59, blitz_markets 30, invites 0
+- owner session at 390px opens /app/chat and sees Summit Trinity, Announcements and Summit Pest; Fiber and Life rooms stay behind the workspace switch by the Pass 144 rule, while the server grants the owner all four
+- privileges, `has_function_privilege`: `is_vertical_member`, `get_my_workspaces`, `visible_chat_channels`, `people_awaiting_industry`, `accept_into_industry` are all anon false, public false, authenticated true
+- security linter count unchanged at 435 pre existing issues, none added
+- typecheck clean, production build clean
+- new user facing strings read back, no em dashes
+- not published
