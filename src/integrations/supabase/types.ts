@@ -7357,7 +7357,7 @@ export type Database = {
       get_announcement_seen_counts: { Args: never; Returns: Json }
       get_applications_awaiting_me: { Args: never; Returns: number }
       get_attendance_flags: {
-        Args: never
+        Args: { _vertical?: string }
         Returns: {
           missed_streak: number
           pct: number
@@ -7415,7 +7415,7 @@ export type Database = {
       get_commitment_overview: { Args: never; Returns: Json }
       get_conversations: { Args: never; Returns: Json }
       get_current_leaderboard: {
-        Args: never
+        Args: { _vertical?: string }
         Returns: {
           avatar_url: string
           chat_points: number
@@ -7488,7 +7488,7 @@ export type Database = {
       }
       get_event_rsvp_rollup: { Args: { _event_id: string }; Returns: Json }
       get_events_feed: {
-        Args: { p_from?: string; p_to?: string }
+        Args: { p_from?: string; p_to?: string; p_vertical?: string }
         Returns: {
           created_by: string
           description: string
@@ -7530,7 +7530,10 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_finishing_soon: { Args: { _days?: number }; Returns: Json }
+      get_finishing_soon: {
+        Args: { _days?: number; _vertical?: string }
+        Returns: Json
+      }
       get_first_week: { Args: { _target?: string }; Returns: Json }
       get_first_week_rows: { Args: never; Returns: Json }
       get_global_leaderboard:
@@ -7598,7 +7601,7 @@ export type Database = {
         }[]
       }
       get_incomplete_profiles: {
-        Args: never
+        Args: { _vertical?: string }
         Returns: {
           full_name: string
           missing: string[]
@@ -8498,6 +8501,12 @@ export type Database = {
       vertical_effective_approvers: {
         Args: { _vertical: string }
         Returns: string[]
+      }
+      vertical_member_ids: {
+        Args: { _vertical: string }
+        Returns: {
+          user_id: string
+        }[]
       }
       visible_chat_channels: {
         Args: { _user_id: string }
