@@ -36,7 +36,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Sparkles }> 
   update: { label: 'Update', icon: Settings },
   training: { label: 'Training', icon: BookOpen },
   important: { label: 'Important', icon: AlertTriangle },
-  admin_note: { label: 'Admin Note', icon: Megaphone },
+  admin_note: { label: 'Pillar note', icon: Megaphone },
 };
 
 interface AnnouncementPost {

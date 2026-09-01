@@ -16,7 +16,7 @@ const CATEGORIES = [
   { value: 'update', label: 'Update' },
   { value: 'training', label: 'Training' },
   { value: 'important', label: 'Important' },
-  { value: 'admin_note', label: 'Admin Note' },
+  { value: 'admin_note', label: 'Pillar note' },
 ];
 
 interface Props {

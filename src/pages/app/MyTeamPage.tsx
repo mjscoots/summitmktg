@@ -36,6 +36,8 @@ import { GoingColdCard } from '@/components/team/GoingColdCard';
 import { NewRepsPanel } from '@/components/team/NewRepsPanel';
 import { GatedRecruitsPanel } from '@/components/team/GatedRecruitsPanel';
 import { DarkRepRadar } from '@/components/team/DarkRepRadar';
+import PillarLinksPanel from '@/components/pillar/PillarLinksPanel';
+import OnboardingTrackerPanel from '@/components/onboarding/OnboardingTrackerPanel';
 import { OwedThisWeek } from '@/components/team/OwedThisWeek';
 import { useRollover } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
@@ -312,6 +314,10 @@ export default function MyTeamPage() {
 
           <OwedThisWeek />
 
+          {isManagerRole && <PillarLinksPanel />}
+
+          {isManagerRole && <OnboardingTrackerPanel canPlace={canAddMembers} />}
+
           {isManagerRole && <DarkRepRadar />}
 
           <FiberTeam />
@@ -393,6 +399,18 @@ export default function MyTeamPage() {
         {isManagerRole && (
           <div className="mb-5">
             <ThisWeekStrip />
+          </div>
+        )}
+
+        {isManagerRole && (
+          <div className="mb-5">
+            <PillarLinksPanel />
+          </div>
+        )}
+
+        {isManagerRole && (
+          <div className="mb-5">
+            <OnboardingTrackerPanel canPlace={canAddMembers} />
           </div>
         )}
 

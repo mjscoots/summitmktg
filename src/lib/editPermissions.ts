@@ -147,7 +147,7 @@ export function canEditMemberProfile(
       canEditBasic: true,
       canEditHierarchy: false, // Managers CANNOT edit hierarchy
       allowedFields: managerFields,
-      reason: 'Only Pillars and Admins can change reporting structure',
+      reason: 'Only pillar leaders and the owner can change reporting structure',
     };
   }
 

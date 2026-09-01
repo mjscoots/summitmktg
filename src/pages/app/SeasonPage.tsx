@@ -162,12 +162,12 @@ export default function SeasonPage() {
             <CalendarClock className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
             {isAdmin ? (
               <>
-                <p className="text-[15px] font-semibold text-foreground">Season settings are on Admin → Settings.</p>
+                <p className="text-[15px] font-semibold text-foreground">Season settings are on Pillar → Settings.</p>
                 <a
                   href="/admin/settings"
                   className="mt-3 inline-flex min-h-[44px] items-center rounded-lg border border-white/[0.08] px-4 text-[13px] font-medium text-foreground hover:bg-muted/30"
                 >
-                  Open Admin → Settings
+                  Open Pillar → Settings
                 </a>
               </>
             ) : (

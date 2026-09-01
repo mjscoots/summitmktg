@@ -250,7 +250,7 @@ export function AppSidebar() {
                       <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: 'hsl(var(--workspace-accent))' }} />
                     )}
                     <Shield className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-                    {!collapsed && <span className="text-[12px] font-medium">Admin</span>}
+                    {!collapsed && <span className="text-[12px] font-medium">Pillar</span>}
 
                     {adminCounts.total > 0 && (
                       <span className={cn(

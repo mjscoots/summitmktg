@@ -50,6 +50,7 @@ import { TeamLeadApplicationsPanel } from '@/components/command/TeamLeadApplicat
 
 import { VerticalRequestsPanel } from '@/components/admin/VerticalRequestsPanel';
 import { AwaitingIndustryPanel } from '@/components/admin/AwaitingIndustryPanel';
+import OnboardingTrackerPanel from '@/components/onboarding/OnboardingTrackerPanel';
 
 
 
@@ -379,8 +380,8 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
         <PageBackButton to="/app" label="Dashboard" />
 
         <PageHeader
-          title="Admin"
-          context="People management, teams and system controls"
+          title="Pillar"
+          context="Your system: people, requests and the controls you own"
           className="mb-4"
           action={isAdmin ? (
             <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5 h-9 rounded-xl">
@@ -641,6 +642,8 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
           {/* ========== DECISIONS LANE ========== */}
           <TabsContent value="queue">
             <div className="space-y-4">
+              <AwaitingIndustryPanel />
+              <OnboardingTrackerPanel canPlace />
               <TeamLeadApplicationsPanel />
               <AdminQueueTab />
 
@@ -748,7 +751,6 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                   <Suspense fallback={<LoadingList rows={3} />}>
                     <LazyReactivations />
                   </Suspense>
-                  {isAdmin && <AwaitingIndustryPanel />}
                   {isAdmin && <VerticalRequestsPanel />}
                   <Suspense fallback={<LoadingList rows={4} />}>
                     <LazyPitchApprovals />

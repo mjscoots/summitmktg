@@ -51,7 +51,7 @@ const RELEASES: Release[] = [
       },
       {
         emoji: '🔧',
-        title: 'Cleaner Admin Tools',
+        title: 'Cleaner pillar tools',
         description: 'The People page has been restructured with cleaner filters, better layout, and faster account management. Managers: check the Downline tab for a new "Copy Inactive" button.',
       },
     ],
