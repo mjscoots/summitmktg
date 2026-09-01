@@ -27,6 +27,9 @@ import { VerticalScopeSelect } from '@/components/shared/VerticalScopeSelect';
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { useEventScope } from '@/hooks/useEventScope';
 import { BlitzPlanningBoard } from '@/components/blitz/BlitzPlanningBoard';
+import { BlitzCapBar } from '@/components/blitz/BlitzCapBar';
+import { BLITZ_FULL_MESSAGE, useBlitzCap } from '@/hooks/useBlitzCap';
+
 
 
 const CalendarView = lazy(() => import('./CalendarPage'));
@@ -234,9 +237,11 @@ export default function EventsPage() {
     const { error } = await (supabase as any).rpc('rsvp_event', { p_event_id: eventId, p_status: status });
     setRsvpBusy(null);
     if (error) {
-      toast.error('Could not save your RSVP');
+      const full = String((error as { message?: string }).message || '').includes('blitz_full');
+      toast.error(full ? BLITZ_FULL_MESSAGE : 'Could not save your RSVP');
       return;
     }
+
     setRows((prev) => prev.map((r) => (r.id === eventId
       ? {
           ...r,
@@ -317,6 +322,9 @@ export default function EventsPage() {
     const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
     const joinUrl = firstUrl(ev.description) || firstUrl(ev.location);
     const descText = stripUrls(ev.description);
+    const cap = useBlitzCap(isPast ? null : ev.id);
+    const capFull = cap.state?.capacity != null && (cap.state.spots_left ?? 0) === 0;
+
     return (
       <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
         <div className="flex items-start justify-between gap-3">
@@ -359,6 +367,7 @@ export default function EventsPage() {
           {!isPast && (
             <>
 
+              {!(capFull && ev.my_rsvp !== 'attending') && (
               <button
                 onClick={() => rsvp(ev.id, 'attending')}
                 disabled={rsvpBusy === ev.id}
@@ -371,6 +380,8 @@ export default function EventsPage() {
               >
                 <Check className="h-3.5 w-3.5" /> Going
               </button>
+              )}
+
               <button
                 onClick={() => rsvp(ev.id, 'not_attending')}
                 disabled={rsvpBusy === ev.id}
@@ -424,7 +435,18 @@ export default function EventsPage() {
           )}
 
         </div>
+
+        {!isPast && (
+          <BlitzCapBar
+            state={cap.state}
+            busy={cap.busy}
+            attending={ev.my_rsvp === 'attending'}
+            onJoin={cap.join}
+            onLeave={cap.leave}
+          />
+        )}
       </div>
+
     );
   };
 

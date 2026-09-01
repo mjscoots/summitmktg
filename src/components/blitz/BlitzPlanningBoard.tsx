@@ -21,7 +21,9 @@ interface MarketRow {
   window_end: string;
   status: string;
   official_event_id: string | null;
+  cap: number | null;
 }
+
 
 interface OfficialEvent {
   id: string;
@@ -62,6 +64,9 @@ export function BlitzPlanningBoard() {
   const [target, setTarget] = useState<MarketRow | null>(null);
   const [form, setForm] = useState({ start: '', end: '', host: '', location: '' });
   const [busy, setBusy] = useState(false);
+  const [capTarget, setCapTarget] = useState<MarketRow | null>(null);
+  const [capValue, setCapValue] = useState('');
+
 
   const load = useCallback(async () => {
     if (!canSee) return;
@@ -125,6 +130,32 @@ export function BlitzPlanningBoard() {
     void load();
   };
 
+  const openCap = (row: MarketRow) => {
+    setCapValue(row.cap != null ? String(row.cap) : '');
+    setCapTarget(row);
+  };
+
+  const saveCap = async () => {
+    if (!capTarget) return;
+    const trimmed = capValue.trim();
+    const parsed = trimmed === '' ? null : Number(trimmed);
+    if (parsed != null && (!Number.isInteger(parsed) || parsed < 1)) {
+      toast.error('Use a whole number of spots, or leave it blank for no cap');
+      return;
+    }
+    setBusy(true);
+    const { error } = await (supabase as any).rpc('set_blitz_cap', {
+      p_market_id: capTarget.id,
+      p_cap: parsed,
+    });
+    setBusy(false);
+    if (error) { toast.error('Could not save that cap'); return; }
+    toast.success(parsed == null ? 'Cap cleared' : 'Cap saved');
+    setCapTarget(null);
+    void load();
+  };
+
+
   return (
     <section className="mb-6">
       <h2 className="mb-1 text-[13px] font-semibold uppercase tracking-wider text-primary">Blitz planning</h2>
@@ -165,6 +196,7 @@ export function BlitzPlanningBoard() {
                 </span>
                 <span className="block text-[12px] tabular-nums text-muted-foreground">
                   {fmtWindow(row.window_start, row.window_end)}
+                  {row.cap != null ? ` · Cap ${row.cap} spots` : ''}
                 </span>
               </span>
               <span className="flex shrink-0 items-center gap-2">
@@ -184,6 +216,7 @@ export function BlitzPlanningBoard() {
                     Revert
                   </button>
                 )}
+
               </span>
             </div>
           ))}
@@ -213,14 +246,26 @@ export function BlitzPlanningBoard() {
                       Open
                     </span>
                   </div>
+                  <p className="mt-1 text-[12px] tabular-nums text-muted-foreground">
+                    {row.cap != null ? `Cap ${row.cap} spots` : 'No cap'}
+                  </p>
                   {canDecide && (
-                    <button
-                      onClick={() => openDialog(row)}
-                      className="mt-2 inline-flex min-h-9 items-center rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-                    >
-                      Make it official
-                    </button>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => openDialog(row)}
+                        className="inline-flex min-h-9 items-center rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        Make it official
+                      </button>
+                      <button
+                        onClick={() => openCap(row)}
+                        className="inline-flex min-h-9 items-center rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        {row.cap != null ? 'Change cap' : 'Set cap'}
+                      </button>
+                    </div>
                   )}
+
                 </div>
               ))}
             </div>
@@ -283,6 +328,36 @@ export function BlitzPlanningBoard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!capTarget} onOpenChange={(o) => !o && setCapTarget(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Spots for this blitz</DialogTitle>
+            <DialogDescription>
+              {capTarget ? `${capTarget.market} ${capTarget.state}` : ''}. Leave it blank for no cap. Once the cap is
+              full, people join a waitlist in order.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="number"
+            min={1}
+            inputMode="numeric"
+            value={capValue}
+            onChange={(e) => setCapValue(e.target.value)}
+            placeholder="Number of spots"
+          />
+          <DialogFooter>
+            <button
+              onClick={saveCap}
+              disabled={busy}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-[13px] font-semibold text-primary-foreground disabled:opacity-60"
+            >
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />} Save
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </section>
   );
 }

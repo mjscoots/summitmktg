@@ -851,6 +851,7 @@ export type Database = {
       }
       blitz_markets: {
         Row: {
+          cap: number | null
           created_at: string
           id: string
           market: string
@@ -862,6 +863,7 @@ export type Database = {
           window_start: string
         }
         Insert: {
+          cap?: number | null
           created_at?: string
           id?: string
           market: string
@@ -873,6 +875,7 @@ export type Database = {
           window_start: string
         }
         Update: {
+          cap?: number | null
           created_at?: string
           id?: string
           market?: string
@@ -913,6 +916,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      blitz_waitlist: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blitz_waitlist_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bootcamp_progress: {
         Row: {
@@ -1076,6 +1108,7 @@ export type Database = {
       }
       calendar_events: {
         Row: {
+          capacity: number | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -1106,6 +1139,7 @@ export type Database = {
           vertical: string | null
         }
         Insert: {
+          capacity?: number | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -1136,6 +1170,7 @@ export type Database = {
           vertical?: string | null
         }
         Update: {
+          capacity?: number | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -3492,21 +3527,6 @@ export type Database = {
           metadata?: Json | null
           points?: number
           user_id?: string
-        }
-        Relationships: []
-      }
-      probe145: {
-        Row: {
-          line: string | null
-          n: number
-        }
-        Insert: {
-          line?: string | null
-          n?: number
-        }
-        Update: {
-          line?: string | null
-          n?: number
         }
         Relationships: []
       }
@@ -7183,6 +7203,7 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      blitz_cap_state: { Args: { p_event_id: string }; Returns: Json }
       blitz_optin_counts: {
         Args: never
         Returns: {
@@ -8038,6 +8059,7 @@ export type Database = {
         Args: { _user: string; _vertical: string }
         Returns: boolean
       }
+      join_blitz_waitlist: { Args: { p_event_id: string }; Returns: Json }
       lead_add_tag: {
         Args: { _lead: string; _tag: string }
         Returns: undefined
@@ -8160,6 +8182,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      leave_blitz_waitlist: { Args: { p_event_id: string }; Returns: boolean }
       list_resign_intents: {
         Args: never
         Returns: {
@@ -8284,6 +8307,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      promote_blitz_waitlist: { Args: { p_event_id: string }; Returns: number }
       recalc_vertical_enrollment: {
         Args: { _user: string; _vertical: string }
         Returns: undefined
@@ -8404,6 +8428,10 @@ export type Database = {
       }
       set_active_vertical: { Args: { _vertical: string }; Returns: Json }
       set_appearance: { Args: { _appearance: string }; Returns: undefined }
+      set_blitz_cap: {
+        Args: { p_cap: number; p_market_id: string }
+        Returns: boolean
+      }
       set_channel_cover: {
         Args: { _path: string; _slug: string }
         Returns: Json

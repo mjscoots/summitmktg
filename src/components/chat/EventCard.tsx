@@ -4,9 +4,12 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { CalendarClock, MapPin, Users } from 'lucide-react';
+import { BLITZ_FULL_MESSAGE, useBlitzCap } from '@/hooks/useBlitzCap';
+import { BlitzCapBar } from '@/components/blitz/BlitzCapBar';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet';
+
 
 export interface EventCardMeta {
   title?: string;
@@ -66,11 +69,14 @@ export function EventCard({ eventId, meta, title }: { eventId: string | null; me
   const [sheet, setSheet] = useState<'going' | 'pending' | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [askOpen, setAskOpen] = useState(false);
+  const cap = useBlitzCap(eventId);
 
   const questions = (meta?.questions || []).filter((q) => q && (q.label || q.key));
   const kindLabel = KIND_LABELS[meta?.event_kind || 'other'] || 'Event';
   const when = fmtWhen(meta?.event_date);
   const deadline = fmtWhen(meta?.rsvp_deadline || undefined);
+  const capFull = cap.state?.capacity != null && (cap.state.spots_left ?? 0) === 0;
+
 
   const load = useCallback(async () => {
     if (!eventId) return;
@@ -105,11 +111,18 @@ export function EventCard({ eventId, meta, title }: { eventId: string | null; me
       ? await (supabase as any).rpc('rsvp_event', { p_event_id: eventId, p_status: status, p_answers: withAnswers })
       : await (supabase as any).rpc('rsvp_event', { p_event_id: eventId, p_status: status });
     setBusy(false);
-    if (error) { toast.error('That did not save. Try again.'); return; }
+    if (error) {
+      const full = String((error as { message?: string }).message || '').includes('blitz_full');
+      toast.error(full ? BLITZ_FULL_MESSAGE : 'That did not save. Try again.');
+      if (full) void cap.refresh();
+      return;
+    }
     setMine(status);
     setAskOpen(false);
     void load();
+    void cap.refresh();
   };
+
 
   const onPick = (status: 'attending' | 'not_attending' | 'maybe') => {
     if (status === 'attending' && questions.length > 0) { setAskOpen(true); return; }
@@ -144,7 +157,9 @@ export function EventCard({ eventId, meta, title }: { eventId: string | null; me
 
         {!cancelled && (
           <div className="mt-3 flex flex-wrap gap-2">
-            {(['attending', 'not_attending', 'maybe'] as const).map((s) => (
+            {(['attending', 'not_attending', 'maybe'] as const)
+              .filter((s) => !(s === 'attending' && capFull && mine !== 'attending'))
+              .map((s) => (
               <button
                 key={s}
                 onClick={() => onPick(s)}
@@ -161,6 +176,17 @@ export function EventCard({ eventId, meta, title }: { eventId: string | null; me
             ))}
           </div>
         )}
+
+        {!cancelled && (
+          <BlitzCapBar
+            state={cap.state}
+            busy={cap.busy}
+            attending={mine === 'attending'}
+            onJoin={cap.join}
+            onLeave={cap.leave}
+          />
+        )}
+
 
         <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px]">
           <button
