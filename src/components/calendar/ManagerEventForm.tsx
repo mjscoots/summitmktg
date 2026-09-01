@@ -214,14 +214,18 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
       setIsTeamWide(event.is_team_wide);
       setSelectedMembers(event.assignees || []);
       setAssignmentMode(event.is_team_wide ? 'entire_team' : 'specific');
+      setAudience(
+        verticalToAudience((event as { vertical?: string | null }).vertical ?? null)
+      );
     } else {
       resetForm();
+      setAudience(verticalToAudience(activeVertical));
       // Apply prefill date when creating new event
       if (prefillDate) {
         setStartDate(prefillDate);
       }
     }
-  }, [event, prefillDate]);
+  }, [event, prefillDate, activeVertical]);
 
   const resetForm = () => {
     setTitle('');
