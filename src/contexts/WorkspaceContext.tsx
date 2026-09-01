@@ -69,9 +69,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [epoch, setEpoch] = useState(0);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [activeVertical, setActiveVertical] = useState<string>(
-    () => localStorage.getItem(STORAGE_KEY) || 'Pest'
-  );
+  // Pass 148 — the server decides the active workspace. Nothing is read from or
+  // written to local storage, so a workspace opened once on this device can
+  // never outrank profiles.active_vertical on the next open.
+  const [activeVertical, setActiveVertical] = useState<string>('Pest');
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = useCallback(async () => {
@@ -89,16 +90,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setWorkspaces(rows);
 
     const mine = rows.filter(isMember);
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const next =
-      (res?.active_vertical && mine.some((w) => w.vertical === res.active_vertical)
-        ? res.active_vertical
-        : null) ||
-      (stored && mine.some((w) => w.vertical === stored) ? stored : null) ||
-      mine[0]?.vertical ||
-      'Pest';
-    setActiveVertical(next);
-    localStorage.setItem(STORAGE_KEY, next);
+    const next = res?.active_vertical || 'Pest';
+    setActiveVertical((prev) => {
+      if (prev !== next) setEpoch((n) => n + 1);
+      return next;
+    });
     setIsLoading(false);
   }, [user?.id]);
 
@@ -111,18 +107,19 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       if (vertical === activeVertical) return;
       const name = workspaces.find((w) => w.vertical === vertical)?.name || vertical;
       setActiveVertical(vertical);
-      localStorage.setItem(STORAGE_KEY, vertical);
       // The app restarts in the new workspace: land on Home, top of page, and
       // bump the epoch so every screen unmounts and refetches with the new scope.
       setEpoch((n) => n + 1);
       navigate('/app');
       window.scrollTo({ top: 0, behavior: 'auto' });
       toast(`Now in ${name}`);
+      // Persisted on the server so every device the person signs in on follows.
       await supabase.rpc('set_active_vertical' as never, { _vertical: vertical } as never);
       await refresh();
     },
     [activeVertical, workspaces, navigate, refresh]
   );
+
 
   const value = useMemo<WorkspaceContextValue>(() => {
     const myWorkspaces = workspaces.filter(isMember);
