@@ -42,6 +42,8 @@ const InvitePage = () => {
   const [codeStep, setCodeStep] = useState(false);
   const [greetName, setGreetName] = useState('');
   const [inviterFirst, setInviterFirst] = useState('');
+  const [code, setCode] = useState('');
+
 
 
   useEffect(() => {
