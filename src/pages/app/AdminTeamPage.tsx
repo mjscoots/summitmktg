@@ -748,6 +748,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
                   <Suspense fallback={<LoadingList rows={3} />}>
                     <LazyReactivations />
                   </Suspense>
+                  {isAdmin && <AwaitingIndustryPanel />}
                   {isAdmin && <VerticalRequestsPanel />}
                   <Suspense fallback={<LoadingList rows={4} />}>
                     <LazyPitchApprovals />
