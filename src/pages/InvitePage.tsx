@@ -164,10 +164,13 @@ const InvitePage = () => {
     return shell(
       <div className="public-surface p-6">
         <p className="text-foreground">{line}</p>
-        <p className="mt-2 text-sm text-muted-foreground">Ask the person who invited you for a new link.</p>
+        <Button className="mt-4 min-h-12 w-full" onClick={() => navigate('/recruiting#apply')}>
+          Apply instead
+        </Button>
       </div>,
     );
   }
+
 
   if (accountExists) {
     return shell(
