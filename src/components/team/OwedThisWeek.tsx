@@ -27,11 +27,10 @@ export function OwedThisWeek() {
     },
     { label: 'Reps with no training this week', count: owed.reps_no_training, to: '/app/team' },
     {
-      label: 'One-on-ones not logged this week',
+      label: 'Reps you have not logged a one on one with this week. Tap to open the prep sheet.',
       count: owed.one_on_ones_missing,
       to: '/app/one-on-ones/prep',
     },
-    { label: 'Reps who have not named their three', count: owed.reps_no_three, to: '/app/team' },
   ].filter((l) => l.count > 0);
 
   return (

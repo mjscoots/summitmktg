@@ -29,11 +29,22 @@ interface Profile {
   active_vertical?: string | null;
 }
 
+/** Pass 148 — the roles an owner or admin can preview the app as. */
+export type ViewAsRole = 'manager' | 'vet' | 'rookie';
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  /** The role every screen renders against. Follows viewAs when previewing. */
   role: UserRole;
+  /** The signed in person's real role. Never changes while previewing. */
+  realRole: UserRole;
+  /** Set only by an owner or admin previewing a lower role. */
+  viewAs: ViewAsRole | null;
+  setViewAs: (next: ViewAsRole | null) => void;
+  /** True while a preview is on. Write actions stay out of reach. */
+  isViewingAs: boolean;
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -49,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<UserRole>('rookie');
+  const [viewAs, setViewAsState] = useState<ViewAsRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isLoadingRef = useRef(true);
   const hasActiveSessionRef = useRef(false);
@@ -309,6 +321,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setProfile(null);
     setRole('rookie');
+    setViewAsState(null);
     if (currentUserId) {
       roleCacheRef.current.delete(currentUserId);
       try {
@@ -319,11 +332,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const canPreview = role === 'owner' || role === 'admin';
+  const setViewAs = (next: ViewAsRole | null) => {
+    // Only an owner or an admin may preview another role.
+    if (next !== null && !canPreview) return;
+    setViewAsState(next);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+  const effectiveRole: UserRole = viewAs ? (viewAs === 'manager' ? 'manager' : 'rookie') : role;
+  const effectiveProfile: Profile | null =
+    profile && viewAs
+      ? { ...profile, experience: viewAs === 'vet' ? 'veteran' : 'rookie' }
+      : profile;
+
   const value = {
     user,
     session,
-    profile,
-    role,
+    profile: effectiveProfile,
+    role: effectiveRole,
+    realRole: role,
+    viewAs: canPreview ? viewAs : null,
+    setViewAs,
+    isViewingAs: Boolean(canPreview && viewAs),
     isLoading,
     isAuthenticated: !!session,
     signIn,

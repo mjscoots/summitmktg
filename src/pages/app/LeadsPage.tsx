@@ -25,7 +25,6 @@ import ThisWeekQueue, { buildWeekQueue } from '@/components/leads/ThisWeekQueue'
 import CallMode from '@/components/leads/CallMode';
 import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
 import OwnerAssignQueue from '@/components/leads/OwnerAssignQueue';
-import { YourThreeCard } from '@/components/home/YourThreeCard';
 
 
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -211,10 +210,6 @@ export default function LeadsPage() {
       <div className="h-full">
         <main className="mx-auto max-w-5xl px-4 py-6">
           <PageBackButton to="/app" label="Home" />
-
-          <div className="mb-4">
-            <YourThreeCard />
-          </div>
 
           <PageHeader
             title="Leads"

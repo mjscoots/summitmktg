@@ -2431,3 +2431,47 @@ Proofs
 - Baselines unchanged: profiles 536, chat_messages 719, calendar_events 59, blitz_markets 30 official 0, invites 0, blitz_waitlist 0, push_subscriptions 0, notifications with push_sent_at 0, accounts with push on 0.
 - Typecheck and production build clean. New user-facing strings read back, no em dashes.
 - Not verified in this pass: the deployed `send-push` and `push-config` endpoints could not be called yet because Lovable deploys new functions at the end of the turn, and no live browser subscription exists to receive a real notification. The preference-off and dead-endpoint branches were proven at the database and library level rather than end to end through the deployed function.
+
+## Pass 148 - Cover without money, the right workspace on open, honest toggles, View as
+
+### 1. Money off the public cover
+- New flag `src/lib/coverStats.ts` exports `COVER_STATS = false`. Nothing was deleted.
+- `src/pages/Index.tsx` renders `PublicProofStrip` and `ProductionTicker` only when the flag is true, and `PublicProofStrip` itself returns null while the flag is off, so no other mount can bring it back by accident.
+- `get_public_counters` and the counter hooks are untouched. Flipping the flag to true restores a reps signed line later.
+- Read back of the rendered cover at 390 wide: no serviced total, no signed for 2027 count, no production ticker. The only dollar figures left on the page are inside the earnings calculator the visitor drives themselves, which the owner asked to keep.
+
+### 2. Opening on the right workspace
+- Cause, named exactly: `WorkspaceContext` seeded state from `localStorage['summit-active-vertical']` and, in the resolve chain, accepted the server value only when it matched a membership row, falling back to the stored value and then to the first workspace by display order. On the owner's device the stored value was Fiber, so the app opened on Fiber and every workspace-scoped screen mounted with Fiber even though `profiles.active_vertical` was Pest.
+- Fix: the storage key and all reads and writes of it are gone. `refresh()` now takes `active_vertical` from `get_my_workspaces` (which already coalesces to Pest) as the only source, and bumps the epoch when the server value differs from what was rendered so screens refetch in the right scope. A manual switch still writes `set_active_vertical`, so every device follows.
+
+### 3. Your Three retired
+- `YourThreeCard` removed from `YourNumbers` (rep Home), `FiberHome` and `LeadsPage`. The "Reps who have not named their three" line is gone from `OwedThisWeek`.
+- The component file, the tables, the functions and the existing rows are untouched. UI only, zero data writes.
+
+### 4. Toggles that do things
+| Toggle | Where | What turning it on does |
+| --- | --- | --- |
+| Push notifications | Notification preferences | Subscribes this device and writes `push_subscriptions`; `send-push` then delivers to it |
+| Chat messages | Notification preferences | `chat_mentions` in `notification_preferences`, read by `useUnreadChat`, `useSmartNotifications` and `send-push` |
+| Event reminders | Notification preferences | `calendar_events`, read by the event reminder paths, blitz promotion notices and `send-push` |
+| Announcements | Notification preferences | `announcements`, read by `useActionCards` and `send-push` |
+| New leads | Notification preferences | `new_leads`, read by the lead board notifier and `send-push` |
+| Lead expiry warnings | Notification preferences | `lead_expiry`, read by the lead release warning path and `send-push` |
+| Training | Notification preferences | `training_quiz`, read by `useSmartNotifications` and `send-push` |
+| Leaderboard | Notification preferences | `leaderboard`, read by `weekly-champion-notify` and `send-push` |
+| Summer Checklist | Notification preferences | `bootcamp_reminders`, read by the checklist reminder path and `send-push` |
+| Streak milestones | Notification preferences | `streak_milestones`, read by `useSmartNotifications` and `send-push` |
+| Accepting new reps | Profile settings, managers only | Writes `profiles.accepting_new_reps`, which decides whether reps picking a manager can see and choose you |
+- Every one of the ten notification switches is honoured by at least one sender, so none were removed. Each now carries one plain line starting with "On:" that says exactly what happens.
+- The team prep element that read as a label with a bare count now reads "Reps you have not logged a one on one with this week. Tap to open the prep sheet." with the count beside it.
+
+### 5. Role separation and View as
+- Audit against the current gates: nav and More are filtered by tier (`tierOf`: sales, manager, admin, owner), Team, Leads, Approvals, Forms, prep, sweep, war room and logistics are manager and above, Admin and Command center are admin and above, and owner-exclusive surfaces remain in Command center, the sidebar and Admin team. Vet and rookie differ on Home and Money through `rep_year` driven season and pay cards. No place was found where two roles saw an identical screen that a documented rule says should differ, so nothing was widened or narrowed on that basis; no new differences were invented.
+- View as: `useAuth` now exposes `realRole`, `viewAs`, `setViewAs` and `isViewingAs`. `setViewAs` refuses any value unless the real role is owner or admin, so the gate is in one place in source. The previewed role drives `role` for every screen, and vet or rookie also flips the exposed `profile.experience`.
+- `ViewAsSwitcher` renders on More for owner and admin only. `ViewAsBanner` is a persistent bar with one tap back to the owner's own view, and states plainly that it is a preview and that nothing is done on anyone else's behalf. Preview is client-side rendering only; it does not grant or borrow anyone's database access, so every server-side rule still applies to the signed-in account.
+
+### Verify
+- Zero data writes this pass. Baselines: profiles 536, chat_messages 719, calendar_events 59, blitz_markets 30, invites 0, push_subscriptions 0, user_roles 4.
+- Typecheck clean, production build clean.
+- New user-facing strings read back, no em dashes.
+- Nothing published.

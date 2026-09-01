@@ -7,6 +7,7 @@ import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
 import { usePublicCalc } from "@/hooks/usePublicCalc";
 import { Button } from "@/components/ui/button";
+import { COVER_STATS } from "@/lib/coverStats";
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
@@ -66,7 +67,7 @@ const Index = () => {
               <h1 className="public-cover-title mt-5 max-w-4xl font-display text-[3.15rem] font-extrabold leading-[0.98] tracking-normal text-foreground sm:text-6xl md:text-7xl lg:text-[5.5rem]">
                 Financial freedom.<br />Done differently.
               </h1>
-              <PublicProofStrip />
+              {COVER_STATS && <PublicProofStrip />}
               <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
                 A performance-based path through sales, training, and team leadership.
               </p>
@@ -176,7 +177,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
-      <ProductionTicker />
+      {COVER_STATS && <ProductionTicker />}
     </div>
   );
 };

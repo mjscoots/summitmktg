@@ -1,4 +1,5 @@
 import { usePublicCounters } from '@/hooks/usePublicRecruiting';
+import { COVER_STATS } from '@/lib/coverStats';
 
 interface LiveCountersProps {
   /** 'inline' for the cover hero, 'section' for the recruiting page */
@@ -53,6 +54,7 @@ if (counters.signed_season) items.push({ value: counters.signed_season, label: '
 export function PublicProofStrip() {
   const counters = usePublicCounters();
 
+  if (!COVER_STATS) return null;
   if (!counters || counters.serviced_total <= 0) return null;
 
   const serviced = new Intl.NumberFormat('en-US', {
