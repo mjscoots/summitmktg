@@ -2285,11 +2285,17 @@ export type Database = {
           experience_level: Database["public"]["Enums"]["experience_level"]
           expires_at: string
           id: string
+          invitee_first_name: string | null
+          invitee_last_name: string | null
+          invitee_phone: string | null
+          joined_user_id: string | null
           manager_id: string | null
           note: string | null
+          opened_at: string | null
           region: string | null
           revoked_at: string | null
           role: string
+          status: string
           team_id: string | null
           token: string
           used_at: string | null
@@ -2302,11 +2308,17 @@ export type Database = {
           experience_level?: Database["public"]["Enums"]["experience_level"]
           expires_at?: string
           id?: string
+          invitee_first_name?: string | null
+          invitee_last_name?: string | null
+          invitee_phone?: string | null
+          joined_user_id?: string | null
           manager_id?: string | null
           note?: string | null
+          opened_at?: string | null
           region?: string | null
           revoked_at?: string | null
           role?: string
+          status?: string
           team_id?: string | null
           token: string
           used_at?: string | null
@@ -2319,11 +2331,17 @@ export type Database = {
           experience_level?: Database["public"]["Enums"]["experience_level"]
           expires_at?: string
           id?: string
+          invitee_first_name?: string | null
+          invitee_last_name?: string | null
+          invitee_phone?: string | null
+          joined_user_id?: string | null
           manager_id?: string | null
           note?: string | null
+          opened_at?: string | null
           region?: string | null
           revoked_at?: string | null
           role?: string
+          status?: string
           team_id?: string | null
           token?: string
           used_at?: string | null
@@ -7071,6 +7089,7 @@ export type Database = {
         Args: { _is_lead: boolean; _user_id: string; _vertical: string }
         Returns: Json
       }
+      all_invites: { Args: never; Returns: Json }
       announcement_ack_counts: { Args: never; Returns: Json }
       answer_home_question: {
         Args: {
@@ -7227,6 +7246,16 @@ export type Database = {
       }
       create_group_channel: {
         Args: { _cover?: string; _ids?: string[]; _label: string }
+        Returns: Json
+      }
+      create_invite: {
+        Args: {
+          _first_name: string
+          _last_name?: string
+          _phone?: string
+          _team_id?: string
+          _vertical?: string
+        }
         Returns: Json
       }
       create_seat_invite: {
@@ -7942,6 +7971,7 @@ export type Database = {
       }
       ingest_fiber_week: { Args: { batch: Json }; Returns: Json }
       ingest_pest_revenue: { Args: { batch: Json }; Returns: Json }
+      invite_lookup: { Args: { p_token: string }; Returns: Json }
       invite_preview: { Args: { p_token: string }; Returns: Json }
       is_chat_admin: { Args: { _uid: string }; Returns: boolean }
       is_chat_staff: { Args: { _uid: string }; Returns: boolean }
@@ -8183,6 +8213,7 @@ export type Database = {
       my_active_vertical: { Args: never; Returns: string }
       my_fiber_tier: { Args: { _uid: string }; Returns: Json }
       my_home_numbers: { Args: never; Returns: Json }
+      my_invites: { Args: never; Returns: Json }
       my_next_year_pay: { Args: never; Returns: Json }
       my_notification_prefs: { Args: never; Returns: Json }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
@@ -8321,6 +8352,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: Json
       }
+      revoke_invite: { Args: { _id: string }; Returns: Json }
       revoke_seat_invite: { Args: { _invite_id: string }; Returns: undefined }
       role_chips: { Args: { _user_ids: string[] }; Returns: Json }
       roll_reps_to_fiber: {
