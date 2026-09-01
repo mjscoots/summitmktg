@@ -60,8 +60,6 @@ interface WorkspaceContextValue {
   refresh: () => Promise<void>;
 }
 
-const STORAGE_KEY = 'summit-active-vertical';
-
 const WorkspaceContext = createContext<WorkspaceContextValue | undefined>(undefined);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
@@ -89,7 +87,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     const rows = res?.workspaces || [];
     setWorkspaces(rows);
 
-    const mine = rows.filter(isMember);
     const next = res?.active_vertical || 'Pest';
     setActiveVertical((prev) => {
       if (prev !== next) setEpoch((n) => n + 1);
