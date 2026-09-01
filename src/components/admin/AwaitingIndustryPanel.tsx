@@ -83,6 +83,11 @@ export function AwaitingIndustryPanel() {
               {r.manager_name && (
                 <p className="text-xs text-muted-foreground">Manager {r.manager_name}</p>
               )}
+              {r.invited_vertical && (
+                <p className="text-xs text-muted-foreground">
+                  Invited into {r.invited_vertical}
+                </p>
+              )}
             </div>
             <span className="text-[11px] text-muted-foreground">
               {format(new Date(r.created_at), 'MMM d, yyyy')}
@@ -93,7 +98,7 @@ export function AwaitingIndustryPanel() {
             {INDUSTRIES.map((v) => (
               <Button
                 key={v}
-                variant={v === 'Pest' ? 'default' : 'outline'}
+                variant={v === (r.invited_vertical || 'Pest') ? 'default' : 'outline'}
                 className="min-h-11"
                 disabled={busy === `${r.user_id}-${v}`}
                 onClick={() => accept(r.user_id, v)}
