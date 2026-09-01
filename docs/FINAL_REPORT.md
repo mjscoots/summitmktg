@@ -2408,3 +2408,26 @@ Proofs (all test rows rolled back)
 - Baselines restored after cleanup: blitz_markets 30, official 0, calendar_events 59, blitz_waitlist 0, profiles 536, test market cap null.
 - Typecheck clean, production build clean, no em dashes in new copy.
 - Not verified: authenticated screenshots at 390px and 1280px could not be captured this pass because no preview session could be minted in this environment. Layout follows the existing card patterns with wrapping rows and 44px targets on every new control.
+
+## Pass 147 — real web push for the installed app
+
+Keys (minted and stored in this environment, nothing to paste)
+- A P-256 VAPID keypair was generated here and stored as edge function secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (private JWK), `VAPID_SUBJECT` (mailto contact). No key was ever handed through chat, and the private key is only read inside the sender.
+- The public key reaches the browser through one endpoint, `push-config`, which returns `{ publicKey }` and nothing else. No owner action is required.
+
+What shipped
+- `public/sw.js` is now a push-only worker: `push` shows the notification, `notificationclick` focuses an open tab on the deep link or opens one. It has no fetch handler, stores nothing, and never reloads or navigates a tab on its own. On activation it deletes the old `summit-static-*` and `summit-shell-*` caches once, so nothing stale survives.
+- `src/lib/push.ts` registers the worker only when a person turns push on, subscribes with the VAPID public key, and saves the endpoint. `src/lib/registerSW.ts` keeps the old-worker cleanup but leaves a push subscriber's worker in place.
+- `push_subscriptions` (user_id, endpoint unique, p256dh, auth, user_agent snippet, created_at, last_seen_at). One RLS policy: own rows only; service role has full access. `save_push_subscription` and `remove_push_subscription` are SECURITY DEFINER, execute revoked from PUBLIC and anon, granted to authenticated. Turning push off deletes the row and clears the flag.
+- `notification_preferences.push_enabled` added, default false. A new Push notifications switch sits above the existing list in `NotificationPreferences`, asks the browser for permission only on tap, says one quiet line when permission is blocked or the browser cannot do push, and shows the home screen note on iPhone Safari outside standalone mode.
+- `user_notifications.push_sent_at` added. `tg_user_notification_push` (AFTER INSERT trigger, execute revoked from PUBLIC, anon and authenticated) posts the new row id to the `send-push` function through pg_net and swallows any error.
+- `send-push` re-reads the row with the service role, skips a row already pushed, digested or held for quiet hours, skips when `push_enabled` is false or the matching preference switch is off, sends standard Web Push with the VAPID keys only, deletes endpoints the push service answers 404 or 410 for, logs other failures and stamps `push_sent_at`.
+
+Proofs
+- Own rows only: a test row saved under account A was counted 1 by A, 0 by account B; B's delete on that endpoint removed nothing and the row survived. Unsubscribe by A deleted it (count 0) and flipped `push_enabled` back to false. `push_subscriptions` 0 at the end.
+- `has_function_privilege` anon false on `save_push_subscription`, `remove_push_subscription` and `tg_user_notification_push`; the trigger function is also false for authenticated.
+- Worker file audit: no `fetch` listener, no cache write, no `reload` and no self-navigation; the only cache calls delete the two legacy buckets and the only navigate call moves an already open tab to the tapped link.
+- Web Push path exercised with the real key material against a dead FCM endpoint: the message signed and posted, and the push service answered 410 Gone, which is exactly the branch that deletes the subscription row.
+- Baselines unchanged: profiles 536, chat_messages 719, calendar_events 59, blitz_markets 30 official 0, invites 0, blitz_waitlist 0, push_subscriptions 0, notifications with push_sent_at 0, accounts with push on 0.
+- Typecheck and production build clean. New user-facing strings read back, no em dashes.
+- Not verified in this pass: the deployed `send-push` and `push-config` endpoints could not be called yet because Lovable deploys new functions at the end of the turn, and no live browser subscription exists to receive a real notification. The preference-off and dead-endpoint branches were proven at the database and library level rather than end to end through the deployed function.
