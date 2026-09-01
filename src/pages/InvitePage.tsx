@@ -40,7 +40,11 @@ const InvitePage = () => {
   const [error, setError] = useState('');
   const [accountExists, setAccountExists] = useState(false);
   const [codeStep, setCodeStep] = useState(false);
+  const [greetName, setGreetName] = useState('');
+  const [inviterFirst, setInviterFirst] = useState('');
   const [code, setCode] = useState('');
+
+
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -52,13 +56,23 @@ const InvitePage = () => {
   useEffect(() => {
     if (!token) return;
     (async () => {
-      const { data, error: fnError } = await supabase.functions.invoke('redeem-invite', {
-        body: { action: 'preview', token },
-      });
-      setPreview(fnError ? { status: 'invalid' } : (data as Preview));
+      const [lookup, previewResult] = await Promise.all([
+        (supabase as any).rpc('invite_lookup', { p_token: token }),
+        supabase.functions.invoke('redeem-invite', { body: { action: 'preview', token } }),
+      ]);
+      const found = (lookup?.data || null) as
+        | { valid: boolean; first_name: string | null; inviter_first_name: string | null }
+        | null;
+      if (found?.valid) {
+        setGreetName(found.first_name || '');
+        setInviterFirst(found.inviter_first_name || '');
+        if (found.first_name) setFirstName(found.first_name);
+      }
+      setPreview(previewResult.error ? { status: 'invalid' } : (previewResult.data as Preview));
       setLoading(false);
     })();
   }, [token]);
+
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,15 +164,18 @@ const InvitePage = () => {
     return shell(
       <div className="public-surface p-6">
         <p className="text-foreground">{line}</p>
-        <p className="mt-2 text-sm text-muted-foreground">Ask the person who invited you for a new link.</p>
+        <Button className="mt-4 min-h-12 w-full" onClick={() => navigate('/recruiting#apply')}>
+          Apply instead
+        </Button>
       </div>,
     );
   }
 
+
   if (accountExists) {
     return shell(
       <div className="public-surface p-6">
-        <p className="text-foreground">You already have an account — sign in</p>
+        <p className="text-foreground">You already have an account. Sign in instead.</p>
         <Button className="mt-4 min-h-12 w-full" onClick={() => navigate('/login')}>
           Go to sign in
         </Button>
@@ -200,11 +217,14 @@ const InvitePage = () => {
 
   return shell(
     <form onSubmit={submit} className="public-surface p-6">
-      <h1 className="text-xl font-extrabold text-foreground">You are invited to Summit</h1>
+      <h1 className="text-xl font-extrabold text-foreground">
+        {greetName ? `${greetName}, you are invited to Summit` : 'You are invited to Summit'}
+      </h1>
       <p className="mt-2 text-sm text-muted-foreground">{details.join(' · ')}</p>
-      {preview.inviter && (
-        <p className="mt-1 text-sm text-muted-foreground">Invited by {preview.inviter}</p>
+      {(inviterFirst || preview.inviter) && (
+        <p className="mt-1 text-sm text-muted-foreground">Invited by {preview.inviter || inviterFirst}</p>
       )}
+
 
       <div className="mt-5 space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

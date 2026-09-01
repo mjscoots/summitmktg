@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { InviteDialog } from '@/components/invites/InviteDialog';
+
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -176,6 +178,7 @@ export default function SeatsPanel() {
           placeholder="Search name"
           className="h-11 min-w-[180px] flex-1 text-[13px]"
         />
+        <InviteDialog triggerLabel="Invite by link" />
         {accountless.length > 0 && (
           <Button variant="outline" className="min-h-11" onClick={createAll} disabled={busy === 'all'}>
             {busy === 'all' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -183,6 +186,7 @@ export default function SeatsPanel() {
           </Button>
         )}
       </div>
+
 
 
       {bulk && (
