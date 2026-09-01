@@ -10,7 +10,6 @@ import { useAdminCounts } from '@/hooks/useAdminCounts';
 import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 import { ResignIntentCard } from '@/components/home/ResignIntentCard';
-import { YourThreeCard } from '@/components/home/YourThreeCard';
 import { SupraTicketCard } from '@/components/home/SupraTicketCard';
 
 
@@ -237,7 +236,6 @@ export function YourNumbers() {
 
       <ResignIntentCard eligible={mine?.has_lead === true && !signed && !gate.is_recruit} />
 
-      <YourThreeCard />
 
 
       {staff && <ManagerBlock />}
