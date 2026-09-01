@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Bell, Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { PushToggle } from './PushToggle';
+
 
 interface Preferences {
   new_leads: boolean;
@@ -131,6 +133,9 @@ export function NotificationPreferences() {
       </div>
 
       <div className="space-y-1">
+        <PushToggle />
+        <div className="h-px bg-border/50" />
+
         {PREF_LABELS.map(({ key, label, description }) => (
           <div
             key={key}
