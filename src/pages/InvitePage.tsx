@@ -175,7 +175,7 @@ const InvitePage = () => {
   if (accountExists) {
     return shell(
       <div className="public-surface p-6">
-        <p className="text-foreground">You already have an account — sign in</p>
+        <p className="text-foreground">You already have an account. Sign in instead.</p>
         <Button className="mt-4 min-h-12 w-full" onClick={() => navigate('/login')}>
           Go to sign in
         </Button>
@@ -217,11 +217,14 @@ const InvitePage = () => {
 
   return shell(
     <form onSubmit={submit} className="public-surface p-6">
-      <h1 className="text-xl font-extrabold text-foreground">You are invited to Summit</h1>
+      <h1 className="text-xl font-extrabold text-foreground">
+        {greetName ? `${greetName}, you are invited to Summit` : 'You are invited to Summit'}
+      </h1>
       <p className="mt-2 text-sm text-muted-foreground">{details.join(' · ')}</p>
-      {preview.inviter && (
-        <p className="mt-1 text-sm text-muted-foreground">Invited by {preview.inviter}</p>
+      {(inviterFirst || preview.inviter) && (
+        <p className="mt-1 text-sm text-muted-foreground">Invited by {preview.inviter || inviterFirst}</p>
       )}
+
 
       <div className="mt-5 space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
