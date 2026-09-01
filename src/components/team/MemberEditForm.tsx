@@ -428,7 +428,7 @@ export function MemberEditForm({
                   <Lock className="w-3.5 h-3.5 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Only Pillars and Admins can change reporting structure</p>
+                  <p>Only pillar leaders and the owner can change reporting structure</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -547,7 +547,7 @@ export function MemberEditForm({
                   <Lock className="w-3.5 h-3.5 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Only Pillars and Admins can change team assignment</p>
+                  <p>Only pillar leaders and the owner can change team assignment</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

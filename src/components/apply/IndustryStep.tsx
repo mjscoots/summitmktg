@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/source';
 
 export const INDUSTRY_OPTIONS = [
-  { value: 'Pest', label: 'Pest Control' },
-  { value: 'Fiber', label: 'Fiber Internet' },
-  { value: 'unsure', label: 'Not sure' },
+  { value: 'Pest', label: 'Pest control' },
+  { value: 'Fiber', label: 'Fiber internet' },
+  { value: 'Life', label: 'Life insurance' },
 ] as const;
 
 /** Reads ?vertical= and ?ref= once on mount and resolves the source attribution. */
@@ -32,7 +32,7 @@ export default function IndustryStep({ value, onChange, error }: Props) {
   return (
     <div className="mb-6">
       <label className="block text-sm font-medium text-foreground mb-2">
-        Which industry?<span className="text-destructive"> *</span>
+        Which Summit are you applying to?<span className="text-destructive"> *</span>
       </label>
       <div className="grid grid-cols-2 gap-2">
         {INDUSTRY_OPTIONS.map((o) => (

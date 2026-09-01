@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LoadingList } from '@/components/shared/LoadingList';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import PlacePersonSheet from '@/components/onboarding/PlacePersonSheet';
 
 interface WaitingPerson {
   user_id: string;
@@ -11,6 +12,7 @@ interface WaitingPerson {
   avatar_url: string | null;
   created_at: string;
   manager_name: string | null;
+  team_name: string | null;
   invited_vertical: string | null;
 }
 
@@ -25,6 +27,7 @@ export function AwaitingIndustryPanel() {
   const [rows, setRows] = useState<WaitingPerson[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [placing, setPlacing] = useState<WaitingPerson | null>(null);
 
   const load = useCallback(async () => {
     const { data } = await supabase.rpc('people_awaiting_industry' as never);
@@ -80,6 +83,9 @@ export function AwaitingIndustryPanel() {
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">{r.full_name || 'New person'}</p>
+              {r.team_name && (
+                <p className="text-xs text-muted-foreground">Pillar {r.team_name}</p>
+              )}
               {r.manager_name && (
                 <p className="text-xs text-muted-foreground">Manager {r.manager_name}</p>
               )}
@@ -106,9 +112,22 @@ export function AwaitingIndustryPanel() {
                 Accept into {v}
               </Button>
             ))}
+            <Button variant="ghost" className="min-h-11" onClick={() => setPlacing(r)}>
+              Place under a manager
+            </Button>
           </div>
         </div>
       ))}
+
+      {placing && (
+        <PlacePersonSheet
+          userId={placing.user_id}
+          fullName={placing.full_name || 'This person'}
+          open
+          onOpenChange={(o) => !o && setPlacing(null)}
+          onPlaced={load}
+        />
+      )}
     </div>
   );
 }

@@ -706,11 +706,11 @@ export function MemberProfileModal({
                 />
               </div>
 
-              {/* Admin Actions — Delete */}
+              {/* Pillar actions — Delete */}
               {isAdminOrOwner && !isSelf && (
                 <div className="pt-2 border-t border-border/30">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                    <Shield className="w-3 h-3" /> Admin Actions
+                    <Shield className="w-3 h-3" /> Pillar actions
                   </p>
                   <Button
                     variant="outline"

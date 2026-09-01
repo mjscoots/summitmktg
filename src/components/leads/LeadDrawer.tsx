@@ -356,7 +356,7 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             {/* Staff controls */}
             {staff && (
               <div className="mt-4 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
-                <p className="micro-label mb-2">Admin controls</p>
+                <p className="micro-label mb-2">Pillar controls</p>
                 <div className="flex flex-col gap-2">
                   <Select value="" onValueChange={(v) => run(() => leadActions.designate(lead.id, v), 'Lead designated')}>
                     <SelectTrigger className="h-10 text-[13px]">

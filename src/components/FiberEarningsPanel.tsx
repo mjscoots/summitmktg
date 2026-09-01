@@ -92,7 +92,7 @@ export function FiberEarningsPanel() {
     <div>
       {isStaff && !published && (
         <p className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-semibold text-amber-400">
-          Admin preview — this table is not published to the public site.
+          Pillar preview: this table is not published to the public site.
         </p>
       )}
 

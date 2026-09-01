@@ -3127,6 +3127,36 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_steps: {
+        Row: {
+          checked_at: string
+          checked_by: string | null
+          created_at: string
+          id: string
+          step: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checked_at?: string
+          checked_by?: string | null
+          created_at?: string
+          id?: string
+          step: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checked_at?: string
+          checked_by?: string | null
+          created_at?: string
+          id?: string
+          step?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       one_on_one_rep_order: {
         Row: {
           display_order: number
@@ -3405,6 +3435,41 @@ export type Database = {
         }
         Relationships: []
       }
+      pillar_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          team_id: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          team_id: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          team_id?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pillar_links_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: true
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pitch_approval_requests: {
         Row: {
           attempt_number: number | null
@@ -3454,6 +3519,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      placement_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          manager_id: string | null
+          note: string | null
+          placed_by: string | null
+          team_id: string | null
+          user_id: string
+          vertical: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          manager_id?: string | null
+          note?: string | null
+          placed_by?: string | null
+          team_id?: string | null
+          user_id: string
+          vertical?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          manager_id?: string | null
+          note?: string | null
+          placed_by?: string | null
+          team_id?: string | null
+          user_id?: string
+          vertical?: string | null
+        }
+        Relationships: []
       }
       playbook_entries: {
         Row: {
@@ -5749,6 +5850,7 @@ export type Database = {
           name: string
           retired: boolean
           slug: string
+          vertical: string
         }
         Insert: {
           created_at?: string | null
@@ -5758,6 +5860,7 @@ export type Database = {
           name: string
           retired?: boolean
           slug: string
+          vertical?: string
         }
         Update: {
           created_at?: string | null
@@ -5767,6 +5870,7 @@ export type Database = {
           name?: string
           retired?: boolean
           slug?: string
+          vertical?: string
         }
         Relationships: []
       }
@@ -7262,6 +7366,10 @@ export type Database = {
         Args: { _slug: string; _uid: string }
         Returns: boolean
       }
+      can_manage_pillar: {
+        Args: { _team_id: string; _uid: string }
+        Returns: boolean
+      }
       can_read_channel: {
         Args: { _channel: string; _uid: string }
         Returns: boolean
@@ -7346,6 +7454,7 @@ export type Database = {
         Args: { _manager?: string; _vertical?: string }
         Returns: Json
       }
+      day_one_done: { Args: { _user_id: string }; Returns: boolean }
       day_one_video_ids: { Args: never; Returns: string[] }
       decide_resign_intent: {
         Args: { _confirm: boolean; _intent_id: string }
@@ -8065,6 +8174,10 @@ export type Database = {
       is_first_week_eligible: { Args: { _target: string }; Returns: boolean }
       is_gated_recruit: { Args: { _uid: string }; Returns: boolean }
       is_in_my_downline: { Args: { _child: string }; Returns: boolean }
+      is_in_my_system: {
+        Args: { _target: string; _uid: string }
+        Returns: boolean
+      }
       is_leader_of: {
         Args: { _leader: string; _person: string }
         Returns: boolean
@@ -8297,11 +8410,14 @@ export type Database = {
       my_invites: { Args: never; Returns: Json }
       my_next_year_pay: { Args: never; Returns: Json }
       my_notification_prefs: { Args: never; Returns: Json }
+      my_onboarding_state: { Args: never; Returns: Json }
+      my_pillars: { Args: never; Returns: Json }
       my_presided_verticals: { Args: { _uid: string }; Returns: string[] }
       my_referral_count: { Args: never; Returns: number }
       my_resign_intent: { Args: never; Returns: Json }
       my_signed_count: { Args: never; Returns: number }
       my_stacks: { Args: { _vertical?: string }; Returns: Json }
+      my_system_managers: { Args: never; Returns: Json }
       my_vertical: { Args: never; Returns: string }
       my_your_three: { Args: never; Returns: Json }
       new_invite_token: { Args: never; Returns: string }
@@ -8319,6 +8435,11 @@ export type Database = {
         Args: { _user_id: string; _vertical: string }
         Returns: Json
       }
+      onboarding_state: { Args: { _user_id: string }; Returns: Json }
+      onboarding_tracker: {
+        Args: { _only_active: boolean; _vertical: string }
+        Returns: Json
+      }
       open_lead_on_departure: {
         Args: { _reason?: string; _user_id: string }
         Returns: undefined
@@ -8328,9 +8449,26 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
+      owner_move_person: {
+        Args: {
+          _manager_id: string
+          _team_id: string
+          _user_id: string
+          _vertical: string
+        }
+        Returns: Json
+      }
       owner_week: { Args: never; Returns: Json }
       parse_rep_year_text: { Args: { _raw: string }; Returns: number }
       people_awaiting_industry: { Args: never; Returns: Json }
+      pillar_link_ensure: { Args: { _team_id: string }; Returns: Json }
+      pillar_link_lookup: { Args: { p_token: string }; Returns: Json }
+      pillar_link_regenerate: { Args: { _team_id: string }; Returns: Json }
+      pillar_link_resolve: { Args: { p_token: string }; Returns: Json }
+      place_person: {
+        Args: { _manager_id: string; _user_id: string }
+        Returns: Json
+      }
       poll_channel_readable: { Args: { _poll_id: string }; Returns: boolean }
       post_weekly_awards: { Args: never; Returns: Json }
       post_weekly_digest: { Args: never; Returns: Json }
@@ -8505,6 +8643,10 @@ export type Database = {
       set_my_winter_plan: { Args: { _answer: string }; Returns: Json }
       set_next_year_status: {
         Args: { _notes?: string; _status: string; _user_id: string }
+        Returns: Json
+      }
+      set_onboarding_step: {
+        Args: { _on: boolean; _step: string; _user_id: string }
         Returns: Json
       }
       set_person_lifecycle: {

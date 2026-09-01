@@ -217,7 +217,7 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
               Mark as No Longer Coming?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              <strong>{nlcConfirm.member ? getDisplayName(nlcConfirm.member.full_name) : ''}</strong> will be removed from all team stats, leaderboards, and operational views. They'll only appear in the Admin Center.
+              <strong>{nlcConfirm.member ? getDisplayName(nlcConfirm.member.full_name) : ''}</strong> will be removed from all team stats, leaderboards, and operational views. They will only appear in the Pillar area.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { tierOf } from '@/lib/tiers';
+import MovePersonSheet from '@/components/admin/MovePersonSheet';
 
 interface SeatRow {
   user_id: string;
@@ -67,6 +68,7 @@ export default function SeatsPanel() {
   const [search, setSearch] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [bulk, setBulk] = useState<string>('');
+  const [moving, setMoving] = useState<SeatRow | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -271,6 +273,11 @@ export default function SeatsPanel() {
                     Remove manager access
                   </Button>
                 )}
+                {isOwner && (
+                  <Button size="sm" variant="outline" className="min-h-11" onClick={() => setMoving(row)}>
+                    Move
+                  </Button>
+                )}
               </div>
 
               {row.manager_departed && (
@@ -294,6 +301,16 @@ export default function SeatsPanel() {
             </div>
           ))}
         </div>
+      )}
+
+      {moving && (
+        <MovePersonSheet
+          userId={moving.user_id}
+          fullName={moving.full_name}
+          open
+          onOpenChange={(o) => !o && setMoving(null)}
+          onMoved={load}
+        />
       )}
     </div>
   );

@@ -93,7 +93,7 @@ export default function RegionPace() {
           fontSize: 13,
         }}
       >
-        No revenue entered yet. Add months in Admin → Money → Monthly revenue and this fills in.
+        No revenue entered yet. Add months in Pillar → Money → Monthly revenue and this fills in.
       </div>
     );
   }

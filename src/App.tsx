@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 const Index = lazyRoute(() => import("./pages/Index"));
 const IndustryPage = lazyRoute(() => import("./pages/IndustryPage"));
 const InvitePage = lazyRoute(() => import("./pages/InvitePage"));
+const PillarJoinPage = lazyRoute(() => import("./pages/PillarJoinPage"));
 const JoinRedirect = lazyRoute(() => import("./pages/JoinRedirect"));
 const Recruiting = lazyRoute(() => import("./pages/Recruiting"));
 const Parents = lazyRoute(() => import("./pages/Parents"));
@@ -176,6 +177,8 @@ function LazyFallback() {
              <Route path="/industries/:slug" element={<IndustryPage />} />
              <Route path="/join" element={<JoinRedirect />} />
              <Route path="/invite/:token" element={<InvitePage />} />
+             {/* The permanent pillar recruit link */}
+             <Route path="/p/:token" element={<PillarJoinPage />} />
              {/* Redirect /apply to /recruiting#apply section */}
              <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
              <Route path="/apply/rookie" element={<RookieApplication />} />

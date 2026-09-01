@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
 import { useRoleChip } from '@/hooks/useRoleChips';
 
-export type RoleChipLabel = 'Owner' | 'Admin' | 'Manager' | 'Vet' | 'Rookie';
+export type RoleChipLabel = 'Owner' | 'Pillar' | 'Manager' | 'Vet' | 'Rookie';
 
 const TONE: Record<RoleChipLabel, string> = {
   Owner: 'border-accent/40 bg-accent/10 text-accent',
-  Admin: 'border-primary/40 bg-primary/10 text-primary',
+  Pillar: 'border-primary/40 bg-primary/10 text-primary',
   Manager: 'border-primary/25 bg-primary/5 text-primary',
   Vet: 'border-border/70 bg-surface text-foreground',
   Rookie: 'border-border/60 bg-surface text-muted-foreground',

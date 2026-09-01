@@ -28,7 +28,7 @@ export function tierLabel(tier: Tier): string {
     case 'owner':
       return 'Owner';
     case 'admin':
-      return 'Admin';
+      return 'Pillar';
     case 'manager':
       return 'Manager';
     default:

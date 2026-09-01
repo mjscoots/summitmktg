@@ -28,6 +28,7 @@ import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FirstWeekCard } from '@/components/home/FirstWeekCard';
+import OnboardingProgressCard from '@/components/onboarding/OnboardingProgressCard';
 import { GoalInterviewCard } from '@/components/home/GoalInterviewCard';
 import { FiberStartCard } from '@/components/workspace/FiberStartCard';
 import { HomeGreeting } from '@/components/home/HomeGreeting';
@@ -185,6 +186,8 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
           Doors
         </Button>
       )}
+
+      {!staff && <OnboardingProgressCard />}
 
       {!staff && <NeedsYouRow className="!px-0" />}
 
