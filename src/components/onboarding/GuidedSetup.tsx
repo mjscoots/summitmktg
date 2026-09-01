@@ -25,12 +25,14 @@ type StepKey =
   | 'photo'
   | 'name'
   | 'phone'
+  | 'years'
   | 'hometown'
   | 'work'
   | 'shirt'
   | 'emergency'
   | 'source'
   | 'referrals';
+
 
 interface Referral {
   name: string;
@@ -61,7 +63,9 @@ export function GuidedSetup({
   const [nickname, setNickname] = useState(initial.nickname || '');
   const [phone, setPhone] = useState(initial.phone || '');
   const [hometown, setHometown] = useState(initial.hometown || '');
+  const [years, setYears] = useState(initial.years_in_industry ? String(initial.years_in_industry) : '');
   const [work, setWork] = useState(initial.organization || '');
+
   const [shirt, setShirt] = useState(initial.shirt_size || '');
   const [ecName, setEcName] = useState(initial.emergency_contact_name || '');
   const [ecPhone, setEcPhone] = useState(initial.emergency_contact_phone || '');
@@ -83,15 +87,15 @@ export function GuidedSetup({
       'photo',
       'name',
       'phone',
-      'hometown',
-      'work',
-      'shirt',
-      'emergency',
     ];
+    // Asked only when nothing is on file. A rep sets their years once.
+    if (!initial.years_self_set_at && !initial.years_in_industry) list.push('years');
+    list.push('hometown', 'work', 'shirt', 'emergency');
     if (!String(initial.referred_by || '').trim()) list.push('source');
     list.push('referrals');
     return list;
-  }, [initial.referred_by]);
+  }, [initial.referred_by, initial.years_in_industry, initial.years_self_set_at]);
+
 
   const step = steps[index];
   const last = index === steps.length - 1;
@@ -181,6 +185,15 @@ export function GuidedSetup({
           await writeProfile({ full_name: full, nickname: nickname.trim() || null });
         }
         if (step === 'phone' && phone.trim()) await writeProfile({ phone: phone.trim() });
+        if (step === 'years' && years.trim()) {
+          const n = Math.round(Number(years));
+          if (!Number.isFinite(n) || n < 1 || n > 40) {
+            toast.error('Enter a number between 1 and 40.');
+            return;
+          }
+          await (supabase as any).rpc('set_years_in_industry', { _user_id: user?.id, _years: n });
+        }
+
         if (step === 'hometown' && hometown.trim()) await writeProfile({ hometown: hometown.trim() });
         if (step === 'work' && work.trim()) await writeProfile({ organization: work.trim() });
         if (step === 'shirt' && shirt) await writeProfile({ shirt_size: shirt });
@@ -205,6 +218,8 @@ export function GuidedSetup({
     photo: { title: 'Add a photo', hint: 'Your team sees this on the board and in chat.' },
     name: { title: 'What is your name?', hint: 'A nickname is optional.' },
     phone: { title: 'Your phone number', hint: 'Your manager uses this to reach you.' },
+    years: { title: 'Years in the industry', hint: 'Counting this year. You set this once, then your manager can correct it.' },
+
     hometown: { title: 'Where are you from?', hint: 'Your hometown or the city you live in.' },
     work: { title: 'School or job', hint: 'Where you are studying or working right now.' },
     shirt: { title: 'Shirt size', hint: 'For your gear.' },
@@ -320,6 +335,21 @@ export function GuidedSetup({
                 aria-label="Phone number"
               />
             )}
+
+            {step === 'years' && (
+              <Input
+                className="h-11"
+                type="number"
+                min={1}
+                max={40}
+                inputMode="numeric"
+                value={years}
+                onChange={(e) => setYears(e.target.value)}
+                placeholder="1"
+                aria-label="Years in the industry"
+              />
+            )}
+
 
             {step === 'hometown' && (
               <Input

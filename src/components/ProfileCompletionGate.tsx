@@ -10,7 +10,8 @@ interface ProfileCompletionGateProps {
 }
 
 const SETUP_FIELDS =
-  'full_name, nickname, phone, avatar_url, hometown, organization, shirt_size, emergency_contact_name, emergency_contact_phone, referred_by, onboarding_status';
+  'full_name, nickname, phone, avatar_url, hometown, organization, shirt_size, emergency_contact_name, emergency_contact_phone, referred_by, onboarding_status, years_in_industry, years_self_set_at';
+
 
 /**
  * Day one setup. New people walk the guided flow one question per screen; anyone
