@@ -20,6 +20,7 @@ import EarningsCalculator from '@/components/EarningsCalculator';
 import VetCalculator from '@/components/VetCalculator';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MyNextYearPay from '@/components/money/MyNextYearPay';
+import FiberPayScaleTile from '@/components/fiber/FiberPayScaleTile';
 
 
 
