@@ -296,11 +296,14 @@ export function ChatBubble({
           )}
 
           {/* Industry chips and years in the industry */}
-          {showIdentity && identity && (identity.verticals.length > 0 || identity.years != null) && (
+          {showIdentity && (
             <span className="mb-0.5 ml-1 flex items-center gap-1">
-              <IndustryChips verticals={identity.verticals} skip={skipIndustry} max={3} />
-              <ExperienceStars years={identity.years} />
+              <IndustryChips verticals={identity?.verticals} skip={skipIndustry} max={3} />
+              <ExperienceStars years={identity?.years} />
+              <LockedInBadge userId={message.user_id} />
             </span>
+
+
 
           )}
 
