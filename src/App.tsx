@@ -618,25 +618,7 @@ function LazyFallback() {
 export default App;
 
 
-/** Pass 157 - mounts the toast layers once the first screen has painted. */
-const RootOverlays = lazy(() => import("@/components/layout/RootOverlays"));
 
-function DeferredOverlays() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
-      .requestIdleCallback;
-    if (idle) {
-      idle(() => setReady(true));
-      return;
-    }
-    const t = window.setTimeout(() => setReady(true), 400);
-    return () => window.clearTimeout(t);
-  }, []);
-  if (!ready) return null;
-  return (
-    <Suspense fallback={null}>
-      <RootOverlays />
-    </Suspense>
-  );
-}
+/* Pass 159 - the toast layers mount with the shell. Deferring them dropped any
+   toast fired during first paint, because neither layer replays a toast that
+   was raised before it mounted. */
