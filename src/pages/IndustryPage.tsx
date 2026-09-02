@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { supabase } from '@/integrations/supabase/client';
