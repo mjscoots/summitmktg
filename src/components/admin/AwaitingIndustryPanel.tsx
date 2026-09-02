@@ -14,7 +14,10 @@ interface WaitingPerson {
   manager_name: string | null;
   team_name: string | null;
   invited_vertical: string | null;
+  day_one_done?: boolean | null;
+  day_one_done_at?: string | null;
 }
+
 
 const INDUSTRIES = ['Pest', 'Fiber', 'Life'] as const;
 
