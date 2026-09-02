@@ -30,9 +30,25 @@ interface TrackerRow {
  */
 export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolean }) {
   const { activeVertical } = useWorkspace();
+  const [searchParams] = useSearchParams();
   const [rows, setRows] = useState<TrackerRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
+
+  // The Today screen can hand this panel the people it counted as stuck.
+  const stuckIds = useMemo<string[]>(() => {
+    if (searchParams.get('onboarding') !== 'stuck') return [];
+    try {
+      const raw = sessionStorage.getItem('day-stuck-ids');
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? (parsed as string[]) : [];
+    } catch {
+      return [];
+    }
+  }, [searchParams]);
+
+  const [filter, setFilter] = useState<'all' | 'active' | 'inactive' | 'stuck'>(
+    stuckIds.length > 0 ? 'stuck' : 'all'
+  );
   const [busy, setBusy] = useState<string | null>(null);
   const [placing, setPlacing] = useState<TrackerRow | null>(null);
 
@@ -53,10 +69,17 @@ export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolea
   const shown = useMemo(
     () =>
       rows.filter((r) =>
-        filter === 'all' ? true : filter === 'active' ? r.is_active : !r.is_active
+        filter === 'all'
+          ? true
+          : filter === 'stuck'
+            ? stuckIds.includes(r.user_id)
+            : filter === 'active'
+              ? r.is_active
+              : !r.is_active
       ),
-    [rows, filter]
+    [rows, filter, stuckIds]
   );
+
 
   const fully = rows.filter((r) => r.state.fully_onboarded).length;
 
