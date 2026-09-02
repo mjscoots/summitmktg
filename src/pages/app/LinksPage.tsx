@@ -814,6 +814,7 @@ export default function LinksPage() {
                 <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
               </button>
             ))}
+            <FiberPayScaleTile />
           </div>
         )}
 
