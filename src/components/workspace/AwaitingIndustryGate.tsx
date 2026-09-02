@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { MessageSquare, LogOut } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useAuth } from '@/hooks/useAuth';
+import { DayOneCourse } from '@/components/onboarding/DayOneCourse';
+
 
 /** Screens a person waiting on an industry may still open. */
 const ALLOWED = ['/app/chat', '/app/ask', '/app/profile'];
