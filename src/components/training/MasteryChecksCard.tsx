@@ -12,7 +12,7 @@ interface Row {
 }
 
 /**
- * Pass 83 — a manager can mark a rep's chapter mastery check from the person
+ * Pass 83 - a manager can mark a rep's chapter mastery check from the person
  * profile when they watched the pitch in person.
  */
 export function MasteryChecksCard({ userId, courseSlug = 'learn-your-pitch' }: { userId: string; courseSlug?: string }) {

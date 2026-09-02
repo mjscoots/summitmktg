@@ -34,7 +34,7 @@ export function TrainingLeaderboardPanel() {
       if (!user?.id) return;
 
       try {
-        // Use server-side SECURITY DEFINER function — deterministic, bypasses RLS
+        // Use server-side SECURITY DEFINER function - deterministic, bypasses RLS
         const { data, error } = await supabase.rpc('get_training_leaderboard_panel', { _limit: 20 });
 
         if (error) {
@@ -43,7 +43,7 @@ export function TrainingLeaderboardPanel() {
           return;
         }
 
-        // Map server response — NO re-sorting, server order is authoritative
+        // Map server response - NO re-sorting, server order is authoritative
         const leaderboard: LeaderboardEntry[] = (data || []).map((row: any) => ({
           userId: row.user_id,
           name: row.full_name,

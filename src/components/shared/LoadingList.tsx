@@ -6,7 +6,7 @@ interface LoadingListProps {
   className?: string;
 }
 
-/** Polished list skeleton — replaces raw spinners in list/table views. */
+/** Polished list skeleton - replaces raw spinners in list/table views. */
 export function LoadingList({ rows = 5, className }: LoadingListProps) {
   return (
     <div className={cn('divide-y divide-border/40', className)}>

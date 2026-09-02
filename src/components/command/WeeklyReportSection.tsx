@@ -137,7 +137,7 @@ export default function WeeklyReportSection() {
             <Metric label="Signs" value={p.signs ?? 0} />
             <Metric label="Returning" value={p.returning ?? 0} />
             <Metric label="Win-back calls" value={wb.calls ?? 0} sub={`${wb.callers ?? 0} reps calling`} />
-            <Metric label="Open admin queue" value={p.queue_open ?? 0} />
+            <Metric label="Open requests queue" value={p.queue_open ?? 0} />
           </div>
 
           <div style={{ fontFamily: fontBody, fontSize: 12, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>

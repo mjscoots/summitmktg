@@ -58,7 +58,7 @@ export function useNotifications() {
         },
         (payload) => {
           const newNotification = payload.new as UserNotification & { deliver_after?: string; digested?: boolean };
-          // Held for quiet hours or already folded into a digest — don't surface now.
+          // Held for quiet hours or already folded into a digest - don't surface now.
           if (newNotification.digested) return;
           if (newNotification.deliver_after && new Date(newNotification.deliver_after) > new Date()) return;
           setNotifications(prev => [newNotification, ...prev]);

@@ -34,7 +34,7 @@ export interface ChatConversation {
  * ai-coach is excluded server side, so it never affects unread math.
  *
  * Unread counts refresh on mount, on window focus and when the caller's own
- * `chat_read_state` changes — no subscription to every message in the company.
+ * `chat_read_state` changes - no subscription to every message in the company.
  */
 export function useChatChannels() {
   const { user } = useAuth();

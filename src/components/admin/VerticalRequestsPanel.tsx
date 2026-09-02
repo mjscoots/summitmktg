@@ -28,7 +28,7 @@ const ANSWER_LABELS: Record<string, string> = {
 };
 
 /**
- * Pass 89 — the owner's gate for Fiber and Life. Pest needs no request, so only
+ * Pass 89 - the owner's gate for Fiber and Life. Pest needs no request, so only
  * the locked industries land here.
  */
 export function VerticalRequestsPanel() {

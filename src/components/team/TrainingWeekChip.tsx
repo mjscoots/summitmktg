@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 /**
- * Pass 101 — training minutes this week for one rep. Zero minutes reads as a
+ * Pass 101 - training minutes this week for one rep. Zero minutes reads as a
  * warm chip, plain language, no shaming.
  */
 export function TrainingWeekChip({ minutes, className }: { minutes: number; className?: string }) {

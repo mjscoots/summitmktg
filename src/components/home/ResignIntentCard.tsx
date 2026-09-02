@@ -11,7 +11,7 @@ interface Props {
 }
 
 /**
- * Pass 134 — the re-sign intent card. A producer who is not signed for 2027
+ * Pass 134 - the re-sign intent card. A producer who is not signed for 2027
  * raises a hand in one tap; the owner confirms it from the Decisions lane.
  * State comes from my_resign_intent, never a local flag.
  */

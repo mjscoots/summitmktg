@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 /**
- * Pass 140 — the Supra card. Only shown when the person actually holds tickets,
+ * Pass 140 - the Supra card. Only shown when the person actually holds tickets,
  * and it says nothing beyond the count and where the drawing happens.
  */
 export function SupraTicketCard({ tickets }: { tickets: number }) {

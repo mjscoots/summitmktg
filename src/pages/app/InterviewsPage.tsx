@@ -152,7 +152,7 @@ export default function InterviewsPage() {
                       <span className="text-white font-semibold text-xs">{item.num}</span>
                     </div>
                     <span className="text-foreground">Interview {item.num}</span>
-                    <span className="text-muted-foreground">— {item.text}</span>
+                    <span className="text-muted-foreground">- {item.text}</span>
                   </div>
                 ))}
               </div>

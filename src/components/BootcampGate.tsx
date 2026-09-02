@@ -78,7 +78,7 @@ export function BootcampGate({ children }: BootcampGateProps) {
     return <>{children}</>;
   }
 
-  // Pass 119 — the day-one watch course owns the whole app for a new recruit.
+  // Pass 119 - the day-one watch course owns the whole app for a new recruit.
   if (location.pathname.startsWith('/recruit-course')) {
     return <>{children}</>;
   }

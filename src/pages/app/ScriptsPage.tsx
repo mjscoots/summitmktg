@@ -112,7 +112,7 @@ export default function ScriptsPage() {
 
           <PageHeader
             title="Scripts"
-            context="Openers, objections and closes — searchable, straight from the field."
+            context="Openers, objections and closes - searchable, straight from the field."
             action={
               isAdmin ? (
                 <button

@@ -51,7 +51,7 @@ interface Lead {
 }
 
 /**
- * Pass 86 — the Fiber hub. The real work runs on Gainz, so this screen is
+ * Pass 86 - the Fiber hub. The real work runs on Gainz, so this screen is
  * resources: Gainz, contacts, how it works, questions, training and chat.
  * Team tracking (installs, tier, region) is kept but demoted to the bottom.
  */
@@ -333,7 +333,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
                     <img src={lead.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                   ) : (
                     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-[13px] font-medium text-foreground">
-                      {(lead.full_name || '—').trim().charAt(0).toUpperCase()}
+                      {(lead.full_name || '-').trim().charAt(0).toUpperCase()}
                     </div>
                   )}
                   <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">

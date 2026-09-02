@@ -226,7 +226,7 @@ export function LogSaleSheet({
           </div>
 
           {confirmDup && (
-            <p className="text-[13px] text-foreground">Already logged — log again?</p>
+            <p className="text-[13px] text-foreground">Already logged - log again?</p>
           )}
         </div>
 

@@ -1,5 +1,5 @@
 /**
- * Rep triage buckets — shared by the live board on the Team page and the
+ * Rep triage buckets - shared by the live board on the Team page and the
  * Rep Triage section of the Weekly Manager Meeting form so both speak the
  * same language.
  */

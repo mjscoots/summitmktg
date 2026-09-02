@@ -11,7 +11,7 @@ import { celebrate } from '@/lib/celebrate';
 import { cn } from '@/lib/utils';
 
 /**
- * Pass 119 — the day-one watch course. A brand new recruit sees this and
+ * Pass 119 - the day-one watch course. A brand new recruit sees this and
  * nothing else until the last item is watched, then the app opens on the spot.
  */
 export default function RecruitCoursePage() {

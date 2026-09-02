@@ -82,7 +82,7 @@ export function ResignBoard({ isAdmin }: { isAdmin: boolean }) {
       return;
     }
     if (status === 'Signed' && rep.next_year_status !== 'Signed') {
-      toast.success(`${rep.full_name || 'Rep'} is signed for next season — posted to #wins`);
+      toast.success(`${rep.full_name || 'Rep'} is signed for next season - posted to #wins`);
     } else {
       toast.success('Saved');
     }
@@ -168,7 +168,7 @@ export function ResignBoard({ isAdmin }: { isAdmin: boolean }) {
               <UserAvatar fullName={rep.full_name || ""} avatarUrl={rep.avatar_url} size="sm" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="truncate text-[15px] font-bold text-foreground">{rep.full_name || '—'}</h3>
+                  <h3 className="truncate text-[15px] font-bold text-foreground">{rep.full_name || '-'}</h3>
                   {rep.is_alumni && (
                     <span className="shrink-0 rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                       Alumni

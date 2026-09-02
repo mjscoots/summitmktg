@@ -236,10 +236,10 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
       {/* Team Resources Section */}
       <TeamResources teamId={pillar.id} teamSlug={pillar.slug} />
  
-      {/* Event answers — who has not responded */}
+      {/* Event answers - who has not responded */}
       <EventAnswersPanel />
 
-      {/* Team Activity — Day-by-day breakdown */}
+      {/* Team Activity - Day-by-day breakdown */}
       <TeamActivityTable
         roster={roster}
         dailyTimeMap={dailyTimeMap}

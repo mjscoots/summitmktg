@@ -58,7 +58,7 @@ export function EventAnswersPanel() {
 
   return (
     <div className="rounded-xl border border-border/50 bg-card p-4">
-      <h3 className="mb-3 text-sm font-medium text-muted-foreground">Answers — upcoming trips and incentives</h3>
+      <h3 className="mb-3 text-sm font-medium text-muted-foreground">Answers - upcoming trips and incentives</h3>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -86,10 +86,10 @@ export function EventAnswersPanel() {
                       {ev.rsvp_deadline ? ` · answer by ${fmtWhen(ev.rsvp_deadline)}` : ''}
                     </span>
                   </td>
-                  <td className="px-2 py-3 text-right tabular-nums">{r ? r.going.length : '—'}</td>
-                  <td className="px-2 py-3 text-right tabular-nums">{r ? r.not_going.length : '—'}</td>
-                  <td className="px-2 py-3 text-right tabular-nums">{r ? r.maybe.length : '—'}</td>
-                  <td className="py-3 pl-2 text-right tabular-nums">{r?.no_answer ? r.no_answer.length : '—'}</td>
+                  <td className="px-2 py-3 text-right tabular-nums">{r ? r.going.length : '-'}</td>
+                  <td className="px-2 py-3 text-right tabular-nums">{r ? r.not_going.length : '-'}</td>
+                  <td className="px-2 py-3 text-right tabular-nums">{r ? r.maybe.length : '-'}</td>
+                  <td className="py-3 pl-2 text-right tabular-nums">{r?.no_answer ? r.no_answer.length : '-'}</td>
                 </tr>
               );
             })}

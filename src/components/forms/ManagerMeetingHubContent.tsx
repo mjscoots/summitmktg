@@ -170,7 +170,7 @@ export default function ManagerMeetingHubContent() {
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Submission — week of {viewing && format(new Date(viewing.week_of), 'MMM d, yyyy')}</DialogTitle>
+            <DialogTitle>Submission - week of {viewing && format(new Date(viewing.week_of), 'MMM d, yyyy')}</DialogTitle>
           </DialogHeader>
           {viewing && <SubmissionView data={viewing.data} />}
         </DialogContent>
@@ -205,18 +205,18 @@ function SubmissionView({ data }: { data: any }) {
       <section><h4 className="font-semibold mb-2">2. Wins</h4><Field label="" value={d.wins} /></section>
       {d.reps?.length > 0 && (
         <section><h4 className="font-semibold mb-2">3. Rep Triage</h4>
-          <ul className="space-y-1.5">{d.reps.map((r: any) => <li key={r.id} className={cn('text-sm rounded-md px-3 py-2 border', r.status === 'cut' && 'border-red-500/30 bg-red-500/5', r.status === 'watch' && 'border-amber-500/30 bg-amber-500/5', r.status === 'help' && 'border-primary/30 bg-primary/5', r.status === 'promote' && 'border-emerald-500/30 bg-emerald-500/5')}><b>{r.name}</b> — <span className="uppercase text-xs">{r.status}</span>{r.note && <> · {r.note}</>}</li>)}</ul>
+          <ul className="space-y-1.5">{d.reps.map((r: any) => <li key={r.id} className={cn('text-sm rounded-md px-3 py-2 border', r.status === 'cut' && 'border-red-500/30 bg-red-500/5', r.status === 'watch' && 'border-amber-500/30 bg-amber-500/5', r.status === 'help' && 'border-primary/30 bg-primary/5', r.status === 'promote' && 'border-emerald-500/30 bg-emerald-500/5')}><b>{r.name}</b> - <span className="uppercase text-xs">{r.status}</span>{r.note && <> · {r.note}</>}</li>)}</ul>
         </section>
       )}
       {d.rules?.length > 0 && (
         <section><h4 className="font-semibold mb-2">4. Constitutional Rules</h4>
-          <ul className="space-y-1.5">{d.rules.map((r: any) => <li key={r.id} className="text-sm"><b>{r.rule}</b>{r.enforcement && <> — {r.enforcement}</>}</li>)}</ul>
+          <ul className="space-y-1.5">{d.rules.map((r: any) => <li key={r.id} className="text-sm"><b>{r.rule}</b>{r.enforcement && <> - {r.enforcement}</>}</li>)}</ul>
         </section>
       )}
       <section><h4 className="font-semibold mb-2">5. Office Issues</h4><Field label="" value={d.office_issues} /></section>
       {d.roles?.length > 0 && (
         <section><h4 className="font-semibold mb-2">6. Roles for Next Week</h4>
-          <div className="space-y-2">{d.roles.map((r: any) => <div key={r.id} className="rounded-lg border border-white/[0.06] p-3"><div className="font-semibold">{r.role} — {r.assignee || '—'}{r.show_time && <span className="text-muted-foreground font-normal"> @ {r.show_time}</span>}</div>{r.expectations && <div className="text-muted-foreground mt-1">Expect: {r.expectations}</div>}{r.improvement && <div className="text-muted-foreground mt-1">Improve: {r.improvement}</div>}</div>)}</div>
+          <div className="space-y-2">{d.roles.map((r: any) => <div key={r.id} className="rounded-lg border border-white/[0.06] p-3"><div className="font-semibold">{r.role} - {r.assignee || '-'}{r.show_time && <span className="text-muted-foreground font-normal"> @ {r.show_time}</span>}</div>{r.expectations && <div className="text-muted-foreground mt-1">Expect: {r.expectations}</div>}{r.improvement && <div className="text-muted-foreground mt-1">Improve: {r.improvement}</div>}</div>)}</div>
         </section>
       )}
       {d.managers?.length > 0 && (

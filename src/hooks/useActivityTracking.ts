@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-const IDLE_TIMEOUT_GENERAL_MS = 180_000;  // 3 min — general pages
-const IDLE_TIMEOUT_CONTENT_MS = 600_000;  // 10 min — video/lesson pages (passive consumption)
+const IDLE_TIMEOUT_GENERAL_MS = 180_000;  // 3 min - general pages
+const IDLE_TIMEOUT_CONTENT_MS = 600_000;  // 10 min - video/lesson pages (passive consumption)
 
 function getRouteCategory(): string {
   const path = window.location.pathname;
@@ -127,7 +127,7 @@ export function useActivityTracking() {
         // Per-day minutes/screens for the person profile
         await (supabase.rpc as any)('record_activity_ping', { _minutes: 1, _screen: getScreenLabel() });
       } catch {
-        // Silent — non-critical
+        // Silent - non-critical
       }
     };
 

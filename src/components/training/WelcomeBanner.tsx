@@ -28,7 +28,7 @@ const JOURNEY_MESSAGES = [
   {
     threshold: 3,
     title: "Building Momentum",
-    message: "Three lessons in. You're not just trying — you're becoming.",
+    message: "Three lessons in. You're not just trying - you're becoming.",
     subtext: "The work you put in now compounds later.",
     icon: Flame,
   },

@@ -10,7 +10,7 @@ interface Section {
   fallback: string;
 }
 
-/** Honest factual defaults — the owner can replace any of these from the admin panel. */
+/** Honest factual defaults - the owner can replace any of these from the admin panel. */
 export const PARENT_SECTIONS: Section[] = [
   {
     key: 'parents_what_it_is',
@@ -57,7 +57,7 @@ export default function Parents() {
 
   useEffect(() => {
     setPageMeta({
-      title: 'Information for Parents — Summit Marketing',
+      title: 'Information for Parents - Summit Marketing',
       description:
         'A plain explanation of the summer sales job, housing, safety and how pay works at Summit.',
       path: '/parents',
@@ -72,7 +72,7 @@ export default function Parents() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <button
             onClick={() => navigate('/recruiting')}
-            className="flex items-center gap-2 text-foreground transition-colors hover:text-primary"
+            className="flex min-h-11 items-center gap-2 text-foreground transition-colors hover:text-primary"
           >
             <Mountain className="h-5 w-5 text-primary" />
             <span className="text-lg font-black tracking-tight">Summit</span>
@@ -90,7 +90,7 @@ export default function Parents() {
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
             {copy.parents_intro ||
-              'This page explains what your student would be doing, where they would live, how they are supervised, and how they get paid. No pitch — just the facts, so you can ask better questions.'}
+              'This page explains what your student would be doing, where they would live, how they are supervised, and how they get paid. No pitch - just the facts, so you can ask better questions.'}
           </p>
         </div>
       </header>

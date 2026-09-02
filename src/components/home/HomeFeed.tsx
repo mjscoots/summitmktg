@@ -148,7 +148,7 @@ function RsvpButtons({ ev, onAnswer }: { ev: FeedEvent; onAnswer: (s: string) =>
 }
 
 /**
- * Pass 118 — the daily loop, in order: chat, events, money, training.
+ * Pass 118 - the daily loop, in order: chat, events, money, training.
  * Every row renders from live data and disappears when there is none.
  */
 export function HomeFeed() {

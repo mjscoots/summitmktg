@@ -72,7 +72,7 @@ export default function AdminSubmittedVideosTab() {
       const entry: PersonVideos = {
         user_id: userId,
         full_name: profile.full_name,
-        team_name: profile.team_id ? (teamMap.get(profile.team_id) || '—') : '—',
+        team_name: profile.team_id ? (teamMap.get(profile.team_id) || '-') : '-',
         team_id: profile.team_id,
         videos: [],
       };
@@ -127,7 +127,7 @@ export default function AdminSubmittedVideosTab() {
     setVideoLoading(false);
   };
 
-  const teamNames = [...new Set(people.map(p => p.team_name).filter(t => t !== '—'))].sort();
+  const teamNames = [...new Set(people.map(p => p.team_name).filter(t => t !== '-'))].sort();
 
   const filtered = people.filter(p => {
     if (search && !p.full_name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -137,13 +137,13 @@ export default function AdminSubmittedVideosTab() {
   });
 
   const grouped = filtered.reduce<Record<string, PersonVideos[]>>((acc, p) => {
-    const key = p.team_name || '—';
+    const key = p.team_name || '-';
     if (!acc[key]) acc[key] = [];
     acc[key].push(p);
     return acc;
   }, {});
 
-  const sortedTeams = Object.keys(grouped).sort((a, b) => a === '—' ? 1 : b === '—' ? -1 : a.localeCompare(b));
+  const sortedTeams = Object.keys(grouped).sort((a, b) => a === '-' ? 1 : b === '-' ? -1 : a.localeCompare(b));
 
   const totalVideos = filtered.reduce((sum, p) => sum + p.videos.length, 0);
 
@@ -271,7 +271,7 @@ export default function AdminSubmittedVideosTab() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {previewVideo?.name} — {previewVideo?.label}
+              {previewVideo?.name} - {previewVideo?.label}
               {previewVideo?.status && (
                 <Badge variant={previewVideo.status === 'approved' ? 'default' : previewVideo.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px] capitalize">
                   {previewVideo.status}

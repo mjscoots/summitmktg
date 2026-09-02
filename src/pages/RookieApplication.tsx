@@ -31,7 +31,7 @@ const RookieApplication = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Apply as a Rookie — Summit Marketing",
+      title: "Apply as a Rookie - Summit Marketing",
       description:
         "Apply for a summer sales season with Summit. First-time reps start here.",
       path: "/apply/rookie",

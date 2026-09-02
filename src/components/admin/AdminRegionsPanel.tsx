@@ -104,7 +104,7 @@ export function AdminRegionsPanel({ restrictToVertical }: Props = {}) {
 
   const label = (id: string | null) => {
     const r = regions.find((x) => x.id === id);
-    return r ? `${r.vertical} — ${r.name}` : 'No region';
+    return r ? `${r.vertical} - ${r.name}` : 'No region';
   };
 
   if (loading) return <div className={CARD}><p className="text-sm text-muted-foreground">Loading regions...</p></div>;
@@ -127,7 +127,7 @@ export function AdminRegionsPanel({ restrictToVertical }: Props = {}) {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[13px] font-semibold text-foreground">
-                  {r.vertical} Lead — {r.name}
+                  {r.vertical} Lead - {r.name}
                 </p>
                 <p className="text-[12px] text-muted-foreground">
                   {people.find((p) => p.user_id === r.lead_user_id)?.full_name || 'No lead assigned'} ·{' '}
@@ -217,7 +217,7 @@ export function AdminRegionsPanel({ restrictToVertical }: Props = {}) {
                   <SelectContent>
                     <SelectItem value={NONE}>No region</SelectItem>
                     {regions.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>{r.vertical} — {r.name}</SelectItem>
+                      <SelectItem key={r.id} value={r.id}>{r.vertical} - {r.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

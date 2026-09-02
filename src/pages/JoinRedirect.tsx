@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { captureSourceFromUrl } from '@/lib/source';
 
-/** /join?ref=CODE — records the source, then hands off to the application flow. */
+/** /join?ref=CODE - records the source, then hands off to the application flow. */
 export default function JoinRedirect() {
   const navigate = useNavigate();
   const [params] = useSearchParams();

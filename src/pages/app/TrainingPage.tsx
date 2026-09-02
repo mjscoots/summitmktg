@@ -170,7 +170,7 @@ export default function TrainingPage() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">Scripts</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Openers, objections and closes — searchable</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Openers, objections and closes - searchable</p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
           </button>
@@ -184,7 +184,7 @@ export default function TrainingPage() {
     );
   }
 
-  // Selection view for managers (no AI Coach tile — it's the chat bubble)
+  // Selection view for managers (no AI Coach tile - it's the chat bubble)
   if (view === 'selection') {
     return (
       <AppLayout>
@@ -201,7 +201,7 @@ export default function TrainingPage() {
 
           <DailyDrill />
 
-          {/* Two Selection Cards — bigger, cleaner */}
+          {/* Two Selection Cards - bigger, cleaner */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <button
               onClick={() => setView('rookie')}
@@ -270,7 +270,7 @@ export default function TrainingPage() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">Scripts</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Openers, objections and closes — searchable</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Openers, objections and closes - searchable</p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
           </button>

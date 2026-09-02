@@ -85,7 +85,7 @@ export function MySpreadSection() {
             {data.rows.map((r) => (
               <tr key={r.user_id} className="border-t border-white/[0.05]">
                 <td className="px-4 py-2 text-foreground">
-                  {r.name || '—'}
+                  {r.name || '-'}
                   {r.rank && <span className="ml-2 text-xs text-muted-foreground">{r.rank}</span>}
                 </td>
                 <td className="px-4 py-2 text-right tabular-nums">{money(r.rep_stack)}</td>

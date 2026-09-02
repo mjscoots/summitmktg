@@ -21,7 +21,7 @@ export function WorkspaceApplicationsCount() {
 
   return (
     <Link
-      to="/app/approvals"
+      to="/admin/requests"
       className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/30"
     >
       <span className="text-sm text-muted-foreground">Workspace applications waiting on you</span>

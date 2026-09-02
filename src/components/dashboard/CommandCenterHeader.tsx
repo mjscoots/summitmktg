@@ -89,7 +89,7 @@ export function CommandCenterHeader() {
 
   return (
     <div className="mb-5">
-      {/* Glass hero — control panel */}
+      {/* Glass hero - control panel */}
       <div className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden workspace-texture">
         <div className="flex items-start justify-between relative z-10">
           <div>
@@ -97,7 +97,7 @@ export function CommandCenterHeader() {
               Welcome back, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {isOwner ? "Owner view — all teams." : "Manager view — your team."}
+              {isOwner ? "Owner view - all teams." : "Manager view - your team."}
             </p>
           </div>
         </div>
@@ -108,7 +108,7 @@ export function CommandCenterHeader() {
             {[
               { icon: Zap, value: `${dailyPts}`, label: 'PTS TODAY', color: 'text-primary' },
               { icon: Clock, value: `${hoursToday.toFixed(1)}h`, label: 'ACTIVITY', color: 'text-primary' },
-              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '—', label: 'RANK', color: 'text-primary' },
+              { icon: Trophy, value: leaderboardRank ? `#${leaderboardRank}` : '-', label: 'RANK', color: 'text-primary' },
             ].map(({ icon: Icon, value, label, color }) => (
               <div
                 key={label}
@@ -152,7 +152,7 @@ export function CommandCenterHeader() {
                 >
                   <span className="text-foreground/80 flex items-center gap-2">
                     <Mic className="w-3 h-3 text-muted-foreground/50" />
-                    {pitch.user_name} — {pitch.lesson_title}
+                    {pitch.user_name} - {pitch.lesson_title}
                   </span>
                   <span className={cn("text-[10px]", isOverdue ? "text-destructive font-medium" : "text-muted-foreground/60")}>
                     {formatDistanceToNow(new Date(pitch.submitted_at), { addSuffix: true })}

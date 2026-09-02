@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Pass 140 — real rank names for a set of people, straight from profiles and
+ * Pass 140 - real rank names for a set of people, straight from profiles and
  * ranks. Anyone without a rank row is simply absent from the map, so callers
  * render no mark rather than a placeholder.
  */

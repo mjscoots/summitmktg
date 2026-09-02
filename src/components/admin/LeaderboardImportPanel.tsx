@@ -188,7 +188,7 @@ export function LeaderboardImportPanel() {
 
     setRows(reviewRows);
     setBusy(null);
-    toast.success('Read — review every row before saving');
+    toast.success('Read - review every row before saving');
   };
 
   const setRow = (idx: number, patch: Partial<Row>) =>
@@ -210,7 +210,7 @@ export function LeaderboardImportPanel() {
       return;
     }
     if (duplicateName.size > 0) {
-      toast.error('Two rows point at the same person — fix those first');
+      toast.error('Two rows point at the same person - fix those first');
       return;
     }
     setBusy('commit');
@@ -271,7 +271,7 @@ export function LeaderboardImportPanel() {
           </span>
           {close && (
             <span className="inline-flex items-center gap-1 text-[11px] text-amber-400">
-              <AlertTriangle className="h-3 w-3" /> Two close names — confirm which person
+              <AlertTriangle className="h-3 w-3" /> Two close names - confirm which person
             </span>
           )}
         </div>
@@ -309,7 +309,7 @@ export function LeaderboardImportPanel() {
             onChange={(e) => setRow(i, { pick: e.target.value, overwrite: false })}
             className="h-10 w-full rounded-lg border border-white/[0.06] bg-background/50 px-3 text-sm text-foreground outline-none focus:border-primary/40"
           >
-            <option value="">No match — leave this row out</option>
+            <option value="">No match - leave this row out</option>
             {r.candidates.map((c) => (
               <option key={`${c.kind}:${c.id}`} value={`${c.kind}:${c.id}`}>
                 {c.name} · {c.kind === 'lead' ? 'win-back name' : c.archived ? 'departed' : 'on the roster'} ·{' '}
@@ -433,7 +433,7 @@ export function LeaderboardImportPanel() {
         <div className={cn(CARD, 'p-4')}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-foreground">
-              Review — {matchedRows.length} matched, {unmatchedRows.length} unmatched
+              Review - {matchedRows.length} matched, {unmatchedRows.length} unmatched
             </p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={discard}>
@@ -452,7 +452,7 @@ export function LeaderboardImportPanel() {
 
           {unmatchedRows.length > 0 && (
             <>
-              <p className="micro-label mt-4 mb-1">Unmatched rows — pick a person or leave them out</p>
+              <p className="micro-label mt-4 mb-1">Unmatched rows - pick a person or leave them out</p>
               <div className="overflow-hidden rounded-lg border border-white/[0.06]">
                 {rows.map((r, i) => (!r.pick ? <ReviewRow key={i} r={r} i={i} /> : null))}
               </div>

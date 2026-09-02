@@ -8,7 +8,7 @@ const OPTIONS: { key: ViewAsRole; label: string }[] = [
 ];
 
 /**
- * Pass 148 — owner and admin only. Renders the app as a lower role so the
+ * Pass 148 - owner and admin only. Renders the app as a lower role so the
  * access separation can be checked from the owner's own account.
  */
 export function ViewAsSwitcher() {

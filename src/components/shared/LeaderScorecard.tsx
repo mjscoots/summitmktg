@@ -114,7 +114,7 @@ export function LeaderScorecard({ userId }: { userId: string }) {
   const lines = () => {
     if (!data) return '';
     return [
-      `Leader scorecard — ${data.leader?.name ?? NONE}`,
+      `Leader scorecard - ${data.leader?.name ?? NONE}`,
       `Office filter: ${office || 'All offices'}`,
       `Season: ${seasons.find((s) => s.id === seasonId)?.name ?? 'All time'}`,
       `Recruited: ${data.recruited}`,
@@ -224,8 +224,8 @@ export function LeaderScorecard({ userId }: { userId: string }) {
             />
             <Cell label="Tree revenue" value={money(data.tree_revenue)} />
             <Cell label="Leader's own revenue" value={money(data.own_revenue)} />
-            <Cell label="PRA — per active rep" value={pra(data.active_now)} />
-            <Cell label="PRA — per person who showed up" value={pra(data.showed_up)} />
+            <Cell label="PRA - per active rep" value={pra(data.active_now)} />
+            <Cell label="PRA - per person who showed up" value={pra(data.showed_up)} />
             <Cell
               label="Committed last day coverage"
               value={

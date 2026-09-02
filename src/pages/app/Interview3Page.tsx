@@ -315,7 +315,7 @@ export default function Interview3Page() {
 
           <QuestionCard>
             <FieldLabel>Offer Statement</FieldLabel>
-            <FieldHint>Say this: "It sounds like your pros outweigh your cons, your goals align with the company and what we're trying to accomplish. Before we go any further, if I offer you the position would you be able to attend trainings on Wednesday at 7 PM EST. One important clarification. The company invests roughly $8,000 per rep, covering training, onboarding, and summer housing. That investment is protected by a minimum three-week commitment. If someone shows up, follows expectations—no drinking on the job, no smoking before morning meetings—and still decides it's not a fit within those three weeks, they owe nothing. If someone fails to commit or becomes a problem, we still don't charge the full amount. The only cost passed on is housing, capped at $2,500. Understanding that lack of a three-week commitment may result in a housing charge, are you prepared to move forward and take this seriously? Only do this next part if they are 100% able to come: Great! I'd officially like to offer you the position! Congratulations, I'll go over your onboarding forms now."</FieldHint>
+            <FieldHint>Say this: "It sounds like your pros outweigh your cons, your goals align with the company and what we're trying to accomplish. Before we go any further, if I offer you the position would you be able to attend trainings on Wednesday at 7 PM EST. One important clarification. The company invests roughly $8,000 per rep, covering training, onboarding, and summer housing. That investment is protected by a minimum three-week commitment. If someone shows up, follows expectations, no drinking on the job, no smoking before morning meetings, and still decides it's not a fit within those three weeks, they owe nothing. If someone fails to commit or becomes a problem, we still don't charge the full amount. The only cost passed on is housing, capped at $2,500. Understanding that lack of a three-week commitment may result in a housing charge, are you prepared to move forward and take this seriously? Only do this next part if they are 100% able to come: Great! I'd officially like to offer you the position! Congratulations, I'll go over your onboarding forms now."</FieldHint>
             <textarea value={formData.offerStatement} onChange={(e) => handleChange('offerStatement', e.target.value)} placeholder="Your answer" rows={3} className={textareaClass} />
           </QuestionCard>
 
@@ -327,13 +327,13 @@ export default function Interview3Page() {
           {/* Onboarding */}
           <div>
             <p className="text-sm font-semibold text-foreground">Onboarding Overview</p>
-            <FieldHint>Great—let's get your onboarding completed. Walk them through: 1099 contractor status, conduct expectations, professional appearance, non-compete clause, incentives and trips, pay structure, $2,500 scholarship requirements. Mute while they review agreement.</FieldHint>
+            <FieldHint>Great, let's get your onboarding completed. Walk them through: 1099 contractor status, conduct expectations, professional appearance, non-compete clause, incentives and trips, pay structure, $2,500 scholarship requirements. Mute while they review agreement.</FieldHint>
             <ChecklistItem checked={formData.onboardingDone} onChange={() => handleChange('onboardingDone', !formData.onboardingDone)} label="Done" />
           </div>
 
           <div>
             <p className="text-sm font-semibold text-foreground">After onboarding / agreement signed</p>
-            <FieldHint>Congratulations—we're excited to work with you. If available to knock soon, aim for blitz within 2 weeks. Send them: pitch (memorize before first training), training course link, script, questionnaire, and 1:1 time. Expectations: Practice with another intern every other day, complete weekly training forms with 70%+ completion, memorize basic pitch within 1 week, submit pitch video after full training.</FieldHint>
+            <FieldHint>Congratulations, we're excited to work with you. If available to knock soon, aim for blitz within 2 weeks. Send them: pitch (memorize before first training), training course link, script, questionnaire, and 1:1 time. Expectations: Practice with another intern every other day, complete weekly training forms with 70%+ completion, memorize basic pitch within 1 week, submit pitch video after full training.</FieldHint>
             <ChecklistItem checked={formData.afterOnboardingDone} onChange={() => handleChange('afterOnboardingDone', !formData.afterOnboardingDone)} label="Done" />
           </div>
 

@@ -12,7 +12,7 @@ interface Props {
 
 /**
  * One plain screen for a person whose access was reset for the 2027 season.
- * No navigation, no data — only the request form.
+ * No navigation, no data - only the request form.
  */
 export function LockedOutScreen({ archived, defaultName, requestStatus }: Props) {
   const [open, setOpen] = useState(false);

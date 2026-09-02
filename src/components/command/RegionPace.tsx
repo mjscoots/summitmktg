@@ -32,7 +32,7 @@ interface Pace {
 }
 
 const money = (v: number | null | undefined) =>
-  v === null || v === undefined ? '—' : `$${Math.round(Number(v)).toLocaleString()}`;
+  v === null || v === undefined ? '-' : `$${Math.round(Number(v)).toLocaleString()}`;
 
 export default function RegionPace() {
   const [pace, setPace] = useState<Pace | null>(null);

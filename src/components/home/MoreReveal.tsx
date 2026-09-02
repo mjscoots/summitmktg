@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 /**
- * Pass 95 — Air. Everything that is not one of the few things a rep needs
+ * Pass 95 - Air. Everything that is not one of the few things a rep needs
  * above the fold folds in here. Collapsed by default, one 44px row.
  */
 export function MoreReveal({

@@ -35,7 +35,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function num(n: number | null | undefined): string {
-  return n === null || n === undefined ? '—' : String(n);
+  return n === null || n === undefined ? '-' : String(n);
 }
 
 function answerLines(answers: Record<string, unknown> | null | undefined): string[] {
@@ -78,10 +78,10 @@ export default function BeforeTheyLeft({ snapshot, aiSummary, profileUserId }: P
 
       {(dep?.departure_type || dep?.departure_reason || dep?.last_day_worked) && (
         <div className="mt-2 grid grid-cols-2 gap-3">
-          <Stat label="Departure" value={departureLabel(dep?.departure_type) || '—'} />
+          <Stat label="Departure" value={departureLabel(dep?.departure_type) || '-'} />
           <Stat
             label="Last day"
-            value={dep?.last_day_worked ? new Date(dep.last_day_worked).toLocaleDateString() : '—'}
+            value={dep?.last_day_worked ? new Date(dep.last_day_worked).toLocaleDateString() : '-'}
           />
           {dep?.departure_reason && (
             <div className="col-span-2 min-w-0">

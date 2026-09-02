@@ -160,7 +160,7 @@ export function MoveRepModal({ open, onClose, repUserId, repName, currentManager
                 <SelectContent>
                   {subManagers.map((m) => (
                     <SelectItem key={m.user_id} value={m.user_id}>
-                      {'—'.repeat(m.depth - 1)} {m.full_name}
+                      {', '.repeat(m.depth - 1)} {m.full_name}
                     </SelectItem>
                   ))}
                 </SelectContent>

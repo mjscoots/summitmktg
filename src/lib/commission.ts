@@ -1,5 +1,5 @@
 /**
- * Commission pay scales — single source of truth.
+ * Commission pay scales - single source of truth.
  * These are the same brackets used by the public earnings calculators
  * (EarningsCalculator, VetCalculator) and the rep-facing My Money page.
  * Rates are a percentage of ACTIVE serviced revenue.

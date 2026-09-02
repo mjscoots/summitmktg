@@ -337,8 +337,8 @@ export default function AdminUsersTab({
     officeId ? offices.find((o) => o.id === officeId)?.name || '' : '';
 
   const getTeamName = (teamId: string | null | undefined) => {
-    if (!teamId) return '—';
-    return teams.find((t) => t.id === teamId)?.name || '—';
+    if (!teamId) return '-';
+    return teams.find((t) => t.id === teamId)?.name || '-';
   };
 
 
@@ -582,7 +582,7 @@ export default function AdminUsersTab({
         </div>
       </div>
 
-      {/* Search bar — own row */}
+      {/* Search bar - own row */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
         <Input
@@ -593,7 +593,7 @@ export default function AdminUsersTab({
         />
       </div>
 
-      {/* Filter bar — all on one row, no horizontal scroll */}
+      {/* Filter bar - all on one row, no horizontal scroll */}
       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <Select value={appFilter} onValueChange={(v) => setAppFilter(v as AppFilter)}>
           <SelectTrigger className="h-8 w-[110px] sm:w-[130px] bg-card/40 border-border/30 text-xs">
@@ -970,19 +970,19 @@ export default function AdminUsersTab({
                   </div>
                   <div className="p-2.5 bg-muted/30 rounded-lg">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Phone</p>
-                    <p className="text-xs text-foreground">{detailUser.phone || '—'}</p>
+                    <p className="text-xs text-foreground">{detailUser.phone || '-'}</p>
                   </div>
                 </div>
 
                 <div className="p-2.5 bg-muted/30 rounded-lg">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Manager</p>
-                  <p className="text-xs text-foreground">{detailUser.direct_manager || detailUser.recruiter || '—'}</p>
+                  <p className="text-xs text-foreground">{detailUser.direct_manager || detailUser.recruiter || '-'}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="p-2.5 bg-muted/30 rounded-lg">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Office</p>
-                    <p className="text-xs text-foreground truncate">{officeName(detailUser.office_id) || detailUser.office_name || '—'}</p>
+                    <p className="text-xs text-foreground truncate">{officeName(detailUser.office_id) || detailUser.office_name || '-'}</p>
                   </div>
                   <div className="p-2.5 bg-muted/30 rounded-lg">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Vertical</p>
@@ -993,7 +993,7 @@ export default function AdminUsersTab({
                   </div>
                   <div className="p-2.5 bg-muted/30 rounded-lg">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rep Year</p>
-                    <p className="text-xs text-foreground">{detailUser.rep_year || '—'}</p>
+                    <p className="text-xs text-foreground">{detailUser.rep_year || '-'}</p>
                   </div>
                 </div>
 

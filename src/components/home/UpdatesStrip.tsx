@@ -57,7 +57,7 @@ function incentiveLine(text: string | null): string | null {
 }
 
 /**
- * Pass 130 — Home opens with what is new, never a stat. Real items only, newest
+ * Pass 130 - Home opens with what is new, never a stat. Real items only, newest
  * first, every one tappable. Nothing to say means the strip is not there.
  */
 export function UpdatesStrip({ isManagerTier }: { isManagerTier: boolean }) {

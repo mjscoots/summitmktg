@@ -14,7 +14,7 @@ const OWNED: { prefix: string; vertical: string }[] = [
 ];
 
 /**
- * Pass 144 — the workspace is the wall. A screen that belongs to one industry
+ * Pass 144 - the workspace is the wall. A screen that belongs to one industry
  * only opens while that industry is the active workspace, for everyone,
  * including staff. A direct link from the wrong workspace lands back on Home
  * with one quiet line naming where the screen lives.

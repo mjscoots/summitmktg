@@ -32,7 +32,7 @@ const RELEASES: Release[] = [
       {
         emoji: '💬',
         title: 'Premium Chat Redesign',
-        description: 'Community Chat has been completely rebuilt — iMessage-style bubbles, double-tap reactions, a new attachment drawer (photos, GIFs, stickers), and a sleek cosmic background.',
+        description: 'Community Chat has been completely rebuilt - iMessage-style bubbles, double-tap reactions, a new attachment drawer (photos, GIFs, stickers), and a sleek cosmic background.',
       },
       {
         emoji: '🎬',
@@ -42,7 +42,7 @@ const RELEASES: Release[] = [
       {
         emoji: '📅',
         title: 'Calendar Time Zone Fix',
-        description: 'All calendar events now automatically display in your local time zone. No more guessing what "PT" means — you\'ll see times in your own zone.',
+        description: 'All calendar events now automatically display in your local time zone. No more guessing what "PT" means - you\'ll see times in your own zone.',
       },
       {
         emoji: '🏆',

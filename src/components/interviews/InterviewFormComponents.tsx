@@ -1,7 +1,7 @@
 import { CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/* ─── ScriptTip — always visible muted text block ─── */
+/* ─── ScriptTip - always visible muted text block ─── */
 export function ScriptTip({ children, label }: { children: React.ReactNode; label?: string }) {
   return (
     <div className="rounded-lg border border-border/30 bg-muted/30 p-4 space-y-1">
@@ -37,7 +37,7 @@ export function ChecklistItem({ checked, onChange, label }: { checked: boolean; 
   );
 }
 
-/* ─── SectionHeader — simple divider ─── */
+/* ─── SectionHeader - simple divider ─── */
 export function SectionHeader({ children, step }: { children: React.ReactNode; step?: number }) {
   return (
     <div className="pt-6 pb-1 first:pt-0">
@@ -46,7 +46,7 @@ export function SectionHeader({ children, step }: { children: React.ReactNode; s
   );
 }
 
-/* ─── QuestionCard — minimal wrapper ─── */
+/* ─── QuestionCard - minimal wrapper ─── */
 export function QuestionCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("space-y-2", className)}>

@@ -41,7 +41,7 @@ export function WinbackGoldImport({ onApplied }: { onApplied: () => void }) {
 
   const review = async () => {
     const parsed = parseCsv(raw);
-    if (parsed.length === 0) { toast.error('Nothing to import — paste rows first'); return; }
+    if (parsed.length === 0) { toast.error('Nothing to import - paste rows first'); return; }
     setBusy(true);
     const { data, error } = await (supabase as any).rpc('match_winback_gold', { _rows: parsed });
     setBusy(false);
@@ -87,7 +87,7 @@ export function WinbackGoldImport({ onApplied }: { onApplied: () => void }) {
       {open && (
         <div className="mt-3 space-y-3">
           <p className="text-[12px] text-muted-foreground">
-            Columns: name, revenue, weeks active, last sale date, note. Matched by name — review before committing.
+            Columns: name, revenue, weeks active, last sale date, note. Matched by name - review before committing.
           </p>
           <textarea
             value={raw}

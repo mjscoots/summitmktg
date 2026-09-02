@@ -204,16 +204,16 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Field label="Season revenue" value={money(lead.season_revenue)} />
               <Field label="Revenue per day" value={money(lead.rev_per_day)} />
-              <Field label="Days in market" value={lead.days_in_market != null ? String(lead.days_in_market) : '—'} />
+              <Field label="Days in market" value={lead.days_in_market != null ? String(lead.days_in_market) : '-'} />
               <Field label="Calls logged" value={String(lead.call_count ?? 0)} />
-              <Field label="Former manager" value={lead.former_manager_name || '—'} />
-              <Field label="Recruiter" value={lead.recruiter_name || '—'} />
-              <Field label="Team" value={lead.team_name || '—'} />
+              <Field label="Former manager" value={lead.former_manager_name || '-'} />
+              <Field label="Recruiter" value={lead.recruiter_name || '-'} />
+              <Field label="Team" value={lead.team_name || '-'} />
               <Field label="Signed" value={lead.signed_2027 ? 'Yes' : 'No'} />
               <Field label="Designated to" value={detail?.designated_to_name || 'Free'} />
               <Field
                 label="Last contact"
-                value={lead.last_contact_at ? new Date(lead.last_contact_at as string).toLocaleDateString() : '—'}
+                value={lead.last_contact_at ? new Date(lead.last_contact_at as string).toLocaleDateString() : '-'}
               />
             </div>
 
@@ -230,7 +230,7 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
             {lead.designated_to && (
               <p className="mt-4 text-[12px] text-muted-foreground">
                 {lead.hold
-                  ? 'On hold — this lead will not cycle.'
+                  ? 'On hold - this lead will not cycle.'
                   : cyclesInDays != null
                     ? `Cycles in ${cyclesInDays} day${cyclesInDays === 1 ? '' : 's'} without activity.`
                     : 'No designation date on file yet.'}

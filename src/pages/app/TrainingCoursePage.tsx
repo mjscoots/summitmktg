@@ -45,7 +45,7 @@ interface Course {
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual', 'training-videos'];
 
 const isLessonSatisfied = (lesson: Lesson) => {
-  // Pitch upload is optional — completion is the only gate
+  // Pitch upload is optional - completion is the only gate
   return lesson.completed;
 };
 
@@ -67,7 +67,7 @@ export default function TrainingCoursePage() {
   const [editContent, setEditContent] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   
-  // Pass 83 — mastery checks: one per chapter, unlocked when its lessons are done
+  // Pass 83 - mastery checks: one per chapter, unlocked when its lessons are done
   const [masteryDone, setMasteryDone] = useState<Set<string>>(new Set());
   const [practiceModule, setPracticeModule] = useState<Module | null>(null);
 
@@ -617,7 +617,7 @@ export default function TrainingCoursePage() {
                     );
                   })}
 
-                  {/* Mastery check — the chapter's last row, locked until the lessons are done */}
+                  {/* Mastery check - the chapter's last row, locked until the lessons are done */}
                   {(() => {
                     const unlocked = module.lessons.length > 0 && module.lessons.every(isLessonSatisfied);
                     const done = masteryDone.has(module.id);
@@ -669,13 +669,13 @@ export default function TrainingCoursePage() {
         </div>
       </main>
 
-      {/* Mastery check roleplay — the existing practice pitch recorder */}
+      {/* Mastery check roleplay - the existing practice pitch recorder */}
       {practiceModule && (
         <PitchRecordingModal
           open={!!practiceModule}
           onClose={() => setPracticeModule(null)}
           lessonId={null}
-          lessonTitle={`Mastery check — ${practiceModule.title}`}
+          lessonTitle={`Mastery check - ${practiceModule.title}`}
           attemptNumber={1}
           maxDurationSeconds={120}
           maxFileSizeMb={200}

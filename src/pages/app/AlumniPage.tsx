@@ -47,7 +47,7 @@ export default function AlumniPage() {
             <GraduationCap className="w-6 h-6 text-primary" />
           </div>
           <h1 className="text-xl font-semibold text-foreground">
-            {profile?.full_name ? `Alumni — ${profile.full_name}` : 'Alumni'}
+            {profile?.full_name ? `Alumni - ${profile.full_name}` : 'Alumni'}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Your account is set to alumni status. Here's a summary of your time with the team.
@@ -77,7 +77,7 @@ export default function AlumniPage() {
                   <Flame className="w-3 h-3" /> Best Streak
                 </p>
                 <p className="text-lg font-bold text-foreground tabular-nums">
-                  {scorecard.streak != null ? `${scorecard.streak}d` : '—'}
+                  {scorecard.streak != null ? `${scorecard.streak}d` : '-'}
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-muted/40 border border-border/30 col-span-2">

@@ -9,7 +9,7 @@ const LABEL: Record<string, string> = {
 };
 
 /**
- * Pass 148 — the persistent line an owner or admin sees while previewing the
+ * Pass 148 - the persistent line an owner or admin sees while previewing the
  * app as a lower role. Always one tap back to their own view.
  */
 export function ViewAsBanner() {

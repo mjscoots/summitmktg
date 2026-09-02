@@ -89,7 +89,7 @@ export function UnderLedView() {
       toast.error(res?.error || 'Could not create that task');
       return;
     }
-    toast.success('Added to outreach — task assigned to the owner');
+    toast.success('Added to outreach - task assigned to the owner');
     void load();
   };
 
@@ -174,7 +174,7 @@ export function UnderLedView() {
                     <p className="mt-1 text-[12px] text-muted-foreground">
                       Manager: {p.former_manager || 'No data yet'} · Departure:{' '}
                       {p.departure_type || 'No data yet'}
-                      {p.departure_reason ? ` — ${p.departure_reason}` : ''}
+                      {p.departure_reason ? ` - ${p.departure_reason}` : ''}
                     </p>
                     {p.story && (
                       <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground/80">{p.story}</p>

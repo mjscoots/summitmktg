@@ -285,7 +285,7 @@ export default function EstimateEarningsPage() {
 
             {isManager && (
               <p className="text-[10px] text-muted-foreground text-center mt-2">
-                Includes rookie fallout margin (25% fall off, ~$20k avg revenue each — you keep the margin)
+                Includes rookie fallout margin (25% fall off, ~$20k avg revenue each - you keep the margin)
               </p>
             )}
           </div>

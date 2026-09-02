@@ -419,7 +419,7 @@ function generateInsights(
     const noAttrResult = calcAll(personal, rookieRows, vetRows, teamRows, noAttr);
     const cost = noAttrResult.totalEarnings - totalEarnings;
     if (cost > 1000) {
-      insights.push({ text: `Structural attrition costs ${fmt(cost)} in projected earnings. This is largely expected — focus on controllable levers instead.`, type: 'structural', value: cost });
+      insights.push({ text: `Structural attrition costs ${fmt(cost)} in projected earnings. This is largely expected - focus on controllable levers instead.`, type: 'structural', value: cost });
     }
   }
 
@@ -579,7 +579,7 @@ export default function DownlineGrowthCalculator() {
   const vetSectionRef = useRef<HTMLDivElement>(null);
   const teamSectionRef = useRef<HTMLDivElement>(null);
 
-  // Add/remove helpers — scroll into view after adding
+  // Add/remove helpers - scroll into view after adding
   const addRookie = () => {
     setRookieRowStates(p => [...p, {
       id: nextId(), label: '', headcountStr: '1', avgServicedStr: '150,000',

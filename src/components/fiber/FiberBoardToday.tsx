@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useFiberToday } from '@/hooks/useFiberToday';
 import { TodayNumberSheet, PAY_NOTE } from '@/components/fiber/TodayNumberSheet';
 
-/** Pass 92 — today and this week on the board, from the same day rows. */
+/** Pass 92 - today and this week on the board, from the same day rows. */
 export function FiberBoardToday() {
   const { today, week, reload } = useFiberToday();
   const [open, setOpen] = useState(false);

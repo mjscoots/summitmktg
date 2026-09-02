@@ -64,9 +64,9 @@ export function ImportBatchHistory({
             <span className="text-foreground">
               {new Date(b.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             </span>
-            <span className="text-muted-foreground">{b.period_label || '—'}</span>
+            <span className="text-muted-foreground">{b.period_label || '-'}</span>
             <span className="tabular-nums text-muted-foreground">{b.rows} rows</span>
-            <span className="text-muted-foreground">{b.created_by_name || '—'}</span>
+            <span className="text-muted-foreground">{b.created_by_name || '-'}</span>
             <span
               className={cn(
                 'ml-auto',

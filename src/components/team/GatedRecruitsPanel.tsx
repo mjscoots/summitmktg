@@ -21,7 +21,7 @@ function lastActive(iso: string | null): string {
 }
 
 /**
- * Pass 119 — recruits still in the day-one watch course. Managers see their
+ * Pass 119 - recruits still in the day-one watch course. Managers see their
  * own, owner and admin see all. Counts and nouns only.
  */
 export function GatedRecruitsPanel() {

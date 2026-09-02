@@ -65,7 +65,7 @@ export function BackupsPanel() {
       const result = data as { tables?: number; rows?: number } | null;
       toast.success(
         result?.tables
-          ? `Snapshot saved — ${result.tables} tables, ${(result.rows ?? 0).toLocaleString()} rows`
+          ? `Snapshot saved - ${result.tables} tables, ${(result.rows ?? 0).toLocaleString()} rows`
           : 'Snapshot saved'
       );
       await load();
@@ -90,7 +90,7 @@ export function BackupsPanel() {
       a.click();
     } catch (err) {
       console.error(err);
-      toast.error('Download failed — backup files are owner-only.');
+      toast.error('Download failed - backup files are owner-only.');
     } finally {
       setDownloading(null);
     }

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface CopyLinkButtonProps {
-  /** Path starting with "/" — will be joined with current origin. */
+  /** Path starting with "/" - will be joined with current origin. */
   path: string;
   label?: string;
   className?: string;

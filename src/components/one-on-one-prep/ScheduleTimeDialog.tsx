@@ -167,7 +167,7 @@ export function ScheduleTimeDialog({ open, onOpenChange, rep, onConfirm }: Sched
               ))}
             </div>
             <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={handleSkipRecurring}>
-              Skip — no recurring time
+              Skip - no recurring time
             </Button>
           </div>
         )}

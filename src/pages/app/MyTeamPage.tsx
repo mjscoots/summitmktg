@@ -178,7 +178,7 @@ export default function MyTeamPage() {
         // points are optional
       }
 
-      // Incomplete profile flags — manager/admin/owner only
+      // Incomplete profile flags - manager/admin/owner only
       try {
         const { data: incomplete } = await supabase.rpc('get_incomplete_profiles' as never, { _vertical: activeVertical } as never);
         const incMap = new Map<string, string[]>();
@@ -190,7 +190,7 @@ export default function MyTeamPage() {
         // optional, only visible to managers+
       }
 
-      // Missed-meeting flags — manager/admin/owner only
+      // Missed-meeting flags - manager/admin/owner only
       try {
         const { data: flags } = await (supabase as any).rpc('get_attendance_flags', { _vertical: activeVertical });
         const fMap = new Map<string, number>();
@@ -202,7 +202,7 @@ export default function MyTeamPage() {
         // optional, only visible to managers+
       }
 
-      // Finishing soon (committed last day within 14 days) — manager/admin/owner only
+      // Finishing soon (committed last day within 14 days) - manager/admin/owner only
       try {
         const { data: fs } = await (supabase as any).rpc('get_finishing_soon', { _days: 14, _vertical: activeVertical });
         setFinishingSoon((fs?.soon as any[]) ?? []);
@@ -348,7 +348,7 @@ export default function MyTeamPage() {
             className="border-none pb-0"
             action={
               <div className="flex items-center gap-2">
-                {/* Pass 89 — the bulk roll is owner and admin only. A manager's
+                {/* Pass 89 - the bulk roll is owner and admin only. A manager's
                     path is telling reps to request Fiber access. */}
                 {isAdmin && activeVertical === 'Pest' && (
                   <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setRollOpen(true)}>

@@ -24,7 +24,7 @@ interface Report { rows: Row[]; region_totals: RegionTotal[]; trend: TrendRow[] 
 
 const rate = (installs: number, cancels: number) => {
   const total = installs + cancels;
-  return total > 0 ? `${Math.round((cancels / total) * 100)}%` : '—';
+  return total > 0 ? `${Math.round((cancels / total) * 100)}%` : '-';
 };
 
 /** Fiber installs per rep per week with cancel rate, region totals, a 4-week trend, and CSV export. */
@@ -168,8 +168,8 @@ export function FiberReport() {
                 {report.rows.map((r, i) => (
                   <tr key={`${r.user_id}-${r.week_start}-${i}`} className="border-b border-border/30 last:border-0">
                     <td className="px-3 py-2 text-foreground">{r.full_name || 'Unnamed'}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{r.region_name || '—'}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{r.carrier_name || '—'}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{r.region_name || '-'}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{r.carrier_name || '-'}</td>
                     <td className="px-3 py-2 text-muted-foreground tabular-nums">{r.week_start}</td>
                     <td className="px-3 py-2 text-right text-foreground tabular-nums">{r.installs}</td>
                     <td className="px-3 py-2 text-right text-muted-foreground tabular-nums">{r.cancels}</td>

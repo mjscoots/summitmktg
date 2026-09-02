@@ -121,7 +121,7 @@ export default function Interview1Page() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Summit: First Interview Call</h1>
-            <p className="text-muted-foreground text-xs mt-0.5">Character interview — building rapport</p>
+            <p className="text-muted-foreground text-xs mt-0.5">Character interview - building rapport</p>
           </div>
         </div>
 

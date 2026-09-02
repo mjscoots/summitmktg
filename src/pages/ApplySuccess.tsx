@@ -9,7 +9,7 @@ const ApplySuccess = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Application received — Summit Marketing",
+      title: "Application received - Summit Marketing",
       description: "Your application has been received. Summit will be in touch.",
       path: "/apply/success",
     });

@@ -34,8 +34,8 @@ interface Requirement {
 }
 
 const SETTING_KEYS = [
-  { key: 'summit_stack_fiber_sonic', label: 'Summit stack — Fiber / Sonic' },
-  { key: 'summit_stack_fiber_surf', label: 'Summit stack — Fiber / Surf' },
+  { key: 'summit_stack_fiber_sonic', label: 'Summit stack - Fiber / Sonic' },
+  { key: 'summit_stack_fiber_surf', label: 'Summit stack - Fiber / Surf' },
   { key: 'vertical_lead_margin', label: 'Vertical lead margin (Summit stack minus this)' },
   { key: 'fiber_expense_allowance_per_install', label: 'Fiber expense allowance per install' },
   { key: 'fiber_holdback_percent', label: 'Fiber holdback percent' },
@@ -86,7 +86,7 @@ export function RanksStacksPanel() {
 
   useEffect(() => { load(); }, [load]);
 
-  const rankName = (id: string) => ranks.find((r) => r.id === id)?.name ?? '—';
+  const rankName = (id: string) => ranks.find((r) => r.id === id)?.name ?? '-';
 
   const fiberCarriers = useMemo(() => carriers.filter((c) => c.vertical === 'Fiber'), [carriers]);
 
@@ -210,7 +210,7 @@ export function RanksStacksPanel() {
         return (
           <div key={carrier.id} className={CARD}>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">Fiber — {carrier.name}</h3>
+              <h3 className="text-sm font-semibold text-foreground">Fiber - {carrier.name}</h3>
               <DraftBadge confirmed={allConfirmed} />
               <span className="text-xs text-muted-foreground">per install</span>
               <Button
@@ -248,7 +248,7 @@ export function RanksStacksPanel() {
       <div className={CARD}>
         <h3 className="text-sm font-semibold text-foreground">Pest</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Pest pay stays on the existing pay scale engine — commission tiers on revenue. Nothing to set here.
+          Pest pay stays on the existing pay scale engine - commission tiers on revenue. Nothing to set here.
         </p>
       </div>
 

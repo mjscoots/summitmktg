@@ -104,7 +104,7 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
             return;
           }
           if ((!data || data.length === 0) && !isRefresh) {
-            console.warn('[Leaderboard] All-time RPC returned empty data — possible BigInt/type issue or no activity recorded');
+            console.warn('[Leaderboard] All-time RPC returned empty data - possible BigInt/type issue or no activity recorded');
           }
 
           leaderboard = (data || []).map((row: any) => ({

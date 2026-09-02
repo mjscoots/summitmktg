@@ -144,7 +144,7 @@ function ManagerBlock() {
 }
 
 /**
- * Pass 130 — your numbers, scoped to who is looking. Anything without real data
+ * Pass 130 - your numbers, scoped to who is looking. Anything without real data
  * behind it does not render, so nobody ever reads a zero on Home.
  */
 export function YourNumbers() {

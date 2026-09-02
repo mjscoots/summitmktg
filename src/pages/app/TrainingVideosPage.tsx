@@ -160,7 +160,7 @@ export default function TrainingVideosPage() {
         {/* Header */}
         <PageHeader
           title="Videos"
-          context="Training library — watch, learn, level up"
+          context="Training library - watch, learn, level up"
           className="mb-6"
           action={
             <div className="text-right">
@@ -260,7 +260,7 @@ export default function TrainingVideosPage() {
             )}
           </>
         ) : (
-          /* Category Selection View — the 4 main boxes */
+          /* Category Selection View - the 4 main boxes */
           <>
             {/* Bookmarks quick-access */}
             {videos.filter(v => bookmarkedIds.has(v.id)).length > 0 && (
@@ -335,7 +335,7 @@ export default function TrainingVideosPage() {
               })}
             </div>
 
-            {/* Recently Added — show newest videos with subtle "New" label */}
+            {/* Recently Added - show newest videos with subtle "New" label */}
             {(() => {
               const sevenDaysAgo = new Date();
               sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);

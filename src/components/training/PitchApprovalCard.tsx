@@ -23,12 +23,12 @@ interface PitchApprovalCardProps {
 const PITCH_REQUIREMENTS: Record<string, string[]> = {
   'fresh account': [
     'Focus on outline order, not word-for-word',
-    'Speak naturally — no reading allowed',
+    'Speak naturally - no reading allowed',
     'Hit all main points in sequence',
   ],
   'switchover': [
     'Focus on outline order, not word-for-word',
-    'Speak naturally — no reading allowed',
+    'Speak naturally - no reading allowed',
     'Hit all main points in sequence',
   ],
   'body language': [
@@ -53,7 +53,7 @@ function getRequirements(title: string): string[] {
   for (const [key, reqs] of Object.entries(PITCH_REQUIREMENTS)) {
     if (lower.includes(key)) return reqs;
   }
-  return ['Focus on outline order, not word-for-word', 'Speak naturally — no reading allowed', 'Hit all main points in sequence'];
+  return ['Focus on outline order, not word-for-word', 'Speak naturally - no reading allowed', 'Hit all main points in sequence'];
 }
 
 export function PitchApprovalCard({
@@ -162,7 +162,7 @@ export function PitchApprovalCard({
     }
   };
 
-  // No submission yet — show recording prompt
+  // No submission yet - show recording prompt
   if (!pitchRequest || status === 'rejected') {
     return (
       <>

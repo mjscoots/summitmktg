@@ -63,7 +63,7 @@ export default function WeeklyOneOnOnesContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-foreground">Rookie-Manager 1:1</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with rookies — with training data</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with rookies - with training data</p>
                 </div>
               </div>
               <div className="flex-1" />
@@ -89,7 +89,7 @@ export default function WeeklyOneOnOnesContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-foreground">Manager 1:1</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with managers — with training data</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">Weekly check-in with managers - with training data</p>
                 </div>
               </div>
               <div className="flex-1" />
@@ -115,12 +115,12 @@ export default function WeeklyOneOnOnesContent() {
               <div className="flex items-center gap-3 text-sm">
                 <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-foreground">Rookie-Manager 1:1</span>
-                <span className="text-muted-foreground">— Weekly check-in with rookies, creates daily tasks</span>
+                <span className="text-muted-foreground">- Weekly check-in with rookies, creates daily tasks</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <UserCheck className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-foreground">Manager 1:1</span>
-                <span className="text-muted-foreground">— Weekly check-in with managers, tracks team development</span>
+                <span className="text-muted-foreground">- Weekly check-in with managers, tracks team development</span>
               </div>
             </div>
           </div>

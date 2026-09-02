@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * Pay ladder as a track — the signature element.
+ * Pay ladder as a track - the signature element.
  *
  * Tiers sit on one horizontal rail, the current position is marked, and the
  * next tier says exactly what is missing. Used in three places with the same

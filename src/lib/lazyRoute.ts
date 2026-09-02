@@ -1,7 +1,7 @@
 import { lazy, type ComponentType } from 'react';
 
 /**
- * Pass 111 — a route chunk that no longer exists on the server (a client sitting
+ * Pass 111 - a route chunk that no longer exists on the server (a client sitting
  * on an old build, or a service worker holding dead asset hashes) used to reject
  * the dynamic import and surface a generic failure. Instead: clear the caches,
  * drop the worker, and reload once with a cache-busting parameter. A second

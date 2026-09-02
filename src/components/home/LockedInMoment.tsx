@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { celebrate } from '@/lib/celebrate';
 
 /**
- * Pass 134 — the one time locked in moment. claim_resign_celebration returns
+ * Pass 134 - the one time locked in moment. claim_resign_celebration returns
  * true exactly once per confirmation and logs it in celebration_log, so the
  * moment can never repeat. Reduced motion gets the static card only.
  */

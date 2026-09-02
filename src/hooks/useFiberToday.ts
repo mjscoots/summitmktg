@@ -30,7 +30,7 @@ interface DayRow {
 }
 
 /**
- * Pass 92 — today's numbers. Reps answer "how many today", so this reads the
+ * Pass 92 - today's numbers. Reps answer "how many today", so this reads the
  * day rows and rolls up today and this week from the same data.
  */
 export function useFiberToday() {

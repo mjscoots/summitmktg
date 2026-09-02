@@ -329,7 +329,7 @@ export function AddMemberModal({ open, onClose, onMemberAdded, teams }: AddMembe
                     </div>
                     <div>
                       <p className="text-sm font-medium">{reportsTo.full_name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{reportsTo.role} — {reportsTo.team_name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{reportsTo.role} - {reportsTo.team_name}</p>
                     </div>
                   </div>
                   <button

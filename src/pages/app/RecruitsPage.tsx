@@ -161,7 +161,7 @@ export default function RecruitsPage() {
       load();
       return;
     }
-    toast.success('Lead claimed — phone unlocked');
+    toast.success('Lead claimed - phone unlocked');
     setTab('mine');
     load();
   };
@@ -237,7 +237,7 @@ export default function RecruitsPage() {
                     ? 'Where every rep stands for next season'
                     : tab === 'referrals'
                       ? `${referrals.length} ${referrals.length === 1 ? 'name' : 'names'} from reps`
-                      : 'Former reps with a phone number — cold calls to bring them back'
+                      : 'Former reps with a phone number - cold calls to bring them back'
             }
             className="mb-5"
             action={

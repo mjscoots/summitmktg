@@ -322,7 +322,7 @@ export const PRIVATE_NOTE_KINDS: { value: string; label: string }[] = [
 ];
 
 export function money(n: number | null | undefined): string {
-  if (n === null || n === undefined) return '—';
+  if (n === null || n === undefined) return '-';
   return `$${Math.round(Number(n)).toLocaleString()}`;
 }
 

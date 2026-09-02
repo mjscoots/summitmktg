@@ -22,7 +22,7 @@ const DEFAULTS: NotificationPrefs = {
 };
 
 /**
- * Pass 129 — one read path for notification settings. The database RPC writes
+ * Pass 129 - one read path for notification settings. The database RPC writes
  * the sensible defaults the first time a person opens the app, so every screen
  * that gates a badge or a toast reads the same flags.
  */

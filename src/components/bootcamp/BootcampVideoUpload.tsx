@@ -126,7 +126,7 @@ export function BootcampVideoUpload({ userId, storagePath, onUploadComplete, dis
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  // Idle — no file selected
+  // Idle - no file selected
   if (!file && status === 'idle') {
     return (
       <div className="mb-8">
@@ -149,7 +149,7 @@ export function BootcampVideoUpload({ userId, storagePath, onUploadComplete, dis
 
   return (
     <div className="mb-8 space-y-3">
-      {/* File selected — ready to upload */}
+      {/* File selected - ready to upload */}
       {file && status === 'idle' && (
         <>
           <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-4 py-3">

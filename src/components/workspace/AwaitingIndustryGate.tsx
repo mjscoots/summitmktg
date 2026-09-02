@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 const ALLOWED = ['/app/chat', '/app/ask', '/app/profile'];
 
 /**
- * Pass 149 — membership is acceptance only. A person with no industry yet keeps
+ * Pass 149 - membership is acceptance only. A person with no industry yet keeps
  * Summit Trinity chat and one waiting screen, and nothing industry scoped opens
  * until the owner accepts them.
  */

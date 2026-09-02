@@ -25,7 +25,7 @@ import {
 export const PAY_NOTE = 'Numbers feed the board. Pay comes from Gainz.';
 
 /**
- * Pass 92 — the one-tap Today sheet. A big stepper for "how many today", one
+ * Pass 92 - the one-tap Today sheet. A big stepper for "how many today", one
  * optional line for what was sold, and two taps to submit. Same-day edits just
  * write over the day row.
  */

@@ -33,7 +33,7 @@ export interface Workspace {
   president_name: string | null;
   membership_status: MembershipStatus;
   reject_reason: string | null;
-  /** Pass 89 — the rep's latest request for a locked vertical. */
+  /** Pass 89 - the rep's latest request for a locked vertical. */
   request_status?: 'pending' | 'approved' | 'rejected' | null;
   request_reviewed_at?: string | null;
   approvers: WorkspaceApprover[];
@@ -67,7 +67,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [epoch, setEpoch] = useState(0);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  // Pass 148 — the server decides the active workspace. Nothing is read from or
+  // Pass 148 - the server decides the active workspace. Nothing is read from or
   // written to local storage, so a workspace opened once on this device can
   // never outrank profiles.active_vertical on the next open.
   const [activeVertical, setActiveVertical] = useState<string>('Pest');

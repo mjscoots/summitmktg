@@ -116,7 +116,7 @@ export default function FiberPublicCalculator({ calcData }: { calcData?: PublicC
             Season earnings
           </p>
           <p className="text-xl font-bold tabular-nums text-primary">
-            {seasonEarnings !== null ? formatCurrency(seasonEarnings) : "—"}
+            {seasonEarnings !== null ? formatCurrency(seasonEarnings) : ", "}
           </p>
         </div>
       </div>

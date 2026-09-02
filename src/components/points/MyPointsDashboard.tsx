@@ -145,7 +145,7 @@ export function MyPointsDashboard({ open, onOpenChange }: MyPointsDashboardProps
               </div>
               <Progress value={Math.round((data.timeWeekMinutes / data.nextThreshold.targetMinutes) * 100)} className="h-1.5 mb-1" />
               <p className="text-[10px] text-muted-foreground">
-                {data.timeWeekMinutes}/{data.nextThreshold.targetMinutes} min — <strong>+{data.nextThreshold.bonus} pts</strong> in {data.nextThreshold.remainingMinutes} min
+                {data.timeWeekMinutes}/{data.nextThreshold.targetMinutes} min - <strong>+{data.nextThreshold.bonus} pts</strong> in {data.nextThreshold.remainingMinutes} min
               </p>
             </div>
           )}

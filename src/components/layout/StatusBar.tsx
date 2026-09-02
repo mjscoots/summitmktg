@@ -37,7 +37,7 @@ export function StatusBar() {
           </span>
           <span className="text-border">·</span>
           <span className="tabular-nums">
-            {isLoading ? '—' : `${percentage}%`}
+            {isLoading ? '-' : `${percentage}%`}
           </span>
         </div>
       </TooltipTrigger>

@@ -135,7 +135,7 @@ export function AdminAssistantTab() {
         </div>
         <p className="text-xs text-muted-foreground mb-4">
           Question and answer pairs the assistant is allowed to use. Anything not here, and not already in the
-          app's data, gets "I don't have that — ask your manager."
+          app's data, gets "I don't have that - ask your manager."
         </p>
 
         <div className="space-y-2">

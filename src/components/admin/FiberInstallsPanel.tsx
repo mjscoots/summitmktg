@@ -165,7 +165,7 @@ export function FiberInstallsPanel() {
       })
       .filter((r) => r.name);
     if (parsed.length === 0) {
-      toast.error('Nothing to import — one row per line: name, carrier, week (YYYY-MM-DD), installs, cancels');
+      toast.error('Nothing to import - one row per line: name, carrier, week (YYYY-MM-DD), installs, cancels');
       return;
     }
     setReview(parsed);
@@ -266,7 +266,7 @@ export function FiberInstallsPanel() {
                     <span className="text-muted-foreground">{r.carrier || 'no carrier'}</span>
                     <span className="text-muted-foreground">{r.week || 'no week'}</span>
                     <span className="ml-auto tabular-nums text-foreground">
-                      {r.installs ?? '—'} installs · {r.cancels ?? 0} cancels
+                      {r.installs ?? '-'} installs · {r.cancels ?? 0} cancels
                     </span>
                   </div>
                 );
@@ -284,7 +284,7 @@ export function FiberInstallsPanel() {
             const d = drafts[rep.user_id] ?? { installs: '', cancels: '' };
             return (
               <div key={rep.user_id} className="flex flex-wrap items-center gap-2 px-4 py-2.5">
-                <span className="min-w-0 flex-1 truncate text-sm text-foreground">{rep.full_name || '—'}</span>
+                <span className="min-w-0 flex-1 truncate text-sm text-foreground">{rep.full_name || '-'}</span>
                 <Input
                   value={d.installs}
                   onChange={(e) => setDrafts((p) => ({ ...p, [rep.user_id]: { ...d, installs: e.target.value } }))}

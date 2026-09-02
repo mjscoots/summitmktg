@@ -58,7 +58,7 @@ export default function VideoPlayerPage() {
   const saveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingPositionRef = useRef({ time: 0, duration: 0 });
 
-  // Save position to DB (debounced — called every 10 seconds)
+  // Save position to DB (debounced - called every 10 seconds)
   const savePositionToDb = useCallback(async () => {
     if (!user || !videoId) return;
     const { time, duration } = pendingPositionRef.current;
@@ -156,7 +156,7 @@ export default function VideoPlayerPage() {
     return queue.slice(0, 6);
   }, [video, allVideos, watchedIds]);
 
-  // Silent DB write — log every watch (rewatches count!) + mark first watch in video_progress
+  // Silent DB write - log every watch (rewatches count!) + mark first watch in video_progress
   const silentMarkComplete = useCallback(async () => {
     if (!user || !videoId || silentCompletedRef.current) return;
     silentCompletedRef.current = true;
@@ -204,7 +204,7 @@ export default function VideoPlayerPage() {
     }
   }, [user, videoId, video]);
 
-  // Manual button — updates UI
+  // Manual button - updates UI
   const markAsWatched = useCallback(async () => {
     if (!user || !videoId || isWatched || isMarking) return;
     setIsMarking(true);
@@ -216,7 +216,7 @@ export default function VideoPlayerPage() {
     setIsMarking(false);
   }, [user, videoId, isWatched, isMarking, silentMarkComplete]);
 
-  // Natural video end — always log (rewatches count!) + update UI
+  // Natural video end - always log (rewatches count!) + update UI
   const handleVideoEnded = useCallback(() => {
     // Reset the ref so rewatches get logged too
     silentCompletedRef.current = false;

@@ -67,9 +67,9 @@ const RULE_LABELS: Record<string, string> = {
 function ruleText(r: Requirement) {
   if (r.description) return r.description;
   if (r.rule_type === 'installs_per_week') {
-    return `${r.value ?? '—'} installs per week for ${r.window_weeks ?? 4} weeks`;
+    return `${r.value ?? '-'} installs per week for ${r.window_weeks ?? 4} weeks`;
   }
-  return `${r.value ?? '—'} ${RULE_LABELS[r.rule_type] ?? r.rule_type.replace(/_/g, ' ')}`;
+  return `${r.value ?? '-'} ${RULE_LABELS[r.rule_type] ?? r.rule_type.replace(/_/g, ' ')}`;
 }
 
 function progressText(r: Requirement) {
@@ -214,7 +214,7 @@ export function VerticalMoneyCards({
                     <p className="mt-0.5 text-sm text-muted-foreground">{v.stack_note ?? 'Not set yet'}</p>
                   )}
                   {v.draft && v.stack_value !== null && (
-                    <p className="mt-1 text-[11px] font-semibold text-amber-400">Draft — not confirmed yet</p>
+                    <p className="mt-1 text-[11px] font-semibold text-amber-400">Draft - not confirmed yet</p>
                   )}
                 </div>
 

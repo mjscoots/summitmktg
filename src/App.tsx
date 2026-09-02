@@ -248,7 +248,7 @@ function LazyFallback() {
              <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
              <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
 
-              {/* More — every destination the phone bar does not carry */}
+              {/* More - every destination the phone bar does not carry */}
               <Route path="/app/more" element={
                 <ProtectedRoute>
                     <MorePage />
@@ -319,28 +319,28 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Alumni — read-only view for alumni-status accounts */}
+              {/* Alumni - read-only view for alumni-status accounts */}
               <Route path="/app/alumni" element={
                 <ProtectedRoute>
                   <AlumniPage />
                 </ProtectedRoute>
               } />
 
-              {/* Person profile — everything the app knows about one person */}
+              {/* Person profile - everything the app knows about one person */}
               <Route path="/app/person/:userId" element={
                 <ProtectedRoute>
                   <PersonProfilePage />
                 </ProtectedRoute>
               } />
 
-              {/* Leads — every person who has been part of Summit (manager and above) */}
+              {/* Leads - every person who has been part of Summit (manager and above) */}
               <Route path="/app/leads" element={
                 <ProtectedRoute>
                   <LeadsPage />
                 </ProtectedRoute>
               } />
 
-              {/* Recruits — lead funnel (all reps) */}
+              {/* Recruits - lead funnel (all reps) */}
               <Route path="/app/recruits" element={
                 <ProtectedRoute>
                     <RecruitsPage />
@@ -370,14 +370,14 @@ function LazyFallback() {
               } />
 
 
-              {/* My Money — rep pay, housing, next tier */}
+              {/* My Money - rep pay, housing, next tier */}
               <Route path="/app/money" element={
                 <ProtectedRoute>
                     <MyMoneyPage />
                 </ProtectedRoute>
               } />
 
-              {/* Stacks — a manager sets the stack per rep per carrier */}
+              {/* Stacks - a manager sets the stack per rep per carrier */}
               <Route path="/app/stacks" element={
                 <ProtectedRoute requiredRole="manager">
                     <StacksPage />
@@ -386,7 +386,7 @@ function LazyFallback() {
 
 
 
-              {/* Scripts library — openers, objections, closes */}
+              {/* Scripts library - openers, objections, closes */}
               <Route path="/app/scripts" element={
                 <ProtectedRoute>
                     <ScriptsPage />
@@ -413,7 +413,7 @@ function LazyFallback() {
               <Route path="/app/playbook" element={<Navigate to="/app/training#field-pack" replace />} />
 
 
-              {/* Doors mode — the field flow, full screen and oversized */}
+              {/* Doors mode - the field flow, full screen and oversized */}
               <Route path="/app/doors" element={
                 <ProtectedRoute>
                   <WorkspaceThemeProvider>
@@ -425,7 +425,7 @@ function LazyFallback() {
               } />
 
 
-              {/* Ask Summit — grounded AI assistant */}
+              {/* Ask Summit - grounded AI assistant */}
               <Route path="/app/ask" element={
                 <ProtectedRoute>
                     <AskSummitPage />
@@ -519,7 +519,7 @@ function LazyFallback() {
                  </ProtectedRoute>
                } />
 
-              {/* Admin — five groups. Old /admin/team links redirect to the owning group. */}
+              {/* Admin - five groups. Old /admin/team links redirect to the owning group. */}
               <Route path="/admin/team" element={<AdminTabRedirect />} />
               {(['people', 'requests', 'money', 'content', 'settings'] as const).map((s) => (
                 <Route key={s} path={`/admin/${s}`} element={
@@ -538,7 +538,7 @@ function LazyFallback() {
                <Route path="/app/operations" element={<Navigate to="/app/events" replace />} />
 
               {/* Manage Hub (replaces Analytics) */}
-              {/* Manage hub dissolved — everything lives in the sidebar now */}
+              {/* Manage hub dissolved - everything lives in the sidebar now */}
               <Route path="/app/manage" element={<Navigate to="/app" replace />} />
               {/* Legacy recruit pipeline routes now point at the unified leads funnel */}
               <Route path="/app/spreadsheets" element={<Navigate to="/app/recruits" replace />} />

@@ -131,14 +131,14 @@ export function DashboardFunnelTracker() {
             <tbody>
               {filtered.slice(0, 15).map((l, i) => (
                 <tr key={l.id} className={cn("border-b border-border/20 hover:bg-accent/10 transition-colors group", i % 2 === 1 && "bg-muted/5")}>
-                  <td className="py-1.5 pr-2 text-foreground truncate">{l.first_name || '—'}</td>
+                  <td className="py-1.5 pr-2 text-foreground truncate">{l.first_name || '-'}</td>
                   <td className="py-1.5 pr-2 text-muted-foreground">
-                    {l.phone ? <a href={`tel:${l.phone.replace(/[^\d+]/g, '')}`} className="hover:text-primary">{l.phone}</a> : '—'}
+                    {l.phone ? <a href={`tel:${l.phone.replace(/[^\d+]/g, '')}`} className="hover:text-primary">{l.phone}</a> : '-'}
                   </td>
                   <td className="py-1.5 pr-2">
                     <MiniDropdown value={l.status} options={STATUS_OPTIONS} onChange={v => setStatus(l.id, v)} />
                   </td>
-                  <td className="py-1.5 pr-2 text-muted-foreground/70">{l.ref_code || '—'}</td>
+                  <td className="py-1.5 pr-2 text-muted-foreground/70">{l.ref_code || '-'}</td>
                 </tr>
               ))}
             </tbody>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Pest sent-rep override, as stated by the owner. Draft until confirmed —
+ * Pest sent-rep override, as stated by the owner. Draft until confirmed -
  * text only, no payout math.
  */
 export function SentRepOverrideNote() {

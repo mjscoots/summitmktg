@@ -206,7 +206,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const canModerate = role === 'admin' || role === 'owner';
   const { channels, markChannelRead } = useChatChannels();
   /**
-   * Pass 151 — identity chips run in rooms, not in direct messages. In an
+   * Pass 151 - identity chips run in rooms, not in direct messages. In an
    * industry room the room's own industry chip is skipped.
    */
   const roomVertical = channels.find((c) => c.slug === activeChannel)?.vertical ?? null;
@@ -230,7 +230,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     setUnreadOnOpen(count);
   }, [channels, activeChannel]);
 
-  // Mark the channel being viewed as read — once per channel, per user
+  // Mark the channel being viewed as read - once per channel, per user
   useEffect(() => {
     if (!user) return;
     void markReadRef.current(activeChannel);
@@ -870,7 +870,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         </div>
       )}
 
-      {/* Composer — sits above the phone bar, never under it */}
+      {/* Composer - sits above the phone bar, never under it */}
       <div className="phone-bar-clear relative z-[1]">
         <ChatComposer
           input={input}

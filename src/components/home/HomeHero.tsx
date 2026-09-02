@@ -12,7 +12,7 @@ function useOnceShine(key: string): boolean {
       sessionStorage.setItem(key, '1');
       setShine(true);
     } catch {
-      /* storage unavailable — no shine */
+      /* storage unavailable - no shine */
     }
   }, [key]);
   return shine;

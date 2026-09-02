@@ -31,7 +31,7 @@ interface FormErrors {
 const VetApplication = () => {
   useEffect(() => {
     setPageMeta({
-      title: "Apply as a Veteran — Summit Marketing",
+      title: "Apply as a Veteran - Summit Marketing",
       description:
         "Apply to run a summer season with Summit as an experienced sales rep.",
       path: "/apply/veteran",
@@ -226,7 +226,7 @@ const VetApplication = () => {
     { icon: Target, title: "Training", description: "Direct training from a Golden Door record holder (56 days) and a hiring record holder (1,000 reps in one off-season)." },
     { icon: Trophy, title: "Full Commission on Mosquito", description: "Earn full commission percentage on mosquito contracts." },
     { icon: TrendingUp, title: "Uncapped team building", description: "You will never be capped on how many people you want to bring out." },
-    { icon: Settings, title: "Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and hiring software — all provided free to veterans on day one." },
+    { icon: Settings, title: "Systems for Vets", description: "AI-generated neighborhoods, pre-cut and optimized for efficiency, plus full access to CRM and hiring software - all provided free to veterans on day one." },
     { icon: DollarSign, title: "Scalable Structure", description: "Scalable overrides and a marketing deal structure designed for long-term upside." },
   ];
 

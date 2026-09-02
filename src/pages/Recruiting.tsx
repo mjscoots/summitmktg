@@ -13,7 +13,7 @@ const Recruiting = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Summer Sales Jobs — Summit Marketing",
+      title: "Summer Sales Jobs - Summit Marketing",
       description:
         "Summit trains and fields door-to-door sales reps. Training, housing and pay explained.",
       path: "/recruiting",
@@ -50,7 +50,7 @@ const Recruiting = () => {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            className="flex min-h-11 items-center gap-2 text-foreground hover:text-primary transition-colors"
           >
             <Mountain className="w-5 h-5 text-primary" />
             <span className="text-lg font-black tracking-tight">Summit</span>
@@ -283,7 +283,7 @@ const Recruiting = () => {
                 href="https://www.instagram.com/summitmktgsales/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="inline-flex min-h-11 items-center text-primary hover:underline"
               >
                 DM us on Instagram
               </a>{" "}

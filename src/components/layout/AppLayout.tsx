@@ -56,7 +56,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
                 </div>
               </header>
 
-              {/* Mobile header — the workspace control replaces the sidebar */}
+              {/* Mobile header - the workspace control replaces the sidebar */}
               <header className="lg:hidden sticky top-0 z-40 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex min-w-0 items-center gap-2">

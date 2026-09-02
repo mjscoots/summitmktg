@@ -33,7 +33,7 @@ const KIND_META: Record<ResultKind, { label: string; icon: typeof User }> = {
 
 /**
  * App-wide search. Every query goes through the normal Data API, so RLS
- * decides what the searcher can see — no extra role logic needed here.
+ * decides what the searcher can see - no extra role logic needed here.
  */
 export function GlobalSearch() {
   const { activeVertical } = useWorkspace();

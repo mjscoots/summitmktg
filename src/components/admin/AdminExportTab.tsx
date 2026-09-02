@@ -167,7 +167,7 @@ export function AdminExportTab() {
       toast.success(`Exported ${rows.length} rows`);
     } catch (err) {
       console.error(err);
-      toast.error('Export failed — you may not have access to that data.');
+      toast.error('Export failed - you may not have access to that data.');
     } finally {
       setBusy(null);
     }
@@ -201,7 +201,7 @@ export function AdminExportTab() {
           </div>
         ))}
 
-        {/* Payroll prep — date range driven */}
+        {/* Payroll prep - date range driven */}
         <div className={cn(CARD, 'p-4 sm:col-span-2')}>
           <h3 className="text-sm font-semibold text-foreground">Payroll prep</h3>
           <p className="mt-1 text-xs text-muted-foreground">

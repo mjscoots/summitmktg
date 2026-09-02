@@ -84,7 +84,7 @@ function PointsCard() {
         </div>
         <div className="p-2 rounded-lg bg-muted/30">
           <TrendingUp className="w-3.5 h-3.5 mx-auto mb-0.5 text-primary" />
-          <p className="text-xs font-bold">{topCategory?.label || '—'}</p>
+          <p className="text-xs font-bold">{topCategory?.label || '-'}</p>
           <p className="text-[9px] text-muted-foreground">Top source</p>
         </div>
       </div>
@@ -656,7 +656,7 @@ export default function ProfilePage() {
               <p className="text-xs text-muted-foreground mt-1">
                 {timezone === 'auto'
                   ? 'Automatically using your browser timezone'
-                  : 'Manually set — calendar events will display in this timezone'}
+                  : 'Manually set - calendar events will display in this timezone'}
               </p>
             </div>
 

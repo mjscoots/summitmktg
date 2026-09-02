@@ -36,7 +36,7 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes,
         "hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 hover:border-primary/30"
       )}
     >
-      {/* Thumbnail — fixed 16:9 */}
+      {/* Thumbnail - fixed 16:9 */}
       <div className="relative aspect-video bg-muted overflow-hidden flex-shrink-0">
         {thumbnailUrl && !imgError ? (
           <>
@@ -74,21 +74,21 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes,
           </div>
         </div>
 
-        {/* Duration pill — bottom right */}
+        {/* Duration pill - bottom right */}
         {video.duration_minutes && (
           <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/80 text-white text-[10px] font-mono font-medium rounded">
             {video.duration_minutes}m
           </div>
         )}
 
-        {/* Watched badge — top right */}
+        {/* Watched badge - top right */}
         {isWatched && (
           <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-success flex items-center justify-center">
             <CheckCircle className="w-3 h-3 text-white" />
           </div>
         )}
 
-        {/* Bonus badge — top left */}
+        {/* Bonus badge - top left */}
         {isBonus && (
           <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-primary/90 text-white rounded text-[9px] font-bold">
             BONUS
@@ -96,7 +96,7 @@ export function VideoCard({ video, isWatched, onClick, highlightTitle, hasNotes,
         )}
       </div>
 
-      {/* Card content — fixed height */}
+      {/* Card content - fixed height */}
       <div className="p-3 flex flex-col flex-1 min-h-[72px]">
         <div className="flex items-start gap-1.5 flex-1">
           <h3 className="font-semibold text-xs text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors flex-1">

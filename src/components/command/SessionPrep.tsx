@@ -69,13 +69,13 @@ export default function SessionPrep() {
   const asText = () => {
     if (!prep) return '';
     const L: string[] = [];
-    L.push(`SESSION PREP — since ${prep.since}`);
+    L.push(`SESSION PREP - since ${prep.since}`);
     L.push('');
     L.push(`New reps (${prep.new_reps.length}): ${prep.new_reps.map((r) => r.full_name).join(', ') || 'No data yet'}`);
     L.push(
       `Departed (${prep.departed.length}): ${
         prep.departed
-          .map((d) => `${d.full_name} — ${d.departure_type || 'Unknown'}${d.departure_reason ? ` (${d.departure_reason})` : ''}`)
+          .map((d) => `${d.full_name} - ${d.departure_type || 'Unknown'}${d.departure_reason ? ` (${d.departure_reason})` : ''}`)
           .join('; ') || 'No data yet'
       }`
     );
@@ -196,7 +196,7 @@ export default function SessionPrep() {
       ) : (
         <>
           <p style={{ fontFamily: fontDisplay, fontSize: 20, color: COLORS.gold, marginTop: 14 }}>
-            Session Prep — since {prep.since}
+            Session Prep - since {prep.since}
           </p>
 
           <Section title={`New reps (${prep.new_reps.length})`}>
@@ -209,7 +209,7 @@ export default function SessionPrep() {
             ) : (
               prep.departed.map((d, i) => (
                 <div key={i} style={{ borderTop: `1px solid ${COLORS.border}`, padding: '4px 0' }}>
-                  {d.full_name} — {d.departure_type || 'Unknown'}
+                  {d.full_name} - {d.departure_type || 'Unknown'}
                   {d.departure_reason ? ` · ${d.departure_reason}` : ''}
                   {d.last_day_worked ? ` · last day ${d.last_day_worked}` : ''}
                   {d.revenue_to_date != null ? ` · ${money(d.revenue_to_date)}` : ''}

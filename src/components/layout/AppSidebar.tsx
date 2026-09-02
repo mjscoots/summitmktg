@@ -51,7 +51,7 @@ export function AppSidebar() {
   const roleLabel = isOwner
     ? 'Owner'
     : role === 'admin'
-      ? 'Admin'
+      ? 'Pillar'
       : role === 'president'
         ? `Manager${presidedName ? ` · ${presidedName}` : ''}`
         : isManager
@@ -128,7 +128,7 @@ export function AppSidebar() {
         collapsed && "justify-center px-2"
       )}
     >
-      {/* Active indicator — the workspace accent as a left rule */}
+      {/* Active indicator - the workspace accent as a left rule */}
       {active && (
         <div
           className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
@@ -269,7 +269,7 @@ export function AppSidebar() {
 
       </SidebarContent>
 
-      {/* Footer — Profile */}
+      {/* Footer - Profile */}
       <SidebarFooter className="p-2" style={{ borderTop: '1px solid hsl(var(--border))' }}>
         <div
           data-tour="profile"

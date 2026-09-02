@@ -72,7 +72,7 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
             <Flame className="w-3 h-3" /> Streak
           </p>
           <p className="text-xl font-black text-foreground tabular-nums">
-            {data.streak != null ? data.streak : '—'}
+            {data.streak != null ? data.streak : '-'}
           </p>
           <p className="text-[11px] text-muted-foreground">
             {data.streak != null ? 'days in a row' : 'no streak data'}
@@ -80,10 +80,10 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
         </div>
         <div className="p-3 rounded-lg bg-muted/40 border border-border/30 col-span-2">
           <p className="micro-label flex items-center gap-1.5">
-            <CalendarCheck className="w-3 h-3" /> Attendance — last 30 days
+            <CalendarCheck className="w-3 h-3" /> Attendance - last 30 days
           </p>
           <p className="text-xl font-black text-foreground tabular-nums">
-            {attendance && attendance.expected > 0 ? `${attendance.pct}%` : '—'}
+            {attendance && attendance.expected > 0 ? `${attendance.pct}%` : '-'}
           </p>
           <p className="text-[11px] text-muted-foreground">
             {attendance && attendance.expected > 0
@@ -98,7 +98,7 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
       </div>
 
       {/* Weekly points, last 4 weeks */}
-      <p className="micro-label mb-2">Points — last 4 weeks</p>
+      <p className="micro-label mb-2">Points - last 4 weeks</p>
       <div className="flex items-end gap-2 mb-4 h-20">
         {weeks.map((w) => (
           <div key={w.week_start} className="flex-1 flex flex-col items-center justify-end gap-1.5">
@@ -118,7 +118,7 @@ export function RepScorecard({ userId, compact = false }: { userId: string; comp
       {!compact && (
         <>
           <p className="micro-label mb-2 flex items-center gap-1.5">
-            <Users className="w-3 h-3" /> Leads — all time
+            <Users className="w-3 h-3" /> Leads - all time
           </p>
           <div className="grid grid-cols-3 gap-2 text-center">
             {[

@@ -70,7 +70,7 @@ export function GainzSheetPanel({ onIngested }: { onIngested?: () => void }) {
       });
     }
     if (rows.length === 0) {
-      toast.error('Nothing to read — one row per rep: name, accounts, gross, overrides, costs, week');
+      toast.error('Nothing to read - one row per rep: name, accounts, gross, overrides, costs, week');
       return;
     }
     setReview(rows);
@@ -223,22 +223,22 @@ export function GainzSheetPanel({ onIngested }: { onIngested?: () => void }) {
                     <option value="">Not matched</option>
                     {reps.map((p) => (
                       <option key={p.user_id} value={p.user_id}>
-                        {p.full_name || '—'}
+                        {p.full_name || '-'}
                       </option>
                     ))}
                   </select>
                   <span className="text-muted-foreground">{r.week_start}</span>
                   <span className="ml-auto tabular-nums text-foreground">
-                    {r.installs ?? '—'} accounts
+                    {r.installs ?? '-'} accounts
                   </span>
                   <span className="tabular-nums text-muted-foreground">
-                    {r.gross !== null ? formatCurrency(r.gross) : '—'} gross
+                    {r.gross !== null ? formatCurrency(r.gross) : '-'} gross
                   </span>
                   <span className="tabular-nums text-muted-foreground">
-                    {r.overrides !== null ? formatCurrency(r.overrides) : '—'} overrides
+                    {r.overrides !== null ? formatCurrency(r.overrides) : '-'} overrides
                   </span>
                   <span className={cn('tabular-nums text-muted-foreground')}>
-                    {r.costs !== null ? formatCurrency(r.costs) : '—'} costs
+                    {r.costs !== null ? formatCurrency(r.costs) : '-'} costs
                   </span>
                 </div>
               );

@@ -13,7 +13,7 @@ export interface BlitzCapState {
 }
 
 /**
- * Pass 146 — live cap state for one blitz event. The database owns the cap and the
+ * Pass 146 - live cap state for one blitz event. The database owns the cap and the
  * waitlist order; this only reads and refreshes when attendance moves.
  */
 export function useBlitzCap(eventId: string | null | undefined) {

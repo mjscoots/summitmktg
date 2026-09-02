@@ -34,7 +34,7 @@ export function getMessageHighlight(reactionCount: number): {
 }
 
 /**
- * Detect "hot thread" — message that got multiple reactions quickly.
+ * Detect "hot thread" - message that got multiple reactions quickly.
  * We check if a message has 5+ reactions and was created within last 30 min.
  */
 export function isHotThread(reactionCount: number, messageCreatedAt: string): boolean {

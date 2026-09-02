@@ -118,12 +118,12 @@ export function DownlineTab({ managerName, userId }: { managerName: string; user
       byTeam.get(team)!.push(m);
     }
     const sortedTeams = [...byTeam.entries()].sort(([a], [b]) => a.localeCompare(b));
-    const lines: string[] = [`Inactive Rookies (3+ days) — ${new Date().toLocaleDateString()}`, ''];
+    const lines: string[] = [`Inactive Rookies (3+ days) - ${new Date().toLocaleDateString()}`, ''];
     for (const [team, reps] of sortedTeams) {
       lines.push(team);
       for (const r of reps.sort((a, b) => a.full_name.localeCompare(b.full_name))) {
         const days = getDaysInactive(r.last_active_at);
-        lines.push(`  • ${r.full_name} — ${days === 999 ? 'Never active' : `${days} days`}`);
+        lines.push(`  • ${r.full_name} - ${days === 999 ? 'Never active' : `${days} days`}`);
       }
       lines.push('');
     }

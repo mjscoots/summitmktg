@@ -81,7 +81,7 @@ export default function VetBidForm() {
       }}
     >
       <DialogTrigger asChild>
-        <button className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
+        <button className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
           Already sold before?
         </button>
       </DialogTrigger>

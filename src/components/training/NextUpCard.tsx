@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useNextTraining } from '@/hooks/useNextTraining';
 
 /**
- * Pass 101 — Learn opens with one card: the next required lesson or mastery
+ * Pass 101 - Learn opens with one card: the next required lesson or mastery
  * check in the rep's track.
  */
 export function NextUpCard({ track = 'rookie' }: { track?: 'rookie' | 'manager' }) {
@@ -34,7 +34,7 @@ export function NextUpCard({ track = 'rookie' }: { track?: 'rookie' | 'manager' 
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-[17px] font-extrabold text-foreground">
-            {next.kind === 'mastery' ? `Mastery check — ${next.title}` : next.title}
+            {next.kind === 'mastery' ? `Mastery check - ${next.title}` : next.title}
           </p>
           <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
             {next.courseTitle} · {next.moduleTitle}

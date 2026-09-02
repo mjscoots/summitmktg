@@ -228,7 +228,7 @@ export function InterviewResponsesTable() {
                 {Object.entries(selectedResponse.data).map(([key, value]) => (
                   <div key={key} className="p-3 border border-border rounded-lg">
                     <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{key}</p>
-                    <p className="text-foreground">{value || '—'}</p>
+                    <p className="text-foreground">{value || '-'}</p>
                   </div>
                 ))}
               </div>

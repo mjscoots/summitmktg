@@ -22,8 +22,8 @@ const RECENT_DAYS = 14;
 export const WINBACK_OUTCOMES = [
   { id: 'no_answer', label: 'No answer', icon: PhoneOff },
   { id: 'voicemail', label: 'Left voicemail', icon: Voicemail },
-  { id: 'not_interested', label: 'Talked — not interested', icon: ThumbsDown },
-  { id: 'maybe_later', label: 'Talked — maybe later', icon: CalendarClock },
+  { id: 'not_interested', label: 'Talked - not interested', icon: ThumbsDown },
+  { id: 'maybe_later', label: 'Talked - maybe later', icon: CalendarClock },
   { id: 'coming_back', label: 'Coming back', icon: Check },
 ] as const;
 
@@ -156,7 +156,7 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
       load();
       return;
     }
-    toast.success('Claimed — number unlocked');
+    toast.success('Claimed - number unlocked');
     load();
   };
 
@@ -176,8 +176,8 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
     setNotes((p) => ({ ...p, [id]: '' }));
     toast.success(
       outcome === 'coming_back'
-        ? 'Marked as coming back — managers notified'
-        : 'Logged — back to the pool for someone else'
+        ? 'Marked as coming back - managers notified'
+        : 'Logged - back to the pool for someone else'
     );
     load();
   };
@@ -324,7 +324,7 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
       <p className="mt-2 text-[12px] text-muted-foreground">
         {lead.last_contact_at
           ? `Last contacted: ${fmtDate(lead.last_contact_at)}${lead.last_by ? ` by ${lead.last_by}` : ''}${
-              lead.last_outcome ? ` — ${OUTCOME_LABEL[lead.last_outcome] || lead.last_outcome}` : ''
+              lead.last_outcome ? ` - ${OUTCOME_LABEL[lead.last_outcome] || lead.last_outcome}` : ''
             }`
           : 'Never contacted'}
       </p>
@@ -378,7 +378,7 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
                   <div className="min-w-0">
                     <h3 className="text-[15px] font-bold text-foreground">{lead.name}</h3>
                     <p className="mt-1 text-[12px] text-muted-foreground">
-                      Wants back in{lead.sourced_by_name ? ` — sourced by ${lead.sourced_by_name}` : ''}
+                      Wants back in{lead.sourced_by_name ? ` - sourced by ${lead.sourced_by_name}` : ''}
                       {lead.last_activity_at ? ` on ${fmtDate(lead.last_activity_at)}` : ''}
                     </p>
                   </div>
@@ -415,7 +415,7 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
       {feed.mine.length > 0 && (
         <section>
           <p className="micro-label mb-2">
-            My win-backs — {feed.my_active} of {feed.cap}
+            My win-backs - {feed.my_active} of {feed.cap}
           </p>
           <div className="space-y-3">
             {feed.mine.map((lead) => {
@@ -510,7 +510,7 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
       <section>
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <p className="micro-label">
-            Pool — {feed.pool.length} former {feed.pool.length === 1 ? 'rep' : 'reps'}
+            Pool - {feed.pool.length} former {feed.pool.length === 1 ? 'rep' : 'reps'}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {SORTS.map((s) => (
@@ -547,7 +547,7 @@ export function WinbackTab({ isAdmin, focusId }: { isAdmin: boolean; focusId?: s
             {recent.length > 0 && (
               <>
                 <p className="micro-label mb-2 mt-5">
-                  Contacted in the last {RECENT_DAYS} days — leave these alone for now
+                  Contacted in the last {RECENT_DAYS} days - leave these alone for now
                 </p>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {recent.map((lead) => (

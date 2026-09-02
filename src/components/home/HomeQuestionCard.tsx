@@ -15,7 +15,7 @@ interface OpenQuestion {
 }
 
 /**
- * One open question at a time on the home screen. Skippable — it comes back on
+ * One open question at a time on the home screen. Skippable - it comes back on
  * the next login. Answers land on the person's profile.
  */
 export function HomeQuestionCard() {

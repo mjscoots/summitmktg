@@ -13,7 +13,7 @@ import VetBidForm from "@/components/VetBidForm";
 import { PayLadderTrack } from "@/components/shared/PayLadderTrack";
 
 /**
- * Public pest earnings calculator — rookie only.
+ * Public pest earnings calculator - rookie only.
  *
  * Where the numbers come from:
  * - Average account value: admin setting `calc_avg_contract_value`.
@@ -183,7 +183,7 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           <div className="mb-8">
             <h4 className="text-base font-semibold text-foreground mb-1">Pay ladder</h4>
             <p className="text-xs text-muted-foreground mb-4">
-              {calc?.pay_scale?.label} — the tier you reach pays that rate on all season active
+              {(calc?.pay_scale?.label || '').replace(/\u2014/g, '-')} - the tier you reach pays that rate on all season active
               revenue. Tap a tier to set the accounts it takes.
             </p>
             <PayLadderTrack

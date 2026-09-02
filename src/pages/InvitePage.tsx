@@ -133,7 +133,7 @@ const InvitePage = () => {
       setError(verifyError.message);
       return;
     }
-    // Pass 119 — a brand new person lands in the day-one watch course first.
+    // Pass 119 - a brand new person lands in the day-one watch course first.
     navigate('/recruit-course', { replace: true });
   };
 

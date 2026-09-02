@@ -216,7 +216,7 @@ export default function CommandFunnel() {
         </table>
       </Panel>
       <div style={{ color: COLORS.textMuted, fontFamily: fontBody, fontSize: 12, margin: "0 0 40px 4px" }}>
-        Weekly columns count leads by the week they were submitted. Excludes win-back leads — all-time column matches the
+        Weekly columns count leads by the week they were submitted. Excludes win-back leads - all-time column matches the
         admin recruiting panel.
       </div>
 
@@ -312,7 +312,7 @@ export default function CommandFunnel() {
           ) : (
             <div style={{ fontFamily: fontBody, fontSize: 13, color: COLORS.textMuted, marginTop: 8 }}>
               {spend > 0
-                ? "No signed ticket leads yet — cost per recruit appears after the first sign."
+                ? "No signed ticket leads yet - cost per recruit appears after the first sign."
                 : "Waiting on campaign spend."}
             </div>
           )}
