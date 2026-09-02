@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { OtherWorkspaceNotice } from '@/components/workspace/OtherWorkspaceNotice';
+import { courseInWorkspace } from '@/lib/courseScope';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { ChevronRight, CheckCircle2, Lock, PlayCircle, ArrowLeft, Pencil, Mic, RotateCcw, Check } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { cn } from '@/lib/utils';
@@ -38,6 +41,7 @@ interface Course {
   title: string;
   description: string | null;
   slug: string;
+  vertical?: string | null;
   target_role: 'rookie' | 'recruiter' | 'manager' | 'admin' | 'owner' | 'president' | null;
 }
 
@@ -53,6 +57,8 @@ export default function TrainingCoursePage() {
   const { courseSlug } = useParams();
   const navigate = useNavigate();
   const { role, user } = useAuth();
+  const { activeVertical } = useWorkspace();
+  const [otherWorkspace, setOtherWorkspace] = useState<string | null>(null);
   
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
@@ -102,6 +108,13 @@ export default function TrainingCoursePage() {
         }
 
         setCourse(courseData);
+
+        // Pass 159 - a course tagged to another industry does not load here.
+        if (!courseInWorkspace((courseData as { vertical?: string | null }).vertical, activeVertical, courseData.slug)) {
+          setOtherWorkspace((courseData as { vertical?: string | null }).vertical || null);
+          return;
+        }
+        setOtherWorkspace(null);
 
         // Fetch modules with nested lessons in a single query
         const { data: modulesData, error: modulesError } = await supabase
@@ -208,7 +221,7 @@ export default function TrainingCoursePage() {
     };
 
     fetchCourseData();
-  }, [courseSlug, user, navigate]);
+  }, [courseSlug, user, navigate, activeVertical]);
 
   // Manual re-read tracking for summer-sales-manual
   const isManualCourse = courseSlug === 'summer-sales-manual';
@@ -349,6 +362,14 @@ export default function TrainingCoursePage() {
         <div className="flex items-center justify-center py-20">
           <div className="animate-pulse text-muted-foreground">Loading...</div>
         </div>
+      </AppLayout>
+    );
+  }
+
+  if (otherWorkspace) {
+    return (
+      <AppLayout>
+        <OtherWorkspaceNotice vertical={otherWorkspace} />
       </AppLayout>
     );
   }

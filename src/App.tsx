@@ -11,12 +11,13 @@ import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatch } from "@/lib/lazyRoute";
+import RootOverlays from "@/components/layout/RootOverlays";
 
 // Every route-level page is loaded on demand so the first paint ships only the
-// shell. AuthPage and NotFound stay eager: they are tiny and must render without
-// a second request when a session is missing or a URL is wrong.
-import AuthPage from "./pages/app/AuthPage";
-import NotFound from "./pages/NotFound";
+// shell. Pass 159: the login page and the not found page load on demand too, so
+// the cover never pays for the overlay libraries they pull in.
+const AuthPage = lazyRoute(() => import("./pages/app/AuthPage"));
+const NotFound = lazyRoute(() => import("./pages/NotFound"));
 
 const Index = lazyRoute(() => import("./pages/Index"));
 const IndustryPage = lazyRoute(() => import("./pages/IndustryPage"));
@@ -162,7 +163,7 @@ function LazyFallback() {
 
    return (
      <>
-       <DeferredOverlays />
+       <RootOverlays />
 
         <BrowserRouter>
           <ScrollToTop />
@@ -351,7 +352,7 @@ function LazyFallback() {
               {/* Fiber installs */}
               <Route path="/app/installs" element={
                 <ProtectedRoute>
-                    <InstallsPage />
+                    <VerticalRouteGuard><InstallsPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -366,7 +367,7 @@ function LazyFallback() {
               {/* Life pipeline */}
               <Route path="/app/pipeline" element={
                 <ProtectedRoute>
-                    <PipelinePage />
+                    <VerticalRouteGuard><PipelinePage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -381,14 +382,14 @@ function LazyFallback() {
               {/* Stacks - a manager sets the stack per rep per carrier */}
               <Route path="/app/stacks" element={
                 <ProtectedRoute requiredRole="manager">
-                    <StacksPage />
+                    <VerticalRouteGuard><StacksPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
               {/* Fiber pay ladder - Fiber workspace only */}
               <Route path="/app/fiber/ladder" element={
                 <ProtectedRoute>
-                    <FiberLadderPage />
+                    <VerticalRouteGuard><FiberLadderPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -404,7 +405,7 @@ function LazyFallback() {
               {/* Season Countdown Hub */}
               <Route path="/app/season" element={
                 <ProtectedRoute>
-                    <SeasonPage />
+                    <VerticalRouteGuard><SeasonPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -565,7 +566,7 @@ function LazyFallback() {
               {/* Estimate My Earnings */}
               <Route path="/app/estimate-earnings" element={
                 <ProtectedRoute>
-                    <EstimateEarningsPage />
+                    <VerticalRouteGuard><EstimateEarningsPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -617,25 +618,7 @@ function LazyFallback() {
 export default App;
 
 
-/** Pass 157 - mounts the toast layers once the first screen has painted. */
-const RootOverlays = lazy(() => import("@/components/layout/RootOverlays"));
 
-function DeferredOverlays() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
-      .requestIdleCallback;
-    if (idle) {
-      idle(() => setReady(true));
-      return;
-    }
-    const t = window.setTimeout(() => setReady(true), 400);
-    return () => window.clearTimeout(t);
-  }, []);
-  if (!ready) return null;
-  return (
-    <Suspense fallback={null}>
-      <RootOverlays />
-    </Suspense>
-  );
-}
+/* Pass 159 - the toast layers mount with the shell. Deferring them dropped any
+   toast fired during first paint, because neither layer replays a toast that
+   was raised before it mounted. */

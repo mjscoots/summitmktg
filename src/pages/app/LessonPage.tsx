@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { OtherWorkspaceNotice } from '@/components/workspace/OtherWorkspaceNotice';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { courseInWorkspace } from '@/lib/courseScope';
 import { ArrowLeft, CheckCircle2, BookOpen, Loader2, ArrowRight, AlertCircle, Clock } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -56,6 +59,8 @@ export default function LessonPage() {
   const { courseSlug, lessonId } = useParams();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { activeVertical } = useWorkspace();
+  const [otherWorkspace, setOtherWorkspace] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const { recordActivity, streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, clearMilestone } = useStreak();
   const { pitchRequest, requiresPitch, refresh: refreshPitch } = useLessonPitchStatus(lessonId);
@@ -155,6 +160,22 @@ export default function LessonPage() {
       setIsLoading(true);
 
       try {
+        // Pass 159 - the lesson only opens while its course's industry is active.
+        if (courseSlug) {
+          const { data: courseRow } = await supabase
+            .from('training_courses')
+            .select('slug, vertical')
+            .eq('slug', courseSlug)
+            .maybeSingle();
+          const courseVertical = (courseRow as { vertical?: string | null } | null)?.vertical ?? null;
+          if (courseRow && !courseInWorkspace(courseVertical, activeVertical, courseSlug)) {
+            setOtherWorkspace(courseVertical);
+            setIsLoading(false);
+            return;
+          }
+          setOtherWorkspace(null);
+        }
+
         const { data: lessonData, error: lessonError } = await supabase
           .from('training_lessons')
           .select('*')
@@ -228,7 +249,7 @@ export default function LessonPage() {
     };
 
     fetchLesson();
-  }, [lessonId, user, courseSlug, navigate, recordActivity]);
+  }, [lessonId, user, courseSlug, navigate, recordActivity, activeVertical]);
 
   // Mark lesson complete (no quiz needed)
   const handleMarkComplete = useCallback(async () => {
@@ -437,6 +458,18 @@ export default function LessonPage() {
             isRookieCourse ? "text-primary" : "text-primary"
           )} />
         </div>
+      </AppLayout>
+    );
+  }
+
+  if (otherWorkspace) {
+    return (
+      <AppLayout>
+        <OtherWorkspaceNotice
+          vertical={otherWorkspace}
+          backTo="/app/training"
+          backLabel="Back to Training"
+        />
       </AppLayout>
     );
   }

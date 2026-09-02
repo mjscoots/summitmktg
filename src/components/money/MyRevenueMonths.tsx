@@ -30,7 +30,7 @@ export function MyRevenueMonths() {
         </div>
         <div>
           <h2 className="text-base font-semibold text-foreground">Monthly revenue</h2>
-          <p className="text-xs text-muted-foreground">Entered by an admin</p>
+          <p className="text-xs text-muted-foreground">Entered by a Pillar</p>
         </div>
       </div>
 

@@ -1,10 +1,26 @@
-import { ReactNode } from 'react';
+import { ReactNode, Suspense, lazy } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAccessState } from '@/hooks/useAccessState';
-import { LockedOutScreen } from '@/components/auth/LockedOutScreen';
-import { BootcampGate } from '@/components/BootcampGate';
-import { AwaitingIndustryGate } from '@/components/workspace/AwaitingIndustryGate';
+// Pass 159 - the three gate screens render for a minority of sessions, so they
+// load on demand instead of riding in the shell every route pays for.
+const LockedOutScreen = lazy(() =>
+  import('@/components/auth/LockedOutScreen').then((m) => ({ default: m.LockedOutScreen }))
+);
+const BootcampGate = lazy(() =>
+  import('@/components/BootcampGate').then((m) => ({ default: m.BootcampGate }))
+);
+const AwaitingIndustryGate = lazy(() =>
+  import('@/components/workspace/AwaitingIndustryGate').then((m) => ({ default: m.AwaitingIndustryGate }))
+);
+
+function GateFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
 
 import { Loader2 } from 'lucide-react';
 
@@ -45,11 +61,13 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   // Season reset: no role and not approved means one plain screen, no navigation, no data.
   if (!accessLoading && access && !access.has_role && !access.approved) {
     return (
-      <LockedOutScreen
-        archived={access.archived}
-        defaultName={profile?.full_name || ''}
-        requestStatus={access.request_status}
-      />
+      <Suspense fallback={<GateFallback />}>
+        <LockedOutScreen
+          archived={access.archived}
+          defaultName={profile?.full_name || ''}
+          requestStatus={access.request_status}
+        />
+      </Suspense>
     );
   }
 
@@ -97,9 +115,11 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   return (
-    <AwaitingIndustryGate>
-      <BootcampGate>{children}</BootcampGate>
-    </AwaitingIndustryGate>
+    <Suspense fallback={<GateFallback />}>
+      <AwaitingIndustryGate>
+        <BootcampGate>{children}</BootcampGate>
+      </AwaitingIndustryGate>
+    </Suspense>
   );
 
 }
