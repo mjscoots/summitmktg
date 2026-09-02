@@ -1,3 +1,4 @@
+import { LockedInBadge } from '@/components/badges/LockedInBadge';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -57,7 +58,7 @@ export function WorkspaceLeaderboard({ vertical, unit }: { vertical: string; uni
         {rows.map((r) => (
           <tr key={r.user_id} className="border-t border-border/40">
             <td className="px-4 py-2 tabular-nums">{r.rank}</td>
-            <td className="px-4 py-2">{r.full_name || 'Unnamed'}</td>
+            <td className="px-4 py-2"><span className="inline-flex items-center gap-1.5">{r.full_name || 'Unnamed'}<LockedInBadge userId={r.user_id} /></span></td>
             <td className="px-4 py-2 text-right tabular-nums">{r.installs}</td>
           </tr>
         ))}

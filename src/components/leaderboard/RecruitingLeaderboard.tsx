@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/shared/UserAvatar';
+import { LockedInBadge } from '@/components/badges/LockedInBadge';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { LoadingList } from '@/components/shared/LoadingList';
 
@@ -66,6 +67,7 @@ export function RecruitingLeaderboard() {
             <p className="text-[13px] font-semibold text-foreground truncate">
               {e.nickname || e.full_name}
             </p>
+            <LockedInBadge userId={e.user_id} className="mt-0.5" />
             <p className="text-[11px] text-muted-foreground">
               {e.booked} booked · {e.active_claims} active
             </p>

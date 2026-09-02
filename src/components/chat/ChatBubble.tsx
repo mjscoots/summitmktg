@@ -12,6 +12,7 @@ import { RankInsignia } from '@/components/badges/RankInsignia';
 import { RoleChip } from '@/components/shared/RoleChip';
 import { IndustryChips } from '@/components/shared/IndustryChips';
 import { ExperienceStars } from '@/components/shared/ExperienceStars';
+import { LockedInBadge } from '@/components/badges/LockedInBadge';
 import { useIdentity } from '@/hooks/useIdentityChips';
 
 
