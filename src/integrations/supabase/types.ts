@@ -7491,6 +7491,7 @@ export type Database = {
         Returns: Json
       }
       day_one_done: { Args: { _user_id: string }; Returns: boolean }
+      day_one_done_at: { Args: { _user_id: string }; Returns: string }
       day_one_video_ids: { Args: never; Returns: string[] }
       decide_resign_intent: {
         Args: { _confirm: boolean; _intent_id: string }
@@ -8788,6 +8789,10 @@ export type Database = {
         Returns: undefined
       }
       team_channel_slug: { Args: { _name: string }; Returns: string }
+      tick_training_done_from_day_one: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       touch_last_login: { Args: never; Returns: undefined }
       undo_import_batch: { Args: { _batch_id: string }; Returns: Json }
       update_my_lead: {

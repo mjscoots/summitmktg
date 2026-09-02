@@ -2786,3 +2786,43 @@ No em dashes in any new copy.
 ### Baselines
 - profiles 536, rank_stacks 80 all confirmed, rep_carrier_ranks 0, fiber_rules 11.
 - Typecheck clean, production build clean. Not published.
+
+## Pass 155: the waiting screen becomes day one
+
+Scope: the AwaitingIndustryGate screen now carries the same day one watch course the recruit gate uses, day one completion survives acceptance, and the pending list shows who finished.
+
+### What changed
+- `src/components/onboarding/DayOneCourse.tsx` (new): the day one course as an embeddable block. Same `recruit_gate_state` source, same `day_one_video_ids` setting, same `video_progress` upsert and the same completion record, so nothing is counted twice.
+- `src/components/workspace/AwaitingIndustryGate.tsx`: waiting line, Summit Trinity button and Sign out button unchanged; the course is embedded underneath.
+- `src/components/admin/AwaitingIndustryPanel.tsx`: Day one done chip next to the name, plus the finish date. Finished people sort first (ordering comes from the RPC).
+- Database: `onboarding_steps.step` now accepts `training_done`; new `day_one_done_at(uuid)` and `tick_training_done_from_day_one(uuid)`; `accept_into_industry` ticks Training done at accept time with the real completion timestamp; `people_awaiting_industry` returns `day_one_done` and `day_one_done_at` and orders finished people first, with its existing scope check intact (owner sees everyone, a pillar leader only their own system through `is_in_my_system`).
+
+### Rollback proof (test rows removed)
+    user                            91246821-24e5-4b7f-9d44-fdb9934d7672
+    ticked                          true
+    day_one_done_at                 2026-04-29 18:15:28.146+00
+    stored_checked_at               2026-04-29 18:15:28.146+00
+    timestamps_match                true
+    onboarding_steps_after_cleanup  0
+
+The tick landed with the earlier completion timestamp, not the acceptance time, and the test row was deleted.
+
+Baselines after the test: profiles 536, onboarding_steps 0, rep_vertical_enrollments 45, video_progress 2039 (no writes, the test only read completions).
+
+### Function privileges
+    accept_into_industry              anon false, authenticated true
+    day_one_done_at                   anon false, authenticated true
+    people_awaiting_industry          anon false, authenticated true
+    tick_training_done_from_day_one   anon false, authenticated true
+
+### Layout
+- 390: single column, max width fills the screen with 24px side padding. Waiting copy, then the two full width 44px buttons, then the day one line, the progress card, the player and the course rows stacked. Every row is at least 48px tall.
+- 1280: the same column centred at 672px max width, player 16 by 9 inside the card, no horizontal scroll.
+
+### New copy, verbatim
+- Start day one now, so you are ready the moment you are accepted.
+- Watch these first
+- Day one done
+- Finished day one {date}
+
+No em dashes. Typecheck clean, production build clean. Not published.

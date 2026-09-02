@@ -14,7 +14,10 @@ interface WaitingPerson {
   manager_name: string | null;
   team_name: string | null;
   invited_vertical: string | null;
+  day_one_done?: boolean | null;
+  day_one_done_at?: string | null;
 }
+
 
 const INDUSTRIES = ['Pest', 'Fiber', 'Life'] as const;
 
@@ -82,10 +85,23 @@ export function AwaitingIndustryPanel() {
         <div key={r.user_id} className="rounded-lg border border-border bg-card p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground">{r.full_name || 'New person'}</p>
+              <p className="text-sm font-semibold text-foreground">
+                {r.full_name || 'New person'}
+                {r.day_one_done && (
+                  <span className="ml-2 rounded-full border border-[hsl(var(--workspace-accent)/0.4)] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--workspace-accent))]">
+                    Day one done
+                  </span>
+                )}
+              </p>
+              {r.day_one_done_at && (
+                <p className="text-xs text-muted-foreground">
+                  Finished day one {format(new Date(r.day_one_done_at), 'MMM d, yyyy')}
+                </p>
+              )}
               {r.team_name && (
                 <p className="text-xs text-muted-foreground">Pillar {r.team_name}</p>
               )}
+
               {r.manager_name && (
                 <p className="text-xs text-muted-foreground">Manager {r.manager_name}</p>
               )}
