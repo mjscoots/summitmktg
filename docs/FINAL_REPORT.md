@@ -2605,3 +2605,112 @@ the signed-in walk, which is still owed.
 - Baselines unchanged: profiles 536, chat_messages 720, calendar_events 60,
   invites 0, user_roles 4.
 - Typecheck clean, production build clean.
+
+## Pass 152b: dash cleanup regressions and the static dead surface audit
+
+### Fixes
+
+| File | What was wrong | What changed |
+| --- | --- | --- |
+| src/components/FiberPublicCalculator.tsx | Empty season earnings placeholder rendered as ", " | Now renders "-" like every other empty placeholder |
+| src/components/team/MoveRepModal.tsx | Depth indent used ', '.repeat(depth - 1), so nested reps showed leading commas | Plain left padding driven by depth (12px per level), no commas and no dashes |
+
+Files touched by the sweep for other ", " damage: none. A grep of the whole src
+tree for `', '.repeat` / `", ".repeat` and for bare ", " placeholders in ternaries,
+fallbacks and JSX text returns only the two entries above, both now fixed. The
+one remaining ", " in src/lib/sanitizeUrl.ts is the protocol allowlist
+`['http:', 'https:', 'mailto:', 'tel:']`, which is correct code and not copy.
+
+### Static dead surface audit
+
+Method: every Route in src/App.tsx, then a whole-tree grep of each path string
+against every navigation surface (src/lib/appNav.ts, AppSidebar, the phone bar,
+MorePage groups, Home and hub tiles, src/lib/adminSections.ts, in-app Links),
+then each page's tables and RPCs including one hook level deep. Row counts are
+live counts from the database at the time of this pass. Nothing was hidden or
+deleted; this is the list for the owner to decide on.
+
+Pure redirect routes (for example /app/rookie, /app/videos, /app/manage,
+/app/notepad, /app/calculators, /admin/team, /bootcamp-lock) are excluded: they
+render no page and only forward to a live route.
+
+| Route | Page file | Linked from | Role gate | Tables and RPCs read (rows today) | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| /app | DashboardPage | appNav phone bar and desktop main, AppSidebar, AppLayout | signed in | app_settings 57, bootcamp_progress 200, profiles 536, user_notifications 6348 | live |
+| /app/more | MorePage | appNav phone bar | signed in | none, nav aggregator | live |
+| /app/chat | ChatPage | appNav phone bar and desktop, AppSidebar, Home and Fiber hub tiles | signed in | chat_channels 20, chat_messages 720, chat_read_state 28 | live |
+| /app/training | TrainingPage | appNav, AppSidebar, DashboardHeader, training badge | signed in | training_courses 6, lesson_progress 3541 | live |
+| /app/training/videos | TrainingVideosPage | appNav Learn group, TrainingTiles | signed in | training_videos 97, video_progress 2039, video_bookmarks 88, video_notes 363 | live |
+| /app/training/manager-videos | ManagerTrainingVideosPage | appNav Manage group | manager+ | training_videos 97, video_progress 2039 | live |
+| /app/training/videos/:videoId | VideoPlayerPage | video library rows, Continue watching card | signed in | training_videos 97, video_progress 2039 | live |
+| /app/training/:courseSlug | TrainingCoursePage | course tiles on Training and Industries | signed in | training_modules 104, training_lessons 115, manual_read_completions 76 | live |
+| /app/training/:courseSlug/:lessonId | LessonPage | course view | signed in | training_lessons 115, lesson_progress 3541, pitch_approval_requests 65 | live |
+| /app/team | MyTeamPage | appNav Manage group, DashboardHeader, AppSidebar | manager+ | teams 7, user_roles 4, downline_edges 395 | live |
+| /app/profile | ProfilePage | appNav tail, AppSidebar | signed in | profiles 536, user_badges 3, point_events 6840 | live |
+| /app/alumni | AlumniPage | appNav Company group, alumni redirect in ProtectedRoute | signed in | profiles 536 | live |
+| /app/person/:userId | PersonProfilePage | roster and admin drill in only, no static nav entry | signed in | profiles 536, rep_vertical_enrollments 45 | live |
+| /app/leads | LeadsPage | appNav Manage group, Pest home, Home action row | manager+ | people_leads 551, lead_private_notes 95, lead_sheet_import 132 | live |
+| /app/recruits | RecruitsPage | appNav, Quick actions, funnel tracker, AppSidebar | signed in | recruit_pipeline 17, recruiting_leads 98, applications 13 | live |
+| /app/installs | InstallsPage | appNav Your work group, Fiber only | signed in | fiber_installs 0, fiber_day_numbers 0, fiber_pay_weeks 0 | live but empty everywhere |
+| /app/missions | MissionsPage | appNav Your work group, Pest home | signed in | daily_challenges 2082 through child components | live |
+| /app/pipeline | PipelinePage | appNav Your work group for Life, Life home | signed in | life_pipeline 0 | live but empty everywhere |
+| /app/money | MyMoneyPage | appNav phone bar and desktop main | signed in | rep_commission 0, rep_revenue 0, rank_stacks 80, sales_log 0 | live |
+| /app/stacks | StacksPage | appNav Your work for Fiber, MyTeam, Pest home | manager+ | carriers 13, ranks 7, rank_stacks 80, rep_carrier_ranks 0, rank_change_log 0 | live |
+| /app/scripts | ScriptsPage | appNav Learn group, Training, global search | signed in | scripts 25 | live |
+| /app/season | SeasonPage | appNav Your work for Pest, Your numbers | signed in | seasons 0, season_checklist_items 0, season_results 0 | live but empty everywhere |
+| /app/industries | IndustriesPage | appNav Learn group, Training, all three home screens | signed in | verticals 3, vertical_steps 12, vertical_step_completions 5, vertical_paths 3 | live |
+| /app/doors | DoorsPage | appNav Your work for Pest, Pest home | signed in, Pest workspace guard | playbook_entries 50, mastery_checks 0 | live |
+| /app/ask | AskSummitPage | appNav Learn group, Pest home, chat list, field pack | signed in | assistant_threads 4, assistant_messages 12, assistant_faq 12 | live |
+| /app/leaderboard | LeaderboardPage | appNav phone sheet and desktop, Pest home, Home action row | signed in | leaderboard_points 307, point_events 6840, weekly_awards 1 | live |
+| /app/links | LinksPage | appNav Learn group, Quick actions, AppSidebar | signed in | managed_links 7, phone_numbers 12 | live |
+| /app/events | EventsPage | appNav phone bar and desktop main | signed in | calendar_events 60, calendar_attendance 101, blitz_markets 30, blitz_waitlist 0 | live |
+| /app/forms | FormsPage | appNav Manage group, Quick actions, AppSidebar | manager+ | none, hub for the interview pages | live |
+| /app/interviews/1 | Interview1Page | Forms hub only | manager+ | none | reachable only from Forms, no data of its own |
+| /app/interviews/2 | Interview2Page | Forms hub only | manager+ | none | reachable only from Forms, no data of its own |
+| /app/interviews/3 | Interview3Page | Forms hub only | manager+ | profiles 536, rep_signups 8, team_notifications 20, user_roles 4 | live |
+| /app/manager-meeting | ManagerMeetingPage | appNav Manage group, meeting hub, AppSidebar | manager+ | rep_triage 0, manager_meeting_submissions 0 | live but empty everywhere |
+| /app/roster/sweep | RosterSweepPage | appNav Manage group, roster gap counters | manager+ | sweep_sessions 0, profiles 536 | live |
+| /app/one-on-ones/prep | OneOnOnePrepPage | appNav Manage group, Pest home, Your numbers | manager+ | weekly_one_on_ones_manager 15, weekly_one_on_ones_rookie 37, user_priority_tasks 102 | live |
+| /app/pitch-approvals | PitchApprovalsPage | appNav Manage group, Quick actions, Command header | manager+ | pitch_approval_requests 65, training_lessons 115 | live |
+| /app/war-room | WarRoomPage | appNav Manage group, Quick actions, Home action row | signed in, manager content | profiles 536, teams 7, downline_edges 395 | live |
+| /app/logistics | RepLogisticsPage | appNav Manage group, Links, AppSidebar | manager+ | rep_logistics 0, rep_housing 0, car_groups 0, car_group_members 0 | live but empty everywhere |
+| /app/estimate-earnings | EstimateEarningsPage | appNav Learn group for Pest, Links, earnings widget, AppSidebar | signed in | profiles 536, public_pay_scales 1 | live |
+| /command | CommandCenterPage | appNav Company group | Pillar and Owner | profiles 536, applications 13, audit_log 676 | live |
+| /admin/people | AdminTeamPage people | adminSections tab bar, Owner week, Owner numbers | Pillar and Owner | profiles 536, teams 7, user_roles 4, bootcamp_progress 200 | live |
+| /admin/requests | AdminTeamPage requests | adminSections, appNav Company group, AppSidebar, Your numbers | Pillar and Owner | applications 13, vertical_applications 0, scheduling_requests 8, app_feedback 0 | live |
+| /admin/money | AdminTeamPage money | adminSections, My money, Owner week | Pillar and Owner | rank_stacks 80, rank_change_log 0, rep_commission 0 | live |
+| /admin/content | AdminTeamPage content | adminSections tab bar only | Pillar and Owner | training_lessons 115, training_videos 97, scripts 25, assistant_faq 12 | live |
+| /admin/settings | AdminTeamPage settings | adminSections, Season page | Pillar and Owner | app_settings 57, verticals 3, carriers 13 | live |
+| /recruit-course | RecruitCoursePage | onboarding redirects only from BootcampGate, Invite and Pillar landings | signed in | video_progress 2039 | reachable only by URL, no standing nav entry |
+| /summer-checklist | BootcampLock | BootcampGate redirect, first week card | signed in | bootcamp_progress 200 | reachable only by URL, gated flow |
+| /momentum | BootcampMomentum | phase cross links | signed in | bootcamp_progress 200 | reachable only by URL, gated flow |
+| /phase-1, /phase-2, /phase-3 | BootcampPhase1 to 3 | phase cross links | signed in | bootcamp_progress 200 | reachable only by URL, gated flow |
+
+Public entry points (/, /recruiting, /ticket, /parents, /industries/:slug, /join,
+/invite/:token, /p/:token, /apply/rookie, /apply/veteran, /apply/success, /login,
+/pending-approval, /reset-password) sit outside the in-app nav model on purpose.
+They are reached from external links, QR codes and emails, and all render real
+content, so none are dead. Note that invites 0 and pillar_links 0 today, so both
+token landings show their empty state until a link is created.
+
+Owner decisions still open, listed for the record and not acted on:
+- Six routes read tables that are empty across the whole database today:
+  /app/installs, /app/pipeline, /app/season, /app/manager-meeting,
+  /app/logistics and the stacks change log lane. They work, they just have
+  nothing in them yet.
+- Interview1Page and Interview2Page hold no data of their own and are reachable
+  only as tabs inside Forms.
+- /recruit-course and the bootcamp phase pages have no standing nav entry and are
+  only reached by onboarding redirects.
+
+Also observed and left alone because it is outside this pass: VerticalRouteGuard
+lists six workspace owned prefixes but only /app/doors is wrapped in it, so the
+other five stay reachable cross workspace by direct URL.
+
+### Verify
+
+- Both placeholders read back fixed, no comma placeholders remain in src.
+- Grep proof: no `', '.repeat` or `", ".repeat` anywhere in src, and no bare
+  ", " placeholder in a ternary, fallback or JSX text node.
+- Baselines unchanged: profiles 536, chat_messages 720, user_roles 4.
+- No data writes, nothing hidden, nothing deleted, not published.
