@@ -2714,3 +2714,36 @@ other five stay reachable cross workspace by direct URL.
   ", " placeholder in a ternary, fallback or JSX text node.
 - Baselines unchanged: profiles 536, chat_messages 720, user_roles 4.
 - No data writes, nothing hidden, nothing deleted, not published.
+
+## Pass 153 - three doors on the public front
+
+Scope: public cover (/) and /recruiting gain a three-door section. No publishing, no data writes.
+
+Data access (hold 1: nothing else widened)
+- Migration: `REVOKE SELECT ON public.verticals FROM anon;` then `GRANT SELECT (name, short_name, slug, status, theme) ON public.verticals TO anon;`
+- Existing RLS row policy `public verticals readable by anon` (`public = true`) untouched. `authenticated` full-table SELECT and owner/Pillar write policies untouched.
+- Proof (anon key, REST):
+  - `select=name,short_name,slug,status` returns Summit Pest (active), Summit Fiber (active), Summit Life (coming_soon).
+  - `select=president_user_id` returns 42501 permission denied.
+  - `select=*` returns 42501 permission denied.
+- Component reads only the five granted columns.
+
+Tiles
+- `src/components/recruiting/ThreeDoorSection.tsx`. Structure, order, status and accent come from the catalog; accent applied as the card top rule and CTA border (Pest blue, Fiber gold, Life teal).
+- Card shape matches the in-app hub tile: `rounded-xl border border-border bg-card p-5 sm:p-6`. Stacked at 390px, three across at 1280px. All links and CTAs are 44px or taller.
+- Copy, taken from existing public industry descriptions, no money and no counts:
+  - Summit Pest: "Door to door pest control. The summer product. You close, you get paid on what you close."
+  - Summit Fiber: "Door to door fiber internet. The winter product. Paid per install."
+  - Summit Life: "Life insurance. The career product for reps who want off the doors. Requires a state license to sell."
+
+Links and preselection
+- Industry names link to `/industries/pest`, `/industries/fiber`, `/industries/life`.
+- Pest and Fiber CTAs read "Apply" and go to `/apply/rookie?vertical=Pest` / `?vertical=Fiber`. Life carries a "Coming soon" chip and a "Tell me when" CTA to `/apply/rookie?vertical=Life`. `useApplicationSource` preselects the required industry question from that parameter.
+
+Life page (hold 2)
+- `/industries/life` no longer redirects home. It is a short coming soon page: eyebrow, title, the description above, one line stating the path is still being set up, and the "Tell me when" CTA. No numbers, no pay, no counts, no em dashes.
+
+Verification
+- COVER_STATS stays false; no proof strip or ticker on the cover.
+- 390px and 1280px checks captured for `/` and `/industries/life`. Public console output shows only pre-existing React dev ref warnings, no errors.
+- Typecheck clean. Baselines unchanged: applications 13, profiles 536.
