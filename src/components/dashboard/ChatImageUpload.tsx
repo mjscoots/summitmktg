@@ -162,7 +162,6 @@ export function ChatImage({ url }: { url: string }) {
         alt="Shared image"
         className="max-w-[300px] max-h-[250px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity object-cover"
         onClick={() => setExpanded(true)}
-        loading="lazy"
       />
       {expanded && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black/90 p-4" onClick={close}>
