@@ -14,10 +14,10 @@ import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatc
 import RootOverlays from "@/components/layout/RootOverlays";
 
 // Every route-level page is loaded on demand so the first paint ships only the
-// shell. AuthPage and NotFound stay eager: they are tiny and must render without
-// a second request when a session is missing or a URL is wrong.
-import AuthPage from "./pages/app/AuthPage";
-import NotFound from "./pages/NotFound";
+// shell. Pass 159: the login page and the not found page load on demand too, so
+// the cover never pays for the overlay libraries they pull in.
+const AuthPage = lazyRoute(() => import("./pages/app/AuthPage"));
+const NotFound = lazyRoute(() => import("./pages/NotFound"));
 
 const Index = lazyRoute(() => import("./pages/Index"));
 const IndustryPage = lazyRoute(() => import("./pages/IndustryPage"));
