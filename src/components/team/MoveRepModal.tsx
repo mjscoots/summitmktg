@@ -160,7 +160,9 @@ export function MoveRepModal({ open, onClose, repUserId, repName, currentManager
                 <SelectContent>
                   {subManagers.map((m) => (
                     <SelectItem key={m.user_id} value={m.user_id}>
-                      {', '.repeat(m.depth - 1)} {m.full_name}
+                      <span style={{ paddingLeft: `${Math.max(0, m.depth - 1) * 12}px` }}>
+                        {m.full_name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
