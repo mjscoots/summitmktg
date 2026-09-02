@@ -32,6 +32,7 @@ import OnboardingProgressCard from '@/components/onboarding/OnboardingProgressCa
 import { GoalInterviewCard } from '@/components/home/GoalInterviewCard';
 import { FiberStartCard } from '@/components/workspace/FiberStartCard';
 import { HomeGreeting } from '@/components/home/HomeGreeting';
+import { TodayRow } from '@/components/home/TodayRow';
 import { DarkRepRadar } from '@/components/team/DarkRepRadar';
 
 function greeting(): string {
@@ -138,6 +139,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:space-y-10">
+      <TodayRow />
       <OnboardingAlert />
 
       <div className="space-y-8 sm:space-y-10">
