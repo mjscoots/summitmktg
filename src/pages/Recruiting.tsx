@@ -5,6 +5,8 @@ import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
+import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
+
 import EarningsCalculator from "@/components/EarningsCalculator";
 import { setPageMeta } from "@/lib/pageMeta";
 
