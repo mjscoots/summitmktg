@@ -32,7 +32,6 @@ export default defineConfig(({ mode }) => ({
               return "vendor-forms";
             if (id.includes("date-fns") || id.includes("react-day-picker")) return "vendor-dates";
             if (id.includes("@vimeo/player")) return "vendor-video";
-            if (id.includes("lucide-react")) return "vendor-icons";
             if (id.includes("canvas-confetti")) return "vendor-confetti";
             // The tiny radix primitives are shared by every button, so they
             // travel with the utilities instead of the overlay libraries.
