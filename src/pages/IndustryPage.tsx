@@ -50,7 +50,46 @@ export default function IndustryPage() {
     })();
   }, [vertical, slug]);
 
-  if (isLife) return <Navigate to="/" replace />;
+  if (isLife) {
+    return (
+      <div className="gold-world public-dots min-h-screen bg-background flex flex-col">
+        <header className="sticky top-0 z-30 border-b border-border bg-background/[0.88] backdrop-blur">
+          <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
+            <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
+              <Wordmark variant="compact" height={34} />
+            </Link>
+            <button
+              onClick={() => navigate('/login')}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-strong px-4 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
+            >
+              <LogIn className="w-4 h-4" /> Sign in
+            </button>
+          </nav>
+        </header>
+        <main className="relative z-10 mx-auto w-full max-w-2xl flex-1 px-5 pb-20 pt-8 sm:px-6">
+          <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
+            <ArrowLeft className="w-4 h-4" /> Back home
+          </Link>
+          <p className="micro-label text-primary">Coming soon</p>
+          <h1 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Summit Life</h1>
+          <p className="mt-4 text-base text-muted-foreground">
+            Life insurance. The career product for reps who want off the doors. Requires a state
+            license to sell.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            This path is still being set up. Leave your details and we will reach out when it opens.
+          </p>
+          <Link
+            to="/apply/rookie?vertical=Life"
+            className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Tell me when <ArrowRight className="w-4 h-4" />
+          </Link>
+        </main>
+      </div>
+    );
+  }
+
 
   if (!vertical) {
     return (
