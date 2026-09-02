@@ -184,7 +184,7 @@ export default function IndustryPage() {
                     <div key={idx} className={CARD}>
                       <div className="flex items-center gap-3">
                         {l.avatar_url ? (
-                          <img src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
+                          <img loading="lazy" decoding="async" width={44} height={44} src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                         ) : (
                           <div className="h-11 w-11 rounded-full border border-border-strong" />
                         )}

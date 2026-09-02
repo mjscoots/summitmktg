@@ -108,7 +108,7 @@ export function TeamsTab({ managerName }: { managerName: string }) {
           <button key={team.id} onClick={() => setSelectedPillar(team.slug)} className="w-full flex items-center gap-4 px-4 py-4 bg-card rounded-xl border border-border/50 hover:border-primary/40 transition-all text-left group">
             {team.logo_url ? (
               <div className="w-12 h-12 rounded-xl border border-border/30 overflow-hidden bg-muted/30 flex-shrink-0">
-                <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
               </div>
             ) : (
               <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", tc.bgTint)}>

@@ -336,7 +336,7 @@ export function MemberProfileModal({
               isNLC ? "bg-muted border-muted-foreground/20" : cn(teamColor.bgTint, "border-current/10")
             )} style={!isNLC ? { borderColor: `hsl(${teamColor.hsl} / 0.3)` } : undefined}>
               {avatarUrl ? (
-                <img src={avatarUrl} alt={member.full_name} className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={avatarUrl} alt={member.full_name} className="w-full h-full object-cover" />
               ) : (
                 <User className={cn("w-10 h-10", isNLC ? "text-muted-foreground" : teamColor.text)} />
               )}

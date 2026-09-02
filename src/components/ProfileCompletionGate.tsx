@@ -1,5 +1,11 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { format } from 'date-fns';
+
+/** Pass 157 - local yyyy-MM-dd without pulling the date library into the shell. */
+function todayKey(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,7 +50,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
       setChecking(false);
     })();
 
-    const today = format(new Date(), 'yyyy-MM-dd');
+    const today = todayKey();
     if (localStorage.getItem(`profile_gate_skipped_${user.id}_${today}`) === 'true') {
       setSkipped(true);
     }
@@ -70,7 +76,7 @@ export function ProfileCompletionGate({ children }: ProfileCompletionGateProps) 
       onDone={() => setComplete(true)}
       onSkipAll={() => {
         if (user) {
-          const today = format(new Date(), 'yyyy-MM-dd');
+          const today = todayKey();
           localStorage.setItem(`profile_gate_skipped_${user.id}_${today}`, 'true');
         }
         setSkipped(true);

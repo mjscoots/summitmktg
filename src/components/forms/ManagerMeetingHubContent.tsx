@@ -142,7 +142,7 @@ export default function ManagerMeetingHubContent() {
               return (
                 <div key={m.user_id} className="px-5 sm:px-6 py-3.5 flex items-center gap-4">
                   <div className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.06] overflow-hidden flex-shrink-0">
-                    {m.avatar_url && <img src={m.avatar_url} alt="" className="w-full h-full object-cover" />}
+                    {m.avatar_url && <img loading="lazy" decoding="async" src={m.avatar_url} alt="" className="w-full h-full object-cover" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground truncate">{m.full_name || m.nickname || 'Unnamed'}</div>

@@ -1,7 +1,4 @@
-import { useEffect, Suspense } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionForTab } from "@/lib/adminSections";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -12,7 +9,6 @@ import { VerticalRouteGuard } from '@/components/workspace/VerticalRouteGuard';
 import { WorkspaceThemeProvider } from "@/components/workspace/WorkspaceThemeProvider";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { toast } from "sonner";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatch } from "@/lib/lazyRoute";
 
@@ -143,7 +139,10 @@ function LazyFallback() {
        // Don't show toast for auth refresh errors (expected on stale sessions)
        const msg = String(event.reason?.message || event.reason || "");
        if (!msg.includes("Refresh Token") && !msg.includes("JWT")) {
-         toast.error("That screen failed to load. Refresh the page to try again.");
+         // Pass 157 - sonner loads with the toast, not with the shell.
+         void import("sonner").then(({ toast }) =>
+           toast.error("That screen failed to load. Refresh the page to try again.")
+         );
        }
        event.preventDefault();
      };
@@ -162,9 +161,9 @@ function LazyFallback() {
    }, []);
 
    return (
-     <TooltipProvider>
-       <Toaster />
-       <Sonner />
+     <>
+       <DeferredOverlays />
+
         <BrowserRouter>
           <ScrollToTop />
           <Suspense fallback={<LazyFallback />}>
@@ -601,7 +600,7 @@ function LazyFallback() {
            </WorkspaceProvider>
          </Suspense>
        </BrowserRouter>
-     </TooltipProvider>
+     </>
    );
  }
 
@@ -616,3 +615,27 @@ function LazyFallback() {
 );
 
 export default App;
+
+
+/** Pass 157 - mounts the toast layers once the first screen has painted. */
+const RootOverlays = lazy(() => import("@/components/layout/RootOverlays"));
+
+function DeferredOverlays() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
+      .requestIdleCallback;
+    if (idle) {
+      idle(() => setReady(true));
+      return;
+    }
+    const t = window.setTimeout(() => setReady(true), 400);
+    return () => window.clearTimeout(t);
+  }, []);
+  if (!ready) return null;
+  return (
+    <Suspense fallback={null}>
+      <RootOverlays />
+    </Suspense>
+  );
+}

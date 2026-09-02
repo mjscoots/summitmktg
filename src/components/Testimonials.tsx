@@ -77,7 +77,7 @@ const Testimonials = ({
               "{testimonial.quote}"
             </p>
             <div className="flex items-center gap-3">
-              {testimonial.image ? <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              {testimonial.image ? <img loading="lazy" decoding="async" width={40} height={40} src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-sm font-medium text-primary">
                     {testimonial.name.charAt(0)}
                   </span>

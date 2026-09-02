@@ -308,7 +308,7 @@ export default function PersonProfilePage() {
       <Card className="p-4">
         <div className="flex items-center gap-3">
           {h.avatar_url ? (
-            <img src={h.avatar_url} alt={h.full_name || 'Profile photo'} className="h-14 w-14 rounded-full object-cover" />
+            <img loading="lazy" decoding="async" width={56} height={56} src={h.avatar_url} alt={h.full_name || 'Profile photo'} className="h-14 w-14 rounded-full object-cover" />
           ) : (
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-[15px] font-semibold">
               {(h.full_name || '?').slice(0, 1)}

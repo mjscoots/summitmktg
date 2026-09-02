@@ -104,7 +104,7 @@ export function TrainingDataPanel({
       {/* Header */}
       <div className="flex items-center gap-3">
         {rep.avatar_url ? (
-          <img src={rep.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover" />
+          <img loading="lazy" decoding="async" width={40} height={40} src={rep.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover" />
         ) : (
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
             {rep.full_name.charAt(0)}

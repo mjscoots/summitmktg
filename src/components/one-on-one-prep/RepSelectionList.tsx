@@ -387,7 +387,7 @@ function AddRepDialog({
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-colors text-left"
             >
               {p.avatar_url ? (
-                <img src={p.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+                <img loading="lazy" decoding="async" width={28} height={28} src={p.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                   {p.full_name?.charAt(0)}

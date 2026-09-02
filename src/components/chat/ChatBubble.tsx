@@ -211,7 +211,7 @@ export function ChatBubble({
     }
     if (isStickerMessage(message.content)) {
       const sticker = getStickerFromMessage(message.content);
-      return sticker ? <img src={sticker.src} alt={sticker.label} className="w-24 h-24 object-contain" /> : null;
+      return sticker ? <img loading="lazy" decoding="async" width={96} height={96} src={sticker.src} alt={sticker.label} className="w-24 h-24 object-contain" /> : null;
     }
     if (isGifMessage(message.content)) {
       const gifUrl = getGifUrl(message.content);

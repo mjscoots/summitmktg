@@ -397,7 +397,7 @@ export function LeaderboardImportPanel() {
         {previews.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {previews.map((p, i) => (
-              <img key={i} src={p} alt={`Screenshot ${i + 1}`} className="h-16 w-16 rounded-lg object-cover" />
+              <img loading="lazy" decoding="async" width={64} height={64} key={i} src={p} alt={`Screenshot ${i + 1}`} className="h-16 w-16 rounded-lg object-cover" />
             ))}
           </div>
         )}
@@ -472,7 +472,7 @@ export function LeaderboardImportPanel() {
                 <div className="flex gap-1.5">
                   {b.images.slice(0, 4).map((im) =>
                     thumbs[im.storage_path] ? (
-                      <img
+                      <img loading="lazy" decoding="async" width={48} height={48}
                         key={im.storage_path}
                         src={thumbs[im.storage_path]}
                         alt="Imported leaderboard screenshot"
