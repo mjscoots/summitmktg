@@ -8411,6 +8411,7 @@ export type Database = {
         }
         Returns: string
       }
+      manager_day: { Args: { _vertical?: string }; Returns: Json }
       manager_owed: { Args: { _manager?: string }; Returns: Json }
       manager_stack_board: {
         Args: { _carrier_id: string; _manager?: string; _vertical?: string }
