@@ -3032,3 +3032,88 @@ No em dashes anywhere in the pass.
 
 ### Build
 Typecheck clean, production build clean. Baselines unchanged: profiles 536, chat_messages 720.
+
+---
+
+## Pass 159 - second sweep and publish readiness
+
+### Session
+No signed in session could be minted (auth status signed_out; the session mint
+command was rejected). Every authenticated screen was checked statically from
+the route table, the RPC privileges and the RLS policies. Public routes and the
+shell were checked live in the browser at 390 and 1280 against the production
+build.
+
+### Screens checked live (production build, console)
+| Screen | 390 errors | 1280 errors |
+| --- | --- | --- |
+| / (cover) | 0 | 0 |
+| /login | 0 | 0 |
+| /app (redirects to /login without a session) | 0 | 0 |
+| /industries/pest | 0 | 0 |
+| /industries/life | 0 | 0 |
+
+Dev server only: React prints a "function components cannot be given refs"
+warning from the dev tagging plugin. It does not exist in the production build,
+so the console is clean where users are.
+
+### The six known items
+| Item | State | Files |
+| --- | --- | --- |
+| (a) wrong-workspace page mounted and fetched before the guard redirected | Fixed | src/App.tsx (VerticalRouteGuard moved to the route level for installs, stacks, fiber/ladder, pipeline, doors, season, estimate-earnings) |
+| (b) a course or lesson opened by slug from the wrong industry | Fixed | src/lib/courseScope.ts, src/components/workspace/OtherWorkspaceNotice.tsx, src/pages/app/TrainingCoursePage.tsx, src/pages/app/LessonPage.tsx. learn-your-pitch stays readable from Fiber as the bridge |
+| (c) a toast fired during first paint was lost | Fixed | src/App.tsx mounts RootOverlays eagerly; vite.config.ts gives the toast layers their own small chunk. Proof: the toast viewport node exists at domcontentloaded and vendor-toast loads with the shell |
+| (d) em dashes in user-facing strings | Fixed | 0 matches in src |
+| (e) the word admin in user-facing strings | Fixed | src/components/money/MyRevenueMonths.tsx ("Entered by a Pillar"), src/pages/app/FormsPage.tsx ("Hawx portal"). Code identifiers untouched |
+| (f) console clean on load | Fixed | table above; production build clean on every public route |
+
+### Shell budget kept
+Mounting the toast layers eagerly first pushed the shell to 246.4 KB gzip. Fixed
+by chunking: toast in its own chunk, the shared radix helpers in vendor-utils,
+the login page, the not found page and the three gate screens (locked out,
+awaiting industry, bootcamp) load on demand.
+
+| Shell asset | gzip |
+| --- | --- |
+| index | 15.8 KB |
+| vendor-react | 53.3 KB |
+| vendor-supabase | 44.6 KB |
+| vendor-utils | 13.8 KB |
+| vendor-icons | 13.8 KB |
+| app-lib | 15.6 KB |
+| vendor-toast | 12.9 KB |
+| index.css | 29.3 KB |
+| Total | 195.1 KB (budget 220 KB) |
+
+### Readiness checklist
+Migrations: 395 files, 394 recorded rows. The single difference is one file whose
+name carries a one second later timestamp than its recorded row
+(20260122225936 on disk, 20260122225935 recorded); its effect is live
+(validate_and_record_quiz exists, security definer). Nothing is unapplied.
+
+Functions from passes 152 to 158, anon execute:
+false for accept_into_industry, badges_for, blitz_cap_state, dark_rep_radar,
+day_one_done, day_one_done_at, day_one_video_ids, fiber_ladder, identity_chips,
+manager_day, onboarding_state, people_awaiting_industry, set_onboarding_step.
+notify_stalled_applications and tick_training_done_from_day_one are false for
+anon and false for authenticated (cron and definer callers only).
+Deliberate anon set only: get_public_counters, invite_lookup, redeem_invite,
+pillar_link_lookup.
+
+RLS on tables created since 152 and their policy counts: fiber_rules on (2),
+invites on (4), pillar_links on (1), placement_log on (1), onboarding_steps on
+(1), blitz_waitlist on (3), push_subscriptions on (1), rep_carrier_ranks on (3),
+rank_change_log on (1).
+
+Storage: fiber-docs public false. Every bucket except avatars is private.
+
+COVER_STATS false. public/sw.js has push and notificationclick handlers only, no
+fetch handler, no caching.
+
+Baselines match: profiles 536, chat_messages 720, calendar_events 60,
+user_roles 4, onboarding_steps 0, invites 0.
+
+### Build
+Typecheck clean. Production build clean. No data writes. Not published.
+
+Safe to publish
