@@ -163,7 +163,7 @@ function LazyFallback() {
 
    return (
      <>
-       <DeferredOverlays />
+       <RootOverlays />
 
         <BrowserRouter>
           <ScrollToTop />
