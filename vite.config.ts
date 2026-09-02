@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
             // The tiny radix primitives are shared by every button, so they
             // travel with the utilities instead of the overlay libraries.
             if (
-              /@radix-ui[\\/]react-(slot|primitive|compose-refs|context|use-|presence|id)/.test(id)
+              /@radix-ui[\\/]react-(slot|primitive|compose-refs|context|use-|presence|id|portal|dismissable-layer|visually-hidden|collection|focus-guards|focus-scope)/.test(id)
             )
               return "vendor-utils";
             // Pass 159 - the toast layers mount in the shell so a toast fired
