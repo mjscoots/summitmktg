@@ -113,7 +113,7 @@ export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolea
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {(['all', 'active', 'inactive'] as const).map((f) => (
+        {([...(stuckIds.length > 0 ? (['stuck'] as const) : []), 'all', 'active', 'inactive'] as const).map((f) => (
           <button
             key={f}
             type="button"
@@ -124,10 +124,17 @@ export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolea
                 : 'min-h-11 rounded-full border border-white/[0.08] px-4 text-[13px] text-muted-foreground'
             }
           >
-            {f === 'all' ? 'Everyone' : f === 'active' ? 'Active' : 'Inactive'}
+            {f === 'stuck'
+              ? 'Stuck 7 days or more'
+              : f === 'all'
+                ? 'Everyone'
+                : f === 'active'
+                  ? 'Active'
+                  : 'Inactive'}
           </button>
         ))}
       </div>
+
 
       {loading ? (
         <Loader2 className="mt-4 h-4 w-4 animate-spin text-muted-foreground" />
