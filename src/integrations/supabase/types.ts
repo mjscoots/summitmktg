@@ -2095,6 +2095,36 @@ export type Database = {
         }
         Relationships: []
       }
+      fiber_rules: {
+        Row: {
+          body: string
+          created_at: string
+          key: string
+          leader_only: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          key: string
+          leader_only?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          key?: string
+          leader_only?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       home_question_answers: {
         Row: {
           answer: string | null
@@ -7501,6 +7531,7 @@ export type Database = {
       expand_event_series: { Args: { p_weeks?: number }; Returns: number }
       expire_stale_scheduling_requests: { Args: never; Returns: number }
       fiber_installs_total: { Args: { _user: string }; Returns: number }
+      fiber_ladder: { Args: never; Returns: Json }
       fiber_producing_reps: {
         Args: { _leader: string; _vertical: string }
         Returns: number
