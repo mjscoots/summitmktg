@@ -385,6 +385,13 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Fiber pay ladder - Fiber workspace only */}
+              <Route path="/app/fiber/ladder" element={
+                <ProtectedRoute>
+                    <FiberLadderPage />
+                </ProtectedRoute>
+              } />
+
 
 
               {/* Scripts library - openers, objections, closes */}
