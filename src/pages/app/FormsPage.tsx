@@ -79,7 +79,7 @@ export default function FormsPage() {
               rel="noopener noreferrer"
               className="hidden min-h-11 items-center gap-2 rounded border border-border px-4 text-sm font-medium text-muted-foreground hover:text-foreground sm:flex"
             >
-              <span>Hawx admin</span>
+              <span>Hawx portal</span>
               <ExternalLink className="h-4 w-4" />
             </a>
           }
