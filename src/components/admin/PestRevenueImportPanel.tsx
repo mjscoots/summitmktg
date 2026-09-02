@@ -53,7 +53,7 @@ export function PestRevenueImportPanel({ onIngested }: { onIngested?: () => void
       rows.push({ name, user_id: matchName(name, reps)?.user_id ?? null, revenue: toNum(revenue) });
     }
     if (rows.length === 0) {
-      toast.error('Nothing to read — one row per rep: name, serviced revenue');
+      toast.error('Nothing to read - one row per rep: name, serviced revenue');
       return;
     }
     setReview(rows);
@@ -187,12 +187,12 @@ export function PestRevenueImportPanel({ onIngested }: { onIngested?: () => void
                   <option value="">Not matched</option>
                   {reps.map((p) => (
                     <option key={p.user_id} value={p.user_id}>
-                      {p.full_name || '—'}
+                      {p.full_name || '-'}
                     </option>
                   ))}
                 </select>
                 <span className="ml-auto tabular-nums text-foreground">
-                  {r.revenue !== null ? formatCurrency(r.revenue) : '—'}
+                  {r.revenue !== null ? formatCurrency(r.revenue) : '-'}
                 </span>
               </div>
             ))}

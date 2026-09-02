@@ -21,7 +21,7 @@ const PendingApproval = () => {
     }
   }, [isLoading, isAuthenticated, profile, role, navigate]);
 
-  // Live approval status — poll so the page reflects reality without a reload
+  // Live approval status - poll so the page reflects reality without a reload
   useEffect(() => {
     if (!user?.id) return;
     let cancelled = false;

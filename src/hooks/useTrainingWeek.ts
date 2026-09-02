@@ -18,7 +18,7 @@ function mondayDate(): Date {
 }
 
 /**
- * Pass 101 — the shape of the rep's training week. Real numbers only:
+ * Pass 101 - the shape of the rep's training week. Real numbers only:
  * minutes logged, days trained out of days elapsed, and the login streak.
  */
 export function useTrainingWeek(): TrainingWeek {

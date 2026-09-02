@@ -32,7 +32,7 @@ export function MiniWeekChart({ days, totalMinutes, className }: MiniWeekChartPr
                   day.minutes > 0 ? "bg-primary" : "bg-muted-foreground/20"
                 )}
                 style={{ height: day.minutes > 0 ? `${(pct / 100) * 16}px` : '3px' }}
-                title={`${DAY_LABELS[i]}: ${day.minutes > 0 ? formatTimeMinutes(day.minutes) : '—'}`}
+                title={`${DAY_LABELS[i]}: ${day.minutes > 0 ? formatTimeMinutes(day.minutes) : '-'}`}
               />
             </div>
           );

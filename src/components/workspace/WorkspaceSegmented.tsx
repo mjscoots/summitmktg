@@ -12,10 +12,10 @@ const ACCENT: Record<string, string> = {
 };
 
 /**
- * Pass 76 — the workspace switch as a segmented control. One row, one tap,
+ * Pass 76 - the workspace switch as a segmented control. One row, one tap,
  * the active workspace in its own accent.
  *
- * Pass 149 — the row lists only the industries the person has been accepted
+ * Pass 149 - the row lists only the industries the person has been accepted
  * into. The rest stay as quiet locked rows that open a request, so nothing
  * opens without the owner's approval and a person in one industry sees no
  * switch at all.

@@ -115,7 +115,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
         user_id: request.user_id,
         title: `${profile?.full_name || 'Manager'} approved your ${request.lesson_title} pitch`,
         message: feedback
-          ? `"${feedback}" — You can now continue to the next module.`
+          ? `"${feedback}" - You can now continue to the next module.`
           : 'You can now continue to the next module.',
         link: '/app/training',
       });
@@ -188,7 +188,7 @@ export function PitchReviewModal({ request, open, onClose, onAction }: PitchRevi
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-lg">
-            Pitch Review — {request.user_name}
+            Pitch Review - {request.user_name}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
             {request.lesson_title} • Attempt #{request.attempt_number} •{' '}

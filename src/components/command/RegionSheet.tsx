@@ -154,13 +154,13 @@ export default function RegionSheet() {
       );
     }
     out.push('', 'By office:');
-    (sheet?.funnel_by_office ?? []).forEach(l => out.push(line(l, l.label || '—')));
+    (sheet?.funnel_by_office ?? []).forEach(l => out.push(line(l, l.label || '-')));
     out.push('', 'By leader:');
-    (sheet?.funnel_by_leader ?? []).forEach(l => out.push(line(l, l.label || '—')));
+    (sheet?.funnel_by_leader ?? []).forEach(l => out.push(line(l, l.label || '-')));
     out.push('', 'Production for every name:');
     rows.forEach(r => {
       out.push(
-        `${blank(r.full_name) || '—'} · ${r.archived ? 'departed' : 'still here'} · revenue ${
+        `${blank(r.full_name) || '-'} · ${r.archived ? 'departed' : 'still here'} · revenue ${
           r.revenue_total ? money(r.revenue_total) : 'no data yet'
         } · months ${r.months_active ?? 0} · last revenue month ${blank(r.last_revenue_month) || 'no data yet'}`
       );
@@ -313,21 +313,21 @@ export default function RegionSheet() {
           {sheet.totals.by_office.length === 0
             ? <Empty />
             : sheet.totals.by_office.map(b => (
-                <Line key={b.label || 'blank'} label={b.label || '—'} value={b.count} />
+                <Line key={b.label || 'blank'} label={b.label || '-'} value={b.count} />
               ))}
         </Panel>
         <Panel title="By vertical">
           {sheet.totals.by_vertical.length === 0
             ? <Empty />
             : sheet.totals.by_vertical.map(b => (
-                <Line key={b.label || 'blank'} label={b.label || '—'} value={b.count} />
+                <Line key={b.label || 'blank'} label={b.label || '-'} value={b.count} />
               ))}
         </Panel>
         <Panel title="By rep year">
           {sheet.totals.by_rep_year.length === 0
             ? <Empty />
             : sheet.totals.by_rep_year.map(b => (
-                <Line key={b.label || 'blank'} label={b.label || '—'} value={b.count} />
+                <Line key={b.label || 'blank'} label={b.label || '-'} value={b.count} />
               ))}
         </Panel>
       </div>
@@ -403,7 +403,7 @@ export default function RegionSheet() {
                   {r.archived ? 'Departed' : blank(r.status_detail) || blank(r.status)}
                 </td>
                 <td>{blank(r.last_day_worked)}</td>
-                <td>{r.revenue_total ? money(r.revenue_total) : '—'}</td>
+                <td>{r.revenue_total ? money(r.revenue_total) : '-'}</td>
                 <td>{r.months_active ?? 0}</td>
                 <td>{blank(r.last_revenue_month)}</td>
                 <td>{money(r.revenue_to_date)}</td>
@@ -459,7 +459,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 }
 
 function Empty() {
-  return <div style={{ color: COLORS.textMuted, fontSize: 12 }}>—</div>;
+  return <div style={{ color: COLORS.textMuted, fontSize: 12 }}>-</div>;
 }
 
 function FunnelTable({ lines }: { lines: FunnelLine[] }) {
@@ -484,7 +484,7 @@ function FunnelTable({ lines }: { lines: FunnelLine[] }) {
         <tbody>
           {lines.map(l => (
             <tr key={l.label || 'blank'}>
-              <td style={{ fontWeight: 500 }}>{l.label || '—'}</td>
+              <td style={{ fontWeight: 500 }}>{l.label || '-'}</td>
               <td>{l.recruited}</td>
               <td>{l.showed_up}</td>
               <td>{l.still_here}</td>

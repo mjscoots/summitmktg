@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { forwardRef, memo } from "react";
 
 // Path data copied verbatim from hero-v3.svg and compact-v3.svg. Do not redraw.
 const SUMMIT_D =
@@ -73,20 +73,23 @@ interface WordmarkProps {
 }
 
 /**
- * Pass 76 — logo V3. SUMMIT is pure white (currentColor); "trinity" is filled
+ * Pass 76 - logo V3. SUMMIT is pure white (currentColor); "trinity" is filled
  * with the workspace accent and carries a bright white outline over a
  * page-colour knockout. No glow, no gradient, no peaks.
  *
  * compactPlain drops the outline: below 36px the outline gets muddy.
  * heroMono is the all-white login lockup.
  */
-const WordmarkBase = ({ variant = "hero", height = 32, className }: WordmarkProps) => {
+const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkBase(
+  { variant = "hero", height = 32, className },
+  ref
+) {
   const renderedHeight = Math.max(height, 12);
 
   if (variant === "mark") {
     const size = renderedHeight;
     return (
-      <svg role="img" aria-label="Summit" viewBox="0 0 256 256" width={size} height={size} className={className} style={{ display: "block" }}>
+      <svg ref={ref} role="img" aria-label="Summit" viewBox="0 0 256 256" width={size} height={size} className={className} style={{ display: "block" }}>
         <title>Summit</title>
         <path d={MARK_D} fill="currentColor" />
       </svg>
@@ -101,6 +104,7 @@ const WordmarkBase = ({ variant = "hero", height = 32, className }: WordmarkProp
 
   return (
     <svg
+      ref={ref}
       role="img"
       aria-label="Summit Trinity"
       viewBox={geo.viewBox}
@@ -132,7 +136,7 @@ const WordmarkBase = ({ variant = "hero", height = 32, className }: WordmarkProp
       <path d={geo.trinity} fill={mono ? "#0B0D12" : "var(--wordmark-accent, #5AD1FF)"} />
     </svg>
   );
-};
+});
 
 export const Wordmark = memo(WordmarkBase);
 export default Wordmark;

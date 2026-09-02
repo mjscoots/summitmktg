@@ -123,7 +123,7 @@ function Column({
   );
 }
 
-/** Live rep triage board — managers+ only. Persisted to rep_triage. */
+/** Live rep triage board - managers+ only. Persisted to rep_triage. */
 export function TriageBoard() {
   const { user } = useAuth();
   const [reps, setReps] = useState<Rep[]>([]);

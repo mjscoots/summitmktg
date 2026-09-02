@@ -177,7 +177,7 @@ export default function MyMoneyPage() {
             </p>
             {isStaff && (
               <Button variant="outline" size="sm" className="min-h-11" asChild>
-                <Link to="/admin/money">Admin — Money</Link>
+                <Link to="/admin/money">Pillar money</Link>
               </Button>
             )}
           </section>
@@ -241,7 +241,7 @@ export default function MyMoneyPage() {
 
               {!money || money.revenue === null ? (
                 <p className="text-sm text-muted-foreground">
-                  Your commission numbers haven't been set yet — ask your manager.
+                  Your commission numbers haven't been set yet - ask your manager.
                 </p>
               ) : (
                 <div className="space-y-5">
@@ -250,12 +250,12 @@ export default function MyMoneyPage() {
                     <Stat label="Signs this season" value={String(money.signs)} />
                     <Stat
                       label="Your rate"
-                      value={money.rate !== null ? formatRate(money.rate) : '—'}
+                      value={money.rate !== null ? formatRate(money.rate) : '-'}
                       accent
                     />
                     <Stat
                       label="Season earnings"
-                      value={money.earnings !== null ? formatCurrency(money.earnings) : '—'}
+                      value={money.earnings !== null ? formatCurrency(money.earnings) : '-'}
                       accent
                     />
                   </div>
@@ -266,9 +266,9 @@ export default function MyMoneyPage() {
                     </p>
                     <p className="text-sm text-foreground">
                       {formatCurrency(money.revenue)} active revenue ×{' '}
-                      {money.rate !== null ? formatRate(money.rate) : '—'} rate ={' '}
+                      {money.rate !== null ? formatRate(money.rate) : '-'} rate ={' '}
                       <span className="font-semibold">
-                        {money.earnings !== null ? formatCurrency(money.earnings) : '—'}
+                        {money.earnings !== null ? formatCurrency(money.earnings) : '-'}
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1.5">
@@ -276,7 +276,7 @@ export default function MyMoneyPage() {
                         ? `Active revenue = ${money.signs} signs × ${formatCurrency(money.avg)} average account value.`
                         : 'Active revenue is set from your serviced accounts.'}
                       {commission?.rate_override !== null && commission?.rate_override !== undefined
-                        ? ' Your rate was set manually by an admin.'
+                        ? ' Your rate was set manually by a pillar.'
                         : money.tier
                         ? ` Your rate comes from the ${PAY_SCALE_LABELS[money.scale]} pay scale bracket ${formatTierRange(money.tier)}.`
                         : ''}
@@ -335,7 +335,7 @@ export default function MyMoneyPage() {
                       <tbody>
                         {teamMonths.map((r, i) => (
                           <tr key={i} className="border-t border-white/[0.05]">
-                            <td className="px-4 py-2 text-foreground">{r.full_name || '—'}</td>
+                            <td className="px-4 py-2 text-foreground">{r.full_name || '-'}</td>
                             <td className="px-4 py-2 tabular-nums text-muted-foreground">
                               {new Date(r.month + 'T00:00:00').toLocaleDateString(undefined, {
                                 month: 'short',
@@ -369,7 +369,7 @@ export default function MyMoneyPage() {
 
               {!housing ? (
                 <p className="text-sm text-muted-foreground">
-                  Your housing hasn't been set yet — ask your manager.
+                  Your housing hasn't been set yet - ask your manager.
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -416,14 +416,14 @@ export default function MyMoneyPage() {
               ) : !money.next ? (
                 <p className="text-sm text-foreground">
                   You're on the top bracket of the {PAY_SCALE_LABELS[money.scale]} pay scale at{' '}
-                  {money.tier ? formatRate(money.tier.rate) : '—'}. There's no higher tier.
+                  {money.tier ? formatRate(money.tier.rate) : '-'}. There's no higher tier.
                 </p>
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-foreground">
                     You need {formatCurrency(money.revenueToNext ?? 0)} more active revenue
                     {money.signsToNext !== null
-                      ? ` — about ${money.signsToNext} more ${money.signsToNext === 1 ? 'sign' : 'signs'} at your ${formatCurrency(money.avg!)} average account value.`
+                      ? ` - about ${money.signsToNext} more ${money.signsToNext === 1 ? 'sign' : 'signs'} at your ${formatCurrency(money.avg!)} average account value.`
                       : '.'}
                   </p>
                   {money.signsToNext === null && (

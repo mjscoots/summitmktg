@@ -111,9 +111,9 @@ export default function LessonPage() {
     return siblingLessons[currentLessonIndex + 1];
   }, [currentLessonIndex, siblingLessons]);
 
-  // Determine if user can proceed (no quiz gate — pitch is optional)
+  // Determine if user can proceed (no quiz gate - pitch is optional)
   const scrollUnlocked = atBottom || lessonCompleted;
-  const pitchBlocking = false; // Pitch upload is now optional — reps can skip
+  const pitchBlocking = false; // Pitch upload is now optional - reps can skip
   const canProceed = scrollUnlocked;
 
   // Button state machine
@@ -268,7 +268,7 @@ export default function LessonPage() {
   const handleNext = useCallback(async () => {
     if (!lesson || !moduleInfo) return;
 
-    // Pitch upload is optional — no longer blocks navigation
+    // Pitch upload is optional - no longer blocks navigation
 
     // Mark complete automatically
     if (!lessonCompleted) {
@@ -656,7 +656,7 @@ export default function LessonPage() {
             "border-primary/30 bg-primary/5"
           )}>
             <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
-            <p className="text-sm font-semibold text-primary">Pitch Submitted — Awaiting Review</p>
+            <p className="text-sm font-semibold text-primary">Pitch Submitted - Awaiting Review</p>
             <p className="text-xs text-muted-foreground mt-1">
               You can continue to the next lesson while your manager reviews your pitch.
             </p>

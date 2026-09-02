@@ -109,7 +109,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
   const [searchParams, setSearchParams] = useSearchParams();
   const { startImpersonating } = useRookieView();
   const adminCounts = useAdminCounts();
-  // Counts are always live — no "viewed" zeroing
+  // Counts are always live - no "viewed" zeroing
   const isOwner = role === 'owner';
   const isAdmin = role === 'admin' || isOwner;
   const isSuperAdmin = isOwner || profile?.email === SUPER_ADMIN_EMAIL;
@@ -371,7 +371,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
   };
 
 
-  const getTeamName = (teamId: string | null) => teamsSimple.find(t => t.id === teamId)?.name || '—';
+  const getTeamName = (teamId: string | null) => teamsSimple.find(t => t.id === teamId)?.name || '-';
   const filteredTeams = teams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()));
 
   return (
@@ -995,7 +995,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
         {/* Edit User Modal */}
         <Dialog open={!!editUser} onOpenChange={(open) => !open && setEditUser(null)}>
           <DialogContent className="bg-card border-border">
-            <DialogHeader><DialogTitle>Edit Profile — {editUser?.full_name}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Edit Profile - {editUser?.full_name}</DialogTitle></DialogHeader>
             <div className="space-y-3 mt-2 max-h-[70vh] overflow-y-auto pr-1">
               <div><label className="block text-sm font-medium text-foreground mb-1">Full Name</label><Input value={editForm.full_name} onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))} /></div>
               <div><label className="block text-sm font-medium text-foreground mb-1">Email</label><Input value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))} /></div>

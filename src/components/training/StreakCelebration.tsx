@@ -56,7 +56,7 @@ export function StreakCelebration({
     if (milestone === 3) return "3-Day Fire";
     if (milestone === 7) return "One Week Strong";
     if (milestone === 14) return "Two Weeks Straight";
-    if (milestone === 21) return "21 Days — Habit Formed";
+    if (milestone === 21) return "21 Days - Habit Formed";
     if (milestone === 30) return "30 Days Straight";
     return `${streak} Day Streak`;
   };

@@ -60,10 +60,10 @@ export function AllMoneyCard({ userId }: { userId?: string | null }) {
                   style={{ width: `${Math.round((l.amount / maxLine) * 100)}%` }}
                 />
               </div>
-              {l.driver && l.driver !== '—' && (
+              {l.driver && l.driver !== '-' && (
                 <p className="mt-1.5 text-xs text-muted-foreground">{l.driver}</p>
               )}
-              {l.source && l.source !== '—' && (
+              {l.source && l.source !== '-' && (
                 <p className="mt-0.5 text-xs text-muted-foreground">{l.source}</p>
               )}
 
@@ -119,7 +119,7 @@ export function AllMoneyCard({ userId }: { userId?: string | null }) {
                   <span className="w-16 shrink-0 tabular-nums text-xs text-muted-foreground">
                     {e.at
                       ? new Date(e.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                      : '—'}
+                      : '-'}
                   </span>
                   <span className="shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
                     {e.vertical}
@@ -135,7 +135,7 @@ export function AllMoneyCard({ userId }: { userId?: string | null }) {
                     )}
                   >
                     {e.amount === null
-                      ? '—'
+                      ? '-'
                       : negative
                       ? `-${formatCurrency(Math.abs(Number(e.amount)))}`
                       : formatCurrency(Number(e.amount))}

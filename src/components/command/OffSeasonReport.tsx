@@ -96,7 +96,7 @@ export default function OffSeasonReport() {
 
       <div style={cardStyle}>
         <div style={{ ...labelStyle, marginBottom: 8 }}>
-          Not signed back — {data.not_signed.length} people, {money(data.not_signed_revenue)} last season
+          Not signed back - {data.not_signed.length} people, {money(data.not_signed_revenue)} last season
         </div>
         <div style={{ maxHeight: 320, overflowY: 'auto' }}>
           <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
@@ -104,7 +104,7 @@ export default function OffSeasonReport() {
               {data.not_signed.slice(0, 100).map((p) => (
                 <tr key={p.id}>
                   <td style={{ padding: '4px 0' }}>{p.full_name}</td>
-                  <td style={{ opacity: 0.65 }}>{p.former_manager_name || '—'}</td>
+                  <td style={{ opacity: 0.65 }}>{p.former_manager_name || '-'}</td>
                   <td style={{ opacity: 0.65 }}>{p.stage || 'new'}</td>
                   <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{money(p.season_revenue)}</td>
                 </tr>

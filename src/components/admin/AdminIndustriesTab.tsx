@@ -223,7 +223,7 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12px]">Description — public industry page and landing toggle</Label>
+              <Label className="text-[12px]">Description - public industry page and landing toggle</Label>
 
               <Textarea
                 rows={3}
@@ -242,7 +242,7 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
                 }
                 placeholder="Shown under the description on the public site."
               />
-              <Label className="text-[12px]">How it works — one step per line</Label>
+              <Label className="text-[12px]">How it works - one step per line</Label>
               <Textarea
                 rows={4}
                 value={(draft.public_how_it_works ?? p.public_how_it_works ?? []).join('\n')}
@@ -344,7 +344,7 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
                   <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                     <Input
                       className="h-8 flex-1 text-[12px]"
-                      placeholder="Link (optional) — for example the carrier training portal"
+                      placeholder="Link (optional) - for example the carrier training portal"
                       value={s.link_url || ''}
                       onChange={(e) => setSteps((prev) => prev.map((x) => (x.id === s.id ? { ...x, link_url: e.target.value } : x)))}
                       onBlur={(e) => patchStep(s.id, { link_url: e.target.value || null })}
@@ -414,7 +414,7 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
           <ul className="space-y-2">
             {pending.map((r) => (
               <li key={r.user_id + r.step_id} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 bg-surface px-3 py-2">
-                <span className="text-[13px] font-medium text-foreground">{r.full_name || '—'}</span>
+                <span className="text-[13px] font-medium text-foreground">{r.full_name || '-'}</span>
                 <span className="text-[12px] text-muted-foreground">{r.label} · {r.step_title}</span>
                 <Button
                   size="sm"
@@ -454,13 +454,13 @@ export default function AdminIndustriesTab({ restrictToVertical }: Props = {}) {
               <tbody>
                 {enrollments.map((r) => (
                   <tr key={r.user_id + r.vertical} className="border-t border-border/40">
-                    <td className="py-2 pr-3 text-foreground">{r.full_name || '—'}</td>
+                    <td className="py-2 pr-3 text-foreground">{r.full_name || '-'}</td>
                     <td className="py-2 pr-3 text-muted-foreground">{r.label}</td>
                     <td className="py-2 pr-3 text-muted-foreground">{r.status}</td>
                     <td className="py-2 pr-3 tabular-nums text-muted-foreground">
                       {r.steps_done}/{r.steps_total}
                     </td>
-                    <td className="py-2 pr-3 text-muted-foreground">{r.paired_manager || '—'}</td>
+                    <td className="py-2 pr-3 text-muted-foreground">{r.paired_manager || '-'}</td>
                     <td className="py-2 tabular-nums text-muted-foreground">
                       {new Date(r.updated_at).toLocaleDateString()}
                     </td>

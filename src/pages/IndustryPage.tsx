@@ -41,7 +41,7 @@ export default function IndustryPage() {
       setData(res || null);
       setLoading(false);
       setPageMeta({
-        title: `${res?.label || vertical} — Summit Marketing`,
+        title: `${res?.label || vertical} - Summit Marketing`,
         description:
           res?.description ||
           'We train and field sales reps in pest control and fiber internet. You close, you get paid on what you close.',
@@ -169,7 +169,7 @@ export default function IndustryPage() {
               </Link>
               <p className="mt-3 text-xs text-muted-foreground">
                 Sold before?{' '}
-                <Link to={`/apply/veteran?vertical=${vertical}`} className="text-primary hover:underline">
+                <Link to={`/apply/veteran?vertical=${vertical}`} className="inline-flex min-h-11 items-center text-primary hover:underline">
                   Veteran application
                 </Link>
               </p>

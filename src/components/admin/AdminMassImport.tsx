@@ -165,7 +165,7 @@ function normalizePipeline(raw: string): string {
   return detectPipelineStatus(raw) || 'pending';
 }
 
-/** Always use the incoming (latest) pipeline value — the import is authoritative */
+/** Always use the incoming (latest) pipeline value - the import is authoritative */
 function strongestPipeline(_existing: string, incoming: string): string {
   return incoming;
 }
@@ -240,7 +240,7 @@ function normalizeForMatch(name: string): string {
 
 /** Removed: manager-role people are no longer skipped during import */
 
-/** Deduplicate parsed results — merge entries that point to the same person */
+/** Deduplicate parsed results - merge entries that point to the same person */
 function deduplicateParsed(users: ParsedUser[]): ParsedUser[] {
   const seen = new Map<string, ParsedUser>();
   const result: ParsedUser[] = [];
@@ -518,13 +518,13 @@ function parseBlocks(
     // Validate: must have a real name
     if (!full_name || isJunkValue(full_name)) {
       if (full_name) {
-        console.log(`[IMPORT SKIP] "${full_name}" — not a valid person name`);
+        console.log(`[IMPORT SKIP] "${full_name}" - not a valid person name`);
         skipped.push({ value: full_name, reason: 'Not a valid person name' });
       }
       continue;
     }
 
-    // Manager-role people are NO LONGER skipped — they get sent to the edge function
+    // Manager-role people are NO LONGER skipped - they get sent to the edge function
     // so their onboarding_status, manager, and other fields can be updated.
 
     // Keep email empty when missing; backend will handle internal placeholder identity safely.
@@ -558,9 +558,9 @@ function parseBlocks(
         const matchReason = emailMatch ? 'email' : phoneMatch ? 'phone' : normalizedMatch ? 'normalized_name' : nicknameMatch ? `nickname(${p.nickname})` : `fuzzy(${nameScore.toFixed(2)})`;
         console.log(`[IMPORT MATCH] "${full_name}" → "${p.full_name}" via ${matchReason} | userId=${p.user_id}`);
 
-        // ALWAYS send pipeline if provided — import is authoritative
+        // ALWAYS send pipeline if provided - import is authoritative
         if (pipelineProvided) updateFields.push('pipeline');
-        // ALWAYS send rep_status if provided — NLC must always sync
+        // ALWAYS send rep_status if provided - NLC must always sync
         if (repStatusProvided) updateFields.push('rep_status');
         if (phone && !p.phone) updateFields.push('phone');
         if (email && !p.email) updateFields.push('email');
@@ -895,7 +895,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                   <div className="space-y-0.5 max-h-40 overflow-y-auto">
                     {results.details.reviewRows.map((s, i) => (
                       <p key={i} className="text-[10px] text-muted-foreground">
-                        <span className="text-foreground/60">{s.full_name}</span> — {s.reason}
+                        <span className="text-foreground/60">{s.full_name}</span> - {s.reason}
                       </p>
                     ))}
                   </div>
@@ -910,7 +910,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
                   <div className="space-y-0.5 max-h-40 overflow-y-auto">
                     {[...results.details.invalidRows, ...results.details.failedRows].map((s, i) => (
                       <p key={i} className="text-[10px] text-muted-foreground">
-                        <span className="text-foreground/60">{s.value}</span> — {s.reason}
+                        <span className="text-foreground/60">{s.value}</span> - {s.reason}
                       </p>
                     ))}
                   </div>

@@ -141,7 +141,7 @@ export function useMoneySummary(targetUserId?: string | null) {
           label: 'Life insurance',
           amount: 0,
           rateMissing: true,
-          driver: '—',
+          driver: '-',
           source: 'Life: not open',
           note: 'Not open yet',
         },

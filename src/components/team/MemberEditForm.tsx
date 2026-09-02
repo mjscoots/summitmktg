@@ -315,12 +315,12 @@ export function MemberEditForm({
 
       const changes: string[] = [];
       if (formData.full_name !== member.full_name) changes.push(`Name: ${member.full_name} → ${formData.full_name}`);
-      if (formData.phone !== member.phone) changes.push(`Phone: ${member.phone || '—'} → ${formData.phone}`);
+      if (formData.phone !== member.phone) changes.push(`Phone: ${member.phone || '-'} → ${formData.phone}`);
       if (formData.email !== member.email) changes.push(`Email: ${member.email} → ${formData.email}`);
       if (formData.status !== (member.status === 'nlc' ? 'nlc' : 'active')) changes.push(`Status: ${member.status} → ${formData.status}`);
-      if (formData.direct_manager?.full_name !== member.direct_manager) changes.push(`Manager: ${member.direct_manager || '—'} → ${formData.direct_manager?.full_name}`);
+      if (formData.direct_manager?.full_name !== member.direct_manager) changes.push(`Manager: ${member.direct_manager || '-'} → ${formData.direct_manager?.full_name}`);
 
-      // Profile update notification removed — only key events trigger notifications
+      // Profile update notification removed - only key events trigger notifications
 
       toast.success('Profile updated');
       onSave();

@@ -233,8 +233,8 @@ export function AdminThemesTab() {
 
             {check && (
               <p className={`mt-2 text-[12px] ${fail ? 'text-destructive' : 'text-muted-foreground'}`}>
-                Contrast — text {check.text.toFixed(1)}:1, secondary {check.muted.toFixed(1)}:1, accent{' '}
-                {check.accent.toFixed(1)}:1{fail ? ' — below AA, adjust before saving' : ''}
+                Contrast - text {check.text.toFixed(1)}:1, secondary {check.muted.toFixed(1)}:1, accent{' '}
+                {check.accent.toFixed(1)}:1{fail ? ' - below AA, adjust before saving' : ''}
               </p>
             )}
 

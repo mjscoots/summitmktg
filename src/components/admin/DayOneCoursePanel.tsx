@@ -11,7 +11,7 @@ interface VideoRow {
 }
 
 /**
- * Pass 119 — owner and admin pick which existing training videos make up the
+ * Pass 119 - owner and admin pick which existing training videos make up the
  * day-one watch course, and in what order. No content is created here.
  */
 export default function DayOneCoursePanel() {

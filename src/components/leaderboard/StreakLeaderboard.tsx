@@ -32,7 +32,7 @@ export function StreakLeaderboard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Use server-side SECURITY DEFINER function — deterministic, bypasses RLS
+        // Use server-side SECURITY DEFINER function - deterministic, bypasses RLS
         const { data, error } = await supabase.rpc('get_streak_leaderboard', { _limit: 20 });
 
         if (error) {
@@ -42,7 +42,7 @@ export function StreakLeaderboard() {
           return;
         }
 
-        // Map server response — NO re-sorting, server order is authoritative
+        // Map server response - NO re-sorting, server order is authoritative
         const leaderboard: StreakEntry[] = (data || []).map((row: any) => ({
           user_id: row.user_id,
           full_name: row.full_name,

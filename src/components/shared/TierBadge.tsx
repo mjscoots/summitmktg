@@ -73,7 +73,7 @@ export function TierBadge({ percentage, size = 'sm', showLabel = false, classNam
         </div>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="text-xs">
-        {tier.name} Tier — {percentage}% complete
+        {tier.name} Tier - {percentage}% complete
       </TooltipContent>
     </Tooltip>
   );

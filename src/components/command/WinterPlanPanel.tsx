@@ -68,7 +68,7 @@ export function WinterPlanPanel({ fiberOnly = false }: { fiberOnly?: boolean }) 
     <div className="glass-card rounded-[var(--radius)] p-5">
       <div className="flex items-baseline justify-between">
         <h2 className="text-[15px] font-semibold text-foreground">
-          {fiberOnly ? 'Winter plan — chose Fiber' : 'Winter plan'}
+          {fiberOnly ? 'Winter plan - chose Fiber' : 'Winter plan'}
         </h2>
         {!fiberOnly && summary && (
           <span className="stat-num text-[13px] text-muted-foreground">

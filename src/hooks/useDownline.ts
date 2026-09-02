@@ -46,7 +46,7 @@ export function useDownline(userId: string | undefined, managerName: string | un
           { _manager_user_id: userId }
         );
 
-        // Filter out NLC — the RPC now handles approved filtering server-side
+        // Filter out NLC - the RPC now handles approved filtering server-side
         const filterActive = (members: DownlineMember[]) =>
           members.filter(m => m.status !== 'nlc');
 

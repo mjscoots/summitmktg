@@ -128,7 +128,7 @@ export function UserAutocomplete({
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'admin': return 'Admin';
+      case 'admin': return 'Pillar';
       case 'manager': return 'Manager';
       default: return 'Rookie';
     }

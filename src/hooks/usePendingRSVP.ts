@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Count of outstanding RSVPs for the signed-in user.
- * Server-computed through get_action_cards — no browser-side recurrence expansion.
+ * Server-computed through get_action_cards - no browser-side recurrence expansion.
  */
 export function usePendingRSVP() {
   const { user } = useAuth();

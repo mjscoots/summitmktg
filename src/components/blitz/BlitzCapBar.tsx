@@ -11,7 +11,7 @@ interface Props {
 }
 
 /**
- * Pass 146 — spots left, the waitlist action, and for managers and above the
+ * Pass 146 - spots left, the waitlist action, and for managers and above the
  * waiting names in join order. Renders nothing when the blitz has no cap.
  */
 export function BlitzCapBar({ state, busy, attending, onJoin, onLeave }: Props) {

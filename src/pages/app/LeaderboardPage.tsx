@@ -121,7 +121,7 @@ export default function LeaderboardPage() {
 
 
 
-          {/* Filter Tabs — pill style */}
+          {/* Filter Tabs - pill style */}
 
           {isPest && (
           <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
@@ -148,7 +148,7 @@ export default function LeaderboardPage() {
           </div>
           )}
 
-          {/* Scope pill — ranks everyone or just your team */}
+          {/* Scope pill - ranks everyone or just your team */}
           {isPest && (activeTab === 'weekly' || activeTab === 'overall') && (
             <div className="mb-4 inline-flex rounded-[var(--radius)] border border-border/40 bg-card p-1">
               {([['team', 'My team'], ['summit', 'Summit']] as const).map(([id, label]) => (
@@ -167,7 +167,7 @@ export default function LeaderboardPage() {
           )}
 
 
-          {/* Inclusion Banner — only for managers */}
+          {/* Inclusion Banner - only for managers */}
           {isPest && isManager && (
             <div className="flex items-center justify-center gap-2 mb-4 py-2 px-4 rounded-lg bg-muted/30 border border-border/20">
               {meta.icon}

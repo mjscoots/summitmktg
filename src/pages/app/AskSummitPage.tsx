@@ -203,7 +203,7 @@ export default function AskSummitPage() {
           const copy = [...m];
           copy[copy.length - 1] = {
             role: 'assistant',
-            content: activeMode === 'ask' ? "I don't have that — ask your manager." : '...',
+            content: activeMode === 'ask' ? "I don't have that - ask your manager." : '...',
           };
           return copy;
         });
@@ -318,7 +318,7 @@ export default function AskSummitPage() {
                 {isPractice ? (
                   <>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Knock — the AI will answer the door as a homeowner. Say your opener to start.
+                      Knock - the AI will answer the door as a homeowner. Say your opener to start.
                     </p>
                     <button
                       onClick={() => send('*knock knock*')}

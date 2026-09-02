@@ -35,7 +35,7 @@ const EMPTY: RecruitingContent = {
   testimonials: [],
 };
 
-/** Public (anon-safe) marketing content — only filled-in blocks come back. */
+/** Public (anon-safe) marketing content - only filled-in blocks come back. */
 export function useRecruitingContent() {
   const [content, setContent] = useState<RecruitingContent | null>(null);
 

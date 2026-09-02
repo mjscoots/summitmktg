@@ -15,7 +15,7 @@ export function verticalToAudience(vertical: string | null | undefined): string 
 const CHOICES = ['Pest', 'Fiber', 'Life'];
 
 /**
- * Pass 144 — every piece of content says who it is for. One industry, or
+ * Pass 144 - every piece of content says who it is for. One industry, or
  * All Summit, which shows in every workspace.
  */
 export function AudienceSelect({

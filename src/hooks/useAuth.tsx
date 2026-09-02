@@ -29,7 +29,7 @@ interface Profile {
   active_vertical?: string | null;
 }
 
-/** Pass 148 — the roles an owner or admin can preview the app as. */
+/** Pass 148 - the roles an owner or admin can preview the app as. */
 export type ViewAsRole = 'manager' | 'vet' | 'rookie';
 
 interface AuthContextType {
@@ -228,7 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (prev?.access_token === session.access_token) return prev;
             return session;
           });
-          // Don't update user/profile/role — same user, same data.
+          // Don't update user/profile/role - same user, same data.
           return;
         }
 

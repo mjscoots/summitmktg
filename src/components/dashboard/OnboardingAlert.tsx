@@ -12,7 +12,7 @@ const STATUS_CONFIG: Record<string, { label: string; message: string; severity: 
   },
   info_added: {
     label: 'Info Added',
-    message: 'Your info has been added — join the next onboarding Zoom to become Summer Ready.',
+    message: 'Your info has been added - join the next onboarding Zoom to become Summer Ready.',
     severity: 'warn',
   },
   contract_signed: {

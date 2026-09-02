@@ -1,5 +1,5 @@
 /**
- * Pass 95 — one eyebrow per section, always in the workspace accent. Pest is
+ * Pass 95 - one eyebrow per section, always in the workspace accent. Pest is
  * cyan, Fiber is mint, Life is green, so the hue alone says where you are.
  */
 export function SectionEyebrow({ children }: { children: string }) {

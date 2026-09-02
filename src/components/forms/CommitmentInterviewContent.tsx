@@ -209,7 +209,7 @@ export default function CommitmentInterviewContent() {
               <div key={r.user_id} className="flex items-center gap-3 p-3">
                 <UserAvatar fullName={r.full_name || ""} avatarUrl={r.avatar_url} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[14px] font-semibold text-foreground">{r.full_name || '—'}</p>
+                  <p className="truncate text-[14px] font-semibold text-foreground">{r.full_name || '-'}</p>
                   <p className="truncate text-[12px] text-muted-foreground">
                     {r.committed_last_day ? (
                       <span className="inline-flex items-center gap-1">

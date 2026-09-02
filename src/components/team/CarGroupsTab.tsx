@@ -147,7 +147,7 @@ function CarColumn({
   );
 }
 
-/** Car groups for a date — managers+ only. Published cars show on the rep's Home. */
+/** Car groups for a date - managers+ only. Published cars show on the rep's Home. */
 export function CarGroupsTab() {
   const { user } = useAuth();
   const [date, setDate] = useState(todayISO());

@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 const DISMISS_KEY = 'summit_install_hint_dismissed';
 
 /**
- * Pass 140 — one quiet line for phone browsers where Summit is not installed
+ * Pass 140 - one quiet line for phone browsers where Summit is not installed
  * yet. Dismissible, and the dismissal is remembered on that device.
  */
 export function InstallAppHint() {

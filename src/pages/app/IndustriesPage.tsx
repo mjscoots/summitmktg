@@ -332,7 +332,7 @@ function MyPathView({ vertical, onBack }: { vertical: string; onBack: () => void
         ) : !data?.is_configured ? (
           <div className={CARD}>
             <p className="text-sm text-muted-foreground">
-              Setup steps are being finalized — you'll be notified.
+              Setup steps are being finalized - you'll be notified.
             </p>
           </div>
         ) : (

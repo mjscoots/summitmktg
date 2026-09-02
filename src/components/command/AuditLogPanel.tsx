@@ -155,7 +155,7 @@ export default function AuditLogPanel() {
               {(row.before_value || row.after_value) && (
                 <p className="text-[11px] text-muted-foreground mt-1 truncate">
                   {row.field ? `${row.field}: ` : ''}
-                  {row.before_value ?? '—'} → {row.after_value ?? '—'}
+                  {row.before_value ?? '-'} → {row.after_value ?? '-'}
                 </p>
               )}
             </div>

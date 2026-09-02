@@ -58,14 +58,14 @@ function fmtDateTime(v?: string | null) {
 }
 
 function statusWord(header: Record<string, any> | null, lead: Record<string, any> | null) {
-  if (!header) return '—';
+  if (!header) return '-';
   if (header.archived) return 'Departed';
   const s = String(header.status || '').toLowerCase();
   if (s === 'nlc') return 'Locked out';
   if (s === 'pending' || s === 'applied') return 'Applied';
   if (s === 'active' || s === 'onboarded' || s === 'contract_signed' || s === 'info_added') return 'Active';
   if (lead) return 'Lead';
-  return s ? s.replace(/_/g, ' ') : '—';
+  return s ? s.replace(/_/g, ' ') : '-';
 }
 
 function answerWord(status?: string | null) {
@@ -435,7 +435,7 @@ export default function PersonProfilePage() {
         </Card>
       </Section>
 
-      {/* Mastery checks — a manager can mark a chapter they watched in person */}
+      {/* Mastery checks - a manager can mark a chapter they watched in person */}
       {userId && (
         <Section title="Mastery checks">
           <MasteryChecksCard userId={userId} />
@@ -618,7 +618,7 @@ export default function PersonProfilePage() {
                   <p key={i} className="text-[13px] text-muted-foreground">
                     {fmtDate(a.at)} · {a.kind}
                     {a.outcome ? ` · ${a.outcome}` : ''}
-                    {a.body ? ` — ${a.body}` : ''}
+                    {a.body ? ` - ${a.body}` : ''}
                   </p>
                 ))}
               </div>
@@ -627,7 +627,7 @@ export default function PersonProfilePage() {
         </Section>
       )}
 
-      {/* Private notes — staff only */}
+      {/* Private notes - staff only */}
       {staff && (data.lead?.private_notes || []).length > 0 && (
         <Section title="Private notes">
           <Card className="p-4 space-y-1">
@@ -641,7 +641,7 @@ export default function PersonProfilePage() {
         </Section>
       )}
 
-      {/* Season history — staff only, collapsed */}
+      {/* Season history - staff only, collapsed */}
       {staff && data.season_history && (
         <section>
           <button
@@ -679,7 +679,7 @@ export default function PersonProfilePage() {
         <Section title="Timeline">
           <Card className="p-4">
             {timeline.map((t, i) => (
-              <Row key={i} label={fmtDate(t.at) || ''} value={t.detail ? `${t.label} — ${t.detail}` : t.label} />
+              <Row key={i} label={fmtDate(t.at) || ''} value={t.detail ? `${t.label} - ${t.detail}` : t.label} />
             ))}
           </Card>
         </Section>

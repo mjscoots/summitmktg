@@ -39,7 +39,7 @@ interface CourseRow {
 }
 
 /**
- * Pass 101 — the one thing the rep should open next: the first unfinished
+ * Pass 101 - the one thing the rep should open next: the first unfinished
  * required lesson, or the mastery check of a finished chapter.
  */
 export function useNextTraining(track: 'rookie' | 'manager' = 'rookie') {

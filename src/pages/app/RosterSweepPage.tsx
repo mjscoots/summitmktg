@@ -346,7 +346,7 @@ export default function RosterSweepPage() {
               <div className="flex items-center gap-3">
                 <UserAvatar fullName={person.full_name || ''} avatarUrl={person.avatar_url} size="lg" />
                 <div className="min-w-0">
-                  <p className="truncate text-[17px] font-bold text-foreground">{person.full_name || '—'}</p>
+                  <p className="truncate text-[17px] font-bold text-foreground">{person.full_name || '-'}</p>
                   <p className="truncate text-[13px] text-muted-foreground">
                     {[person.office, person.rank, person.rep_year].filter(Boolean).join(' · ') || 'No office on file'}
                   </p>
@@ -476,7 +476,7 @@ export default function RosterSweepPage() {
                       className="min-h-12 max-w-[220px]"
                     />
                     {!committedLastDay && (
-                      <p className="mt-1 text-[12px] text-amber-400">Not set — stays a gap</p>
+                      <p className="mt-1 text-[12px] text-amber-400">Not set - stays a gap</p>
                     )}
                   </div>
 
@@ -500,7 +500,7 @@ export default function RosterSweepPage() {
                       ))}
                     </div>
                     {!nextStatus && (
-                      <p className="mt-1 text-[12px] text-amber-400">Not set — stays a gap</p>
+                      <p className="mt-1 text-[12px] text-amber-400">Not set - stays a gap</p>
                     )}
                   </div>
 

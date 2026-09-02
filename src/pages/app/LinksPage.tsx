@@ -428,7 +428,7 @@ export default function LinksPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {massUploadType === 'phones'
-                        ? 'Paste one per line — phone numbers are auto-detected. Any format works: Name +1 (801) 555-1234, 801-555-1234 Name, etc.'
+                        ? 'Paste one per line - phone numbers are auto-detected. Any format works: Name +1 (801) 555-1234, 801-555-1234 Name, etc.'
                         : 'Paste one per line: Title, URL  or  Title ⇥ URL ⇥ Description'}
                     </p>
                     <Textarea

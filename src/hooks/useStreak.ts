@@ -208,16 +208,16 @@ export function useStreak() {
   const getStreakMessage = useCallback(() => {
     const { currentStreak } = streakData;
     if (currentStreak === 0) return "Start your journey today.";
-    if (currentStreak === 1) return "Day 1 — You showed up. That's everything.";
-    if (currentStreak === 2) return "Day 2 — Momentum is building.";
-    if (currentStreak === 3) return "3-day streak — You're becoming consistent. +50 bonus pts";
-    if (currentStreak <= 6) return `Day ${currentStreak} — You're proving yourself.`;
-    if (currentStreak === 7) return "7-day streak — One week strong. +150 bonus pts";
-    if (currentStreak <= 13) return `${currentStreak} days — You're in the top 10%.`;
-    if (currentStreak === 14) return "14-day streak — Two weeks straight. +300 bonus pts";
+    if (currentStreak === 1) return "Day 1 - You showed up. That's everything.";
+    if (currentStreak === 2) return "Day 2 - Momentum is building.";
+    if (currentStreak === 3) return "3-day streak - You're becoming consistent. +50 bonus pts";
+    if (currentStreak <= 6) return `Day ${currentStreak} - You're proving yourself.`;
+    if (currentStreak === 7) return "7-day streak - One week strong. +150 bonus pts";
+    if (currentStreak <= 13) return `${currentStreak} days - You're in the top 10%.`;
+    if (currentStreak === 14) return "14-day streak - Two weeks straight. +300 bonus pts";
     if (currentStreak <= 20) return `${currentStreak} days in a row.`;
-    if (currentStreak === 21) return "21-day streak — Habit formed. +500 bonus pts";
-    if (currentStreak === 30) return "30-day streak — One month straight. +1000 bonus pts";
+    if (currentStreak === 21) return "21-day streak - Habit formed. +500 bonus pts";
+    if (currentStreak === 30) return "30-day streak - One month straight. +1000 bonus pts";
     return `${currentStreak} days in a row.`;
   }, [streakData]);
 

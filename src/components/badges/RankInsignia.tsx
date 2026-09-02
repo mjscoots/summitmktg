@@ -22,7 +22,7 @@ function normalizeRole(role?: string | null): InsigniaRole | null {
 }
 
 /**
- * Minimal gold-line SVG rank insignia — thin 1.5px strokes, currentColor.
+ * Minimal gold-line SVG rank insignia - thin 1.5px strokes, currentColor.
  * Distinguishes rookie / vet / manager / admin (owner reuses admin's mark with a crown).
  */
 export function RankInsignia({ role, size = 'sm', className }: RankInsigniaProps) {
@@ -44,33 +44,33 @@ export function RankInsignia({ role, size = 'sm', className }: RankInsigniaProps
   };
 
   const marks: Record<InsigniaRole, JSX.Element> = {
-    // Rookie — single chevron
+    // Rookie - single chevron
     rookie: (
       <svg {...commonProps}>
         <path d="M6 14 L12 8 L18 14" />
       </svg>
     ),
-    // Vet — double chevron
+    // Vet - double chevron
     vet: (
       <svg {...commonProps}>
         <path d="M6 10 L12 5 L18 10" />
         <path d="M6 16 L12 11 L18 16" />
       </svg>
     ),
-    // Manager — chevron with underline bar
+    // Manager - chevron with underline bar
     manager: (
       <svg {...commonProps}>
         <path d="M6 12 L12 7 L18 12" />
         <path d="M7 17 L17 17" />
       </svg>
     ),
-    // Admin — diamond outline
+    // Admin - diamond outline
     admin: (
       <svg {...commonProps}>
         <path d="M12 4 L19 12 L12 20 L5 12 Z" />
       </svg>
     ),
-    // Owner — diamond with crown tick
+    // Owner - diamond with crown tick
     owner: (
       <svg {...commonProps}>
         <path d="M12 6 L18 12 L12 18 L6 12 Z" />
@@ -92,7 +92,7 @@ export function RankInsignia({ role, size = 'sm', className }: RankInsigniaProps
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Pass 140 — the seven real ranks. One geometric mark each, drawn in the
+   Pass 140 - the seven real ranks. One geometric mark each, drawn in the
    workspace accent. A person with no rank gets no mark and no placeholder.
    ───────────────────────────────────────────────────────────── */
 

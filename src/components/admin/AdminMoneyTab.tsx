@@ -89,7 +89,7 @@ export function AdminMoneyTab() {
     load();
   }, []);
 
-  const teamName = (id: string | null) => (id ? teams.find(t => t.id === id)?.name ?? '—' : '—');
+  const teamName = (id: string | null) => (id ? teams.find(t => t.id === id)?.name ?? '-' : '-');
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

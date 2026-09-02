@@ -12,7 +12,7 @@ import {
 } from '@/lib/push';
 
 /**
- * Pass 147 — the one place a person turns real push on. Off by default, the
+ * Pass 147 - the one place a person turns real push on. Off by default, the
  * browser is only asked for permission on tap, and a refusal says its line
  * once instead of asking again.
  */

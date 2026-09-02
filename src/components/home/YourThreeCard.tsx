@@ -21,7 +21,7 @@ interface Mine {
 const BLANK: RowState = { name: '', phone: '' };
 
 /**
- * Pass 135 — Your three. Every non recruit sends up to three names into the
+ * Pass 135 - Your three. Every non recruit sends up to three names into the
  * recruiting pool through submit_your_three. Counts and submitted names come
  * from the database, never a local flag, and nothing about what happened to a
  * name comes back to the rep.

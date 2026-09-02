@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Pass 147 — real web push for the installed app.
+ * Pass 147 - real web push for the installed app.
  *
  * The worker at /sw.js is registered only once a person turns push on. People
  * who never opt in keep no worker at all.

@@ -35,11 +35,11 @@ export function useUserTimezone() {
         const dbTimezone = (data as any)?.timezone;
 
         if (dbTimezone) {
-          // User has manually set a timezone — use it
+          // User has manually set a timezone - use it
           setTimezone(dbTimezone);
           setIsAutoDetected(false);
         } else {
-          // No timezone set — auto-detect from browser
+          // No timezone set - auto-detect from browser
           setTimezone(detectedTz);
           setIsAutoDetected(true);
         }

@@ -19,7 +19,7 @@ interface WaitingPerson {
 const INDUSTRIES = ['Pest', 'Fiber', 'Life'] as const;
 
 /**
- * Pass 149 — new people land here until the owner places them in an industry.
+ * Pass 149 - new people land here until the owner places them in an industry.
  * One tap writes the membership row, which is what opens that industry's room,
  * screens and lists for them.
  */

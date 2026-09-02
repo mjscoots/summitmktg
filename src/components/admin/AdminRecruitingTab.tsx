@@ -76,7 +76,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   const [savingCalendly, setSavingCalendly] = useState(false);
 
   const repName = useCallback(
-    (id: string | null) => (id ? reps.find((r) => r.user_id === id)?.full_name || 'Unknown' : '—'),
+    (id: string | null) => (id ? reps.find((r) => r.user_id === id)?.full_name || 'Unknown' : '-'),
     [reps]
   );
 
@@ -302,10 +302,10 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             {filtered.slice(0, visibleCount).map((l) => (
               <tr key={l.id} className="border-b border-white/[0.04]">
                 <td className="px-3 py-2 font-semibold text-foreground whitespace-nowrap">{l.first_name}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone || '—'}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.city || '—'}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.interest_reason || '—'}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-primary/80">{l.ref_code || '—'}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone || '-'}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.city || '-'}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.interest_reason || '-'}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-primary/80">{l.ref_code || '-'}</td>
                 <td className="px-3 py-2">
                   <Select value={l.status} onValueChange={(v) => setStatus(l.id, v)}>
                     <SelectTrigger
@@ -368,7 +368,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
       {/* Attribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={cn(CARD, 'p-4')}>
-          <h3 className="text-sm font-bold text-foreground mb-1">Attribution — signed leads</h3>
+          <h3 className="text-sm font-bold text-foreground mb-1">Attribution - signed leads</h3>
           <p className="text-[11px] text-muted-foreground mb-3">Sourcer (ref code) and closer (rep) for 50/50 splits.</p>
           <div className="space-y-2">
             {signedLeads.map((l) => (
@@ -459,7 +459,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             <BadgeCheck className="w-3.5 h-3.5 text-primary" /> Recruiting page proof numbers
           </h4>
           <p className="text-[11px] text-muted-foreground mb-3">
-            Shown on the public /recruiting page. Blank fields are hidden — nothing is ever made up. Clear all fields
+            Shown on the public /recruiting page. Blank fields are hidden - nothing is ever made up. Clear all fields
             to hide the strip entirely.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -488,7 +488,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
         <div className="mt-5 pt-4 border-t border-white/[0.06]">
           <h4 className="text-xs font-bold text-foreground mb-2">Golden Ticket booking link</h4>
           <p className="text-[11px] text-muted-foreground mb-2">
-            Shown on the confirmation screen as “Skip the line — book your call now”.
+            Shown on the confirmation screen as “Skip the line - book your call now”.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Input

@@ -48,7 +48,7 @@ const COURSE_ICONS: Record<string, React.ReactNode> = {
 // Courses that are for rookies (show green)
 const ROOKIE_COURSES = ['learn-your-pitch', 'summer-sales-manual'];
 
-// Video library courses — hidden from tiles (consolidated into Videos page)
+// Video library courses - hidden from tiles (consolidated into Videos page)
 const VIDEO_COURSES = ['training-videos', 'manager-videos'];
 
 // Courses to exclude from tiles entirely (videos are on the Videos page now)

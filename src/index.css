@@ -11,7 +11,7 @@ html, body, #root {
 
 @layer base {
   :root {
-    /* ━━━ MONO SYSTEM — near-black surfaces, bright white outlines ━━━ */
+    /* ━━━ MONO SYSTEM - near-black surfaces, bright white outlines ━━━ */
     --background: 220 22% 6%;
     --foreground: 213 20% 97%;
 
@@ -71,14 +71,14 @@ html, body, #root {
     --text-secondary: 218 15% 75%;
     --text-muted: 217 10% 54%;
 
-    /* ━━━ ICE ACCENT — links, focus, active tab, progress only ━━━ */
+    /* ━━━ ICE ACCENT - links, focus, active tab, progress only ━━━ */
     --ice: 197 100% 68%;
     --primary-soft: 197 100% 68% / 0.12;
     --primary-muted: 200 60% 76%;
     --primary-glow: 197 100% 68%;
     --primary-deep: 213 20% 97%;
 
-    /* Workspace identity accent — wordmark, active tab, focus ring */
+    /* Workspace identity accent - wordmark, active tab, focus ring */
     --workspace-accent: 197 100% 68%;
 
     /* Fiber mint, for the rollover card shown inside other workspaces */
@@ -130,7 +130,7 @@ html, body, #root {
     --foreground: 213 20% 97%;
   }
 
-  /* ━━━ LIGHT APPEARANCE — the same Mono system in daylight values.
+  /* ━━━ LIGHT APPEARANCE - the same Mono system in daylight values.
      Applied whenever the resolved mode is light, which is the phone
      setting by default and the rep's override when they pin one. ━━━ */
   html[data-appearance='light'],
@@ -216,7 +216,7 @@ html, body, #root {
   }
 
 
-  /* ━━━ PUBLIC WORLD — outward-facing pages (cover, recruiting, applications).
+  /* ━━━ PUBLIC WORLD - outward-facing pages (cover, recruiting, applications).
      The same Mono palette; the public site stays dark. ━━━ */
   .gold-world {
     --background: 220 22% 6%;
@@ -324,7 +324,7 @@ html, body, #root {
     border-radius: 0.5rem;
   }
 
-  /* Scrollbar styling — thin, dark, blue thumb */
+  /* Scrollbar styling - thin, dark, blue thumb */
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(216 89% 53% / 0.28) transparent;
@@ -370,7 +370,7 @@ html, body, #root {
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* ━━━ CARD — one border, one shadow ━━━ */
+  /* ━━━ CARD - one border, one shadow ━━━ */
   .glass-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
@@ -386,13 +386,13 @@ html, body, #root {
     border-color: hsl(var(--border-strong));
   }
 
-  /* Retained for compatibility — solid accent text, no gradient */
+  /* Retained for compatibility - solid accent text, no gradient */
   .gradient-text,
   .gradient-text-gold {
     color: hsl(var(--primary));
   }
 
-  /* ━━━ CARD HOVER — border only, no lift ━━━ */
+  /* ━━━ CARD HOVER - border only, no lift ━━━ */
   .card-hover {
     transition: border-color var(--motion-fast) var(--motion-ease);
   }
@@ -457,7 +457,7 @@ html, body, #root {
 }
 
 
-/* ━━━ WORDMARK DEFAULTS — public site and login ━━━ */
+/* ━━━ WORDMARK DEFAULTS - public site and login ━━━ */
 :root {
   --wordmark-bg: #0B0D12;
   --wordmark-accent: #5AD1FF;
@@ -477,7 +477,7 @@ html, body, #root {
     @apply glass-card;
   }
 
-  /* ━━━ PRIMARY BUTTON — white on near-black, 48px, radius 12 ━━━ */
+  /* ━━━ PRIMARY BUTTON - white on near-black, 48px, radius 12 ━━━ */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 font-semibold text-sm text-primary-foreground;
     min-height: 48px;
@@ -590,7 +590,7 @@ html, body, #root {
   display: none;
 }
 
-/* Post of the day — flat accent rule, no glow */
+/* Post of the day - flat accent rule, no glow */
 @layer components {
   .post-of-the-day {
     background: hsl(var(--primary) / 0.05);
@@ -607,7 +607,7 @@ button, a, [role="button"] {
   transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* ━━━ MISSION BOARD — flat container ━━━ */
+/* ━━━ MISSION BOARD - flat container ━━━ */
 .mission-board-container {
   background: hsl(var(--surface));
   border: 1px solid hsl(var(--border));
@@ -616,7 +616,7 @@ button, a, [role="button"] {
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   SURFACES, LABELS, STATS — flat, one border, one shadow
+   SURFACES, LABELS, STATS - flat, one border, one shadow
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @layer utilities {
   .surface {
@@ -677,7 +677,7 @@ button, a, [role="button"] {
     button.h-auto, a.h-auto { min-height: 0; }
   }
 
-  /* Skeleton loader — flat, no accent tint */
+  /* Skeleton loader - flat, no accent tint */
   .skeleton-shimmer {
     position: relative;
     overflow: hidden;
@@ -704,7 +704,7 @@ button, a, [role="button"] {
   }
 }
 
-/* ━━━ MOTION — user-caused state changes only ━━━ */
+/* ━━━ MOTION - user-caused state changes only ━━━ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -716,7 +716,7 @@ button, a, [role="button"] {
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   NUMBERS — tabular figures everywhere a number is shown
+   NUMBERS - tabular figures everywhere a number is shown
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @layer utilities {
   .stat-num,
@@ -778,7 +778,7 @@ button, a, [role="button"] {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 72 — the ice system keeps a small set of gradient and glow
+   PASS 72 - the ice system keeps a small set of gradient and glow
    tokens, so gradients are no longer flattened. Only ambient,
    non user-caused animation stays off.
    ───────────────────────────────────────────────────────────── */
@@ -893,7 +893,7 @@ body {
 
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 76 — MONO: shared surfaces and controls
+   PASS 76 - MONO: shared surfaces and controls
    ───────────────────────────────────────────────────────────── */
 @layer components {
   /* Standard card: surface fill, 1px border, radius 12 */
@@ -943,7 +943,7 @@ body {
     background: hsl(var(--surface-elevated));
   }
 
-  /* Eyebrow label — the only uppercase besides the wordmark */
+  /* Eyebrow label - the only uppercase besides the wordmark */
   .eyebrow {
     font-size: 11px;
     letter-spacing: 0.08em;
@@ -952,7 +952,7 @@ body {
     font-weight: 600;
   }
 
-  /* Streak chip — shown from two consecutive days up */
+  /* Streak chip - shown from two consecutive days up */
   .streak-chip {
     @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold;
     border-radius: 9999px;
@@ -1025,7 +1025,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 75 — chat bubbles, ranks, mission tiles
+   PASS 75 - chat bubbles, ranks, mission tiles
    ───────────────────────────────────────────────────────────── */
 @layer components {
   /* Own message: a flat ice tint with an accent hairline */
@@ -1075,7 +1075,7 @@ body {
     animation: bubble-pop 180ms var(--motion-ease) both;
   }
 
-  /* Pass 120 — WhatsApp style bubble tails on the last message of a group. */
+  /* Pass 120 - WhatsApp style bubble tails on the last message of a group. */
   .bubble-tail-own::after,
   .bubble-tail-other::after {
     content: '';
@@ -1107,7 +1107,7 @@ body {
   .rank-bar-fill { transition: none !important; }
 }
 
-/* ━━━ Pass 77 — public front door. Neutral near-black with a dotted grid only. ━━━ */
+/* ━━━ Pass 77 - public front door. Neutral near-black with a dotted grid only. ━━━ */
 @layer components {
   .public-dots {
     position: relative;
@@ -1149,7 +1149,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 98 — COLOR POPS. Same Mono system, same layouts: colour
+   PASS 98 - COLOR POPS. Same Mono system, same layouts: colour
    only where the app celebrates or ranks. One warm celebratory
    tone joins the workspace accent, used sparingly.
    ───────────────────────────────────────────────────────────── */
@@ -1255,14 +1255,14 @@ body {
   .celebrate-card { box-shadow: none; }
 }
 
-/* Pass 98 — progress fills carry the accent gradient. */
+/* Pass 98 - progress fills carry the accent gradient. */
 @layer components {
   .progress-fill {
     background: linear-gradient(90deg, hsl(var(--workspace-accent) / 0.55), hsl(var(--workspace-accent)));
   }
 }
 
-/* ━━━ Pass 116 — public cover depth and shared login atmosphere. ━━━ */
+/* ━━━ Pass 116 - public cover depth and shared login atmosphere. ━━━ */
 @layer components {
   .public-world,
   .public-auth {
@@ -1436,7 +1436,7 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 132 — the light appearance on the public pages. Same
+   PASS 132 - the light appearance on the public pages. Same
    atmosphere, daylight values, so every token resolves in both
    modes with no invisible text and no invisible hairlines.
    ───────────────────────────────────────────────────────────── */
@@ -1462,4 +1462,20 @@ html[data-appearance='light'] .public-cta::before {
   background-image:
     linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
     linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+}
+
+/*
+ * Pass 152: phone legibility floor. Nothing on a phone renders below 12px.
+ * Desktop keeps its denser scale, so only the small viewport is affected.
+ */
+@media (max-width: 767px) {
+  .text-\[8px\],
+  .text-\[9px\],
+  .text-\[10px\],
+  .text-\[10\.5px\],
+  .text-\[11px\],
+  .text-\[11\.5px\] {
+    font-size: 12px;
+    line-height: 1.3;
+  }
 }

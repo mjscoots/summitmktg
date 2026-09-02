@@ -129,8 +129,8 @@ export default function TeamPage() {
 
   // Get team name helper
   const getTeamName = useCallback((teamId: string | null | undefined) => {
-    if (!teamId) return '—';
-    return teams.find(t => t.id === teamId)?.name || '—';
+    if (!teamId) return '-';
+    return teams.find(t => t.id === teamId)?.name || '-';
   }, [teams]);
 
   // Format minutes to hours

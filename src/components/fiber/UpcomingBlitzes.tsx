@@ -27,7 +27,7 @@ export function requestText(b: FiberBlitz, count: number): string {
 }
 
 /**
- * Pass 92 — blitzes fill by opt-in. Reps see a live count and can opt in until
+ * Pass 92 - blitzes fill by opt-in. Reps see a live count and can opt in until
  * capacity; managers see the opted roster and copy the request text.
  */
 export function UpcomingBlitzes() {

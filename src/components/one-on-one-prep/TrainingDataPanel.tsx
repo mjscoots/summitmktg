@@ -52,7 +52,7 @@ function TrendArrow({ current, previous }: { current: number; previous: number }
 }
 
 function changeLabel(current: number, previous: number): string {
-  if (previous === 0 && current === 0) return '—';
+  if (previous === 0 && current === 0) return '-';
   if (previous === 0) return '+∞';
   const pct = Math.round(((current - previous) / previous) * 100);
   return pct >= 0 ? `+${pct}%` : `${pct}%`;
@@ -206,7 +206,7 @@ export function TrainingDataPanel({
         </p>
       </div>
 
-      {/* Scorecard + open action items — manager walks in loaded */}
+      {/* Scorecard + open action items - manager walks in loaded */}
       <RepScorecard userId={rep.user_id} compact />
       <RepOpenActionItems userId={rep.user_id} />
 

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 export type SeasonMode = 'in' | 'off';
 
 /**
- * Pass 97 — one setting decides the season. No date math: the owner flips it in
+ * Pass 97 - one setting decides the season. No date math: the owner flips it in
  * Admin → Settings → Season, and Home leads with the number that matters now.
  * Off season is the default, which is the truth today.
  */

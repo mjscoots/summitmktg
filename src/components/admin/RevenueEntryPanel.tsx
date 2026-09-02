@@ -129,7 +129,7 @@ export function RevenueEntryPanel() {
   const runMatch = async () => {
     const parsed = parseRaw();
     if (parsed.length === 0) {
-      toast.error('Nothing to import — one row per line: name, month (YYYY-MM), revenue');
+      toast.error('Nothing to import - one row per line: name, month (YYYY-MM), revenue');
       return;
     }
     const normalized = parsed.map((r) => ({
@@ -204,7 +204,7 @@ export function RevenueEntryPanel() {
           <span>
             Month total:{' '}
             <span className="tabular-nums text-foreground">
-              {monthTotal > 0 ? formatCurrency(monthTotal) : '—'}
+              {monthTotal > 0 ? formatCurrency(monthTotal) : '-'}
             </span>
           </span>
         </div>
@@ -237,7 +237,7 @@ export function RevenueEntryPanel() {
           {review && (
             <div className="mt-4">
               <p className="micro-label mb-2">
-                Review — {review.filter((r) => r.user_id).length} matched, {review.filter((r) => !r.user_id).length}{' '}
+                Review - {review.filter((r) => r.user_id).length} matched, {review.filter((r) => !r.user_id).length}{' '}
                 unmatched
               </p>
               <div className="max-h-[320px] overflow-y-auto rounded-lg border border-white/[0.06]">
@@ -261,13 +261,13 @@ export function RevenueEntryPanel() {
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-amber-400">
-                              <X className="h-3 w-3" /> No match — skipped
+                              <X className="h-3 w-3" /> No match - skipped
                             </span>
                           )}
                         </td>
                         <td className="px-3 py-2 tabular-nums text-muted-foreground">{r.month}</td>
                         <td className="px-3 py-2 tabular-nums text-muted-foreground">
-                          {r.revenue != null ? formatCurrency(r.revenue) : '—'}
+                          {r.revenue != null ? formatCurrency(r.revenue) : '-'}
                         </td>
                       </tr>
                     ))}
@@ -295,7 +295,7 @@ export function RevenueEntryPanel() {
             return (
               <div key={r.user_id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
                 <div className="min-w-0 sm:w-56">
-                  <p className="truncate text-sm font-semibold text-foreground">{r.full_name || '—'}</p>
+                  <p className="truncate text-sm font-semibold text-foreground">{r.full_name || '-'}</p>
                   <p className="truncate text-[11px] text-muted-foreground">
                     {[r.office, r.vertical].filter(Boolean).join(' · ') || ' '}
                   </p>

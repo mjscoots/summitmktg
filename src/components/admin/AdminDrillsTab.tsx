@@ -174,7 +174,7 @@ export function AdminDrillsTab() {
           <Textarea
             value={newScenario}
             onChange={(e) => setNewScenario(e.target.value)}
-            placeholder="New scenario — what does the homeowner say?"
+            placeholder="New scenario - what does the homeowner say?"
             className="min-h-[60px] text-sm bg-card/50 border-border/30"
           />
           <Textarea

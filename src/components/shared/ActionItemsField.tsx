@@ -25,7 +25,7 @@ interface Props {
 
 /**
  * Inline action-item editor used by the Weekly Manager Meeting and 1:1 forms.
- * Every row it creates is a real tracked item — the assignee sees it on Home.
+ * Every row it creates is a real tracked item - the assignee sees it on Home.
  */
 export function ActionItemsField({ source, assignees, defaultAssignee, className }: Props) {
   const { user } = useAuth();

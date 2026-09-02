@@ -23,7 +23,7 @@ export interface RecruitGateState {
 const EMPTY: RecruitGateState = { locked: false, is_recruit: false, items: [], total: 0, done: 0, minutes: 0 };
 
 /**
- * Pass 119 — the day-one watch course gate. Derived from the database on every
+ * Pass 119 - the day-one watch course gate. Derived from the database on every
  * load: a recruit is locked only while onboarding is pending and the course is
  * unfinished. No local flags, no data rewrites.
  */

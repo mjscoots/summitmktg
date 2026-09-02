@@ -190,7 +190,7 @@ export default function AdminRecruitingContent() {
               />
             </div>
           ))}
-          {timeline.length === 0 && <p className="text-xs text-muted-foreground">No steps yet — the section stays hidden.</p>}
+          {timeline.length === 0 && <p className="text-xs text-muted-foreground">No steps yet - the section stays hidden.</p>}
         </div>
       </div>
 
@@ -229,7 +229,7 @@ export default function AdminRecruitingContent() {
                 rows={3}
               />
               {!row.answer && (
-                <p className="mt-1 text-[11px] text-amber-400/80">Unanswered — hidden on the public page.</p>
+                <p className="mt-1 text-[11px] text-amber-400/80">Unanswered - hidden on the public page.</p>
               )}
             </div>
           ))}
@@ -281,7 +281,7 @@ export default function AdminRecruitingContent() {
               />
             </div>
           ))}
-          {testimonials.length === 0 && <p className="text-xs text-muted-foreground">No cards yet — the section stays hidden.</p>}
+          {testimonials.length === 0 && <p className="text-xs text-muted-foreground">No cards yet - the section stays hidden.</p>}
         </div>
       </div>
 

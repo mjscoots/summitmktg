@@ -3,7 +3,7 @@ import { useChatChannels } from '@/hooks/useChatChannels';
 import { SectionEyebrow } from '@/components/home/SectionEyebrow';
 
 /**
- * Pass 95 — the last line of the busiest room, one tap into chat. Replaces the
+ * Pass 95 - the last line of the busiest room, one tap into chat. Replaces the
  * chat chip and the old room list on Home.
  */
 export function ChatPreviewCard() {

@@ -118,7 +118,7 @@ export default function PairingsPanel() {
 
       {unpaired.length > 0 && (
         <div className={cn(CARD, 'border-amber-500/25 bg-amber-500/[0.06]')}>
-          <p className="micro-label mb-2 !text-amber-400">Unpaired — {unpaired.length}</p>
+          <p className="micro-label mb-2 !text-amber-400">Unpaired - {unpaired.length}</p>
           <p className="text-[13px] text-muted-foreground">
             {unpaired.map((r) => `${r.full_name || 'Rep'} (${r.label})`).join(', ')}
           </p>
@@ -145,7 +145,7 @@ export default function PairingsPanel() {
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.user_id + r.vertical} className="border-t border-border/40">
-                    <td className="py-2 pr-3 text-foreground">{r.full_name || '—'}</td>
+                    <td className="py-2 pr-3 text-foreground">{r.full_name || '-'}</td>
                     <td className="py-2 pr-3 text-muted-foreground">{r.label}</td>
                     <td className="py-2 pr-3 text-muted-foreground">{r.status}</td>
                     <td className="py-2 pr-3 text-muted-foreground">

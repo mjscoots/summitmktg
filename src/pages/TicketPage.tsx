@@ -47,7 +47,7 @@ export default function TicketPage() {
 
   useEffect(() => {
     setPageMeta({
-      title: 'Golden Ticket — Summit Marketing',
+      title: 'Golden Ticket - Summit Marketing',
       description: 'You were handed a Summit ticket. Leave your details and a manager will reach out.',
       path: '/ticket',
     });
@@ -220,7 +220,7 @@ export default function TicketPage() {
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold transition-colors"
                 style={{ color: GOLD, border: `1px solid ${GOLD}55`, background: 'rgba(212,175,55,0.05)' }}
               >
-                Skip the line — book your call now
+                Skip the line - book your call now
                 <ArrowRight className="w-4 h-4" />
               </a>
             )}

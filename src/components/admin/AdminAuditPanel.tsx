@@ -332,9 +332,9 @@ export default function AdminAuditPanel() {
         <div>
           <h3 className="font-bold text-foreground">Data Health Score</h3>
           <p className="text-xs text-muted-foreground">
-            {healthScore >= 80 ? "Looking good — minor issues to address" :
+            {healthScore >= 80 ? "Looking good - minor issues to address" :
              healthScore >= 50 ? "Several issues need attention" :
-             "Critical issues detected — run repairs"}
+             "Critical issues detected - run repairs"}
           </p>
         </div>
       </div>
@@ -387,7 +387,7 @@ export default function AdminAuditPanel() {
                     Merge
                   </Button>
                 ) : (
-                  <span className="text-[10px] text-muted-foreground italic">Both active — review manually</span>
+                  <span className="text-[10px] text-muted-foreground italic">Both active - review manually</span>
                 )}
               </div>
             ))}
@@ -465,24 +465,24 @@ export default function AdminAuditPanel() {
                     .sort((a, b) => a.full_name.localeCompare(b.full_name))
                     .map(p => {
                       // Try to find suggested team from manager
-                      let suggestedTeam = '—';
+                      let suggestedTeam = '-';
                       if (p.direct_manager) {
                         const manager = findManagerProfile(p.direct_manager);
                         if (manager?.team_id) {
                           const team = teams.find(t => t.id === manager.team_id);
-                          suggestedTeam = team?.name || '—';
+                          suggestedTeam = team?.name || '-';
                         }
                       }
                       return (
                         <tr key={p.user_id} className="border-b border-border/10">
                           <td className="px-3 py-1.5 text-foreground">{p.full_name}</td>
                           <td className="px-3 py-1.5 text-muted-foreground truncate max-w-[200px]">{p.email}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground">{p.direct_manager || '—'}</td>
+                          <td className="px-3 py-1.5 text-muted-foreground">{p.direct_manager || '-'}</td>
                           <td className="px-3 py-1.5">
-                            {suggestedTeam !== '—' ? (
+                            {suggestedTeam !== '-' ? (
                               <span className="text-primary font-medium">{suggestedTeam}</span>
                             ) : (
-                              <span className="text-muted-foreground">—</span>
+                              <span className="text-muted-foreground">-</span>
                             )}
                           </td>
                         </tr>

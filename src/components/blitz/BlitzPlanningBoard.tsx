@@ -46,7 +46,7 @@ function fmtWindow(start: string, end: string | null) {
 }
 
 /**
- * Pass 131 — the blitz planning board. Every possible blitz area on one board for
+ * Pass 131 - the blitz planning board. Every possible blitz area on one board for
  * managers and above. Owner and admin turn one official, which creates the public
  * RSVP event; the reverse cancels that event and reopens the market.
  */

@@ -80,7 +80,7 @@ export function DailyDrill() {
     }
     setCompleted(true);
     setShowModel(true);
-    toast.success(res.first_today ? 'Drill logged — +15 points' : 'Drill logged');
+    toast.success(res.first_today ? 'Drill logged - +15 points' : 'Drill logged');
   };
 
   if (loading) return null;
@@ -96,7 +96,7 @@ export function DailyDrill() {
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-bold text-foreground">Daily drill</h3>
           <p className="text-[13px] text-muted-foreground mt-1">
-            No drills yet. Add scenarios and model answers to start the daily rotation — reps won't see this card until then.
+            No drills yet. Add scenarios and model answers to start the daily rotation - reps won't see this card until then.
           </p>
           <Button size="sm" className="mt-3" onClick={() => navigate('/admin/team?tab=drills')}>
             Add drills

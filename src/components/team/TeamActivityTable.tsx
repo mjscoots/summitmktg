@@ -31,7 +31,7 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
   return (
     <div className="bg-card rounded-xl border border-border/50 p-4">
       <h3 className="text-sm font-medium text-muted-foreground mb-4">
-        Team activity — time this week
+        Team activity - time this week
       </h3>
 
       <div className="overflow-x-auto">
@@ -101,7 +101,7 @@ export function TeamActivityTable({ roster, dailyTimeMap, onMemberClick }: TeamA
                               day.minutes > 0 ? "bg-primary" : "bg-muted-foreground/15"
                             )}
                             style={{ height: day.minutes > 0 ? `${Math.max((pct / 100) * 20, 6)}px` : '4px' }}
-                            title={`${DAY_LABELS[i]}: ${day.minutes > 0 ? formatTimeMinutes(day.minutes) : '—'}`}
+                            title={`${DAY_LABELS[i]}: ${day.minutes > 0 ? formatTimeMinutes(day.minutes) : '-'}`}
                           />
                         </div>
                       </td>

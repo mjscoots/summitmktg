@@ -126,7 +126,7 @@ export function StackView() {
                   <div key={g.id} className="rounded-lg border border-border/50 bg-card/40 p-2.5">
                     <div className="flex items-baseline justify-between gap-2">
                       <p className="text-[13px] font-semibold text-foreground">
-                        {v.label} Lead — {g.name}
+                        {v.label} Lead - {g.name}
                       </p>
                       <p className="text-[12px] text-muted-foreground tabular-nums">{g.rep_count} reps</p>
                     </div>

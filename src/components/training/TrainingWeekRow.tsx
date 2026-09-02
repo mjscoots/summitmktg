@@ -1,7 +1,7 @@
 import { useTrainingWeek } from '@/hooks/useTrainingWeek';
 
 /**
- * Pass 101 — one quiet row: minutes this week, days trained out of days
+ * Pass 101 - one quiet row: minutes this week, days trained out of days
  * elapsed, and the current streak. Real numbers only.
  */
 export function TrainingWeekRow() {

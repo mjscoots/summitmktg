@@ -41,14 +41,14 @@ function greeting(): string {
   return 'Good evening';
 }
 
-/** Whole dollars, no cents — these are season totals, not invoices. */
+/** Whole dollars, no cents - these are season totals, not invoices. */
 function money(n: number): string {
   return `$${Math.round(n).toLocaleString()}`;
 }
 
 
 /**
- * Pass 95 — Air. Pest home shows five things and folds the rest behind More:
+ * Pass 95 - Air. Pest home shows five things and folds the rest behind More:
  * the greeting with today's number, Doors, needs you, the next event and chat.
  * Managers get their own five: team today, needs attention, one-on-ones,
  * invite and the next event.

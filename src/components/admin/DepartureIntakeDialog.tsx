@@ -101,7 +101,7 @@ export function DepartureIntakeDialog({ target, onClose, onSaved }: Props) {
         <DialogHeader>
           <DialogTitle>Departure details</DialogTitle>
           <DialogDescription>
-            {target?.full_name}. Unknown is fine — you can add the rest later.
+            {target?.full_name}. Unknown is fine - you can add the rest later.
           </DialogDescription>
         </DialogHeader>
 

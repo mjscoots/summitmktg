@@ -107,7 +107,7 @@ export function AdminQueueTab() {
 
   return (
     <div className="space-y-4">
-      {/* Summary — decisions only */}
+      {/* Summary - decisions only */}
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-7">
         {(
           [

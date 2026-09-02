@@ -124,8 +124,8 @@ export function WorkspaceHome({ workspace }: { workspace: Workspace }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="This week" value={String(weekInstalls)} />
         <Stat label="Season" value={String(seasonInstalls)} />
-        <Stat label="Rank" value={money?.rank_label || '—'} />
-        <Stat label="Next tier" value={money?.next_tier_label || '—'} />
+        <Stat label="Rank" value={money?.rank_label || '-'} />
+        <Stat label="Next tier" value={money?.next_tier_label || '-'} />
       </div>
 
       <Card className="p-4 space-y-2">
@@ -174,8 +174,8 @@ export function WorkspaceHome({ workspace }: { workspace: Workspace }) {
             <li>Enter this week&apos;s {workspace.unit}</li>
           </ul>
           <div className="flex flex-wrap gap-2 pt-1">
-            <Button variant="outline" size="sm" onClick={() => navigate('/app/admin')}>
-              Open admin
+            <Button variant="outline" size="sm" onClick={() => navigate('/admin/requests')}>
+              Open the pillar area
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate('/app/recruits')}>
               Referral link

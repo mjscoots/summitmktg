@@ -56,7 +56,7 @@ export function RecruitingProof() {
   const stats = STAT_KEYS.filter((k) => (proof[k] || '').toString().trim().length > 0);
   const embed = proof.video_url ? toEmbed(proof.video_url) : null;
 
-  // No fabricated numbers — if nothing is filled in, render nothing at all.
+  // No fabricated numbers - if nothing is filled in, render nothing at all.
   if (stats.length === 0 && !proof.video_url) return null;
 
   return (

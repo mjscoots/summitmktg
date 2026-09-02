@@ -194,7 +194,7 @@ export default function FormsPage() {
                   <div className="px-6 py-5 border-b border-white/[0.04]">
                     <h3 className="font-semibold text-foreground text-[15px]">Interview Process</h3>
                     <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                      Complete each interview form during your recruiting process. Select the interview you need — no sequence required.
+                      Complete each interview form during your recruiting process. Select the interview you need - no sequence required.
                     </p>
                   </div>
                   <div className="px-6 py-4 space-y-1">
@@ -214,7 +214,7 @@ export default function FormsPage() {
                           <span className="text-white font-semibold text-[10px]">{item.num}</span>
                         </div>
                         <span className="text-foreground font-medium">Interview {item.num}</span>
-                        <span className="hidden sm:inline text-muted-foreground/70">—</span>
+                        <span className="hidden sm:inline text-muted-foreground/70">-</span>
                         <span className="hidden sm:inline text-muted-foreground">{item.text}</span>
                       </div>
                     ))}

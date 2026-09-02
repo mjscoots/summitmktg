@@ -96,7 +96,7 @@ function isFakeProfile(p: any) {
  * SINGLE SOURCE OF TRUTH for the admin queue.
  * Builds the full item list (approvals, pitches, feedback, hierarchy sync issues),
  * excludes anything an admin has dismissed, and derives the badge counts from
- * that exact same list — so the sidebar badge, the Home queue pulse and the
+ * that exact same list - so the sidebar badge, the Home queue pulse and the
  * triage view can never disagree.
  */
 export function useAdminQueue() {
@@ -172,7 +172,7 @@ export function useAdminQueue() {
 
       // === PENDING APPROVALS ===
       profiles
-        // A real decision is someone still waiting to be let in — people already
+        // A real decision is someone still waiting to be let in - people already
         // on the active roster are not approval work.
         // Waiting means: not archived (query), never approved, and not NLC.
         .filter((p) => p.approved === false && p.status !== 'nlc' && p.status !== 'rejected' && !isFakeProfile(p))
@@ -383,7 +383,7 @@ export function useAdminQueue() {
     };
   }, [isAdmin, fetchQueue]);
 
-  /** Records a non-destructive dismissal — underlying data is never deleted. */
+  /** Records a non-destructive dismissal - underlying data is never deleted. */
   const dismissItems = useCallback(
     async (targets: QueueItem[]) => {
       if (!targets.length) return;

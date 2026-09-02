@@ -257,7 +257,7 @@ export function ChatBubble({
       onMouseLeave={() => setHovered(false)}
     >
       <div className={cn("flex items-end gap-2", isOwn ? "flex-row-reverse" : "flex-row")}>
-        {/* Avatar — 36px on other people's messages */}
+        {/* Avatar - 36px on other people's messages */}
         <div className="w-9 flex-shrink-0">
           {!isOwn && isLastInGroup && !message.is_ai ? (
             <button onClick={() => onProfileClick(message.user_id)} className="focus:outline-none">
@@ -441,7 +441,7 @@ export function ChatBubble({
             </div>
           )}
 
-          {/* Timestamp — media bubbles carry it outside, text bubbles inside */}
+          {/* Timestamp - media bubbles carry it outside, text bubbles inside */}
           {hasMediaContent && showTimestamp && isLastInGroup && (
             <div className={cn("text-[10px] text-muted-foreground/30 mt-0.5 px-1", isOwn ? "text-right" : "text-left")}>
               {new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}

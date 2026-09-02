@@ -174,15 +174,15 @@ export default function RestoreAccessPanel() {
                       )}
                     </td>
                     <td className="p-2">{(r.roles || []).join(', ') || 'rookie'}</td>
-                    <td className="p-2">{r.direct_manager || '—'}</td>
-                    <td className="p-2">{r.team_name || '—'}</td>
-                    <td className="p-2">{r.rank_name || '—'}</td>
-                    <td className="p-2">{r.vertical || '—'}</td>
+                    <td className="p-2">{r.direct_manager || '-'}</td>
+                    <td className="p-2">{r.team_name || '-'}</td>
+                    <td className="p-2">{r.rank_name || '-'}</td>
+                    <td className="p-2">{r.vertical || '-'}</td>
                     <td className="p-2">
-                      {r.last_active_at ? format(new Date(r.last_active_at), 'MMM d') : '—'}
+                      {r.last_active_at ? format(new Date(r.last_active_at), 'MMM d') : '-'}
                     </td>
                     <td className="p-2">
-                      {r.revenue_to_date ? `$${Math.round(r.revenue_to_date).toLocaleString()}` : '—'}
+                      {r.revenue_to_date ? `$${Math.round(r.revenue_to_date).toLocaleString()}` : '-'}
                     </td>
                     <td className="p-2 text-xs text-muted-foreground">{r.reason}</td>
                     <td className="p-2">

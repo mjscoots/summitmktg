@@ -207,7 +207,7 @@ export default function PipelinePage() {
                           <p className="text-sm text-muted-foreground">
                             {r.next_step}
                             {r.next_at
-                              ? ` — ${new Date(r.next_at).toLocaleString(undefined, {
+                              ? ` - ${new Date(r.next_at).toLocaleString(undefined, {
                                   month: 'short',
                                   day: 'numeric',
                                   hour: 'numeric',

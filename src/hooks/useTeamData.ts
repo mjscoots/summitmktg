@@ -161,7 +161,7 @@ export function useTeamData(): TeamData {
 
         const bootcampCompletedIds = new Set((bootcampData || []).map(b => b.user_id));
 
-        // Also check who has roles — managers always pass through
+        // Also check who has roles - managers always pass through
         const { data: managerRoles } = await supabase
           .from('user_roles')
           .select('user_id')

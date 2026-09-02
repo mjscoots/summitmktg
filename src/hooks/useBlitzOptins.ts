@@ -15,7 +15,7 @@ export interface OptedRep {
 }
 
 /**
- * Pass 92 — blitz opt-ins. Counts come from one authenticated RPC so a rep can
+ * Pass 92 - blitz opt-ins. Counts come from one authenticated RPC so a rep can
  * see "7 of 12 in" without reading anyone else's row; the opted roster only
  * loads for managers and above.
  */

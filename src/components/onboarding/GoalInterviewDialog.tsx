@@ -74,7 +74,7 @@ export function GoalInterviewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Goal interview{repName ? ` — ${repName}` : ''}</DialogTitle>
+          <DialogTitle>Goal interview{repName ? ` - ${repName}` : ''}</DialogTitle>
           <DialogDescription>Three questions for the 2027 season.</DialogDescription>
         </DialogHeader>
 

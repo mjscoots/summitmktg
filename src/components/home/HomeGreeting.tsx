@@ -8,7 +8,7 @@ function timeOfDay(): string {
 }
 
 /**
- * Pass 140 — one quiet line above Updates. The row keeps its height whether or
+ * Pass 140 - one quiet line above Updates. The row keeps its height whether or
  * not the name has loaded yet, so Home never shifts underneath a reader.
  */
 export function HomeGreeting() {

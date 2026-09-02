@@ -2,7 +2,7 @@ import { useActionItems } from '@/hooks/useActionItems';
 import { cn } from '@/lib/utils';
 import { Check, ListChecks } from 'lucide-react';
 
-/** A rep's open action items — used in 1:1 prep so the manager walks in loaded. */
+/** A rep's open action items - used in 1:1 prep so the manager walks in loaded. */
 export function RepOpenActionItems({ userId, className }: { userId: string; className?: string }) {
   const { items, loading, complete } = useActionItems(userId);
   const today = new Date().toISOString().slice(0, 10);

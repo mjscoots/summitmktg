@@ -206,7 +206,7 @@ export function MemberProfileModal({
   const userIds = useMemo(() => member ? [member.user_id] : [], [member]);
   const { getProgress } = useTrainingProgress(userIds);
 
-  // Pass 101 — last day this rep logged training minutes.
+  // Pass 101 - last day this rep logged training minutes.
   const [lastTrained, setLastTrained] = useState<string | null>(null);
   useEffect(() => {
     if (!open || !member?.user_id) return;
@@ -247,7 +247,7 @@ export function MemberProfileModal({
   };
 
   const formatPhone = (phone: string | null | undefined) => {
-    if (!phone) return '—';
+    if (!phone) return '-';
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length === 10) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     return phone;
@@ -555,7 +555,7 @@ export function MemberProfileModal({
                 </div>
               )}
 
-              {/* Activity Status — most important for managers */}
+              {/* Activity Status - most important for managers */}
               {!isNLC && (
                 <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                   <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
@@ -706,7 +706,7 @@ export function MemberProfileModal({
                 />
               </div>
 
-              {/* Pillar actions — Delete */}
+              {/* Pillar actions - Delete */}
               {isAdminOrOwner && !isSelf && (
                 <div className="pt-2 border-t border-border/30">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">

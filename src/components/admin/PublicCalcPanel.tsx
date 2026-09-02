@@ -107,7 +107,7 @@ export default function PublicCalcPanel() {
                 {v} calculator presets
               </h3>
               <p className="text-[11px] text-muted-foreground">
-                {v === 'Pest' ? 'Accounts' : 'Installs'} per week. Labels are optional — blank shows the plain number.
+                {v === 'Pest' ? 'Accounts' : 'Installs'} per week. Labels are optional - blank shows the plain number.
               </p>
             </div>
             <button
@@ -154,7 +154,7 @@ export default function PublicCalcPanel() {
         <div className={`${CARD} p-5`}>
           <h3 className="text-sm font-bold text-foreground mb-1">Public pay scale</h3>
           <p className="text-[11px] text-muted-foreground mb-3">
-            Public calculator only — the in-app season pay scales are separate. The tier reached pays on all
+            Public calculator only - the in-app season pay scales are separate. The tier reached pays on all
             season active revenue.
           </p>
           <label className="micro-label mb-1 block">Label shown on the calculator</label>
@@ -195,7 +195,7 @@ export default function PublicCalcPanel() {
               </div>
             ))}
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">Rate is a decimal — 0.28 is 28%.</p>
+          <p className="mt-2 text-[11px] text-muted-foreground">Rate is a decimal - 0.28 is 28%.</p>
         </div>
       )}
     </div>

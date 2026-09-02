@@ -243,14 +243,14 @@ export function PitchRecordingModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Video className="w-5 h-5 text-primary" />
-            Record Pitch — {lessonTitle}
+            Record Pitch - {lessonTitle}
           </DialogTitle>
         </DialogHeader>
 
         {mode === 'choose' && recordingState === 'idle' && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Attempt #{attemptNumber} — Max {Math.round(MAX_DURATION / 60)} min
+              Attempt #{attemptNumber} - Max {Math.round(MAX_DURATION / 60)} min
             </p>
             {canRecord ? (
               <Button

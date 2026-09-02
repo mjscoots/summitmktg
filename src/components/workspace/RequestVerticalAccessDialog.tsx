@@ -17,7 +17,7 @@ import { Loader2 } from 'lucide-react';
 import { useWorkspace, type Workspace } from '@/contexts/WorkspaceContext';
 
 /**
- * Pass 89 — Pest is open to everyone. Fiber and Life are by owner approval, so
+ * Pass 89 - Pest is open to everyone. Fiber and Life are by owner approval, so
  * a rep asks with three short answers and waits for a decision.
  */
 export function RequestVerticalAccessDialog({

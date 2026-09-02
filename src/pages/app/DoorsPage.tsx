@@ -120,7 +120,7 @@ function PricingGroup({ title, rows }: { title: string; rows: Entry[] }) {
 }
 
 /**
- * Pass 83 — Doors mode. The door script, the objections, the closes, the bug
+ * Pass 83 - Doors mode. The door script, the objections, the closes, the bug
  * sheet rule and the price sheet, oversized for one thumb in daylight. Log a
  * sale stays pinned at the bottom.
  */
@@ -309,7 +309,7 @@ export default function DoorsPage() {
                 {doorBlocks.length === 0 ? (
                   <FieldCard>
                     <p className="text-[18px] text-foreground">
-                      Nothing loaded for this door yet — ask your manager.
+                      Nothing loaded for this door yet - ask your manager.
                     </p>
                   </FieldCard>
                 ) : (
@@ -322,7 +322,7 @@ export default function DoorsPage() {
               <div className="space-y-3">
                 {objections.length === 0 ? (
                   <FieldCard>
-                    <p className="text-[18px] text-foreground">No objections loaded yet — ask your manager.</p>
+                    <p className="text-[18px] text-foreground">No objections loaded yet - ask your manager.</p>
                   </FieldCard>
                 ) : (
                   objections.map((o) => <FlipCard key={o.id} front={o.title} back={o.body} followup={o.followup} />)
@@ -334,7 +334,7 @@ export default function DoorsPage() {
               <div className="space-y-3">
                 {closes.length === 0 ? (
                   <FieldCard>
-                    <p className="text-[18px] text-foreground">No closes loaded yet — ask your manager.</p>
+                    <p className="text-[18px] text-foreground">No closes loaded yet - ask your manager.</p>
                   </FieldCard>
                 ) : (
                   closes.map((c) => <FlipCard key={c.id} front={c.title} back={c.body} followup={c.followup} />)
@@ -367,7 +367,7 @@ export default function DoorsPage() {
                 {market && <p className="text-[16px] text-muted-foreground">Market: {market}</p>}
                 {pricingGroups.length === 0 ? (
                   <FieldCard>
-                    <p className="text-[18px] text-foreground">No prices loaded for you yet — ask your manager.</p>
+                    <p className="text-[18px] text-foreground">No prices loaded for you yet - ask your manager.</p>
                   </FieldCard>
                 ) : (
                   pricingGroups.map(([title, rows]) => <PricingGroup key={title} title={title} rows={rows} />)

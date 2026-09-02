@@ -4,7 +4,7 @@ import { useMyFiberStart } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
 
 /**
- * Rep-facing rollover card on Pest home. No pay figures — money stays on the
+ * Rep-facing rollover card on Pest home. No pay figures - money stays on the
  * money screens under the existing visibility rules.
  */
 export function FiberStartCard() {

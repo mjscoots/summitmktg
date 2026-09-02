@@ -12,7 +12,7 @@ interface Row {
   source: string;
 }
 
-/** All open action items across the team — managers+ view on the Team page. */
+/** All open action items across the team - managers+ view on the Team page. */
 export function TeamActionItems() {
   const [rows, setRows] = useState<Row[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
