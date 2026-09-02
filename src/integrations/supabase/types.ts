@@ -7386,6 +7386,7 @@ export type Database = {
         Args: { _user_id: string; _video_id: string }
         Returns: number
       }
+      badges_for: { Args: { _user_ids: string[] }; Returns: Json }
       blitz_cap_state: { Args: { p_event_id: string }; Returns: Json }
       blitz_optin_counts: {
         Args: never
