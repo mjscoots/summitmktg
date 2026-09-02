@@ -207,6 +207,11 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
               How many today?
             </Button>
           </div>
+          {week === 0 && season === 0 && (
+            <p className="mt-3 text-[15px] text-muted-foreground">
+              Installs appear here after your first blitz is paid
+            </p>
+          )}
           <p className="mt-3 text-[15px] text-muted-foreground">{PAY_NOTE}</p>
         </section>
 
