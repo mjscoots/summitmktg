@@ -24,8 +24,8 @@ export function AwaitingIndustryGate({ children }: { children: ReactNode }) {
   if (!waiting || ALLOWED.some((p) => pathname.startsWith(p))) return <>{children}</>;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="w-full max-w-md text-center">
+    <div className="min-h-screen bg-background px-6 py-12">
+      <div className="mx-auto w-full max-w-2xl text-center">
         <h1 className="text-xl font-bold text-foreground">You are in, waiting on your industry</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           Your account is set up. The owner places you in Pest, Fiber or Life, and the rest of the
@@ -50,9 +50,15 @@ export function AwaitingIndustryGate({ children }: { children: ReactNode }) {
             <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
+
+        <p className="mt-10 text-sm font-medium text-foreground">
+          Start day one now, so you are ready the moment you are accepted.
+        </p>
+        <DayOneCourse />
       </div>
     </div>
   );
 }
+
 
 export default AwaitingIndustryGate;
