@@ -7,6 +7,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 const OWNED: { prefix: string; vertical: string }[] = [
   { prefix: '/app/installs', vertical: 'Fiber' },
   { prefix: '/app/stacks', vertical: 'Fiber' },
+  { prefix: '/app/fiber/ladder', vertical: 'Fiber' },
   { prefix: '/app/pipeline', vertical: 'Life' },
   { prefix: '/app/doors', vertical: 'Pest' },
   { prefix: '/app/season', vertical: 'Pest' },
