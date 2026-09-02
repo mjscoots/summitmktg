@@ -2826,3 +2826,58 @@ Baselines after the test: profiles 536, onboarding_steps 0, rep_vertical_enrollm
 - Finished day one {date}
 
 No em dashes. Typecheck clean, production build clean. Not published.
+
+## Pass 156 - the manager day screen
+
+Scope: one screen that answers what today needs, plus the carried lock from Pass 155.
+
+### Database
+- `manager_day(_vertical text)` SECURITY DEFINER, STABLE. Returns `{}` for a signed out
+  caller and for anyone who is not admin, owner or `is_manager_tier`. Built on the same
+  scope checks the five destination screens use: `dark_rep_radar`, `prep_roster`,
+  `onboarding_state` plus `onboarding_steps`, `calendar_attendance` on the nearest
+  upcoming blitz, and `people_awaiting_industry`.
+- Privileges: `anon` false, `authenticated` true (checked with `has_function_privilege`).
+  Unauthenticated REST call returns `42501 permission denied for function manager_day`.
+- Carried lock: `tick_training_done_from_day_one(uuid)` revoked from PUBLIC, anon and
+  authenticated in migration. Verified `anon` false and `authenticated` false.
+
+### Counts observed (Pest workspace, owner scope)
+- Reps with no onboarding step movement for 7 days or more: 22
+- Nearest upcoming blitz: "Phoenix Mega Blitz, October LDP Week"; 23 people have not answered
+- Waiting to be placed: 0
+- Radar and one on ones owed come from the existing scoped RPCs and vary by caller.
+- Rep path: the test rep account holds only the `rookie` role, so the function's guard
+  returns `{}`. A live signed in rep call could not be exercised here because minting a
+  session for a specific auth user needs approval that is not available in this context;
+  the guard and the revoke were verified directly in the database instead.
+
+### Screen
+- Route `/app/day`, manager and above, one card and five lines in order:
+  1. `Call today: N people on your radar` taps to `/app/team` (radar lives there)
+  2. `One on ones owed this week: N` taps to `/app/one-on-ones/prep`
+  3. `Stuck on onboarding: N reps on a step for 7 days or more` taps to
+     `/app/team?onboarding=stuck`, where the onboarding tracker opens on a
+     `Stuck 7 days or more` filter limited to those ids
+  4. `Blitz RSVPs still open: N people have not answered the next blitz: <names>` taps to
+     that event on `/app/events`
+  5. `Waiting to be placed: N` taps to `/admin/requests`
+- A zero line reads `Nothing today` in muted text and is not tappable.
+- Page title is `Today`. No charts, no tiles, no other headers.
+
+### Entry points
+- Home, manager and above only: one row `Today: N things` that opens `/app/day`, hidden
+  when all five counts are zero. Added to Pest and Fiber home.
+- More, Manage group: `Today`, manager tier and above. Nothing for reps.
+
+### Layout
+- 390: the card fills the width, each line wraps to two lines at most and keeps a 52px
+  minimum height; the Home row is a single 44px tall line.
+- 1280: the card is capped at a 2xl column, lines stay single line with the chevron right
+  aligned.
+
+### Checks
+- No data writes. No publish.
+- No em dashes in the new code.
+- Typecheck clean, production build clean.
+- Baselines unchanged: profiles 536, onboarding_steps 0.
