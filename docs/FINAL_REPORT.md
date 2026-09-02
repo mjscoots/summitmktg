@@ -2747,3 +2747,42 @@ Verification
 - COVER_STATS stays false; no proof strip or ticker on the cover.
 - 390px and 1280px checks captured for `/` and `/industries/life`. Public console output shows only pre-existing React dev ref warnings, no errors.
 - Typecheck clean. Baselines unchanged: applications 13, profiles 536.
+
+## Pass 154 - fill the Fiber workspace with what already exists
+
+### Ladder
+- New screen `/app/fiber/ladder`, added to the `VerticalRouteGuard` OWNED list as Fiber only, so a link opened from Pest or Life lands back on `/app`.
+- Built live from `ranks`, `carriers` and `rank_stacks` through `fiber_ladder()`. 13 Fiber carriers, 7 ranks. A number only appears where `rank_stacks.confirmed` is true; otherwise the rank name stands alone.
+- Rep proof (uid 42328a54, rookie): `can_see_leaders false`, 3 leader rows returned, 0 leader values, 52 personal production values.
+- Leader proof (uid 70eeded3, owner): `can_see_leaders true`, 28 leader values, 52 personal values, 13 carriers.
+- `has_function_privilege('anon','public.fiber_ladder()','execute')` false. `PUBLIC` false. `authenticated` true.
+- Phone first: the carriers sit in a horizontal scroll inside the card and the rank column is `sticky left-0` so it stays fixed at 390. At 1280 the whole table fits inside the card with no scroll.
+
+### Rules
+- `fiber_rules` (key, title, body, leader_only, sort_order) seeded with 11 rows from the workbook Rules sheet, word for word.
+- RLS: signed in Fiber members (`is_vertical_member(auth.uid(),'Fiber')`) read rows where `leader_only` is false; managers, Pillars and the Owner read every row; writes are Owner only. `anon` privileges revoked from the table entirely.
+
+### Pay scale file
+- Private bucket `fiber-docs` with no storage policies, so no client can read it directly. `Summit_Fiber_Pay_Scale_v5.xlsx` uploaded once.
+- `fiber-doc-url` edge function mints a 120 second signed URL only after checking `is_effective_manager`, admin or owner. Anonymous call proof: HTTP 401 `{"error":"Sign in first"}`. A signed in rep is refused with HTTP 403 `That file is for leaders`.
+- Tile "Fiber pay scale v5" renders in the Fiber Resources tools tab only for manager and above; reps never see it.
+
+### New copy, verbatim
+- Installs appear here after your first blitz is paid
+- The Fiber board fills from install imports
+- Fiber training is being recorded, Pest training applies to the door until then
+- Open Learn Your Pitch
+- See the ladder
+- Fiber ladder
+- Pay per install, by carrier.
+- Leader rows are shown by name. Your manager can walk you through them.
+- The ladder appears here once the ranks are set up.
+- Fiber pay scale v5
+- The pay scale workbook, for leaders
+- That file is for leaders
+
+No em dashes in any new copy.
+
+### Baselines
+- profiles 536, rank_stacks 80 all confirmed, rep_carrier_ranks 0, fiber_rules 11.
+- Typecheck clean, production build clean. Not published.

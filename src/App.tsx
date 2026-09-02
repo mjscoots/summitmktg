@@ -78,6 +78,7 @@ const RecruitsPage = lazyRoute(() => import("./pages/app/RecruitsPage"));
 const LeadsPage = lazyRoute(() => import("./pages/app/LeadsPage"));
 const MyMoneyPage = lazyRoute(() => import("./pages/app/MyMoneyPage"));
 const StacksPage = lazyRoute(() => import("./pages/app/StacksPage"));
+const FiberLadderPage = lazyRoute(() => import("./pages/app/FiberLadderPage"));
 
 const InstallsPage = lazyRoute(() => import('@/pages/app/InstallsPage'));
 const MissionsPage = lazyRoute(() => import('@/pages/app/MissionsPage'));
@@ -381,6 +382,13 @@ function LazyFallback() {
               <Route path="/app/stacks" element={
                 <ProtectedRoute requiredRole="manager">
                     <StacksPage />
+                </ProtectedRoute>
+              } />
+
+              {/* Fiber pay ladder - Fiber workspace only */}
+              <Route path="/app/fiber/ladder" element={
+                <ProtectedRoute>
+                    <FiberLadderPage />
                 </ProtectedRoute>
               } />
 

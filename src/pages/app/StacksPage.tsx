@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -137,6 +138,14 @@ export default function StacksPage() {
           title="Stacks"
           context={isStaff ? 'Every rep, by carrier.' : 'Your reps, by carrier.'}
         />
+
+        {vertical === 'Fiber' && (
+          <p className="text-[13px]">
+            <Link to="/app/fiber/ladder" className="inline-flex min-h-11 items-center text-primary">
+              See the ladder
+            </Link>
+          </p>
+        )}
 
         <div className="flex flex-wrap gap-2">
           <select value={carrierId} onChange={(e) => setCarrierId(e.target.value)} className={selectClass}>

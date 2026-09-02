@@ -165,6 +165,11 @@ export default function MyMoneyPage() {
             <p className="mb-3 text-[13px] text-muted-foreground">
               Official pay runs through Gainz / Sales Raptor. This tab is team tracking only.
             </p>
+            <p className="mb-3 text-[13px]">
+              <Link to="/app/fiber/ladder" className="inline-flex min-h-11 items-center text-primary">
+                See the ladder
+              </Link>
+            </p>
             <FiberStackView />
             <MyFiberWeeks />
           </>
