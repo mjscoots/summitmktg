@@ -2987,3 +2987,48 @@ login are the screens a stranger loads on one bar of signal.
   screens were verified by build analysis only.
 - Baselines unchanged: profiles 536, chat_messages 720. No migration, no writes,
   nothing published.
+
+## Pass 158: badges, set one (display only)
+
+Scope: display only. No points, no comp, no competition math, no data writes, nothing published.
+
+### Data
+One SECURITY DEFINER function, `badges_for(_user_ids uuid[])`, batched exactly like `identity_chips`, returning per user id: `locked_in` boolean, `blitz_patches` (array of title plus year), `recruiter_stars` integer. It returns nothing else about the person: no money, no status, no phone.
+
+Sources, all rows that exist today:
+- locked_in: `people_leads.signed_2027` true joined on `profiles.id = people_leads.profile_id`, or a `resign_intents` row with status `confirmed`.
+- blitz_patches: `calendar_attendance.present` true on `calendar_events` with `event_kind = 'blitz'`; patch title is the event location when set, otherwise the event title, plus the year of `event_date`.
+- recruiter_stars: people whose `profiles.recruited_by_user_id` or `profiles.recruiter_id` is you, or who joined through an invite you created (`invites.joined_user_id`, `invites.created_by`), and who read fully onboarded per `onboarding_state`.
+
+### Verification
+- `has_function_privilege('anon','public.badges_for(uuid[])','EXECUTE')` is false; `authenticated` is true. EXECUTE revoked from PUBLIC and anon in the migration.
+- locked_in count: 13 users. Matching SQL: `people_leads` rows with `signed_2027` joined to a profile = 13 (8 of them with `archived_at` null, so 8 live); confirmed `resign_intents` rows = 0. 13 plus 0 equals the 13 users the function marks locked_in.
+- blitz_patches: `calendar_attendance` rows with `present` true = 0, so every person returns an empty array today (6 blitz events exist, none with attendance marked). The trophy case renders the empty line for everyone.
+- recruiter_stars: 0 for everyone today, since no matched recruit reads fully onboarded. Empty line renders.
+- Client caching: `useStatusBadges` holds a module level cache and a 60 ms batch window, so a chat screen makes one `badges_for` call for the visible senders rather than one per bubble.
+
+### Where it renders
+Locked in badge next to the name in: chat bubbles (beside the Pass 151 industry chips and years stars), the team roster rows, the person profile header (with the 2027 label), the workspace installs leaderboard and the recruiting leaderboard. Trophy case section on the person profile, for your own profile and any profile a viewer can already open.
+
+### Look
+Dark plate card, engraved uppercase type with wide tracking, the workspace accent used as the metal (border plus a top inset highlight and a soft top down gradient). No confetti, no emoji, no gold except where the accent already is. Badge itself is a small rounded shield plate, 24 px tall inside the name row so it never pushes a line taller; tap targets on the profile rows stay at their existing 44 px.
+
+### Responsive
+At 390: badge sits inline after the chips and wraps with them, never truncating the name (name keeps `truncate`, badge is `shrink-0`); trophy case is one column, three stacked rows, each row icon plus label above the plates, plates wrap. At 1280: same card at content width, plates sit side by side on one line per row.
+
+### Copy, verbatim
+- Locked in for 2027
+- Trophy case
+- Locked in 2027
+- Sign for 2027 to lock this in.
+- Blitz patches
+- Attend an official blitz.
+- Recruiter stars
+- Bring someone in through your link and get them fully onboarded.
+- 1 person fully onboarded
+- N people fully onboarded
+
+No em dashes anywhere in the pass.
+
+### Build
+Typecheck clean, production build clean. Baselines unchanged: profiles 536, chat_messages 720.
