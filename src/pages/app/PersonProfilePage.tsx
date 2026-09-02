@@ -332,6 +332,10 @@ export default function PersonProfilePage() {
 
         </div>
 
+        {userId && <TrophyCase userId={userId} className="mt-3" />}
+
+
+
         {staff && userId && (
           <StaffProfileEdit
             userId={userId}
