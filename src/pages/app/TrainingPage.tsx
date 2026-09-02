@@ -104,7 +104,22 @@ export default function TrainingPage() {
           <PageBackButton to="/app" label="Back" />
           <PageHeader title="Training" context={`${activeVertical} training.`} className="mb-6" />
           <div className="rounded-xl border border-border bg-card p-5">
-            <p className="text-sm text-foreground">{activeVertical} training is being written.</p>
+            {activeVertical === 'Fiber' ? (
+              <>
+                <p className="text-sm text-foreground">
+                  Fiber training is being recorded, Pest training applies to the door until then
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/app/training/learn-your-pitch')}
+                  className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-primary"
+                >
+                  Open Learn Your Pitch
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-foreground">{activeVertical} training is being written.</p>
+            )}
             {canBuildModules && (
               <Button variant="outline" className="mt-3 min-h-11" onClick={() => navigate('/app/industries')}>
                 Add the first module
