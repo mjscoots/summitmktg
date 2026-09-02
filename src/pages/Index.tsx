@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
+import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
+
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
 import { usePublicCalc } from "@/hooks/usePublicCalc";
 import { Button } from "@/components/ui/button";
@@ -89,8 +91,11 @@ const Index = () => {
           </div>
         </section>
 
+        <ThreeDoorSection />
+
         {/* What the work is */}
         <section className="border-b border-border/70 px-5 py-16 sm:px-6 md:py-24">
+
           <h2 className="sr-only">What the work is</h2>
           <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-0">
             {WHAT_WE_DO.map((c, index) => (

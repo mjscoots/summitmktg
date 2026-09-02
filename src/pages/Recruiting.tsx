@@ -5,6 +5,8 @@ import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
+import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
+
 import EarningsCalculator from "@/components/EarningsCalculator";
 import { setPageMeta } from "@/lib/pageMeta";
 
@@ -171,7 +173,10 @@ const Recruiting = () => {
         </div>
       </section>
 
+      <ThreeDoorSection />
+
       {/* Two Paths Section - Now includes Apply page content */}
+
       <section id="apply" className="py-20 bg-secondary/30 scroll-mt-20">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-12">
