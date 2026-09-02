@@ -66,6 +66,7 @@ const VideoPlayerPage = lazyRoute(() => import("./pages/app/VideoPlayerPage"));
 const ChatPage = lazyRoute(() => import("./pages/app/ChatPage"));
 const LinksPage = lazyRoute(() => import("./pages/app/LinksPage"));
 const OneOnOnePrepPage = lazyRoute(() => import("./pages/app/OneOnOnePrepPage"));
+const ManagerDayPage = lazyRoute(() => import("./pages/app/ManagerDayPage"));
 const PitchApprovalsPage = lazyRoute(() => import("./pages/app/PitchApprovalsPage"));
 const WarRoomPage = lazyRoute(() => import("./pages/app/WarRoomPage"));
 const EstimateEarningsPage = lazyRoute(() => import("./pages/app/EstimateEarningsPage"));
@@ -513,12 +514,19 @@ function LazyFallback() {
                {/* Weekly 1:1's - redirect to forms */}
                <Route path="/app/weekly-one-on-ones" element={<Navigate to="/app/forms" replace />} />
 
-               {/* 1:1 Prep */}
-               <Route path="/app/one-on-ones/prep" element={
-                 <ProtectedRoute requiredRole="manager">
-                   <OneOnOnePrepPage />
-                 </ProtectedRoute>
-               } />
+                {/* Today (Manager+) */}
+                <Route path="/app/day" element={
+                  <ProtectedRoute requiredRole="manager">
+                    <ManagerDayPage />
+                  </ProtectedRoute>
+                } />
+
+                {/* 1:1 Prep */}
+                <Route path="/app/one-on-ones/prep" element={
+                  <ProtectedRoute requiredRole="manager">
+                    <OneOnOnePrepPage />
+                  </ProtectedRoute>
+                } />
 
                {/* Pitch Approvals (Manager+) */}
                <Route path="/app/pitch-approvals" element={
