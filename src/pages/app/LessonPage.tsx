@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { OtherWorkspaceNotice } from '@/components/workspace/OtherWorkspaceNotice';
+import { courseInWorkspace } from '@/lib/courseScope';
 import { ArrowLeft, CheckCircle2, BookOpen, Loader2, ArrowRight, AlertCircle, Clock } from 'lucide-react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/button';

@@ -221,7 +221,7 @@ export default function TrainingCoursePage() {
     };
 
     fetchCourseData();
-  }, [courseSlug, user, navigate]);
+  }, [courseSlug, user, navigate, activeVertical]);
 
   // Manual re-read tracking for summer-sales-manual
   const isManualCourse = courseSlug === 'summer-sales-manual';
