@@ -40,6 +40,11 @@ export default defineConfig(({ mode }) => ({
               /@radix-ui[\\/]react-(slot|primitive|compose-refs|context|use-|presence|id)/.test(id)
             )
               return "vendor-utils";
+            // Pass 159 - the toast layers mount in the shell so a toast fired
+            // during first paint is never lost. They ride in their own small
+            // chunk so the shell does not pay for every other overlay library.
+            if (/@radix-ui[\\/]react-toast/.test(id) || /[\\/]node_modules[\\/]sonner[\\/]/.test(id))
+              return "vendor-toast";
             if (id.includes("@radix-ui") || id.includes("@floating-ui")) return "vendor-ui";
             if (
               id.includes("tailwind-merge") ||
