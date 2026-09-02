@@ -2542,3 +2542,66 @@ Proof, run in a transaction and rolled back
 - Edge function pillar-join with a bad token returned 400 and {"status":"invalid"}. The public page shows "This link is not valid."
 
 Baselines after verification: profiles 536, invites 0, pillar_links 0, onboarding_steps 0, placement_log 0, teams without an industry 0. Typecheck and production build clean. Nothing published.
+
+## Pass 152 - QA sweep with fixes
+
+Preview only. No data writes. Nothing published.
+
+### Coverage note (read this first)
+
+No signed-in session could be minted in this environment (browser auth status
+signed_out, and session minting for the owner account was not approved), so the
+signed-in walk as owner, manager, returning rep and first year rep in the Pest
+and Fiber workspaces could not be performed in this pass. Everything reachable
+without a session was walked at 390 and 1280, and the signed-in surfaces were
+covered by static checks only (route table, dead links, copy, placeholder
+damage). The signed-in visual walk is still owed.
+
+### Screens walked (no session, 390 and 1280 each)
+
+| Screen | Route | Result |
+| --- | --- | --- |
+| Public cover | / | Clean, no overflow |
+| Recruiting | /recruiting | Clean |
+| Industry page, Pest | /industries/pest | Clean |
+| Industry page, Fiber | /industries/fiber | Clean |
+| Industry page, Life | /industries/life | Redirects to / by design |
+| Parents | /parents | Clean |
+| Rookie apply | /apply/rookie | Clean |
+| Veteran apply and calculator | /apply/veteran | Clean |
+| Apply success | /apply/success | Clean |
+| Sign in | /login | Clean |
+| Invite landing | /invite/:token | Invalid token state renders |
+| Pillar link landing | /p/:token | Invalid token state renders |
+| Golden ticket | /ticket | Clean |
+| App entry, no session | /app | Redirects to /login |
+| Unknown route | /nope-404 | 404 screen renders |
+
+### Fixes made
+
+| Screen or file | What was wrong | What changed |
+| --- | --- | --- |
+| Global, src/index.css | Phone text rendered below 12px in many places | Media query under 768px floors 8px to 11.5px utility text at 12px |
+| src/lib/sanitizeUrl.ts | Earlier copy cleanup corrupted the safe protocol list, breaking the typecheck | List restored to four quoted protocols |
+| src/components/brand/Wordmark.tsx | Wordmark could not take a ref, producing a console error on every screen that renders it | Component forwards a ref to its svg |
+| src/pages/NotFound.tsx | 404 logged console.error on load and the link was under 44px | Logs a warning instead, link is 44px tall |
+| src/components/VetBidForm.tsx | "Already sold before?" trigger under 44px | Trigger is 44px tall |
+| src/pages/Recruiting.tsx | Instagram link and brand button under 44px | Both are 44px tall |
+| src/pages/Parents.tsx | Brand button under 44px | Button is 44px tall |
+| src/pages/IndustryPage.tsx | "Veteran application" link under 44px | Link is 44px tall |
+| src/components/EarningsCalculator.tsx | Pay scale label from the database printed an em dash in public copy | Label renders with the dash normalised, no data write |
+
+### Hidden
+
+Nothing was hidden in this pass. Dead legacy surfaces can only be judged from
+the signed-in walk, which is still owed.
+
+### Verification
+
+- Zero console errors on the production build for the public cover, recruiting,
+  sign in, veteran apply and parents at 390 and 1280.
+- Zero em dashes and zero sub-12px text in rendered public copy at 390.
+- No horizontal overflow on any public screen at either width.
+- Baselines unchanged: profiles 536, chat_messages 720, calendar_events 60,
+  invites 0, user_roles 4.
+- Typecheck clean, production build clean.
