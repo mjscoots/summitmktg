@@ -228,14 +228,26 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
 
         {/* Two links, inlined as rows instead of two cards. */}
         <div className={`${HUB_CARD} divide-y divide-border`}>
-          <button
-            type="button"
-            onClick={() => navigate('/app/training')}
-            className="flex min-h-14 w-full items-center gap-3 px-4 text-left"
-          >
-            <GraduationCap className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
-            <span className="text-[15px] font-semibold text-foreground">Training</span>
-          </button>
+          <div className="px-4 py-3">
+            <button
+              type="button"
+              onClick={() => navigate('/app/training')}
+              className="flex min-h-11 w-full items-center gap-3 text-left"
+            >
+              <GraduationCap className="h-5 w-5" style={{ color: 'hsl(var(--workspace-accent))' }} />
+              <span className="text-[15px] font-semibold text-foreground">Training</span>
+            </button>
+            <p className="mt-1 text-[15px] text-muted-foreground">
+              Fiber training is being recorded, Pest training applies to the door until then
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/app/training/learn-your-pitch')}
+              className="mt-1 inline-flex min-h-11 items-center text-[15px] font-semibold text-primary"
+            >
+              Open Learn Your Pitch
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => navigate('/app/chat')}
@@ -360,6 +372,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
               {regionIntro && <p className="mt-3 text-[13px] text-muted-foreground">{regionIntro}</p>}
             </div>
 
+            <p className="text-[13px] text-muted-foreground">The Fiber board fills from install imports</p>
             <Button variant="outline" size="sm" onClick={() => navigate('/app/leaderboard')}>
               Open the board
             </Button>
