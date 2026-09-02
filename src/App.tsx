@@ -352,7 +352,7 @@ function LazyFallback() {
               {/* Fiber installs */}
               <Route path="/app/installs" element={
                 <ProtectedRoute>
-                    <InstallsPage />
+                    <VerticalRouteGuard><InstallsPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -367,7 +367,7 @@ function LazyFallback() {
               {/* Life pipeline */}
               <Route path="/app/pipeline" element={
                 <ProtectedRoute>
-                    <PipelinePage />
+                    <VerticalRouteGuard><PipelinePage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -382,14 +382,14 @@ function LazyFallback() {
               {/* Stacks - a manager sets the stack per rep per carrier */}
               <Route path="/app/stacks" element={
                 <ProtectedRoute requiredRole="manager">
-                    <StacksPage />
+                    <VerticalRouteGuard><StacksPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
               {/* Fiber pay ladder - Fiber workspace only */}
               <Route path="/app/fiber/ladder" element={
                 <ProtectedRoute>
-                    <FiberLadderPage />
+                    <VerticalRouteGuard><FiberLadderPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -405,7 +405,7 @@ function LazyFallback() {
               {/* Season Countdown Hub */}
               <Route path="/app/season" element={
                 <ProtectedRoute>
-                    <SeasonPage />
+                    <VerticalRouteGuard><SeasonPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
@@ -566,7 +566,7 @@ function LazyFallback() {
               {/* Estimate My Earnings */}
               <Route path="/app/estimate-earnings" element={
                 <ProtectedRoute>
-                    <EstimateEarningsPage />
+                    <VerticalRouteGuard><EstimateEarningsPage /></VerticalRouteGuard>
                 </ProtectedRoute>
               } />
 
