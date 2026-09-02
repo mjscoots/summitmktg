@@ -43,6 +43,7 @@ import { useRollover } from '@/hooks/useRollover';
 import { daysUntil, formatStart } from '@/lib/rollover';
 import { ExperienceStars } from '@/components/shared/ExperienceStars';
 import { useIdentity } from '@/hooks/useIdentityChips';
+import { LockedInBadge } from '@/components/badges/LockedInBadge';
 
 /** Roster row stars: half a star per year in the industry. */
 function RosterExperience({ userId }: { userId: string }) {
@@ -526,6 +527,7 @@ export default function MyTeamPage() {
                                   {roleLabel(m.user_id)}
                                 </span>
                                 <RosterExperience userId={m.user_id} />
+                                <LockedInBadge userId={m.user_id} />
                               </span>
                             </span>
 

@@ -17,6 +17,8 @@ import { RankMark } from '@/components/badges/RankInsignia';
 import { ExperienceStars } from '@/components/shared/ExperienceStars';
 import { YearsInIndustryField } from '@/components/shared/YearsInIndustryField';
 import { useIdentity } from '@/hooks/useIdentityChips';
+import { LockedInBadge } from '@/components/badges/LockedInBadge';
+import { TrophyCase } from '@/components/badges/TrophyCase';
 
 /** Stars and tier wording for the person being viewed. */
 function PersonExperience({ userId }: { userId: string }) {
@@ -318,6 +320,7 @@ export default function PersonProfilePage() {
             <h1 className="flex items-center gap-1.5 truncate text-lg font-semibold">
               <span className="truncate">{h.full_name || 'Unnamed'}</span>
               <RankMark rankName={h.rank_label} size="md" />
+              <LockedInBadge userId={userId} showLabel />
             </h1>
             <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
               <span>{statusWord(h, data.lead)}</span>
@@ -328,6 +331,10 @@ export default function PersonProfilePage() {
           </div>
 
         </div>
+
+        {userId && <TrophyCase userId={userId} className="mt-3" />}
+
+
 
         {staff && userId && (
           <StaffProfileEdit
