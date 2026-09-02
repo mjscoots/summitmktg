@@ -2926,7 +2926,7 @@ Shell budget 220 KB gzip: met (200.7).
 | Home Pest and Home Fiber | 339.1 | 336.9 |
 | Chat | 355.9 | 341.3 |
 | Events | 302.8 | 304.6 |
-| Money | 305.3 (301.6) | 305.3 |
+| Money | 301.6 | 305.3 |
 | Training | 300.6 | 311.2 |
 | More | 281.6 | 294.4 |
 | /app/day | 278.3 | 292.0 |
