@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -30,9 +31,25 @@ interface TrackerRow {
  */
 export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolean }) {
   const { activeVertical } = useWorkspace();
+  const [searchParams] = useSearchParams();
   const [rows, setRows] = useState<TrackerRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
+
+  // The Today screen can hand this panel the people it counted as stuck.
+  const stuckIds = useMemo<string[]>(() => {
+    if (searchParams.get('onboarding') !== 'stuck') return [];
+    try {
+      const raw = sessionStorage.getItem('day-stuck-ids');
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? (parsed as string[]) : [];
+    } catch {
+      return [];
+    }
+  }, [searchParams]);
+
+  const [filter, setFilter] = useState<'all' | 'active' | 'inactive' | 'stuck'>(
+    stuckIds.length > 0 ? 'stuck' : 'all'
+  );
   const [busy, setBusy] = useState<string | null>(null);
   const [placing, setPlacing] = useState<TrackerRow | null>(null);
 
@@ -53,10 +70,17 @@ export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolea
   const shown = useMemo(
     () =>
       rows.filter((r) =>
-        filter === 'all' ? true : filter === 'active' ? r.is_active : !r.is_active
+        filter === 'all'
+          ? true
+          : filter === 'stuck'
+            ? stuckIds.includes(r.user_id)
+            : filter === 'active'
+              ? r.is_active
+              : !r.is_active
       ),
-    [rows, filter]
+    [rows, filter, stuckIds]
   );
+
 
   const fully = rows.filter((r) => r.state.fully_onboarded).length;
 
@@ -89,7 +113,7 @@ export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolea
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {(['all', 'active', 'inactive'] as const).map((f) => (
+        {([...(stuckIds.length > 0 ? (['stuck'] as const) : []), 'all', 'active', 'inactive'] as const).map((f) => (
           <button
             key={f}
             type="button"
@@ -100,10 +124,17 @@ export function OnboardingTrackerPanel({ canPlace = false }: { canPlace?: boolea
                 : 'min-h-11 rounded-full border border-white/[0.08] px-4 text-[13px] text-muted-foreground'
             }
           >
-            {f === 'all' ? 'Everyone' : f === 'active' ? 'Active' : 'Inactive'}
+            {f === 'stuck'
+              ? 'Stuck 7 days or more'
+              : f === 'all'
+                ? 'Everyone'
+                : f === 'active'
+                  ? 'Active'
+                  : 'Inactive'}
           </button>
         ))}
       </div>
+
 
       {loading ? (
         <Loader2 className="mt-4 h-4 w-4 animate-spin text-muted-foreground" />

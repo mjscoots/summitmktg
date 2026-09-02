@@ -116,6 +116,7 @@ const ALL: Record<string, NavDest> = {
   industries: { key: 'industries', label: 'Industries', path: '/app/industries', icon: Wrench },
   estimate: { key: 'estimate', label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign },
   alumni: { key: 'alumni', label: 'Alumni', path: '/app/alumni', icon: Users },
+  today: { key: 'today', label: 'Today', path: '/app/day', icon: CalendarClock, minTier: 'manager' },
   prep: { key: 'prep', label: 'One on one prep', path: '/app/one-on-ones/prep', icon: FileText, minTier: 'manager' },
   sweep: { key: 'sweep', label: 'Roster sweep', path: '/app/roster/sweep', icon: ClipboardList, minTier: 'manager' },
   warroom: { key: 'warroom', label: 'War room', path: '/app/war-room', icon: Shield, minTier: 'manager' },
@@ -172,6 +173,7 @@ export function moreGroups(
     {
       title: 'Manage',
       items: [
+        'today',
         'team',
         'leads',
         'approvals',
