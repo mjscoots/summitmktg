@@ -647,7 +647,7 @@ export default function MyTeamPage() {
                 </SheetHeader>
                 <div className="flex items-center gap-3 mb-5">
                   {sheetMember.avatar_url ? (
-                    <img
+                    <img loading="lazy" decoding="async" width={56} height={56}
                       src={sheetMember.avatar_url}
                       alt=""
                       className="w-14 h-14 rounded-full object-cover flex-shrink-0"

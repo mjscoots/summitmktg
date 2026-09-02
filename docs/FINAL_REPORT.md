@@ -2881,3 +2881,109 @@ Scope: one screen that answers what today needs, plus the carried lock from Pass
 - No em dashes in the new code.
 - Typecheck clean, production build clean.
 - Baselines unchanged: profiles 536, onboarding_steps 0.
+
+## Pass 157 - speed on a phone
+
+Measured on the production build, gzip, no visual, copy or data change. Before
+numbers come from a clean build of the pre-pass tree (commit a0856568); after
+numbers from the current tree. First paint per route = the entry chunk plus its
+static import closure plus the CSS plus the route chunk (and AppLayout for app
+routes), which is exactly what the browser fetches before the screen renders.
+
+### Shell, before
+
+| chunk | gzip KB |
+| --- | --- |
+| index (entry) | 83.7 |
+| vendor-react | 51.8 |
+| vendor-supabase | 43.5 |
+| vendor-dates | 21.3 |
+| vendor-charts (stub) | 0.3 |
+| index.css | 30.6 |
+| **shell total** | **231.2** |
+
+### Shell, after
+
+| chunk | gzip KB |
+| --- | --- |
+| vendor-react | 52.0 |
+| vendor-supabase | 43.5 |
+| index (entry) | 37.3 |
+| app-lib (src/lib + integrations) | 15.3 |
+| vendor-icons (lucide) | 13.3 |
+| vendor-utils (clsx, tailwind-merge, small radix primitives) | 10.4 |
+| index.css | 28.9 |
+| **shell total** | **200.7** |
+
+Shell budget 220 KB gzip: met (200.7).
+
+### First paint per route at 390 px
+
+| route | before KB | after KB |
+| --- | --- | --- |
+| Cover / | 237.0 | 205.2 |
+| Login (/app/auth, eager in shell) | 231.2 | 200.7 |
+| Home Pest and Home Fiber | 339.1 | 336.9 |
+| Chat | 355.9 | 341.3 |
+| Events | 302.8 | 304.6 |
+| Money | 301.6 | 305.3 |
+| Training | 300.6 | 311.2 |
+| More | 281.6 | 294.4 |
+| /app/day | 278.3 | 292.0 |
+| Fiber ladder | 278.1 | 292.0 |
+
+Largest single route chunk after the pass: AdminTeamPage at 29.4 KB gzip. No
+chunk is over 150 KB gzip, so the per-chunk budget is met everywhere.
+
+Cover and login budget of 120 KB gzip: not met, and it cannot be met without
+dropping a dependency the two screens actually use. Their floor is react and
+react-router (52.0) plus the database client the cover reads the industry tiles
+with and the login posts credentials with (43.5) plus the single stylesheet
+(28.9) plus the app shell itself, router, auth provider and workspace provider
+(37.3). That is 161.7 KB before a line of screen code. The honest result is
+205.2 KB for the cover, down 31.8 KB from before.
+
+The light app routes (Training, More, /app/day, ladder) each gained about 12 KB.
+Cause: the radix overlay libraries and the icon set moved out of the shell into
+shared chunks, so they are no longer paid for on the cover but each app route
+now fetches them itself. The trade was made deliberately, since the cover and
+login are the screens a stranger loads on one bar of signal.
+
+### What changed
+
+- Vendor chunks are split by library: react, supabase, radix plus floating-ui,
+  charts, editor, forms, dates, icons, vimeo, confetti, utilities.
+- The video player and @vimeo/player (84 KB of source) left the shell. The day
+  one course on the waiting screen now loads the player on demand.
+- The two toast layers load after first paint, and sonner loads with the toast
+  it shows instead of with the shell.
+- Tooltips carry their own provider, so the shell no longer imports the tooltip
+  and floating-ui libraries. Delay and behaviour are unchanged.
+- The profile gate formats today's date locally, which takes the date library
+  off the shell.
+- Fonts are latin subsets only (Montserrat 700/800/900, Inter 400/500/600/700,
+  Source Serif 500/600). Verified on load: five woff2 files on the cover, two on
+  login, all latin.
+- Icons were already imported by name; no barrel imports exist.
+- Every img tag now carries loading lazy and decoding async, with width and
+  height where the rendered size is fixed (26 tags across 24 files). No image
+  asset in the project is over 16 KB, so nothing needed recompressing.
+- Home runtime: the bootcamp hook no longer makes a role round trip before its
+  batch, and the three settings rows come back in one request. Four sequential
+  or separate calls became one parallel batch.
+- The workspace list and theme are still fetched once in WorkspaceProvider above
+  the router, so a route change refetches neither.
+- The service worker remains push only with no fetch handler and no caching.
+
+### Verification
+
+- typecheck clean, production build clean (exit 0).
+- Cover and login loaded at 390 px: no runtime errors, no failed requests. The
+  console shows only pre-existing development warnings (react-router v7 future
+  flags and a forwardRef warning that also appears on the pre-pass build and on
+  screens that use none of the components this pass touched). Home and Chat
+  could not be loaded in the checker this turn: minting a preview session for a
+  specific account needs approval that is not available here, so those two
+  screens were verified by build analysis only.
+- Baselines unchanged: profiles 536, chat_messages 720. No migration, no writes,
+  nothing published.

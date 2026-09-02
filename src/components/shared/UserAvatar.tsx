@@ -132,7 +132,7 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
         )}
         style={rankGlowStyle}
       >
-        <img 
+        <img loading="lazy" decoding="async" 
           src={avatarUrl} 
           alt={fullName} 
           className="w-full h-full rounded-full object-cover"

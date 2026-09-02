@@ -90,7 +90,7 @@ export function ContinueWatchingCard() {
         {/* Thumbnail */}
         <div className="w-28 flex-shrink-0 aspect-video bg-muted rounded-lg relative overflow-hidden">
           {thumbnail ? (
-            <img src={thumbnail} alt={lastWatched.title} className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={thumbnail} alt={lastWatched.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Play className="w-6 h-6 text-muted-foreground/50" />

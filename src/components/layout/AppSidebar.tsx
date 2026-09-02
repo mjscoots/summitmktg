@@ -281,7 +281,7 @@ export function AppSidebar() {
           )}
         >
           {profile?.avatar_url ? (
-            <img
+            <img loading="lazy" decoding="async" width={32} height={32}
               src={profile.avatar_url}
               alt="Avatar"
               className="w-8 h-8 rounded-full object-cover flex-shrink-0"

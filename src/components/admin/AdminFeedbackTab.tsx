@@ -30,7 +30,7 @@ function Thumb({ path }: { path: string }) {
   if (!url) return null;
   return (
     <a href={url} target="_blank" rel="noopener noreferrer">
-      <img src={url} alt="Report screenshot" className="mt-2 max-h-32 rounded-lg border border-border" />
+      <img loading="lazy" decoding="async" src={url} alt="Report screenshot" className="mt-2 max-h-32 rounded-lg border border-border" />
     </a>
   );
 }

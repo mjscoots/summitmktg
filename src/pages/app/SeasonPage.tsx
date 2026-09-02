@@ -264,7 +264,7 @@ export default function SeasonPage() {
               {season.roster.map((m) => (
                 <div key={m.user_id} className="flex items-center gap-2.5">
                   {m.avatar_url ? (
-                    <img src={m.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                    <img loading="lazy" decoding="async" width={28} height={28} src={m.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
                       {(m.full_name || '?').charAt(0).toUpperCase()}

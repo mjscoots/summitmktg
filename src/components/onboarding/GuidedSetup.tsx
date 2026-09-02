@@ -271,7 +271,7 @@ export function GuidedSetup({
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
                   ) : avatarUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async" width={96} height={96}
                       src={avatarUrl}
                       alt="Your profile photo"
                       className="h-24 w-24 rounded-full border border-border object-cover"

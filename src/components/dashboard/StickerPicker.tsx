@@ -61,7 +61,7 @@ export function StickerPicker({ onSelect, onClose }: StickerPickerProps) {
             className="aspect-square rounded-lg hover:bg-muted/60 transition-colors p-1.5 group relative"
             title={sticker.label}
           >
-            <img
+            <img loading="lazy" decoding="async"
               src={sticker.src}
               alt={sticker.label}
               className="w-full h-full object-contain rounded group-hover:scale-110 transition-transform"

@@ -411,7 +411,7 @@ export default function ProfilePage() {
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
               ) : avatarUrl ? (
-                <img 
+                <img loading="lazy" decoding="async" 
                   src={avatarUrl} 
                   alt="Profile" 
                   className={cn(

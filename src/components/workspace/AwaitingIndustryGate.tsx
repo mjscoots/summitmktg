@@ -1,9 +1,11 @@
-import { ReactNode } from 'react';
+import { lazy, ReactNode, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MessageSquare, LogOut } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useAuth } from '@/hooks/useAuth';
-import { DayOneCourse } from '@/components/onboarding/DayOneCourse';
+// Pass 157 - the day one player pulls the video library in; it stays out of the
+// shell and loads only on the waiting screen that shows it.
+const DayOneCourse = lazy(() => import('@/components/onboarding/DayOneCourse'));
 
 
 /** Screens a person waiting on an industry may still open. */
@@ -56,7 +58,9 @@ export function AwaitingIndustryGate({ children }: { children: ReactNode }) {
         <p className="mt-10 text-sm font-medium text-foreground">
           Start day one now, so you are ready the moment you are accepted.
         </p>
-        <DayOneCourse />
+        <Suspense fallback={<div className="mt-4 h-24" />}>
+          <DayOneCourse />
+        </Suspense>
       </div>
     </div>
   );

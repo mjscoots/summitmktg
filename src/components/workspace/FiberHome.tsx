@@ -351,7 +351,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
               {lead ? (
                 <div className="flex items-center gap-3">
                   {lead.avatar_url ? (
-                    <img src={lead.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
+                    <img loading="lazy" decoding="async" width={44} height={44} src={lead.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                   ) : (
                     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-[13px] font-medium text-foreground">
                       {(lead.full_name || '-').trim().charAt(0).toUpperCase()}

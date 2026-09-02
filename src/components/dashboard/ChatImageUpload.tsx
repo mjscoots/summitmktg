@@ -157,12 +157,11 @@ export function ChatImage({ url }: { url: string }) {
 
   return (
     <>
-      <img
+      <img loading="lazy" decoding="async"
         src={signed}
         alt="Shared image"
         className="max-w-[300px] max-h-[250px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity object-cover"
         onClick={() => setExpanded(true)}
-        loading="lazy"
       />
       {expanded && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black/90 p-4" onClick={close}>
@@ -173,7 +172,7 @@ export function ChatImage({ url }: { url: string }) {
           >
             <X className="h-6 w-6" />
           </button>
-          <img
+          <img loading="lazy" decoding="async"
             src={signed}
             alt="Shared image"
             onClick={(e) => { e.stopPropagation(); }}

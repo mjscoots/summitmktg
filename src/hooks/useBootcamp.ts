@@ -65,26 +65,6 @@ export function useBootcamp() {
       return;
     }
 
-    // Double-check user_roles table directly to catch cases where useAuth
-    // still reports 'rookie' (e.g. first signup, race condition, cache miss)
-    if (!isBypassed) {
-      try {
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
-        const bypassRoles = ['manager', 'admin', 'owner'];
-        if (roles?.some(r => bypassRoles.includes(r.role))) {
-          setRoleConfirmedBypass(true);
-          setHasLoadError(false);
-          setIsLoading(false);
-          return;
-        }
-      } catch {
-        // non-critical, continue with normal flow
-      }
-    }
-
     if (isBypassed) {
       setHasLoadError(false);
       setIsLoading(false);
@@ -92,27 +72,39 @@ export function useBootcamp() {
     }
 
     try {
-      // Fetch global setting, deadline setting, user profile created_at, and progress in parallel
-      const [settingsRes, deadlineRes, skipRes, profileRes, progressRes] = await Promise.all([
-        supabase.from('app_settings').select('value').eq('key', 'bootcamp_required').maybeSingle(),
-        supabase.from('app_settings').select('value').eq('key', 'bootcamp_deadline_hours').maybeSingle(),
-        supabase.from('app_settings').select('value').eq('key', 'bootcamp_skip_allowed').maybeSingle(),
+      // Pass 157 - one round trip: the role double check, the three settings
+      // (single row set), the profile and the progress all leave together.
+      const [rolesRes, settingsRes, profileRes, progressRes] = await Promise.all([
+        supabase.from('user_roles').select('role').eq('user_id', user.id),
+        supabase
+          .from('app_settings')
+          .select('key, value')
+          .in('key', ['bootcamp_required', 'bootcamp_deadline_hours', 'bootcamp_skip_allowed']),
         supabase.from('profiles').select('created_at').eq('user_id', user.id).maybeSingle(),
         supabase.from('bootcamp_progress').select('*').eq('user_id', user.id).maybeSingle(),
       ]);
 
-      // Parse global setting
-      if (settingsRes.data) {
-        setGlobalRequired(settingsRes.data.value === 'true');
-      } else {
-        setGlobalRequired(true);
+      // A manager, Pillar or Owner never sits behind the bootcamp lock, even if
+      // useAuth still reports rookie on a fresh signup.
+      const bypassRoles = ['manager', 'admin', 'owner'];
+      if (rolesRes.data?.some((r: { role: string }) => bypassRoles.includes(r.role))) {
+        setRoleConfirmedBypass(true);
+        setHasLoadError(false);
+        setIsLoading(false);
+        return;
       }
 
-      // Parse skip allowed setting
-      setSkipAllowed(skipRes.data?.value === 'true');
+      const settingFor = (key: string) =>
+        (settingsRes.data as { key: string; value: string | null }[] | null)?.find(
+          (r) => r.key === key
+        )?.value ?? null;
 
-      // Parse deadline setting
-      const deadlineHours = deadlineRes.data ? parseFloat(deadlineRes.data.value || '0.5') : 0.5;
+      const requiredValue = settingFor('bootcamp_required');
+      setGlobalRequired(requiredValue === null ? true : requiredValue === 'true');
+      setSkipAllowed(settingFor('bootcamp_skip_allowed') === 'true');
+
+      const deadlineRaw = settingFor('bootcamp_deadline_hours');
+      const deadlineHours = deadlineRaw ? parseFloat(deadlineRaw) : 0.5;
       const accountCreatedAt = profileRes.data?.created_at || null;
       let deadlineAt: Date | null = null;
       let hoursRemaining: number | null = null;

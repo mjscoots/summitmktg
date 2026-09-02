@@ -148,7 +148,7 @@ export function PillarTreeView({ pillar, tree, roster, onBack, logoUrl, onDataCh
           {/* Team Logo in top right */}
           {logoUrl ? (
             <div className="w-14 h-14 rounded-xl border border-border/50 overflow-hidden bg-muted/30 flex-shrink-0">
-              <img 
+              <img loading="lazy" decoding="async" 
                 src={logoUrl} 
                 alt={`${pillar.name} logo`}
                 className="w-full h-full object-cover"

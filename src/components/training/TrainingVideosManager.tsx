@@ -233,7 +233,7 @@ export function TrainingVideosManager() {
                 onClick={() => setPreviewVideo(video)}
               >
                 {video.thumbnail_url ? (
-                  <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
                 ) : (
                   <Video className="w-12 h-12 text-muted-foreground" />
                 )}
