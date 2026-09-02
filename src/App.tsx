@@ -11,6 +11,7 @@ import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatch } from "@/lib/lazyRoute";
+import RootOverlays from "@/components/layout/RootOverlays";
 
 // Every route-level page is loaded on demand so the first paint ships only the
 // shell. AuthPage and NotFound stay eager: they are tiny and must render without
