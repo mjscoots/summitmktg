@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useActionCards, type ActionCard } from '@/hooks/useActionCards';
 import { useFirstWeek } from '@/hooks/useFirstWeek';
@@ -13,39 +12,6 @@ function fmtWhen(iso?: string | null) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
   return format(d, 'EEE MMM d, h:mm a');
-}
-
-function RsvpCard({ card, onDone }: { card: ActionCard; onDone: () => void }) {
-  const [busy, setBusy] = useState(false);
-  const when = fmtWhen(card.when_at);
-
-  const answer = async (status: 'attending' | 'not_attending' | 'maybe') => {
-    setBusy(true);
-    const { error } = await (supabase as any).rpc('rsvp_event', { p_event_id: card.id, p_status: status });
-    setBusy(false);
-    if (error) { toast.error('That did not save. Try again.'); return; }
-    onDone();
-  };
-
-  return (
-    <div className="w-[260px] shrink-0 rounded-xl border border-border/60 bg-card p-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">RSVP</p>
-      <p className="mt-1 truncate text-[14px] font-semibold text-foreground">{card.title}</p>
-      {when && <p className="mt-0.5 text-[12px] text-muted-foreground">{when}</p>}
-      <div className="mt-2 flex gap-2">
-        {([['attending', 'Going'], ['not_attending', "Can't"], ['maybe', 'Maybe']] as const).map(([s, label]) => (
-          <button
-            key={s}
-            onClick={() => answer(s)}
-            disabled={busy}
-            className="min-h-[44px] flex-1 rounded-lg border border-border/60 bg-background text-[12px] text-muted-foreground transition-colors hover:border-primary/40 disabled:opacity-50"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function AnnouncementActionCard({ card, onDone }: { card: ActionCard; onDone: () => void }) {
@@ -124,7 +90,9 @@ function FirstWeekBehindCard({ day, label }: { day: number; label: string }) {
 
 /** Row of unresolved items. Renders nothing when there is nothing to do. */
 export function NeedsYouRow({ className }: { className?: string }) {
-  const { cards, dismiss } = useActionCards();
+  const { cards: allCards, dismiss } = useActionCards();
+  // Events live on the Events page, so the chat list never asks for an RSVP.
+  const cards = allCards.filter((c) => c.type !== 'rsvp');
   const { week } = useFirstWeek();
   const behind =
     week.found && !week.complete && week.behind_days > 0
@@ -148,7 +116,6 @@ export function NeedsYouRow({ className }: { className?: string }) {
         )}
         {cards.map((card) => {
           const key = `${card.type}-${card.id}`;
-          if (card.type === 'rsvp') return <RsvpCard key={key} card={card} onDone={() => dismiss('rsvp', card.id)} />;
           if (card.type === 'announcement') {
             return <AnnouncementActionCard key={key} card={card} onDone={() => dismiss('announcement', card.id)} />;
           }
