@@ -151,6 +151,147 @@ function emptyDraft(): DraftEvent {
   };
 }
 
+interface EventCardProps {
+  ev: EventRow;
+  isPast: boolean;
+  busy: boolean;
+  isManager: boolean;
+  canDelete: boolean;
+  onRsvp: (eventId: string, status: 'attending' | 'not_attending') => void;
+  onCheckin: (ev: EventRow) => void;
+  onEdit: (ev: EventRow) => void;
+  onDelete: (ev: EventRow) => void;
+}
+
+/**
+ * One event row. Lives at module scope and is memoized so typing in the
+ * create dialog never unmounts every card (which would refire each card's
+ * blitz cap RPC and realtime subscriptions).
+ */
+const EventCard = memo(function EventCard({
+  ev, isPast, busy, isManager, canDelete, onRsvp, onCheckin, onEdit, onDelete,
+}: EventCardProps) {
+  const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
+  const joinUrl = firstUrl(ev.description) || firstUrl(ev.location);
+  const descText = stripUrls(ev.description);
+  const cap = useBlitzCap(isPast ? null : ev.id);
+  const capFull = cap.state?.capacity != null && (cap.state.spots_left ?? 0) === 0;
+
+  return (
+    <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[14px] font-semibold text-foreground">{ev.title}</p>
+          <p className="mt-1 text-[12px] tabular-nums text-muted-foreground">
+            {fmtRange(ev.event_date, ev.end_date)} · {kindLabel(ev.event_kind)}
+            {ev.scope === 'team' && ev.team_name ? ` · ${ev.team_name}` : ''}
+            {ev.scope === 'managers' ? ' · Managers and above' : ''}
+            {ev.is_series ? ' · Weekly' : ''}
+          </p>
+          {ev.location && !firstUrl(ev.location) && (
+            <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" /> {ev.location}
+            </p>
+          )}
+          {descText && (
+            <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
+              {descText}
+            </p>
+          )}
+        </div>
+        <span className="shrink-0 rounded-lg border border-border/60 bg-surface px-2 py-1 text-[11px] tabular-nums text-muted-foreground">
+          {isPast ? `${ev.present_count} present` : `${ev.going_count} going`}
+        </span>
+      </div>
+
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {joinUrl && (
+          <a
+            href={sanitizeUrl(joinUrl)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-[12px] font-semibold text-primary-foreground"
+          >
+            <Video className="h-3.5 w-3.5" /> Join
+          </a>
+        )}
+        {!isPast && (
+          <>
+
+            {!(capFull && ev.my_rsvp !== 'attending') && (
+            <button
+              onClick={() => onRsvp(ev.id, 'attending')}
+              disabled={busy}
+              className={cn(
+                'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
+                ev.my_rsvp === 'attending'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'border border-border/60 bg-surface text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Check className="h-3.5 w-3.5" /> Going
+            </button>
+            )}
+
+            <button
+              onClick={() => onRsvp(ev.id, 'not_attending')}
+              disabled={busy}
+              className={cn(
+                'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
+                ev.my_rsvp === 'not_attending'
+                  ? 'bg-muted text-foreground'
+                  : 'border border-border/60 bg-surface text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <X className="h-3.5 w-3.5" /> Can't make it
+            </button>
+          </>
+        )}
+
+        {isManager && (
+          <>
+            <button
+              onClick={() => onCheckin(ev)}
+              disabled={frozen}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
+              <ClipboardCheck className="h-3.5 w-3.5" /> {frozen ? 'Attendance closed' : 'Check in'}
+            </button>
+            <button
+              onClick={() => onEdit(ev)}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Edit
+            </button>
+          </>
+        )}
+
+        {canDelete && (
+          <button
+            onClick={() => onDelete(ev)}
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </button>
+        )}
+
+      </div>
+
+      {!isPast && (
+        <BlitzCapBar
+          state={cap.state}
+          busy={cap.busy}
+          attending={ev.my_rsvp === 'attending'}
+          onJoin={cap.join}
+          onLeave={cap.leave}
+        />
+      )}
+    </div>
+
+  );
+});
+
 export default function EventsPage() {
   const { user, role } = useAuth();
   const eventScope = useEventScope();
