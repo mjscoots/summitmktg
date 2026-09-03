@@ -3117,3 +3117,36 @@ user_roles 4, onboarding_steps 0, invites 0.
 Typecheck clean. Production build clean. No data writes. Not published.
 
 Safe to publish
+
+## Pass 160: no event reminders in individual chats
+
+### Screen check
+- DM at 390 (`isDm` true): header, optional pinned-text jump count, message bubbles, composer. No event card, no update card, no incentive card, no pinned bar. A `kind` of event, announcement or incentive inside a DM renders nothing (no placeholder, no filler row); the row is not silently stripped from the list, it simply has no DM presentation.
+- Group room (kind channel or team) at 390 and 1280: unchanged. Event card, update card, incentive card and the collapsible pinned bar all render as before; team rooms keep the Knocking now strip.
+- Chat list screen: NeedsYouRow RSVP prompts and the search event sheet stay. They are not inside a chat.
+
+### Frontend fixes
+| File | Change |
+| --- | --- |
+| src/components/dashboard/CommunityChat.tsx | Pinned bar gated on `!isDm`; card branch returns null when `isDm`. |
+
+No other DM surface renders event material: the only other event UI in the chat folder is PeopleSearch (list screen) and PinnedBar (now group only).
+
+### Backend guard
+New helper `card_channel_or_general(text)`: any resolved slug belonging to a room with `member_ids` populated (a one to one or member-list room, which `get_conversations` reports as kind dm) falls back to `general`.
+
+| Function | Change | anon EXECUTE |
+| --- | --- | --- |
+| card_channel_or_general(text) | new, revoked from PUBLIC, anon, authenticated | false |
+| event_target_channel(text, uuid) | result passed through the guard | false |
+| sync_announcement_card() | insert channel passed through the guard | false |
+| sync_incentive_card() | insert channel passed through the guard | false |
+| post_event_card() | unchanged, inherits the guard via event_target_channel | false |
+| sync_event_card() | unchanged, only updates existing rows | false |
+| refresh_series_card(uuid) | unchanged, only updates existing rows | false |
+| mark_event_card_cancelled() | unchanged, only updates existing rows | false |
+
+### Baselines
+chat_messages 720, calendar_events 60, chat_channels 20. Card rows currently sitting in a member-list room: 0. No data writes.
+
+Typecheck clean. Production build clean. Not published.
