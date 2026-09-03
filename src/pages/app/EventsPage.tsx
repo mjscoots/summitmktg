@@ -537,7 +537,20 @@ export default function EventsPage() {
                 </div>
               ) : (
                 <div className="space-y-2.5">
-                  {upcoming.map((ev) => <EventCard key={ev.id} ev={ev} isPast={false} />)}
+                  {upcoming.map((ev) => (
+                    <EventCard
+                      key={ev.id}
+                      ev={ev}
+                      isPast={false}
+                      busy={rsvpBusy === ev.id}
+                      isManager={isManager}
+                      canDelete={canDelete}
+                      onRsvp={rsvp}
+                      onCheckin={openCheckin}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                    />
+                  ))}
                 </div>
               )}
             </section>
@@ -554,7 +567,20 @@ export default function EventsPage() {
                 </button>
                 {showPast && (
                   <div className="space-y-2.5">
-                    {past.map((ev) => <EventCard key={ev.id} ev={ev} isPast />)}
+                    {past.map((ev) => (
+                      <EventCard
+                        key={ev.id}
+                        ev={ev}
+                        isPast
+                        busy={rsvpBusy === ev.id}
+                        isManager={isManager}
+                        canDelete={canDelete}
+                        onRsvp={rsvp}
+                        onCheckin={openCheckin}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                      />
+                    ))}
                   </div>
                 )}
               </section>
