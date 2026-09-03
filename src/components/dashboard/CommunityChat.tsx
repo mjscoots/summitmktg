@@ -18,7 +18,6 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { useChatChannels } from '@/hooks/useChatChannels';
-import { EventCard } from '@/components/chat/EventCard';
 import { AnnouncementCard } from '@/components/chat/AnnouncementCard';
 import { IncentiveCard } from '@/components/chat/IncentiveCard';
 import { PinnedBar } from '@/components/chat/PinnedBar';

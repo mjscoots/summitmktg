@@ -15,6 +15,16 @@ function previewText(row: ChatConversation): string {
   const body = (row.last_content || '').trim();
   if (!body) return 'No messages yet';
   if (body.startsWith('img:')) return 'Photo';
+  if (body.startsWith('imgs:')) {
+    try {
+      const list = JSON.parse(body.slice('imgs:'.length));
+      const n = Array.isArray(list) ? list.length : 0;
+      return n > 1 ? `${n} photos` : 'Photo';
+    } catch {
+      return 'Photo';
+    }
+  }
+  if (body.startsWith('video:')) return 'Video';
   if (body.startsWith('file:')) return 'File';
   if (body.startsWith('gif:')) return 'GIF';
   if (body.startsWith('sticker:')) return 'Sticker';
