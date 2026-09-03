@@ -3192,3 +3192,107 @@ Storage: uploads still go to the private `chat-uploads` bucket at `userId/timest
 Attach, Camera, Photos and videos, Document, Poll, GIF, Sticker, Retry, Videos up to 50 MB, Up to 10 at a time, That upload failed, That did not send. Try again., Photo, N photos, Video, Save. No em dashes.
 
 Typecheck clean, production build clean. Not published.
+
+## Pass 162 - chat look and feel
+
+Cosmetic, per person. Nothing changed about who can see or send anything.
+
+### Preferences table
+
+`public.chat_prefs`: `user_id` primary key referencing `auth.users`, `wallpaper`,
+`wallpaper_path`, `bubble`, `text_size`, `room_overrides jsonb default '{}'`,
+`updated_at`. RLS enabled (`relrowsecurity = true`), four policies, all
+`TO authenticated` and all scoped to `user_id = auth.uid()`:
+
+| Policy | Command |
+| --- | --- |
+| Own chat prefs are readable | SELECT |
+| Own chat prefs can be created | INSERT |
+| Own chat prefs can be changed | UPDATE |
+| Own chat prefs can be removed | DELETE |
+
+Grants after the follow up migration: `authenticated` select, insert, update,
+delete; `service_role` all; `anon` revoked (confirmed by
+`information_schema.role_table_grants`). No new database function was added in
+this pass, so there is no `has_function_privilege` row to report; the security
+linter count stayed at 456 pre-existing issues, unchanged by this pass.
+
+### Wallpaper bucket
+
+`chat-wallpapers`, `public = false`, 10 MB per file. Policies on
+`storage.objects`, all `TO authenticated` and all keyed on the first path
+segment equalling the caller's id:
+
+| Policy | Command |
+| --- | --- |
+| Own chat wallpaper is readable | SELECT |
+| Own chat wallpaper can be uploaded | INSERT |
+| Own chat wallpaper can be replaced | UPDATE |
+| Own chat wallpaper can be removed | DELETE |
+
+Path is `userId/wallpaper.jpg`, compressed to a 1600px edge with the existing
+`prepareChatImage` helper, read through a one hour signed URL.
+
+### Chat look screen, 390 and 1280
+
+Reached from the room header sheet (`RoomLookRow` in `ChannelSheet`) and from
+More under the Appearance group. Verified signed in at both widths, route
+`/app/chat-look`. One column of cards at 390, the same cards on a wider measure
+at 1280. Every choice rendered, named verbatim:
+
+- Wallpaper: Summit, Night, Slate, Forest, Sand, Ice, Your photo, plus the
+  button Upload your photo.
+- Bubble color: Workspace, Classic, Ocean, Graphite, Ember.
+- Text size: Small, Default, Large.
+
+Copy on the screen, verbatim: "Chat look", "Yours only. Nobody else sees these
+choices.", "This is how other people look.", "And this is you.", "Wallpaper",
+"Applies to every room. A single room can be set from its own room sheet.",
+"Upload your photo", "Bubble color", "Your own messages only. Other people keep
+the standard bubble.", "Text size", "Applies to message text and the box you
+type in.", "Use my default". No em dashes in any new file.
+
+### A room with Night, Classic and Large
+
+Set the three choices on the Chat look screen, then opened a group room. Measured
+in the page: room root class `chat-wall chat-wall-night`, `--chat-text: 16px`,
+`--chat-bubble: 142 62% 38%`, own bubble background `rgba(37, 157, 81, 0.18)`,
+own bubble font size `16px`. Screenshot shows the deep navy field with the faint
+peak line pattern behind the thread, a green own bubble, and larger text in both
+the bubble and the composer. Other people's bubbles stayed the translucent
+surface with its border.
+
+One defect found and fixed during this check: the wallpaper rules were written
+inside `@layer components`, so Tailwind removed them because the class names are
+composed at runtime (`chat-wall-${wallpaper}`). They now sit in plain CSS after
+the layers and ship in the built stylesheet (verified `chat-wall-night` present
+in `dist/assets/index-*.css`).
+
+### The six effects
+
+| Effect | Detail | Reduced motion |
+| --- | --- | --- |
+| Swipe right to reply | Touch only, follows the thumb, fires at 40px, springs back over 160ms, `navigator.vibrate?.(8)` where available | Transform and transition removed, reply still available from the context menu |
+| Incoming message | `msg-in`, 8px rise and fade, 160ms | Animation none |
+| Reaction | `react-pop` scale bounce to 1.35, 220ms, with three particles over 420ms in the bubble colour | Bounce animation none, particles hidden |
+| Emoji only message | 1 to 3 emoji and no words render at 40px with no bubble and no tail | No motion involved |
+| Send | Bubble lands scaling from 0.96 to 1 | Existing reduced motion rule already covers it |
+| Win post | One burst of five pieces inside the bubble bounds, 900ms, once per session per message, never on scroll back | Burst hidden |
+
+No sound anywhere.
+
+### Sizes and baselines
+
+Shell on first paint, gzip, from `dist/index.html`: 197.2 KB against the 195.1 KB
+Pass 159 baseline, growth 2.1 KB, inside the 4 KB allowance. Breakdown: css
+29.9, vendor-react 52.0, vendor-supabase 43.5, app-lib 16.5, index 15.7,
+vendor-icons 13.6, vendor-utils 13.4, vendor-toast 12.6.
+
+Baselines unchanged: `profiles` 536, `chat_messages` 713. `chat_prefs` holds 0
+rows; the row written during the walkthrough was deleted afterwards, so no
+account carries a test look.
+
+Typecheck clean. Production build clean, built in 17.20s. Not published.
+
+Noted, not changed (outside this pass): the composer send button is a 32px
+circle, below the 44px target rule; it predates this pass.
