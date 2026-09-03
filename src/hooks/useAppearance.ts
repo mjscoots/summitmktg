@@ -39,17 +39,24 @@ export function useAppearanceSync() {
     if (!user?.id) return;
     let cancelled = false;
     void (async () => {
-      const { data } = await (supabase as any)
-        .from('profiles')
-        .select('appearance')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      const remote = (data as { appearance?: string } | null)?.appearance;
+      // Pass 162 - the chat look row leaves with the appearance read, in
+      // parallel, so a sign in still costs one wait.
+      const [profileRes, prefsRes] = await Promise.all([
+        (supabase as any).from('profiles').select('appearance').eq('user_id', user.id).maybeSingle(),
+        (supabase as any)
+          .from('chat_prefs')
+          .select('wallpaper, wallpaper_path, bubble, text_size, room_overrides')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      ]);
       if (cancelled) return;
+      const remote = (profileRes.data as { appearance?: string } | null)?.appearance;
       if (remote === 'dark' || remote === 'light' || remote === 'system') setPreferenceLocal(remote);
+      if (prefsRes.data) setChatPrefsFromRow(prefsRes.data);
     })();
     return () => {
       cancelled = true;
     };
   }, [user?.id]);
 }
+
