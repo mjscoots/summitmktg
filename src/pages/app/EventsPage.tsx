@@ -420,7 +420,7 @@ export default function EventsPage() {
       return;
     }
     setCheckinRows((data as CheckinRow[]) || []);
-  };
+  }, []);
 
   const togglePresent = async (userId: string, next: boolean) => {
     if (!checkinEvent) return;
