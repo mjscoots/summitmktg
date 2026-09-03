@@ -27,6 +27,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useChatSkin } from '@/hooks/useChatSkin';
 
 interface ChatMessage {
   id: string;
@@ -657,6 +658,32 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     }
   };
 
+  // Pass 162 - the person's own chat look for this room, cosmetic only.
+  const skin = useChatSkin(activeChannel);
+
+  // A message that lands while the room is open animates in once.
+  const seenIdsRef = useRef<Set<string> | null>(null);
+  const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const ids = channelMessages.map(m => m.id);
+    if (seenIdsRef.current === null) {
+      seenIdsRef.current = new Set(ids);
+      return;
+    }
+    const fresh = ids.filter(id => !seenIdsRef.current!.has(id));
+    if (!fresh.length) return;
+    fresh.forEach(id => seenIdsRef.current!.add(id));
+    setArrivedIds(prev => {
+      const next = new Set(prev);
+      fresh.forEach(id => next.add(id));
+      return next;
+    });
+  }, [channelMessages]);
+  useEffect(() => {
+    seenIdsRef.current = null;
+    setArrivedIds(new Set());
+  }, [activeChannel]);
+
   const contextMsg = contextMenu ? messages.find(m => m.id === contextMenu.msgId) : null;
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
   /** Latest pinned message surfaces in a collapsible bar so nobody has to scroll for it. */
@@ -667,8 +694,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   return (
     <div
-      className="h-full min-h-0 flex flex-col overflow-hidden relative"
-      style={{ height: '100%', maxHeight: '100%' }}
+      className={cn('h-full min-h-0 flex flex-col overflow-hidden relative', skin.className)}
+      style={{ height: '100%', maxHeight: '100%', ...skin.style }}
       onDragEnter={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounter.current++; setIsDragging(true); }}
       onDragOver={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); }}
       onDragLeave={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounter.current--; if (dragCounter.current === 0) setIsDragging(false); }}
@@ -845,6 +872,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
                 reactions={getReactionsForMessage(msg.id)}
                 readTick={own ? tickFor(msg) : null}
                 justSent={justSentId === msg.id}
+                justArrived={arrivedIds.has(msg.id) && justSentId !== msg.id}
               />
             </div>
           );
