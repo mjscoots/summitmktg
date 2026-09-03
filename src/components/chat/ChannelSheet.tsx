@@ -8,6 +8,7 @@ import { UserAvatar } from '@/components/shared/UserAvatar';
 import { RoleChip } from '@/components/shared/RoleChip';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { MemberPicker } from '@/components/chat/MemberPicker';
+import { RoomLookRow } from '@/components/chat/RoomLookRow';
 
 interface Member {
   user_id: string;
@@ -213,6 +214,7 @@ export function ChannelSheet({
           </button>
         )}
 
+        <RoomLookRow slug={slug} onLeave={() => onOpenChange(false)} />
 
 
         {(details?.can_rename || details?.can_delete_room) && (

@@ -1528,6 +1528,36 @@ export type Database = {
           },
         ]
       }
+      chat_prefs: {
+        Row: {
+          bubble: string
+          room_overrides: Json
+          text_size: string
+          updated_at: string
+          user_id: string
+          wallpaper: string
+          wallpaper_path: string | null
+        }
+        Insert: {
+          bubble?: string
+          room_overrides?: Json
+          text_size?: string
+          updated_at?: string
+          user_id: string
+          wallpaper?: string
+          wallpaper_path?: string | null
+        }
+        Update: {
+          bubble?: string
+          room_overrides?: Json
+          text_size?: string
+          updated_at?: string
+          user_id?: string
+          wallpaper?: string
+          wallpaper_path?: string | null
+        }
+        Relationships: []
+      }
       chat_reactions: {
         Row: {
           created_at: string

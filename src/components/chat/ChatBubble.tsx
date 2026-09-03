@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { BadgeStrip } from '@/components/badges/BadgeStrip';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -17,6 +17,10 @@ import { IndustryChips } from '@/components/shared/IndustryChips';
 import { ExperienceStars } from '@/components/shared/ExperienceStars';
 import { LockedInBadge } from '@/components/badges/LockedInBadge';
 import { useIdentity } from '@/hooks/useIdentityChips';
+import { isEmojiOnly } from '@/lib/chatText';
+
+/** A win post bursts once per session, never again on scroll back. */
+const burstedWins = new Set<string>();
 
 
 
@@ -70,6 +74,8 @@ interface ChatBubbleProps {
     is_pinned: boolean;
     /** Set once a message has been changed, so an edited label can show. */
     edited_at?: string | null;
+    /** Card kind. 'text' for ordinary messages. */
+    kind?: string;
   };
   isOwn: boolean;
   /** Own messages only: one check delivered, two checks read. */
@@ -93,6 +99,8 @@ interface ChatBubbleProps {
   reactions?: Reaction[];
   /** True for the message this person just sent, so it scales in once. */
   justSent?: boolean;
+  /** True for a message that landed while the room was open. */
+  justArrived?: boolean;
   /** Direct messages already name the person in the header. */
   hideSenderName?: boolean;
   /** Show accepted industry chips under the sender name. */
@@ -123,6 +131,7 @@ export function ChatBubble({
   onEditCancel,
   reactions: reactionsProp = [],
   justSent = false,
+  justArrived = false,
   hideSenderName = false,
   readTick = null,
   showIndustryChips = false,
@@ -138,10 +147,19 @@ export function ChatBubble({
   const [hovered, setHovered] = useState(false);
   const [showFireAnim, setShowFireAnim] = useState(false);
   const [showQuickPicker, setShowQuickPicker] = useState(false);
+  const [poppedEmoji, setPoppedEmoji] = useState<string | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const swipeRef = useRef<{ x: number; y: number; active: boolean } | null>(null);
   const lastTapRef = useRef<number>(0);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const QUICK_EMOJIS = ['🔥', '💪', '😂', '👏', '❄️', '💯'];
+
+  const toggleReaction = (msgId: string, emoji: string) => {
+    setPoppedEmoji(emoji);
+    window.setTimeout(() => setPoppedEmoji(null), 420);
+    onToggleReaction(msgId, emoji);
+  };
 
   const handleDoubleTap = (msgId: string) => {
     setShowFireAnim(true);
@@ -158,6 +176,12 @@ export function ChatBubble({
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     clearLongPress();
+    if (dragX >= 40 && onReply) {
+      navigator.vibrate?.(8);
+      onReply(message.id);
+    }
+    swipeRef.current = null;
+    setDragX(0);
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       e.preventDefault();
@@ -170,11 +194,29 @@ export function ChatBubble({
 
   const handleTouchStart = (e: React.TouchEvent) => {
     clearLongPress();
+    const t = e.touches[0];
+    if (t) swipeRef.current = { x: t.clientX, y: t.clientY, active: false };
     longPressTimerRef.current = setTimeout(() => {
       onContextMenu(e, message.id);
     }, 500);
   };
-  const handleTouchCancel = () => clearLongPress();
+  const handleTouchMove = (e: React.TouchEvent) => {
+    clearLongPress();
+    const start = swipeRef.current;
+    const t = e.touches[0];
+    if (!start || !t || !onReply) return;
+    const dx = t.clientX - start.x;
+    const dy = Math.abs(t.clientY - start.y);
+    if (!start.active && (dx < 8 || dy > Math.abs(dx))) return;
+    start.active = true;
+    setDragX(Math.max(0, Math.min(dx, 64)));
+  };
+
+  const handleTouchCancel = () => {
+    clearLongPress();
+    swipeRef.current = null;
+    setDragX(0);
+  };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -240,10 +282,26 @@ export function ChatBubble({
         </div>
       );
     }
+    if (isEmojiOnly(message.content)) {
+      return <span className="block text-[40px] leading-none">{message.content.trim()}</span>;
+    }
     return <span>{renderWithLinks(message.content)}</span>;
   };
 
+  const emojiOnly = !isEditing && isEmojiOnly(message.content);
+
+  // A win post bursts once, inside the bubble, and never again on scroll back.
+  const [showWinBurst, setShowWinBurst] = useState(false);
+  useEffect(() => {
+    if (message.kind !== 'win' || burstedWins.has(message.id)) return;
+    burstedWins.add(message.id);
+    setShowWinBurst(true);
+    const id = window.setTimeout(() => setShowWinBurst(false), 1000);
+    return () => window.clearTimeout(id);
+  }, [message.id, message.kind]);
+
   const hasMediaContent =
+    emojiOnly ||
     isStickerMessage(message.content) ||
     isGifMessage(message.content) ||
     isImageMessage(message.content) ||
@@ -263,7 +321,7 @@ export function ChatBubble({
       onDoubleClick={() => handleDoubleTap(message.id)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchCancel}
+      onTouchMove={handleTouchMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -284,7 +342,14 @@ export function ChatBubble({
           ) : isOwn ? null : <div className="w-9" />}
         </div>
 
-        <div className={cn("max-w-[75%] min-w-0 relative", isOwn && "ml-auto")}>
+        <div
+          className={cn(
+            "max-w-[75%] min-w-0 relative swipe-reply",
+            justArrived && "msg-in",
+            isOwn && "ml-auto"
+          )}
+          style={dragX ? { transform: `translateX(${dragX}px)` } : undefined}
+        >
           {/* Name and team */}
           {!isOwn && isFirstInGroup && !message.is_ai && !hideSenderName && (
             <span className="flex items-center gap-1 mb-0.5 ml-1 min-w-0">
@@ -335,7 +400,7 @@ export function ChatBubble({
 
           {/* Bubble */}
           <div className={cn(
-            "relative text-[14px] leading-relaxed whitespace-pre-wrap break-words select-text",
+            "chat-text relative leading-relaxed whitespace-pre-wrap break-words select-text",
             justSent && "bubble-in",
             hasMediaContent ? "rounded-2xl" : cn(
               "px-3 py-[7px]",
@@ -343,7 +408,7 @@ export function ChatBubble({
                 ? "bubble-own"
                 : message.is_ai
                   ? "bg-accent/30 border border-accent/20"
-                  : "bg-[hsl(var(--muted)/0.35)]",
+                  : "bubble-other",
               // iMessage corner rounding
               isOwn ? cn(
                 "rounded-[18px]",
@@ -365,6 +430,13 @@ export function ChatBubble({
               <span className="text-[10px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}
             {renderContent()}
+            {showWinBurst && (
+              <span aria-hidden className="win-burst">
+                {[12, 30, 48, 66, 84].map((left, i) => (
+                  <span key={left} style={{ left: `${left}%`, animationDelay: `${i * 60}ms` }} />
+                ))}
+              </span>
+            )}
             {!hasMediaContent && !isEditing && (
               <span className="ml-2 inline-flex select-none items-center gap-1 align-bottom text-[10px] text-muted-foreground/50">
                 {message.edited_at && <span>edited</span>}
@@ -404,7 +476,7 @@ export function ChatBubble({
                       {QUICK_EMOJIS.map(emoji => (
                         <button
                           key={emoji}
-                          onClick={() => { onToggleReaction(message.id, emoji); setShowQuickPicker(false); }}
+                          onClick={() => { toggleReaction(message.id, emoji); setShowQuickPicker(false); }}
                           className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted text-sm transition-all hover:scale-125 active:scale-90"
                         >
                           {emoji}
@@ -437,13 +509,21 @@ export function ChatBubble({
                 {reactions.slice(0, 4).map(r => (
                   <button
                     key={r.emoji}
-                    onClick={() => onToggleReaction(message.id, r.emoji)}
+                    onClick={() => toggleReaction(message.id, r.emoji)}
                     className={cn(
-                      "text-xs hover:scale-110 transition-transform",
+                      "relative text-xs hover:scale-110 transition-transform",
+                      poppedEmoji === r.emoji && "react-pop",
                       r.mine && "drop-shadow-[0_0_3px_hsl(var(--primary)/0.5)]"
                     )}
                   >
                     {r.emoji}
+                    {poppedEmoji === r.emoji && (
+                      <span aria-hidden className="pointer-events-none absolute inset-0">
+                        <span className="react-particle" style={{ ['--px' as string]: '-10px', ['--py' as string]: '-16px' }} />
+                        <span className="react-particle" style={{ ['--px' as string]: '2px', ['--py' as string]: '-20px' }} />
+                        <span className="react-particle" style={{ ['--px' as string]: '12px', ['--py' as string]: '-14px' }} />
+                      </span>
+                    )}
                   </button>
                 ))}
                 {reactions.reduce((sum, r) => sum + r.count, 0) > 1 && (
