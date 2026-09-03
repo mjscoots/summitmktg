@@ -770,7 +770,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
 
 
-          if (msg.kind === 'event' || msg.kind === 'announcement' || msg.kind === 'incentive') {
+          // Events belong on the Events page and in notifications, never in chat.
+          if (msg.kind === 'event') return null;
+
+          if (msg.kind === 'announcement' || msg.kind === 'incentive') {
             // A one to one chat is a conversation, nothing else: cards never render here.
             if (isDm) return null;
             const meta = (msg.meta || {}) as Record<string, any>;
@@ -778,7 +781,6 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
               <div key={msg.id}>
               {newDivider}
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                {msg.kind === 'event' && <EventCard eventId={msg.ref_id ?? null} meta={meta} title={msg.content} />}
                 {msg.kind === 'announcement' && (
                   <AnnouncementCard postId={msg.ref_id ?? null} meta={meta} title={msg.content} />
                 )}
