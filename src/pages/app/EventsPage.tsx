@@ -373,7 +373,7 @@ export default function EventsPage() {
     return { upcoming: up, past: old };
   }, [rows]);
 
-  const rsvp = async (eventId: string, status: 'attending' | 'not_attending') => {
+  const rsvp = useCallback(async (eventId: string, status: 'attending' | 'not_attending') => {
     setRsvpBusy(eventId);
     const { error } = await (supabase as any).rpc('rsvp_event', { p_event_id: eventId, p_status: status });
     setRsvpBusy(null);
@@ -390,9 +390,27 @@ export default function EventsPage() {
           going_count: r.going_count + (status === 'attending' ? (r.my_rsvp === 'attending' ? 0 : 1) : (r.my_rsvp === 'attending' ? -1 : 0)),
         }
       : r)));
-  };
+  }, []);
 
-  const openCheckin = async (ev: EventRow) => {
+  const onEdit = useCallback((ev: EventRow) => {
+    setDraft({
+      id: ev.id,
+      title: ev.title,
+      event_kind: ev.event_kind,
+      scope: ev.scope,
+      team_id: ev.team_id,
+      local_datetime: toLocalInput(ev.event_date),
+      location: ev.location ?? '',
+      description: ev.description ?? '',
+      weekly: false,
+    });
+  }, []);
+
+  const onDelete = useCallback((ev: EventRow) => {
+    setDeleteTarget({ ev, series: false });
+  }, []);
+
+  const openCheckin = useCallback(async (ev: EventRow) => {
     setCheckinEvent(ev);
     setCheckinLoading(true);
     const { data, error } = await (supabase as any).rpc('get_event_checkin', { p_event_id: ev.id });
