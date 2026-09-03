@@ -20,7 +20,7 @@ import {
   isVideoFile,
 } from '@/lib/chatMedia';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 type TrayStatus = 'ready' | 'uploading' | 'done' | 'error';
@@ -415,9 +415,9 @@ export function ChatComposer({
         </Sheet>
       ) : (
         <Popover open={showAttach} onOpenChange={setShowAttach}>
-          <PopoverAnchor asChild>
+          <PopoverTrigger asChild>
             <span className="pointer-events-none absolute bottom-12 left-4 h-0 w-0" />
-          </PopoverAnchor>
+          </PopoverTrigger>
           <PopoverContent side="top" align="start" className="w-[240px] p-2">
             <div className="flex flex-col">
               {attachActions.map((item) => (
