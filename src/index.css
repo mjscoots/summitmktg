@@ -1493,7 +1493,7 @@ html[data-appearance='light'] .public-cta::before {
    PASS 162 - chat look. Wallpapers, bubble text size, small effects.
    Every rule here is cosmetic and per person.
    ───────────────────────────────────────────────────────────── */
-@layer components {
+/* Plain CSS, not a Tailwind layer: wallpaper classes are composed at runtime. */
   .chat-wall {
     position: relative;
     background-color: hsl(var(--background));
@@ -1577,7 +1577,7 @@ html[data-appearance='light'] .public-cta::before {
   .chat-text {
     font-size: var(--chat-text, 14px);
   }
-}
+
 
 @layer utilities {
   /* A message that just arrived slides up 8px and fades in over 160ms. */
