@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Pin } from 'lucide-react';
-import { EventCard } from '@/components/chat/EventCard';
 import { AnnouncementCard } from '@/components/chat/AnnouncementCard';
 import { IncentiveCard } from '@/components/chat/IncentiveCard';
 
@@ -17,8 +16,10 @@ export interface PinnedItem {
 export function PinnedBar({ item }: { item: PinnedItem }) {
   const [open, setOpen] = useState(false);
   const meta = (item.meta || {}) as Record<string, any>;
+  // Events are not chat material, so an event row never pins.
+  if (item.kind === 'event') return null;
   const label =
-    item.kind === 'event' ? 'Event' : item.kind === 'incentive' ? 'Incentive' : item.kind === 'announcement' ? 'Update' : 'Pinned';
+    item.kind === 'incentive' ? 'Incentive' : item.kind === 'announcement' ? 'Update' : 'Pinned';
   const title = (meta.title as string) || item.content;
 
   return (
@@ -42,10 +43,9 @@ export function PinnedBar({ item }: { item: PinnedItem }) {
       </button>
       {open && (
         <div className="pb-1">
-          {item.kind === 'event' && <EventCard eventId={item.ref_id} meta={meta} title={item.content} />}
           {item.kind === 'announcement' && <AnnouncementCard postId={item.ref_id} meta={meta} title={item.content} />}
           {item.kind === 'incentive' && <IncentiveCard incentiveId={item.ref_id} meta={meta} title={item.content} />}
-          {!['event', 'announcement', 'incentive'].includes(item.kind) && (
+          {!['announcement', 'incentive'].includes(item.kind) && (
             <p className="whitespace-pre-wrap px-3 pb-2 text-[13px] text-muted-foreground">{item.content}</p>
           )}
         </div>

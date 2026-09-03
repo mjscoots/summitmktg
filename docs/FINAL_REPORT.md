@@ -3150,3 +3150,45 @@ New helper `card_channel_or_general(text)`: any resolved slug belonging to a roo
 chat_messages 720, calendar_events 60, chat_channels 20. Card rows currently sitting in a member-list room: 0. No data writes.
 
 Typecheck clean. Production build clean. Not published.
+
+## Pass 161: events out of chat for good, and WhatsApp grade sending
+
+### Events out of chat
+| Item | Result | File |
+| --- | --- | --- |
+| Auto posting trigger | `trg_post_event_card` dropped from `calendar_events`; the other event triggers (sync, cancel) left as they are | migration |
+| Existing auto posted rows | `DELETE FROM chat_messages WHERE kind = 'event' AND is_ai = true` removed exactly 7 rows | migration |
+| Chat never renders event rows | `kind === 'event'` returns null in every room | src/components/dashboard/CommunityChat.tsx |
+| Pinned bar ignores events | event items return null | src/components/chat/PinnedBar.tsx |
+| Chat list drops the RSVP card | only the `rsvp` type is filtered out; announcement ack, incentive, setup step and first week stay | src/components/chat/NeedsYouRow.tsx |
+| `get_action_cards` untouched | Home and other callers still receive rsvp entries | none |
+
+Rollback proof: inside a `DO` block a new `calendar_events` row was inserted and the block then raised, so nothing was saved. `chat_messages before=713 after=713 delta=0`.
+
+Counts: `chat_messages` 720 before the migration, 713 after, 0 rows with `kind = 'event'`. `calendar_events` 60, unchanged.
+
+### Sending
+| Item | Result | File |
+| --- | --- | --- |
+| One plus button, 44px, bottom sheet on phone and popover on desktop | measured 44 x 44 at 390 and 1280 | src/components/chat/ChatComposer.tsx |
+| Camera uses the rear camera on phone | `accept="image/*" capture="environment"` | src/components/chat/ChatComposer.tsx |
+| Photos and videos, multi select up to 10 | tray with thumbnails, remove per item, the message box doubles as the caption field | src/components/chat/ChatComposer.tsx |
+| 2 to 10 photos send as one message | content prefix `imgs:` plus a JSON array of paths; legacy `img:` rows still render | src/lib/chatMedia.ts, src/components/chat/MediaGallery.tsx |
+| Grid and lightbox | 2 up, 3 with one large, 4 grid, plus N past four; tap opens the lightbox with swipe and arrow keys | src/components/chat/MediaGallery.tsx |
+| Video | mp4, mov, webm up to 50 MB, prefix `video:`, poster frame captured in the browser, no autoplay, muted first tap, full screen on the second | src/lib/chatMedia.ts, src/components/chat/ChatVideo.tsx |
+| Upload progress and retry | thin bar on the tray item, send disabled while uploading, Retry on a failed item | src/components/chat/ChatComposer.tsx |
+| Chat list previews | Photo, N photos, Video, File, GIF, Sticker, Voice note | src/components/chat/ChatList.tsx |
+| Save on media | Save appears in the context menu for an image or a video | src/components/chat/MessageContextMenu.tsx |
+
+Storage: uploads still go to the private `chat-uploads` bucket at `userId/timestamp.ext` with signed URLs at read time. The four policies are unchanged: Admins can delete any chat uploads, Authenticated users can upload chat files, Chat members can read chat uploads, Users can delete own chat uploads. The 100 MB bucket limit is unchanged.
+
+### Function privileges (anon EXECUTE)
+`post_event_card` false, `sync_event_card` false, `refresh_series_card(uuid)` false, `mark_event_card_cancelled` false, `card_channel_or_general(text)` false, `get_action_cards` false.
+
+### Screens
+390: the chat list shows Needs you with setup step cards only, no RSVP card. A group room (Wins) shows its messages with no event card and no pinned event bar. The plus button opens the Attach sheet with Camera, Photos and videos, Document, Poll, GIF, Sticker in a three column grid, each target 88px tall. 1280: the same room shows the plus button at 44px with the same six items in a popover above it.
+
+### New copy
+Attach, Camera, Photos and videos, Document, Poll, GIF, Sticker, Retry, Videos up to 50 MB, Up to 10 at a time, That upload failed, That did not send. Try again., Photo, N photos, Video, Save. No em dashes.
+
+Typecheck clean, production build clean. Not published.

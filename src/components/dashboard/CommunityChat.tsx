@@ -18,7 +18,6 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { MessageContextMenu } from '@/components/chat/MessageContextMenu';
 import { SummitLoader } from '@/components/shared/SummitLoader';
 import { useChatChannels } from '@/hooks/useChatChannels';
-import { EventCard } from '@/components/chat/EventCard';
 import { AnnouncementCard } from '@/components/chat/AnnouncementCard';
 import { IncentiveCard } from '@/components/chat/IncentiveCard';
 import { PinnedBar } from '@/components/chat/PinnedBar';
@@ -661,7 +660,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const contextMsg = contextMenu ? messages.find(m => m.id === contextMenu.msgId) : null;
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
   /** Latest pinned message surfaces in a collapsible bar so nobody has to scroll for it. */
-  const pinnedCard = [...channelMessages].reverse().find(m => m.is_pinned) || null;
+  // Events live on the Events page and in notifications, never in a chat room.
+  const pinnedCard = [...channelMessages].reverse().find(m => m.is_pinned && m.kind !== 'event') || null;
 
 
 
@@ -769,7 +769,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
 
 
-          if (msg.kind === 'event' || msg.kind === 'announcement' || msg.kind === 'incentive') {
+          // Events belong on the Events page and in notifications, never in chat.
+          if (msg.kind === 'event') return null;
+
+          if (msg.kind === 'announcement' || msg.kind === 'incentive') {
             // A one to one chat is a conversation, nothing else: cards never render here.
             if (isDm) return null;
             const meta = (msg.meta || {}) as Record<string, any>;
@@ -777,7 +780,6 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
               <div key={msg.id}>
               {newDivider}
                 {showDate && <DateSeparator date={new Date(msg.created_at)} />}
-                {msg.kind === 'event' && <EventCard eventId={msg.ref_id ?? null} meta={meta} title={msg.content} />}
                 {msg.kind === 'announcement' && (
                   <AnnouncementCard postId={msg.ref_id ?? null} meta={meta} title={msg.content} />
                 )}
