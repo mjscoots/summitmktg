@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { BadgeStrip } from '@/components/badges/BadgeStrip';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -290,6 +290,16 @@ export function ChatBubble({
 
   const emojiOnly = !isEditing && isEmojiOnly(message.content);
 
+  // A win post bursts once, inside the bubble, and never again on scroll back.
+  const [showWinBurst, setShowWinBurst] = useState(false);
+  useEffect(() => {
+    if (message.kind !== 'win' || burstedWins.has(message.id)) return;
+    burstedWins.add(message.id);
+    setShowWinBurst(true);
+    const id = window.setTimeout(() => setShowWinBurst(false), 1000);
+    return () => window.clearTimeout(id);
+  }, [message.id, message.kind]);
+
   const hasMediaContent =
     emojiOnly ||
     isStickerMessage(message.content) ||
@@ -332,7 +342,14 @@ export function ChatBubble({
           ) : isOwn ? null : <div className="w-9" />}
         </div>
 
-        <div className={cn("max-w-[75%] min-w-0 relative", isOwn && "ml-auto")}>
+        <div
+          className={cn(
+            "max-w-[75%] min-w-0 relative swipe-reply",
+            justArrived && "msg-in",
+            isOwn && "ml-auto"
+          )}
+          style={dragX ? { transform: `translateX(${dragX}px)` } : undefined}
+        >
           {/* Name and team */}
           {!isOwn && isFirstInGroup && !message.is_ai && !hideSenderName && (
             <span className="flex items-center gap-1 mb-0.5 ml-1 min-w-0">
@@ -413,6 +430,13 @@ export function ChatBubble({
               <span className="text-[10px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}
             {renderContent()}
+            {showWinBurst && (
+              <span aria-hidden className="win-burst">
+                {[12, 30, 48, 66, 84].map((left, i) => (
+                  <span key={left} style={{ left: `${left}%`, animationDelay: `${i * 60}ms` }} />
+                ))}
+              </span>
+            )}
             {!hasMediaContent && !isEditing && (
               <span className="ml-2 inline-flex select-none items-center gap-1 align-bottom text-[10px] text-muted-foreground/50">
                 {message.edited_at && <span>edited</span>}
