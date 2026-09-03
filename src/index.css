@@ -1526,7 +1526,7 @@ html[data-appearance='light'] .public-cta::before {
   }
 
   .chat-wall-slate {
-    background-color: hsl(215 16% 15%);
+    background-color: hsl(215 16% 19%);
   }
   .chat-wall-slate::before {
     background-image:
@@ -1536,7 +1536,7 @@ html[data-appearance='light'] .public-cta::before {
   }
 
   .chat-wall-forest {
-    background-color: hsl(158 30% 11%);
+    background-color: hsl(158 32% 14%);
   }
   .chat-wall-forest::before {
     background-image: radial-gradient(hsl(150 60% 70% / 0.05) 1px, transparent 1px);
@@ -1544,7 +1544,7 @@ html[data-appearance='light'] .public-cta::before {
   }
 
   .chat-wall-sand {
-    background-color: hsl(34 26% 16%);
+    background-color: hsl(34 30% 19%);
   }
   .chat-wall-sand::before {
     background-image: repeating-linear-gradient(
@@ -1555,7 +1555,7 @@ html[data-appearance='light'] .public-cta::before {
   }
 
   .chat-wall-ice {
-    background-color: hsl(200 34% 14%);
+    background-color: hsl(200 38% 17%);
   }
   .chat-wall-ice::before {
     background-image: repeating-linear-gradient(
