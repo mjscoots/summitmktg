@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2, Mic, Square, Sticker } from 'lucide-react';
+import { ArrowUp, Plus, Image, Paperclip, BarChart3, Smile, X, Reply, Loader2, Mic, Square, Sticker, Camera, RotateCw, Play } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { buildVoiceMessage, MAX_VOICE_SECONDS, pickAudioMime, voiceRecordingSupported } from '@/components/chat/VoiceNote';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,29 @@ import { PollCreator } from '@/components/dashboard/ChatPoll';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { measureKeyboardOffset, setComposerKeyboard, useComposerKeyboard } from '@/lib/composerKeyboard';
+import { prepareChatImage } from '@/lib/chatImage';
+import {
+  MAX_MEDIA_PER_SEND,
+  MAX_VIDEO_BYTES,
+  buildImagesMessage,
+  buildVideoMessage,
+  capturePosterFrame,
+  isVideoFile,
+} from '@/lib/chatMedia';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+type TrayStatus = 'ready' | 'uploading' | 'done' | 'error';
+
+interface TrayItem {
+  id: string;
+  file: File;
+  kind: 'image' | 'video' | 'file';
+  preview: string | null;
+  status: TrayStatus;
+  path?: string;
+}
 
 interface ChatComposerProps {
   input: string;
@@ -52,6 +75,11 @@ export function ChatComposer({
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
 
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+  const [showAttach, setShowAttach] = useState(false);
+  const [tray, setTray] = useState<TrayItem[]>([]);
+  const [sendingTray, setSendingTray] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
   const [showStickers, setShowStickers] = useState(false);
