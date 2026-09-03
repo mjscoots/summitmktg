@@ -1520,8 +1520,8 @@ html[data-appearance='light'] .public-cta::before {
     background-color: hsl(222 52% 7%);
   }
   .chat-wall-night::before {
-    opacity: 0.5;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cpath d='M0 52 L30 18 L52 40 L74 10 L120 52' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='1.2'/%3E%3C/svg%3E");
+    opacity: 0.9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cpath d='M0 52 L30 18 L52 40 L74 10 L120 52' fill='none' stroke='%23ffffff' stroke-opacity='0.11' stroke-width='1.2'/%3E%3C/svg%3E");
     background-size: 120px 60px;
   }
 
