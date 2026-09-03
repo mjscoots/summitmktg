@@ -8,6 +8,9 @@ import { isGifMessage, getGifUrl } from '@/components/dashboard/GifPicker';
 import { isImageMessage, getImageUrl, ChatImage, isFileMessage, getFileInfo, ChatFile } from '@/components/dashboard/ChatImageUpload';
 import { ChatPoll } from '@/components/dashboard/ChatPoll';
 import { isVoiceMessage, getVoiceInfo, VoiceNoteBubble } from '@/components/chat/VoiceNote';
+import { MediaGallery } from '@/components/chat/MediaGallery';
+import { ChatVideo } from '@/components/chat/ChatVideo';
+import { isImagesMessage, getImagePaths, isVideoMessage, getVideoPath } from '@/lib/chatMedia';
 import { RankInsignia } from '@/components/badges/RankInsignia';
 import { RoleChip } from '@/components/shared/RoleChip';
 import { IndustryChips } from '@/components/shared/IndustryChips';
@@ -222,6 +225,8 @@ export function ChatBubble({
       const info = getVoiceInfo(message.content);
       return info ? <VoiceNoteBubble url={info.url} seconds={info.seconds} isOwn={isOwn} /> : null;
     }
+    if (isImagesMessage(message.content)) return <MediaGallery paths={getImagePaths(message.content)} />;
+    if (isVideoMessage(message.content)) return <ChatVideo path={getVideoPath(message.content)} />;
     if (isImageMessage(message.content)) return <ChatImage url={getImageUrl(message.content)} />;
     if (isFileMessage(message.content)) {
       const info = getFileInfo(message.content);
@@ -238,7 +243,12 @@ export function ChatBubble({
     return <span>{renderWithLinks(message.content)}</span>;
   };
 
-  const hasMediaContent = isStickerMessage(message.content) || isGifMessage(message.content) || isImageMessage(message.content);
+  const hasMediaContent =
+    isStickerMessage(message.content) ||
+    isGifMessage(message.content) ||
+    isImageMessage(message.content) ||
+    isImagesMessage(message.content) ||
+    isVideoMessage(message.content);
 
   return (
     <div

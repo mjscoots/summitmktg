@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Reply, Copy, Pin, PinOff, Pencil, Trash2, SmilePlus } from 'lucide-react';
+import { Reply, Copy, Pin, PinOff, Pencil, Trash2, SmilePlus, Download } from 'lucide-react';
+import { getChatAttachmentUrl } from '@/lib/chatAttachments';
+import { mediaPathsFor, saveAttachment } from '@/lib/chatMedia';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -82,6 +84,21 @@ export function MessageContextMenu({
     }
   };
 
+  const savePaths = mediaPathsFor(messageContent);
+
+  const handleSave = async () => {
+    onClose();
+    try {
+      for (const path of savePaths) {
+        const signed = await getChatAttachmentUrl(path);
+        if (!signed) continue;
+        await saveAttachment(signed, path.split('/').pop() || 'attachment');
+      }
+    } catch {
+      toast.error('Could not save that');
+    }
+  };
+
   const handleCopy = () => {
     navigator.clipboard.writeText(messageContent);
     toast.success('Copied');
@@ -125,6 +142,9 @@ export function MessageContextMenu({
         <div className="bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-2xl overflow-hidden min-w-[200px]">
           <MenuItem icon={<Reply className="w-4 h-4" />} label="Reply" onClick={() => { onReply(); onClose(); }} />
           <MenuItem icon={<Copy className="w-4 h-4" />} label="Copy" onClick={handleCopy} />
+          {savePaths.length > 0 && (
+            <MenuItem icon={<Download className="w-4 h-4" />} label="Save" onClick={handleSave} />
+          )}
           {isManager && (
             <MenuItem
               icon={isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
