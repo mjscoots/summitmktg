@@ -1028,12 +1028,20 @@ body {
    PASS 75 - chat bubbles, ranks, mission tiles
    ───────────────────────────────────────────────────────────── */
 @layer components {
-  /* Own message: a flat ice tint with an accent hairline */
+  /* Own message: a flat tint of the chosen bubble colour with a hairline */
   .bubble-own {
-    background: hsl(var(--ice) / 0.12);
-    border: 1px solid hsl(var(--ice) / 0.4);
+    background: hsl(var(--chat-bubble, var(--workspace-accent)) / 0.18);
+    border: 1px solid hsl(var(--chat-bubble, var(--workspace-accent)) / 0.45);
     color: hsl(var(--foreground));
   }
+
+  /* Everyone else: a translucent surface that stays readable on a wallpaper */
+  .bubble-other {
+    background: hsl(var(--muted) / 0.55);
+    border: 1px solid hsl(var(--border) / 0.6);
+    color: hsl(var(--foreground));
+  }
+
 
   /* Reply quote strip above a bubble */
   .reply-quote {
