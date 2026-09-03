@@ -255,7 +255,117 @@ export function ChatComposer({
     setShowDrawer(false);
   };
 
+  // --- attachment tray ---
+  const addFiles = (files: File[]) => {
+    const room = MAX_MEDIA_PER_SEND - tray.length;
+    if (room <= 0) {
+      toast.error(`Up to ${MAX_MEDIA_PER_SEND} at a time`);
+      return;
+    }
+    const picked = files.slice(0, room);
+    const next: TrayItem[] = [];
+    for (const file of picked) {
+      const video = isVideoFile(file);
+      if (video && file.size > MAX_VIDEO_BYTES) {
+        toast.error('Videos up to 50 MB');
+        continue;
+      }
+      const kind: TrayItem['kind'] = video ? 'video' : file.type.startsWith('image/') ? 'image' : 'file';
+      const item: TrayItem = {
+        id: `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        file,
+        kind,
+        preview: kind === 'image' ? URL.createObjectURL(file) : null,
+        status: 'ready',
+      };
+      next.push(item);
+      if (kind === 'video') {
+        void capturePosterFrame(file).then((poster) => {
+          if (poster) setTray((prev) => prev.map((t) => (t.id === item.id ? { ...t, preview: poster } : t)));
+        });
+      }
+    }
+    if (next.length) setTray((prev) => [...prev, ...next]);
+    setShowAttach(false);
+  };
+
+  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (files.length) addFiles(files);
+  };
+
+  const removeTrayItem = (id: string) => setTray((prev) => prev.filter((t) => t.id !== id));
+
+  const uploadTrayItem = async (item: TrayItem): Promise<string | null> => {
+    if (!user) return null;
+    const prepared = item.kind === 'image' ? await prepareChatImage(item.file) : null;
+    const ext = prepared ? prepared.ext : item.file.name.split('.').pop() || 'bin';
+    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+    const body = prepared
+      ? prepared.blob
+      : new Blob([await item.file.arrayBuffer()], { type: item.file.type || 'application/octet-stream' });
+    const { error } = await supabase.storage
+      .from('chat-uploads')
+      .upload(path, body, { contentType: body.type || 'application/octet-stream' });
+    if (error) return null;
+    return path;
+  };
+
+  const sendTray = async () => {
+    if (!user || sendingTray || tray.length === 0) return;
+    setSendingTray(true);
+    const uploaded: TrayItem[] = [];
+    for (const item of tray) {
+      if (item.status === 'done' && item.path) { uploaded.push(item); continue; }
+      setTray((prev) => prev.map((t) => (t.id === item.id ? { ...t, status: 'uploading' } : t)));
+      const path = await uploadTrayItem(item);
+      if (!path) {
+        setTray((prev) => prev.map((t) => (t.id === item.id ? { ...t, status: 'error' } : t)));
+        setSendingTray(false);
+        toast.error('That upload failed');
+        return;
+      }
+      const done: TrayItem = { ...item, status: 'done', path };
+      uploaded.push(done);
+      setTray((prev) => prev.map((t) => (t.id === item.id ? done : t)));
+    }
+
+    const photos = uploaded.filter((t) => t.kind === 'image').map((t) => t.path!) as string[];
+    try {
+      if (photos.length > 1) await onSendFile(buildImagesMessage(photos));
+      else if (photos.length === 1) await onSendFile(`img:${photos[0]}`);
+      for (const item of uploaded) {
+        if (item.kind === 'video') await onSendFile(buildVideoMessage(item.path!));
+        if (item.kind === 'file') {
+          await onSendFile(`file:${JSON.stringify({ url: item.path, name: item.file.name, size: item.file.size })}`);
+        }
+      }
+      const caption = input.trim();
+      if (caption) {
+        onInputChange('');
+        await onSendFile(caption);
+      }
+      tray.forEach((t) => { if (t.preview?.startsWith('blob:')) URL.revokeObjectURL(t.preview); });
+      setTray([]);
+    } catch {
+      toast.error('That did not send. Try again.');
+    } finally {
+      setSendingTray(false);
+    }
+  };
+
+  const attachActions = [
+    { icon: <Camera className="h-5 w-5" />, label: 'Camera', action: () => cameraRef.current?.click() },
+    { icon: <Image className="h-5 w-5" />, label: 'Photos and videos', action: () => imageRef.current?.click() },
+    { icon: <Paperclip className="h-5 w-5" />, label: 'Document', action: () => fileRef.current?.click() },
+    { icon: <BarChart3 className="h-5 w-5" />, label: 'Poll', action: () => { setShowAttach(false); setShowPoll(true); } },
+    { icon: <Smile className="h-5 w-5" />, label: 'GIF', action: () => { setShowAttach(false); setShowGifs(true); } },
+    { icon: <Sticker className="h-5 w-5" />, label: 'Sticker', action: () => { setShowAttach(false); setShowStickers(true); } },
+  ];
+
   const closeAll = () => {
+    setShowAttach(false);
     setShowDrawer(false);
     setShowGifs(false);
     setShowStickers(false);
