@@ -49,6 +49,7 @@ const EventsPage = lazyRoute(() => import("./pages/app/EventsPage"));
 const MyTeamPage = lazyRoute(() => import("./pages/app/MyTeamPage"));
 
 const ProfilePage = lazyRoute(() => import("./pages/app/ProfilePage"));
+const ChatLookPage = lazyRoute(() => import("./pages/app/ChatLookPage"));
 const InterviewsPage = lazyRoute(() => import("./pages/app/InterviewsPage"));
 const Interview1Page = lazyRoute(() => import("./pages/app/Interview1Page"));
 const Interview2Page = lazyRoute(() => import("./pages/app/Interview2Page"));
@@ -262,6 +263,11 @@ function LazyFallback() {
               <Route path="/app/chat" element={
                 <ProtectedRoute>
                     <ChatPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/chat-look" element={
+                <ProtectedRoute>
+                    <ChatLookPage />
                 </ProtectedRoute>
               } />
 
