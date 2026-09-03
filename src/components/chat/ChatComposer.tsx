@@ -206,6 +206,8 @@ export function ChatComposer({
     else { cleanupStream(); setRecording(false); setRecordSeconds(0); }
   };
 
+  const trayRef = useRef<TrayItem[]>([]);
+  const sendTrayRef = useRef<() => Promise<void>>(async () => {});
   const recordSecondsRef = useRef(0);
   recordSecondsRef.current = recordSeconds;
 
@@ -218,7 +220,8 @@ export function ChatComposer({
     }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      onSend();
+      if (trayRef.current.length > 0) void sendTrayRef.current();
+      else onSend();
     }
   };
 
@@ -355,6 +358,9 @@ export function ChatComposer({
     }
   };
 
+  trayRef.current = tray;
+  sendTrayRef.current = sendTray;
+
   const attachActions = [
     { icon: <Camera className="h-5 w-5" />, label: 'Camera', action: () => cameraRef.current?.click() },
     { icon: <Image className="h-5 w-5" />, label: 'Photos and videos', action: () => imageRef.current?.click() },
@@ -404,46 +410,104 @@ export function ChatComposer({
         </div>
       )}
 
-      {/* + Drawer - slides up */}
-      {showDrawer && (
-        <div className="animate-fade-in px-4 py-3 border-t border-border/10">
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { icon: <Image className="w-5 h-5" />, label: 'Photo', action: () => { imageRef.current?.click(); } },
-              { icon: <Paperclip className="w-5 h-5" />, label: 'File', action: () => { fileRef.current?.click(); } },
-              { icon: <Smile className="w-5 h-5" />, label: 'GIF', action: () => { setShowGifs(true); setShowDrawer(false); } },
-              { icon: <Sticker className="w-5 h-5" />, label: 'Sticker', action: () => { setShowStickers(true); setShowDrawer(false); } },
-              { icon: <BarChart3 className="w-5 h-5" />, label: 'Poll', action: () => { setShowPoll(true); setShowDrawer(false); } },
-            ].map(item => (
+      {/* Attach menu: bottom sheet on phone, popover on desktop */}
+      {isMobile ? (
+        <Sheet open={showAttach} onOpenChange={setShowAttach}>
+          <SheetContent side="bottom" className="rounded-t-2xl">
+            <SheetHeader>
+              <SheetTitle className="text-[15px]">Attach</SheetTitle>
+            </SheetHeader>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              {attachActions.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={item.action}
+                  className="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-2xl bg-muted/20 p-3 text-center transition-colors hover:bg-muted/40"
+                >
+                  <span className="text-primary">{item.icon}</span>
+                  <span className="text-[12px] font-medium text-muted-foreground">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Popover open={showAttach} onOpenChange={setShowAttach}>
+          <PopoverAnchor asChild>
+            <span className="pointer-events-none absolute bottom-12 left-4 h-0 w-0" />
+          </PopoverAnchor>
+          <PopoverContent side="top" align="start" className="w-[240px] p-2">
+            <div className="flex flex-col">
+              {attachActions.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={item.action}
+                  className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-left text-[13px] text-foreground transition-colors hover:bg-muted/40"
+                >
+                  <span className="text-primary">{item.icon}</span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
+      {/* Preview tray */}
+      {tray.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto border-t border-border/10 px-3 py-2">
+          {tray.map((item) => (
+            <div key={item.id} className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted/30">
+              {item.preview ? (
+                <img src={item.preview} alt={item.file.name} className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center px-1 text-center text-[10px] text-muted-foreground">
+                  {item.file.name.slice(0, 18)}
+                </span>
+              )}
+              {item.kind === 'video' && item.status !== 'uploading' && (
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <Play className="h-5 w-5 text-white drop-shadow" />
+                </span>
+              )}
               <button
-                key={item.label}
-                onClick={item.action}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-muted/20 hover:bg-muted/40 transition-colors"
+                type="button"
+                onClick={() => removeTrayItem(item.id)}
+                aria-label={`Remove ${item.file.name}`}
+                className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white"
               >
-                <div className="text-primary/70">{item.icon}</div>
-                <span className="text-[10px] font-medium text-muted-foreground/60">{item.label}</span>
+                <X className="h-3 w-3" />
               </button>
-            ))}
-          </div>
+              {item.status === 'uploading' && (
+                <span className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden bg-black/40">
+                  <span className="block h-full w-1/2 animate-pulse bg-primary" />
+                </span>
+              )}
+              {item.status === 'error' && (
+                <button
+                  type="button"
+                  onClick={() => void sendTray()}
+                  className="absolute inset-x-0 bottom-0 flex min-h-[22px] items-center justify-center gap-1 bg-destructive/85 text-[10px] font-semibold text-destructive-foreground"
+                >
+                  <RotateCw className="h-3 w-3" /> Retry
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
       {/* Hidden file inputs */}
+      <input ref={cameraRef} type="file" className="hidden" accept="image/*" capture="environment" onChange={handlePick} />
       <input
         ref={imageRef}
         type="file"
         className="hidden"
-        accept="image/*"
-        onChange={handleFileUpload}
+        multiple
+        accept="image/*,video/mp4,video/quicktime,video/webm"
+        onChange={handlePick}
       />
-      <input
-        ref={fileRef}
-        type="file"
-        className="hidden"
-        accept="*/*"
-        onChange={handleFileUpload}
-      />
-
+      <input ref={fileRef} type="file" className="hidden" accept="*/*" onChange={handlePick} />
 
       {/* Pickers */}
       {showGifs && <GifPicker onSelect={(url) => { onSendGif(url); closeAll(); }} onClose={closeAll} />}
@@ -486,15 +550,16 @@ export function ChatComposer({
       <div className={cn("flex items-end gap-1.5 px-2 py-2", replyingTo && "pt-0")}>
         {/* + button */}
         <button
-          onClick={() => { setShowDrawer(!showDrawer); setShowGifs(false); setShowStickers(false); setShowPoll(false); }}
+          onClick={() => { setShowAttach(!showAttach); setShowGifs(false); setShowStickers(false); setShowPoll(false); }}
+          aria-label="Attach"
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded-full transition-all flex-shrink-0 mb-0.5",
-            showDrawer
+            "h-11 w-11 flex items-center justify-center rounded-full transition-all flex-shrink-0",
+            showAttach
               ? "bg-primary/20 text-primary rotate-45"
               : "bg-muted/30 text-muted-foreground/40 hover:text-muted-foreground/60"
           )}
         >
-          <Plus className="w-4 h-4" strokeWidth={2.5} />
+          <Plus className="w-5 h-5" strokeWidth={2.5} />
         </button>
 
         {/* Text input pill */}
@@ -537,16 +602,17 @@ export function ChatComposer({
 
         {/* Send button - circular with up arrow */}
         <button
-          onClick={onSend}
-          disabled={!input.trim() || isSending}
+          onClick={() => (tray.length > 0 ? void sendTray() : onSend())}
+          aria-label="Send"
+          disabled={tray.length > 0 ? sendingTray || tray.some((t) => t.status === 'uploading') : !input.trim() || isSending}
           className={cn(
             "w-8 h-8 flex items-center justify-center rounded-full transition-all flex-shrink-0 mb-0.5",
-            input.trim()
+            input.trim() || tray.length > 0
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 active:scale-90"
               : "bg-muted/20 text-muted-foreground/15"
           )}
         >
-          {isSending ? (
+          {isSending || sendingTray ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
           ) : (
             <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
