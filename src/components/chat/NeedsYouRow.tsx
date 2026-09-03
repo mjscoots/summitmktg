@@ -2,17 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useActionCards, type ActionCard } from '@/hooks/useActionCards';
 import { useFirstWeek } from '@/hooks/useFirstWeek';
 
-
-function fmtWhen(iso?: string | null) {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return format(d, 'EEE MMM d, h:mm a');
-}
 
 function AnnouncementActionCard({ card, onDone }: { card: ActionCard; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
