@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { lazy, Suspense } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -151,6 +151,147 @@ function emptyDraft(): DraftEvent {
   };
 }
 
+interface EventCardProps {
+  ev: EventRow;
+  isPast: boolean;
+  busy: boolean;
+  isManager: boolean;
+  canDelete: boolean;
+  onRsvp: (eventId: string, status: 'attending' | 'not_attending') => void;
+  onCheckin: (ev: EventRow) => void;
+  onEdit: (ev: EventRow) => void;
+  onDelete: (ev: EventRow) => void;
+}
+
+/**
+ * One event row. Lives at module scope and is memoized so typing in the
+ * create dialog never unmounts every card (which would refire each card's
+ * blitz cap RPC and realtime subscriptions).
+ */
+const EventCard = memo(function EventCard({
+  ev, isPast, busy, isManager, canDelete, onRsvp, onCheckin, onEdit, onDelete,
+}: EventCardProps) {
+  const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
+  const joinUrl = firstUrl(ev.description) || firstUrl(ev.location);
+  const descText = stripUrls(ev.description);
+  const cap = useBlitzCap(isPast ? null : ev.id);
+  const capFull = cap.state?.capacity != null && (cap.state.spots_left ?? 0) === 0;
+
+  return (
+    <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[14px] font-semibold text-foreground">{ev.title}</p>
+          <p className="mt-1 text-[12px] tabular-nums text-muted-foreground">
+            {fmtRange(ev.event_date, ev.end_date)} · {kindLabel(ev.event_kind)}
+            {ev.scope === 'team' && ev.team_name ? ` · ${ev.team_name}` : ''}
+            {ev.scope === 'managers' ? ' · Managers and above' : ''}
+            {ev.is_series ? ' · Weekly' : ''}
+          </p>
+          {ev.location && !firstUrl(ev.location) && (
+            <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" /> {ev.location}
+            </p>
+          )}
+          {descText && (
+            <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
+              {descText}
+            </p>
+          )}
+        </div>
+        <span className="shrink-0 rounded-lg border border-border/60 bg-surface px-2 py-1 text-[11px] tabular-nums text-muted-foreground">
+          {isPast ? `${ev.present_count} present` : `${ev.going_count} going`}
+        </span>
+      </div>
+
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {joinUrl && (
+          <a
+            href={sanitizeUrl(joinUrl)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-[12px] font-semibold text-primary-foreground"
+          >
+            <Video className="h-3.5 w-3.5" /> Join
+          </a>
+        )}
+        {!isPast && (
+          <>
+
+            {!(capFull && ev.my_rsvp !== 'attending') && (
+            <button
+              onClick={() => onRsvp(ev.id, 'attending')}
+              disabled={busy}
+              className={cn(
+                'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
+                ev.my_rsvp === 'attending'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'border border-border/60 bg-surface text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Check className="h-3.5 w-3.5" /> Going
+            </button>
+            )}
+
+            <button
+              onClick={() => onRsvp(ev.id, 'not_attending')}
+              disabled={busy}
+              className={cn(
+                'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
+                ev.my_rsvp === 'not_attending'
+                  ? 'bg-muted text-foreground'
+                  : 'border border-border/60 bg-surface text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <X className="h-3.5 w-3.5" /> Can't make it
+            </button>
+          </>
+        )}
+
+        {isManager && (
+          <>
+            <button
+              onClick={() => onCheckin(ev)}
+              disabled={frozen}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
+              <ClipboardCheck className="h-3.5 w-3.5" /> {frozen ? 'Attendance closed' : 'Check in'}
+            </button>
+            <button
+              onClick={() => onEdit(ev)}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Edit
+            </button>
+          </>
+        )}
+
+        {canDelete && (
+          <button
+            onClick={() => onDelete(ev)}
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </button>
+        )}
+
+      </div>
+
+      {!isPast && (
+        <BlitzCapBar
+          state={cap.state}
+          busy={cap.busy}
+          attending={ev.my_rsvp === 'attending'}
+          onJoin={cap.join}
+          onLeave={cap.leave}
+        />
+      )}
+    </div>
+
+  );
+});
+
 export default function EventsPage() {
   const { user, role } = useAuth();
   const eventScope = useEventScope();
@@ -232,7 +373,7 @@ export default function EventsPage() {
     return { upcoming: up, past: old };
   }, [rows]);
 
-  const rsvp = async (eventId: string, status: 'attending' | 'not_attending') => {
+  const rsvp = useCallback(async (eventId: string, status: 'attending' | 'not_attending') => {
     setRsvpBusy(eventId);
     const { error } = await (supabase as any).rpc('rsvp_event', { p_event_id: eventId, p_status: status });
     setRsvpBusy(null);
@@ -249,9 +390,27 @@ export default function EventsPage() {
           going_count: r.going_count + (status === 'attending' ? (r.my_rsvp === 'attending' ? 0 : 1) : (r.my_rsvp === 'attending' ? -1 : 0)),
         }
       : r)));
-  };
+  }, []);
 
-  const openCheckin = async (ev: EventRow) => {
+  const onEdit = useCallback((ev: EventRow) => {
+    setDraft({
+      id: ev.id,
+      title: ev.title,
+      event_kind: ev.event_kind,
+      scope: ev.scope,
+      team_id: ev.team_id,
+      local_datetime: toLocalInput(ev.event_date),
+      location: ev.location ?? '',
+      description: ev.description ?? '',
+      weekly: false,
+    });
+  }, []);
+
+  const onDelete = useCallback((ev: EventRow) => {
+    setDeleteTarget({ ev, series: false });
+  }, []);
+
+  const openCheckin = useCallback(async (ev: EventRow) => {
     setCheckinEvent(ev);
     setCheckinLoading(true);
     const { data, error } = await (supabase as any).rpc('get_event_checkin', { p_event_id: ev.id });
@@ -261,7 +420,7 @@ export default function EventsPage() {
       return;
     }
     setCheckinRows((data as CheckinRow[]) || []);
-  };
+  }, []);
 
   const togglePresent = async (userId: string, next: boolean) => {
     if (!checkinEvent) return;
@@ -316,138 +475,6 @@ export default function EventsPage() {
     toast.success(draft.id ? 'Event updated' : 'Event created');
     setDraft(null);
     load();
-  };
-
-  const EventCard = ({ ev, isPast }: { ev: EventRow; isPast: boolean }) => {
-    const frozen = Date.now() > new Date(ev.event_date).getTime() + 24 * 60 * 60 * 1000;
-    const joinUrl = firstUrl(ev.description) || firstUrl(ev.location);
-    const descText = stripUrls(ev.description);
-    const cap = useBlitzCap(isPast ? null : ev.id);
-    const capFull = cap.state?.capacity != null && (cap.state.spots_left ?? 0) === 0;
-
-    return (
-      <div id={`event-${ev.id}`} className={cn(CARD, 'scroll-mt-24 px-4 py-3.5')}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[14px] font-semibold text-foreground">{ev.title}</p>
-            <p className="mt-1 text-[12px] tabular-nums text-muted-foreground">
-              {fmtRange(ev.event_date, ev.end_date)} · {kindLabel(ev.event_kind)}
-              {ev.scope === 'team' && ev.team_name ? ` · ${ev.team_name}` : ''}
-              {ev.scope === 'managers' ? ' · Managers and above' : ''}
-              {ev.is_series ? ' · Weekly' : ''}
-            </p>
-            {ev.location && !firstUrl(ev.location) && (
-              <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5" /> {ev.location}
-              </p>
-            )}
-            {descText && (
-              <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
-                {descText}
-              </p>
-            )}
-          </div>
-          <span className="shrink-0 rounded-lg border border-border/60 bg-surface px-2 py-1 text-[11px] tabular-nums text-muted-foreground">
-            {isPast ? `${ev.present_count} present` : `${ev.going_count} going`}
-          </span>
-        </div>
-
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {joinUrl && (
-            <a
-              href={sanitizeUrl(joinUrl)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-[12px] font-semibold text-primary-foreground"
-            >
-              <Video className="h-3.5 w-3.5" /> Join
-            </a>
-          )}
-          {!isPast && (
-            <>
-
-              {!(capFull && ev.my_rsvp !== 'attending') && (
-              <button
-                onClick={() => rsvp(ev.id, 'attending')}
-                disabled={rsvpBusy === ev.id}
-                className={cn(
-                  'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
-                  ev.my_rsvp === 'attending'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'border border-border/60 bg-surface text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <Check className="h-3.5 w-3.5" /> Going
-              </button>
-              )}
-
-              <button
-                onClick={() => rsvp(ev.id, 'not_attending')}
-                disabled={rsvpBusy === ev.id}
-                className={cn(
-                  'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
-                  ev.my_rsvp === 'not_attending'
-                    ? 'bg-muted text-foreground'
-                    : 'border border-border/60 bg-surface text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <X className="h-3.5 w-3.5" /> Can't make it
-              </button>
-            </>
-          )}
-
-          {isManager && (
-            <>
-              <button
-                onClick={() => openCheckin(ev)}
-                disabled={frozen}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
-              >
-                <ClipboardCheck className="h-3.5 w-3.5" /> {frozen ? 'Attendance closed' : 'Check in'}
-              </button>
-              <button
-                onClick={() => setDraft({
-                  id: ev.id,
-                  title: ev.title,
-                  event_kind: ev.event_kind,
-                  scope: ev.scope,
-                  team_id: ev.team_id,
-                  local_datetime: toLocalInput(ev.event_date),
-                  location: ev.location ?? '',
-                  description: ev.description ?? '',
-                  weekly: false,
-                })}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-              >
-                <Pencil className="h-3.5 w-3.5" /> Edit
-              </button>
-            </>
-          )}
-
-          {canDelete && (
-            <button
-              onClick={() => setDeleteTarget({ ev, series: false })}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-surface px-2.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-            >
-              <Trash2 className="h-3.5 w-3.5" /> Delete
-            </button>
-          )}
-
-        </div>
-
-        {!isPast && (
-          <BlitzCapBar
-            state={cap.state}
-            busy={cap.busy}
-            attending={ev.my_rsvp === 'attending'}
-            onJoin={cap.join}
-            onLeave={cap.leave}
-          />
-        )}
-      </div>
-
-    );
   };
 
   return (
@@ -510,7 +537,20 @@ export default function EventsPage() {
                 </div>
               ) : (
                 <div className="space-y-2.5">
-                  {upcoming.map((ev) => <EventCard key={ev.id} ev={ev} isPast={false} />)}
+                  {upcoming.map((ev) => (
+                    <EventCard
+                      key={ev.id}
+                      ev={ev}
+                      isPast={false}
+                      busy={rsvpBusy === ev.id}
+                      isManager={isManager}
+                      canDelete={canDelete}
+                      onRsvp={rsvp}
+                      onCheckin={openCheckin}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                    />
+                  ))}
                 </div>
               )}
             </section>
@@ -527,7 +567,20 @@ export default function EventsPage() {
                 </button>
                 {showPast && (
                   <div className="space-y-2.5">
-                    {past.map((ev) => <EventCard key={ev.id} ev={ev} isPast />)}
+                    {past.map((ev) => (
+                      <EventCard
+                        key={ev.id}
+                        ev={ev}
+                        isPast
+                        busy={rsvpBusy === ev.id}
+                        isManager={isManager}
+                        canDelete={canDelete}
+                        onRsvp={rsvp}
+                        onCheckin={openCheckin}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                      />
+                    ))}
                   </div>
                 )}
               </section>
