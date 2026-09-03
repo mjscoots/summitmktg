@@ -709,7 +709,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           }}
         />
         {topSlot}
-        {pinnedCard && (
+        {pinnedCard && !isDm && (
           <PinnedBar
             item={{
               id: pinnedCard.id,
@@ -770,6 +770,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
 
           if (msg.kind === 'event' || msg.kind === 'announcement' || msg.kind === 'incentive') {
+            // A one to one chat is a conversation, nothing else: cards never render here.
+            if (isDm) return null;
             const meta = (msg.meta || {}) as Record<string, any>;
             return (
               <div key={msg.id}>
