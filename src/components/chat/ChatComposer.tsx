@@ -80,7 +80,6 @@ export function ChatComposer({
   const [showAttach, setShowAttach] = useState(false);
   const [tray, setTray] = useState<TrayItem[]>([]);
   const [sendingTray, setSendingTray] = useState(false);
-  const [showDrawer, setShowDrawer] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
   const [showStickers, setShowStickers] = useState(false);
   const [showPoll, setShowPoll] = useState(false);
@@ -242,22 +241,6 @@ export function ChatComposer({
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    setUploading(true);
-    try {
-      await uploadChatFile(file, user.id, onSendFile);
-    } catch {
-      toast.error('Failed to upload');
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = '';
-      if (imageRef.current) imageRef.current.value = '';
-    }
-    setShowDrawer(false);
-  };
-
   // --- attachment tray ---
   const addFiles = (files: File[]) => {
     const room = MAX_MEDIA_PER_SEND - tray.length;
@@ -372,7 +355,6 @@ export function ChatComposer({
 
   const closeAll = () => {
     setShowAttach(false);
-    setShowDrawer(false);
     setShowGifs(false);
     setShowStickers(false);
     setShowPoll(false);
