@@ -213,6 +213,7 @@ export function ChannelSheet({
           </button>
         )}
 
+        <RoomLookRow slug={slug} onLeave={() => onOpenChange(false)} />
 
 
         {(details?.can_rename || details?.can_delete_room) && (
