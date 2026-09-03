@@ -18,6 +18,7 @@ import {
   Link2,
   Sparkles,
   Wrench,
+  Palette,
 
   type LucideIcon,
 } from 'lucide-react';
@@ -107,6 +108,7 @@ const ALL: Record<string, NavDest> = {
   approvals: { key: 'approvals', label: 'Approvals', path: '/app/pitch-approvals', icon: Video, minTier: 'manager' },
   admin: { key: 'admin', label: 'Pillar', path: '/admin/requests', icon: Shield, minTier: 'admin' },
   profile: { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
+  chatLook: { key: 'chatLook', label: 'Chat look', path: '/app/chat-look', icon: Palette },
   scripts: { key: 'scripts', label: 'Scripts', path: '/app/scripts', icon: BookOpen },
   resources: { key: 'resources', label: 'Resources', path: '/app/links', icon: Link2 },
   ask: { key: 'ask', label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
@@ -189,6 +191,7 @@ export function moreGroups(
     },
     { title: 'Company', items: ['admin', 'command', 'alumni'].map((k) => ALL[k]) },
     { title: 'You', items: ['profile'].map((k) => ALL[k]) },
+    { title: 'Appearance', items: ['chatLook'].map((k) => ALL[k]) },
   ];
 
   return groups
