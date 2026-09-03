@@ -661,7 +661,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const contextMsg = contextMenu ? messages.find(m => m.id === contextMenu.msgId) : null;
   const pinnedCount = channelMessages.filter(m => m.is_pinned).length;
   /** Latest pinned message surfaces in a collapsible bar so nobody has to scroll for it. */
-  const pinnedCard = [...channelMessages].reverse().find(m => m.is_pinned) || null;
+  // Events live on the Events page and in notifications, never in a chat room.
+  const pinnedCard = [...channelMessages].reverse().find(m => m.is_pinned && m.kind !== 'event') || null;
 
 
 
