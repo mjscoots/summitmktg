@@ -7427,6 +7427,7 @@ export type Database = {
         Args: { _team_id: string; _uid: string }
         Returns: boolean
       }
+      card_channel_or_general: { Args: { _slug: string }; Returns: string }
       channel_member_options: {
         Args: { _q?: string; _slug?: string }
         Returns: Json
