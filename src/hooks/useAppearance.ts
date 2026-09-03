@@ -9,6 +9,8 @@ import {
   type AppearanceMode,
   type AppearancePref,
 } from '@/lib/appearance';
+import { setChatPrefsFromRow } from '@/lib/chatPrefs';
+
 
 /** Reads the appearance preference and re-renders when it changes. */
 export function useAppearance(): {
