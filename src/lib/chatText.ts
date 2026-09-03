@@ -6,7 +6,8 @@ export function isEmojiOnly(content: string): boolean {
   const text = (content || '').trim();
   if (!text) return false;
   if (/[A-Za-z0-9]/.test(text)) return false;
-  const bare = text.replace(/[\s\uFE0F\u200D]/g, '');
+  // Whitespace, variation selectors, joiners and skin tone modifiers do not count.
+  const bare = text.replace(/[\s\uFE0F\u200D]|[\u{1F3FB}-\u{1F3FF}]/gu, '');
   if (!bare) return false;
   const matches = Array.from(bare.matchAll(/\p{Extended_Pictographic}/gu));
   if (matches.length < 1 || matches.length > 3) return false;
