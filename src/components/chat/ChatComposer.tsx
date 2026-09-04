@@ -380,11 +380,11 @@ export function ChatComposer({
       {/* Typing indicator */}
       {typingUsers.length > 0 && (
         <div className="px-3 py-1 flex items-center gap-2">
-          <div className="flex gap-0.5">
-            <div className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
+          <span className="inline-flex items-center gap-1 rounded-[18px] rounded-bl-[5px] border border-border/40 bg-card px-2.5 py-1.5">
+            <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/70" />
+            <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/70" />
+            <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted-foreground/70" />
+          </span>
           <span className="text-[11px] text-muted-foreground/60">
             {typingUsers.length === 1 ? `${typingUsers[0].fullName} is typing` : `${typingUsers.length} people typing`}
           </span>
@@ -563,7 +563,7 @@ export function ChatComposer({
           onClick={() => { setShowAttach(!showAttach); setShowGifs(false); setShowStickers(false); setShowPoll(false); }}
           aria-label="Attach"
           className={cn(
-            "h-11 w-11 flex items-center justify-center rounded-full transition-all flex-shrink-0",
+            "press h-11 w-11 flex items-center justify-center rounded-full transition-all flex-shrink-0",
             showAttach
               ? "bg-primary/20 text-primary rotate-45"
               : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
@@ -599,7 +599,7 @@ export function ChatComposer({
             onClick={() => (recording ? stopRecording(false) : startRecording())}
             aria-label={recording ? 'Stop and send voice note' : 'Record voice note'}
             className={cn(
-              'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all',
+              'press flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all',
               recording
                 ? 'bg-destructive text-destructive-foreground animate-pulse'
                 : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -616,9 +616,9 @@ export function ChatComposer({
           aria-label="Send"
           disabled={tray.length > 0 ? sendingTray || tray.some((t) => t.status === 'uploading') : !input.trim() || isSending}
           className={cn(
-            "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all",
+            "press send-morph flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full",
             input.trim() || tray.length > 0
-              ? "bg-primary text-white active:scale-95"
+              ? "bg-primary text-white"
               : "bg-muted/40 text-muted-foreground/50"
           )}
         >
