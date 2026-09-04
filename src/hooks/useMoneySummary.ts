@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { PayScale } from '@/lib/commission';
 import { fetchCompLadder, repRate } from '@/hooks/useCompLadder';
 import { formatLoadedAt } from '@/lib/importMatch';
 
