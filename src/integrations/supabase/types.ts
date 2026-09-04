@@ -1531,6 +1531,7 @@ export type Database = {
       chat_prefs: {
         Row: {
           bubble: string
+          pinned_channel_ids: string[]
           room_overrides: Json
           text_size: string
           updated_at: string
@@ -1540,6 +1541,7 @@ export type Database = {
         }
         Insert: {
           bubble?: string
+          pinned_channel_ids?: string[]
           room_overrides?: Json
           text_size?: string
           updated_at?: string
@@ -1549,6 +1551,7 @@ export type Database = {
         }
         Update: {
           bubble?: string
+          pinned_channel_ids?: string[]
           room_overrides?: Json
           text_size?: string
           updated_at?: string
@@ -8733,6 +8736,10 @@ export type Database = {
       }
       set_channel_mute: {
         Args: { _muted: boolean; _slug: string }
+        Returns: Json
+      }
+      set_channel_pin: {
+        Args: { _channel_id: string; _pinned: boolean }
         Returns: Json
       }
       set_day_one_items: { Args: { _video_ids: string[] }; Returns: undefined }
