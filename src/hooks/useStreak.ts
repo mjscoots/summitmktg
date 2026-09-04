@@ -134,15 +134,10 @@ export function useStreak() {
             if (milestoneMatch) {
               setNewMilestone(parseInt(milestoneMatch[1]));
             }
+            // The streak notification row is written by useSmartNotifications
+            // with source_key streak:<n>. One writer only.
 
-            try {
-              await supabase.from('user_notifications').insert({
-                user_id: user.id,
-                title: `\u{1F525} ${result.milestone}`,
-                message: `You've logged in ${result.current_streak} days in a row. Keep the fire burning!`,
-                link: '/app/leaderboard',
-              });
-            } catch { /* ignore */ }
+
 
             if (result.current_streak >= 7) {
               const { data: prof } = await supabase
