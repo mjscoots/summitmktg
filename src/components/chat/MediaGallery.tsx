@@ -175,11 +175,12 @@ export function MediaGallery({ paths }: { paths: string[] }) {
   }
 
   return (
-    <>
+    <div data-chat-media="true">
       {grid}
       {open !== null && (
         <Lightbox paths={paths} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
       )}
-    </>
+    </div>
   );
 }
+
