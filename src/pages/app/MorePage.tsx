@@ -1,5 +1,6 @@
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, LogOut, MessageSquare } from 'lucide-react';
+import { ChevronDown, ChevronRight, LogOut, MessageSquare, Settings } from 'lucide-react';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -9,11 +10,14 @@ import { moreGroups } from '@/lib/appNav';
 import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { ViewAsSwitcher } from '@/components/layout/ViewAsSwitcher';
+import { SettingsList } from '@/components/settings/SettingsList';
 
+const storeKey = (title: string) => `more:open:${title.toLowerCase().replace(/\s+/g, '-')}`;
 
 /**
- * More: everything the phone bar does not carry, grouped by the job it
- * belongs to. Role aware, so a person only sees what they can open.
+ * More: everything the phone bar does not carry, grouped by the job it belongs
+ * to. Each group collapses, the first one opens by default, and the open state
+ * is remembered per group.
  */
 export default function MorePage() {
   const navigate = useNavigate();
@@ -21,9 +25,35 @@ export default function MorePage() {
   const { activeVertical } = useWorkspace();
   const groups = moreGroups(activeVertical, role);
 
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    const next: Record<string, boolean> = {};
+    groups.forEach((g, i) => {
+      let stored: string | null = null;
+      try {
+        stored = localStorage.getItem(storeKey(g.title));
+      } catch {
+        stored = null;
+      }
+      next[g.title] = stored === null ? i === 0 : stored === '1';
+    });
+    return next;
+  });
+
+  const toggle = useCallback((title: string) => {
+    setOpen((prev) => {
+      const value = !prev[title];
+      try {
+        localStorage.setItem(storeKey(title), value ? '1' : '0');
+      } catch {
+        // A private window with no storage still toggles for this visit.
+      }
+      return { ...prev, [title]: value };
+    });
+  }, []);
+
   return (
     <AppLayout>
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         <PageHeader title="More" context="Every other place in the app." />
 
         <InstallAppHint />
@@ -32,28 +62,56 @@ export default function MorePage() {
           <WorkspaceSegmented />
         </div>
 
-
-        {groups.map((group) => (
-          <section key={group.title} className="space-y-2">
-            <p className="eyebrow px-1">{group.title}</p>
-            <div className="overflow-hidden rounded-[var(--radius)] border border-border bg-card">
-              {group.items.map((item, i) => (
-                <button
-                  key={item.key}
-                  onClick={() => navigate(item.path)}
-                  className={
-                    'flex min-h-[52px] w-full items-center gap-3 px-4 text-left transition-colors hover:bg-secondary' +
-                    (i > 0 ? ' border-t border-border' : '')
-                  }
-                >
-                  <item.icon className="h-[18px] w-[18px] flex-shrink-0 text-muted-foreground" strokeWidth={1.75} />
-                  <span className="flex-1 truncate text-[15px] text-foreground">{item.label}</span>
+        {groups.map((group) => {
+          const isOpen = Boolean(open[group.title]);
+          const isSettings = group.title === 'Settings';
+          return (
+            <section key={group.title} className="space-y-2">
+              <button
+                type="button"
+                onClick={() => toggle(group.title)}
+                aria-expanded={isOpen}
+                className="flex min-h-[52px] w-full items-center gap-3 rounded-[var(--radius)] border border-border bg-card px-4 text-left transition-colors hover:bg-secondary"
+              >
+                {isSettings && (
+                  <Settings className="h-[18px] w-[18px] flex-shrink-0 text-muted-foreground" strokeWidth={1.75} />
+                )}
+                <span className="flex-1 truncate text-[15px] font-semibold text-foreground">{group.title}</span>
+                <span className="text-[13px] tabular-nums text-muted-foreground">{group.items.length}</span>
+                {isOpen ? (
+                  <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                ) : (
                   <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
-          </section>
-        ))}
+                )}
+              </button>
+
+              {isOpen &&
+                (isSettings ? (
+                  <SettingsList />
+                ) : (
+                  <div className="overflow-hidden rounded-[var(--radius)] border border-border bg-card">
+                    {group.items.map((item, i) => (
+                      <button
+                        key={item.key}
+                        onClick={() => navigate(item.path)}
+                        className={
+                          'flex min-h-[52px] w-full items-center gap-3 px-4 text-left transition-colors hover:bg-secondary' +
+                          (i > 0 ? ' border-t border-border' : '')
+                        }
+                      >
+                        <item.icon
+                          className="h-[18px] w-[18px] flex-shrink-0 text-muted-foreground"
+                          strokeWidth={1.75}
+                        />
+                        <span className="flex-1 truncate text-[15px] text-foreground">{item.label}</span>
+                        <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      </button>
+                    ))}
+                  </div>
+                ))}
+            </section>
+          );
+        })}
 
         <ViewAsSwitcher />
 
