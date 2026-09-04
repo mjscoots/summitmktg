@@ -39,9 +39,11 @@ interface ChatComposerProps {
   onInputChange: (val: string) => void;
   onSend: () => void;
   onSendFile: (content: string) => Promise<void>;
-  onSendGif: (url: string) => void;
-  onSendSticker: (sticker: any) => void;
-  onCreatePoll: (q: string, opts: string[]) => void;
+  /** Return false to keep the picker open so the person can try again. */
+  onSendGif: (url: string) => void | boolean | Promise<boolean | void>;
+  onSendSticker: (sticker: any) => void | boolean | Promise<boolean | void>;
+  onCreatePoll: (q: string, opts: string[]) => void | boolean | Promise<boolean | void>;
+
   isSending: boolean;
   replyingTo: { full_name: string; content: string } | null;
   onCancelReply: () => void;
@@ -317,20 +319,29 @@ export function ChatComposer({
       setTray((prev) => prev.map((t) => (t.id === item.id ? done : t)));
     }
 
+    // Pick order is kept. Photos picked together travel as one grid message,
+    // sent at the place the first of them was picked.
     const photos = uploaded.filter((t) => t.kind === 'image').map((t) => t.path!) as string[];
+    let photosSent = false;
     try {
-      if (photos.length > 1) await onSendFile(buildImagesMessage(photos));
-      else if (photos.length === 1) await onSendFile(`img:${photos[0]}`);
       for (const item of uploaded) {
+        if (item.kind === 'image') {
+          if (photosSent) continue;
+          photosSent = true;
+          if (photos.length > 1) await onSendFile(buildImagesMessage(photos));
+          else await onSendFile(`img:${photos[0]}`);
+          continue;
+        }
         if (item.kind === 'video') await onSendFile(buildVideoMessage(item.path!));
         if (item.kind === 'file') {
           await onSendFile(`file:${JSON.stringify({ url: item.path, name: item.file.name, size: item.file.size })}`);
         }
       }
+      // The caption stays in the box until its own send succeeds.
       const caption = input.trim();
       if (caption) {
-        onInputChange('');
         await onSendFile(caption);
+        onInputChange('');
       }
       tray.forEach((t) => { if (t.preview?.startsWith('blob:')) URL.revokeObjectURL(t.preview); });
       setTray([]);
@@ -340,6 +351,7 @@ export function ChatComposer({
       setSendingTray(false);
     }
   };
+
 
   trayRef.current = tray;
   sendTrayRef.current = sendTray;
@@ -491,10 +503,26 @@ export function ChatComposer({
       />
       <input ref={fileRef} type="file" className="hidden" accept="*/*" onChange={handlePick} />
 
-      {/* Pickers */}
-      {showGifs && <GifPicker onSelect={(url) => { onSendGif(url); closeAll(); }} onClose={closeAll} />}
-      {showStickers && <StickerPicker onSelect={(s) => { onSendSticker(s); closeAll(); }} onClose={closeAll} />}
-      {showPoll && <PollCreator onSubmit={(q, o) => { onCreatePoll(q, o); closeAll(); }} onClose={closeAll} />}
+      {/* Pickers: they stay open when the send fails, so nothing is retyped */}
+      {showGifs && (
+        <GifPicker
+          onSelect={async (url) => { if ((await onSendGif(url)) !== false) closeAll(); }}
+          onClose={closeAll}
+        />
+      )}
+      {showStickers && (
+        <StickerPicker
+          onSelect={async (s) => { if ((await onSendSticker(s)) !== false) closeAll(); }}
+          onClose={closeAll}
+        />
+      )}
+      {showPoll && (
+        <PollCreator
+          onSubmit={async (q, o) => { if ((await onCreatePoll(q, o)) !== false) closeAll(); }}
+          onClose={closeAll}
+        />
+      )}
+
 
       {/* Reply preview */}
       {replyingTo && (
@@ -571,14 +599,14 @@ export function ChatComposer({
             onClick={() => (recording ? stopRecording(false) : startRecording())}
             aria-label={recording ? 'Stop and send voice note' : 'Record voice note'}
             className={cn(
-              'mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all',
+              'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all',
               recording
                 ? 'bg-destructive text-destructive-foreground animate-pulse'
                 : 'bg-muted/30 text-muted-foreground/40 hover:text-muted-foreground/60'
             )}
             disabled={uploading}
           >
-            {recording ? <Square className="h-3 w-3" /> : <Mic className="h-4 w-4" />}
+            {recording ? <Square className="h-4 w-4" /> : <Mic className="h-5 w-5" />}
           </button>
         )}
 
@@ -588,18 +616,19 @@ export function ChatComposer({
           aria-label="Send"
           disabled={tray.length > 0 ? sendingTray || tray.some((t) => t.status === 'uploading') : !input.trim() || isSending}
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded-full transition-all flex-shrink-0 mb-0.5",
+            "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all",
             input.trim() || tray.length > 0
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 active:scale-90"
               : "bg-muted/20 text-muted-foreground/15"
           )}
         >
           {isSending || sendingTray ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+            <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
           )}
         </button>
+
       </div>
     </div>
   );

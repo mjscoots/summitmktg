@@ -195,11 +195,16 @@ export function ChatBubble({
   const handleTouchStart = (e: React.TouchEvent) => {
     clearLongPress();
     const t = e.touches[0];
-    if (t) swipeRef.current = { x: t.clientX, y: t.clientY, active: false };
+    // A touch that starts on media (gallery, lightbox, video) belongs to that
+    // element, so swipe to reply stays out of it.
+    const onMedia = !!(e.target as HTMLElement | null)?.closest?.('[data-chat-media="true"]');
+    if (t && !onMedia) swipeRef.current = { x: t.clientX, y: t.clientY, active: false };
+    else swipeRef.current = null;
     longPressTimerRef.current = setTimeout(() => {
       onContextMenu(e, message.id);
     }, 500);
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     clearLongPress();
     const start = swipeRef.current;

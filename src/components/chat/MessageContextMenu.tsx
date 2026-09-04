@@ -3,11 +3,10 @@ import { Reply, Copy, Pin, PinOff, Pencil, Trash2, SmilePlus, Download } from 'l
 import { getChatAttachmentUrl } from '@/lib/chatAttachments';
 import { mediaPathsFor, saveAttachment } from '@/lib/chatMedia';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 const QUICK_REACTIONS = ['🔥', '💪', '😂', '👏', '❄️', '💯'];
+
 
 interface MessageContextMenuProps {
   messageId: string;
@@ -22,6 +21,8 @@ interface MessageContextMenuProps {
   onEdit: () => void;
   onDelete: () => void;
   onPin: () => void;
+  /** Same optimistic path the bubble uses, so a reaction shows at once. */
+  onToggleReaction: (msgId: string, emoji: string) => void;
   messageContent: string;
 }
 
@@ -37,11 +38,10 @@ export function MessageContextMenu({
   onEdit,
   onDelete,
   onPin,
+  onToggleReaction,
   messageContent,
 }: MessageContextMenuProps) {
-  const { user } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
-  const reactingRef = useRef(false);
   const [showFullEmoji, setShowFullEmoji] = useState(false);
 
   useEffect(() => {
@@ -60,29 +60,11 @@ export function MessageContextMenu({
   if (!position) return null;
 
 
-  const handleReact = async (emoji: string) => {
-    if (!user || reactingRef.current) return;
-    reactingRef.current = true;
+  const handleReact = (emoji: string) => {
+    onToggleReaction(messageId, emoji);
     onClose();
-    try {
-      const { data: existing } = await supabase
-        .from('chat_reactions')
-        .select('id')
-        .eq('message_id', messageId)
-        .eq('user_id', user.id)
-        .eq('emoji', emoji)
-        .maybeSingle();
-      if (existing) {
-        await supabase.from('chat_reactions').delete().eq('id', existing.id);
-      } else {
-        await supabase.from('chat_reactions').insert({ message_id: messageId, user_id: user.id, emoji });
-      }
-    } catch {
-      // silent
-    } finally {
-      reactingRef.current = false;
-    }
   };
+
 
   const savePaths = mediaPathsFor(messageContent);
 
@@ -105,10 +87,10 @@ export function MessageContextMenu({
     onClose();
   };
 
-  // Adjust position to stay in viewport
+  // Adjust position so both the react row and the menu stay in the viewport
   const style: React.CSSProperties = {
     position: 'fixed',
-    left: Math.min(position.x, window.innerWidth - 220),
+    left: Math.max(8, Math.min(position.x, window.innerWidth - 348)),
     top: Math.min(position.y, window.innerHeight - 300),
     zIndex: 100,
   };
@@ -120,22 +102,25 @@ export function MessageContextMenu({
 
       <div ref={menuRef} style={style} className="z-[100] animate-scale-in">
         {/* Quick reactions row */}
-        <div className="flex items-center gap-1 p-1.5 bg-card/95 backdrop-blur-xl border border-border/40 rounded-full shadow-2xl mb-1.5">
+        <div className="mb-1.5 flex items-center gap-0.5 rounded-full border border-border/40 bg-card/95 p-1 shadow-2xl backdrop-blur-xl">
           {QUICK_REACTIONS.map(emoji => (
             <button
               key={emoji}
               onClick={() => handleReact(emoji)}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted/80 text-lg transition-all hover:scale-125 active:scale-90"
+              aria-label={`React ${emoji}`}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-lg transition-all hover:bg-muted/80 hover:scale-110 active:scale-90"
             >
               {emoji}
             </button>
           ))}
           <button
             onClick={() => setShowFullEmoji(!showFullEmoji)}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted/80 text-muted-foreground transition-all"
+            aria-label="More reactions"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-all hover:bg-muted/80"
           >
             <SmilePlus className="w-4 h-4" />
           </button>
+
         </div>
 
         {/* Action menu */}

@@ -71,9 +71,16 @@ export function useChatChannels() {
     await (supabase as any).rpc('mark_chat_channel_read', { _channel: null, _all: true });
   }, []);
 
-  // One lightweight subscription: the caller's own read state.
+  // Two lightweight subscriptions: the caller's own read state, and new
+  // messages anywhere the caller can read. The message stream is debounced so a
+  // busy room costs one refresh, not one per message.
   useEffect(() => {
     if (!user) return;
+    let timer: number | null = null;
+    const debounced = () => {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => { void refresh(); }, 500);
+    };
     const ch = supabase
       .channel(`chat-read-state-${user.id}`)
       .on(
@@ -81,14 +88,21 @@ export function useChatChannels() {
         { event: '*', schema: 'public', table: 'chat_read_state', filter: `user_id=eq.${user.id}` },
         () => { void refresh(); }
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'chat_messages' },
+        () => { debounced(); }
+      )
       .subscribe();
     const onFocus = () => { void refresh(); };
     window.addEventListener('focus', onFocus);
     return () => {
+      if (timer) window.clearTimeout(timer);
       window.removeEventListener('focus', onFocus);
       supabase.removeChannel(ch);
     };
   }, [user, refresh]);
+
 
   return { channels, totalUnread, loading, refresh, markChannelRead, markAllRead };
 }

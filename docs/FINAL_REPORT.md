@@ -3358,3 +3358,29 @@ No em dashes.
 
 ### Checks
 Typecheck clean. Production build clean. Baselines unchanged: profiles 536, rank_stacks 80 all confirmed, chat_messages 713, earnings_goals 0. Not published.
+
+## Pass 164 - chat fix batch
+
+Carry from Pass 163 (item 0): the rank_stacks SELECT policy now reads
+`((confirmed = true) AND is_vertical_member(auth.uid(), vertical)) OR is_president_of_vertical(vertical) OR has_role(auth.uid(),'admin') OR has_role(auth.uid(),'owner')`.
+Migration: supabase/migrations/20260904055133_618ee1da-9ecb-4f4a-84f5-d73ff969b64e.sql.
+No function was created or changed, so there is no new anon privilege to report.
+
+| Item | Fix | File |
+| --- | --- | --- |
+| 1 Reactions | The long press quick react row no longer writes chat_reactions itself; it calls the same onToggleReaction the bubble uses, so the optimistic map updates at once | src/components/chat/MessageContextMenu.tsx, src/components/dashboard/CommunityChat.tsx |
+| 2 Silent failures | GIF, sticker and poll sends check every error and toast one line; the picker stays open on failure so nothing is retyped. The poll row points at the message by foreign key, so the message is inserted first and removed again if the poll row fails, which means no Poll line ever exists without its poll | src/components/dashboard/CommunityChat.tsx, src/components/chat/ChatComposer.tsx |
+| 3 Unread counts | The conversation list now also listens to chat_messages inserts, debounced 500 ms, alongside the caller's own read state | src/hooks/useChatChannels.ts |
+| 4 Read ticks | The open room subscribes to chat_read_receipts and chat_read_state, debounced 500 ms, so a sent tick flips to read live | src/components/dashboard/CommunityChat.tsx |
+| 5 Signed URLs | Signed URLs re-sign every 50 minutes while the element is mounted, and a load error re-signs once before showing the unavailable state | src/lib/chatAttachments.ts |
+| 6 Video posters | Poster capture sets playsInline and muted with preload metadata and waits for loadeddata; when capture fails the tray and the bubble fall back to a plain play tile | src/lib/chatMedia.ts, src/components/chat/ChatVideo.tsx |
+| 7 Tray order and caption | The tray sends in pick order, with photos picked together travelling as one grid message at the first photo's place; the caption stays in the box until its own send succeeds | src/components/chat/ChatComposer.tsx |
+| 8 Touch and targets | The lightbox stops touch propagation and media is marked data-chat-media so swipe to reply never starts inside it; composer send and mic are 44px and the quick react buttons are 44px, with the row clamped inside 390 | src/components/chat/MediaGallery.tsx, src/components/chat/ChatBubble.tsx, src/components/chat/ChatComposer.tsx, src/components/chat/MessageContextMenu.tsx |
+| 9 Wallpaper | A new photo writes a fresh path (userId/wallpaper-<timestamp>.jpg), so the signed URL changes and the room refreshes | src/pages/app/ChatLookPage.tsx |
+
+New copy: "That did not send. Try again." No em dashes.
+
+Verification: typecheck clean, production build clean. Shell gzip 196.5 KB against the
+197.2 KB baseline (down 0.7 KB). Baselines: chat_messages 713 before and after,
+profiles 536 before and after, chat_reactions 155 before and 155 after. No data writes.
+Not published.
