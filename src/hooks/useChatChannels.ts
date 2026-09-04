@@ -18,6 +18,10 @@ export interface ChatConversation {
   /** Direct messages only. */
   avatar_url?: string | null;
   other_user_id?: string | null;
+  /** Direct messages only: the other person is active right now. */
+  other_is_active?: boolean | null;
+  /** Row id of the room, used by the pin writer. */
+  channel_id?: string | null;
   /** The industry this room belongs to. NULL is All Summit. */
   vertical?: string | null;
   /** Group rooms only: object path of the cover photo. */
